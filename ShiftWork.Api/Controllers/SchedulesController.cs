@@ -1,0 +1,223 @@
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using ShiftWork.Api.DTOs;
+using ShiftWork.Api.Models;
+using ShiftWork.Api.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace ShiftWork.Api.Controllers
+{
+    /// <summary>
+    /// API controller for managing schedules.
+    /// </summary>
+    [ApiController]
+    [Route("api/companies/{companyId}/[controller]")]
+    public class SchedulesController : ControllerBase
+    {
+        private readonly IScheduleService _scheduleService;
+        private readonly IMapper _mapper;
+        private readonly IMemoryCache _memoryCache;
+        private readonly ILogger<SchedulesController> _logger;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SchedulesController"/> class.
+        /// </summary>
+        public SchedulesController(IScheduleService scheduleService, IMapper mapper, IMemoryCache memoryCache, ILogger<SchedulesController> logger)
+        {
+            _scheduleService = scheduleService ?? throw new ArgumentNullException(nameof(scheduleService));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        /// <summary>
+        /// Retrieves all schedules for a company.
+        /// </summary>
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ScheduleDto>), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<IEnumerable<ScheduleDto>>> GetSchedules(string companyId)
+        {
+            try
+            {
+                var cacheKey = $"schedules_{companyId}";
+                if (!_memoryCache.TryGetValue(cacheKey, out IEnumerable<Schedule> schedules))
+                {
+                    _logger.LogInformation("Cache miss for schedules in company {CompanyId}", companyId);
+                    schedules = await _scheduleService.GetAll(companyId);
+
+                    if (schedules == null || !schedules.Any())
+                    {
+                        return NotFound($"No schedules found for company {companyId}.");
+                    }
+
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
+                    _memoryCache.Set(cacheKey, schedules, cacheEntryOptions);
+                }
+                else
+                {
+                    _logger.LogInformation("Cache hit for schedules in company {CompanyId}", companyId);
+                }
+
+                return Ok(_mapper.Map<IEnumerable<ScheduleDto>>(schedules));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving schedules for company {CompanyId}.", companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves a specific schedule by its ID.
+        /// </summary>
+        [HttpGet("{scheduleId}")]
+        [ProducesResponseType(typeof(ScheduleDto), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<ScheduleDto>> GetSchedule(string companyId, int scheduleId)
+        {
+            try
+            {
+                var cacheKey = $"schedule_{companyId}_{scheduleId}";
+                if (!_memoryCache.TryGetValue(cacheKey, out Schedule schedule))
+                {
+                    _logger.LogInformation("Cache miss for schedule {ScheduleId} in company {CompanyId}", scheduleId, companyId);
+                    schedule = await _scheduleService.Get(companyId, scheduleId);
+
+                    if (schedule == null)
+                    {
+                        return NotFound($"Schedule with ID {scheduleId} not found.");
+                    }
+
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
+                    _memoryCache.Set(cacheKey, schedule, cacheEntryOptions);
+                }
+                else
+                {
+                    _logger.LogInformation("Cache hit for schedule {ScheduleId} in company {CompanyId}", scheduleId, companyId);
+                }
+
+                return Ok(_mapper.Map<ScheduleDto>(schedule));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving schedule {ScheduleId} for company {CompanyId}.", scheduleId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Creates a new schedule.
+        /// </summary>
+        [HttpPost]
+        [ProducesResponseType(typeof(ScheduleDto), 201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<ScheduleDto>> PostSchedule(string companyId, [FromBody] ScheduleDto scheduleDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var schedule = _mapper.Map<Schedule>(scheduleDto);
+                var createdSchedule = await _scheduleService.Add(schedule);
+
+                if (createdSchedule == null)
+                {
+                    return BadRequest("Failed to create schedule.");
+                }
+
+                _memoryCache.Remove($"schedules_{companyId}");
+                var createdScheduleDto = _mapper.Map<ScheduleDto>(createdSchedule);
+
+                return CreatedAtAction(nameof(GetSchedule), new { companyId, scheduleId = createdSchedule.ScheduleId }, createdScheduleDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating schedule for company {CompanyId}.", companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Updates an existing schedule.
+        /// </summary>
+        [HttpPut("{scheduleId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> PutSchedule(string companyId, int scheduleId, [FromBody] ScheduleDto scheduleDto)
+        {
+            if (scheduleId != scheduleDto.ScheduleId)
+            {
+                return BadRequest("Schedule ID mismatch.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var schedule = _mapper.Map<Schedule>(scheduleDto);
+                var updatedSchedule = await _scheduleService.Update(schedule);
+
+                if (updatedSchedule == null)
+                {
+                    return NotFound($"Schedule with ID {scheduleId} not found.");
+                }
+
+                _memoryCache.Remove($"schedules_{companyId}");
+                _memoryCache.Remove($"schedule_{companyId}_{scheduleId}");
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating schedule {ScheduleId} for company {CompanyId}.", scheduleId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Deletes a schedule by its ID.
+        /// </summary>
+        [HttpDelete("{scheduleId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> DeleteSchedule(string companyId, int scheduleId)
+        {
+            try
+            {
+                var isDeleted = await _scheduleService.Delete(scheduleId);
+                if (!isDeleted)
+                {
+                    return NotFound($"Schedule with ID {scheduleId} not found.");
+                }
+
+                _memoryCache.Remove($"schedules_{companyId}");
+                _memoryCache.Remove($"schedule_{companyId}_{scheduleId}");
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting schedule {ScheduleId} for company {CompanyId}.", scheduleId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+    }
+}

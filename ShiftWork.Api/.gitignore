@@ -1,0 +1,9 @@
+# Ignore environment files.
+.env
+
+﻿# Visual Studio cache files
+.vs/
+
+﻿# User-specific files
+*.user
+*.suo

@@ -1,0 +1,6 @@
+@ShiftWork.Api_HostAddress = http://localhost:5182
+
+GET {{ShiftWork.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
