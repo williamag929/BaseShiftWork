@@ -219,5 +219,35 @@ namespace ShiftWork.Api.Controllers
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
+
+/*
+        [HttpPost("generate")]
+        public async Task<ActionResult<ScheduleDto>> GenerateSchedule(string companyId, [FromBody] ScheduleDto parameters)
+        {
+            try {
+                var schedule = await _scheduleService.Add(parameters);
+                // ... handle the result, possibly mapping to a DTO and returning CreatedAtAction
+                return Ok(_mapper.Map<ScheduleDto>(schedule));  // Placeholder
+            } catch (Exception ex) {
+                _logger.LogError(ex, "Error generating schedule for company {CompanyId}.", companyId);
+                return StatusCode(500, "Schedule generation failed.");
+            }
+        }
+
+        [HttpPut("{scheduleId}/assignments")]
+        public async Task<IActionResult> UpdateScheduleAssignments(string companyId, int scheduleId, [FromBody] ScheduleAssignmentChanges assignments) {
+            try {
+                var updatedSchedule = await _scheduleService.UpdateScheduleAssignments(scheduleId, assignments);
+                if (updatedSchedule == null) {
+                    return NotFound($"Schedule with ID {scheduleId} not found.");
+                }
+                // ... handle the result, possibly invalidating cache, etc.
+                return NoContent();
+            } catch (Exception ex) {
+                _logger.LogError(ex, "Error updating schedule assignments for schedule {ScheduleId} in company {CompanyId}.", scheduleId, companyId);
+                return StatusCode(500, "Failed to update schedule assignments.");
+            }
+        }
+        */
     }
 }

@@ -50,6 +50,27 @@ builder.Services.AddDbContext<ShiftWorkContext>(options =>
 // Add In-Memory Caching service, used by several controllers.
 builder.Services.AddMemoryCache();
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDistributedMemoryCache(options =>
+    {
+        options.SizeLimit = 200 * 1024 * 1024; // 200MB
+    });
+}
+else
+{
+    builder.Services.AddDistributedMemoryCache(options =>
+    {
+        options.SizeLimit = 2000 * 1024 * 1024; // 2000MB
+    });
+
+//    builder.Services.AddStackExchangeRedisCache(options =>
+//    {
+//        options.Configuration = $"{builder.Configuration["Redis:url"]}:{builder.Configuration["Redis:port"]}";
+//        options.InstanceName = "shift";
+//    });
+}
+
 // Register your application's services
 builder.Services.AddScoped<IAreaService, AreaService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
@@ -62,6 +83,7 @@ builder.Services.AddScoped<ITaskShiftService, TaskShiftService>();
 builder.Services.AddScoped<IAwsS3Service, AwsS3Service>();
 builder.Services.AddScoped<AuditInterceptor>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<ICompanyUserService, CompanyUserService>();
 
 
 // Your AuthController uses AutoMapper, so you need to add it and its DI package.
@@ -88,6 +110,22 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
+var apiCorsPolicy = "ApiCorsPolicy";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: apiCorsPolicy,
+                      builder =>
+                      {
+                          builder.WithOrigins("http://localhost:4200",
+                              "http://localhost:32773",
+                              "https://localhost:32774")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials();
+                          //.WithMethods("OPTIONS", "GET");
+                      });
+});
 
 builder.Services.AddControllers();
 
@@ -109,7 +147,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors("ApiCorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 

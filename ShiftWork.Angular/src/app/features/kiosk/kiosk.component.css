@@ -1,0 +1,34 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.kiosk-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.kiosk-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #007bff;
+  color: white;
+}
+
+.company-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.clock {
+  font-size: 1.2rem;
+}
+
+.kiosk-content {
+  flex: 1;
+  padding: 1rem;
+  background-color: #f5f5f5;
+}

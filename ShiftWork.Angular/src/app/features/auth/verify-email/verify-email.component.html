@@ -1,0 +1,18 @@
+<div class="container">
+  <div class="card">
+    <div class="card-body text-center">
+      <h3 class="card-title">Thank You for Registering</h3>
+      <div *ngIf="authService.user$ | async as user">
+        <p>We have sent a confirmation email to <strong>{{ user.email }}</strong>.</p>
+        <p>Please check your email and click on the link to verify your email address.</p>
+      </div>
+      <button type="button" class="btn btn-primary" (click)="resendVerificationMail()" [disabled]="loading">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Resend Verification Email
+      </button>
+      <div class="mt-3">
+        <span>Go back to <a routerLink="/sign-in">Sign in</a></span>
+      </div>
+    </div>
+  </div>
+</div>

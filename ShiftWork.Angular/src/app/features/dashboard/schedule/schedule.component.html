@@ -1,0 +1,28 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Schedule</h4>
+          <div class="col-md-4">
+            <select class="form-control" (change)="filterByLocation($event.target)">
+              <option value="">All Locations</option>
+              <option *ngFor="let location of locations" [value]="location.locationId">{{ location.name }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body">
+          <div *ngIf="loading" class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+          <div *ngIf="error" class="alert alert-danger">
+            Error loading schedule.
+          </div>
+          <full-calendar #calendar [options]="calendarOptions"></full-calendar>          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

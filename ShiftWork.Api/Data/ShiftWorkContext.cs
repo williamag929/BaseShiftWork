@@ -21,6 +21,9 @@ namespace ShiftWork.Api.Data
         public DbSet<Crew> Crews { get; set; }
         public DbSet<PersonCrew> PersonCrews { get; set; }
 
+        public DbSet<CompanyUser> CompanyUsers { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Company>().ToTable("Companies");
@@ -32,6 +35,7 @@ namespace ShiftWork.Api.Data
             modelBuilder.Entity<ScheduleShift>().ToTable("ScheduleShifts");
             modelBuilder.Entity<TaskShift>().ToTable("TaskShifts");
             modelBuilder.Entity<Crew>().ToTable("Crews");
+            modelBuilder.Entity<CompanyUser>().ToTable("CompanyUsers");
 
             modelBuilder.Entity<PersonCrew>()
                 .ToTable("PersonCrews")
@@ -96,6 +100,8 @@ namespace ShiftWork.Api.Data
                 .WithMany() // Area has no ICollection<ScheduleShift>
                 .HasForeignKey(ss => ss.AreaId)
                 .OnDelete(DeleteBehavior.NoAction); // Prevents cycles
+
+
         }
     }
 }

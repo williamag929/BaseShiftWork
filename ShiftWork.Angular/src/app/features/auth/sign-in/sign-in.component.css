@@ -1,0 +1,167 @@
+/* 
+  This CSS provides styling for the main login form.
+  It uses modern layout techniques like flexbox and provides a clean, user-friendly interface.
+  The class names are generic enough (e.g., .auth-container, .auth-box) to be reused across
+  different authentication components for a consistent look and feel.
+*/
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.auth-container { 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.auth-box {
+  background: #ffffff;
+  padding: 2rem 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.auth-box h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1c1e21;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+  text-align: left;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #4b4f56;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #dddfe2;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #1877f2;
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+.forgot-password {
+  display: block;
+  margin-top: 0.75rem;
+  text-align: right;
+  font-size: 0.875rem;
+  color: #1877f2;
+  text-decoration: none;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: #1877f2;
+  color: #fff;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #166fe5;
+}
+
+.btn-primary:disabled {
+  background-color: #a0bdf5;
+  cursor: not-allowed;
+}
+
+.btn-google {
+  width: 100%;
+  padding: 0.85rem;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: #ffffff;
+  color: #4b4f56;
+  transition: background-color 0.2s, border-color 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-google:hover {
+  background-color: #f8f9fa;
+  border-color: #d2d3d5;
+}
+
+.btn-google img {
+  width: 20px;
+  height: 20px;
+}
+
+.or-separator {
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+  color: #8a8d91;
+}
+
+.or-separator::before,
+.or-separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #ccd0d5;
+}
+
+.or-separator span {
+  padding: 0 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.auth-link {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+}
+
+.auth-link a {
+  color: #1877f2;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,61 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">People</h4>
+        </div>
+        <div class="card-body">
+          <div *ngIf="loading" class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+          <div *ngIf="error" class="alert alert-danger">
+            Error loading people.
+          </div>
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="text-primary">
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+              </thead>
+              <tbody>
+                <tr *ngFor="let person of people">
+                  <td>{{ person.name }}</td>
+                  <td>{{ person.email }}</td>
+                  <td>{{ person.address }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Create Person</h4>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="personForm" (ngSubmit)="createPerson()">
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" class="form-control" formControlName="name">
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" class="form-control" formControlName="email">
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone</label>
+              <input type="text" id="phone" class="form-control" formControlName="phone">
+            </div>
+            <button type="submit" class="btn btn-primary" [disabled]="!personForm.valid">Create</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

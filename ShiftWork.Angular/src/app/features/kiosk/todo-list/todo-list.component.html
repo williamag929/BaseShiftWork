@@ -1,0 +1,16 @@
+<div *ngIf="loading" class="text-center">
+  <div class="spinner-border" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>
+<div *ngIf="error" class="alert alert-danger">
+  Error loading tasks.
+</div>
+<div class="container">
+  <div class="list-group">
+    <a *ngFor="let task of tasks" (click)="viewTask(task)" class="list-group-item list-group-item-action">
+      <h5 class="mb-1">{{ task.name }}</h5>
+      <p class="mb-1">{{ task.description }}</p>
+    </a>
+  </div>
+</div>

@@ -98,6 +98,47 @@ namespace ShiftWork.Api.Migrations
                     b.ToTable("Companies", (string)null);
                 });
 
+            modelBuilder.Entity("ShiftWork.Api.Models.CompanyUser", b =>
+                {
+                    b.Property<string>("CompanyUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CompanyId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("EmailVerified")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PhotoURL")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Uid")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CompanyUserId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("CompanyUsers", (string)null);
+                });
+
             modelBuilder.Entity("ShiftWork.Api.Models.Crew", b =>
                 {
                     b.Property<int>("CrewId")
@@ -571,6 +612,17 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("ShiftWork.Api.Models.CompanyUser", b =>
+                {
+                    b.HasOne("ShiftWork.Api.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("ShiftWork.Api.Models.Crew", b =>

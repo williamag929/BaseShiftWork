@@ -1,0 +1,28 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ schedule.scheduleId ? 'Edit' : 'Create' }} Schedule</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="scheduleForm" (ngSubmit)="save()">
+    <div class="form-group">
+      <label for="personId">Person</label>
+      <select id="personId" class="form-control" formControlName="personId">
+        <option *ngFor="let person of people" [value]="person.personId">{{ person.name }}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="startTime">Start Time</label>
+      <input type="datetime-local" id="startTime" class="form-control" formControlName="startTime">
+    </div>
+    <div class="form-group">
+      <label for="endTime">End Time</label>
+      <input type="datetime-local" id="endTime" class="form-control" formControlName="endTime">
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss()">Cancel</button>
+  <button type="button" class="btn btn-primary" (click)="save()" [disabled]="!scheduleForm.valid">Save</button>
+</div>

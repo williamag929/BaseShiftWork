@@ -14,7 +14,7 @@ namespace ShiftWork.Api.Controllers
     /// </summary>
     [ApiController]
     [Authorize]
-    [Route("api/[controller]")]
+    [Route("api/companies")]
     public class CompanyController : ControllerBase
     {
         private readonly ICompanyService _companyService;

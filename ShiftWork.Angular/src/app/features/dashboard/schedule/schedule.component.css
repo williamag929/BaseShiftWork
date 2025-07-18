@@ -1,0 +1,66 @@
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.calendar-container {
+  margin-top: 20px;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.day-header {
+  font-weight: bold;
+  text-align: center;
+  padding: 10px 0;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+}
+
+.day-cell {
+  min-height: 100px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  padding: 10px;
+  overflow: auto;
+  background-color: #ffffff;
+}
+
+.day-number {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.event {
+  background-color: #007bff;
+  color: white;
+  padding: 5px;
+  border-radius: 3px;
+  margin-bottom: 3px;
+  font-size: 0.85em;
+  cursor: pointer;
+}
+
+.event:hover {
+  opacity: 0.9;
+}
+
+.current-day {
+  background-color: #e6f7ff;
+  border-color: #91d5ff;
+}
+
+.empty-day {
+  background-color: #f9f9f9;
+}

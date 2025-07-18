@@ -1,0 +1,48 @@
+<div class="container">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title text-center">Sign Up</h3>
+      <form [formGroup]="signUpForm" (ngSubmit)="signUp()">
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            formControlName="email"
+            [ngClass]="{ 'is-invalid': signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid }"
+          />
+          <div *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid" class="invalid-feedback">
+            <div *ngIf="signUpForm.get('email')?.errors?.['required']">Email is required.</div>
+            <div *ngIf="signUpForm.get('email')?.errors?.['email']">Please enter a valid email address.</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            formControlName="password"
+            [ngClass]="{ 'is-invalid': signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid }"
+          />
+          <div *ngIf="signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid" class="invalid-feedback">
+            <div *ngIf="signUpForm.get('password')?.errors?.['required']">Password is required.</div>
+            <div *ngIf="signUpForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters long.</div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" [disabled]="!signUpForm.valid">Sign Up</button>
+      </form>
+      <div class="or-separator">
+        <span class="or-text">Or</span>
+      </div>
+      <button type="button" class="btn btn-google btn-block" (click)="googleSignIn()">
+        <i class="fa fa-google-plus-g"></i>
+        Continue with Google
+      </button>
+      <div class="text-center mt-3">
+        <span>Already have an account? <a routerLink="/sign-in">Log In</a></span>
+      </div>
+    </div>
+  </div>
+</div>
