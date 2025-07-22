@@ -12,8 +12,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
-import { appReducers } from './store/app.state';
-import { metaReducers } from './store/meta-reducers';
 import { CompanyEffects } from './store/company/company.effects';
 import { environment } from 'src/environments/environment';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -21,6 +19,11 @@ import { ToastrModule } from 'ngx-toastr';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { storageSyncMetaReducer } from 'ngrx-store-persist';
+import { ActionReducer, MetaReducer } from '@ngrx/store';
+import { AppState, appReducers } from './store/app.state';
+import { metaReducers } from './store/meta-reducers';
+import { getAllDataFromLocalForage } from 'ngrx-store-persist';
 
 @NgModule({
   declarations: [
@@ -38,7 +41,7 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     CoreModule,
     SharedModule,
     ReactiveFormsModule,
-    StoreModule.forRoot(appReducers, { metaReducers }),
+    StoreModule.forRoot(appReducers, { metaReducers: [storageSyncMetaReducer] }),
     EffectsModule.forRoot([CompanyEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production })
   ],

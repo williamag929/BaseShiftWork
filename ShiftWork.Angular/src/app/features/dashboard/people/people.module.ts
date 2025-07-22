@@ -7,7 +7,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   declarations: [
-    PeopleComponent
+    //PeopleComponent
   ],
   imports: [
     CommonModule,

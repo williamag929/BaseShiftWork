@@ -1,15 +1,13 @@
 import { ActionReducer, MetaReducer } from '@ngrx/store';
-import { storageSyncMetaReducer } from 'ngrx-store-persist';
+import { CompanyState } from './company/company.state';
 import { AppState } from './app.state';
 
-export function storageSyncReducer(
-  reducer: ActionReducer<AppState>
-): ActionReducer<AppState> {
-  const storageSyncConfig = {
-    keys: ['user', 'posts'], // The state slices to persist from main.ts
-    rehydrate: true,
+export function companyMetaReducer(reducer: ActionReducer<AppState>): ActionReducer<AppState> {
+  return function (state, action) {
+    const nextState = reducer(state, action);
+    // You can add logic here to modify the company state if needed
+    return nextState;
   };
-  return storageSyncMetaReducer(storageSyncConfig)(reducer);
 }
 
-export const metaReducers: MetaReducer<AppState>[] = [storageSyncReducer];
+export const metaReducers: MetaReducer<AppState>[] = [companyMetaReducer];

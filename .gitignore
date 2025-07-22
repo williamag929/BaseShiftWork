@@ -54,3 +54,4 @@ TestResult.xml
 nunit-*.xml
 /ShiftWork.Angular/.angular
 ShiftWork.Angular/.env
+/ShiftWork.Angular/node_modules

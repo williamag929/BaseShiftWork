@@ -23,35 +23,35 @@ export class PeopleService {
   }
 
   getPeople(companyId: string): Observable<People[]> {
-    return this.http.get<People[]>(`${this.apiUrl}/companies/${companyId}/people`)
+    return this.http.get<People[]>(`${this.apiUrl}/companies/${companyId}/People`)
       .pipe(
         catchError(this.handleError)
       );
   }
 
   getPerson(companyId: string, id: number): Observable<People> {
-    return this.http.get<People>(`${this.apiUrl}/companies/${companyId}/people/${id}`)
+    return this.http.get<People>(`${this.apiUrl}/companies/${companyId}/People/${id}`)
       .pipe(
         catchError(this.handleError)
       );
   }
 
   createPerson(companyId: string, person: People): Observable<People> {
-    return this.http.post<People>(`${this.apiUrl}/companies/${companyId}/people`, person, this.getHttpOptions())
+    return this.http.post<People>(`${this.apiUrl}/companies/${companyId}/People`, person, this.getHttpOptions())
       .pipe(
         catchError(this.handleError)
       );
   }
 
   updatePerson(companyId: string, id: number, person: People): Observable<People> {
-    return this.http.put<People>(`${this.apiUrl}/companies/${companyId}/people/${id}`, person, this.getHttpOptions())
+    return this.http.put<People>(`${this.apiUrl}/companies/${companyId}/People/${id}`, person, this.getHttpOptions())
       .pipe(
         catchError(this.handleError)
       );
   }
 
   deletePerson(companyId: string, id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/companies/${companyId}/people/${id}`, this.getHttpOptions())
+    return this.http.delete<void>(`${this.apiUrl}/companies/${companyId}/People/${id}`, this.getHttpOptions())
       .pipe(
         catchError(this.handleError)
       );

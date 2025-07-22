@@ -2,3 +2,25 @@
   background-color: #007bff;
   color: white;
 }
+
+.permissions-container {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+}
+
+.permission-group {
+  margin-bottom: 1rem;
+}
+
+.permission-group:last-child {
+  margin-bottom: 0;
+}
+
+.permission-group h6 {
+  font-weight: 500;
+  color: #495057;
+}

@@ -7,8 +7,10 @@ export interface People {
     address?: string;
     city?: string;
     state?: string;
-    zipCode?: string;
-    country?: string;
+    region?: string;
+    street?: string;
+    building?: string;
+    floor?: string;
     externalCode?: string;
     status?: string;
     photoUrl?: string;

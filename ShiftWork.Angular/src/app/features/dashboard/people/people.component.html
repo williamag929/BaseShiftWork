@@ -20,12 +20,16 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
+                <th>Status</th>
+                <th>Actions</th>
               </thead>
               <tbody>
                 <tr *ngFor="let person of people">
                   <td>{{ person.name }}</td>
                   <td>{{ person.email }}</td>
-                  <td>{{ person.address }}</td>
+                  <td>{{ person.phoneNumber }}</td>
+                  <td><span class="badge" [ngClass]="{'badge-success': person.status === 'Active', 'badge-secondary': person.status !== 'Active'}">{{ person.status || 'Active' }}</span></td>
+                  <td><button class="btn btn-sm btn-info" (click)="editPerson(person)">Edit</button></td>
                 </tr>
               </tbody>
             </table>
@@ -36,10 +40,10 @@
     <div class="col-md-4">
       <div class="card">
         <div class="card-header">
-          <h4 class="card-title">Create Person</h4>
+          <h4 class="card-title">{{ selectedPerson ? 'Edit Person' : 'Create Person' }}</h4>
         </div>
         <div class="card-body">
-          <form [formGroup]="personForm" (ngSubmit)="createPerson()">
+          <form [formGroup]="personForm" (ngSubmit)="savePerson()">
             <div class="form-group">
               <label for="name">Name</label>
               <input type="text" id="name" class="form-control" formControlName="name">
@@ -50,9 +54,33 @@
             </div>
             <div class="form-group">
               <label for="phone">Phone</label>
-              <input type="text" id="phone" class="form-control" formControlName="phone">
+              <input type="text" id="phone" class="form-control" formControlName="phoneNumber">
             </div>
-            <button type="submit" class="btn btn-primary" [disabled]="!personForm.valid">Create</button>
+            <div class="form-group">
+              <label for="address">Address</label>
+              <input type="text" id="address" class="form-control" formControlName="address">
+            </div>
+            <div class="form-group">
+              <label for="city">City</label>
+              <input type="text" id="city" class="form-control" formControlName="city">
+            </div>
+            <div class="form-group">
+              <label for="state">State</label>
+              <input type="text" id="state" class="form-control" formControlName="state">
+            </div>
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status" class="form-control" formControlName="status">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="photourl">photoUrl</label>
+              <input type="text" id="photourl" class="form-control" formControlName="photoUrl">
+            </div>
+            <button type="submit" class="btn btn-primary" [disabled]="!personForm.valid">{{ selectedPerson ? 'Update' : 'Create' }}</button>
+            <button type="button" class="btn btn-secondary ml-2" *ngIf="selectedPerson" (click)="cancelEdit()">Cancel</button>
           </form>
         </div>
       </div>

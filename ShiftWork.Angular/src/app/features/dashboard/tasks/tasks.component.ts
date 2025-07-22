@@ -30,19 +30,8 @@ export class TasksComponent implements OnInit {
   activeCompany: any;
   tasks: TaskShift[] = [];
   taskForm!: FormGroup;
-  locations: Location[] = [];  selectedTask: TaskShift | null = null;
-  selectedLocation: Location | null = null;
-  selectedArea: Area | null = null;
-  selectedPerson: People | null = null;
-  locId: string | null = null;
-  areId: string | null = null;
-  personId: string | null = null;
-  selectedTaskId: string | null = null;
-  selectedTaskName: string | null = null; 
-  selectedTaskDescription: string | null = null;
-  selectedTaskLocation: string | null = null;
-  selectedTaskArea: string | null = null;
-  selectedTaskPerson: string | null = null;
+  locations: Location[] = [];
+  selectedTask: TaskShift | null = null;
   areas: Area[] = [];
   people: People[] = [];
   loading = false;
@@ -100,23 +89,66 @@ export class TasksComponent implements OnInit {
 
     this.taskForm = this.fb.group({
       name: ['', Validators.required],
+      title: ['', Validators.required],
       description: ['', Validators.required],
       locationId: ['', Validators.required],
       areaId: ['', Validators.required],
-      personId: ['']
+      personId: [''],
+      status: ['Active', Validators.required],
     });
   }
 
-  createTask(): void {
-    if (this.taskForm.valid) {
+  editTask(task: TaskShift): void {
+    this.selectedTask = task;
+    this.taskForm.patchValue(task);
+  }
+
+  cancelEdit(): void {
+    this.selectedTask = null;
+    this.taskForm.reset({
+      name: '',
+      title: '',
+      description: '',
+      locationId: '',
+      areaId: '',
+      personId: '',
+      status: 'Active',
+    });
+  }
+
+  saveTask(): void {
+    if (!this.taskForm.valid) {
+      return;
+    }
+
+    if (this.selectedTask) {
+      const updatedTask: TaskShift = {
+        ...this.selectedTask,
+        ...this.taskForm.value,
+      };
+      // Note: You will need to implement `updateTaskShift` in your TaskShiftService.
+      this.taskShiftService
+        .updateTaskShift(this.activeCompany.companyId, updatedTask.taskShiftId, updatedTask)
+        .subscribe(
+          (result) => {
+            const index = this.tasks.findIndex((t) => t.taskShiftId === result.taskShiftId);
+            if (index > -1) {
+              this.tasks[index] = result;
+            }
+            this.toastr.success('Task updated successfully.');
+            this.cancelEdit();
+          },
+          () => this.toastr.error('Failed to update task.')
+        );
+    } else {
       const newTask: TaskShift = {
         id: null,
         ...this.taskForm.value,
-        companyId: this.activeCompany.companyId
+        companyId: this.activeCompany.companyId,
       };
       this.taskShiftService.createTaskShift(this.activeCompany.companyId, newTask).subscribe(task => {
         this.tasks.push(task);
-        this.taskForm.reset();
+        this.cancelEdit();
         this.toastr.success('Task created successfully');
       });
     }

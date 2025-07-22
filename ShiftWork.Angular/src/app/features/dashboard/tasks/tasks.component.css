@@ -22,3 +22,120 @@
   outline: 0;
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
+
+/* General Card Styling */
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 3px 10px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.3s ease-in-out;
+  margin-bottom: 2rem;
+  overflow: hidden; /* Ensures child elements respect the border-radius */
+}
+
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06), 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  background-color: transparent;
+  border-bottom: 1px solid #e9ecef;
+  padding: 1.25rem 1.5rem;
+  color: #343a40;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Material-Inspired Form Styling */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-control {
+  background-color: #f8f9fa;
+  border: none;
+  border-bottom: 2px solid #dee2e6;
+  border-radius: 4px 4px 0 0;
+  padding: 1rem 0.75rem;
+  font-size: 1rem;
+  color: #495057;
+  transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.form-control:focus {
+  outline: none;
+  box-shadow: none;
+  background-color: #f1f3f5;
+  border-color: #007bff;
+}
+
+label {
+  font-weight: 500;
+  color: #6c757d;
+}
+
+/* Primary Button Styling */
+.btn-primary {
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #0069d9;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  background-color: #adb5bd;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Table Styling */
+.table {
+  border-collapse: collapse;
+}
+
+.table thead.text-primary th {
+  border-bottom: 2px solid #007bff;
+  padding: 1rem;
+  font-weight: 500;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.table td, .table th {
+  padding: 1rem;
+  vertical-align: middle;
+}
+

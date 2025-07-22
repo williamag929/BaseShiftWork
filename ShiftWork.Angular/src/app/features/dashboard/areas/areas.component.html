@@ -18,12 +18,18 @@
             <table class="table">
               <thead class="text-primary">
                 <th>Name</th>
-                <th>Description</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Actions</th>
               </thead>
               <tbody>
                 <tr *ngFor="let area of areas">
                   <td>{{ area.name }}</td>
-                  <td>{{ area.description }}</td>
+                  <td>{{ getLocationName(area.locationId) }}</td>
+                  <td><span class="badge" [ngClass]="{'badge-success': area.status === 'Active', 'badge-secondary': area.status !== 'Active'}">{{ area.status || 'Active' }}</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-info" (click)="editArea(area)">Edit</button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -34,19 +40,33 @@
     <div class="col-md-4">
       <div class="card">
         <div class="card-header">
-          <h4 class="card-title">Create Area</h4>
+          <h4 class="card-title">{{ selectedArea ? 'Edit Area' : 'Create Area' }}</h4>
         </div>
         <div class="card-body">
-          <form [formGroup]="areaForm" (ngSubmit)="createArea()">
+          <form [formGroup]="areaForm" (ngSubmit)="saveArea()">
             <div class="form-group">
               <label for="name">Name</label>
               <input type="text" id="name" class="form-control" formControlName="name">
             </div>
             <div class="form-group">
-              <label for="description">Description</label>
-              <input type="text" id="description" class="form-control" formControlName="description">
+              <label for="locationId">Location</label>
+                <select id="locationId" class="form-control" formControlName="locationId">
+                  <option value="" disabled>Select a Location</option>
+                  <option *ngFor="let location of locations" [value]="location.locationId">{{ location.name }}</option>
+                </select>
+                <div *ngIf="areaForm.get('locationId')?.touched && areaForm.get('locationId')?.errors?.['required']" class="text-danger small">
+                  Location is required.
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary" [disabled]="!areaForm.valid">Create</button>
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status" class="form-control" formControlName="status">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary" [disabled]="!areaForm.valid">{{ selectedArea ? 'Update' : 'Create' }}</button>
+            <button type="button" class="btn btn-secondary ml-2" *ngIf="selectedArea" (click)="cancelEdit()">Cancel</button>
           </form>
         </div>
       </div>

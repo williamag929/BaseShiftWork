@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShiftWork.Api.Data;
 
@@ -11,9 +12,11 @@ using ShiftWork.Api.Data;
 namespace ShiftWork.Api.Migrations
 {
     [DbContext(typeof(ShiftWorkContext))]
-    partial class ShiftWorkContextModelSnapshot : ModelSnapshot
+    [Migration("20250721184828_peoplenullfields")]
+    partial class peoplenullfields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -292,6 +295,7 @@ namespace ShiftWork.Api.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LastUpdatedBy")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -307,13 +311,6 @@ namespace ShiftWork.Api.Migrations
                     b.Property<string>("Region")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RoleId1")
-                        .HasColumnType("int");
-
                     b.Property<string>("State")
                         .HasColumnType("nvarchar(max)");
 
@@ -327,8 +324,6 @@ namespace ShiftWork.Api.Migrations
                     b.HasKey("PersonId");
 
                     b.HasIndex("CompanyId");
-
-                    b.HasIndex("RoleId1");
 
                     b.ToTable("People", (string)null);
                 });
@@ -360,18 +355,7 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Permissions")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -394,28 +378,33 @@ namespace ShiftWork.Api.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Color")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompanyId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CrewId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ExternalCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("LocationId")
@@ -430,6 +419,7 @@ namespace ShiftWork.Api.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Settings")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDate")
@@ -440,18 +430,22 @@ namespace ShiftWork.Api.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TaskShiftId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TimeZone")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UpdatedBy")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ScheduleId");
@@ -480,16 +474,18 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("GeoLocation")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("LastUpdatedAt")
@@ -503,6 +499,7 @@ namespace ShiftWork.Api.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Notes")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PersonId")
@@ -518,13 +515,14 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TaskShiftId")
+                    b.Property<int>("TaskShiftId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UpdatedBy")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ScheduleShiftId");
@@ -559,10 +557,11 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
@@ -587,10 +586,11 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UpdatedBy")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("TaskShiftId");
@@ -652,15 +652,7 @@ namespace ShiftWork.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ShiftWork.Api.Models.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Company");
-
-                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("ShiftWork.Api.Models.PersonCrew", b =>
@@ -750,7 +742,8 @@ namespace ShiftWork.Api.Migrations
                     b.HasOne("ShiftWork.Api.Models.TaskShift", "TaskShift")
                         .WithMany()
                         .HasForeignKey("TaskShiftId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("Area");
 

@@ -43,6 +43,7 @@ export class AreaService {
       );
   }
 
+
   updateArea(companyId: string, id: number, area: Area): Observable<Area> {
     return this.http.put<Area>(`${this.apiUrl}/companies/${companyId}/areas/${id}`, area, this.getHttpOptions())
       .pipe(

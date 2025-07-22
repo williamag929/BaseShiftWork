@@ -13,8 +13,15 @@ if (environment.production) {
 getAllDataFromLocalForage({
   keys: [
     'user',
-    'posts'
+    'post',
+    'auth',
+    'preferences',
+    'company', // Ensure 'companyState' is included if you want to persist it
+    'companies', // Ensure 'companies' is included if you want to persist it
+    'activeCompany' // Include if you want to persist the active company
   ],
 })
   .then(() => platformBrowserDynamic().bootstrapModule(AppModule))
   .catch(err => console.error(err));
+  
+
