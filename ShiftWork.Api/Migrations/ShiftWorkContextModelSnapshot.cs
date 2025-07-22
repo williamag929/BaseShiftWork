@@ -307,11 +307,7 @@ namespace ShiftWork.Api.Migrations
                     b.Property<string>("Region")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RoleId1")
+                    b.Property<int?>("RoleId")
                         .HasColumnType("int");
 
                     b.Property<string>("State")
@@ -328,7 +324,7 @@ namespace ShiftWork.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.HasIndex("RoleId1");
+                    b.HasIndex("RoleId");
 
                     b.ToTable("People", (string)null);
                 });
@@ -652,15 +648,11 @@ namespace ShiftWork.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ShiftWork.Api.Models.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("ShiftWork.Api.Models.Role", null)
+                        .WithMany("People")
+                        .HasForeignKey("RoleId");
 
                     b.Navigation("Company");
-
-                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("ShiftWork.Api.Models.PersonCrew", b =>
@@ -804,6 +796,11 @@ namespace ShiftWork.Api.Migrations
             modelBuilder.Entity("ShiftWork.Api.Models.Person", b =>
                 {
                     b.Navigation("PersonCrews");
+                });
+
+            modelBuilder.Entity("ShiftWork.Api.Models.Role", b =>
+                {
+                    b.Navigation("People");
                 });
 
             modelBuilder.Entity("ShiftWork.Api.Models.Schedule", b =>

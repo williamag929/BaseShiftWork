@@ -20,6 +20,7 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
+                <th>Role</th>
                 <th>Status</th>
                 <th>Actions</th>
               </thead>
@@ -28,6 +29,7 @@
                   <td>{{ person.name }}</td>
                   <td>{{ person.email }}</td>
                   <td>{{ person.phoneNumber }}</td>
+                  <td>{{ getRoleName(person.roleId) }}</td>
                   <td><span class="badge" [ngClass]="{'badge-success': person.status === 'Active', 'badge-secondary': person.status !== 'Active'}">{{ person.status || 'Active' }}</span></td>
                   <td><button class="btn btn-sm btn-info" (click)="editPerson(person)">Edit</button></td>
                 </tr>
@@ -55,6 +57,16 @@
             <div class="form-group">
               <label for="phone">Phone</label>
               <input type="text" id="phone" class="form-control" formControlName="phoneNumber">
+            </div>
+            <div class="form-group">
+              <label for="roleId">Role</label>
+              <select id="roleId" class="form-control" formControlName="roleId">
+                <option value="" disabled>Select a Role</option>
+                <option *ngFor="let role of roles" [value]="role.roleId">{{ role.name }}</option>
+              </select>
+              <div *ngIf="personForm.get('roleId')?.touched && personForm.get('roleId')?.errors?.['required']" class="text-danger small">
+                Role is required.
+              </div>
             </div>
             <div class="form-group">
               <label for="address">Address</label>

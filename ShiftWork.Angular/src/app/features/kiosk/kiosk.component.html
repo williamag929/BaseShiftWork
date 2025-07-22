@@ -1,7 +1,10 @@
 <div class="kiosk-container">
   <header class="kiosk-header">
     <div class="company-name">{{ activeCompany?.name }}</div>
-    <div class="clock">{{ currentTime | date: 'medium' }}</div>
+    <div class="clock-wrapper">
+      <div class="digital-clock">{{ currentTime | date: 'medium' }}</div>
+      <app-analog-clock class="analog-clock"></app-analog-clock>
+    </div>
   </header>
   <main class="kiosk-content">
     <router-outlet></router-outlet>

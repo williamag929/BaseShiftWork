@@ -9,5 +9,6 @@ namespace ShiftWork.Api.Models
         public string Status { get; set; } = "Active"; // Default status
         public string CompanyId { get; set; }
         public Company Company { get; set; }
+        public ICollection<Person> People { get; set; }
     }
 }

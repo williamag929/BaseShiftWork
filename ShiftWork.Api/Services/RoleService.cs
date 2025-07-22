@@ -66,10 +66,18 @@ namespace ShiftWork.Api.Services
 
         public async Task<bool> Delete(string companyId, int roleId)
         {
-            var role = await _context.Roles.FirstOrDefaultAsync(r => r.CompanyId == companyId && r.RoleId == roleId);
+            var role = await _context.Roles
+                .Include(r => r.People)
+                .FirstOrDefaultAsync(r => r.CompanyId == companyId && r.RoleId == roleId);
             if (role == null)
             {
                 return false;
+            }
+
+            if (role.People.Any())
+            {
+                // This role is in use and cannot be deleted.
+                throw new InvalidOperationException($"Cannot delete role '{role.Name}' as it is currently assigned to one or more people.");
             }
 
             _context.Roles.Remove(role);

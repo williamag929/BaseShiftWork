@@ -213,6 +213,11 @@ namespace ShiftWork.Api.Controllers
 
                 return NoContent();
             }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Attempted to delete a role that is in use for company {CompanyId}.", companyId);
+                return Conflict(new { message = ex.Message });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting role {RoleId} for company {CompanyId}.", roleId, companyId);

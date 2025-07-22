@@ -16,6 +16,7 @@ namespace ShiftWork.Api.DTOs
         public string? Floor { get; set; }
         public string Status { get; set; }
         public string? PhotoUrl { get; set; }
+        public int RoleId { get; set; } // Foreign key to Role
         public string? ExternalCode { get; set; }
         // Consider if you need related entities like PersonCrews in the DTO.  If so, add them.
         // public ICollection<PersonCrew> PersonCrews { get; set; } 

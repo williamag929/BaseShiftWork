@@ -14,5 +14,6 @@ export interface People {
     externalCode?: string;
     status?: string;
     photoUrl?: string;
+    roleId?: number; // Optional, if the person has a role
     //roles?: Role[];
  }

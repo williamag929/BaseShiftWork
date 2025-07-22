@@ -1,6 +1,9 @@
 using AutoMapper;
 using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Models;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 
 namespace ShiftWork.Api.Helpers
 {
@@ -16,8 +19,15 @@ namespace ShiftWork.Api.Helpers
              CreateMap<LocationDto, Location>();
             CreateMap<Person, PersonDto>();
              CreateMap<PersonDto, Person>();
-            CreateMap<Role, RoleDto>();
-             CreateMap<RoleDto, Role>();
+            CreateMap<Role, RoleDto>()
+                .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src =>
+                    !string.IsNullOrEmpty(src.Permissions) && src.Permissions.TrimStart().StartsWith("[")
+                        ? JsonSerializer.Deserialize<List<string>>(src.Permissions, (JsonSerializerOptions)null)
+                        : new List<string>()));
+             CreateMap<RoleDto, Role>()
+                .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src =>
+                    src.Permissions != null && src.Permissions.Any() 
+                        ? JsonSerializer.Serialize(src.Permissions, (JsonSerializerOptions)null) : null));
             CreateMap<Schedule, ScheduleDto>();
              CreateMap<ScheduleDto, Schedule>();
             CreateMap<ScheduleShift, ScheduleShiftDto>();

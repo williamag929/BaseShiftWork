@@ -1,0 +1,11 @@
+<div class="clock">
+  <div class="hour-hand" [style.transform]="hourHandTransform"></div>
+  <div class="minute-hand" [style.transform]="minuteHandTransform"></div>
+  <div class="second-hand" [style.transform]="secondHandTransform"></div>
+  <div class="center-dot"></div>
+  <div class="numbers">
+    <div class="number" *ngFor="let num of numbers; let i = index" [style.--rotation]="(i + 1) * 30 + 'deg'">
+      <span>{{ num }}</span>
+    </div>
+  </div>
+</div>

@@ -51,10 +51,11 @@ export class ProfilesComponent implements OnInit {
       if (company) {
         this.activeCompany = company;
         this.loading = true;
-        this.roleService.getRoles(company.companyId).subscribe(
+        this.roleService.getRoles(company.companyId).subscribe(          
           (roles: Role[]) => {
             this.roles = roles;
             this.loading = false;
+            console.log('Roles fetched:', this.roles);
           },
           (error: any) => {
             this.error = error;
@@ -81,6 +82,7 @@ export class ProfilesComponent implements OnInit {
 
   editRole(role: Role): void {
     this.selectedRole = role;
+    console.log('Editing role:', role);
     this.roleForm.patchValue({
       name: role.name,
       description: role.description,
@@ -142,6 +144,7 @@ export class ProfilesComponent implements OnInit {
         companyId: this.activeCompany.companyId,
         roleId: 0,
       };
+      console.log('newRole',newRole);
       this.roleService.createRole(this.activeCompany.companyId, newRole).subscribe((role: Role) => {
         this.roles.push(role);
         this.cancelEdit();

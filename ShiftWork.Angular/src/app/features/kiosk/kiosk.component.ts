@@ -5,12 +5,13 @@ import { Subscription, timer } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { RouterOutlet } from "@angular/router";
 import { DatePipe } from '@angular/common';
+import { AnalogClockComponent } from "./analog-clock/analog-clock.component";
 
 @Component({
   selector: 'app-kiosk',
   templateUrl: './kiosk.component.html',
   styleUrls: ['./kiosk.component.css'],
-  imports: [RouterOutlet, DatePipe]
+  imports: [RouterOutlet, DatePipe, AnalogClockComponent]
 })
 export class KioskComponent implements OnInit, OnDestroy {
   activeCompany: Company | null = null;

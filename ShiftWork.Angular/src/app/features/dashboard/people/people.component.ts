@@ -7,6 +7,8 @@ import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
+import { Role } from 'src/app/core/models/role.model';
+import { RoleService } from 'src/app/core/services/role.service';
 
 @Component({
   selector: 'app-people',
@@ -20,11 +22,13 @@ export class PeopleComponent implements OnInit {
   selectedPerson: People | null = null;
   activeCompany$: Observable<any>;
   activeCompany: any;
+  roles: Role[] = []; // Assuming roles are fetched from a service
   loading = false;
   error: any = null;
 
   constructor(
     private peopleService: PeopleService,
+    private roleService: RoleService, // Assuming you have a RoleService to fetch roles
     private fb: FormBuilder,
     private toastr: ToastrService,
     private store: Store<AppState>
@@ -56,6 +60,17 @@ export class PeopleComponent implements OnInit {
             this.loading = false;
           }
         );
+        this.loading = true;
+        this.roleService.getRoles(company.companyId).subscribe(
+          roles => {
+            this.roles = roles;
+            this.loading = false;
+          },
+          error => {
+            this.error = error;
+            this.loading = false;
+          }
+        );
       }
     });
 
@@ -68,6 +83,7 @@ export class PeopleComponent implements OnInit {
       state: ['', Validators.required],
       externalCode: [''],
       status: ['Active', Validators.required],
+      roleId: [null, Validators.required],
       photoUrl: ['']
     });
   }
@@ -88,7 +104,8 @@ export class PeopleComponent implements OnInit {
       state: '',
       externalCode: '',
       status: 'Active',
-      photoUrl: ''
+      photoUrl: '',
+      roleId: null
     });
   }
 
@@ -126,4 +143,9 @@ export class PeopleComponent implements OnInit {
       });
     }
   }
+
+  getRoleName(roleId: any  | undefined): string {
+    return this.roles.find(l => l.roleId === roleId)?.name || 'N/A';
+  } 
+
 }

@@ -1,0 +1,34 @@
+.kiosk-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.company-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.clock-wrapper {
+  .digital-clock {
+    display: block; // Show by default on mobile
+    font-size: 1.2rem;
+  }
+
+  .analog-clock {
+    display: none; // Hide by default on mobile
+  }
+}
+
+// For iPad (portrait) and larger screens
+@media (min-width: 768px) {
+  .clock-wrapper .digital-clock {
+    display: none;
+  }
+  .clock-wrapper .analog-clock {
+    display: block;
+  }
+}
