@@ -93,8 +93,11 @@ export class ProfilesComponent implements OnInit {
     permissionsGroup.reset(); // Set all to false first
     if (role.permissions) {
       for (const permission of role.permissions) {
-        if (permissionsGroup.get(permission)) {
-          permissionsGroup.get(permission)?.setValue(true);
+        // When form control names contain dots, you must access them via the `controls`
+        // object rather than the `get()` method, which interprets dots as path separators.
+        const control = permissionsGroup.controls[permission];
+        if (control) {
+          control.setValue(true);
         }
       }
     }

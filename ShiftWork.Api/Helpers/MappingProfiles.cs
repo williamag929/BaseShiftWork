@@ -15,8 +15,14 @@ namespace ShiftWork.Api.Helpers
             CreateMap<AreaDto, Area>();
             CreateMap<Company, CompanyDto>();
             CreateMap<CompanyDto, Company>();
-            CreateMap<Location, LocationDto>();
-             CreateMap<LocationDto, Location>();
+            CreateMap<Location, LocationDto>()
+                .ForMember(dest => dest.GeoCoordinates, opt => opt.MapFrom(src =>
+                    !string.IsNullOrEmpty(src.GeoCoordinates)
+                        ? JsonSerializer.Deserialize<GeoCoordinatesDto>(src.GeoCoordinates, (JsonSerializerOptions)null)
+                        : null));
+             CreateMap<LocationDto, Location>()
+                .ForMember(dest => dest.GeoCoordinates, opt => opt.MapFrom(src =>
+                    src.GeoCoordinates != null ? JsonSerializer.Serialize(src.GeoCoordinates, (JsonSerializerOptions)null) : null));
             CreateMap<Person, PersonDto>();
              CreateMap<PersonDto, Person>();
             CreateMap<Role, RoleDto>()

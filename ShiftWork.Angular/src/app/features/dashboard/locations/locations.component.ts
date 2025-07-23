@@ -10,6 +10,8 @@ import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
+import { TIMEZONES } from 'src/app/core/data/timezones';
+import { Timezone } from 'src/app/core/models/timezone.model';
 
 @Component({
   selector: 'app-locations',
@@ -22,15 +24,24 @@ export class LocationsComponent implements OnInit {
   @ViewChild(GoogleMap, { static: false }) map!: GoogleMap;
   @ViewChild(MapCircle, { static: false }) circle!: MapCircle;
 
+  timezones: Timezone[] = TIMEZONES;
+
   activeCompany$: Observable<any>;
   activeCompany: any;
   locations: Location[] = [];
   locationForm!: FormGroup;
   selectedLocation: Location | null = null;
   mapOptions!: google.maps.MapOptions;
-  markerOptions: google.maps.MarkerOptions = { draggable: false }; // Consider updating if you want to avoid deprecation
+  markerOptions: google.maps.MarkerOptions = { draggable: true };
   markerPosition?: google.maps.LatLngLiteral;
-  circleOptions: google.maps.CircleOptions = { draggable: true };
+  circleOptions: google.maps.CircleOptions = {
+    draggable: false,
+    strokeColor: '#FF0000',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    fillColor: '#FF0000',
+    fillOpacity: 0.25,
+  };
   loading = false;
   error: any = null;
 
@@ -85,6 +96,17 @@ export class LocationsComponent implements OnInit {
       center: { lat: 36.1699, lng: -115.1398 }, // Default to Las Vegas
       zoom: 12
     };
+
+    this.setCurrentLocation();
+
+    // Set the default timezone based on the user's browser settings
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const timezoneExists = this.timezones.some(tz => tz.value === userTimezone);
+
+    // If the detected timezone is in our list, set it as the default for new locations.
+    if (timezoneExists) {
+      this.locationForm.get('timezone')?.setValue(userTimezone);
+    }    
   }
 
   editLocation(location: Location): void {
@@ -100,6 +122,11 @@ export class LocationsComponent implements OnInit {
         lat: location.geoCoordinates.latitude,
         lng: location.geoCoordinates.longitude
       };
+      // Also center the map on the edited location
+      this.mapOptions = {
+        ...this.mapOptions,
+        center: this.markerPosition
+      };
       if (this.map) {
         this.map.panTo(this.markerPosition);
       }
@@ -111,12 +138,26 @@ export class LocationsComponent implements OnInit {
     this.locationForm.reset({
       name: '',
       address: '',
-      latitude: 0,
-      longitude: 0,
+      city: '',
+      state: '',
+      country: '',
+      zipCode: '',
+      latitude: 0, // Will be updated by setCurrentLocation
+      longitude: 0, // Will be updated by setCurrentLocation
       ratioMax: 100,
-      status: 'Active'
+      timezone: '', // Will be updated by timezone logic
+      email: '',
+      phoneNumber: '',
+      externalCode: '',
+      status: 'Active',
     });
-    this.markerPosition = undefined;
+
+    // Re-apply defaults for new locations
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (this.timezones.some(tz => tz.value === userTimezone)) {
+      this.locationForm.get('timezone')?.setValue(userTimezone);
+    }
+    this.setCurrentLocation();
   }
 
   onMapClick(event: google.maps.MapMouseEvent): void {
@@ -128,6 +169,7 @@ export class LocationsComponent implements OnInit {
       });
     }
   }
+
   saveLocation(): void {
     if (!this.locationForm.valid) {
       return;
@@ -140,6 +182,11 @@ export class LocationsComponent implements OnInit {
         latitude: formValue.latitude,
         longitude: formValue.longitude,
       },
+      floor:'',
+      region: '',
+      street: '',
+      building: '',
+      department: '',
     };
     delete locationData.latitude;
     delete locationData.longitude;
@@ -163,11 +210,37 @@ export class LocationsComponent implements OnInit {
       );
     } else {
       const newLocation = { ...locationData, companyId: this.activeCompany.companyId } as Location;
+      console.log('New location:', newLocation);
       this.locationService.createLocation(this.activeCompany.companyId, newLocation).subscribe((location: Location) => {
         this.locations.push(location);
         this.toastr.success('Location created successfully');
         this.cancelEdit();
       });
+    }
+  }
+
+  private setCurrentLocation(): void {
+    // When resetting to create a new location, clear the old marker.
+    if (!this.selectedLocation) {
+      this.markerPosition = undefined;
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          
+          // Update map center regardless
+          this.mapOptions = { ...this.mapOptions, center: { lat: latitude, lng: longitude } };
+
+          // If we are creating a new location, also place the marker and fill the form
+          if (!this.selectedLocation) {
+            this.markerPosition = { lat: latitude, lng: longitude };
+            this.locationForm.patchValue({ latitude, longitude });
+          }
+        },
+        () => this.toastr.info('Could not get current location. Map centered on default.')
+      );
     }
   }
 }

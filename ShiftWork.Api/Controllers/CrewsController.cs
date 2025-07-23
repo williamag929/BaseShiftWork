@@ -141,7 +141,7 @@ namespace ShiftWork.Api.Controllers
                 _mapper.Map(crewDto, crew);
                 _context.Entry(crew).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                return NoContent();
+                return Ok(_mapper.Map<CrewDto>(crew));
             }
             catch (Exception ex)
             {

@@ -43,9 +43,11 @@
                 <map-marker
                   *ngIf="markerPosition"
                   [options]="markerOptions"
+                  (mapDragend)="onMapClick($event)"
                 ></map-marker>
                 <map-circle
                   *ngIf="markerPosition"
+                  [center]="markerPosition"
                   [radius]="locationForm.get('ratioMax')?.value"
                   [options]="circleOptions"
                 ></map-circle>
@@ -91,7 +93,11 @@
                 </div>
                 <div class="form-group">
                   <label for="timezone">Time Zone</label>
-                  <input type="text" id="timezone" class="form-control" formControlName="timezone">
+                  <select id="timezone" class="form-control" formControlName="timezone">
+                    <option [ngValue]="null" disabled>Select a Timezone</option>
+                    <option *ngFor="let tz of timezones" [value]="tz.value">{{ tz.name }}</option>
+                  </select>                
+                
                 </div>  
                 <div class="form-group">
                   <label for="email">Email</label>

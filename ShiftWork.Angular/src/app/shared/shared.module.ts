@@ -28,6 +28,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [],
@@ -37,6 +38,14 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     ReactiveFormsModule,
     GoogleMapsModule,
     FullCalendarModule,
+    ToastrModule.forRoot({
+      timeOut: 3000,
+      positionClass: 'toast-bottom-right',
+      preventDuplicates: true,
+      //closeButton: true,
+      //progressBar: true,
+      //progressAnimation: 'decreasing'
+    }),
     NgbModule,
     WebcamModule,
     MatSidenavModule,

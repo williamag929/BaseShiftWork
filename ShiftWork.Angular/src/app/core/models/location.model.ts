@@ -1,6 +1,9 @@
+import { GeoCoordinate } from "./geo-coordinate.model";
+
 export interface Location {
     locationId: number;
     name: string;
+    companyId: string;
     address: string;
     city: string;
     state: string;
@@ -11,15 +14,11 @@ export interface Location {
     department?: string;
     country?: string;
     zipCode: string;
-    geoCoordinates: {
-      latitude: number;
-      longitude: number;
-    };
-    ratioMax: string;
+    geoCoordinates: GeoCoordinate;
+    ratioMax: number;
     phoneNumber?: string;
     email?: string;
     externalCode?: string;
     timezone?: string;
     status: string;
-    companyId: string;
  }

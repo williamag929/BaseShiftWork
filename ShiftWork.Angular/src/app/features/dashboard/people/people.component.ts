@@ -122,10 +122,11 @@ export class PeopleComponent implements OnInit {
       // Note: You will need to implement `updatePerson` in your PeopleService.
       this.peopleService.updatePerson(this.activeCompany.companyId, updatedPerson.personId, updatedPerson).subscribe(
         (result) => {
-          const index = this.people.findIndex(p => p.personId === result.personId);
-          if (index > -1) {
-            this.people[index] = result;
-          }
+          console.log('Updated person:', result);
+          //const index = this.people.findIndex(p => p.personId === result.personId);
+          //if (index > -1) {
+          //  this.people[index] = result;
+          //}
           this.toastr.success('Person updated successfully.');
           this.cancelEdit();
         },

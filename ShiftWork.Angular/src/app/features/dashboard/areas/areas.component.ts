@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Area } from 'src/app/core/models/area.model';
 import { AreaService } from 'src/app/core/services/area.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ToastrService } from 'ngx-toastr';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subject, forkJoin, of } from 'rxjs';
+import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
@@ -18,7 +18,7 @@ import { Location } from 'src/app/core/models/location.model';
   styleUrls: ['./areas.component.css'],
   standalone: false
 })
-export class AreasComponent implements OnInit {
+export class AreasComponent implements OnInit, OnDestroy {
 
   areas: Area[] = [];
   activeCompany$: Observable<any>;
@@ -28,6 +28,7 @@ export class AreasComponent implements OnInit {
   areaForm!: FormGroup;
   loading = false;
   error: any = null;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private areaService: AreaService,
@@ -51,34 +52,36 @@ export class AreasComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
-    this.activeCompany$.subscribe((company: any) => {
-      if (this.activeCompany$) {
+    this.activeCompany$.pipe(
+      takeUntil(this.destroy$),
+      tap(() => {
         this.loading = true;
-
-        this.locationService.getLocations(company.companyId).subscribe(
-          locations => {
-            this.locations = locations.filter(a => a.companyId === company.companyId);
-            this.loading = false;
-          }, error => {
+        this.error = null;
+      }),
+      switchMap(company => {
+        if (!company) {
+          this.loading = false;
+          return of({ locations: [], areas: [] });
+        }
+        return forkJoin({
+          locations: this.locationService.getLocations(company.companyId),
+          areas: this.areaService.getAreas(company.companyId)
+        }).pipe(
+          map(({ locations, areas }) => ({
+            locations: locations.filter(l => l.companyId === company.companyId),
+            areas: areas.filter(a => a.companyId === company.companyId)
+          })),
+          catchError(error => {
             this.error = error;
             this.loading = false;
-          }
-        )
-
-        this.loading = true;
-
-        this.areaService.getAreas(company.companyId).subscribe(
-          areas => {
-            this.areas = areas.filter(a => a.companyId === company.companyId);
-            this.loading = false;
-          },
-          error => {
-            this.error = error;
-            this.loading = false;
-          }
+            return of({ locations: [], areas: [] });
+          })
         );
-      }
+      })
+    ).subscribe(({ locations, areas }) => {
+      this.locations = locations;
+      this.areas = areas;
+      this.loading = false;
     });
 
     this.areaForm = this.fb.group({
@@ -88,14 +91,29 @@ export class AreasComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   editArea(area: Area): void {
     this.selectedArea = area;
     this.areaForm.patchValue(area);
   }
 
-  getLocationName(locationId: any  | undefined): string {
-    return this.locations.find(l => l.locationId === locationId)?.name || 'N/A';
-  } 
+  getLocationName(locationId: string | number | undefined): string {
+    if (locationId === null || locationId === undefined || locationId === '') {
+      return 'N/A';
+    }
+    // The locationId from an Area can be a string, but in the Location model it's a number.
+    // We need to ensure we are comparing numbers.
+    const numericLocationId = typeof locationId === 'string' ? parseInt(locationId, 10) : locationId;
+    if (isNaN(numericLocationId)) {
+      return 'N/A';
+    }
+    const location = this.locations.find(l => l.locationId === numericLocationId);
+    return location?.name || 'N/A';
+  }
 
   cancelEdit(): void {
     this.selectedArea = null;
@@ -116,8 +134,7 @@ export class AreasComponent implements OnInit {
         ...this.selectedArea,
         ...this.areaForm.value
       };
-      // Note: You will need to implement `updateArea` in your AreaService.
-      this.areaService.createArea(this.activeCompany.companyId, updatedArea).subscribe(
+      this.areaService.updateArea(this.activeCompany.companyId, updatedArea.areaId, updatedArea).subscribe(
         (result) => {
           const index = this.areas.findIndex(a => a.areaId === result.areaId);
           if (index > -1) {
@@ -130,14 +147,17 @@ export class AreasComponent implements OnInit {
       );
     } else {
       const newArea: Area = {
+        areaId: 0, // Provide a temporary ID, the backend will assign the real one.
         ...this.areaForm.value,
         companyId: this.activeCompany.companyId
       };
       this.areaService.createArea(newArea.companyId, newArea).subscribe(area => {
         this.areas.push(area);
         this.cancelEdit();
-        this.toastr.success('Area created successfully');
-      });
+        this.toastr.success('Area created successfully.');
+      },
+      () => this.toastr.error('Failed to create area.')
+      );
     }
   }
 }

@@ -15,8 +15,8 @@ namespace ShiftWork.Api.DTOs
         public string Department { get; set; }
         public string Country { get; set; }
         public string ZipCode { get; set; }
-        public string GeoCoordinates { get; set; }
-        public string RatioMax { get; set; }
+        public GeoCoordinatesDto? GeoCoordinates { get; set; }
+        public int RatioMax { get; set; }
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public string ExternalCode { get; set; }

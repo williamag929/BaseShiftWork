@@ -136,7 +136,8 @@ namespace ShiftWork.Api.Controllers
                 {
                     return NotFound($"Task shift with ID {id} not found.");
                 }
-                return NoContent();
+                _mapper.Map(taskShiftDto, updatedTaskShift);
+                return Ok(_mapper.Map<TaskShiftDto>(updatedTaskShift));
             }
             catch (Exception ex)
             {

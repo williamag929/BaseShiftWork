@@ -178,11 +178,11 @@ namespace ShiftWork.Api.Controllers
                 {
                     return NotFound($"Role with ID {roleId} not found.");
                 }
-
+                _mapper.Map(roleDto, updatedRole);
                 _memoryCache.Remove($"roles_{companyId}");
                 _memoryCache.Remove($"role_{companyId}_{roleId}");
 
-                return NoContent();
+                return ok(_mapper.Map<RoleDto>(updatedRole));
             }
             catch (Exception ex)
             {

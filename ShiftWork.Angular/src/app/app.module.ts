@@ -32,7 +32,14 @@ import { getAllDataFromLocalForage } from 'ngrx-store-persist';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    ToastrModule.forRoot(), // ToastrModule added
+    ToastrModule.forRoot({
+      timeOut: 3000,
+      positionClass: 'toast-bottom-right',
+      preventDuplicates: true,
+      //closeButton: true,
+      //progressBar: true,
+      //progressAnimation: 'decreasing'
+    }),
     NgbModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,

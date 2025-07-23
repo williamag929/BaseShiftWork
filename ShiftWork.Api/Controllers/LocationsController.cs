@@ -179,10 +179,12 @@ namespace ShiftWork.Api.Controllers
                     return NotFound($"Location with ID {locationId} not found.");
                 }
 
+                _mapper.Map(locationDto , updatedLocation);
+
                 _memoryCache.Remove($"locations_{companyId}");
                 _memoryCache.Remove($"location_{companyId}_{locationId}");
 
-                return NoContent();
+                return Ok(_mapper.Map<LocationDto>(updatedLocation));
             }
             catch (Exception ex)
             {

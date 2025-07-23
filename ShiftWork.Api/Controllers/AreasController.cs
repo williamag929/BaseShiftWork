@@ -166,13 +166,13 @@ namespace ShiftWork.Api.Controllers
         /// <param name="companyId">The unique identifier of the company.</param>
         /// <param name="areaId">The ID of the area to update.</param>
         /// <param name="areaDto">The updated area data.</param>
-        /// <returns>An action result indicating success or failure.</returns>
+        /// <returns>The updated area.</returns>
         [HttpPut("{areaId}")]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(typeof(AreaDto), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> PutArea(string companyId, int areaId, [FromBody] AreaDto areaDto)
+        public async Task<ActionResult<AreaDto>> PutArea(string companyId, int areaId, [FromBody] AreaDto areaDto)
         {
             if (areaId != areaDto.AreaId)
             {
@@ -186,18 +186,22 @@ namespace ShiftWork.Api.Controllers
 
             try
             {
-                var area = _mapper.Map<Area>(areaDto);
-                var updatedArea = await _areaService.Update(area);
+                var areas = await _areaService.Get(companyId, new[] { areaId });
+                var areaToUpdate = areas.FirstOrDefault();
 
-                if (updatedArea == null)
+                if (areaToUpdate == null)
                 {
-                    return NotFound($"Area with ID {areaId} not found.");
+                    return NotFound($"Area with ID {areaId} not found in company {companyId}.");
                 }
+
+                _mapper.Map(areaDto, areaToUpdate);
+
+                var updatedArea = await _areaService.Update(areaToUpdate);
 
                 _memoryCache.Remove($"areas_{companyId}");
                 _memoryCache.Remove($"area_{companyId}_{areaId}");
 
-                return NoContent();
+                return Ok(_mapper.Map<AreaDto>(updatedArea));
             }
             catch (Exception ex)
             {

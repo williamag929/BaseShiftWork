@@ -179,10 +179,11 @@ namespace ShiftWork.Api.Controllers
                     return NotFound($"Schedule with ID {scheduleId} not found.");
                 }
 
+                _mapper.Map(scheduleDto, updatedSchedule);
                 _memoryCache.Remove($"schedules_{companyId}");
                 _memoryCache.Remove($"schedule_{companyId}_{scheduleId}");
 
-                return NoContent();
+                return Ok(_mapper.Map<ScheduleDto>(updatedSchedule));
             }
             catch (Exception ex)
             {
