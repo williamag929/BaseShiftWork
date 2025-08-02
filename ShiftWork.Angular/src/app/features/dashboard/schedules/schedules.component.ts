@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { forkJoin, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ScheduleService } from 'src/app/core/services/schedule.service';
 import { PeopleService } from 'src/app/core/services/people.service';
@@ -11,18 +11,26 @@ import { People } from 'src/app/core/models/people.model';
 import { Location } from 'src/app/core/models/location.model';
 import { Area } from 'src/app/core/models/area.model';
 import { DatePipe } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/store/app.state';
+import { selectActiveCompany } from 'src/app/store/company/company.selectors';
+import { MatDialog } from '@angular/material/dialog';
+import { ScheduleEditComponent } from '../schedules/schedule-edit/schedule-edit.component';
 
 @Component({
   selector: 'app-schedules',
   templateUrl: './schedules.component.html',
   styleUrls: ['./schedules.component.css'],
-  imports: [DatePipe]
+  standalone: false,
+  //imports: [DatePipe],
+
 })
 export class SchedulesComponent implements OnInit, OnDestroy {
   schedules: Schedule[] = [];
   people: People[] = [];
   locations: Location[] = [];
   areas: Area[] = [];
+  activeCompany: any;
 
   loading = false;
   error: any = null;
@@ -32,44 +40,65 @@ export class SchedulesComponent implements OnInit, OnDestroy {
   private areaMap = new Map<number, string>();
 
   private destroy$ = new Subject<void>();
+  activeCompany$: Observable<any>;
 
   constructor(
     private scheduleService: ScheduleService,
     private authService: AuthService,
     private peopleService: PeopleService,
     private locationService: LocationService,
-    private areaService: AreaService
-  ) { }
+    private store: Store<AppState>,
+    private areaService: AreaService,
+    public dialog: MatDialog
+  ) {
+    this.activeCompany$ = this.store.select(selectActiveCompany);
+
+    this.activeCompany$.subscribe((company: any) => {
+      if (company) {
+        this.activeCompany = company;
+        console.log('Active company set:', this.activeCompany);
+      } else {
+        console.log('No active company found');
+      }
+    });
+
+   }
 
   ngOnInit(): void {
-    this.authService.activeCompany$.pipe(takeUntil(this.destroy$)).subscribe((company: { companyId: string }) => {
-      if (company && company.companyId) {
-        this.loading = true;
-        this.error = null;
 
-        forkJoin({
-          schedules: this.scheduleService.getSchedules(company.companyId),
-          people: this.peopleService.getPeople(company.companyId),
-          locations: this.locationService.getLocations(company.companyId),
-          areas: this.areaService.getAreas(company.companyId)
-        }).subscribe({
-          next: ({ schedules, people, locations, areas }) => {
-            this.schedules = schedules;
-            this.people = people;
-            this.locations = locations;
-            this.areas = areas;
+    this.activeCompany$.subscribe((company: any) => {
+      if (company) {
+        this.activeCompany = company;
+        this.loadSchedules();
+      }
+    });
+  }
 
-            this.people.forEach(p => this.peopleMap.set(p.personId, p.name));
-            this.locations.forEach(l => this.locationMap.set(l.locationId, l.name));
-            this.areas.forEach(a => this.areaMap.set(a.areaId, a.name));
+  loadSchedules() {
+    this.loading = true;
+    this.error = null;
 
-            this.loading = false;
-          },
-          error: (err) => {
-            this.error = err;
-            this.loading = false;
-          }
-        });
+    forkJoin({
+      schedules: this.scheduleService.getSchedules(this.activeCompany.companyId),
+      people: this.peopleService.getPeople(this.activeCompany.companyId),
+      locations: this.locationService.getLocations(this.activeCompany.companyId),
+      areas: this.areaService.getAreas(this.activeCompany.companyId)
+    }).subscribe({
+      next: ({ schedules, people, locations, areas }) => {
+        this.schedules = schedules;
+        this.people = people;
+        this.locations = locations;
+        this.areas = areas;
+
+        this.people.forEach(p => this.peopleMap.set(p.personId, p.name));
+        this.locations.forEach(l => this.locationMap.set(l.locationId, l.name));
+        this.areas.forEach(a => this.areaMap.set(a.areaId, a.name));
+
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = err;
+        this.loading = false;
       }
     });
   }
@@ -89,5 +118,18 @@ export class SchedulesComponent implements OnInit, OnDestroy {
 
   getAreaName(areaId: number): string {
     return this.areaMap.get(areaId) || 'Unknown Area';
+  }
+
+  openScheduleDialog(schedule?: Schedule): void {
+    const dialogRef = this.dialog.open(ScheduleEditComponent, {
+      width: '500px',
+      data: { schedule: schedule, people: this.people, locations: this.locations, areas: this.areas, companyId: this.activeCompany.companyId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadSchedules();
+      }
+    });
   }
 }

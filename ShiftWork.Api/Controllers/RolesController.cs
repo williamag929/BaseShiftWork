@@ -182,7 +182,7 @@ namespace ShiftWork.Api.Controllers
                 _memoryCache.Remove($"roles_{companyId}");
                 _memoryCache.Remove($"role_{companyId}_{roleId}");
 
-                return ok(_mapper.Map<RoleDto>(updatedRole));
+                return Ok(_mapper.Map<RoleDto>(updatedRole));
             }
             catch (Exception ex)
             {

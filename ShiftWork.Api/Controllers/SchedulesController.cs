@@ -20,6 +20,7 @@ namespace ShiftWork.Api.Controllers
     public class SchedulesController : ControllerBase
     {
         private readonly IScheduleService _scheduleService;
+        private readonly ILocationService _locationService;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<SchedulesController> _logger;
@@ -27,9 +28,10 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="SchedulesController"/> class.
         /// </summary>
-        public SchedulesController(IScheduleService scheduleService, IMapper mapper, IMemoryCache memoryCache, ILogger<SchedulesController> logger)
+        public SchedulesController(IScheduleService scheduleService, ILocationService locationService, IMapper mapper, IMemoryCache memoryCache, ILogger<SchedulesController> logger)
         {
             _scheduleService = scheduleService ?? throw new ArgumentNullException(nameof(scheduleService));
+            _locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -129,7 +131,15 @@ namespace ShiftWork.Api.Controllers
 
             try
             {
+                var location = await _locationService.Get(companyId, scheduleDto.LocationId);
+                if (location == null)
+                {
+                    return BadRequest($"Location with ID {scheduleDto.LocationId} not found.");
+                }
+
                 var schedule = _mapper.Map<Schedule>(scheduleDto);
+                schedule.timezone = location.TimeZone;
+                schedule.type = "Shift"; // Default type, can be customized later
                 var createdSchedule = await _scheduleService.Add(schedule);
 
                 if (createdSchedule == null)

@@ -4,6 +4,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Schedules</h4>
+                    <button mat-raised-button color="primary" (click)="openScheduleDialog()">Add Schedule</button>
                 </div>
                 <div class="card-body">
                     <div *ngIf="loading" class="text-center">
@@ -23,6 +24,7 @@
                                 <th>Start Time</th>
                                 <th>End Time</th>
                                 <th>Status</th>
+                                <th>Actions</th>
                             </thead>
                             <tbody>
                                 <tr *ngFor="let schedule of schedules">
@@ -32,6 +34,11 @@
                                     <td>{{ schedule.startTime | date:'short' }}</td>
                                     <td>{{ schedule.endTime | date:'short' }}</td>
                                     <td>{{ schedule.status }}</td>
+                                    <td>
+                                        <button mat-icon-button (click)="openScheduleDialog(schedule)">
+                                            <mat-icon>edit</mat-icon>
+                                        </button>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>

@@ -9,7 +9,6 @@ import { AreasComponent } from './areas/areas.component';
 import { LocationsComponent } from './locations/locations.component';
 import { ScheduleComponent } from './schedule/schedule.component';
 import { TasksComponent } from './tasks/tasks.component';
-import { ScheduleEditComponent } from './schedule-edit/schedule-edit.component';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -48,7 +47,6 @@ const routes: Routes = [
     FullCalendarModule,
     RouterModule.forChild(routes),
     // TODO: ProfilesComponent is standalone, and cannot be declared in an NgModule. Did you mean to import it instead?
-    ScheduleEditComponent
   ],
   providers: [
     // DateAdapter, // Uncomment if you need a custom date adapter

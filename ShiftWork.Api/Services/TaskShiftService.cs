@@ -18,7 +18,7 @@ namespace ShiftWork.Api.Services
         Task<TaskShift> Get(string companyId, int id);
         Task<TaskShift> Add(TaskShift taskShift);
         Task<TaskShift> Update(TaskShift taskShift);
-        Task<bool> Delete(int id);
+        Task<bool> Delete(string companyId, int id);
     }
 
     /// <summary>
@@ -64,10 +64,11 @@ namespace ShiftWork.Api.Services
             return taskShift;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> Delete(string companyId, int id)
         {
-            var taskShift = await _context.TaskShifts.FindAsync(id);
-            if (taskShift == null)
+            var taskShift = await _context.TaskShifts
+                .FirstOrDefaultAsync(t => t.TaskShiftId == id && t.CompanyId == companyId);
+            if (taskShift == null) // This now correctly handles not found within the specified company
             {
                 return false;
             }
@@ -81,7 +82,7 @@ namespace ShiftWork.Api.Services
 
             _context.TaskShifts.Remove(taskShift);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Task shift with ID {Id} deleted.", id);
+            _logger.LogInformation("Task shift with ID {Id} for company {CompanyId} deleted.", id, companyId);
             return true;
         }
     }

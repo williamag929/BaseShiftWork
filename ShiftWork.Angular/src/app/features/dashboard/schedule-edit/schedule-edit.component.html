@@ -7,18 +7,68 @@
 <div class="modal-body">
   <form [formGroup]="scheduleForm" (ngSubmit)="save()">
     <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" id="name" class="form-control" formControlName="name">
+    </div>
+    <div class="form-group">
       <label for="personId">Person</label>
       <select id="personId" class="form-control" formControlName="personId">
         <option *ngFor="let person of people" [value]="person.personId">{{ person.name }}</option>
       </select>
     </div>
     <div class="form-group">
+      <label for="locationId">Location</label>
+      <select id="locationId" class="form-control" formControlName="locationId">
+        <option *ngFor="let location of locations" [value]="location.locationId">{{ location.name }}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="areaId">Area</label>
+        <select id="areaId" class="form-control" formControlName="areaId">
+          <option value="" disabled>Select a Area</option>
+          <option *ngFor="let area of areas" [value]="area.areaId">{{ area.name }}</option>
+        </select>
+        <div *ngIf="scheduleForm.get('areaId')?.touched && scheduleForm.get('areaId')?.errors?.['required']" class="text-danger small">
+          Area is required.
+        </div>
+    </div>
+    <div class="form-group">
+      <label for="startDate">Start Date</label>
+      <input type="datetime-local" id="startDate" class="form-control" formControlName="startDate">
+    </div>
+    <div class="form-group">
+      <label for="endDate">End Date</label>
+      <input type="datetime-local" id="endDate" class="form-control" formControlName="endDate">
+    </div>
+    <!--
+        <div class="form-group">
       <label for="startTime">Start Time</label>
       <input type="datetime-local" id="startTime" class="form-control" formControlName="startTime">
     </div>
     <div class="form-group">
       <label for="endTime">End Time</label>
       <input type="datetime-local" id="endTime" class="form-control" formControlName="endTime">
+    </div>
+    -->
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" class="form-control" formControlName="description"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="status">Status</label>
+      <input type="text" id="status" class="form-control" formControlName="status">
+    </div>
+    <div class="form-group">
+      <label for="color">Color</label>
+      <input type="color" id="color" class="form-control" formControlName="color">
+    </div>
+    <div class="form-group" *ngIf="false">
+      <label for="timezone">Timezone</label>
+      <input type="text" id="timezone" class="form-control" formControlName="timezone">
+    </div>
+    <div class="form-group" *ngIf="false">
+      <label for="type">Type</label>
+      <input type="text" id="type" class="form-control" formControlName="type">
     </div>
   </form>
 </div>

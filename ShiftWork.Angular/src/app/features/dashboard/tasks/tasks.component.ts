@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TaskShift } from 'src/app/core/models/task-shift.model';
 import { TaskShiftService } from 'src/app/core/services/task-shift.service';
@@ -16,7 +16,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
-import { Observable } from 'rxjs/internal/Observable';
+import { Observable, Subject, forkJoin } from 'rxjs';
+import { filter, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tasks',
@@ -25,7 +26,7 @@ import { Observable } from 'rxjs/internal/Observable';
   standalone: true,
   imports: [ReactiveFormsModule, SharedModule,NgbModule]
 })
-export class TasksComponent implements OnInit {
+export class TasksComponent implements OnInit, OnDestroy {
   activeCompany$: Observable<any>;
   activeCompany: any;
   tasks: TaskShift[] = [];
@@ -36,6 +37,7 @@ export class TasksComponent implements OnInit {
   people: People[] = [];
   loading = false;
   error: any = null;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private taskShiftService: TaskShiftService,
@@ -48,47 +50,11 @@ export class TasksComponent implements OnInit {
     private store: Store<AppState>
   ) {
 
-        this.activeCompany$ = this.store.select(selectActiveCompany);
-    
-        this.activeCompany$.subscribe((company:any) => {
-          if (company) {
-            this.activeCompany = company;
-            console.log('Active company set:', this.activeCompany);
-          } else {
-            console.log('No active company found');
-          }
-        });
-
+    this.activeCompany$ = this.store.select(selectActiveCompany);
    }
 
   ngOnInit(): void {
-    this.activeCompany$.subscribe((company:any) => {
-      if (company) {
-        this.loading = true;
-        this.taskShiftService.getTaskShifts(company.companyId).subscribe(
-          tasks => {
-            this.tasks = tasks.filter(t => t.companyId === company.companyId);
-            this.loading = false;
-          },
-          error => {
-            this.error = error;
-            this.loading = false;
-          }
-        );
-        this.locationService.getLocations(company.companyId).subscribe(locations => {
-          this.locations = locations.filter(l => l.companyId === company.companyId);
-        });
-        this.areaService.getAreas(company.companyId).subscribe(areas => {
-          this.areas = areas.filter(a => a.companyId === company.companyId);
-        });
-        this.peopleService.getPeople(company.companyId).subscribe(people => {
-          this.people = people.filter(p => p.companyId === company.companyId);
-        });
-      }
-    });
-
     this.taskForm = this.fb.group({
-      name: ['', Validators.required],
       title: ['', Validators.required],
       description: ['', Validators.required],
       locationId: ['', Validators.required],
@@ -96,6 +62,42 @@ export class TasksComponent implements OnInit {
       personId: [''],
       status: ['Active', Validators.required],
     });
+
+    this.activeCompany$.pipe(
+      filter(company => !!company),
+      tap(company => {
+        this.activeCompany = company;
+        this.loading = true;
+        console.log('Active company set:', this.activeCompany);
+      }),
+      switchMap(company =>
+        forkJoin({
+          tasks: this.taskShiftService.getTaskShifts(company.companyId),
+          locations: this.locationService.getLocations(company.companyId),
+          areas: this.areaService.getAreas(company.companyId),
+          people: this.peopleService.getPeople(company.companyId)
+        })
+      ),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: ({ tasks, locations, areas, people }) => {
+        this.tasks = tasks;
+        this.locations = locations;
+        this.areas = areas;
+        this.people = people;
+        this.loading = false;
+      },
+      error: err => {
+        this.error = err;
+        this.loading = false;
+        this.toastr.error('Failed to load initial data for tasks.');
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   editTask(task: TaskShift): void {
@@ -106,7 +108,6 @@ export class TasksComponent implements OnInit {
   cancelEdit(): void {
     this.selectedTask = null;
     this.taskForm.reset({
-      name: '',
       title: '',
       description: '',
       locationId: '',
@@ -131,9 +132,12 @@ export class TasksComponent implements OnInit {
         .updateTaskShift(this.activeCompany.companyId, updatedTask.taskShiftId, updatedTask)
         .subscribe(
           (result) => {
+            console.log('Task updated:', result);
             const index = this.tasks.findIndex((t) => t.taskShiftId === result.taskShiftId);
             if (index > -1) {
-              this.tasks[index] = result;
+              const updatedTasks = [...this.tasks];
+              updatedTasks[index] = result;
+              this.tasks = updatedTasks;
             }
             this.toastr.success('Task updated successfully.');
             this.cancelEdit();
@@ -141,16 +145,17 @@ export class TasksComponent implements OnInit {
           () => this.toastr.error('Failed to update task.')
         );
     } else {
-      const newTask: TaskShift = {
-        id: null,
+      const newTask: Omit<TaskShift, 'taskShiftId'> = {
         ...this.taskForm.value,
         companyId: this.activeCompany.companyId,
       };
-      this.taskShiftService.createTaskShift(this.activeCompany.companyId, newTask).subscribe(task => {
-        this.tasks.push(task);
+      this.taskShiftService.createTaskShift(this.activeCompany.companyId, newTask as TaskShift).subscribe(task => {
+        this.tasks = [...this.tasks, task];
         this.cancelEdit();
         this.toastr.success('Task created successfully');
-      });
+      },
+      () => this.toastr.error('Failed to create Task.')
+      );
     }
   }
 }

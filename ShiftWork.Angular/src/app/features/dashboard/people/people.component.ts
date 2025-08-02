@@ -123,10 +123,10 @@ export class PeopleComponent implements OnInit {
       this.peopleService.updatePerson(this.activeCompany.companyId, updatedPerson.personId, updatedPerson).subscribe(
         (result) => {
           console.log('Updated person:', result);
-          //const index = this.people.findIndex(p => p.personId === result.personId);
-          //if (index > -1) {
-          //  this.people[index] = result;
-          //}
+          const index = this.people.findIndex(p => p.personId === result.personId);
+          if (index > -1) {
+            this.people[index] = result;
+          }
           this.toastr.success('Person updated successfully.');
           this.cancelEdit();
         },

@@ -24,7 +24,9 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ScheduleEditComponent } from '../schedule-edit/schedule-edit.component';
 import { ToastrService } from 'ngx-toastr';
 import { SharedModule } from "src/app/shared/shared.module";
-
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/store/app.state';
+import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 
 @Component({
   selector: 'app-schedule',
@@ -38,7 +40,8 @@ export class ScheduleComponent implements OnInit {
   
   @ViewChild('calendar')
   calendarComponent!: FullCalendarComponent;
-
+  activeCompany$: Observable<any>;
+  activeCompany: any;
   schedules: Schedule[] = [];
   people: People[] = [];
   locations: Location[] = [];
@@ -53,26 +56,41 @@ export class ScheduleComponent implements OnInit {
     private peopleService: PeopleService,
     private locationService: LocationService,
     private modalService: NgbModal,
+    private store: Store<AppState>,
     private toastr: ToastrService
-  ) { }
+  ) {
+
+    this.activeCompany$ = this.store.select(selectActiveCompany);
+
+    this.activeCompany$.subscribe((company: any) => {
+      if (company) {
+        this.activeCompany = company;
+        console.log('Active company set:', this.activeCompany);
+      } else {
+        console.log('No active company found');
+      }
+    });
+
+   }
 
   ngOnInit(): void {
-    this.authService.activeCompany$.subscribe((company: { id: string }) => {
+    this.activeCompany$.subscribe((company: any) => {
       if (company) {
+        this.activeCompany = company;
         this.loading = true;
-        this.peopleService.getPeople(company.id).subscribe((people: People[]) => {
-          this.people = people.filter((p: People) => p.companyId === company.id);
+        this.peopleService.getPeople(company.companyId).subscribe((people: People[]) => {
+          this.people = people.filter((p: People) => p.companyId === company.companyId);
         });
-        this.locationService.getLocations(company.id).subscribe((locations: Location[]) => {
-          this.locations = locations.filter((l: Location) => l.companyId === company.id);
+        this.locationService.getLocations(company.companyId).subscribe((locations: Location[]) => {
+          this.locations = locations.filter((l: Location) => l.companyId === company.companyId);
         });
-        this.scheduleService.getSchedules(company.id).subscribe({
+        this.scheduleService.getSchedules(company.companyId).subscribe({
           next: (schedules: Schedule[]) => {
-            this.schedules = schedules.filter((s: Schedule) => s.companyId === company.id);
+            this.schedules = schedules.filter((s: Schedule) => s.companyId === company.companyId);
             this.events = this.schedules.map((s: Schedule) => ({
               title: this.people.find((p: People) => p.personId === s.personId)?.name || 'Unknown',
-              start: s.startTime,
-              end: s.endTime,
+              start: s.startDate,
+              end: s.endDate,
               extendedProps: {
                 schedule: s
               }
@@ -109,16 +127,16 @@ export class ScheduleComponent implements OnInit {
     modalRef.componentInstance.schedule = {
       startTime: selectInfo.startStr,
       endTime: selectInfo.endStr,
-      companyId: this.authService.activeCompany.id
+      companyId: this.activeCompany.companyId
     };
     modalRef.result.then((result: Schedule) => {
       if (result) {
-        this.scheduleService.createSchedule(this.authService.activeCompany.id, result).subscribe((schedule: Schedule) => {
+        this.scheduleService.createSchedule(this.activeCompany.id, result).subscribe((schedule: Schedule) => {
           this.schedules.push(schedule);
           this.events.push({
             title: this.people.find((p: People) => p.personId === schedule.personId)?.name || 'Unknown',
-            start: schedule.startTime,
-            end: schedule.endTime,
+            start: schedule.startDate,
+            end: schedule.endDate,
             extendedProps: {
               schedule: schedule
             }
@@ -136,7 +154,7 @@ export class ScheduleComponent implements OnInit {
     modalRef.result.then((result: Schedule) => {
       if (result) {
         this.scheduleService.updateSchedule(
-          this.authService.activeCompany.id,
+          this.activeCompany.id,
           result.scheduleId,
           result
         ).subscribe((schedule: Schedule) => {
@@ -144,8 +162,8 @@ export class ScheduleComponent implements OnInit {
           this.schedules[index] = schedule;
           this.events = this.schedules.map((s: Schedule) => ({
             title: this.people.find((p: People) => p.personId === s.personId)?.name || 'Unknown',
-            start: s.startTime,
-            end: s.endTime,
+            start: s.startDate,
+            end: s.endDate,
             extendedProps: {
               schedule: s
             }

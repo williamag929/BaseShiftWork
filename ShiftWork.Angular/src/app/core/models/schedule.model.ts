@@ -9,8 +9,8 @@ export interface Schedule {
     areaId: number;
     startDate: Date;
     endDate: Date;
-    startTime: Date;
-    endTime: Date;
+    //startTime: Date;
+    //endTime: Date;
     description?: string;
     status: string;
     settings?: {

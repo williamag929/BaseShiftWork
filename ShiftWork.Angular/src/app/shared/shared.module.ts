@@ -31,7 +31,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
-  declarations: [],
   imports: [
     CommonModule,
     FormsModule,
@@ -104,7 +103,7 @@ MatSidenavModule,
     MatExpansionModule,
     MatGridListModule,
     MatCheckboxModule,
-    MatSidenav    
+    MatSidenav,
   ]
 })
 export class SharedModule { }
