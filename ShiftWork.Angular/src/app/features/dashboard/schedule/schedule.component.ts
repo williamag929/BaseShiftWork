@@ -2,20 +2,15 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FullCalendarComponent } from '@fullcalendar/angular';
 import {
   CalendarOptions,
-  DateSelectArg,
-  EventClickArg,
-  EventApi,
+  EventInput,
 } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import bootstrapPlugin from '@fullcalendar/bootstrap';
-import { Calendar, CalendarApi, EventInput } from '@fullcalendar/core';
-import { filter, map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Schedule } from 'src/app/core/models/schedule.model';
 import { ScheduleService } from 'src/app/core/services/schedule.service';
-import { AuthService } from 'src/app/core/services/auth.service';
 import { People } from 'src/app/core/models/people.model';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { Location } from 'src/app/core/models/location.model';
@@ -32,12 +27,12 @@ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
   selector: 'app-schedule',
   templateUrl: './schedule.component.html',
   styleUrls: ['./schedule.component.css'],
-  providers: [ScheduleService, AuthService, PeopleService, LocationService],
+  providers: [ScheduleService, PeopleService, LocationService],
   imports: [SharedModule],
 
 })
 export class ScheduleComponent implements OnInit {
-  
+
   @ViewChild('calendar')
   calendarComponent!: FullCalendarComponent;
   activeCompany$: Observable<any>;
@@ -49,10 +44,10 @@ export class ScheduleComponent implements OnInit {
   events: EventInput[] = [];
   loading = false;
   error: any = null;
+  selectedLocationId: any;
 
   constructor(
     private scheduleService: ScheduleService,
-    private authService: AuthService,
     private peopleService: PeopleService,
     private locationService: LocationService,
     private modalService: NgbModal,
@@ -65,13 +60,12 @@ export class ScheduleComponent implements OnInit {
     this.activeCompany$.subscribe((company: any) => {
       if (company) {
         this.activeCompany = company;
-        console.log('Active company set:', this.activeCompany);
       } else {
         console.log('No active company found');
       }
     });
 
-   }
+  }
 
   ngOnInit(): void {
     this.activeCompany$.subscribe((company: any) => {
@@ -79,22 +73,15 @@ export class ScheduleComponent implements OnInit {
         this.activeCompany = company;
         this.loading = true;
         this.peopleService.getPeople(company.companyId).subscribe((people: People[]) => {
-          this.people = people.filter((p: People) => p.companyId === company.companyId);
+          this.people = people;
         });
-        this.locationService.getLocations(company.companyId).subscribe((locations: Location[]) => {
-          this.locations = locations.filter((l: Location) => l.companyId === company.companyId);
+        this.locationService.getLocations(company.companyId).subscribe((locations) => {
+          this.locations = locations;
         });
         this.scheduleService.getSchedules(company.companyId).subscribe({
           next: (schedules: Schedule[]) => {
-            this.schedules = schedules.filter((s: Schedule) => s.companyId === company.companyId);
-            this.events = this.schedules.map((s: Schedule) => ({
-              title: this.people.find((p: People) => p.personId === s.personId)?.name || 'Unknown',
-              start: s.startDate,
-              end: s.endDate,
-              extendedProps: {
-                schedule: s
-              }
-            }));
+            this.schedules = schedules;
+            this.events = this.schedules.map(s => this.mapScheduleToEvent(s));
             this.calendarOptions.events = this.events;
             this.loading = false;
           },
@@ -118,29 +105,39 @@ export class ScheduleComponent implements OnInit {
       selectable: true,
       select: this.handleDateSelect.bind(this),
       eventClick: this.handleEventClick.bind(this),
-      //eventDrop: this.handleEventDrop.bind(this)
+    };
+  }
+
+  private mapScheduleToEvent(schedule: Schedule): EventInput {
+    const personName = this.people.find(p => p.personId === Number(schedule.personId))?.name || 'Unknown Person';
+    const locationName = this.locations.find(l => l.locationId === schedule.locationId)?.name || 'Unknown Location';
+
+    return {
+      title: `${personName} - ${locationName}`,
+      start: schedule.startDate,
+      end: schedule.endDate,
+      locationId: schedule.locationId,
+      personId: schedule.personId,
+      extendedProps: {
+        schedule: schedule
+      },
+      color: schedule.color && schedule.color.toLowerCase() !== '#000000' ? schedule.color : undefined
     };
   }
 
   handleDateSelect(selectInfo: any) {
     const modalRef = this.modalService.open(ScheduleEditComponent);
     modalRef.componentInstance.schedule = {
-      startTime: selectInfo.startStr,
-      endTime: selectInfo.endStr,
+      startDate: selectInfo.startStr,
+      endDate: selectInfo.endStr,
+      locationId: this.selectedLocationId,
       companyId: this.activeCompany.companyId
     };
     modalRef.result.then((result: Schedule) => {
       if (result) {
         this.scheduleService.createSchedule(this.activeCompany.id, result).subscribe((schedule: Schedule) => {
           this.schedules.push(schedule);
-          this.events.push({
-            title: this.people.find((p: People) => p.personId === schedule.personId)?.name || 'Unknown',
-            start: schedule.startDate,
-            end: schedule.endDate,
-            extendedProps: {
-              schedule: schedule
-            }
-          });
+          this.events = [...this.events, this.mapScheduleToEvent(schedule)];
           this.calendarOptions.events = this.events;
           this.toastr.success('Schedule created successfully');
         });
@@ -159,15 +156,10 @@ export class ScheduleComponent implements OnInit {
           result
         ).subscribe((schedule: Schedule) => {
           const index = this.schedules.findIndex((s: Schedule) => s.scheduleId === schedule.scheduleId);
-          this.schedules[index] = schedule;
-          this.events = this.schedules.map((s: Schedule) => ({
-            title: this.people.find((p: People) => p.personId === s.personId)?.name || 'Unknown',
-            start: s.startDate,
-            end: s.endDate,
-            extendedProps: {
-              schedule: s
-            }
-          }));
+          if (index > -1) {
+            this.schedules[index] = schedule;
+          }
+          this.events = this.schedules.map(s => this.mapScheduleToEvent(s));
           this.calendarOptions.events = this.events;
           this.toastr.success('Schedule updated successfully');
         });
@@ -175,7 +167,19 @@ export class ScheduleComponent implements OnInit {
     });
   }
 
-  filterByLocation(locationId: any): void {
-    // TODO: Implement filter by location
+  filterByLocation(event: any): void {
+    const selectedValue = Number(event.target.value);
+    if (isNaN(selectedValue) || selectedValue === 0) {
+      this.selectedLocationId = null;
+      this.events = this.schedules.map(s => this.mapScheduleToEvent(s));
+      this.toastr.info('Showing all schedules');
+    } else {
+      this.selectedLocationId = selectedValue;
+      this.events = this.schedules
+        .filter((s: Schedule) => s.locationId === selectedValue)
+        .map(s => this.mapScheduleToEvent(s));
+      this.toastr.info('Filtered schedules by location');
+    }
+    this.calendarOptions.events = this.events;
   }
 }

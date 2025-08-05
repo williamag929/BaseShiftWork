@@ -62,9 +62,9 @@ export class LocationsComponent implements OnInit {
         this.activeCompany = company;
         console.log('Active company set:', this.activeCompany);
         this.loading = true;
-        this.locationService.getLocations(company.companyId).subscribe(
-          (locations: Location[]) => {
-            this.locations = locations.filter((l: Location) => l.companyId === company.companyId);
+        this.locationService.getLocations(company.companyId).subscribe(locations => {
+            console.log('Locations fetched:', locations);
+            this.locations = locations;
             this.loading = false;
           },
           (error: any) => {

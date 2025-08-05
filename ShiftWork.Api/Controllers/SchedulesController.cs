@@ -12,6 +12,12 @@ using System.Threading.Tasks;
 
 namespace ShiftWork.Api.Controllers
 {
+    //todo: consider using a service for schedule management to encapsulate business logic and data access
+    //todo: consider adding endpoints for generating schedules, updating assignments, etc.
+    //todo: consider add pagination and filtering options for schedules
+    //todo: consider add option to aprove or reject schedules
+    //todo: cosider add webhooks or notifications for schedule changes like a interceptor to use with different clients
+
     /// <summary>
     /// API controller for managing schedules.
     /// </summary>
@@ -138,8 +144,8 @@ namespace ShiftWork.Api.Controllers
                 }
 
                 var schedule = _mapper.Map<Schedule>(scheduleDto);
-                schedule.timezone = location.TimeZone;
-                schedule.type = "Shift"; // Default type, can be customized later
+                schedule.TimeZone = location.TimeZone;
+                schedule.Type = "Shift"; // Default type, can be customized later
                 var createdSchedule = await _scheduleService.Add(schedule);
 
                 if (createdSchedule == null)

@@ -10,8 +10,7 @@ import { SharedModule } from '../../../shared/shared.module';
   imports: [
     CommonModule,
     SchedulesRoutingModule,
-    SharedModule,
-    SchedulesComponent
+    SharedModule
   ]
 })
 export class SchedulesModule { }
