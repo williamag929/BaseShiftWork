@@ -42,27 +42,17 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(typeof(IEnumerable<PersonDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<IEnumerable<PersonDto>>> GetPeople(string companyId)
+        public async Task<ActionResult<IEnumerable<PersonDto>>> GetPeople(string companyId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchQuery = null)
         {
+            //pagination added
+            //filtering added
             try
             {
-                var cacheKey = $"people_{companyId}";
-                if (!_memoryCache.TryGetValue(cacheKey, out IEnumerable<Person> people))
-                {
-                    _logger.LogInformation("Cache miss for people in company {CompanyId}", companyId);
-                    people = await _peopleService.GetAll(companyId);
+                var people = await _peopleService.GetAll(companyId, pageNumber, pageSize, searchQuery);
 
-                    if (people == null || !people.Any())
-                    {
-                        return NotFound($"No people found for company {companyId}.");
-                    }
-
-                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-                    _memoryCache.Set(cacheKey, people, cacheEntryOptions);
-                }
-                else
+                if (people == null || !people.Any())
                 {
-                    _logger.LogInformation("Cache hit for people in company {CompanyId}", companyId);
+                    return NotFound($"No people found for company {companyId}.");
                 }
 
                 return Ok(_mapper.Map<IEnumerable<PersonDto>>(people));

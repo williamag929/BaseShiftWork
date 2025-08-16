@@ -14,7 +14,7 @@ namespace ShiftWork.Api.Services
     /// </summary>
     public interface IPeopleService
     {
-        Task<IEnumerable<Person>> GetAll(string companyId);
+        Task<IEnumerable<Person>> GetAll(string companyId, int pageNumber, int pageSize, string searchQuery);
         Task<Person> Get(string companyId, int personId);
         Task<Person> Add(Person person);
         Task<Person> Update(Person person);
@@ -38,10 +38,16 @@ namespace ShiftWork.Api.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<IEnumerable<Person>> GetAll(string companyId)
+        public async Task<IEnumerable<Person>> GetAll(string companyId, int pageNumber, int pageSize, string searchQuery)
         {
-            // FIX: Filter people by the provided companyId to prevent data leakage.
-            return await _context.Persons.Where(p => p.CompanyId == companyId).ToListAsync();
+            var query = _context.Persons.Where(p => p.CompanyId == companyId);
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                query = query.Where(p => p.Name.Contains(searchQuery));
+            }
+
+            return await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
         public async Task<Person> Get(string companyId, int personId)

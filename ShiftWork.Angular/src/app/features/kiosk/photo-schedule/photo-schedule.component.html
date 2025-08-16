@@ -1,0 +1,106 @@
+<!-- photo-schedule.component.html -->
+<div class="photo-schedule-container">
+  <!-- Header -->
+  <div class="d-flex justify-content-center mb-3" *ngIf="selectedEmployee">
+    <h2>{{ selectedEmployee.name }}</h2>
+  </div>
+
+  <!-- Webcam View -->
+  <webcam 
+    *ngIf="!webcamImage && selectedEmployee" 
+    [trigger]="triggerObservable$" 
+    (imageCapture)="handleImage($event)"
+    (initError)="handleInitError($event)"
+    class="webcam-container">
+  </webcam>
+
+  <!-- Captured Photo Display -->
+  <div *ngIf="webcamImage && selectedEmployee" class="photo-result text-center">
+    <img 
+      [src]="flippedImage" 
+      alt="Captured photo" 
+      class="captured-photo mb-3">
+    <h3 class="success-message">Shift updated thanks!</h3>
+    <button 
+      class="btn btn-secondary" 
+      (click)="clearEmployee()"
+      type="button">
+      Done
+    </button>
+  </div>
+
+  <!-- Countdown Display -->
+  <div *ngIf="countdown$ | async as count" class="countdown-container">
+    <div *ngIf="count > 0" class="countdown-overlay">
+      <div class="d-flex justify-content-center align-items-center h-100">
+        <h4 class="countdown-text">
+          Capturing photo in {{ count }} seconds...
+        </h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div *ngIf="!scheduling && selectedEmployee" class="action-buttons">
+    <div class="button-group mb-3">
+      <button 
+        *ngIf="!webcamImage"
+        type="button"
+        class="btn btn-success btn-lg me-2"
+        (click)="triggerImage(ScheduleAction.START_SHIFT)"
+        [disabled]="scheduling">
+        <i class="fa fa-play" aria-hidden="true"></i>
+        Start Shift
+      </button>
+      
+      <button 
+        *ngIf="!webcamImage"
+        type="button"
+        class="btn btn-danger btn-lg"
+        (click)="triggerImage(ScheduleAction.END_SHIFT)"
+        [disabled]="scheduling">
+        <i class="fa fa-stop" aria-hidden="true"></i>
+        End Shift
+      </button>
+    </div>
+
+    <div class="button-group mb-3">
+      <button 
+        *ngIf="!webcamImage"
+        type="button"
+        class="btn btn-primary btn-lg me-2"
+        (click)="triggerImage(ScheduleAction.START_BREAK)"
+        [disabled]="scheduling">
+        <i class="fa fa-coffee" aria-hidden="true"></i>
+        Start Break
+      </button>
+      
+      <button 
+        *ngIf="!webcamImage"
+        type="button"
+        class="btn btn-warning btn-lg"
+        (click)="triggerImage(ScheduleAction.END_BREAK)"
+        [disabled]="scheduling">
+        <i class="fa fa-play-circle" aria-hidden="true"></i>
+        End Break
+      </button>
+    </div>
+
+    <div class="button-group">
+      <button 
+        *ngIf="!webcamImage"
+        type="button"
+        class="btn btn-secondary btn-lg"
+        (click)="clearEmployee()"
+        [disabled]="scheduling">
+        <i class="fa fa-times" aria-hidden="true"></i>
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- No Employee Selected Message -->
+  <div *ngIf="!selectedEmployee" class="text-center">
+    <h3>Please select an employee to continue</h3>
+  </div>
+</div>

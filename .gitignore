@@ -56,3 +56,6 @@ nunit-*.xml
 ShiftWork.Angular/.env
 /ShiftWork.Angular/node_modules
 /node_modules
+python_client/.env
+/python_client/.venv
+/python_client/env

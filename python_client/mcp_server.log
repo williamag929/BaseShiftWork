@@ -1,0 +1,174 @@
+2025-08-15 20:50:28,045 - __main__ - INFO - Script started
+2025-08-15 20:50:28,045 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-08-15 20:50:28,045 - __main__ - INFO - Starting main()
+2025-08-15 20:50:28,045 - __main__ - INFO - Initializing DebugShiftWorkServer
+2025-08-15 20:50:28,045 - mcp.server.lowlevel.server - DEBUG - Initializing server 'shiftwork-debug-server'
+2025-08-15 20:50:28,045 - __main__ - INFO - Setting up handlers
+2025-08-15 20:50:28,045 - mcp.server.lowlevel.server - DEBUG - Registering handler for ListToolsRequest
+2025-08-15 20:50:28,045 - mcp.server.lowlevel.server - DEBUG - Registering handler for CallToolRequest
+2025-08-15 20:50:28,045 - __main__ - INFO - Starting debug MCP server
+2025-08-15 20:50:28,045 - __main__ - INFO - Creating stdio server
+2025-08-15 20:50:28,058 - __main__ - INFO - stdio_server created successfully
+2025-08-15 20:50:28,059 - __main__ - ERROR - Server error: unhandled errors in a TaskGroup (1 sub-exception)
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 205, in run
+  |     async with stdio_server() as (read_stream, write_stream):
+  |   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(typ, value, traceback)
+  |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\stdio.py", line 85, in stdio_server
+  |     async with anyio.create_task_group() as tg:
+  |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\anyio\_backends\_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\stdio.py", line 88, in stdio_server
+    |     yield read_stream, write_stream
+    |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 211, in run
+    |     capabilities=self.server.get_capabilities()
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | TypeError: Server.get_capabilities() missing 2 required positional arguments: 'notification_options' and 'experimental_capabilities'
+    +------------------------------------
+2025-08-15 20:50:28,064 - __main__ - INFO - Cleaning up...
+2025-08-15 20:50:28,067 - __main__ - ERROR - Fatal error in main(): unhandled errors in a TaskGroup (1 sub-exception)
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 239, in main
+  |     await server.run()
+  |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 205, in run
+  |     async with stdio_server() as (read_stream, write_stream):
+  |   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(typ, value, traceback)
+  |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\stdio.py", line 85, in stdio_server
+  |     async with anyio.create_task_group() as tg:
+  |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\anyio\_backends\_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\stdio.py", line 88, in stdio_server
+    |     yield read_stream, write_stream
+    |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 211, in run
+    |     capabilities=self.server.get_capabilities()
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | TypeError: Server.get_capabilities() missing 2 required positional arguments: 'notification_options' and 'experimental_capabilities'
+    +------------------------------------
+2025-08-15 20:53:06,293 - __main__ - INFO - Script started
+2025-08-15 20:53:06,293 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-08-15 20:53:06,293 - __main__ - INFO - Starting main()
+2025-08-15 20:53:06,293 - __main__ - INFO - Initializing DebugShiftWorkServer
+2025-08-15 20:53:06,293 - mcp.server.lowlevel.server - DEBUG - Initializing server 'shiftwork-debug-server'
+2025-08-15 20:53:06,293 - __main__ - INFO - Setting up handlers
+2025-08-15 20:53:06,293 - mcp.server.lowlevel.server - DEBUG - Registering handler for ListToolsRequest
+2025-08-15 20:53:06,293 - mcp.server.lowlevel.server - DEBUG - Registering handler for CallToolRequest
+2025-08-15 20:53:06,293 - __main__ - INFO - Starting debug MCP server
+2025-08-15 20:53:06,293 - __main__ - INFO - Creating stdio server
+2025-08-15 20:53:06,293 - __main__ - INFO - stdio_server created successfully
+2025-08-15 20:53:06,309 - __main__ - ERROR - Server error: unhandled errors in a TaskGroup (1 sub-exception)
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 205, in run
+  |     async with stdio_server() as (read_stream, write_stream):
+  |   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(typ, value, traceback)
+  |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\stdio.py", line 85, in stdio_server
+  |     async with anyio.create_task_group() as tg:
+  |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\anyio\_backends\_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\stdio.py", line 88, in stdio_server
+    |     yield read_stream, write_stream
+    |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 211, in run
+    |     capabilities=self.server.get_capabilities(
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\lowlevel\server.py", line 206, in get_capabilities
+    |     tools_capability = types.ToolsCapability(listChanged=notification_options.tools_changed)
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AttributeError: 'NoneType' object has no attribute 'tools_changed'
+    +------------------------------------
+2025-08-15 20:53:06,321 - __main__ - INFO - Cleaning up...
+2025-08-15 20:53:06,321 - __main__ - ERROR - Fatal error in main(): unhandled errors in a TaskGroup (1 sub-exception)
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 242, in main
+  |     await server.run()
+  |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 205, in run
+  |     async with stdio_server() as (read_stream, write_stream):
+  |   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(typ, value, traceback)
+  |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\stdio.py", line 85, in stdio_server
+  |     async with anyio.create_task_group() as tg:
+  |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\anyio\_backends\_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\stdio.py", line 88, in stdio_server
+    |     yield read_stream, write_stream
+    |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 211, in run
+    |     capabilities=self.server.get_capabilities(
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\lowlevel\server.py", line 206, in get_capabilities
+    |     tools_capability = types.ToolsCapability(listChanged=notification_options.tools_changed)
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AttributeError: 'NoneType' object has no attribute 'tools_changed'
+    +------------------------------------
+2025-08-15 21:17:27,000 - __main__ - INFO - Script started
+2025-08-15 21:17:27,000 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-08-15 21:17:27,001 - __main__ - INFO - Starting main()
+2025-08-15 21:17:27,001 - __main__ - INFO - Initializing DebugShiftWorkServer
+2025-08-15 21:17:27,001 - mcp.server.lowlevel.server - DEBUG - Initializing server 'shiftwork-debug-server'
+2025-08-15 21:17:27,002 - __main__ - INFO - Setting up handlers
+2025-08-15 21:17:27,002 - mcp.server.lowlevel.server - DEBUG - Registering handler for ListToolsRequest
+2025-08-15 21:17:27,002 - mcp.server.lowlevel.server - DEBUG - Registering handler for CallToolRequest
+2025-08-15 21:17:27,002 - __main__ - INFO - Starting debug MCP server
+2025-08-15 21:17:27,002 - __main__ - INFO - Creating stdio server
+2025-08-15 21:17:27,007 - __main__ - INFO - stdio_server created successfully
+2025-08-15 21:17:27,007 - __main__ - ERROR - Server error: unhandled errors in a TaskGroup (1 sub-exception)
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 205, in run
+  |     async with stdio_server() as (read_stream, write_stream):
+  |   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(typ, value, traceback)
+  |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\stdio.py", line 85, in stdio_server
+  |     async with anyio.create_task_group() as tg:
+  |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\anyio\_backends\_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\stdio.py", line 88, in stdio_server
+    |     yield read_stream, write_stream
+    |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 211, in run
+    |     capabilities=self.server.get_capabilities(
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\lowlevel\server.py", line 206, in get_capabilities
+    |     tools_capability = types.ToolsCapability(listChanged=notification_options.tools_changed)
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AttributeError: 'NoneType' object has no attribute 'tools_changed'
+    +------------------------------------
+2025-08-15 21:17:27,010 - __main__ - INFO - Cleaning up...
+2025-08-15 21:17:27,010 - __main__ - ERROR - Fatal error in main(): unhandled errors in a TaskGroup (1 sub-exception)
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 242, in main
+  |     await server.run()
+  |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 205, in run
+  |     async with stdio_server() as (read_stream, write_stream):
+  |   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(typ, value, traceback)
+  |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\stdio.py", line 85, in stdio_server
+  |     async with anyio.create_task_group() as tg:
+  |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\anyio\_backends\_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\stdio.py", line 88, in stdio_server
+    |     yield read_stream, write_stream
+    |   File "C:\projects\BaseShiftWork\python_client\debug_mcp_server.py", line 211, in run
+    |     capabilities=self.server.get_capabilities(
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\projects\BaseShiftWork\python_client\env\Lib\site-packages\mcp\server\lowlevel\server.py", line 206, in get_capabilities
+    |     tools_capability = types.ToolsCapability(listChanged=notification_options.tools_changed)
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AttributeError: 'NoneType' object has no attribute 'tools_changed'
+    +------------------------------------

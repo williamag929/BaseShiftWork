@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { People } from '../models/people.model';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -22,8 +22,15 @@ export class PeopleService {
     };
   }
 
-  getPeople(companyId: string): Observable<People[]> {
-    return this.http.get<People[]>(`${this.apiUrl}/companies/${companyId}/People`)
+  getPeople(companyId: string, pageNumber = 1, pageSize = 10, searchQuery = ''): Observable<People[]> {
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+    if (searchQuery) {
+      params = params.set('searchQuery', searchQuery);
+    }
+
+    return this.http.get<People[]>(`${this.apiUrl}/companies/${companyId}/People`, { params })
       .pipe(
         catchError(this.handleError)
       );
