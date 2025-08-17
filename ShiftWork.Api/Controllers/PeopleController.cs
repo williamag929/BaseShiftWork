@@ -211,5 +211,71 @@ namespace ShiftWork.Api.Controllers
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
+
+        /// <summary>
+        /// Updates the status of a person.
+        /// </summary>
+        [HttpPut("{personId}/status")]
+        [ProducesResponseType(typeof(PersonDto), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<PersonDto>> UpdatePersonStatus(string companyId, int personId, [FromBody] string status)
+        {
+            if (string.IsNullOrEmpty(status))
+            {
+                return BadRequest("Status cannot be empty.");
+            }
+
+            try
+            {
+                var person = await _peopleService.Get(companyId, personId);
+                if (person == null)
+                {
+                    return NotFound($"Person with ID {personId} not found.");
+                }
+
+                var updatedPerson = await _peopleService.UpdatePersonStatus(personId, status);
+                if (updatedPerson == null)
+                {
+                    return NotFound($"Person with ID {personId} not found.");
+                }
+
+                _memoryCache.Remove($"person_{companyId}_{personId}");
+                var updatedPersonDto = _mapper.Map<PersonDto>(updatedPerson);
+
+                return Ok(updatedPersonDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating status for person {PersonId} in company {CompanyId}.", personId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the status of a person.
+        /// </summary>
+        [HttpGet("{personId}/status")]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<string>> GetPersonStatus(string companyId, int personId)
+        {
+            try
+            {
+                var status = await _peopleService.GetPersonStatus(personId);
+                if (status == null)
+                {
+                    return NotFound($"Person with ID {personId} not found or status is not set.");
+                }
+                return Ok(status);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving status for person {PersonId} in company {CompanyId}.", personId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
     }
 }

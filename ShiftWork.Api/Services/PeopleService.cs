@@ -19,6 +19,8 @@ namespace ShiftWork.Api.Services
         Task<Person> Add(Person person);
         Task<Person> Update(Person person);
         Task<bool> Delete(string companyId, int personId);
+        Task<Person> UpdatePersonStatus(int personId, string status);
+        Task<string> GetPersonStatus(int personId);
     }
 
     /// <summary>
@@ -98,6 +100,24 @@ namespace ShiftWork.Api.Services
             await _context.SaveChangesAsync();
             _logger.LogInformation("Person with ID {PersonId} for company {CompanyId} deleted.", personId, companyId);
             return true;
+        }
+
+        public async Task<Person> UpdatePersonStatus(int personId, string status)
+        {
+            var person = await _context.Persons.FindAsync(personId);
+            if (person != null)
+            {
+                person.Status = status;
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Status for person with ID {PersonId} updated to {Status}.", person.PersonId, status);
+            }
+            return person;
+        }
+
+        public async Task<string> GetPersonStatus(int personId)
+        {
+            var person = await _context.Persons.FindAsync(personId);
+            return person?.Status;
         }
     }
 }
