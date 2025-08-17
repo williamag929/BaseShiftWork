@@ -84,6 +84,7 @@ builder.Services.AddScoped<IAwsS3Service, AwsS3Service>();
 builder.Services.AddScoped<AuditInterceptor>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<ICompanyUserService, CompanyUserService>();
+builder.Services.AddScoped<IShiftEventService, ShiftEventService>();
 
 
 // Your AuthController uses AutoMapper, so you need to add it and its DI package.

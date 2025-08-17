@@ -22,10 +22,12 @@ namespace ShiftWork.Api.Data
         public DbSet<PersonCrew> PersonCrews { get; set; }
 
         public DbSet<CompanyUser> CompanyUsers { get; set; }
+        public DbSet<ShiftEvent> ShiftEvents { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<ShiftEvent>().ToTable("ShiftEvents");
             modelBuilder.Entity<Company>().ToTable("Companies");
             modelBuilder.Entity<Person>().ToTable("People");
             modelBuilder.Entity<Area>().ToTable("Areas");

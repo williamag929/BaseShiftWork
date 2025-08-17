@@ -6,6 +6,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { DataService } from './data.service';
 import { QueryOptions } from './query-options.service';
 import { options } from '@fullcalendar/core/preact';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/store/app.state';
+import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 
 @Injectable({
   providedIn: 'root',
@@ -14,13 +17,31 @@ export abstract class CoreApiService<T> {
   http = inject(HttpClient);
   dataService = inject(DataService);
 
+  activeCompany$: Observable<any>;
+  activeCompany: any;
+
   url = environment.apiUrl;
+  companyId = localStorage.getItem('CompanyId') || '';
 
   abstract dbPath: string;
   private readonly token: string;
   private httpOptions: any;
 
-  constructor() {
+  constructor(
+        private store: Store<AppState>
+  ) {
+
+    this.activeCompany$ = this.store.select(selectActiveCompany);
+
+    this.activeCompany$.subscribe((company: any) => {
+      if (company) {
+        this.activeCompany = company;
+        console.log('Active company set:', this.activeCompany);
+      } else {
+        console.log('No active company found');
+      }
+    });
+
     const user = JSON.parse(localStorage.getItem('user')!);
     this.token = user.stsTokenManager.accessToken;
     this.httpOptions = {
@@ -35,7 +56,7 @@ export abstract class CoreApiService<T> {
     const id = uuidv4();
     (data as any)['createdAt'] = new Date().toISOString();
     (data as any)['id'] = id;
-    const endpoint = `${this.url}${this.dbPath}`;
+    const endpoint = `${this.url}/companies/${this.activeCompany.companyId}${this.dbPath}`;
     console.log('navigator',navigator.onLine);
 
     if (navigator.onLine) {
@@ -70,7 +91,7 @@ export abstract class CoreApiService<T> {
 
   update(id: string, data: any): Observable<T> {
     (data as any)['editedAt'] = new Date().toISOString();
-    const endpoint = `${this.url}${this.dbPath}/${id}`;
+    const endpoint = `${this.url}/companies/${this.activeCompany.companyId}${this.dbPath}/${id}`;
 
     if (navigator.onLine) {
       return this.http.put<T>(endpoint, data).pipe(
@@ -91,7 +112,7 @@ export abstract class CoreApiService<T> {
   }
 
   delete(id: string): Observable<T> {
-    const endpoint = `${this.url}$${this.dbPath}/${id}`;
+    const endpoint = `${this.url}/companies/${this.activeCompany.companyId}${this.dbPath}/${id}`;
 
     if (navigator.onLine) {
       return this.http.delete<T>(endpoint).pipe(
@@ -123,7 +144,7 @@ export abstract class CoreApiService<T> {
 
   get(id: string): Observable<T | null> {
     const companyId = localStorage.getItem('CompanyId');
-    const endpoint = `${this.url}${companyId}/${this.dbPath}/${id}`;
+    const endpoint = `${this.url}/companies/${companyId}/${this.dbPath}/${id}`;
     const key = `${this.dbPath}_${id}`;
 
     if (navigator.onLine) {
@@ -148,7 +169,7 @@ export abstract class CoreApiService<T> {
 
   getAll(queryOptions: string): Observable<T[]> { 
     const companyId = localStorage.getItem('CompanyId');
-    const endpoint = `${this.url}${companyId}/${this.dbPath}`;
+    const endpoint = `${this.url}/companies/${this.activeCompany.companyId}${this.dbPath}`;
     queryOptions = `queryOptions_${companyId}`;
     console.log('navigator',navigator.onLine);
 
@@ -224,8 +245,8 @@ export abstract class CoreApiService<T> {
 
         const key = this.generateKeyFromQueryOptions(queryOptions);
         //const endpoint = this.generateEndpointFromQueryOptions(queryOptions);
-        const companyId = localStorage.getItem('CompanyId');
-        const endpoint= `${this.url}${companyId}/${this.dbPath}`;
+        //const companyId = localStorage.getItem('CompanyId');
+        const endpoint= `${this.url}/companies/${this.activeCompany.companyId}${this.dbPath}`;
 
         if (navigator.onLine) {
           return this.http.get<any[]>(endpoint, { params }).pipe(
@@ -270,6 +291,6 @@ export abstract class CoreApiService<T> {
 
   private generateEndpointFromQueryOptions(queryOptions: any): string {
     const params = new URLSearchParams(queryOptions).toString();
-    return `${this.url}${this.dbPath}`;
+    return `${this.url}/companies/${this.activeCompany.companyId}${this.dbPath}`;
   }
 }

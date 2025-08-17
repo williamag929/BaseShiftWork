@@ -42,6 +42,8 @@ namespace ShiftWork.Api.Helpers
             CreateMap<TaskShiftDto, TaskShift>();
             CreateMap<Crew, CrewDto>();
             CreateMap<CrewDto, Crew>();
+            CreateMap<ShiftEvent, ShiftEventDto>();
+            CreateMap<ShiftEventDto, ShiftEvent>();
         }
     }
 }

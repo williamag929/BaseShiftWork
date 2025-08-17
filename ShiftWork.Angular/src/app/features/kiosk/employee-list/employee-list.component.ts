@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
+import { KioskService } from '../core/services/kiosk.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -24,6 +25,7 @@ export class EmployeeListComponent implements OnInit {
 
   constructor(
     private peopleService: PeopleService,
+    private readonly kioskService: KioskService,
     private router: Router,
     private toastr: ToastrService,
     private store: Store<AppState>
@@ -54,7 +56,17 @@ export class EmployeeListComponent implements OnInit {
   }
 
   selectEmployee(employee: Person): void {
-    this.router.navigate(['/kiosk/photo-schedule', employee.personId]);
+    console.log('Selected employee:', employee);  
+    this.kioskService.setSelectedEmployee(employee);
+    this.router
+      .navigate(['/kiosk/photo-schedule'], { state: { employee } })
+      .then(() => {
+        console.log('Navigated to photo schedule for employee:', employee);
+      })
+      .catch(error => {
+        console.error('Navigation error:', error);
+        this.toastr.error('Error navigating to photo schedule');
+      }); 
   }
 
   getInitials(name: string): string {
