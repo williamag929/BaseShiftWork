@@ -23,7 +23,7 @@ export class AuthInterceptor implements HttpInterceptor {
     return from(this.authService.getToken()).pipe(
       switchMap(token => {
         if (token) {
-          console.log('Attaching token to request:', token);
+          //console.log('Attaching token to request:', token);
           request = request.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
         }
         return next.handle(request);

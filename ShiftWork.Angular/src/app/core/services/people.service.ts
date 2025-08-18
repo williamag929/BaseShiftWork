@@ -64,6 +64,20 @@ export class PeopleService {
       );
   }
 
+  getPersonStatus(companyId: string, personId: number): Observable<string> {
+    return this.http.get<string>(`${this.apiUrl}/companies/${companyId}/people/${personId}/status`)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+  
+  updatePersonStatus(companyId: string, personId: number, status: string): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/companies/${companyId}/people/${personId}/status`, { status }, this.getHttpOptions())
+      .pipe(
+        catchError(this.handleError)
+      );
+  }  
+
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Unknown error!';
     if (error.error instanceof ErrorEvent) {

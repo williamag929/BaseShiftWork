@@ -10,6 +10,12 @@ import { TimerService } from '../core/services/timer.service';
 import { ScheduleEmployee } from '../core/models/schedule-employee.model';
 import { ShiftEventService } from 'src/app/core/services/shift-event.service';
 import { ShiftEvent } from 'src/app/core/models/shift-event.model';
+import { PeopleService } from 'src/app/core/services/people.service';
+import { ToastrService } from 'ngx-toastr';
+import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/store/app.state';
+import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 
 export enum ScheduleAction {
   START_SHIFT = 'startSchedule',
@@ -29,7 +35,7 @@ export enum ScheduleAction {
 export class PhotoScheduleComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly trigger = new Subject<void>();
-  
+
   // Constants
   private readonly PHOTO_DELAY_MS = 3000;
   private readonly CLEAR_DELAY_MS = 6000;
@@ -37,10 +43,13 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
 
   // Public properties
   selectedEmployee: People | null = null;
+  employeeStatus: string | null = null;
   webcamImage: WebcamImage | null = null;
   flippedImage: string | null = null;
   scheduling = false;
-  
+  activeCompany$: Observable<any>;
+  activeCompany: any;
+
   // Observables
   countdown$ = this.timerService.countdown;
   triggerObservable$ = this.trigger.asObservable();
@@ -52,23 +61,50 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     private readonly kioskService: KioskService,
     private readonly timerService: TimerService,
     private readonly router: Router,
-    private readonly shiftEventService: ShiftEventService
+    private readonly shiftEventService: ShiftEventService,
+    private readonly peopleService: PeopleService,
+    private readonly store: Store<AppState>
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.selectedEmployee = navigation.extras.state['employee'];
     }
+    this.activeCompany$ = this.store.select(selectActiveCompany);
+
   }
 
   ngOnInit(): void {
-    if (!this.selectedEmployee) {
-      // Example: subscribe to employee selection observable from kioskService
-      this.kioskService.selectedEmployee$
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((employee: People | null) => {
-          this.selectedEmployee = employee;
-        });
-      }
+    if (this.selectedEmployee) {
+      this.activeCompany$.subscribe((company: { companyId: string }) => {
+        if (company) {
+          this.activeCompany = company;
+          this.employeeStatus = this.selectedEmployee?.status || null;
+          console.log('Employee status:', this.employeeStatus);
+          this.peopleService.getPersonStatus(company.companyId, Number(this.selectedEmployee?.personId))
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(status => {
+              this.employeeStatus = status;
+              console.log('Employee status:', status);
+            });
+        } else {
+          // Example: subscribe to employee selection observable from kioskService
+          this.kioskService.selectedEmployee$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe((employee: People | null) => {
+              this.selectedEmployee = employee;
+              this.employeeStatus = employee?.status || null;
+              console.log('Employee status:', this.employeeStatus);
+              if (employee) {
+                this.peopleService.getPersonStatus(employee.companyId, employee.personId)
+                  .pipe(takeUntil(this.destroy$))
+                  .subscribe(status => {
+                    this.employeeStatus = status;
+                  });
+              }
+            });
+        }
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -82,10 +118,10 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
    */
   triggerImage(action?: ScheduleAction): void {
     if (this.scheduling) return;
-    
+
     this.scheduling = true;
     this.startCountdown();
-    
+
     setTimeout(() => {
       this.capturePhoto();
       if (action) {
@@ -113,7 +149,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
    */
   handleImage(webcamImage: WebcamImage): void {
     if (!webcamImage?.imageAsDataUrl) return;
-    
+
     this.webcamImage = webcamImage;
     this.flipImage(webcamImage.imageAsDataUrl);
   }
@@ -176,7 +212,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     this.kioskService.setscheduleEmployee(scheduleEmployee);
   }
 
-   private formatDateForInput(date: Date | string | undefined): string {
+  private formatDateForInput(date: Date | string | undefined): string {
     if (!date) {
       return '';
     }
@@ -188,14 +224,14 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     const hours = d.getHours().toString().padStart(2, '0');
     const minutes = d.getMinutes().toString().padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
-  } 
+  }
 
   private flipImage(src: string): void {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      
+
       if (!ctx) {
         console.error('Could not get 2D context from canvas');
         return;
@@ -203,17 +239,17 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
 
       canvas.width = img.width;
       canvas.height = img.height;
-      
+
       ctx.scale(-1, 1);
       ctx.drawImage(img, -img.width, 0);
-      
+
       this.flippedImage = canvas.toDataURL();
     };
-    
+
     img.onerror = () => {
       console.error('Failed to load image for flipping');
     };
-    
+
     img.src = src;
   }
 

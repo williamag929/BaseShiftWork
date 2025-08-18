@@ -38,11 +38,12 @@ namespace ShiftWork.Api.Services
                 var today = DateTime.UtcNow.Date;
                 var scheduleShift = await _context.ScheduleShifts
                     .FirstOrDefaultAsync(ss => ss.PersonId == shiftEvent.PersonId && ss.StartDate.Date == today);
-
+                string status = "";
+                // Determine status based on shift event type and schedule shift
                 if (scheduleShift != null)
                 {
-                    string status = "";
-                    if (shiftEvent.EventType.Equals("ClockIn", StringComparison.OrdinalIgnoreCase))
+
+                    if (shiftEvent.EventType.Equals("startSchedule", StringComparison.OrdinalIgnoreCase))
                     {
                         var latenessThreshold = scheduleShift.StartDate.AddMinutes(5);
                         if (shiftEvent.EventDate > latenessThreshold)
@@ -58,22 +59,29 @@ namespace ShiftWork.Api.Services
                             status = "OnShift";
                         }
                     }
-                    else if (shiftEvent.EventType.Equals("ClockOut", StringComparison.OrdinalIgnoreCase))
+                    else if (shiftEvent.EventType.Equals("endSchedule", StringComparison.OrdinalIgnoreCase))
                     {
                         status = "OffShift";
                     }
-
                 }
                 else
                 {
-                    status = "ShiftEventWithoutSchedule";
-                    _logger.LogWarning("No schedule shift found for person {PersonId} on date {Date}", shiftEvent.PersonId, today);
+                    if (shiftEvent.EventType.Equals("startSchedule", StringComparison.OrdinalIgnoreCase))
+                    {
+                        status = "OnShift";
+                    }
+                    else if (shiftEvent.EventType.Equals("endSchedule", StringComparison.OrdinalIgnoreCase))
+                    {
+                        status = "OffShift";
+                    }
+                        
+                    //_logger.LogWarning("No schedule shift found for person {PersonId} on date {Date}", shiftEvent.PersonId, today);
                 }
 
-                                    if (!string.IsNullOrEmpty(status))
-                    {
-                        await _peopleService.UpdatePersonStatus(shiftEvent.PersonId, status);
-                    }
+                if (!string.IsNullOrEmpty(status))
+                {
+                    await _peopleService.UpdatePersonStatus(shiftEvent.PersonId, status);
+                }
             }
 
             return shiftEvent;

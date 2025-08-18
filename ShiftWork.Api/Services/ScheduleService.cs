@@ -16,6 +16,7 @@ namespace ShiftWork.Api.Services
     {
         Task<IEnumerable<Schedule>> GetAll(string companyId);
         Task<Schedule> Get(string companyId, int scheduleId);
+        Task<IEnumerable<Schedule>> GetSchedules(string companyId, int? personId, int? locationId, DateTime? startDate, DateTime? endDate, string searchQuery);
         Task<Schedule> Add(Schedule schedule);
         Task<Schedule> Update(Schedule schedule);
         Task<bool> Delete(int scheduleId);
@@ -46,6 +47,38 @@ namespace ShiftWork.Api.Services
         public async Task<Schedule> Get(string companyId, int scheduleId)
         {
             return await _context.Schedules.FirstOrDefaultAsync(s => s.CompanyId == companyId && s.ScheduleId == scheduleId);
+        }
+
+        public async Task<IEnumerable<Schedule>> GetSchedules(string companyId, int? personId, int? locationId, DateTime? startDate, DateTime? endDate, string searchQuery)
+        {
+            var query = _context.Schedules.Where(s => s.CompanyId == companyId);
+
+            if (personId.HasValue)
+            {
+                query = query.Where(s => s.PersonId == personId.ToString());
+            }
+
+            if (locationId.HasValue)
+            {
+                query = query.Where(s => s.LocationId == locationId.Value);
+            }
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(s => s.StartDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(s => s.EndDate <= endDate.Value);
+            }
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                query = query.Where(s => s.Name.Contains(searchQuery) || s.Description.Contains(searchQuery));
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<Schedule> Add(Schedule schedule)

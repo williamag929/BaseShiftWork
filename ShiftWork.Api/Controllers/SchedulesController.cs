@@ -266,5 +266,57 @@ namespace ShiftWork.Api.Controllers
             }
         }
         */
+
+        /// <summary>
+        /// Searches for schedules based on various criteria.
+        /// </summary>
+        [HttpGet("search")]
+        [ProducesResponseType(typeof(IEnumerable<ScheduleDto>), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<IEnumerable<ScheduleDto>>> SearchSchedules(string companyId, [FromQuery] int? personId, [FromQuery] int? locationId, [FromQuery] string? startDate, [FromQuery] string? endDate, [FromQuery] string? searchQuery)
+        {
+            try
+            {
+                DateTime? startDateTime = null;
+                if (!string.IsNullOrEmpty(startDate) && DateTime.TryParse(startDate, out var parsedStartDate))
+                {
+                    startDateTime = parsedStartDate;
+                }
+
+                DateTime? endDateTime = null;
+                if (!string.IsNullOrEmpty(endDate) && DateTime.TryParse(endDate, out var parsedEndDate))
+                {
+                    endDateTime = parsedEndDate;
+                }
+
+                var cacheKey = $"schedules_search_{companyId}_{personId}_{locationId}_{startDate}_{endDate}_{searchQuery}";
+                if (!_memoryCache.TryGetValue(cacheKey, out IEnumerable<Schedule> schedules))
+                {
+                    _logger.LogInformation("Cache miss for schedule search in company {CompanyId}", companyId);
+
+                    schedules = await _scheduleService.GetSchedules(companyId, personId, locationId, startDateTime, endDateTime, searchQuery);
+
+                    if (schedules == null || !schedules.Any())
+                    {
+                        return NotFound($"No schedules found for the given criteria in company {companyId}.");
+                    }
+
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
+                    _memoryCache.Set(cacheKey, schedules, cacheEntryOptions);
+                }
+                else
+                {
+                    _logger.LogInformation("Cache hit for schedule search in company {CompanyId}", companyId);
+                }
+
+                return Ok(_mapper.Map<IEnumerable<ScheduleDto>>(schedules));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching schedules for company {CompanyId}.", companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
     }
 }

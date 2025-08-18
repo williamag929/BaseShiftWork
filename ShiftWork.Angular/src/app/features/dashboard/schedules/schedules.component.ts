@@ -44,7 +44,6 @@ export class SchedulesComponent implements OnInit, OnDestroy {
 
   constructor(
     private scheduleService: ScheduleService,
-    private authService: AuthService,
     private peopleService: PeopleService,
     private locationService: LocationService,
     private store: Store<AppState>,

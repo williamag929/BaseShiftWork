@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Schedule } from '../models/schedule.model';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -52,6 +52,25 @@ export class ScheduleService {
 
   deleteSchedule(companyId: string, id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/companies/${companyId}/schedules/${id}`, this.getHttpOptions())
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  search(companyId: string, starDate: string, endDate: string, searchQuery = '', personId?: number, locationId?: number): Observable<Schedule[]> {
+    let params = new HttpParams();
+    params.set('startDate', starDate);
+    params.set('endDate', endDate);
+    if (personId) {
+      params.set('personId', personId.toString());
+    }
+    if (locationId) {
+      params.set('locationId', locationId.toString());
+    }
+    if (searchQuery) {
+      params = params.set('searchQuery', searchQuery);
+    }
+    return this.http.get<Schedule[]>(`${this.apiUrl}/companies/${companyId}/schedules/search`, { params })
       .pipe(
         catchError(this.handleError)
       );
