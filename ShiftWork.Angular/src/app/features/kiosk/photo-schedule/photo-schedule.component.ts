@@ -11,11 +11,14 @@ import { ScheduleEmployee } from '../core/models/schedule-employee.model';
 import { ShiftEventService } from 'src/app/core/services/shift-event.service';
 import { ShiftEvent } from 'src/app/core/models/shift-event.model';
 import { PeopleService } from 'src/app/core/services/people.service';
-import { ToastrService } from 'ngx-toastr';
+import { ScheduleShiftService } from 'src/app/core/services/schedule-shift.service';
+import { ScheduleShift } from 'src/app/core/models/schedule-shift.model';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
+import { ScheduleDetail } from 'src/app/core/models/schedule-detail.model';
+import { co } from '@fullcalendar/core/internal-common';
 
 export enum ScheduleAction {
   START_SHIFT = 'startSchedule',
@@ -44,6 +47,9 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
   // Public properties
   selectedEmployee: People | null = null;
   employeeStatus: string | null = null;
+  employeeSchedule: ScheduleDetail | null = null;
+  schedulesToday: ScheduleDetail[] = [];
+
   webcamImage: WebcamImage | null = null;
   flippedImage: string | null = null;
   scheduling = false;
@@ -63,11 +69,13 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly shiftEventService: ShiftEventService,
     private readonly peopleService: PeopleService,
+    private readonly scheduleShiftService: ScheduleShiftService,
     private readonly store: Store<AppState>
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.selectedEmployee = navigation.extras.state['employee'];
+      console.log('Selected employee from navigation state:', this.selectedEmployee);
     }
     this.activeCompany$ = this.store.select(selectActiveCompany);
 
@@ -86,22 +94,19 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
               this.employeeStatus = status;
               console.log('Employee status:', status);
             });
-        } else {
-          // Example: subscribe to employee selection observable from kioskService
-          this.kioskService.selectedEmployee$
-            .pipe(takeUntil(this.destroy$))
-            .subscribe((employee: People | null) => {
-              this.selectedEmployee = employee;
-              this.employeeStatus = employee?.status || null;
-              console.log('Employee status:', this.employeeStatus);
-              if (employee) {
-                this.peopleService.getPersonStatus(employee.companyId, employee.personId)
-                  .pipe(takeUntil(this.destroy$))
-                  .subscribe(status => {
-                    this.employeeStatus = status;
-                  });
-              }
-            });
+
+          if (this.selectedEmployee) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            this.employeeSchedule = this.selectedEmployee.scheduleDetails?.find(s => {
+              const scheduleDate = new Date(s.startDate);
+              scheduleDate.setHours(0, 0, 0, 0);
+              console.log('dates:',scheduleDate.getTime(),'-', today.getTime())
+              return s.personId === this.selectedEmployee?.personId && scheduleDate.getTime() === today.getTime();
+            }) || null;
+
+            console.log('Employee schedule:', this.employeeSchedule);
+          }
         }
       });
     }

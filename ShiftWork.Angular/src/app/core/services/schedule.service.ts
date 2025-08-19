@@ -4,6 +4,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { ScheduleDetail } from '../models/schedule-detail.model';
 
 @Injectable({
   providedIn: 'root'
@@ -57,23 +58,32 @@ export class ScheduleService {
       );
   }
 
-  search(companyId: string, starDate: string, endDate: string, searchQuery = '', personId?: number, locationId?: number): Observable<Schedule[]> {
+  search(companyId: string, starDate: string, endDate: string, searchQuery = '', personId?: number, locationId?: number): Observable<ScheduleDetail[]> {
     let params = new HttpParams();
-    params.set('startDate', starDate);
-    params.set('endDate', endDate);
+    if (starDate){ 
+      params = params.set('startDate', starDate);
+    }
+    if (endDate){ 
+      params = params.set('endDate', endDate);
+    }
     if (personId) {
-      params.set('personId', personId.toString());
+      params = params.set('personId', personId.toString());
     }
     if (locationId) {
-      params.set('locationId', locationId.toString());
+      params = params.set('locationId', locationId.toString());
     }
     if (searchQuery) {
       params = params.set('searchQuery', searchQuery);
     }
-    return this.http.get<Schedule[]>(`${this.apiUrl}/companies/${companyId}/schedules/search`, { params })
+
+    var result = this.http.get(`${this.apiUrl}/companies/${companyId}/schedules/search`, { params })
       .pipe(
         catchError(this.handleError)
       );
+
+
+
+    return result as Observable<any>;
   }
 
   private handleError(error: HttpErrorResponse) {

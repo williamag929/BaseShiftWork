@@ -5,6 +5,15 @@
     <h2>{{ selectedEmployee.name }}</h2>
   </div>
 
+
+  <!-- Schedule Info -->
+  <div *ngIf="employeeSchedule" class="schedule-info text-center mb-3">
+    <h4>Today's Schedule</h4>
+    <p><strong>Location:</strong> {{ employeeSchedule.location.name }}</p>
+    <p><strong>Start Time:</strong> {{ employeeSchedule.startDate | date: 'shortTime' }}</p>
+    <p><strong>End Time:</strong> {{ employeeSchedule.endDate | date: 'shortTime' }}</p>
+  </div>  
+
   <!-- Webcam View -->
   <webcam 
     *ngIf="!webcamImage && selectedEmployee" 

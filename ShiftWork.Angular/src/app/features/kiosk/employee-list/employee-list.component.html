@@ -8,8 +8,11 @@
 </div>
 <div class="employee-grid">
   <div *ngFor="let employee of employees" class="employee-card" (click)="selectEmployee(employee)">
-    <div class="initials-circle">
+    <div class="initials-circle" [class.on-shift]="employee.status === 'OnShift'">
       <span class="initials">{{ getInitials(employee.name) }}</span>
+      <div *ngIf="employee.status === 'OnShift'" class="status-indicator">
+        <i class="fas fa-check-circle"></i>
+      </div>
     </div>
     <div class="employee-name">{{ employee.name }}</div>
   </div>

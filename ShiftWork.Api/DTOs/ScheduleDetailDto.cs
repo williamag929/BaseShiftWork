@@ -1,15 +1,13 @@
+using System;
+
 namespace ShiftWork.Api.DTOs
 {
-    public class ScheduleDto
+    public class ScheduleDetailDto
     {
         public int ScheduleId { get; set; }
         public string Name { get; set; }
         public string CompanyId { get; set; }
-        public string PersonId { get; set; }
-        public string? CrewId { get; set; }
-        public string? TaskShiftId { get; set; }
-        public int LocationId { get; set; }
-        public int AreaId { get; set; }
+        public int PersonId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string? Description { get; set; }
@@ -24,6 +22,7 @@ namespace ShiftWork.Api.DTOs
         public string? Color { get; set; }
         public string? Type { get; set; }
 
-        // You might exclude navigation properties like Company, Location, Area, ScheduleShifts
+        public LocationDto Location { get; set; }
+        public AreaDto Area { get; set; }
     }
 }

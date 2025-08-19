@@ -9,6 +9,8 @@ import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { KioskService } from '../core/services/kiosk.service';
+import { ScheduleService } from 'src/app/core/services/schedule.service';
+import { ScheduleDetail } from 'src/app/core/models/schedule-detail.model';
 
 @Component({
   selector: 'app-employee-list',
@@ -26,6 +28,7 @@ export class EmployeeListComponent implements OnInit {
   constructor(
     private peopleService: PeopleService,
     private readonly kioskService: KioskService,
+    private scheduleService: ScheduleService,
     private router: Router,
     private toastr: ToastrService,
     private store: Store<AppState>
@@ -56,17 +59,76 @@ export class EmployeeListComponent implements OnInit {
   }
 
   selectEmployee(employee: Person): void {
-    console.log('Selected employee:', employee);  
-    this.kioskService.setSelectedEmployee(employee);
-    this.router
-      .navigate(['/kiosk/photo-schedule'], { state: { employee } })
-      .then(() => {
-        console.log('Navigated to photo schedule for employee:', employee);
-      })
-      .catch(error => {
-        console.error('Navigation error:', error);
-        this.toastr.error('Error navigating to photo schedule');
-      }); 
+    console.log('Selected employee:', employee);
+
+    if (!employee || !employee.personId) {
+      this.toastr.error('Invalid employee selected');
+      return;
+    }
+
+    //todo: load the schedule details for the selected employee from schedule service search filtering the 
+    //current date 
+    //this.scheduleService.search(this.activeCompany.companyId, new Date().toISOString(), new Date().toISOString(), '', employee.personId).subscribe(
+    this.scheduleService.search(this.activeCompany.companyId, '', '', '', employee.personId).subscribe(
+      schedules => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        employee.scheduleDetails = schedules || [];
+
+        //const employeeSchedule =  schedules.find(s => {
+        //  const scheduleDate = new Date(s.startDate);
+        //  scheduleDate.setHours(0, 0, 0, 0);
+        //  return s.personId === employee.personId && scheduleDate.getTime() === today.getTime();
+        //}) || null;
+        if (schedules && schedules.length > 0) {   
+        employee.scheduleDetails = schedules.filter(s => 
+          {
+            const scheduleDate = new Date(s.startDate);
+            scheduleDate.setHours(0, 0, 0, 0);
+            return s.personId === employee.personId && scheduleDate.getTime() === today.getTime();
+          }) || [];
+        this.kioskService.setSelectedEmployee(employee);
+        this.router.navigate(['/kiosk/photo-schedule'], { state: { employee } })
+          .then(() => {
+            this.toastr.success('Navigated to photo schedule');
+          })
+          .catch(error => {
+            console.error('Navigation error:', error);
+            this.toastr.error('Error navigating to photo schedule');
+          });
+        } else {
+          this.toastr.warning('No schedule found for today');
+          this.kioskService.setSelectedEmployee(employee);
+          this.router.navigate(['/kiosk/photo-schedule'], { state: { employee } })
+            .then(() => {
+              console.log('Navigated to photo schedule for employee:', employee);
+            })
+            .catch(error => {
+              console.error('Navigation error:', error);
+              this.toastr.error('Error navigating to photo schedule');
+            });
+        }
+      },
+      error => {
+        console.error('Error loading schedules:', error);
+        this.toastr.error('Error loading schedules');
+      }
+    );
+  }
+
+
+  private formatDateForInput(date: Date | string | undefined): string {
+    if (!date) {
+      return '';
+    }
+    const d = new Date(date);
+    // Format to 'yyyy-MM-ddTHH:mm' which is required for datetime-local input
+    const year = d.getFullYear();
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    const hours = d.getHours().toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
   getInitials(name: string): string {

@@ -44,6 +44,7 @@ namespace ShiftWork.Api.Helpers
             CreateMap<CrewDto, Crew>();
             CreateMap<ShiftEvent, ShiftEventDto>();
             CreateMap<ShiftEventDto, ShiftEvent>();
+            CreateMap<Schedule, ScheduleDetailDto>();
         }
     }
 }

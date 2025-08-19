@@ -274,7 +274,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(typeof(IEnumerable<ScheduleDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<IEnumerable<ScheduleDto>>> SearchSchedules(string companyId, [FromQuery] int? personId, [FromQuery] int? locationId, [FromQuery] string? startDate, [FromQuery] string? endDate, [FromQuery] string? searchQuery)
+        public async Task<ActionResult<IEnumerable<ScheduleDetailDto>>> SearchSchedules(string companyId, [FromQuery] int? personId, [FromQuery] int? locationId, [FromQuery] string? startDate, [FromQuery] string? endDate, [FromQuery] string? searchQuery)
         {
             try
             {
@@ -302,15 +302,15 @@ namespace ShiftWork.Api.Controllers
                         return NotFound($"No schedules found for the given criteria in company {companyId}.");
                     }
 
-                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-                    _memoryCache.Set(cacheKey, schedules, cacheEntryOptions);
+                   // var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
+                   // _memoryCache.Set(cacheKey, schedules, cacheEntryOptions);
                 }
                 else
                 {
                     _logger.LogInformation("Cache hit for schedule search in company {CompanyId}", companyId);
                 }
 
-                return Ok(_mapper.Map<IEnumerable<ScheduleDto>>(schedules));
+                return Ok(_mapper.Map<IEnumerable<ScheduleDetailDto>>(schedules));
             }
             catch (Exception ex)
             {

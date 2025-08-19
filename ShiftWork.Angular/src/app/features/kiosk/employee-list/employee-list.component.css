@@ -30,6 +30,29 @@
   justify-content: center;
   align-items: center;
   margin-bottom: 0.5rem;
+  position: relative;
+}
+
+/* Green styling for employees on shift */
+.initials-circle.on-shift {
+  background-color: #28a745;
+  border: 3px solid #155724;
+}
+
+.status-indicator {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background-color: #155724;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.8rem;
+  border: 2px solid white;
 }
 
 .initials {

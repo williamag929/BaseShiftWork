@@ -1,3 +1,5 @@
+import { ScheduleDetail } from "./schedule-detail.model";
+
 export interface People {
     personId: number;
     name: string;
@@ -15,5 +17,6 @@ export interface People {
     status?: string;
     photoUrl?: string;
     roleId?: number; // Optional, if the person has a role
+    scheduleDetails?: ScheduleDetail[]; // Optional, if the person has associated schedule details
     //roles?: Role[];
  }

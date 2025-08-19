@@ -240,7 +240,8 @@ namespace ShiftWork.Api.Controllers
                 {
                     return NotFound($"Person with ID {personId} not found.");
                 }
-
+                
+                _memoryCache.Remove($"people_{companyId}");
                 _memoryCache.Remove($"person_{companyId}_{personId}");
                 var updatedPersonDto = _mapper.Map<PersonDto>(updatedPerson);
 

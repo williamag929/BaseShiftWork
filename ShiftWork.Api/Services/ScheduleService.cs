@@ -51,7 +51,10 @@ namespace ShiftWork.Api.Services
 
         public async Task<IEnumerable<Schedule>> GetSchedules(string companyId, int? personId, int? locationId, DateTime? startDate, DateTime? endDate, string searchQuery)
         {
-            var query = _context.Schedules.Where(s => s.CompanyId == companyId);
+            var query = _context.Schedules
+                .Include(s => s.Location)
+                .Include(s => s.Area)
+                .Where(s => s.CompanyId == companyId);
 
             if (personId.HasValue)
             {
@@ -78,7 +81,8 @@ namespace ShiftWork.Api.Services
                 query = query.Where(s => s.Name.Contains(searchQuery) || s.Description.Contains(searchQuery));
             }
 
-            return await query.ToListAsync();
+            var result = await query.ToListAsync();
+            return (IEnumerable<Schedule>)result;
         }
 
         public async Task<Schedule> Add(Schedule schedule)
