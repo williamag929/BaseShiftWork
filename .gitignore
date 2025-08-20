@@ -59,3 +59,5 @@ ShiftWork.Angular/.env
 python_client/.env
 /python_client/.venv
 /python_client/env
+ShiftWork.Angular/package-lock.json
+ShiftWork.Angular/yarn.lock
