@@ -27,6 +27,7 @@ const routes: Routes = [
       { path: 'locations', component: LocationsComponent },
       { path: 'schedule', component: ScheduleComponent },
       { path: 'tasks', component: TasksComponent },
+      { path: 'shiftsummaries', loadComponent: () => import('./shiftsummaries/shiftsummaries.component').then(m => m.ShiftsummariesComponent) },
       { path: '', redirectTo: 'schedule', pathMatch: 'full' }
     ]
   }
@@ -43,7 +44,6 @@ const routes: Routes = [
   imports: [
     CommonModule,
     SharedModule,
-    ReactiveFormsModule,
     FullCalendarModule,
     RouterModule.forChild(routes),
     // TODO: ProfilesComponent is standalone, and cannot be declared in an NgModule. Did you mean to import it instead?

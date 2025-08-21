@@ -5,8 +5,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-analog-clock',
   templateUrl: './analog-clock.component.html',
   styleUrls: ['./analog-clock.component.scss'],
-  standalone: false,
-  //imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule],
 })
 export class AnalogClockComponent implements OnInit, OnDestroy {
   hourHandTransform!: string;

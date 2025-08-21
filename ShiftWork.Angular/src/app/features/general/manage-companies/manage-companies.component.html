@@ -1,0 +1,76 @@
+<div class="container-fluid mt-4">
+  <h2>Manage Companies</h2>
+  <hr>
+  <div class="row">
+    <!-- Companies List -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4>Companies</h4>
+          <button class="btn btn-primary btn-sm" (click)="createCompany()">Create New</button>
+        </div>
+        <div class="card-body">
+          <div *ngIf="isLoading" class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <ul *ngIf="!isLoading" class="list-group">
+            <li *ngFor="let company of companies" 
+                class="list-group-item d-flex justify-content-between align-items-center"
+                [class.active]="selectedCompany?.companyId === company.companyId">
+              {{ company.name }}
+              <div>
+                <button class="btn btn-outline-secondary btn-sm me-1" (click)="selectCompany(company)">Manage Users</button>
+                <button class="btn btn-outline-info btn-sm me-1" (click)="editCompany(company)">Edit</button>
+                <button class="btn btn-outline-danger btn-sm" (click)="deleteCompany(company)">Delete</button>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Management -->
+    <div class="col-md-8">
+      <div *ngIf="selectedCompany" class="card">
+        <div class="card-header">
+          <h4>Users for {{ selectedCompany.name }}</h4>
+        </div>
+        <div class="card-body">
+          <div *ngIf="isLoadingUsers" class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <div *ngIf="!isLoadingUsers" class="row">
+            <div class="col-md-6">
+              <h5>In Company ({{ usersInCompany.length }})</h5>
+              <ul class="list-group">
+                <li *ngFor="let user of usersInCompany" class="list-group-item d-flex justify-content-between align-items-center">
+                  {{ user.name }}
+                  <button class="btn btn-danger btn-sm" (click)="removeUserFromCompany(user)">Remove</button>
+                </li>
+                <li *ngIf="usersInCompany.length === 0" class="list-group-item text-muted">No users in this company.</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h5>Available Users ({{ usersNotInCompany.length }})</h5>
+              <ul class="list-group">
+                <li *ngFor="let user of usersNotInCompany" class="list-group-item d-flex justify-content-between align-items-center">
+                  {{ user.name }}
+                  <button class="btn btn-success btn-sm" (click)="addUserToCompany(user)">Add</button>
+                </li>
+                <li *ngIf="usersNotInCompany.length === 0" class="list-group-item text-muted">No available users to add.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!selectedCompany && !isLoading" class="alert alert-info">
+        Select a company to manage its users.
+      </div>
+    </div>
+  </div>
+</div>
+

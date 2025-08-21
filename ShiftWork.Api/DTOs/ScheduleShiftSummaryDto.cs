@@ -14,5 +14,6 @@ namespace ShiftWork.Api.DTOs
         public DateTime MinStartTime { get; set; }
         public DateTime MaxEndTime { get; set; }
         public double BreakTime { get; set; }
+        public double TotalHours { get; set; }
     }
 }

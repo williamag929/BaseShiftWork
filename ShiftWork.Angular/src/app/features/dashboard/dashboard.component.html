@@ -8,13 +8,16 @@
 </mat-toolbar>
 
 <mat-sidenav-container class="sidenav-container" autosize>
-  <mat-sidenav #sidenav class="sidenav"
-               [mode]="(isHandset$ | async) ? 'over' : 'side'"
-               [opened]="(isHandset$ | async) === false">
+  <mat-sidenav #sidenav class="sidenav" [mode]="(isHandset$ | async) ? 'over' : 'side'"
+    [opened]="(isHandset$ | async) === false">
     <mat-nav-list>
       <a mat-list-item routerLink="/dashboard/schedule" routerLinkActive="active-link">
         <mat-icon matListItemIcon>dialpad</mat-icon>
         <span matListItemTitle>Schedule</span>
+      </a>
+      <a mat-list-item routerLink="/dashboard/shiftsummaries" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>assignment</mat-icon>
+        <span matListItemTitle>Shift Summaries</span>
       </a>
       <a mat-list-item routerLink="/dashboard/profiles" routerLinkActive="active-link">
         <mat-icon matListItemIcon>account_circle</mat-icon>
@@ -36,6 +39,50 @@
         <mat-icon matListItemIcon>assignment</mat-icon>
         <span matListItemTitle>Tasks</span>
       </a>
+      <a mat-list-item routerLink="/kiosk" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>kiosk</mat-icon>
+        <span matListItemTitle>Kiosks</span>
+      </a>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>menu</mat-icon>
+            More Options
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <a mat-list-item routerLink="/dashboard/holidays" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>holiday_village</mat-icon>
+          <span matListItemTitle>Holidays</span>
+        </a>
+        <a mat-list-item routerLink="/general/manage-companies" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>business</mat-icon>
+          <span matListItemTitle>Manage Companies</span>
+        </a>
+        <a mat-list-item routerLink="/dashboard/settings" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>settings</mat-icon>
+          <span matListItemTitle>Settings</span>
+        </a>
+        <a mat-list-item routerLink="/dashboard/help" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>help</mat-icon>
+          <span matListItemTitle>Help</span>
+        </a>
+        <a mat-list-item routerLink="/dashboard/about" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>info</mat-icon>
+          <span matListItemTitle>About</span>
+        </a>
+        <a mat-list-item routerLink="/dashboard/contact" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>contact_mail</mat-icon>
+          <span matListItemTitle>Contact</span>
+        </a>
+        <a mat-list-item routerLink="/dashboard/privacy" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>privacy_tip</mat-icon>
+          <span matListItemTitle>Privacy</span>
+        </a>
+        <a mat-list-item routerLink="/dashboard/terms" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>gavel</mat-icon>
+          <span matListItemTitle>Terms</span>
+        </a>
+      </mat-expansion-panel>
     </mat-nav-list>
   </mat-sidenav>
 

@@ -1,0 +1,59 @@
+<div class="container">
+  <h1>Shift Summaries</h1>
+
+  <form [formGroup]="filterForm" (ngSubmit)="getShifts()">
+    <div class="form-row">
+      <div class="form-group col-md-3">
+        <label for="startDate">Start Date</label>
+        <input type="date" id="startDate" formControlName="startDate" class="form-control">
+      </div>
+      <div class="form-group col-md-3">
+        <label for="endDate">End Date</label>
+        <input type="date" id="endDate" formControlName="endDate" class="form-control">
+      </div>
+      <div class="form-group col-md-3">
+        <label for="locationId">Location</label>
+        <select id="locationId" formControlName="locationId" class="form-control">
+          <option [ngValue]="null">All Locations</option>
+          <option *ngFor="let location of locations$ | async" [value]="location.locationId">{{ location.name }}</option>
+        </select>
+      </div>
+      <div class="form-group col-md-3">
+        <label for="personId">Person</label>
+        <select id="personId" formControlName="personId" class="form-control">
+          <option [ngValue]="null">All People</option>
+          <option *ngFor="let person of people$ | async" [value]="person.personId">{{ person.name }}</option>
+        </select>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Filter</button>
+  </form>
+
+  <table class="table table-striped mt-4">
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Person</th>
+        <th>Location</th>
+        <th>Area</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Break Time</th>
+        <th>Total Hours</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let shift of shifts$ | async">
+        <td>{{ shift.day | date }}</td>
+        <td>{{ shift.personName }}</td>
+        <td>{{ shift.locationName }}</td>
+        <td>{{ shift.areaName }}</td>
+        <td>{{ shift.minStartTime | date:'shortTime' }}</td>
+        <td>{{ shift.maxEndTime | date:'shortTime' }}</td>
+        <td>{{ shift.breakTime }}</td>
+        <td>{{ shift.totalHours }}</td>
+
+      </tr>
+    </tbody>
+  </table>
+</div>

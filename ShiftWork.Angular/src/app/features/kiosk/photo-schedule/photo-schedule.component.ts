@@ -19,10 +19,12 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { ScheduleDetail } from 'src/app/core/models/schedule-detail.model';
 import { co } from '@fullcalendar/core/internal-common';
+import { Location } from '../../../core/models/location.model';
+
 
 export enum ScheduleAction {
-  START_SHIFT = 'startSchedule',
-  END_SHIFT = 'endSchedule',
+  START_SHIFT = 'clockin',
+  END_SHIFT = 'clockout',
   START_BREAK = 'startBreak',
   END_BREAK = 'endBreak'
 }
@@ -49,6 +51,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
   employeeStatus: string | null = null;
   employeeSchedule: ScheduleDetail | null = null;
   schedulesToday: ScheduleDetail[] = [];
+  selectedLocation: Location | null = null;
 
   webcamImage: WebcamImage | null = null;
   flippedImage: string | null = null;
@@ -70,11 +73,12 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     private readonly shiftEventService: ShiftEventService,
     private readonly peopleService: PeopleService,
     private readonly scheduleShiftService: ScheduleShiftService,
-    private readonly store: Store<AppState>
+    private readonly store: Store<AppState>,
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.selectedEmployee = navigation.extras.state['employee'];
+      this.selectedLocation = kioskService.getSelectedLocation() || null;
       console.log('Selected employee from navigation state:', this.selectedEmployee);
     }
     this.activeCompany$ = this.store.select(selectActiveCompany);
@@ -197,7 +201,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
       eventType: action,
       companyId: this.selectedEmployee.companyId,
       personId: this.selectedEmployee.personId,
-      eventObject: 'Schedule',
+      eventObject: JSON.stringify(this.selectedLocation || {}),
       description: `User ${this.selectedEmployee.name} ${action}`,
       kioskDevice: 'KioskName', // Replace with actual kiosk device identifier
       geoLocation: '{70.00,-41.00}', // Replace with actual geo location if available

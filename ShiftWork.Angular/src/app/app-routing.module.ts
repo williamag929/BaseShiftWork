@@ -8,6 +8,8 @@ const routes: Routes = [
   { path: 'dashboard', loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule), canActivate: [authGuard] },
   { path: 'kiosk', loadChildren: () => import('./features/kiosk/kiosk.module').then(m => m.KioskModule), canActivate: [authGuard] },
   { path: 'company-switch', loadChildren: () => import('./features/company-switch/company-switch.module').then(m => m.CompanySwitchModule), canActivate: [authGuard] },
+  { path: 'general', loadChildren: () => import('./features/general/general.module').then(m => m.GeneralModule), canActivate: [authGuard] },
+  { path: 'admin', loadChildren: () => import('./features/admin/admin.module').then(m => m.AdminModule), canActivate: [authGuard] },
   { path: '', redirectTo: '/auth/sign-in', pathMatch: 'full' },
   { path: '**', redirectTo: '/auth/sign-in' }
 ];

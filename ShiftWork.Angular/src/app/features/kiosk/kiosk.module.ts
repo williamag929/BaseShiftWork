@@ -12,6 +12,11 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { RouterOutlet } from "@angular/router";
 import { DatePipe } from '@angular/common';
 import { AnalogClockComponent } from "./analog-clock/analog-clock.component";
+import { LocationSelectDialogComponent } from './location-select-dialog/location-select-dialog.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 
 
 const routes: Routes = [
@@ -30,11 +35,9 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-    KioskComponent,
     EmployeeListComponent,
     TodoListComponent,
     TodoDetailComponent,
-    AnalogClockComponent,
   ],
   imports: [
     CommonModule,
@@ -42,7 +45,6 @@ const routes: Routes = [
     DatePipe,
     RouterOutlet,
     RouterModule.forChild(routes),
-    
   ]
 })
 export class KioskModule { }

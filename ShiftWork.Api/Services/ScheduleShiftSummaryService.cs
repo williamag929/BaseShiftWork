@@ -18,12 +18,19 @@ namespace ShiftWork.Api.Services
             _context = context;
         }
 
-        public async Task<List<ScheduleShiftSummaryDto>> GetScheduleShiftSummary(int companyId)
+        public async Task<List<ScheduleShiftSummaryDto>> GetScheduleShiftSummary(int companyId, DateTime startDate, DateTime endDate, int? locationId, int? personId)
         {
-            var events = await _context.ShiftEvents
+            var query = _context.ShiftEvents
                 .Include(e => e.Person)
                 .Where(e => e.CompanyId == companyId.ToString() && (e.EventType == "clockin" || e.EventType == "clockout"))
-                .ToListAsync();
+                .Where(e => e.EventDate >= startDate && e.EventDate <= endDate);
+
+            if (personId.HasValue)
+            {
+                query = query.Where(e => e.PersonId == personId.Value);
+            }
+
+            var events = await query.ToListAsync();
 
             var summary = new List<ScheduleShiftSummaryDto>();
 
@@ -36,7 +43,17 @@ namespace ShiftWork.Api.Services
 
                 if (clockInEvent != null && clockOutEvent != null)
                 {
-                    var locationInfo = JsonSerializer.Deserialize<LocationDto>(clockInEvent.EventObject);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    var locationInfo = JsonSerializer.Deserialize<LocationDto>(clockInEvent.EventObject, options);
+
+                    if (locationId.HasValue && locationInfo.LocationId != locationId.Value)
+                    {
+                        continue;
+                    }
+
                     var location = await _context.Locations.Include(l => l.Areas).FirstOrDefaultAsync(l => l.LocationId == locationInfo.LocationId);
                     var area = location?.Areas.FirstOrDefault();
 
@@ -51,7 +68,8 @@ namespace ShiftWork.Api.Services
                         AreaName = area.Name,
                         MinStartTime = clockInEvent.EventDate,
                         MaxEndTime = clockOutEvent.EventDate,
-                        BreakTime = 30 // Default break time
+                        BreakTime = 30, // Default break time
+                        TotalHours = (clockOutEvent.EventDate - clockInEvent.EventDate).TotalHours - 0.5 // Subtracting break time
                     });
                 }
             }

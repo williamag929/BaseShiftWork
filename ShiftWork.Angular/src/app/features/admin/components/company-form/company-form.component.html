@@ -1,0 +1,58 @@
+<div class="container mt-4">
+  <h2>{{ isEditMode ? 'Edit Company' : 'Create Company' }}</h2>
+  <form [formGroup]="companyForm" (ngSubmit)="onSubmit()">
+    <mat-card>
+      <mat-card-content>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Address</mat-label>
+          <input matInput formControlName="address">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Phone Number</mat-label>
+          <input matInput formControlName="phoneNumber">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Website</mat-label>
+          <input matInput formControlName="website">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Timezone</mat-label>
+          <input matInput formControlName="timezone">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>External Code</mat-label>
+          <input matInput formControlName="externalCode">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Currency</mat-label>
+          <input matInput formControlName="currency">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Logo URL</mat-label>
+          <input matInput formControlName="logoUrl">
+        </mat-form-field>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" type="submit" [disabled]="companyForm.invalid">{{ isEditMode ? 'Update' : 'Create' }}</button>
+        <button mat-button type="button" [routerLink]="['/general/manage-companies']">Cancel</button>
+      </mat-card-actions>
+    </mat-card>
+  </form>
+</div>
+

@@ -43,8 +43,10 @@ namespace ShiftWork.Api.Services
                 if (scheduleShift != null)
                 {
 
-                    if (shiftEvent.EventType.Equals("startSchedule", StringComparison.OrdinalIgnoreCase))
+                    if (shiftEvent.EventType.Equals("clockin", StringComparison.OrdinalIgnoreCase))
                     {
+                        status = "OnShift";
+                        /**
                         var latenessThreshold = scheduleShift.StartDate.AddMinutes(5);
                         if (shiftEvent.EventDate > latenessThreshold)
                         {
@@ -57,20 +59,20 @@ namespace ShiftWork.Api.Services
                         else
                         {
                             status = "OnShift";
-                        }
+                        }**/
                     }
-                    else if (shiftEvent.EventType.Equals("endSchedule", StringComparison.OrdinalIgnoreCase))
+                    else if (shiftEvent.EventType.Equals("clockout", StringComparison.OrdinalIgnoreCase))
                     {
                         status = "OffShift";
                     }
                 }
                 else
                 {
-                    if (shiftEvent.EventType.Equals("startSchedule", StringComparison.OrdinalIgnoreCase))
+                    if (shiftEvent.EventType.Equals("clockin", StringComparison.OrdinalIgnoreCase))
                     {
                         status = "OnShift";
                     }
-                    else if (shiftEvent.EventType.Equals("endSchedule", StringComparison.OrdinalIgnoreCase))
+                    else if (shiftEvent.EventType.Equals("clockout", StringComparison.OrdinalIgnoreCase))
                     {
                         status = "OffShift";
                     }

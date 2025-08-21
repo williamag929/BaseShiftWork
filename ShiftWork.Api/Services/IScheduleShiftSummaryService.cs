@@ -6,6 +6,6 @@ namespace ShiftWork.Api.Services
 {
     public interface IScheduleShiftSummaryService
     {
-        Task<List<ScheduleShiftSummaryDto>> GetScheduleShiftSummary(int companyId);
+        Task<List<ScheduleShiftSummaryDto>> GetScheduleShiftSummary(int companyId, DateTime startDate, DateTime endDate, int? locationId, int? personId);
     }
 }
