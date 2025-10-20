@@ -4,7 +4,7 @@ export interface People {
     personId: number;
     name: string;
     companyId: string;
-    phoneNumber: string;
+    pin?: string;
     email: string;
     address?: string;
     city?: string;

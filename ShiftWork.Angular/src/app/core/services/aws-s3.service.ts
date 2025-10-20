@@ -7,23 +7,17 @@ import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
+export class AwsS3Service {
 
   private readonly apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
-  private getHttpOptions() {
-    return {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json'
-      })
-    };
-  }
+  uploadFile(bucketName: string, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
 
-  verifyPin(personId: number, pin: string): Observable<{ verified: boolean }> {
-    const request = { personId, pin };
-    return this.http.post<{ verified: boolean }>(`${this.apiUrl}/auth/verify-pin`, request, this.getHttpOptions())
+    return this.http.post<any>(`${this.apiUrl}/s3/file/${bucketName}`, formData)
       .pipe(
         catchError(this.handleError)
       );

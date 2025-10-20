@@ -2,6 +2,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using Amazon.S3.Util;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Models;
 using System;
@@ -17,7 +18,7 @@ namespace ShiftWork.Api.Services
     {
         Task<AwsS3Response> CreateBucketAsync(string bucketName);
         Task<AwsS3Response> DeleteBucketAsync(string bucketName);
-        Task UploadFileAsync(string bucketName);
+        Task<AwsS3Response> UploadFileAsync(string bucketName, IFormFile file);
         Task<Stream> GetObjectFromS3Async(string bucketName, string keyName);
         Task DeleteObjectFromS3Async(string bucketName, string keyName);
     }
@@ -89,11 +90,47 @@ namespace ShiftWork.Api.Services
         /// <summary>
         /// Uploads a file to an S3 bucket.
         /// </summary>
-        public async Task UploadFileAsync(string bucketName)
+        public async Task<AwsS3Response> UploadFileAsync(string bucketName, IFormFile file)
         {
-            // Implementation for file upload would go here.
-            // This is a placeholder.
-            await Task.CompletedTask;
+            try
+            {
+                await using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+
+                var fileExt = Path.GetExtension(file.FileName);
+                var fileName = $"{Guid.NewGuid()}{fileExt}";
+
+                var putRequest = new PutObjectRequest
+                {
+                    BucketName = bucketName,
+                    Key = fileName,
+                    InputStream = memoryStream,
+                    ContentType = file.ContentType
+                };
+
+                var response = await _s3Client.PutObjectAsync(putRequest);
+
+                _logger.LogInformation("File '{FileName}' uploaded to bucket '{BucketName}' successfully.", fileName, bucketName);
+
+                var url = _s3Client.GetPreSignedURL(new GetPreSignedUrlRequest
+                {
+                    BucketName = bucketName,
+                    Key = fileName,
+                    Expires = DateTime.UtcNow.AddYears(1)
+                });
+
+                return new AwsS3Response { StatusCode = (int)response.HttpStatusCode, Message = url };
+            }
+            catch (AmazonS3Exception e)
+            {
+                _logger.LogError(e, "Error uploading file to bucket '{BucketName}'.", bucketName);
+                return new AwsS3Response { StatusCode = (int)e.StatusCode, Message = e.Message };
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Unexpected error uploading file to bucket '{BucketName}'.", bucketName);
+                throw;
+            }
         }
 
         /// <summary>

@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
+using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Models;
 using System;
-using System.Threading.Tasks;
+using BCrypt.Net;
 
 namespace ShiftWork.Api.Controllers
 {
@@ -62,6 +63,20 @@ namespace ShiftWork.Api.Controllers
                 _logger.LogError(ex, "An error occurred while retrieving user with email {UserEmail}.", id);
                 return StatusCode(500, "An internal server error occurred.");
             }
+        }
+
+        [HttpPost("verify-pin")]
+        public async Task<IActionResult> VerifyPin([FromBody] PinVerificationRequest request)
+        {
+            var person = await _context.Persons.FindAsync(request.PersonId);
+            if (person == null || string.IsNullOrEmpty(person.Pin))
+            {
+                return NotFound("Person not found or PIN not set.");
+            }
+
+            var verified = BCrypt.Net.BCrypt.Verify(request.Pin, person.Pin);
+
+            return Ok(new { verified });
         }
     }
 }

@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Please answer the following questions</h1>
+<div mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div *ngFor="let question of questions">
+      <p>{{ question.questionText }}</p>
+      <mat-radio-group [formControlName]="question.kioskQuestionId">
+        <mat-radio-button value="Yes">Yes</mat-radio-button>
+        <mat-radio-button value="No">No</mat-radio-button>
+      </mat-radio-group>
+    </div>
+  </form>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onSubmit()" [disabled]="!form.valid">Submit</button>
+</div>

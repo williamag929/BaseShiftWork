@@ -1,28 +1,26 @@
 # Stage 1: Build the application using the .NET SDK for Windows Server
-FROM mcr.microsoft.com/dotnet/sdk:9.0-windowsservercore-ltsc2022 AS build
-WORKDIR /src
-
-# Copy the solution and project files to restore packages
-COPY ["ShiftWork.Api.sln", "."]
-COPY ["ShiftWork.Api.csproj", "."]
-RUN dotnet restore "./ShiftWork.Api.sln"
-
-# Copy the rest of the source code
-COPY . .
-
-# Build and publish the application
-RUN dotnet publish "./ShiftWork.Api.csproj" -c Release -o /app/publish
-
-# Stage 2: Create the final runtime image using the ASP.NET runtime for Windows Server
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-windowsservercore-ltsc2022 AS final
+#FROM mcr.microsoft.com/dotnet/sdk:9.0-windowsservercore-ltsc2022 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+# SET the working directory
 WORKDIR /app
+# copy the project files
+COPY . .
+# Restore and build the project
+RUN dotnet restore
+RUN dotnet publish -c Release -o out
 
-# Copy the published application from the build stage
-COPY --from=build /app/publish .
+# Final stage: run the application using ASP.NET Core runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+WORKDIR /app
+COPY --from=build /app/out .
 
-# Expose the port the application runs on.
-# The default for .NET applications in containers is 8080.
-EXPOSE 8080
+# Copy .NET .env file for runtime
+COPY .env ./
 
-# Define the entry point for the container
+# Expose port 80 for the application
+EXPOSE 80
+# Set the application to listen on IPv4 only
+ENV ASPNETCORE_URLS=http://0.0.0.0:80
+# Run the application
+
 ENTRYPOINT ["dotnet", "ShiftWork.Api.dll"]

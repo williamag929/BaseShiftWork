@@ -10,6 +10,8 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { KioskService } from '../core/services/kiosk.service';
 import { ScheduleService } from 'src/app/core/services/schedule.service';
+import { MatDialog } from '@angular/material/dialog';
+import { PinDialogComponent } from '../pin-dialog/pin-dialog.component';
 import { ScheduleDetail } from 'src/app/core/models/schedule-detail.model';
 
 @Component({
@@ -31,7 +33,8 @@ export class EmployeeListComponent implements OnInit {
     private scheduleService: ScheduleService,
     private router: Router,
     private toastr: ToastrService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private dialog: MatDialog
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
@@ -61,15 +64,15 @@ export class EmployeeListComponent implements OnInit {
   selectEmployee(employee: Person): void {
     console.log('Selected employee:', employee);
 
-    if (!employee || !employee.personId) {
+    if (!employee || !employee.id) {
       this.toastr.error('Invalid employee selected');
       return;
     }
 
     //todo: load the schedule details for the selected employee from schedule service search filtering the 
     //current date 
-    //this.scheduleService.search(this.activeCompany.companyId, new Date().toISOString(), new Date().toISOString(), '', employee.personId).subscribe(
-    this.scheduleService.search(this.activeCompany.companyId, '', '', '', employee.personId).subscribe(
+    //this.scheduleService.search(this.activeCompany.companyId, new Date().toISOString(), new Date().toISOString(), '', employee.id).subscribe(
+    this.scheduleService.search(this.activeCompany.companyId, '', '', '', employee.id).subscribe(
       schedules => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -78,24 +81,26 @@ export class EmployeeListComponent implements OnInit {
         //const employeeSchedule =  schedules.find(s => {
         //  const scheduleDate = new Date(s.startDate);
         //  scheduleDate.setHours(0, 0, 0, 0);
-        //  return s.personId === employee.personId && scheduleDate.getTime() === today.getTime();
+        //  return s.personId === employee.id && scheduleDate.getTime() === today.getTime();
         //}) || null;
         if (schedules && schedules.length > 0) {   
         employee.scheduleDetails = schedules.filter(s => 
           {
             const scheduleDate = new Date(s.startDate);
             scheduleDate.setHours(0, 0, 0, 0);
-            return s.personId === employee.personId && scheduleDate.getTime() === today.getTime();
+            return s.personId === employee.id && scheduleDate.getTime() === today.getTime();
           }) || [];
-        this.kioskService.setSelectedEmployee(employee);
-        this.router.navigate(['/kiosk/photo-schedule'], { state: { employee } })
-          .then(() => {
-            this.toastr.success('Navigated to photo schedule');
-          })
-          .catch(error => {
-            console.error('Navigation error:', error);
-            this.toastr.error('Error navigating to photo schedule');
-          });
+        const dialogRef = this.dialog.open(PinDialogComponent, {
+          width: '250px',
+          data: { name: employee.name, personId: employee.id }
+        });
+
+        dialogRef.afterClosed().subscribe(verified => {
+          if (verified) {
+            this.kioskService.setSelectedEmployee(employee);
+            this.router.navigate(['/kiosk/photo-schedule'], { state: { employee } });
+          }
+        });
         } else {
           this.toastr.warning('No schedule found for today');
           this.kioskService.setSelectedEmployee(employee);

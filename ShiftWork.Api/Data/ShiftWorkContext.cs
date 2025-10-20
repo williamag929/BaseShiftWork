@@ -23,6 +23,8 @@ namespace ShiftWork.Api.Data
 
         public DbSet<CompanyUser> CompanyUsers { get; set; }
         public DbSet<ShiftEvent> ShiftEvents { get; set; }
+        public DbSet<KioskQuestion> KioskQuestions { get; set; }
+        public DbSet<KioskAnswer> KioskAnswers { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,6 +40,8 @@ namespace ShiftWork.Api.Data
             modelBuilder.Entity<TaskShift>().ToTable("TaskShifts");
             modelBuilder.Entity<Crew>().ToTable("Crews");
             modelBuilder.Entity<CompanyUser>().ToTable("CompanyUsers");
+            modelBuilder.Entity<KioskQuestion>().ToTable("KioskQuestions");
+            modelBuilder.Entity<KioskAnswer>().ToTable("KioskAnswers");
 
             modelBuilder.Entity<PersonCrew>()
                 .ToTable("PersonCrews")

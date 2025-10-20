@@ -18,8 +18,8 @@ import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { ScheduleDetail } from 'src/app/core/models/schedule-detail.model';
-import { co } from '@fullcalendar/core/internal-common';
-import { Location } from '../../../core/models/location.model';
+import { ToastrService } from 'ngx-toastr';
+import { KioskAnswer } from '../core/models/kiosk-answer.model';
 
 
 export enum ScheduleAction {
@@ -66,7 +66,12 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
   // Expose enum to template
   readonly ScheduleAction = ScheduleAction;
 
-  constructor(
+  import { MatDialog } from '@angular/material/dialog';
+import { QuestionDialogComponent } from '../question-dialog/question-dialog.component';
+
+// ... other imports
+
+constructor(
     private readonly kioskService: KioskService,
     private readonly timerService: TimerService,
     private readonly router: Router,
@@ -74,18 +79,18 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     private readonly peopleService: PeopleService,
     private readonly scheduleShiftService: ScheduleShiftService,
     private readonly store: Store<AppState>,
+    private readonly awsS3Service: AwsS3Service,
+    private readonly toastr: ToastrService,
+    private readonly dialog: MatDialog
   ) {
-    const navigation = this.router.getCurrentNavigation();
-    if (navigation?.extras.state) {
-      this.selectedEmployee = navigation.extras.state['employee'];
-      this.selectedLocation = kioskService.getSelectedLocation() || null;
-      console.log('Selected employee from navigation state:', this.selectedEmployee);
-    }
     this.activeCompany$ = this.store.select(selectActiveCompany);
 
   }
 
   ngOnInit(): void {
+    this.selectedEmployee = this.kioskService.getSelectedEmployee();
+    this.selectedLocation = this.kioskService.getSelectedLocation() || null;
+
     if (this.selectedEmployee) {
       this.activeCompany$.subscribe((company: { companyId: string }) => {
         if (company) {
@@ -128,19 +133,61 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
   triggerImage(action?: ScheduleAction): void {
     if (this.scheduling) return;
 
-    this.scheduling = true;
-    this.startCountdown();
+    if (action === ScheduleAction.END_SHIFT) {
+      this.kioskService.getKioskQuestions(this.activeCompany.companyId).subscribe(questions => {
+        if (questions && questions.length > 0) {
+          const dialogRef = this.dialog.open(QuestionDialogComponent, {
+            width: '400px',
+            data: { questions }
+          });
 
-    setTimeout(() => {
-      this.capturePhoto();
-      if (action) {
-        this.setSchedule(action);
-      }
-    }, this.PHOTO_DELAY_MS);
+          dialogRef.afterClosed().subscribe(answers => {
+            if (answers) {
+              this.scheduling = true;
+              this.startCountdown();
 
-    setTimeout(() => {
-      this.clearEmployee();
-    }, this.CLEAR_DELAY_MS);
+              setTimeout(() => {
+                this.capturePhoto();
+                this.setSchedule(action, answers);
+              }, this.PHOTO_DELAY_MS);
+
+              setTimeout(() => {
+                this.clearEmployee();
+              }, this.CLEAR_DELAY_MS);
+            }
+          });
+        } else {
+          // No questions, proceed as usual
+          this.scheduling = true;
+          this.startCountdown();
+
+          setTimeout(() => {
+            this.capturePhoto();
+            if (action) {
+              this.setSchedule(action);
+            }
+          }, this.PHOTO_DELAY_MS);
+
+          setTimeout(() => {
+            this.clearEmployee();
+          }, this.CLEAR_DELAY_MS);
+        }
+      });
+    } else {
+      this.scheduling = true;
+      this.startCountdown();
+
+      setTimeout(() => {
+        this.capturePhoto();
+        if (action) {
+          this.setSchedule(action);
+        }
+      }, this.PHOTO_DELAY_MS);
+
+      setTimeout(() => {
+        this.clearEmployee();
+      }, this.CLEAR_DELAY_MS);
+    }
   }
 
   /**
@@ -150,7 +197,9 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     this.webcamImage = null;
     this.flippedImage = null;
     this.scheduling = false;
-    this.router.navigate(['/kiosk/employee-list']);
+    setTimeout(() => {
+      this.router.navigate(['/kiosk/employee-list']);
+    }, 2000); // 2 seconds delay
   }
 
   /**
@@ -180,45 +229,75 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     this.trigger.next();
   }
 
-  private setSchedule(action: ScheduleAction): void {
+  private setSchedule(action: ScheduleAction, answers?: any): void {
     if (!this.selectedEmployee || !this.selectedEmployee.companyId) {
-      console.error('No employee selected for scheduling or companyId is missing');
+      this.toastr.error('No employee selected for scheduling or companyId is missing');
+      return;
+    }
+
+    if (!this.flippedImage) {
+      this.toastr.error('No photo captured');
       return;
     }
 
     const now = new Date();
-    const scheduleEmployee: ScheduleEmployee = {
-      employee: this.selectedEmployee,
-      action: action,
-      dateTime: now.toString(),
-      dateTimeUTC: this.convertToUTC(now).toISOString(),
-      location: {}
-    };
+    const blob = this.dataURItoBlob(this.flippedImage);
+    const file = new File([blob], `${this.selectedEmployee.personId}_${now.getTime()}.jpg`, { type: 'image/jpeg' });
 
-    const newShiftEvent: ShiftEvent = {
-      eventLogId: '00000000-0000-0000-0000-000000000000', // Should be generated by the backend
-      eventDate: now,
-      eventType: action,
-      companyId: this.selectedEmployee.companyId,
-      personId: this.selectedEmployee.personId,
-      eventObject: JSON.stringify(this.selectedLocation || {}),
-      description: `User ${this.selectedEmployee.name} ${action}`,
-      kioskDevice: 'KioskName', // Replace with actual kiosk device identifier
-      geoLocation: '{70.00,-41.00}', // Replace with actual geo location if available
-      photoUrl: ''//this.flippedImage.imageAsDataUrl || null
-    };
+    this.getCurrentPosition().subscribe({
+      next: (coords) => {
+        const geoLocation = `{${coords.latitude},${coords.longitude}}`;
 
-    console.log('Schedule Employee:', newShiftEvent);
+        // TODO: Make bucket name configurable
+        this.awsS3Service.uploadFile('shiftwork-photos', file).subscribe({
+          next: (response) => {
+            const photoUrl = response.message; // Assuming the response message is the URL
 
-    this.shiftEventService.createShiftEvent(this.selectedEmployee.companyId, newShiftEvent)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (event) => console.log('Shift event created:', event),
-        error: (err) => console.error('Error creating shift event:', err)
-      });
+            const newShiftEvent: ShiftEvent = {
+              eventLogId: '00000000-0000-0000-0000-000000000000', // Should be generated by the backend
+              eventDate: now,
+              eventType: action,
+              companyId: this.selectedEmployee.companyId,
+              personId: this.selectedEmployee.personId,
+              eventObject: JSON.stringify(this.selectedLocation || {}),
+              description: `User ${this.selectedEmployee.name} ${action}`,
+              kioskDevice: this.getKioskDeviceIdentifier(),
+              geoLocation: geoLocation,
+              photoUrl: photoUrl
+            };
 
-    console.log('Schedule created:', scheduleEmployee);
-    this.kioskService.setscheduleEmployee(scheduleEmployee);
+            this.shiftEventService.createShiftEvent(this.selectedEmployee.companyId, newShiftEvent)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe({
+                next: (event) => {
+                  this.toastr.success('Shift event created successfully');
+                  if (answers) {
+                    const kioskAnswers: KioskAnswer[] = Object.keys(answers).map(key => ({
+                      kioskAnswerId: 0,
+                      shiftEventId: event.eventLogId,
+                      kioskQuestionId: parseInt(key, 10),
+                      answerText: answers[key]
+                    }));
+                    this.kioskService.postKioskAnswers(kioskAnswers).subscribe();
+                  }
+                },
+                error: (err) => this.toastr.error('Error creating shift event')
+              });
+
+            const scheduleEmployee: ScheduleEmployee = {
+              employee: this.selectedEmployee,
+              action: action,
+              dateTime: now.toString(),
+              dateTimeUTC: this.convertToUTC(now).toISOString(),
+              location: {}
+            };
+            this.kioskService.setscheduleEmployee(scheduleEmployee);
+          },
+          error: (err) => this.toastr.error('Error uploading photo')
+        });
+      },
+      error: (err) => this.toastr.error('Error getting geolocation')
+    });
   }
 
   private formatDateForInput(date: Date | string | undefined): string {
@@ -260,6 +339,44 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     };
 
     img.src = src;
+  }
+
+  private getKioskDeviceIdentifier(): string {
+    let kioskId = localStorage.getItem('kioskId');
+    if (!kioskId) {
+      kioskId = `kiosk-${Math.random().toString(36).substring(2, 9)}`;
+      localStorage.setItem('kioskId', kioskId);
+    }
+    return kioskId;
+  }
+
+  private getCurrentPosition(): Observable<GeolocationCoordinates> {
+    return new Observable(observer => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            observer.next(position.coords);
+            observer.complete();
+          },
+          error => {
+            observer.error(error);
+          }
+        );
+      } else {
+        observer.error('Geolocation is not supported by this browser.');
+      }
+    });
+  }
+
+  private dataURItoBlob(dataURI: string): Blob {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
   }
 
   private convertToUTC(date: Date): Date {

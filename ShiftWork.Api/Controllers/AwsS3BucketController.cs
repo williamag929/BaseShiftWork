@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Models;
@@ -99,17 +100,22 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> AddFileToS3(string bucketName)
+        public async Task<IActionResult> AddFileToS3(string bucketName, IFormFile file)
         {
             if (string.IsNullOrEmpty(bucketName))
             {
                 return BadRequest("Bucket name cannot be empty.");
             }
 
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("File cannot be empty.");
+            }
+
             try
             {
-                await _service.UploadFileAsync(bucketName);
-                return Ok("File uploaded successfully.");
+                var response = await _service.UploadFileAsync(bucketName, file);
+                return StatusCode(response.StatusCode, response.Message);
             }
             catch (Exception ex)
             {

@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
   googleAnalyticsId: 'G-7X3Z5F6Y7Z',
-  apiUrl : "http://localhost:5182/api",
+  apiUrl : "http://77.93.152.248:5182/api",
   firebase: {
     apiKey: "AIzaSyBwL0YUb-yheFPml2qJ_Q4Js7dxgwAhrcM",
     authDomain: "shift-maps-location.firebaseapp.com",

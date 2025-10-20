@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShiftWork.Api.Data;
 
@@ -11,9 +12,11 @@ using ShiftWork.Api.Data;
 namespace ShiftWork.Api.Migrations
 {
     [DbContext(typeof(ShiftWorkContext))]
-    partial class ShiftWorkContextModelSnapshot : ModelSnapshot
+    [Migration("20251020164718_AddPinToPerson")]
+    partial class AddPinToPerson
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,52 +158,6 @@ namespace ShiftWork.Api.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("Crews", (string)null);
-                });
-
-            modelBuilder.Entity("ShiftWork.Api.Models.KioskAnswer", b =>
-                {
-                    b.Property<int>("KioskAnswerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("KioskAnswerId"));
-
-                    b.Property<string>("AnswerText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("KioskQuestionId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("ShiftEventId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("KioskAnswerId");
-
-                    b.ToTable("KioskAnswers", (string)null);
-                });
-
-            modelBuilder.Entity("ShiftWork.Api.Models.KioskQuestion", b =>
-                {
-                    b.Property<int>("KioskQuestionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("KioskQuestionId"));
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("QuestionText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("KioskQuestionId");
-
-                    b.ToTable("KioskQuestions", (string)null);
                 });
 
             modelBuilder.Entity("ShiftWork.Api.Models.Location", b =>

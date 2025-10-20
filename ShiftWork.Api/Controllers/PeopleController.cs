@@ -8,7 +8,7 @@ using ShiftWork.Api.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using BCrypt.Net;
 
 namespace ShiftWork.Api.Controllers
 {
@@ -120,6 +120,10 @@ namespace ShiftWork.Api.Controllers
             try
             {
                 var person = _mapper.Map<Person>(personDto);
+                if (!string.IsNullOrEmpty(personDto.Pin))
+                {
+                    person.Pin = BCrypt.Net.BCrypt.HashPassword(personDto.Pin);
+                }
                 var createdPerson = await _peopleService.Add(person);
 
                 if (createdPerson == null)
@@ -162,6 +166,10 @@ namespace ShiftWork.Api.Controllers
             try
             {
                 var person = _mapper.Map<Person>(personDto);
+                if (!string.IsNullOrEmpty(personDto.Pin))
+                {
+                    person.Pin = BCrypt.Net.BCrypt.HashPassword(personDto.Pin);
+                }
                 var updatedPerson = await _peopleService.Update(person);
 
                 if (updatedPerson == null)
