@@ -78,5 +78,23 @@ namespace ShiftWork.Api.Controllers
 
             return Ok(new { verified });
         }
+
+        [HttpGet("user")]
+        public async Task<ActionResult<Person>> GetCurrentUser()
+        {
+            var userEmail = User.Identity.Name;
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return Unauthorized();
+            }
+
+            var person = await _context.Persons.FirstOrDefaultAsync(p => p.Email == userEmail);
+            if (person == null)
+            {
+                return NotFound("Person not found.");
+            }
+
+            return Ok(person);
+        }
     }
 }

@@ -74,13 +74,40 @@ The frontend is located in the `ShiftWork.Angular/` directory.
 
 ---
 
-## 5. Python Client
+## 5. Kiosk Module Features
+
+The application includes a kiosk mode with the following features:
+
+*   **PIN Verification:** Employees must enter a 4-digit PIN to clock in or out, preventing users from clocking in as someone else. PINs are securely stored using BCrypt hashing. Administrators can set and update PINs on the employee management page.
+
+*   **Photo Capture:** A photo is automatically taken via webcam during clock-in and clock-out events. This photo is uploaded to a configured AWS S3 bucket, and the URL is stored with the corresponding shift event for verification.
+
+*   **Geolocation Tracking:** The browser's Geolocation API is used to capture the precise coordinates of the kiosk device during clock-in and clock-out. This data is saved with the shift event.
+
+*   **Custom Clock-Out Questions:** Administrators can configure custom questions (e.g., "Did you get injured today?") that are presented to employees when they clock out. The answers are saved to the database for reporting and compliance.
+
+*   **Unique Kiosk Identifier:** Each kiosk device is assigned a unique identifier, which is stored in the browser's local storage. This allows for tracking which device was used for each shift event.
+
+---
+
+## 6. Personal Clock-in/out
+
+In addition to the kiosk mode, the application provides a personal clock-in/out feature for individual users who are logged into the application. This feature is accessible from the user's dashboard and provides the same functionality as the kiosk mode, but for the currently logged-in user.
+
+*   **Personal Time Tracking:** Allows individual users to clock in, clock out, and manage breaks from their own device (phone or web browser).
+*   **Automatic Project/Location Selection:** The system automatically selects the project or location based on the user's schedule for the day. If no schedule is set, the user can select it manually.
+*   **Photo and Geolocation:** Captures a photo and the device's geolocation for each clock-in/out event to ensure the user is at the correct location.
+*   **Custom Questions:** Presents the same custom clock-out questions as the kiosk mode.
+
+---
+
+## 7. Python Client
 
 The `python_client/` directory contains various Python scripts. These scripts appear to be for testing the backend API or for other utility purposes. It includes MCP (Mission Critical Protocol) clients and servers, which might be for a specialized testing scenario or a legacy part of the project. This part of the codebase seems separate from the main Angular/.NET application.
 
 ---
 
-## 6. How to Run
+## 8. How to Run
 
 ### Backend
 

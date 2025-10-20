@@ -1,18 +1,21 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-import { ClockShiftRoutingModule } from './clock-shift-routing.module';
+import { RouterModule, Routes } from '@angular/router';
 import { ClockShiftComponent } from './clock-shift.component';
-import { SharedModule } from '../../../shared/shared.module';
+import { WebcamModule } from 'ngx-webcam';
 
+const routes: Routes = [
+  {
+    path: '',
+    component: ClockShiftComponent
+  }
+];
 
 @NgModule({
-  declarations: [
-  ],
+  declarations: [],
   imports: [
     CommonModule,
-    ClockShiftRoutingModule,
-    SharedModule,
+    RouterModule.forChild(routes),
     ClockShiftComponent
   ]
 })
