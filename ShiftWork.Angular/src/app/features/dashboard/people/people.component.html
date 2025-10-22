@@ -1,89 +1,281 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-md-4">
-      <div class="card">
+<div class="people-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="fa fa-users"></i>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">People Management</h1>
+        <p class="page-subtitle">Manage your team members and their information</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <!-- Left Panel - People List -->
+    <div class="list-panel">
+      <div class="panel-card">
         <div class="card-header">
-          <h4 class="card-title">People</h4>
+          <h3 class="card-title">
+            <i class="fa fa-list"></i>
+            Team Members
+          </h3>
+          <span class="badge">{{ people?.length || 0 }}</span>
         </div>
+
         <div class="card-body">
-          <div *ngIf="loading" class="text-center">
-            <div class="spinner-border" role="status">
-              <span class="sr-only">Loading...</span>
-            </div>
+          <!-- Loading State -->
+          <div *ngIf="loading" class="loading-state">
+            <div class="spinner"></div>
+            <p class="loading-text">Loading people...</p>
           </div>
-          <div *ngIf="error" class="alert alert-danger">
-            Error loading people.
+
+          <!-- Error State -->
+          <div *ngIf="error" class="error-state">
+            <i class="fa fa-exclamation-triangle error-icon"></i>
+            <p class="error-text">Error loading people. Please try again.</p>
           </div>
-          <div class="list-group">
-            <a *ngFor="let person of people" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-              <div>
-                <h5 class="mb-1">{{ person.name }}</h5>
-                <p class="mb-1">{{ person.email }}</p>
+
+          <!-- People List -->
+          <div *ngIf="!loading && !error" class="people-list">
+            <div 
+              *ngFor="let person of people; let i = index" 
+              class="person-item"
+              [class.selected]="selectedPerson?.personId === person.personId"
+              (click)="editPerson(person)"
+              [style.animation-delay.ms]="i * 50">
+              <div class="person-avatar">
+                <img *ngIf="person.photoUrl" [src]="person.photoUrl" alt="{{ person.name }}">
+                <div *ngIf="!person.photoUrl" class="avatar-placeholder">
+                  {{getInitials(person.name) }}
+                </div>
               </div>
-              <button class="btn btn-sm btn-info" (click)="editPerson(person)">Edit</button>
-            </a>
+              <div class="person-info">
+                <h4 class="person-name">{{ person.name }}</h4>
+                <p class="person-email">{{ person.email }}</p>
+                <span class="status-badge" [class.active]="person.status === 'Active'">
+                  {{ person.status }}
+                </span>
+              </div>
+              <button class="edit-btn" (click)="editPerson(person); $event.stopPropagation()">
+                <i class="fa fa-pencil"></i>
+              </button>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="people?.length === 0" class="empty-state">
+              <i class="fa fa-users empty-icon"></i>
+              <p class="empty-text">No people found</p>
+              <p class="empty-subtext">Create your first team member to get started</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-md-8">
-      <div class="card">
+
+    <!-- Right Panel - Form -->
+    <div class="form-panel">
+      <div class="panel-card">
         <div class="card-header">
-          <h4 class="card-title">{{ selectedPerson ? 'Edit Person' : 'Create Person' }}</h4>
+          <h3 class="card-title">
+            <i class="fa" [class.fa-user-plus]="!selectedPerson" [class.fa-user-edit]="selectedPerson"></i>
+            {{ selectedPerson ? 'Edit Person' : 'Create New Person' }}
+          </h3>
+          <button *ngIf="selectedPerson" class="clear-btn" (click)="cancelEdit()">
+            <i class="fa fa-times"></i>
+          </button>
         </div>
+
         <div class="card-body">
-          <form [formGroup]="personForm" (ngSubmit)="savePerson()">
-            <div class="form-group">
-              <label for="name">Name</label>
-              <input type="text" id="name" class="form-control" formControlName="name">
-            </div>
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" class="form-control" formControlName="email">
-            </div>
-            <div class="form-group">
-              <label for="phone">Phone</label>
-              <input type="text" id="phone" class="form-control" formControlName="phoneNumber">
-            </div>
-            <div class="form-group">
-              <label for="pin">PIN</label>
-              <input type="password" id="pin" class="form-control" formControlName="pin" maxlength="4">
-            </div>
-            <div class="form-group">
-              <label for="roleId">Role</label>
-              <select id="roleId" class="form-control" formControlName="roleId">
-                <option value="" disabled>Select a Role</option>
-                <option *ngFor="let role of roles" [value]="role.roleId">{{ role.name }}</option>
-              </select>
-              <div *ngIf="personForm.get('roleId')?.touched && personForm.get('roleId')?.errors?.['required']" class="text-danger small">
-                Role is required.
+          <form [formGroup]="personForm" (ngSubmit)="savePerson()" class="person-form">
+            
+            <!-- Personal Information Section -->
+            <div class="form-section">
+              <h4 class="section-title">Personal Information</h4>
+              
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label for="name" class="form-label">
+                    <i class="fa fa-user"></i>
+                    Full Name <span class="required">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="name" 
+                    class="form-input" 
+                    formControlName="name"
+                    placeholder="Enter full name"
+                    [class.error]="personForm.get('name')?.touched && personForm.get('name')?.invalid">
+                  <div *ngIf="personForm.get('name')?.touched && personForm.get('name')?.errors?.['required']" 
+                       class="error-message">
+                    <i class="fa fa-exclamation-circle"></i>
+                    Name is required
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="email" class="form-label">
+                    <i class="fa fa-envelope"></i>
+                    Email Address <span class="required">*</span>
+                  </label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    class="form-input" 
+                    formControlName="email"
+                    placeholder="name@example.com"
+                    [class.error]="personForm.get('email')?.touched && personForm.get('email')?.invalid">
+                  <div *ngIf="personForm.get('email')?.touched && personForm.get('email')?.errors?.['required']" 
+                       class="error-message">
+                    <i class="fa fa-exclamation-circle"></i>
+                    Email is required
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="phone" class="form-label">
+                    <i class="fa fa-phone"></i>
+                    Phone Number
+                  </label>
+                  <input 
+                    type="text" 
+                    id="phone" 
+                    class="form-input" 
+                    formControlName="phoneNumber"
+                    placeholder="(123) 456-7890">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="pin" class="form-label">
+                    <i class="fa fa-lock"></i>
+                    PIN Code
+                  </label>
+                  <input 
+                    type="password" 
+                    id="pin" 
+                    class="form-input" 
+                    formControlName="pin" 
+                    maxlength="4"
+                    placeholder="4-digit PIN">
+                </div>
+
+                <div class="form-group">
+                  <label for="roleId" class="form-label">
+                    <i class="fa fa-id-badge"></i>
+                    Role <span class="required">*</span>
+                  </label>
+                  <select 
+                    id="roleId" 
+                    class="form-select" 
+                    formControlName="roleId"
+                    [class.error]="personForm.get('roleId')?.touched && personForm.get('roleId')?.invalid">
+                    <option value="" disabled>Select a Role</option>
+                    <option *ngFor="let role of roles" [value]="role.roleId">{{ role.name }}</option>
+                  </select>
+                  <div *ngIf="personForm.get('roleId')?.touched && personForm.get('roleId')?.errors?.['required']" 
+                       class="error-message">
+                    <i class="fa fa-exclamation-circle"></i>
+                    Role is required
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="form-group">
-              <label for="address">Address</label>
-              <input type="text" id="address" class="form-control" formControlName="address">
+
+            <!-- Address Section -->
+            <div class="form-section">
+              <h4 class="section-title">Address Information</h4>
+              
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label for="address" class="form-label">
+                    <i class="fa fa-map-marker"></i>
+                    Street Address
+                  </label>
+                  <input 
+                    type="text" 
+                    id="address" 
+                    class="form-input" 
+                    formControlName="address"
+                    placeholder="123 Main Street">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="city" class="form-label">
+                    <i class="fa fa-building"></i>
+                    City
+                  </label>
+                  <input 
+                    type="text" 
+                    id="city" 
+                    class="form-input" 
+                    formControlName="city"
+                    placeholder="New York">
+                </div>
+
+                <div class="form-group">
+                  <label for="state" class="form-label">
+                    <i class="fa fa-flag"></i>
+                    State
+                  </label>
+                  <input 
+                    type="text" 
+                    id="state" 
+                    class="form-input" 
+                    formControlName="state"
+                    placeholder="NY">
+                </div>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="city">City</label>
-              <input type="text" id="city" class="form-control" formControlName="city">
+
+            <!-- Additional Information -->
+            <div class="form-section">
+              <h4 class="section-title">Additional Information</h4>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="status" class="form-label">
+                    <i class="fa fa-toggle-on"></i>
+                    Status
+                  </label>
+                  <select id="status" class="form-select" formControlName="status">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="photourl" class="form-label">
+                    <i class="fa fa-image"></i>
+                    Photo URL
+                  </label>
+                  <input 
+                    type="text" 
+                    id="photourl" 
+                    class="form-input" 
+                    formControlName="photoUrl"
+                    placeholder="https://example.com/photo.jpg">
+                </div>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="state">State</label>
-              <input type="text" id="state" class="form-control" formControlName="state">
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" *ngIf="selectedPerson" (click)="cancelEdit()">
+                <i class="fa fa-times"></i>
+                Cancel
+              </button>
+              <button type="submit" class="btn-submit" [disabled]="!personForm.valid">
+                <i class="fa" [class.fa-save]="selectedPerson" [class.fa-plus]="!selectedPerson"></i>
+                {{ selectedPerson ? 'Update Person' : 'Create Person' }}
+              </button>
             </div>
-            <div class="form-group">
-              <label for="status">Status</label>
-              <select id="status" class="form-control" formControlName="status">
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="photourl">photoUrl</label>
-              <input type="text" id="photourl" class="form-control" formControlName="photoUrl">
-            </div>
-            <button type="submit" class="btn btn-primary" [disabled]="!personForm.valid">{{ selectedPerson ? 'Update' : 'Create' }}</button>
-            <button type="button" class="btn btn-secondary ml-2" *ngIf="selectedPerson" (click)="cancelEdit()">Cancel</button>
           </form>
         </div>
       </div>

@@ -146,6 +146,15 @@ export class PeopleComponent implements OnInit {
     }
   }
 
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }  
+
   getRoleName(roleId: any  | undefined): string {
     return this.roles.find(l => l.roleId === roleId)?.name || 'N/A';
   } 
