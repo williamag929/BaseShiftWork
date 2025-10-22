@@ -27,6 +27,7 @@ const routes: Routes = [
       { path: 'locations', component: LocationsComponent },
       { path: 'schedule', component: ScheduleComponent },
       { path: 'tasks', component: TasksComponent },
+      { path: 'clock-shift', loadComponent: () => import('./clock-shift/clock-shift.component').then(m => m.ClockShiftComponent) },
       { path: 'shiftsummaries', loadComponent: () => import('./shiftsummaries/shiftsummaries.component').then(m => m.ShiftsummariesComponent) },
       { path: '', redirectTo: 'schedule', pathMatch: 'full' }
     ]

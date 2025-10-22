@@ -1,14 +1,14 @@
 export const environment = {
   production: false,
   googleAnalyticsId: 'G-7X3Z5F6Y7Z',
-  apiUrl : "http://77.93.152.248:5182/api",
+  apiUrl : process.env.API_URL,
   firebase: {
-    apiKey: "AIzaSyBwL0YUb-yheFPml2qJ_Q4Js7dxgwAhrcM",
-    authDomain: "shift-maps-location.firebaseapp.com",
-    projectId: "shift-maps-location",
-    storageBucket: "shift-maps-location.appspot.com",
-    messagingSenderId: "643515228422",
-    appId: "1:643515238422:web:29a3d9425f3f6e6dfe4d37"
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID
   }
 };
 

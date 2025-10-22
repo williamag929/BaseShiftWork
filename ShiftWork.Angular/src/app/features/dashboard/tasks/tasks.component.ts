@@ -158,4 +158,22 @@ export class TasksComponent implements OnInit, OnDestroy {
       );
     }
   }
+
+  getLocationName(locationId: number | undefined): string {
+    if (locationId === undefined) return '';
+    const location = this.locations.find(l => l.locationId === locationId);
+    return location ? location.name : '';
+  }
+
+  getAreaName(areaId: number | undefined): string {
+    if (areaId === undefined) return '';
+    const area = this.areas.find(a => a.areaId === areaId);
+    return area ? area.name : '';
+  }
+
+  getPersonName(personId: number | undefined): string {
+    if (personId === undefined) return '';
+    const person = this.people.find(p => p.personId === personId);
+    return person ? person.name : '';
+  }
 }

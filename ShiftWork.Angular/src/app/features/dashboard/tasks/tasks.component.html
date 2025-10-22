@@ -1,137 +1,94 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-8">
-      <mat-card class="card">
-        <mat-card-header>
-          <mat-card-title>Tasks</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div *ngIf="loading" class="spinner-container">
-            <mat-spinner></mat-spinner>
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Tasks</h4>
+        </div>
+        <div class="card-body">
+          <div *ngIf="loading" class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
           </div>
-          <div *ngIf="error" class="error-message">
-            <mat-icon color="warn">error</mat-icon>
+          <div *ngIf="error" class="alert alert-danger">
             Error loading tasks.
           </div>
-          <div class="table-responsive">
-            <table mat-table [dataSource]="tasks" class="mat-elevation-z2">
-
-              <!-- Description Column -->
-              <ng-container matColumnDef="description">
-                <th mat-header-cell *matHeaderCellDef> Description </th>
-                <td mat-cell *matCellDef="let task"> {{ task.description }} </td>
-              </ng-container>
-
-              <!-- Location Column -->
-              <ng-container matColumnDef="location">
-                <th mat-header-cell *matHeaderCellDef> Location </th>
-                <td mat-cell *matCellDef="let task"> {{ task.location?.name }} </td>
-              </ng-container>
-
-              <!-- Area Column -->
-              <ng-container matColumnDef="area">
-                <th mat-header-cell *matHeaderCellDef> Area </th>
-                <td mat-cell *matCellDef="let task"> {{ task.area?.name }} </td>
-              </ng-container>
-
-              <!-- Person Column -->
-              <ng-container matColumnDef="person">
-                <th mat-header-cell *matHeaderCellDef> Person </th>
-                <td mat-cell *matCellDef="let task"> {{ task.person?.name }} </td>
-              </ng-container>
-
-              <!-- Status Column -->
-              <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef> Status </th>
-                <td mat-cell *matCellDef="let task">
-                  <span class="badge" [ngClass]="{'badge-success': task.status === 'Active', 'badge-secondary': task.status !== 'Active'}">{{ task.status || 'Active' }}</span>
-                </td>
-              </ng-container>
-
-              <!-- Actions Column -->
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef> Actions </th>
-                <td mat-cell *matCellDef="let task">
-                  <button mat-icon-button color="primary" (click)="editTask(task)"><mat-icon>edit</mat-icon></button>
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="[ 'description', 'location', 'area', 'person', 'status', 'actions']"></tr>
-              <tr mat-row *matRowDef="let row; columns: [ 'description', 'location', 'area', 'person', 'status', 'actions'];"></tr>
-            </table>
+          <div class="list-group">
+            <a *ngFor="let task of tasks" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="mb-1">{{ task.description }}</h5>
+                <p class="mb-1">Location: {{ getLocationName(task.locationId) }}</p>
+                <p class="mb-1">Area: {{ getAreaName(task.areaId) }}</p>
+                <p class="mb-1">Person: {{ getPersonName(task.personId) }}</p>
+                <p class="mb-1">Status: <span class="badge" [ngClass]="{'badge-success': task.status === 'Active', 'badge-secondary': task.status !== 'Active'}">{{ task.status || 'Active' }}</span></p>
+              </div>
+              <button class="btn btn-sm btn-info" (click)="editTask(task)">Edit</button>
+            </a>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </div>
     </div>
     <div class="col-md-4">
-      <mat-card class="card">
-        <mat-card-header>
-          <mat-card-title>{{ selectedTask ? 'Edit Task' : 'Create Task' }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">{{ selectedTask ? 'Edit Task' : 'Create Task' }}</h4>
+        </div>
+        <div class="card-body">
           <form [formGroup]="taskForm" (ngSubmit)="saveTask()">
 
-            <mat-form-field appearance="fill" class="full-width">
-              <mat-label>Title</mat-label>
-              <input matInput formControlName="title">
-              <mat-error *ngIf="taskForm.get('title')?.invalid && taskForm.get('title')?.touched">
-                Title is required.
-              </mat-error>
-            </mat-form-field>
+            <div class="form-group">
+              <label>Title</label>
+              <input class="form-control" formControlName="title">
+            </div>
 
-            <mat-form-field appearance="fill" class="full-width">
-              <mat-label>Description</mat-label>
-              <textarea matInput formControlName="description"></textarea>
-            </mat-form-field>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea class="form-control" formControlName="description"></textarea>
+            </div>
 
-            <mat-form-field appearance="fill" class="full-width">
-              <mat-label>Location</mat-label>
-              <mat-select formControlName="locationId">
-                <mat-option *ngFor="let location of locations" [value]="location.locationId">
+            <div class="form-group">
+              <label>Location</label>
+              <select class="form-control" formControlName="locationId">
+                <option *ngFor="let location of locations" [value]="location.locationId">
                   {{ location.name }}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="taskForm.get('locationId')?.invalid && taskForm.get('locationId')?.touched">
-                Location is required.
-              </mat-error>
-            </mat-form-field>
+                </option>
+              </select>
+            </div>
 
-            <mat-form-field appearance="fill" class="full-width">
-              <mat-label>Area</mat-label>
-              <mat-select formControlName="areaId">
-                <mat-option *ngFor="let area of areas" [value]="area.areaId">
+            <div class="form-group">
+              <label>Area</label>
+              <select class="form-control" formControlName="areaId">
+                <option *ngFor="let area of areas" [value]="area.areaId">
                   {{ area.name }}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="taskForm.get('areaId')?.invalid && taskForm.get('areaId')?.touched">
-                Area is required.
-              </mat-error>
-            </mat-form-field>
+                </option>
+              </select>
+            </div>
 
-            <mat-form-field appearance="fill" class="full-width">
-              <mat-label>Person (Optional)</mat-label>
-              <mat-select formControlName="personId">
-                <mat-option value="">None</mat-option>
-                <mat-option *ngFor="let person of people" [value]="person.personId">
+            <div class="form-group">
+              <label>Person (Optional)</label>
+              <select class="form-control" formControlName="personId">
+                <option value="">None</option>
+                <option *ngFor="let person of people" [value]="person.personId">
                   {{ person.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+                </option>
+              </select>
+            </div>
 
-            <mat-form-field appearance="fill" class="full-width">
-              <mat-label>Status</mat-label>
-              <mat-select formControlName="status">
-                <mat-option value="Active">Active</mat-option>
-                <mat-option value="Inactive">Inactive</mat-option>
-              </mat-select>
-            </mat-form-field>
+            <div class="form-group">
+              <label>Status</label>
+              <select class="form-control" formControlName="status">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
 
-            <button mat-raised-button color="primary" type="submit" [disabled]="!taskForm.valid">{{ selectedTask ? 'Update' : 'Create' }}</button>
-            <button mat-button type="button" *ngIf="selectedTask" (click)="cancelEdit()">Cancel</button>
+            <button class="btn btn-primary" type="submit" [disabled]="!taskForm.valid">{{ selectedTask ? 'Update' : 'Create' }}</button>
+            <button class="btn btn-secondary ml-2" type="button" *ngIf="selectedTask" (click)="cancelEdit()">Cancel</button>
           </form>
 
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </div>
     </div>
   </div>
 </div>

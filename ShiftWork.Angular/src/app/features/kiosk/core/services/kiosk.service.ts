@@ -52,7 +52,7 @@ export class KioskService {
     return this.selectedLocationSource.getValue();
   }
 
-  getKioskQuestions(companyId: number): Observable<KioskQuestion[]> {
+  getKioskQuestions(companyId: string): Observable<KioskQuestion[]> {
     return this.http.get<KioskQuestion[]>(`${this.apiUrl}/kiosk/${companyId}/questions`)
       .pipe(
         catchError(this.handleError)

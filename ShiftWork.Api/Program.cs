@@ -32,6 +32,12 @@ if (string.IsNullOrEmpty(firebaseProjectId))
 
 // Add services to the container.
 
+// TODO: Refactor to use IConfiguration and the options pattern for connection strings and other settings.
+// This will allow for more flexible configuration sources (e.g., appsettings.json, environment variables, Azure Key Vault).
+// Example: var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// TODO: Refactor to use IConfiguration and the options pattern for connection strings and other settings.
+// This will allow for more flexible configuration sources (e.g., appsettings.json, environment variables, Azure Key Vault).
+// Example: var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 // Configure DbContext using the connection string from the .env file.
 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
 if (string.IsNullOrEmpty(connectionString))

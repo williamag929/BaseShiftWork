@@ -1,11 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Location } from 'src/app/core/models/location.model';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { GoogleMap, MapCircle } from '@angular/google-maps'; // This import is not needed if GoogleMap and MapCircle are not used in the template or directly in the component logic.
+import { GoogleMap, MapCircle } from '@angular/google-maps';
 import { ToastrService } from 'ngx-toastr';
-import { MapMarker } from "../../../../../node_modules/@angular/google-maps/index"; // Import ToastrService
+import { MapMarker } from "@angular/google-maps";
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
@@ -17,12 +17,12 @@ import { Timezone } from 'src/app/core/models/timezone.model';
   selector: 'app-locations',
   templateUrl: './locations.component.html',
   styleUrls: ['./locations.component.css'],
-  standalone: false // Ensure these are imported if using standalone components
-  //    GoogleMap, MapMarker, MapCircle
+  standalone: false
 })
 export class LocationsComponent implements OnInit {
   @ViewChild(GoogleMap, { static: false }) map!: GoogleMap;
   @ViewChild(MapCircle, { static: false }) circle!: MapCircle;
+  @ViewChild('addressSearch', { static: true }) addressSearch!: ElementRef;
 
   timezones: Timezone[] = TIMEZONES;
 
@@ -50,20 +50,18 @@ export class LocationsComponent implements OnInit {
     private authService: AuthService,
     private fb: FormBuilder,
     private toastr: ToastrService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private ngZone: NgZone
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
 
   ngOnInit(): void {
-
     this.activeCompany$.subscribe((company: { companyId: string }) => {
       if (company) {
         this.activeCompany = company;
-        console.log('Active company set:', this.activeCompany);
         this.loading = true;
         this.locationService.getLocations(company.companyId).subscribe(locations => {
-            console.log('Locations fetched:', locations);
             this.locations = locations;
             this.loading = false;
           },
@@ -99,14 +97,37 @@ export class LocationsComponent implements OnInit {
 
     this.setCurrentLocation();
 
-    // Set the default timezone based on the user's browser settings
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const timezoneExists = this.timezones.some(tz => tz.value === userTimezone);
 
-    // If the detected timezone is in our list, set it as the default for new locations.
     if (timezoneExists) {
       this.locationForm.get('timezone')?.setValue(userTimezone);
-    }    
+    }
+  }
+
+  ngAfterViewInit(): void {
+    const autocomplete = new google.maps.places.Autocomplete(this.addressSearch.nativeElement);
+    autocomplete.addListener('place_changed', () => {
+      this.ngZone.run(() => {
+        const place: google.maps.places.PlaceResult = autocomplete.getPlace();
+        if (place.geometry && place.geometry.location) {
+          const location = place.geometry.location;
+          this.mapOptions = {
+            ...this.mapOptions,
+            center: location.toJSON()
+          };
+          this.markerPosition = location.toJSON();
+          this.locationForm.patchValue({
+            latitude: this.markerPosition.lat,
+            longitude: this.markerPosition.lng,
+            address: place.formatted_address
+          });
+          if (this.map) {
+            this.map.panTo(location.toJSON());
+          }
+        }
+      });
+    });
   }
 
   editLocation(location: Location): void {
@@ -122,7 +143,6 @@ export class LocationsComponent implements OnInit {
         lat: location.geoCoordinates.latitude,
         lng: location.geoCoordinates.longitude
       };
-      // Also center the map on the edited location
       this.mapOptions = {
         ...this.mapOptions,
         center: this.markerPosition
@@ -142,17 +162,16 @@ export class LocationsComponent implements OnInit {
       state: '',
       country: '',
       zipCode: '',
-      latitude: 0, // Will be updated by setCurrentLocation
-      longitude: 0, // Will be updated by setCurrentLocation
+      latitude: 0,
+      longitude: 0,
       ratioMax: 100,
-      timezone: '', // Will be updated by timezone logic
+      timezone: '',
       email: '',
       phoneNumber: '',
       externalCode: '',
       status: 'Active',
     });
 
-    // Re-apply defaults for new locations
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     if (this.timezones.some(tz => tz.value === userTimezone)) {
       this.locationForm.get('timezone')?.setValue(userTimezone);
@@ -196,7 +215,6 @@ export class LocationsComponent implements OnInit {
         ...this.selectedLocation,
         ...locationData
       };
-      // Note: You will need to implement `updateLocation` in your LocationService.
       this.locationService.updateLocation(this.activeCompany.companyId, updatedLocation.locationId, updatedLocation).subscribe(
         (result) => {
           const index = this.locations.findIndex(l => l.locationId === result.locationId);
@@ -210,7 +228,6 @@ export class LocationsComponent implements OnInit {
       );
     } else {
       const newLocation = { ...locationData, companyId: this.activeCompany.companyId } as Location;
-      console.log('New location:', newLocation);
       this.locationService.createLocation(this.activeCompany.companyId, newLocation).subscribe((location: Location) => {
         this.locations.push(location);
         this.toastr.success('Location created successfully');
@@ -220,7 +237,6 @@ export class LocationsComponent implements OnInit {
   }
 
   private setCurrentLocation(): void {
-    // When resetting to create a new location, clear the old marker.
     if (!this.selectedLocation) {
       this.markerPosition = undefined;
     }
@@ -229,11 +245,8 @@ export class LocationsComponent implements OnInit {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          
-          // Update map center regardless
           this.mapOptions = { ...this.mapOptions, center: { lat: latitude, lng: longitude } };
 
-          // If we are creating a new location, also place the marker and fill the form
           if (!this.selectedLocation) {
             this.markerPosition = { lat: latitude, lng: longitude };
             this.locationForm.patchValue({ latitude, longitude });

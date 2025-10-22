@@ -1,13 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { WebcamModule, WebcamImage, WebcamInitError } from 'ngx-webcam';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { People } from 'src/app/core/models/people.model';
 import { Router } from '@angular/router';
 import { ShiftEventService } from 'src/app/core/services/shift-event.service';
 import { ShiftEvent } from 'src/app/core/models/shift-event.model';
 import { PeopleService } from 'src/app/core/services/people.service';
-import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
@@ -15,12 +14,13 @@ import { ScheduleDetail } from 'src/app/core/models/schedule-detail.model';
 import { ToastrService } from 'ngx-toastr';
 import { AwsS3Service } from 'src/app/core/services/aws-s3.service';
 import { MatDialog } from '@angular/material/dialog';
-import { QuestionDialogComponent } from '../kiosk/question-dialog/question-dialog.component';
-import { KioskService } from '../kiosk/core/services/kiosk.service';
-import { KioskAnswer } from '../kiosk/core/models/kiosk-answer.model';
-import { TimerService } from '../kiosk/core/services/timer.service';
+import { QuestionDialogComponent } from '../../kiosk/question-dialog/question-dialog.component';
+import { KioskService } from '../../kiosk/core/services/kiosk.service';
+import { KioskAnswer } from '../../kiosk/core/models/kiosk-answer.model';
+import { TimerService } from '../../kiosk/core/services/timer.service';
 import { Location } from 'src/app/core/models/location.model';
-
+import { AuthService } from 'src/app/core/services/auth.service';
+import { Company } from 'src/app/core/models/company.model';
 
 export enum ScheduleAction {
   START_SHIFT = 'clockin',
@@ -52,11 +52,11 @@ export class ClockShiftComponent implements OnInit, OnDestroy {
   webcamImage: WebcamImage | null = null;
   flippedImage: string | null = null;
   scheduling = false;
-  activeCompany$: Observable<any>;
-  activeCompany: any;
+  activeCompany$: Observable<Company | null>;
+  activeCompany: Company | null = null;
 
-  countdown$ = this.timerService.countdown;
-  triggerObservable$ = this.trigger.asObservable();
+  countdown$: Observable<number>;
+  triggerObservable$: Observable<void>;
 
   readonly ScheduleAction = ScheduleAction;
 
@@ -73,39 +73,44 @@ export class ClockShiftComponent implements OnInit, OnDestroy {
     private readonly authService: AuthService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
+    this.countdown$ = this.timerService.countdown;
+    this.triggerObservable$ = this.trigger.asObservable();
   }
 
-  import { AuthService } from 'src/app/core/services/auth.service';
+  ngOnInit(): void {
+    this.activeCompany$.subscribe(company => {
+      console.log('company', company);
+      this.activeCompany = company;
+      if (this.activeCompany) {
+        this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe(user => {
+          console.log('user', user);
+          if (user && user.email) {
+            this.peopleService.getPersonByEmail(this.activeCompany!.companyId, user.email).subscribe(person => {
+              console.log('person', person);
+              this.currentUser = person;
+              if (this.currentUser) {
+                this.employeeStatus = this.currentUser.status || null;
+                this.peopleService.getPersonStatus(this.activeCompany!.companyId, this.currentUser.personId)
+                  .pipe(takeUntil(this.destroy$))
+                  .subscribe(status => {
+                    this.employeeStatus = status;
+                  });
 
-// ... other imports
+                if (this.currentUser.scheduleDetails) {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  this.employeeSchedule = this.currentUser.scheduleDetails.find(s => {
+                    const scheduleDate = new Date(s.startDate);
+                    scheduleDate.setHours(0, 0, 0, 0);
+                    return s.personId === this.currentUser?.personId && scheduleDate.getTime() === today.getTime();
+                  }) || null;
 
-ngOnInit(): void {
-    this.authService.getCurrentUser().pipe(takeUntil(this.destroy$)).subscribe(user => {
-      this.currentUser = user;
-      if (this.currentUser) {
-        this.activeCompany$.subscribe((company: { companyId: string }) => {
-          if (company) {
-            this.activeCompany = company;
-            this.employeeStatus = this.currentUser?.status || null;
-            this.peopleService.getPersonStatus(company.companyId, Number(this.currentUser?.personId))
-              .pipe(takeUntil(this.destroy$))
-              .subscribe(status => {
-                this.employeeStatus = status;
-              });
-
-            if (this.currentUser) {
-              const today = new Date();
-              today.setHours(0, 0, 0, 0);
-              this.employeeSchedule = this.currentUser.scheduleDetails?.find(s => {
-                const scheduleDate = new Date(s.startDate);
-                scheduleDate.setHours(0, 0, 0, 0);
-                return s.personId === this.currentUser?.personId && scheduleDate.getTime() === today.getTime();
-              }) || null;
-
-              if (this.employeeSchedule && this.employeeSchedule.location) {
-                this.selectedLocation = this.employeeSchedule.location;
+                  if (this.employeeSchedule && this.employeeSchedule.location) {
+                    this.selectedLocation = this.employeeSchedule.location;
+                  }
+                }
               }
-            }
+            });
           }
         });
       }
@@ -119,7 +124,7 @@ ngOnInit(): void {
   }
 
   triggerImage(action?: ScheduleAction): void {
-    if (this.scheduling) return;
+    if (this.scheduling || !this.activeCompany) return;
 
     if (action === ScheduleAction.END_SHIFT) {
       this.kioskService.getKioskQuestions(this.activeCompany.companyId).subscribe(questions => {
@@ -131,25 +136,27 @@ ngOnInit(): void {
 
           dialogRef.afterClosed().subscribe(answers => {
             if (answers) {
-              this.proceedWithClockOut(action, answers);
+              this.proceedWithAction(action, answers);
             }
           });
         } else {
-          this.proceedWithClockOut(action);
+          this.proceedWithAction(action);
         }
       });
     } else {
-      this.proceedWithClockOut(action);
+      this.proceedWithAction(action || ScheduleAction.START_SHIFT);
     }
   }
-  
-  proceedWithClockOut(action: ScheduleAction, answers?: any) {
+
+  proceedWithAction(action: ScheduleAction, answers?: any) {
     this.scheduling = true;
     this.startCountdown();
 
     setTimeout(() => {
       this.capturePhoto();
-      this.setSchedule(action, answers);
+      if(action) {
+        this.setSchedule(action, answers);
+      }
     }, this.PHOTO_DELAY_MS);
 
     setTimeout(() => {
@@ -183,8 +190,8 @@ ngOnInit(): void {
   }
 
   private setSchedule(action: ScheduleAction, answers?: any): void {
-    if (!this.currentUser || !this.currentUser.companyId) {
-      this.toastr.error('No employee selected for scheduling or companyId is missing');
+    if (!this.currentUser || !this.currentUser.companyId || !this.currentUser.personId) {
+      this.toastr.error('No employee selected for scheduling or companyId/personId is missing');
       return;
     }
 
@@ -202,23 +209,23 @@ ngOnInit(): void {
         const geoLocation = `{${coords.latitude},${coords.longitude}}`;
 
         this.awsS3Service.uploadFile('shiftwork-photos', file).subscribe({
-          next: (response) => {
+          next: (response: { message: string; }) => {
             const photoUrl = response.message;
 
             const newShiftEvent: ShiftEvent = {
               eventLogId: '00000000-0000-0000-0000-000000000000',
               eventDate: now,
               eventType: action,
-              companyId: this.currentUser.companyId,
-              personId: this.currentUser.personId,
+              companyId: this.currentUser!.companyId,
+              personId: this.currentUser!.personId,
               eventObject: JSON.stringify(this.selectedLocation || {}),
-              description: `User ${this.currentUser.name} ${action}`,
+              description: `User ${this.currentUser!.name} ${action}`,
               kioskDevice: null,
               geoLocation: geoLocation,
               photoUrl: photoUrl
             };
 
-            this.shiftEventService.createShiftEvent(this.currentUser.companyId, newShiftEvent)
+            this.shiftEventService.createShiftEvent(this.currentUser!.companyId!, newShiftEvent)
               .pipe(takeUntil(this.destroy$))
               .subscribe({
                 next: (event) => {

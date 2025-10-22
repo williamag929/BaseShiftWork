@@ -4,7 +4,38 @@
   </button>
   <span>{{ (activeCompany$ | async)?.name }}</span>
   <span class="spacer"></span>
-  <button mat-button (click)="logout()">Logout</button>
+  <div style="margin-left: auto;">
+    <button mat-icon-button [matMenuTriggerFor]="menu">
+      <img [src]="(user$ | async)?.photoUrl || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJDMTQuMjEgMTIgMTYgMTAuMjEgMTYgOEMxNiA1Ljc5IDE0LjIxIDQgMTIgNFM4IDUuNzkgOCA4QzggMTAuMjEgOS43OSAxMiAxMiAxMlpNMTIgMTRDNi40OCAxNCAyIDE2LjQ4IDIgMjJWMjRIMjJWMjJDMTggMTYuNDggMTUuNTIgMTQgMTIgMTRaIiBmaWxsPSIjY2NjY2NjIi8+PC9zdmc+'" class="profile-image-toolbar" alt="User profile image">
+    </button>
+  </div>
+  <mat-menu #menu="matMenu">
+    <div class="profile-info" *ngIf="user$ | async as user">
+      <img [src]="user.photoUrl || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJDMTQuMjEgMTIgMTYgMTAuMjEgMTYgOEMxNiA1Ljc5IDE0LjIxIDQgMTIgNFM4IDUuNzkgOCA4QzggMTAuMjEgOS43OSAxMiAxMiAxMlpNMTIgMTRDNi40OCAxNCAyIDE2LjQ4IDIgMjJWMjRIMjJWMjJDMTggMTYuNDggMTUuNTIgMTQgMTIgMTRaIiBmaWxsPSIjY2NjY2NjIi8+PC9zdmc+'" class="profile-image-menu" alt="User profile image">
+      <div class="profile-details">
+        <p>{{ user.name }}</p>
+        <p class="text-muted">{{ user.email }}</p>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <button mat-menu-item routerLink="/dashboard/profiles">
+      <mat-icon>account_circle</mat-icon>
+      <span>Profile</span>
+    </button>
+    <button mat-menu-item routerLink="/dashboard/settings">
+      <mat-icon>settings</mat-icon>
+      <span>Settings</span>
+    </button>
+    <button mat-menu-item routerLink="/general/manage-companies">
+      <mat-icon>business</mat-icon>
+      <span>Company</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>exit_to_app</mat-icon>
+      <span>Logout</span>
+    </button>
+  </mat-menu>
 </mat-toolbar>
 
 <mat-sidenav-container class="sidenav-container" autosize>
@@ -40,9 +71,13 @@
         <span matListItemTitle>Tasks</span>
       </a>
       <a mat-list-item routerLink="/kiosk" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>kiosk</mat-icon>
+        <mat-icon matListItemIcon>recent_actors</mat-icon>
         <span matListItemTitle>Kiosks</span>
       </a>
+      <a mat-list-item routerLink="/dashboard/clock-shift" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>alarm</mat-icon>
+        <span matListItemTitle>Clock</span>
+      </a>      
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>

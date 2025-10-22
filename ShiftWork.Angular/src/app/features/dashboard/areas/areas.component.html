@@ -1,6 +1,6 @@
-<div class="container">
+<div class="container-fluid">
   <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-4">
       <div class="card">
         <div class="card-header">
           <h4 class="card-title">Areas</h4>
@@ -14,30 +14,19 @@
           <div *ngIf="error" class="alert alert-danger">
             Error loading areas.
           </div>
-          <div class="table-responsive">
-            <table class="table">
-              <thead class="text-primary">
-                <th>Name</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </thead>
-              <tbody>
-                <tr *ngFor="let area of areas">
-                  <td>{{ area.name }}</td>
-                  <td>{{ getLocationName(area.locationId) }}</td>
-                  <td><span class="badge" [ngClass]="{'badge-success': area.status === 'Active', 'badge-secondary': area.status !== 'Active'}">{{ area.status || 'Active' }}</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-info" (click)="editArea(area)">Edit</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="list-group">
+            <a *ngFor="let area of areas" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="mb-1">{{ area.name }}</h5>
+                <p class="mb-1">{{ getLocationName(area.locationId) }}</p>
+              </div>
+              <button class="btn btn-sm btn-info" (click)="editArea(area)">Edit</button>
+            </a>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-8">
       <div class="card">
         <div class="card-header">
           <h4 class="card-title">{{ selectedArea ? 'Edit Area' : 'Create Area' }}</h4>

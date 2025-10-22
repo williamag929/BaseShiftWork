@@ -76,7 +76,14 @@ export class PeopleService {
       .pipe(
         catchError(this.handleError)
       );
-  }  
+  }
+
+  getPersonByEmail(companyId: string, email: string): Observable<People> {
+    return this.http.get<People>(`${this.apiUrl}/companies/${companyId}/people/by-email/${email}`)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
 
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Unknown error!';

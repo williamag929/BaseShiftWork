@@ -34,6 +34,12 @@
         <div class="card-body">
           <div class="row">
             <div class="col-md-6">
+              <div class="form-group">
+                <label for="address-search">Address Search</label>
+                <div class="input-group">
+                  <input type="text" id="address-search" class="form-control" placeholder="Enter an address" #addressSearch>
+                </div>
+              </div>
               <google-map
                 [options]="mapOptions"
                 (mapClick)="onMapClick($event)"

@@ -1,7 +1,7 @@
 // photo-schedule.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { WebcamModule, WebcamImage, WebcamInitError } from 'ngx-webcam';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { People } from 'src/app/core/models/people.model';
 import { Router } from '@angular/router';
@@ -13,14 +13,17 @@ import { ShiftEvent } from 'src/app/core/models/shift-event.model';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { ScheduleShiftService } from 'src/app/core/services/schedule-shift.service';
 import { ScheduleShift } from 'src/app/core/models/schedule-shift.model';
-import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { ScheduleDetail } from 'src/app/core/models/schedule-detail.model';
 import { ToastrService } from 'ngx-toastr';
 import { KioskAnswer } from '../core/models/kiosk-answer.model';
-
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { QuestionDialogComponent } from '../question-dialog/question-dialog.component';
+import { AwsS3Service } from 'src/app/core/services/aws-s3.service';
+import { Company } from 'src/app/core/models/company.model';
+import { Location } from 'src/app/core/models/location.model';
 
 export enum ScheduleAction {
   START_SHIFT = 'clockin',
@@ -32,10 +35,9 @@ export enum ScheduleAction {
 @Component({
   selector: 'app-photo-schedule',
   standalone: true,
-  imports: [WebcamModule, CommonModule],
+  imports: [WebcamModule, CommonModule, MatDialogModule],
   templateUrl: './photo-schedule.component.html',
   styleUrls: ['./photo-schedule.component.css'],
-
 })
 export class PhotoScheduleComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
@@ -56,22 +58,17 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
   webcamImage: WebcamImage | null = null;
   flippedImage: string | null = null;
   scheduling = false;
-  activeCompany$: Observable<any>;
-  activeCompany: any;
+  activeCompany$: Observable<Company | null>;
+  activeCompany: Company | null = null;
 
   // Observables
-  countdown$ = this.timerService.countdown;
-  triggerObservable$ = this.trigger.asObservable();
+  countdown$: Observable<number>;
+  triggerObservable$: Observable<void>;
 
   // Expose enum to template
   readonly ScheduleAction = ScheduleAction;
 
-  import { MatDialog } from '@angular/material/dialog';
-import { QuestionDialogComponent } from '../question-dialog/question-dialog.component';
-
-// ... other imports
-
-constructor(
+  constructor(
     private readonly kioskService: KioskService,
     private readonly timerService: TimerService,
     private readonly router: Router,
@@ -84,7 +81,8 @@ constructor(
     private readonly dialog: MatDialog
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
-
+    this.countdown$ = this.timerService.countdown;
+    this.triggerObservable$ = this.trigger.asObservable();
   }
 
   ngOnInit(): void {
@@ -92,29 +90,26 @@ constructor(
     this.selectedLocation = this.kioskService.getSelectedLocation() || null;
 
     if (this.selectedEmployee) {
-      this.activeCompany$.subscribe((company: { companyId: string }) => {
-        if (company) {
+      this.activeCompany$.subscribe((company: Company | null) => {
+        if (company && this.selectedEmployee) {
           this.activeCompany = company;
-          this.employeeStatus = this.selectedEmployee?.status || null;
-          console.log('Employee status:', this.employeeStatus);
-          this.peopleService.getPersonStatus(company.companyId, Number(this.selectedEmployee?.personId))
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(status => {
-              this.employeeStatus = status;
-              console.log('Employee status:', status);
-            });
+          this.employeeStatus = this.selectedEmployee.status || null;
+          if (this.selectedEmployee.personId) {
+            this.peopleService.getPersonStatus(company.companyId, this.selectedEmployee.personId)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe((status: string) => {
+                this.employeeStatus = status;
+              });
+          }
 
-          if (this.selectedEmployee) {
+          if (this.selectedEmployee.scheduleDetails) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            this.employeeSchedule = this.selectedEmployee.scheduleDetails?.find(s => {
+            this.employeeSchedule = this.selectedEmployee.scheduleDetails.find(s => {
               const scheduleDate = new Date(s.startDate);
               scheduleDate.setHours(0, 0, 0, 0);
-              console.log('dates:',scheduleDate.getTime(),'-', today.getTime())
               return s.personId === this.selectedEmployee?.personId && scheduleDate.getTime() === today.getTime();
             }) || null;
-
-            console.log('Employee schedule:', this.employeeSchedule);
           }
         }
       });
@@ -127,11 +122,8 @@ constructor(
     this.trigger.complete();
   }
 
-  /**
-   * Triggers the photo capture process with countdown
-   */
   triggerImage(action?: ScheduleAction): void {
-    if (this.scheduling) return;
+    if (this.scheduling || !this.activeCompany) return;
 
     if (action === ScheduleAction.END_SHIFT) {
       this.kioskService.getKioskQuestions(this.activeCompany.companyId).subscribe(questions => {
@@ -141,70 +133,45 @@ constructor(
             data: { questions }
           });
 
-          dialogRef.afterClosed().subscribe(answers => {
+          dialogRef.afterClosed().subscribe((answers: { [key: string]: string } | null) => {
             if (answers) {
-              this.scheduling = true;
-              this.startCountdown();
-
-              setTimeout(() => {
-                this.capturePhoto();
-                this.setSchedule(action, answers);
-              }, this.PHOTO_DELAY_MS);
-
-              setTimeout(() => {
-                this.clearEmployee();
-              }, this.CLEAR_DELAY_MS);
+              this.startScheduling(action, answers);
             }
           });
         } else {
-          // No questions, proceed as usual
-          this.scheduling = true;
-          this.startCountdown();
-
-          setTimeout(() => {
-            this.capturePhoto();
-            if (action) {
-              this.setSchedule(action);
-            }
-          }, this.PHOTO_DELAY_MS);
-
-          setTimeout(() => {
-            this.clearEmployee();
-          }, this.CLEAR_DELAY_MS);
+          this.startScheduling(action);
         }
       });
     } else {
-      this.scheduling = true;
-      this.startCountdown();
-
-      setTimeout(() => {
-        this.capturePhoto();
-        if (action) {
-          this.setSchedule(action);
-        }
-      }, this.PHOTO_DELAY_MS);
-
-      setTimeout(() => {
-        this.clearEmployee();
-      }, this.CLEAR_DELAY_MS);
+      this.startScheduling(action);
     }
   }
 
-  /**
-   * Clears the current photo and resets the component state
-   */
+  private startScheduling(action?: ScheduleAction, answers?: { [key: string]: string }): void {
+    this.scheduling = true;
+    this.startCountdown();
+
+    setTimeout(() => {
+      this.capturePhoto();
+      if (action) {
+        this.setSchedule(action, answers);
+      }
+    }, this.PHOTO_DELAY_MS);
+
+    setTimeout(() => {
+      this.clearEmployee();
+    }, this.CLEAR_DELAY_MS);
+  }
+
   clearEmployee(): void {
     this.webcamImage = null;
     this.flippedImage = null;
     this.scheduling = false;
     setTimeout(() => {
       this.router.navigate(['/kiosk/employee-list']);
-    }, 2000); // 2 seconds delay
+    }, 2000);
   }
 
-  /**
-   * Handles the captured webcam image
-   */
   handleImage(webcamImage: WebcamImage): void {
     if (!webcamImage?.imageAsDataUrl) return;
 
@@ -212,12 +179,9 @@ constructor(
     this.flipImage(webcamImage.imageAsDataUrl);
   }
 
-  /**
-   * Handles webcam initialization errors
-   */
   handleInitError(error: WebcamInitError): void {
     console.error('Webcam initialization error:', error);
-    // Add user notification here
+    this.toastr.error('Webcam initialization error. Please check permissions and refresh.');
   }
 
   private startCountdown(): void {
@@ -229,9 +193,9 @@ constructor(
     this.trigger.next();
   }
 
-  private setSchedule(action: ScheduleAction, answers?: any): void {
-    if (!this.selectedEmployee || !this.selectedEmployee.companyId) {
-      this.toastr.error('No employee selected for scheduling or companyId is missing');
+  private setSchedule(action: ScheduleAction, answers?: { [key: string]: string }): void {
+    if (!this.selectedEmployee || !this.selectedEmployee.companyId || !this.selectedEmployee.personId) {
+      this.toastr.error('No employee selected for scheduling or companyId/personId is missing');
       return;
     }
 
@@ -245,31 +209,30 @@ constructor(
     const file = new File([blob], `${this.selectedEmployee.personId}_${now.getTime()}.jpg`, { type: 'image/jpeg' });
 
     this.getCurrentPosition().subscribe({
-      next: (coords) => {
+      next: (coords: GeolocationCoordinates) => {
         const geoLocation = `{${coords.latitude},${coords.longitude}}`;
 
-        // TODO: Make bucket name configurable
         this.awsS3Service.uploadFile('shiftwork-photos', file).subscribe({
-          next: (response) => {
-            const photoUrl = response.message; // Assuming the response message is the URL
+          next: (response: { message: string }) => {
+            const photoUrl = response.message;
 
             const newShiftEvent: ShiftEvent = {
-              eventLogId: '00000000-0000-0000-0000-000000000000', // Should be generated by the backend
+              eventLogId: '00000000-0000-0000-0000-000000000000',
               eventDate: now,
               eventType: action,
-              companyId: this.selectedEmployee.companyId,
-              personId: this.selectedEmployee.personId,
+              companyId: this.selectedEmployee!.companyId!,
+              personId: this.selectedEmployee!.personId!,
               eventObject: JSON.stringify(this.selectedLocation || {}),
-              description: `User ${this.selectedEmployee.name} ${action}`,
+              description: `User ${this.selectedEmployee!.name} ${action}`,
               kioskDevice: this.getKioskDeviceIdentifier(),
               geoLocation: geoLocation,
               photoUrl: photoUrl
             };
 
-            this.shiftEventService.createShiftEvent(this.selectedEmployee.companyId, newShiftEvent)
+            this.shiftEventService.createShiftEvent(this.selectedEmployee!.companyId!, newShiftEvent)
               .pipe(takeUntil(this.destroy$))
               .subscribe({
-                next: (event) => {
+                next: (event: ShiftEvent) => {
                   this.toastr.success('Shift event created successfully');
                   if (answers) {
                     const kioskAnswers: KioskAnswer[] = Object.keys(answers).map(key => ({
@@ -281,11 +244,11 @@ constructor(
                     this.kioskService.postKioskAnswers(kioskAnswers).subscribe();
                   }
                 },
-                error: (err) => this.toastr.error('Error creating shift event')
+                error: (err: any) => this.toastr.error('Error creating shift event')
               });
 
             const scheduleEmployee: ScheduleEmployee = {
-              employee: this.selectedEmployee,
+              employee: this.selectedEmployee!,
               action: action,
               dateTime: now.toString(),
               dateTimeUTC: this.convertToUTC(now).toISOString(),
@@ -293,25 +256,11 @@ constructor(
             };
             this.kioskService.setscheduleEmployee(scheduleEmployee);
           },
-          error: (err) => this.toastr.error('Error uploading photo')
+          error: (err: any) => this.toastr.error('Error uploading photo')
         });
       },
-      error: (err) => this.toastr.error('Error getting geolocation')
+      error: (err: any) => this.toastr.error('Error getting geolocation')
     });
-  }
-
-  private formatDateForInput(date: Date | string | undefined): string {
-    if (!date) {
-      return '';
-    }
-    const d = new Date(date);
-    // Format to 'yyyy-MM-ddTHH:mm' which is required for datetime-local input
-    const year = d.getFullYear();
-    const month = (d.getMonth() + 1).toString().padStart(2, '0');
-    const day = d.getDate().toString().padStart(2, '0');
-    const hours = d.getHours().toString().padStart(2, '0');
-    const minutes = d.getMinutes().toString().padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
   private flipImage(src: string): void {
@@ -354,11 +303,11 @@ constructor(
     return new Observable(observer => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          position => {
+          (position: GeolocationPosition) => {
             observer.next(position.coords);
             observer.complete();
           },
-          error => {
+          (error: GeolocationPositionError) => {
             observer.error(error);
           }
         );

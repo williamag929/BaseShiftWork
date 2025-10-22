@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { People as Person } from 'src/app/core/models/people.model';
 import { PeopleService } from 'src/app/core/services/people.service';
-import { AuthService } from 'src/app/core/services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
@@ -12,7 +11,7 @@ import { KioskService } from '../core/services/kiosk.service';
 import { ScheduleService } from 'src/app/core/services/schedule.service';
 import { MatDialog } from '@angular/material/dialog';
 import { PinDialogComponent } from '../pin-dialog/pin-dialog.component';
-import { ScheduleDetail } from 'src/app/core/models/schedule-detail.model';
+import { Company } from 'src/app/core/models/company.model';
 
 @Component({
   selector: 'app-employee-list',
@@ -24,8 +23,8 @@ export class EmployeeListComponent implements OnInit {
   employees: Person[] = [];
   loading = false;
   error: any = null;
-  activeCompany$: Observable<any>;
-  activeCompany: any;
+  activeCompany$: Observable<Company | null>;
+  activeCompany: Company | null = null;
 
   constructor(
     private peopleService: PeopleService,
@@ -40,18 +39,16 @@ export class EmployeeListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.activeCompany$.subscribe((company: { companyId: string }) => {
+    this.activeCompany$.subscribe((company: Company | null) => {
       if (company) {
         this.activeCompany = company;
-        console.log('Active company set:', this.activeCompany);
         this.loading = true;
         this.peopleService.getPeople(company.companyId).subscribe(
-          people => {
+          (people: Person[]) => {
             this.employees = people.filter(p => p.companyId === company.companyId);
-            console.log('Employees loaded:', this.employees);
             this.loading = false;
           },
-          error => {
+          (error: any) => {
             this.error = error;
             this.loading = false;
             this.toastr.error('Error loading employees');
@@ -62,78 +59,46 @@ export class EmployeeListComponent implements OnInit {
   }
 
   selectEmployee(employee: Person): void {
-    console.log('Selected employee:', employee);
-
-    if (!employee || !employee.id) {
+    if (!employee || !employee.personId) {
       this.toastr.error('Invalid employee selected');
       return;
     }
 
-    //todo: load the schedule details for the selected employee from schedule service search filtering the 
-    //current date 
-    //this.scheduleService.search(this.activeCompany.companyId, new Date().toISOString(), new Date().toISOString(), '', employee.id).subscribe(
-    this.scheduleService.search(this.activeCompany.companyId, '', '', '', employee.id).subscribe(
-      schedules => {
+    if (!this.activeCompany) {
+      this.toastr.error('No active company selected');
+      return;
+    }
+
+    this.scheduleService.search(this.activeCompany.companyId, '', '', '', employee.personId).subscribe(
+      (schedules: any) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         employee.scheduleDetails = schedules || [];
 
-        //const employeeSchedule =  schedules.find(s => {
-        //  const scheduleDate = new Date(s.startDate);
-        //  scheduleDate.setHours(0, 0, 0, 0);
-        //  return s.personId === employee.id && scheduleDate.getTime() === today.getTime();
-        //}) || null;
-        if (schedules && schedules.length > 0) {   
-        employee.scheduleDetails = schedules.filter(s => 
-          {
+        if (schedules && schedules.length > 0) {
+          employee.scheduleDetails = schedules.filter((s: any) => {
             const scheduleDate = new Date(s.startDate);
             scheduleDate.setHours(0, 0, 0, 0);
-            return s.personId === employee.id && scheduleDate.getTime() === today.getTime();
+            return s.personId === employee.personId && scheduleDate.getTime() === today.getTime();
           }) || [];
+        }
+
         const dialogRef = this.dialog.open(PinDialogComponent, {
           width: '250px',
-          data: { name: employee.name, personId: employee.id }
+          data: { name: employee.name, personId: employee.personId }
         });
 
-        dialogRef.afterClosed().subscribe(verified => {
+        dialogRef.afterClosed().subscribe((verified: boolean) => {
           if (verified) {
             this.kioskService.setSelectedEmployee(employee);
             this.router.navigate(['/kiosk/photo-schedule'], { state: { employee } });
           }
         });
-        } else {
-          this.toastr.warning('No schedule found for today');
-          this.kioskService.setSelectedEmployee(employee);
-          this.router.navigate(['/kiosk/photo-schedule'], { state: { employee } })
-            .then(() => {
-              console.log('Navigated to photo schedule for employee:', employee);
-            })
-            .catch(error => {
-              console.error('Navigation error:', error);
-              this.toastr.error('Error navigating to photo schedule');
-            });
-        }
       },
-      error => {
-        console.error('Error loading schedules:', error);
+      (error: any) => {
         this.toastr.error('Error loading schedules');
       }
     );
-  }
-
-
-  private formatDateForInput(date: Date | string | undefined): string {
-    if (!date) {
-      return '';
-    }
-    const d = new Date(date);
-    // Format to 'yyyy-MM-ddTHH:mm' which is required for datetime-local input
-    const year = d.getFullYear();
-    const month = (d.getMonth() + 1).toString().padStart(2, '0');
-    const day = d.getDate().toString().padStart(2, '0');
-    const hours = d.getHours().toString().padStart(2, '0');
-    const minutes = d.getMinutes().toString().padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
   getInitials(name: string): string {
