@@ -1,92 +1,255 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-md-8">
-      <div class="card">
+<div class="tasks-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="fa fa-tasks"></i>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">Task Management</h1>
+        <p class="page-subtitle">Define and organize tasks for your team</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <!-- Left Panel - Tasks List -->
+    <div class="list-panel">
+      <div class="panel-card">
         <div class="card-header">
-          <h4 class="card-title">Tasks</h4>
+          <h3 class="card-title">
+            <i class="fa fa-list"></i>
+            Tasks
+          </h3>
+          <span class="badge">{{ tasks.length || 0 }}</span>
         </div>
+
         <div class="card-body">
-          <div *ngIf="loading" class="text-center">
-            <div class="spinner-border" role="status">
-              <span class="sr-only">Loading...</span>
-            </div>
+          <!-- Loading State -->
+          <div *ngIf="loading" class="loading-state">
+            <div class="spinner"></div>
+            <p class="loading-text">Loading tasks...</p>
           </div>
-          <div *ngIf="error" class="alert alert-danger">
-            Error loading tasks.
+
+          <!-- Error State -->
+          <div *ngIf="error" class="error-state">
+            <i class="fa fa-exclamation-triangle error-icon"></i>
+            <p class="error-text">Error loading tasks. Please try again.</p>
           </div>
-          <div class="list-group">
-            <a *ngFor="let task of tasks" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-              <div>
-                <h5 class="mb-1">{{ task.description }}</h5>
-                <p class="mb-1">Location: {{ getLocationName(task.locationId) }}</p>
-                <p class="mb-1">Area: {{ getAreaName(task.areaId) }}</p>
-                <p class="mb-1">Person: {{ getPersonName(task.personId) }}</p>
-                <p class="mb-1">Status: <span class="badge" [ngClass]="{'badge-success': task.status === 'Active', 'badge-secondary': task.status !== 'Active'}">{{ task.status || 'Active' }}</span></p>
+
+          <!-- Tasks List -->
+          <div *ngIf="!loading && !error" class="tasks-list">
+            <div 
+              *ngFor="let task of tasks; let i = index" 
+              class="task-item"
+              [class.selected]="selectedTask?.taskShiftId === task.taskShiftId"
+              (click)="editTask(task)"
+              [style.animation-delay.ms]="i * 50">
+              <div class="task-icon">
+                <i class="fa fa-check-square-o"></i>
               </div>
-              <button class="btn btn-sm btn-info" (click)="editTask(task)">Edit</button>
-            </a>
+              <div class="task-info">
+                <h4 class="task-title">{{ task.title || task.description }}</h4>
+                <p class="task-description" *ngIf="task.title">{{ task.description }}</p>
+                <div class="task-meta">
+                  <span class="meta-item">
+                    <i class="fa fa-map-marker"></i>
+                    {{ getLocationName(task.locationId) }}
+                  </span>
+                  <span class="meta-item" *ngIf="task.areaId">
+                    <i class="fa fa-map-signs"></i>
+                    {{ getAreaName(task.areaId) }}
+                  </span>
+                  <span class="meta-item" *ngIf="task.personId">
+                    <i class="fa fa-user"></i>
+                    {{ getPersonName(task.personId) }}
+                  </span>
+                </div>
+                <span class="status-badge" [class.active]="task.status === 'Active'">
+                  {{ task.status || 'Active' }}
+                </span>
+              </div>
+              <button class="edit-btn" (click)="editTask(task); $event.stopPropagation()">
+                <i class="fa fa-pencil"></i>
+              </button>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="tasks.length === 0" class="empty-state">
+              <i class="fa fa-tasks empty-icon"></i>
+              <p class="empty-text">No tasks found</p>
+              <p class="empty-subtext">Create your first task to get started</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card">
+
+    <!-- Right Panel - Form -->
+    <div class="form-panel">
+      <div class="panel-card">
         <div class="card-header">
-          <h4 class="card-title">{{ selectedTask ? 'Edit Task' : 'Create Task' }}</h4>
+          <h3 class="card-title">
+            <i class="fa" [class.fa-plus]="!selectedTask" [class.fa-edit]="selectedTask"></i>
+            {{ selectedTask ? 'Edit Task' : 'Create New Task' }}
+          </h3>
+          <button *ngIf="selectedTask" class="clear-btn" (click)="cancelEdit()">
+            <i class="fa fa-times"></i>
+          </button>
         </div>
+
         <div class="card-body">
-          <form [formGroup]="taskForm" (ngSubmit)="saveTask()">
+          <form [formGroup]="taskForm" (ngSubmit)="saveTask()" class="task-form">
+            
+            <!-- Task Details Section -->
+            <div class="form-section">
+              <h4 class="section-title">Task Details</h4>
+              
+              <div class="form-group">
+                <label for="title" class="form-label">
+                  <i class="fa fa-header"></i>
+                  Task Title <span class="required">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  id="title" 
+                  class="form-input" 
+                  formControlName="title"
+                  placeholder="e.g., Clean lobby area, Stock inventory"
+                  [class.error]="taskForm.get('title')?.touched && taskForm.get('title')?.invalid">
+                <div *ngIf="taskForm.get('title')?.touched && taskForm.get('title')?.errors?.['required']" 
+                     class="error-message">
+                  <i class="fa fa-exclamation-circle"></i>
+                  Task title is required
+                </div>
+              </div>
 
-            <div class="form-group">
-              <label>Title</label>
-              <input class="form-control" formControlName="title">
+              <div class="form-group">
+                <label for="description" class="form-label">
+                  <i class="fa fa-align-left"></i>
+                  Description <span class="required">*</span>
+                </label>
+                <textarea 
+                  id="description" 
+                  class="form-textarea" 
+                  formControlName="description"
+                  rows="4"
+                  placeholder="Provide detailed instructions for completing this task..."
+                  [class.error]="taskForm.get('description')?.touched && taskForm.get('description')?.invalid"></textarea>
+                <div *ngIf="taskForm.get('description')?.touched && taskForm.get('description')?.errors?.['required']" 
+                     class="error-message">
+                  <i class="fa fa-exclamation-circle"></i>
+                  Description is required
+                </div>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Description</label>
-              <textarea class="form-control" formControlName="description"></textarea>
+            <!-- Location & Area Section -->
+            <div class="form-section">
+              <h4 class="section-title">Location & Area</h4>
+              
+              <div class="form-group">
+                <label for="locationId" class="form-label">
+                  <i class="fa fa-map-marker"></i>
+                  Location <span class="required">*</span>
+                </label>
+                <select 
+                  id="locationId" 
+                  class="form-select" 
+                  formControlName="locationId"
+                  [class.error]="taskForm.get('locationId')?.touched && taskForm.get('locationId')?.invalid">
+                  <option value="" disabled>Select a Location</option>
+                  <option *ngFor="let location of locations" [value]="location.locationId">
+                    {{ location.name }}
+                  </option>
+                </select>
+                <div *ngIf="taskForm.get('locationId')?.touched && taskForm.get('locationId')?.errors?.['required']" 
+                     class="error-message">
+                  <i class="fa fa-exclamation-circle"></i>
+                  Location is required
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="areaId" class="form-label">
+                  <i class="fa fa-map-signs"></i>
+                  Area
+                </label>
+                <select id="areaId" class="form-select" formControlName="areaId">
+                  <option value="">None (General task)</option>
+                  <option *ngFor="let area of areas" [value]="area.areaId">
+                    {{ area.name }}
+                  </option>
+                </select>
+                <small class="form-hint">Optional: Assign to a specific area within the location</small>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Location</label>
-              <select class="form-control" formControlName="locationId">
-                <option *ngFor="let location of locations" [value]="location.locationId">
-                  {{ location.name }}
-                </option>
-              </select>
+            <!-- Assignment Section -->
+            <div class="form-section">
+              <h4 class="section-title">Assignment</h4>
+              
+              <div class="form-group">
+                <label for="personId" class="form-label">
+                  <i class="fa fa-user"></i>
+                  Assigned Person
+                </label>
+                <select id="personId" class="form-select" formControlName="personId">
+                  <option value="">Unassigned</option>
+                  <option *ngFor="let person of people" [value]="person.personId">
+                    {{ person.name }}
+                  </option>
+                </select>
+                <small class="form-hint">Optional: Assign this task to a specific team member</small>
+              </div>
+
+              <div class="form-group">
+                <label for="status" class="form-label">
+                  <i class="fa fa-toggle-on"></i>
+                  Status
+                </label>
+                <select id="status" class="form-select" formControlName="status">
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+                <small class="form-hint">Set to Inactive to temporarily disable this task</small>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Area</label>
-              <select class="form-control" formControlName="areaId">
-                <option *ngFor="let area of areas" [value]="area.areaId">
-                  {{ area.name }}
-                </option>
-              </select>
+            <!-- Information Section -->
+            <div class="form-section info-section">
+              <h4 class="section-title">
+                <i class="fa fa-info-circle"></i>
+                About Tasks
+              </h4>
+              <div class="info-box">
+                <p class="info-text">
+                  <i class="fa fa-lightbulb-o"></i>
+                  <strong>Tip:</strong> Tasks define recurring or regular duties that need to be performed at your locations.
+                </p>
+                <p class="info-text">
+                  <i class="fa fa-clock-o"></i>
+                  <strong>Scheduling:</strong> Once created, tasks can be assigned to shifts and tracked through the schedule system.
+                </p>
+                <p class="info-text">
+                  <i class="fa fa-check-circle"></i>
+                  <strong>Best Practice:</strong> Use clear, action-oriented titles and detailed descriptions for better clarity.
+                </p>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Person (Optional)</label>
-              <select class="form-control" formControlName="personId">
-                <option value="">None</option>
-                <option *ngFor="let person of people" [value]="person.personId">
-                  {{ person.name }}
-                </option>
-              </select>
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" *ngIf="selectedTask" (click)="cancelEdit()">
+                <i class="fa fa-times"></i>
+                Cancel
+              </button>
+              <button type="submit" class="btn-submit" [disabled]="!taskForm.valid">
+                <i class="fa" [class.fa-save]="selectedTask" [class.fa-plus]="!selectedTask"></i>
+                {{ selectedTask ? 'Update Task' : 'Create Task' }}
+              </button>
             </div>
-
-            <div class="form-group">
-              <label>Status</label>
-              <select class="form-control" formControlName="status">
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-
-            <button class="btn btn-primary" type="submit" [disabled]="!taskForm.valid">{{ selectedTask ? 'Update' : 'Create' }}</button>
-            <button class="btn btn-secondary ml-2" type="button" *ngIf="selectedTask" (click)="cancelEdit()">Cancel</button>
           </form>
-
         </div>
       </div>
     </div>

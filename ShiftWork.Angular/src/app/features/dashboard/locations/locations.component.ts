@@ -22,7 +22,15 @@ import { Timezone } from 'src/app/core/models/timezone.model';
 export class LocationsComponent implements OnInit {
   @ViewChild(GoogleMap, { static: false }) map!: GoogleMap;
   @ViewChild(MapCircle, { static: false }) circle!: MapCircle;
-  @ViewChild('addressSearch', { static: true }) addressSearch!: ElementRef;
+  // @ViewChild('addressSearch', { static: true }) addressSearch!: ElementRef;
+  @ViewChild('addressSearch') addressSearch!: ElementRef;
+  showMapModal: boolean = false;
+  private autocomplete?: google.maps.places.Autocomplete;
+
+  ngAfterViewInit(): void {
+    // Don't initialize autocomplete here anymore
+    // It will be initialized when modal opens
+  }
 
   timezones: Timezone[] = TIMEZONES;
 
@@ -62,9 +70,9 @@ export class LocationsComponent implements OnInit {
         this.activeCompany = company;
         this.loading = true;
         this.locationService.getLocations(company.companyId).subscribe(locations => {
-            this.locations = locations;
-            this.loading = false;
-          },
+          this.locations = locations;
+          this.loading = false;
+        },
           (error: any) => {
             this.error = error;
             this.loading = false;
@@ -102,54 +110,6 @@ export class LocationsComponent implements OnInit {
 
     if (timezoneExists) {
       this.locationForm.get('timezone')?.setValue(userTimezone);
-    }
-  }
-
-  ngAfterViewInit(): void {
-    const autocomplete = new google.maps.places.Autocomplete(this.addressSearch.nativeElement);
-    autocomplete.addListener('place_changed', () => {
-      this.ngZone.run(() => {
-        const place: google.maps.places.PlaceResult = autocomplete.getPlace();
-        if (place.geometry && place.geometry.location) {
-          const location = place.geometry.location;
-          this.mapOptions = {
-            ...this.mapOptions,
-            center: location.toJSON()
-          };
-          this.markerPosition = location.toJSON();
-          this.locationForm.patchValue({
-            latitude: this.markerPosition.lat,
-            longitude: this.markerPosition.lng,
-            address: place.formatted_address
-          });
-          if (this.map) {
-            this.map.panTo(location.toJSON());
-          }
-        }
-      });
-    });
-  }
-
-  editLocation(location: Location): void {
-    this.selectedLocation = location;
-    this.locationForm.patchValue({
-      ...location,
-      latitude: location.geoCoordinates?.latitude,
-      longitude: location.geoCoordinates?.longitude
-    });
-
-    if (location.geoCoordinates) {
-      this.markerPosition = {
-        lat: location.geoCoordinates.latitude,
-        lng: location.geoCoordinates.longitude
-      };
-      this.mapOptions = {
-        ...this.mapOptions,
-        center: this.markerPosition
-      };
-      if (this.map) {
-        this.map.panTo(this.markerPosition);
-      }
     }
   }
 
@@ -201,7 +161,7 @@ export class LocationsComponent implements OnInit {
         latitude: formValue.latitude,
         longitude: formValue.longitude,
       },
-      floor:'',
+      floor: '',
       region: '',
       street: '',
       building: '',
@@ -256,4 +216,110 @@ export class LocationsComponent implements OnInit {
       );
     }
   }
+
+
+
+  // Add these methods to your component class
+
+
+  openMapModal(): void {
+    this.showMapModal = true;
+    // Prevent body scroll when modal is open
+    setTimeout(() => {
+      this.initializeAutocomplete();
+    }, 100);
+
+    document.body.style.overflow = 'hidden';
+  }
+
+  private initializeAutocomplete(): void {
+    if (!this.addressSearch?.nativeElement) {
+      return;
+    }
+
+    // Clean up existing autocomplete if any
+    if (this.autocomplete) {
+      google.maps.event.clearInstanceListeners(this.autocomplete);
+    }
+
+    this.autocomplete = new google.maps.places.Autocomplete(
+      this.addressSearch.nativeElement
+    );
+
+    this.autocomplete.addListener('place_changed', () => {
+      this.ngZone.run(() => {
+        const place: google.maps.places.PlaceResult = this.autocomplete!.getPlace();
+        if (place.geometry && place.geometry.location) {
+          const location = place.geometry.location;
+          this.mapOptions = {
+            ...this.mapOptions,
+            center: location.toJSON()
+          };
+          this.markerPosition = location.toJSON();
+          this.locationForm.patchValue({
+            latitude: this.markerPosition.lat,
+            longitude: this.markerPosition.lng,
+            address: place.formatted_address
+          });
+          if (this.map) {
+            this.map.panTo(location.toJSON());
+          }
+        }
+      });
+    });
+  }
+
+  closeMapModal(): void {
+    this.showMapModal = false;
+
+    // Clean up autocomplete listeners
+    if (this.autocomplete) {
+      google.maps.event.clearInstanceListeners(this.autocomplete);
+    }
+    // Restore body scroll
+    document.body.style.overflow = 'auto';
+  }
+
+  confirmMapSelection(): void {
+    // The coordinates are already set in the form via onMapClick
+    // Just close the modal
+    this.closeMapModal();
+
+    // Optional: Show a success message
+    console.log('Location selected:', {
+      lat: this.locationForm.get('latitude')?.value,
+      lng: this.locationForm.get('longitude')?.value,
+      radius: this.locationForm.get('ratioMax')?.value
+    });
+  }
+
+  editLocation(location: Location): void {
+    this.selectedLocation = location;
+    this.locationForm.patchValue({
+      ...location,
+      latitude: location.geoCoordinates?.latitude,
+      longitude: location.geoCoordinates?.longitude
+    });
+
+    if (location.geoCoordinates) {
+      this.markerPosition = {
+        lat: location.geoCoordinates.latitude,
+        lng: location.geoCoordinates.longitude
+      };
+      this.mapOptions = {
+        ...this.mapOptions,
+        center: this.markerPosition
+      };
+      if (this.map) {
+        this.map.panTo(this.markerPosition);
+      }
+    }
+  }
+
+  // Make sure to clean up on component destroy
+  ngOnDestroy(): void {
+    // Restore body scroll if modal was open
+    document.body.style.overflow = 'auto';
+  }
+
 }

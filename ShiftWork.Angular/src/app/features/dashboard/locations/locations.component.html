@@ -39,11 +39,8 @@
 
           <!-- Locations List -->
           <div *ngIf="!loading && !error" class="locations-list">
-            <div 
-              *ngFor="let location of locations; let i = index" 
-              class="location-item"
-              [class.selected]="selectedLocation?.locationId === location.locationId"
-              (click)="editLocation(location)"
+            <div *ngFor="let location of locations; let i = index" class="location-item"
+              [class.selected]="selectedLocation?.locationId === location.locationId" (click)="editLocation(location)"
               [style.animation-delay.ms]="i * 50">
               <div class="location-icon">
                 <i class="fa fa-map-pin"></i>
@@ -88,292 +85,275 @@
         </div>
 
         <div class="card-body">
-          <div class="map-form-container">
-            <!-- Map Section -->
-            <div class="map-section">
-              <div class="map-header">
-                <h4 class="map-title">
-                  <i class="fa fa-map"></i>
-                  Location Map
-                </h4>
+          <!-- Map Button Trigger -->
+          <div class="map-trigger-section">
+            <button type="button" class="btn-map-trigger" (click)="openMapModal()">
+              <i class="fa fa-map-marker"></i>
+              <div class="map-trigger-text">
+                <span class="trigger-title">Set Location on Map</span>
+                <span class="trigger-subtitle" *ngIf="markerPosition">
+                  Lat: {{ locationForm.get('latitude')?.value | number:'1.4-4' }},
+                  Long: {{ locationForm.get('longitude')?.value | number:'1.4-4' }}
+                </span>
+                <span class="trigger-subtitle" *ngIf="!markerPosition">
+                  Click to select location on map
+                </span>
               </div>
-              
-              <!-- Address Search -->
-              <div class="search-box">
-                <div class="search-input-wrapper">
-                  <i class="fa fa-search search-icon"></i>
-                  <input 
-                    type="text" 
-                    class="search-input" 
-                    placeholder="Search for an address..." 
-                    #addressSearch>
-                </div>
-              </div>
+              <i class="fa fa-chevron-right"></i>
+            </button>
+          </div>
 
-              <!-- Google Map -->
-              <div class="map-container">
-                <google-map
-                  [options]="mapOptions"
-                  (mapClick)="onMapClick($event)"
-                  height="100%"
-                  width="100%"
-                >
-                  <map-marker
-                    *ngIf="markerPosition"
-                    [options]="markerOptions"
-                    (mapDragend)="onMapClick($event)"
-                  ></map-marker>
-                  <map-circle
-                    *ngIf="markerPosition"
-                    [center]="markerPosition"
-                    [radius]="locationForm.get('ratioMax')?.value"
-                    [options]="circleOptions"
-                  ></map-circle>
-                </google-map>
-              </div>
+          <!-- Form Section -->
+          <div class="form-section-full">
+            <form [formGroup]="locationForm" (ngSubmit)="saveLocation()" class="location-form">
 
-              <div class="map-info">
-                <div class="info-item">
-                  <i class="fa fa-crosshairs"></i>
-                  <span>Click on the map to set location</span>
+              <!-- Basic Information -->
+              <div class="form-group-section">
+                <h4 class="section-title">Basic Information</h4>
+
+                <div class="form-group">
+                  <label for="name" class="form-label">
+                    <i class="fa fa-building"></i>
+                    Location Name <span class="required">*</span>
+                  </label>
+                  <input type="text" id="name" class="form-input" formControlName="name"
+                    placeholder="Enter location name">
                 </div>
-                <div class="info-item">
-                  <i class="fa fa-circle-o"></i>
-                  <span>Adjust radius to set service area</span>
+
+                <div class="form-group">
+                  <label for="status" class="form-label">
+                    <i class="fa fa-toggle-on"></i>
+                    Status
+                  </label>
+                  <select id="status" class="form-select" formControlName="status">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
                 </div>
               </div>
-            </div>
 
-            <!-- Form Section -->
-            <div class="form-section">
-              <form [formGroup]="locationForm" (ngSubmit)="saveLocation()" class="location-form">
-                
-                <!-- Basic Information -->
-                <div class="form-group-section">
-                  <h4 class="section-title">Basic Information</h4>
-                  
+              <!-- Address Information -->
+              <div class="form-group-section">
+                <h4 class="section-title">Address Information</h4>
+
+                <div class="form-group">
+                  <label for="address" class="form-label">
+                    <i class="fa fa-map-marker"></i>
+                    Street Address <span class="required">*</span>
+                  </label>
+                  <input type="text" id="address" class="form-input" formControlName="address"
+                    placeholder="123 Main Street">
+                </div>
+
+                <div class="form-row">
                   <div class="form-group">
-                    <label for="name" class="form-label">
-                      <i class="fa fa-building"></i>
-                      Location Name <span class="required">*</span>
+                    <label for="city" class="form-label">
+                      <i class="fa fa-building-o"></i>
+                      City
                     </label>
-                    <input 
-                      type="text" 
-                      id="name" 
-                      class="form-input" 
-                      formControlName="name"
-                      placeholder="Enter location name">
+                    <input type="text" id="city" class="form-input" formControlName="city" placeholder="New York">
                   </div>
 
                   <div class="form-group">
-                    <label for="status" class="form-label">
-                      <i class="fa fa-toggle-on"></i>
-                      Status
+                    <label for="state" class="form-label">
+                      <i class="fa fa-flag"></i>
+                      State
                     </label>
-                    <select id="status" class="form-select" formControlName="status">
-                      <option value="Active">Active</option>
-                      <option value="Inactive">Inactive</option>
-                    </select>
+                    <input type="text" id="state" class="form-input" formControlName="state" placeholder="NY">
                   </div>
                 </div>
 
-                <!-- Address Information -->
-                <div class="form-group-section">
-                  <h4 class="section-title">Address Information</h4>
-                  
+                <div class="form-row">
                   <div class="form-group">
-                    <label for="address" class="form-label">
-                      <i class="fa fa-map-marker"></i>
-                      Street Address <span class="required">*</span>
+                    <label for="zipCode" class="form-label">
+                      <i class="fa fa-hashtag"></i>
+                      Zip Code
                     </label>
-                    <input 
-                      type="text" 
-                      id="address" 
-                      class="form-input" 
-                      formControlName="address"
-                      placeholder="123 Main Street">
-                  </div>
-
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label for="city" class="form-label">
-                        <i class="fa fa-building-o"></i>
-                        City
-                      </label>
-                      <input 
-                        type="text" 
-                        id="city" 
-                        class="form-input" 
-                        formControlName="city"
-                        placeholder="New York">
-                    </div>
-
-                    <div class="form-group">
-                      <label for="state" class="form-label">
-                        <i class="fa fa-flag"></i>
-                        State
-                      </label>
-                      <input 
-                        type="text" 
-                        id="state" 
-                        class="form-input" 
-                        formControlName="state"
-                        placeholder="NY">
-                    </div>
-                  </div>
-
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label for="zipCode" class="form-label">
-                        <i class="fa fa-hashtag"></i>
-                        Zip Code
-                      </label>
-                      <input 
-                        type="text" 
-                        id="zipCode" 
-                        class="form-input" 
-                        formControlName="zipCode"
-                        placeholder="10001">
-                    </div>
-
-                    <div class="form-group">
-                      <label for="country" class="form-label">
-                        <i class="fa fa-globe"></i>
-                        Country
-                      </label>
-                      <input 
-                        type="text" 
-                        id="country" 
-                        class="form-input" 
-                        formControlName="country"
-                        placeholder="USA">
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Geographic Coordinates -->
-                <div class="form-group-section">
-                  <h4 class="section-title">Geographic Coordinates</h4>
-                  
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label for="latitude" class="form-label">
-                        <i class="fa fa-compass"></i>
-                        Latitude
-                      </label>
-                      <input 
-                        type="number" 
-                        id="latitude" 
-                        class="form-input" 
-                        formControlName="latitude"
-                        placeholder="40.7128"
-                        step="any">
-                    </div>
-
-                    <div class="form-group">
-                      <label for="longitude" class="form-label">
-                        <i class="fa fa-compass"></i>
-                        Longitude
-                      </label>
-                      <input 
-                        type="number" 
-                        id="longitude" 
-                        class="form-input" 
-                        formControlName="longitude"
-                        placeholder="-74.0060"
-                        step="any">
-                    </div>
+                    <input type="text" id="zipCode" class="form-input" formControlName="zipCode" placeholder="10001">
                   </div>
 
                   <div class="form-group">
-                    <label for="ratioMax" class="form-label">
-                      <i class="fa fa-circle-o"></i>
-                      Service Radius (meters)
+                    <label for="country" class="form-label">
+                      <i class="fa fa-globe"></i>
+                      Country
                     </label>
-                    <input 
-                      type="number" 
-                      id="ratioMax" 
-                      class="form-input" 
-                      formControlName="ratioMax"
-                      placeholder="500">
-                    <small class="form-hint">Defines the service area around this location</small>
+                    <input type="text" id="country" class="form-input" formControlName="country" placeholder="USA">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Geographic Coordinates -->
+              <div class="form-group-section">
+                <h4 class="section-title">Geographic Coordinates</h4>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="latitude" class="form-label">
+                      <i class="fa fa-compass"></i>
+                      Latitude
+                    </label>
+                    <input type="number" id="latitude" class="form-input" formControlName="latitude"
+                      placeholder="40.7128" step="any">
                   </div>
 
                   <div class="form-group">
-                    <label for="timezone" class="form-label">
-                      <i class="fa fa-clock-o"></i>
-                      Time Zone <span class="required">*</span>
+                    <label for="longitude" class="form-label">
+                      <i class="fa fa-compass"></i>
+                      Longitude
                     </label>
-                    <select id="timezone" class="form-select" formControlName="timezone">
-                      <option [ngValue]="null" disabled>Select a Timezone</option>
-                      <option *ngFor="let tz of timezones" [value]="tz.value">{{ tz.name }}</option>
-                    </select>
+                    <input type="number" id="longitude" class="form-input" formControlName="longitude"
+                      placeholder="-74.0060" step="any">
                   </div>
                 </div>
 
-                <!-- Contact Information -->
-                <div class="form-group-section">
-                  <h4 class="section-title">Contact Information</h4>
-                  
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label for="email" class="form-label">
-                        <i class="fa fa-envelope"></i>
-                        Email
-                      </label>
-                      <input 
-                        type="email" 
-                        id="email" 
-                        class="form-input" 
-                        formControlName="email"
-                        placeholder="location@example.com">
-                    </div>
+                <div class="form-group">
+                  <label for="ratioMax" class="form-label">
+                    <i class="fa fa-circle-o"></i>
+                    Service Radius (meters)
+                  </label>
+                  <input type="number" id="ratioMax" class="form-input" formControlName="ratioMax" placeholder="500">
+                  <small class="form-hint">Defines the service area around this location</small>
+                </div>
 
-                    <div class="form-group">
-                      <label for="phonenumber" class="form-label">
-                        <i class="fa fa-phone"></i>
-                        Phone Number
-                      </label>
-                      <input 
-                        type="text" 
-                        id="phonenumber" 
-                        class="form-input" 
-                        formControlName="phoneNumber"
-                        placeholder="(123) 456-7890">
-                    </div>
+                <div class="form-group">
+                  <label for="timezone" class="form-label">
+                    <i class="fa fa-clock-o"></i>
+                    Time Zone <span class="required">*</span>
+                  </label>
+                  <select id="timezone" class="form-select" formControlName="timezone">
+                    <option [ngValue]="null" disabled>Select a Timezone</option>
+                    <option *ngFor="let tz of timezones" [value]="tz.value">{{ tz.name }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Contact Information -->
+              <div class="form-group-section">
+                <h4 class="section-title">Contact Information</h4>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="email" class="form-label">
+                      <i class="fa fa-envelope"></i>
+                      Email
+                    </label>
+                    <input type="email" id="email" class="form-input" formControlName="email"
+                      placeholder="location@example.com">
                   </div>
 
                   <div class="form-group">
-                    <label for="externalCode" class="form-label">
-                      <i class="fa fa-code"></i>
-                      External Code
+                    <label for="phonenumber" class="form-label">
+                      <i class="fa fa-phone"></i>
+                      Phone Number
                     </label>
-                    <input 
-                      type="text" 
-                      id="externalCode" 
-                      class="form-input" 
-                      formControlName="externalCode"
-                      placeholder="LOC-001">
-                    <small class="form-hint">Optional reference code for external systems</small>
+                    <input type="text" id="phonenumber" class="form-input" formControlName="phoneNumber"
+                      placeholder="(123) 456-7890">
                   </div>
                 </div>
 
-                <!-- Form Actions -->
-                <div class="form-actions">
-                  <button type="button" class="btn-cancel" *ngIf="selectedLocation" (click)="cancelEdit()">
-                    <i class="fa fa-times"></i>
-                    Cancel
-                  </button>
-                  <button type="submit" class="btn-submit" [disabled]="!locationForm.valid">
-                    <i class="fa" [class.fa-save]="selectedLocation" [class.fa-plus]="!selectedLocation"></i>
-                    {{ selectedLocation ? 'Update Location' : 'Create Location' }}
-                  </button>
+                <div class="form-group">
+                  <label for="externalCode" class="form-label">
+                    <i class="fa fa-code"></i>
+                    External Code
+                  </label>
+                  <input type="text" id="externalCode" class="form-input" formControlName="externalCode"
+                    placeholder="LOC-001">
+                  <small class="form-hint">Optional reference code for external systems</small>
                 </div>
-              </form>
-            </div>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="form-actions">
+                <button type="button" class="btn-cancel" *ngIf="selectedLocation" (click)="cancelEdit()">
+                  <i class="fa fa-times"></i>
+                  Cancel
+                </button>
+                <button type="submit" class="btn-submit" [disabled]="!locationForm.valid">
+                  <i class="fa" [class.fa-save]="selectedLocation" [class.fa-plus]="!selectedLocation"></i>
+                  {{ selectedLocation ? 'Update Location' : 'Create Location' }}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Map Modal -->
+<div class="map-modal-overlay" *ngIf="showMapModal" (click)="closeMapModal()">
+  <div class="map-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <i class="fa fa-map-marker"></i>
+        Select Location
+      </h3>
+      <button class="modal-close-btn" (click)="closeMapModal()">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Address Search -->
+      <div class="search-box-modal">
+        <div class="search-input-wrapper">
+          <i class="fa fa-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="Search for an address..." #addressSearch>
+        </div>
+      </div>
+
+      <!-- Google Map -->
+      <div class="map-container-modal">
+        <google-map [options]="mapOptions" (mapClick)="onMapClick($event)" height="100%" width="100%">
+          <map-marker *ngIf="markerPosition" [options]="markerOptions" (mapDragend)="onMapClick($event)"></map-marker>
+          <map-circle *ngIf="markerPosition" [center]="markerPosition" [radius]="locationForm.get('ratioMax')?.value"
+            [options]="circleOptions"></map-circle>
+        </google-map>
+      </div>
+
+      <div class="map-info-modal">
+        <div class="info-item">
+          <i class="fa fa-crosshairs"></i>
+          <span>Click on the map to set location</span>
+        </div>
+        <div class="info-item">
+          <i class="fa fa-arrows"></i>
+          <span>Drag the marker to adjust position</span>
+        </div>
+        <div class="info-item">
+          <i class="fa fa-circle-o"></i>
+          <span>Use radius field to set service area</span>
+        </div>
+      </div>
+
+      <!-- Current Coordinates Display -->
+      <div class="coordinates-display" *ngIf="markerPosition">
+        <div class="coord-item">
+          <span class="coord-label">Latitude:</span>
+          <span class="coord-value">{{ locationForm.get('latitude')?.value | number:'1.6-6' }}</span>
+        </div>
+        <div class="coord-item">
+          <span class="coord-label">Longitude:</span>
+          <span class="coord-value">{{ locationForm.get('longitude')?.value | number:'1.6-6' }}</span>
+        </div>
+        <div class="coord-item">
+          <span class="coord-label">Radius:</span>
+          <span class="coord-value">{{ locationForm.get('ratioMax')?.value }} meters</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-modal-cancel" (click)="closeMapModal()">
+        <i class="fa fa-times"></i>
+        Cancel
+      </button>
+      <button type="button" class="btn-modal-confirm" (click)="confirmMapSelection()">
+        <i class="fa fa-check"></i>
+        Confirm Location
+      </button>
     </div>
   </div>
 </div>

@@ -1,61 +1,183 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-md-4">
-      <div class="card">
+<div class="areas-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="fa fa-th-large"></i>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">Area Management</h1>
+        <p class="page-subtitle">Organize your locations into functional areas</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <!-- Left Panel - Areas List -->
+    <div class="list-panel">
+      <div class="panel-card">
         <div class="card-header">
-          <h4 class="card-title">Areas</h4>
+          <h3 class="card-title">
+            <i class="fa fa-list"></i>
+            Areas
+          </h3>
+          <span class="badge">{{ areas?.length || 0 }}</span>
         </div>
+
         <div class="card-body">
-          <div *ngIf="loading" class="text-center">
-            <div class="spinner-border" role="status">
-              <span class="sr-only">Loading...</span>
-            </div>
+          <!-- Loading State -->
+          <div *ngIf="loading" class="loading-state">
+            <div class="spinner"></div>
+            <p class="loading-text">Loading areas...</p>
           </div>
-          <div *ngIf="error" class="alert alert-danger">
-            Error loading areas.
+
+          <!-- Error State -->
+          <div *ngIf="error" class="error-state">
+            <i class="fa fa-exclamation-triangle error-icon"></i>
+            <p class="error-text">Error loading areas. Please try again.</p>
           </div>
-          <div class="list-group">
-            <a *ngFor="let area of areas" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-              <div>
-                <h5 class="mb-1">{{ area.name }}</h5>
-                <p class="mb-1">{{ getLocationName(area.locationId) }}</p>
+
+          <!-- Areas List -->
+          <div *ngIf="!loading && !error" class="areas-list">
+            <div 
+              *ngFor="let area of areas; let i = index" 
+              class="area-item"
+              [class.selected]="selectedArea?.areaId === area.areaId"
+              (click)="editArea(area)"
+              [style.animation-delay.ms]="i * 50">
+              <div class="area-icon">
+                <i class="fa fa-map-signs"></i>
               </div>
-              <button class="btn btn-sm btn-info" (click)="editArea(area)">Edit</button>
-            </a>
+              <div class="area-info">
+                <h4 class="area-name">{{ area.name }}</h4>
+                <p class="area-location">
+                  <i class="fa fa-map-marker"></i>
+                  {{ getLocationName(area.locationId) }}
+                </p>
+                <span class="status-badge" [class.active]="area.status === 'Active'">
+                  {{ area.status }}
+                </span>
+              </div>
+              <button class="edit-btn" (click)="editArea(area); $event.stopPropagation()">
+                <i class="fa fa-pencil"></i>
+              </button>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="areas?.length === 0" class="empty-state">
+              <i class="fa fa-th-large empty-icon"></i>
+              <p class="empty-text">No areas found</p>
+              <p class="empty-subtext">Create your first area to get started</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-md-8">
-      <div class="card">
+
+    <!-- Right Panel - Form -->
+    <div class="form-panel">
+      <div class="panel-card">
         <div class="card-header">
-          <h4 class="card-title">{{ selectedArea ? 'Edit Area' : 'Create Area' }}</h4>
+          <h3 class="card-title">
+            <i class="fa" [class.fa-plus]="!selectedArea" [class.fa-edit]="selectedArea"></i>
+            {{ selectedArea ? 'Edit Area' : 'Create New Area' }}
+          </h3>
+          <button *ngIf="selectedArea" class="clear-btn" (click)="cancelEdit()">
+            <i class="fa fa-times"></i>
+          </button>
         </div>
+
         <div class="card-body">
-          <form [formGroup]="areaForm" (ngSubmit)="saveArea()">
-            <div class="form-group">
-              <label for="name">Name</label>
-              <input type="text" id="name" class="form-control" formControlName="name">
-            </div>
-            <div class="form-group">
-              <label for="locationId">Location</label>
-                <select id="locationId" class="form-control" formControlName="locationId">
-                  <option value="" disabled>Select a Location</option>
-                  <option *ngFor="let location of locations" [value]="location.locationId">{{ location.name }}</option>
-                </select>
-                <div *ngIf="areaForm.get('locationId')?.touched && areaForm.get('locationId')?.errors?.['required']" class="text-danger small">
-                  Location is required.
+          <form [formGroup]="areaForm" (ngSubmit)="saveArea()" class="area-form">
+            
+            <!-- Area Information Section -->
+            <div class="form-section">
+              <h4 class="section-title">Area Information</h4>
+              
+              <div class="form-group">
+                <label for="name" class="form-label">
+                  <i class="fa fa-tag"></i>
+                  Area Name <span class="required">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  id="name" 
+                  class="form-input" 
+                  formControlName="name"
+                  placeholder="e.g., Sales Floor, Warehouse, Kitchen"
+                  [class.error]="areaForm.get('name')?.touched && areaForm.get('name')?.invalid">
+                <div *ngIf="areaForm.get('name')?.touched && areaForm.get('name')?.errors?.['required']" 
+                     class="error-message">
+                  <i class="fa fa-exclamation-circle"></i>
+                  Area name is required
                 </div>
+              </div>
+
+              <div class="form-group">
+                <label for="locationId" class="form-label">
+                  <i class="fa fa-map-marker"></i>
+                  Location <span class="required">*</span>
+                </label>
+                <select 
+                  id="locationId" 
+                  class="form-select" 
+                  formControlName="locationId"
+                  [class.error]="areaForm.get('locationId')?.touched && areaForm.get('locationId')?.invalid">
+                  <option value="" disabled>Select a Location</option>
+                  <option *ngFor="let location of locations" [value]="location.locationId">
+                    {{ location.name }}
+                  </option>
+                </select>
+                <div *ngIf="areaForm.get('locationId')?.touched && areaForm.get('locationId')?.errors?.['required']" 
+                     class="error-message">
+                  <i class="fa fa-exclamation-circle"></i>
+                  Location is required
+                </div>
+                <small class="form-hint">Select the location this area belongs to</small>
+              </div>
+
+              <div class="form-group">
+                <label for="status" class="form-label">
+                  <i class="fa fa-toggle-on"></i>
+                  Status
+                </label>
+                <select id="status" class="form-select" formControlName="status">
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+                <small class="form-hint">Set to Inactive to temporarily disable this area</small>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="status">Status</label>
-              <select id="status" class="form-control" formControlName="status">
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
+
+            <!-- Additional Information Section -->
+            <div class="form-section info-section">
+              <h4 class="section-title">
+                <i class="fa fa-info-circle"></i>
+                About Areas
+              </h4>
+              <div class="info-box">
+                <p class="info-text">
+                  <i class="fa fa-lightbulb-o"></i>
+                  <strong>Tip:</strong> Areas help you organize different sections within a location, such as departments, floors, or functional zones.
+                </p>
+                <p class="info-text">
+                  <i class="fa fa-users"></i>
+                  <strong>Usage:</strong> Assign staff and tasks to specific areas for better organization and tracking.
+                </p>
+              </div>
             </div>
-            <button type="submit" class="btn btn-primary" [disabled]="!areaForm.valid">{{ selectedArea ? 'Update' : 'Create' }}</button>
-            <button type="button" class="btn btn-secondary ml-2" *ngIf="selectedArea" (click)="cancelEdit()">Cancel</button>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" *ngIf="selectedArea" (click)="cancelEdit()">
+                <i class="fa fa-times"></i>
+                Cancel
+              </button>
+              <button type="submit" class="btn-submit" [disabled]="!areaForm.valid">
+                <i class="fa" [class.fa-save]="selectedArea" [class.fa-plus]="!selectedArea"></i>
+                {{ selectedArea ? 'Update Area' : 'Create Area' }}
+              </button>
+            </div>
           </form>
         </div>
       </div>
