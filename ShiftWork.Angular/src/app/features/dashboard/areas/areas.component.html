@@ -21,7 +21,7 @@
             <i class="fa fa-list"></i>
             Areas
           </h3>
-          <span class="badge">{{ areas?.length || 0 }}</span>
+          <span class="badge">{{ areas.length || 0 }}</span>
         </div>
 
         <div class="card-body">
@@ -64,7 +64,7 @@
             </div>
 
             <!-- Empty State -->
-            <div *ngIf="areas?.length === 0" class="empty-state">
+            <div *ngIf="areas.length === 0" class="empty-state">
               <i class="fa fa-th-large empty-icon"></i>
               <p class="empty-text">No areas found</p>
               <p class="empty-subtext">Create your first area to get started</p>

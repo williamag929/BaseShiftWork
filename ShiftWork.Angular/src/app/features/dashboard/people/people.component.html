@@ -21,7 +21,7 @@
             <i class="fa fa-list"></i>
             Team Members
           </h3>
-          <span class="badge">{{ people?.length || 0 }}</span>
+          <span class="badge">{{ people.length || 0 }}</span>
         </div>
 
         <div class="card-body">
@@ -64,7 +64,7 @@
             </div>
 
             <!-- Empty State -->
-            <div *ngIf="people?.length === 0" class="empty-state">
+            <div *ngIf="people.length === 0" class="empty-state">
               <i class="fa fa-users empty-icon"></i>
               <p class="empty-text">No people found</p>
               <p class="empty-subtext">Create your first team member to get started</p>
