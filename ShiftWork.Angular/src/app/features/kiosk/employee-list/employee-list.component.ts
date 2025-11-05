@@ -12,6 +12,8 @@ import { ScheduleService } from 'src/app/core/services/schedule.service';
 import { MatDialog } from '@angular/material/dialog';
 import { PinDialogComponent } from '../pin-dialog/pin-dialog.component';
 import { Company } from 'src/app/core/models/company.model';
+import { FormControl } from '@angular/forms';
+import { startWith, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-employee-list',
@@ -21,10 +23,12 @@ import { Company } from 'src/app/core/models/company.model';
 })
 export class EmployeeListComponent implements OnInit {
   employees: Person[] = [];
+  filteredEmployees: Person[] = [];
   loading = false;
   error: any = null;
   activeCompany$: Observable<Company | null>;
   activeCompany: Company | null = null;
+  searchControl = new FormControl('');
 
   constructor(
     private peopleService: PeopleService,
@@ -46,6 +50,13 @@ export class EmployeeListComponent implements OnInit {
         this.peopleService.getPeople(company.companyId).subscribe(
           (people: Person[]) => {
             this.employees = people.filter(p => p.companyId === company.companyId);
+            this.filteredEmployees = this.employees;
+            this.searchControl.valueChanges.pipe(
+              startWith(''),
+              map(value => this._filter(value || ''))
+            ).subscribe(filtered => {
+              this.filteredEmployees = filtered;
+            });
             this.loading = false;
           },
           (error: any) => {
@@ -56,6 +67,11 @@ export class EmployeeListComponent implements OnInit {
         );
       }
     });
+  }
+
+  private _filter(value: string): Person[] {
+    const filterValue = value.toLowerCase();
+    return this.employees.filter(employee => employee.name.toLowerCase().includes(filterValue));
   }
 
   selectEmployee(employee: Person): void {

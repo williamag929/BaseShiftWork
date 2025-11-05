@@ -1,3 +1,7 @@
+<div class="search-container">
+  <input type="text" [formControl]="searchControl" placeholder="Search employees..." class="search-input">
+</div>
+
 <div *ngIf="loading" class="text-center">
   <div class="spinner-border" role="status">
     <span class="sr-only">Loading...</span>
@@ -6,8 +10,13 @@
 <div *ngIf="error" class="alert alert-danger">
   Error loading employees.
 </div>
+
+<div *ngIf="!loading && filteredEmployees.length === 0" class="text-center">
+  <p>No employees found.</p>
+</div>
+
 <div class="employee-grid">
-  <div *ngFor="let employee of employees" class="employee-card" (click)="selectEmployee(employee)">
+  <div *ngFor="let employee of filteredEmployees" class="employee-card" (click)="selectEmployee(employee)">
     <div class="initials-circle" [class.on-shift]="employee.status === 'OnShift'">
       <span class="initials">{{ getInitials(employee.name) }}</span>
       <div *ngIf="employee.status === 'OnShift'" class="status-indicator">
