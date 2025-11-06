@@ -5,7 +5,7 @@ namespace ShiftWork.Api.DTOs
         public int ScheduleId { get; set; }
         public string Name { get; set; }
         public string CompanyId { get; set; }
-        public string PersonId { get; set; }
+        public int PersonId { get; set; }
         public string? CrewId { get; set; }
         public string? TaskShiftId { get; set; }
         public int LocationId { get; set; }

@@ -36,8 +36,11 @@ namespace ShiftWork.Api.Helpers
                 .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src =>
                     src.Permissions != null && src.Permissions.Any() 
                         ? JsonSerializer.Serialize(src.Permissions, (JsonSerializerOptions)null) : null));
-            CreateMap<Schedule, ScheduleDto>();
-             CreateMap<ScheduleDto, Schedule>();
+            CreateMap<Schedule, ScheduleDto>()
+                .ForMember(dest => dest.PersonId, opt => opt.MapFrom(src =>
+                    src.PersonId == null ? 0 : int.Parse(src.PersonId)));
+            CreateMap<ScheduleDto, Schedule>()
+                .ForMember(dest => dest.PersonId, opt => opt.MapFrom(src => src.PersonId.ToString()));
             CreateMap<ScheduleShift, ScheduleShiftDto>();
              CreateMap<ScheduleShiftDto, ScheduleShift>();
             CreateMap<TaskShift, TaskShiftDto>();

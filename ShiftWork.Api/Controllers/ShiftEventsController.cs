@@ -126,5 +126,55 @@ namespace ShiftWork.Api.Controllers
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
+
+        [HttpPut("{eventLogId}")]
+        [ProducesResponseType(typeof(ShiftEventDto), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<ShiftEventDto>> UpdateShiftEvent(string companyId, Guid eventLogId, [FromBody] ShiftEventDto shiftEventDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var updated = await _shiftEventService.UpdateShiftEventAsync(eventLogId, shiftEventDto);
+                if (updated == null)
+                {
+                    return NotFound();
+                }
+                return Ok(_mapper.Map<ShiftEventDto>(updated));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating shift event {EventLogId}", eventLogId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        [HttpDelete("{eventLogId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> DeleteShiftEvent(string companyId, Guid eventLogId)
+        {
+            try
+            {
+                var deleted = await _shiftEventService.DeleteShiftEventAsync(eventLogId);
+                if (!deleted)
+                {
+                    return NotFound();
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting shift event {EventLogId}", eventLogId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
     }
 }

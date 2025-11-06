@@ -15,10 +15,10 @@ Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Initialize Firebase Admin SDK
+// Initialize Firebase Auth configuration
 var firebaseProjectId = Environment.GetEnvironmentVariable("FIREBASE_PROJECT_ID");
 var firebaseAuthDomain = Environment.GetEnvironmentVariable("FIREBASE_AUTH_DOMAIN");
-var firebaseApiKey = Environment.GetEnvironmentVariable("FIREBASE_API_ID");
+var firebaseApiKey = Environment.GetEnvironmentVariable("FIREBASE_API_KEY");
 
 if (string.IsNullOrEmpty(firebaseProjectId))
 {
@@ -46,11 +46,10 @@ if (string.IsNullOrEmpty(connectionString))
     throw new InvalidOperationException("DB_CONNECTION_STRING is not set in the environment.");
 }
 
-builder.Services.AddDbContext<ShiftWorkContext>(options =>
+builder.Services.AddDbContext<ShiftWorkContext>((sp, options) =>
 {
     options.UseSqlServer(connectionString);
-    var serviceProvider = builder.Services.BuildServiceProvider();
-    options.AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>());
+    options.AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
 });
 
 // Add In-Memory Caching service, used by several controllers.
@@ -92,6 +91,7 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<ICompanyUserService, CompanyUserService>();
 builder.Services.AddScoped<IShiftEventService, ShiftEventService>();
 builder.Services.AddScoped<IScheduleShiftSummaryService, ScheduleShiftSummaryService>();
+builder.Services.AddScoped<IKioskService, KioskService>();
 
 
 // Your AuthController uses AutoMapper, so you need to add it and its DI package.
@@ -105,18 +105,19 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
+{
+    // Firebase JWTs are validated against Google's public keys via Authority
+    options.Authority = $"https://securetoken.google.com/{firebaseProjectId}";
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.Authority = $"https://securetoken.google.com/{firebaseProjectId}";
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-        {
-            ValidIssuer = firebaseAuthDomain,
-            ValidateIssuer = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(firebaseApiKey ?? throw new InvalidOperationException("FIREBASE_API_KEY is not set in the environment."))),            
-            ValidateAudience = true,
-            ValidAudience = firebaseProjectId,
-            ValidateLifetime = true
-        };
-    });
+        ValidateIssuer = true,
+        ValidIssuer = $"https://securetoken.google.com/{firebaseProjectId}",
+        ValidateAudience = true,
+        ValidAudience = firebaseProjectId,
+        ValidateLifetime = true
+        // Do not set IssuerSigningKey for Firebase; keys are resolved via Authority metadata
+    };
+});
 
 var apiCorsPolicy = "ApiCorsPolicy";
 

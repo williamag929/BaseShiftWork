@@ -10,6 +10,9 @@ const routes: Routes = [
   { path: 'company-switch', loadChildren: () => import('./features/company-switch/company-switch.module').then(m => m.CompanySwitchModule), canActivate: [authGuard] },
   { path: 'general', loadChildren: () => import('./features/general/general.module').then(m => m.GeneralModule), canActivate: [authGuard] },
   { path: 'admin', loadChildren: () => import('./features/admin/admin.module').then(m => m.AdminModule), canActivate: [authGuard] },
+  // Back-compat redirects for older links
+  { path: 'forgot-password', redirectTo: '/auth/forgot-password', pathMatch: 'full' },
+  { path: 'register-user', redirectTo: '/auth/sign-up', pathMatch: 'full' },
   { path: '', redirectTo: '/auth/sign-in', pathMatch: 'full' },
   { path: '**', redirectTo: '/auth/sign-in' }
 ];

@@ -114,5 +114,33 @@ namespace ShiftWork.Api.Services
                 .Where(e => e.EventType == eventType)
                 .ToListAsync();
         }
+
+        public async Task<ShiftEvent?> UpdateShiftEventAsync(Guid id, ShiftEventDto shiftEventDto)
+        {
+            var existing = await _context.ShiftEvents.FindAsync(id);
+            if (existing == null)
+            {
+                return null;
+            }
+
+            // Map allowed fields from DTO onto existing entity
+            _mapper.Map(shiftEventDto, existing);
+
+            await _context.SaveChangesAsync();
+            return existing;
+        }
+
+        public async Task<bool> DeleteShiftEventAsync(Guid id)
+        {
+            var existing = await _context.ShiftEvents.FindAsync(id);
+            if (existing == null)
+            {
+                return false;
+            }
+
+            _context.ShiftEvents.Remove(existing);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
