@@ -126,17 +126,27 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: apiCorsPolicy,
                       builder =>
                       {
-                          builder.WithOrigins("http://localhost:4200",
-                              "http://localhost:32773",
-                              "https://localhost:32774",
-                              // Docker Desktop for Windows
-                              "http://host.docker.internal:4200",
-                              "http://app.shift-clock.com",
-                              "https://app.shift-clock.com")
-                              // AWS Elastic Beanstalk)
-                            .AllowAnyHeader()
-                            .AllowAnyMethod()
-                            .AllowCredentials();
+                          // In development, allow all origins for mobile app testing
+                          if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+                          {
+                              builder.AllowAnyOrigin()
+                                    .AllowAnyHeader()
+                                    .AllowAnyMethod();
+                          }
+                          else
+                          {
+                              builder.WithOrigins("http://localhost:4200",
+                                  "http://localhost:32773",
+                                  "https://localhost:32774",
+                                  // Docker Desktop for Windows
+                                  "http://host.docker.internal:4200",
+                                  "http://app.shift-clock.com",
+                                  "https://app.shift-clock.com")
+                                  // AWS Elastic Beanstalk)
+                                .AllowAnyHeader()
+                                .AllowAnyMethod()
+                                .AllowCredentials();
+                          }
                           //.WithMethods("OPTIONS", "GET");
                       });
 });

@@ -1,0 +1,7 @@
+<svg width="1284" height="2778" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1284" height="2778" fill="#4A90E2"/>
+  <text x="642" y="1200" font-family="Arial" font-size="120" fill="white" text-anchor="middle" font-weight="bold">ShiftWork</text>
+  <text x="642" y="1350" font-family="Arial" font-size="60" fill="white" text-anchor="middle" opacity="0.8">Mobile</text>
+  <circle cx="642" cy="1550" r="100" fill="white" opacity="0.8"/>
+  <rect x="592" y="1450" width="100" height="150" fill="white" opacity="0.8"/>
+</svg>

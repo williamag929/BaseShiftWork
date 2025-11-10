@@ -1,0 +1,20 @@
+﻿PLACEHOLDER ASSETS REQUIRED
+
+The following PNG files are needed:
+- icon.png (1024x1024)
+- adaptive-icon.png (1024x1024)
+- splash.png (1284x2778)
+- favicon.png (48x48)
+
+QUICK FIX:
+1. Visit https://www.placeholder.com/
+2. Create images with the required dimensions
+3. Download as PNG and place in this assets folder
+4. Delete this PLACEHOLDER_NEEDED.txt file
+5. Run 'npm start' again
+
+OR use the Expo asset generator:
+npx @expo/image-utils generate-icons --foreground path/to/your-logo.png
+
+OR download from GitHub:
+https://github.com/expo/expo/tree/main/templates/expo-template-blank/assets
