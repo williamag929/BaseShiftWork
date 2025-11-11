@@ -26,6 +26,8 @@ export class ScheduleGridAddModalComponent implements OnInit {
   @Input() defaultEnd: string = '15:00';
   @Output() save = new EventEmitter<Schedule>();
   @Output() close = new EventEmitter<void>();
+  @Output() delete = new EventEmitter<number>();
+  @Output() viewProfileRequest = new EventEmitter<number>();
 
   selectedPersonId: number | null = null;
   selectedLocationId: number = 0;
@@ -33,6 +35,8 @@ export class ScheduleGridAddModalComponent implements OnInit {
   areas: Area[] = [];
   filteredAreas: Area[] = [];
   shiftType: string = 'unpublished';
+  // menu state
+  menuOpen: boolean = false;
 
   constructor(private areaService: AreaService) {}
 
@@ -133,6 +137,70 @@ export class ScheduleGridAddModalComponent implements OnInit {
       type: this.existingSchedule?.type,
     };
     this.save.emit(schedule);
+  }
+
+  // --- Footer More menu logic ---
+  toggleMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.menuOpen = !this.menuOpen;
+    if (this.menuOpen) {
+      // close menu when clicking outside
+      setTimeout(() => {
+        const onDocClick = () => {
+          this.menuOpen = false;
+          document.removeEventListener('click', onDocClick);
+        };
+        document.addEventListener('click', onDocClick);
+      });
+    }
+  }
+
+  get personName(): string {
+    const pid = this.selectedPersonId ?? this.personId ?? this.existingSchedule?.personId ?? null;
+    const person = this.people?.find(p => p.personId === pid);
+    return person?.name || 'employee';
+  }
+
+  repeatTomorrow(): void {
+    console.log('Repeat for tomorrow clicked');
+    this.menuOpen = false;
+  }
+  repeatRestOfWeek(): void {
+    console.log('Repeat for rest of the week clicked');
+    this.menuOpen = false;
+  }
+  repeatSpecificDays(): void {
+    console.log('Repeat for specific days clicked');
+    this.menuOpen = false;
+  }
+  repeatSetPattern(): void {
+    console.log('Repeat for set pattern clicked');
+    this.menuOpen = false;
+  }
+  findReplacement(): void {
+    console.log('Find replacement clicked');
+    this.menuOpen = false;
+  }
+  viewProfile(): void {
+    this.menuOpen = false;
+    const pid = this.selectedPersonId ?? this.personId ?? this.existingSchedule?.personId;
+    if (pid) {
+      this.viewProfileRequest.emit(pid);
+    } else {
+      console.warn('No person selected for profile view');
+    }
+  }
+  viewShiftHistory(): void {
+    console.log('View shift history clicked');
+    this.menuOpen = false;
+  }
+  deleteShiftClicked(): void {
+    this.menuOpen = false;
+    if (this.existingSchedule?.scheduleId) {
+      this.delete.emit(this.existingSchedule.scheduleId);
+    } else {
+      console.warn('No existing schedule to delete');
+    }
   }
 
   createDateWithTimeUTC(date: Date, time: string): Date {

@@ -46,6 +46,12 @@
   position: relative;
 }
 
+/* Blue styling for employees with published schedules */
+.initials-circle.scheduled {
+  background: linear-gradient(135deg, #4099ff 0%, #73b4ff 100%);
+  border: 3px solid #0066cc;
+}
+
 /* Green styling for employees on shift */
 .initials-circle.on-shift {
   background-color: #28a745;
@@ -57,6 +63,22 @@
   bottom: -5px;
   right: -5px;
   background-color: #155724;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.8rem;
+  border: 2px solid white;
+}
+
+.schedule-indicator {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background-color: #0066cc;
   color: white;
   border-radius: 50%;
   width: 24px;

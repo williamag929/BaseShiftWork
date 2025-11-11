@@ -64,6 +64,10 @@
       <button class="btn-link" (click)="clearSelection()">Clear</button>
     </div>
     <div class="bulk-actions">
+      <button class="action-btn copy" (click)="copySelectedShifts()">
+        <i class="bi bi-clipboard"></i> Copy
+      </button>
+      <span class="bulk-separator">|</span>
       <span class="bulk-label">Update Status:</span>
       <button class="status-btn published" (click)="bulkUpdateStatus('published')">
         <i class="bi bi-check-circle"></i> Published
@@ -142,7 +146,17 @@
           </div>
         </div>
         <div class="day-header" *ngFor="let day of gridData.days">
-          <div class="day-name">{{ day.dayName }}</div>
+          <div class="day-header-content">
+            <div class="day-name">{{ day.dayName }}</div>
+            <button 
+              class="paste-btn" 
+              *ngIf="copiedShifts.length > 0"
+              (click)="pasteShifts(day.date)"
+              title="Paste {{ copiedShifts.length }} copied shift(s)"
+            >
+              <i class="bi bi-clipboard-check"></i>
+            </button>
+          </div>
           <div class="unavailable-badge" *ngIf="day.unavailableCount > 0">
             {{ day.unavailableCount }} Unavailable
           </div>
@@ -271,6 +285,8 @@
     [existingSchedule]="editingSchedule"
     (save)="onSaveSchedule($event)"
     (close)="closeAddScheduleModal()"
+    (delete)="onDeleteSchedule($event)"
+    (viewProfileRequest)="onViewProfile($event)"
   ></app-schedule-grid-add-modal>
 </div>
 

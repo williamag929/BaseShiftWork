@@ -33,6 +33,26 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button class="save-btn" (click)="onSave()">Save</button>
+    <div class="footer-actions">
+      <div class="more-wrapper">
+        <button type="button" class="more-btn" (click)="toggleMenu($event)">…</button>
+        <div class="action-menu" *ngIf="menuOpen" (click)="$event.stopPropagation()">
+          <button class="menu-item" (click)="repeatTomorrow()">Repeat for tomorrow</button>
+          <button class="menu-item" (click)="repeatRestOfWeek()">Repeat for rest of the week</button>
+          <button class="menu-item" (click)="repeatSpecificDays()">Repeat for specific days</button>
+          <button class="menu-item" (click)="repeatSetPattern()">Repeat for set pattern</button>
+          <hr class="menu-separator" />
+          <button class="menu-item" (click)="findReplacement()">Find replacement</button>
+          <button class="menu-item" (click)="viewProfile()">View {{ personName }}'s profile</button>
+          <button class="menu-item" (click)="viewShiftHistory()">
+            View shift history
+            <span class="badge-shortcut">H</span>
+          </button>
+          <hr class="menu-separator" />
+          <button class="menu-item danger" (click)="deleteShiftClicked()">Delete shift</button>
+        </div>
+      </div>
+      <button class="save-btn" (click)="onSave()">Save</button>
+    </div>
   </div>
 </div>

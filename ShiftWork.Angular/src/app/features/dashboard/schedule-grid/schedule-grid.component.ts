@@ -38,6 +38,28 @@ export class ScheduleGridComponent implements OnInit {
   showBulkActions: boolean = false;
   copiedShifts: ShiftBlock[] = [];
 
+  // Handle delete emitted from modal
+  onDeleteSchedule(scheduleId: number): void {
+    if (!this.activeCompany?.companyId) return;
+    if (!confirm('Delete this shift? This action cannot be undone.')) return;
+    this.scheduleService.deleteSchedule(this.activeCompany.companyId, scheduleId).subscribe({
+      next: () => {
+        this.closeAddScheduleModal();
+        this.loadScheduleData();
+      },
+      error: (err) => {
+        console.error('Failed to delete schedule', err);
+        alert('Failed to delete schedule');
+      }
+    });
+  }
+
+  // Handle view profile emitted from modal
+  onViewProfile(personId: number): void {
+    // Placeholder: navigate or open profile panel
+    alert(`View profile for personId ${personId}`);
+  }
+
   openAddScheduleModal() {
     this.editingSchedule = null;
     this.showAddScheduleModalFlag = true;
@@ -80,6 +102,109 @@ export class ScheduleGridComponent implements OnInit {
   clearSelection(): void {
     this.selectedShifts.clear();
     this.showBulkActions = false;
+  }
+
+  copySelectedShifts(): void {
+    if (this.selectedShifts.size === 0) return;
+
+    this.copiedShifts = [];
+    this.selectedShifts.forEach(shiftKey => {
+      const [personIdStr, timestampStr] = shiftKey.split('-');
+      const personId = parseInt(personIdStr);
+      const timestamp = parseInt(timestampStr);
+
+      // Find the shift in the current data
+      for (const day of this.gridData.days) {
+        const shift = day.shifts.find(s => 
+          s.personId === personId && s.startDate.getTime() === timestamp
+        );
+        if (shift) {
+          this.copiedShifts.push(shift);
+          break;
+        }
+      }
+    });
+
+    alert(`${this.copiedShifts.length} shift(s) copied. Click paste button on any date to duplicate.`);
+    this.clearSelection();
+  }
+
+  pasteShifts(targetDate: Date): void {
+    if (this.copiedShifts.length === 0) {
+      alert('No shifts copied. Please select and copy shifts first.');
+      return;
+    }
+
+    const confirmMsg = `Paste ${this.copiedShifts.length} shift(s) to ${targetDate.toLocaleDateString()}?`;
+    if (!confirm(confirmMsg)) return;
+
+    // Load full schedules for the copied shifts
+    this.scheduleService.getSchedules(this.activeCompany.companyId).subscribe({
+      next: (schedules: any[]) => {
+        const createPromises: Promise<any>[] = [];
+
+        this.copiedShifts.forEach(copiedShift => {
+          // Find the original schedule
+          const originalSchedule = schedules.find(s => 
+            s.personId === copiedShift.personId && 
+            new Date(s.startDate).getTime() === copiedShift.startDate.getTime()
+          );
+
+          if (originalSchedule) {
+            // Extract time components from original schedule dates
+            const originalStartDate = new Date(originalSchedule.startDate);
+            const originalEndDate = new Date(originalSchedule.endDate);
+
+            // Create new dates with target date but keep the same time from original
+            const newStartDate = new Date(originalStartDate);
+            newStartDate.setFullYear(targetDate.getFullYear());
+            newStartDate.setMonth(targetDate.getMonth());
+            newStartDate.setDate(targetDate.getDate());
+
+            const newEndDate = new Date(originalEndDate);
+            newEndDate.setFullYear(targetDate.getFullYear());
+            newEndDate.setMonth(targetDate.getMonth());
+            newEndDate.setDate(targetDate.getDate());
+
+            const newSchedule: Schedule = {
+              scheduleId: 0,
+              name: `Schedule for ${targetDate.toDateString()}`,
+              companyId: originalSchedule.companyId,
+              personId: originalSchedule.personId,
+              startDate: newStartDate,
+              endDate: newEndDate,
+              locationId: originalSchedule.locationId,
+              areaId: originalSchedule.areaId,
+              status: originalSchedule.status,
+              timezone: originalSchedule.timezone,
+              crewId: originalSchedule.crewId,
+              taskShiftId: originalSchedule.taskShiftId,
+              description: originalSchedule.description,
+              settings: originalSchedule.settings,
+              color: originalSchedule.color,
+              externalCode: originalSchedule.externalCode,
+              type: originalSchedule.type,
+            };
+
+            createPromises.push(
+              this.scheduleService.createSchedule(this.activeCompany.companyId, newSchedule).toPromise()
+            );
+          }
+        });
+
+        Promise.all(createPromises).then(() => {
+          alert('Shifts pasted successfully!');
+          this.loadScheduleData();
+        }).catch(err => {
+          console.error('Error pasting shifts', err);
+          alert('Some shifts failed to paste. Please check the console.');
+        });
+      },
+      error: (err) => {
+        console.error('Error loading schedules for paste', err);
+        alert('Failed to load schedule data for pasting.');
+      }
+    });
   }
 
   bulkUpdateStatus(status: string): void {
@@ -482,5 +607,16 @@ export class ScheduleGridComponent implements OnInit {
 
   get activeFilterCount(): number {
     return (this.filters.shiftTypes?.length || 0) + (this.filters.trainingTypes?.length || 0);
+  }
+
+  createDateWithTimeUTC(date: Date, time: string): Date {
+    const [hours, minutes] = time.split(':').map(Number);
+    return new Date(Date.UTC(
+      date.getFullYear(), 
+      date.getMonth(), 
+      date.getDate(), 
+      hours, 
+      minutes
+    ));
   }
 }

@@ -51,6 +51,10 @@ export class EmployeeListComponent implements OnInit {
           (people: Person[]) => {
             this.employees = people.filter(p => p.companyId === company.companyId);
             this.filteredEmployees = this.employees;
+            
+            // Load published schedules for today for all employees
+            this.loadPublishedSchedulesForToday();
+            
             this.searchControl.valueChanges.pipe(
               startWith(''),
               map(value => this._filter(value || ''))
@@ -67,6 +71,38 @@ export class EmployeeListComponent implements OnInit {
         );
       }
     });
+  }
+
+  loadPublishedSchedulesForToday(): void {
+    if (!this.activeCompany) {
+      return;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Load all schedules for today
+    this.scheduleService.getSchedules(this.activeCompany.companyId).subscribe(
+      (schedules: any[]) => {
+        // Filter for today's published schedules
+        const todayPublishedSchedules = schedules.filter((s: any) => {
+          const scheduleDate = new Date(s.startDate);
+          scheduleDate.setHours(0, 0, 0, 0);
+          return scheduleDate.getTime() === today.getTime() &&
+                 s.status && s.status.toLowerCase() === 'published';
+        });
+
+        // Map schedules to employees
+        this.employees.forEach(employee => {
+          employee.scheduleDetails = todayPublishedSchedules.filter((s: any) => 
+            s.personId === employee.personId
+          );
+        });
+      },
+      (error: any) => {
+        console.error('Error loading published schedules', error);
+      }
+    );
   }
 
   private _filter(value: string): Person[] {
@@ -92,10 +128,13 @@ export class EmployeeListComponent implements OnInit {
         employee.scheduleDetails = schedules || [];
 
         if (schedules && schedules.length > 0) {
+          // Filter for today's published schedules only
           employee.scheduleDetails = schedules.filter((s: any) => {
             const scheduleDate = new Date(s.startDate);
             scheduleDate.setHours(0, 0, 0, 0);
-            return s.personId === employee.personId && scheduleDate.getTime() === today.getTime();
+            return s.personId === employee.personId && 
+                   scheduleDate.getTime() === today.getTime() &&
+                   s.status && s.status.toLowerCase() === 'published';
           }) || [];
         }
 
@@ -126,5 +165,14 @@ export class EmployeeListComponent implements OnInit {
       return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
+  }
+
+  hasPublishedScheduleToday(employee: Person): boolean {
+    if (!this.activeCompany) {
+      return false;
+    }
+
+    // Check if employee has scheduleDetails populated with published schedules
+    return !!(employee.scheduleDetails && employee.scheduleDetails.length > 0);
   }
 }

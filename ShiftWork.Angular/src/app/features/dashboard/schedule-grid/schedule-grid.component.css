@@ -250,11 +250,57 @@
   border-right: 1px solid #E0E0E0;
 }
 
+.day-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
 .day-name {
   font-size: 14px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 4px;
+  flex: 1;
+}
+
+.paste-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: linear-gradient(135deg, #6C5CE7 0%, #5B4CDB 100%);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(108, 92, 231, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(108, 92, 231, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(108, 92, 231, 0.5);
+  }
+}
+
+.paste-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.6);
+  animation: none;
+}
+
+.paste-btn i {
+  font-size: 14px;
 }
 
 .unavailable-badge {
@@ -576,6 +622,40 @@
   font-size: 14px;
   font-weight: 600;
   margin-right: 8px;
+}
+
+.bulk-separator {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 12px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border: 2px solid #fff;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn.copy {
+  color: #6C5CE7;
+}
+
+.action-btn:hover {
+  background-color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn i {
+  font-size: 16px;
 }
 
 .status-btn {

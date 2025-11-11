@@ -16,11 +16,18 @@
 </div>
 
 <div class="employee-grid">
-  <div *ngFor="let employee of filteredEmployees" class="employee-card" (click)="selectEmployee(employee)">
-    <div class="initials-circle" [class.on-shift]="employee.status === 'OnShift'">
+  <div *ngFor="let employee of filteredEmployees" class="employee-card" 
+       [class.has-published-schedule]="hasPublishedScheduleToday(employee)"
+       (click)="selectEmployee(employee)">
+    <div class="initials-circle" 
+         [class.on-shift]="employee.status === 'OnShift'"
+         [class.scheduled]="hasPublishedScheduleToday(employee)">
       <span class="initials">{{ getInitials(employee.name) }}</span>
       <div *ngIf="employee.status === 'OnShift'" class="status-indicator">
         <i class="fas fa-check-circle"></i>
+      </div>
+      <div *ngIf="hasPublishedScheduleToday(employee) && employee.status !== 'OnShift'" class="schedule-indicator">
+        <i class="bi bi-calendar-check"></i>
       </div>
     </div>
     <div class="employee-name">{{ employee.name }}</div>
