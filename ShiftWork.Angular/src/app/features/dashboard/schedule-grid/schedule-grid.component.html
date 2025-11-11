@@ -1,0 +1,244 @@
+<div class="schedule-grid-container">
+  <!-- Header -->
+  <div class="grid-header">
+    <div class="header-left">
+    <div class="location-dropdown">
+      <i class="bi bi-geo-alt"></i>
+      <select class="form-select" [(ngModel)]="selectedLocationId" (change)="onLocationChange()">
+        <option *ngFor="let loc of locations" [value]="loc.locationId">{{ loc.name }}</option>
+      </select>
+    </div>
+    </div>
+
+    <div class="header-center">
+      <button class="nav-btn" (click)="onPreviousWeek()">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <span class="week-label">
+        {{ gridData.weekStart | date:'d MMM' }} – {{ gridData.weekEnd | date:'d MMM' }}
+      </span>
+      <button class="nav-btn" (click)="onNextWeek()">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+
+    <div class="header-right">
+      <button class="icon-btn">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+      <button class="icon-btn">
+        <i class="bi bi-share"></i>
+      </button>
+      <button class="icon-btn">
+        <i class="bi bi-three-dots"></i>
+      </button>
+      <button class="btn btn-primary ms-2" (click)="openAddScheduleModal()">
+        <i class="bi bi-calendar-plus"></i> Add Schedule
+      </button>
+      <div class="publish-badge">All shifts published</div>
+    </div>
+  </div>
+
+  <!-- Search and Filter Bar -->
+  <div class="filter-bar">
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input 
+        type="text" 
+        placeholder="Search" 
+        [(ngModel)]="filters.searchQuery"
+        (input)="onFilterChange()"
+      />
+    </div>
+    <button class="filter-btn" (click)="toggleFilterModal()">
+      <i class="bi bi-sliders"></i>
+      <span *ngIf="activeFilterCount > 0" class="filter-count">{{ activeFilterCount }}</span>
+    </button>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-dot empty"></span>
+      <span class="stat-text">{{ gridData.stats.empty }} empty</span>
+    </div>
+    <div class="stat">
+      <span class="stat-dot unpublished"></span>
+      <span class="stat-text">{{ gridData.stats.unpublished }} unpublished</span>
+    </div>
+    <div class="stat">
+      <span class="stat-dot published"></span>
+      <span class="stat-text">{{ gridData.stats.published }} published</span>
+    </div>
+    <div class="stat">
+      <span class="stat-dot require-confirmation"></span>
+      <span class="stat-text">{{ gridData.stats.requireConfirmation }} require confirmation</span>
+    </div>
+    <div class="stat">
+      <span class="stat-dot open-shifts"></span>
+      <span class="stat-text">{{ gridData.stats.openShifts }} open shifts</span>
+    </div>
+    <div class="stat">
+      <span class="stat-dot warnings"></span>
+      <span class="stat-text">{{ gridData.stats.warnings }} warnings</span>
+    </div>
+    <div class="stat">
+      <span class="stat-dot leave-pending"></span>
+      <span class="stat-text">{{ gridData.stats.leavePending }} leave pending</span>
+    </div>
+    <div class="stat">
+      <span class="stat-dot unavailable"></span>
+      <span class="stat-text">{{ gridData.stats.unavailable }} unavailable</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p>Loading schedule...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <p class="text-danger">{{ error }}</p>
+  </div>
+
+  <!-- Grid -->
+  <div *ngIf="!loading && !error" class="grid-wrapper">
+    <div class="grid-scroll-container">
+      <!-- Header Row -->
+      <div class="grid-header-row">
+        <div class="team-column">
+          <div class="open-shifts-header">
+            <i class="bi bi-person"></i>
+            <span>Open shifts</span>
+            <span class="hours">0h</span>
+          </div>
+        </div>
+        <div class="day-header" *ngFor="let day of gridData.days">
+          <div class="day-name">{{ day.dayName }}</div>
+          <div class="unavailable-badge" *ngIf="day.unavailableCount > 0">
+            {{ day.unavailableCount }} Unavailable
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Member Rows -->
+      <div class="grid-body">
+        <div class="grid-row" *ngFor="let member of gridData.teamMembers">
+          <!-- Team Member Column -->
+          <div class="team-column">
+            <div class="team-member">
+              <div class="avatar" [style.background-image]="member.profilePhotoUrl ? 'url(' + member.profilePhotoUrl + ')' : 'none'">
+                <span *ngIf="!member.profilePhotoUrl">{{ member.initials }}</span>
+              </div>
+              <div class="member-details">
+                <div class="member-name">{{ member.fullName }}</div>
+                <div class="member-hours">{{ member.totalHours }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Day Cells -->
+          <div class="day-cell" *ngFor="let day of gridData.days">
+            <ng-container *ngIf="getShiftsForPersonAndDay(member.personId, day.date) as shifts">
+              <!-- Empty Cell -->
+              <button 
+                *ngIf="shifts.length === 0" 
+                class="add-shift-btn"
+                (click)="onAddShift(member.personId, day.date)"
+              >
+                <i class="bi bi-plus"></i>
+              </button>
+
+              <!-- Shift Blocks -->
+              <div 
+                *ngFor="let shift of shifts" 
+                class="shift-block"
+                [style.background-color]="getShiftColor(shift.status)"
+                (click)="onShiftClick(shift)"
+              >
+                <div class="shift-time">{{ shift.startTime }} – {{ shift.endTime }}</div>
+                <div class="shift-person">{{ shift.personName }}</div>
+                <div class="lock-badge" *ngIf="shift.isLocked">
+                  <i class="bi bi-lock-fill"></i>
+                  <span>LOCKED</span>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Modal -->
+  <div class="modal-backdrop" *ngIf="showFilterModal" (click)="toggleFilterModal()"></div>
+  <div class="filter-modal" *ngIf="showFilterModal">
+    <div class="modal-header">
+      <h3>Filter and sort</h3>
+      <button class="close-btn" (click)="toggleFilterModal()">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+    <p class="modal-subtitle">
+      Quickly narrow down your team list with the new filtering options, 
+      making it easier to schedule the right people.
+    </p>
+
+    <div class="filter-section">
+      <label class="filter-label">Sort by</label>
+      <select class="form-select" [(ngModel)]="filters.sortBy" (change)="onFilterChange()">
+        <option value="name">Name</option>
+        <option value="hours">Hours</option>
+        <option value="availability">Availability</option>
+      </select>
+    </div>
+
+    <div class="filter-section">
+      <label class="filter-label">Shift type</label>
+      <div class="chip-container">
+        <div class="chip" *ngFor="let type of filters.shiftTypes">
+          <span>{{ type }}</span>
+          <button (click)="removeShiftTypeFilter(type)">
+            <i class="bi bi-x-circle"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <label class="filter-label">Training</label>
+      <div class="chip-container">
+        <div class="chip" *ngFor="let type of filters.trainingTypes">
+          <span>{{ type }}</span>
+          <button (click)="removeTrainingFilter(type)">
+            <i class="bi bi-x-circle"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-clear" (click)="clearFilters()">Clear all</button>
+      <button class="btn-done" (click)="toggleFilterModal()">Done</button>
+    </div>
+  </div>
+
+  <!-- Add/Edit Schedule Modal -->
+  <app-schedule-grid-add-modal
+    *ngIf="showAddScheduleModalFlag && selectedDate"
+    [people]="peopleList"
+    [date]="selectedDate"
+    [locations]="locations"
+    [locationId]="selectedLocationId || 0"
+    [personId]="selectedPersonId"
+    [companyId]="activeCompany?.companyId || ''"
+    [existingSchedule]="editingSchedule"
+    (save)="onSaveSchedule($event)"
+    (close)="closeAddScheduleModal()"
+  ></app-schedule-grid-add-modal>
+</div>
+

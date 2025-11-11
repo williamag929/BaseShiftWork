@@ -1,0 +1,38 @@
+<div class="modal-backdrop" (click)="onClose()"></div>
+<div class="modal-content">
+  <div class="modal-header">
+    <span class="modal-title">{{ existingSchedule ? 'Edit Schedule' : 'Add Schedule' }}</span>
+    <button class="close-btn" (click)="onClose()">&times;</button>
+  </div>
+  <div class="modal-body">
+    <label for="person-select">Select Person</label>
+    <select id="person-select" [(ngModel)]="selectedPersonId" class="form-select">
+      <option [ngValue]="null">-- Select a person --</option>
+      <option *ngFor="let person of people" [ngValue]="person.personId">
+        {{ person.name }}
+      </option>
+    </select>
+    <div class="modal-row">
+      <label for="location-select">Location</label>
+      <select id="location-select" class="form-select" [(ngModel)]="selectedLocationId" (change)="onLocationChange()">
+        <option *ngFor="let loc of locations" [value]="loc.locationId">{{ loc.name }}</option>
+      </select>
+    </div>
+    <div class="modal-row">
+      <label for="area-select">Area</label>
+      <select id="area-select" class="form-select" [(ngModel)]="selectedAreaId">
+        <option [value]="0">-- Select an area --</option>
+        <option *ngFor="let area of filteredAreas" [value]="area.areaId">{{ area.name }}</option>
+      </select>
+    </div>
+    <div class="modal-row">
+      <label>Start Time</label>
+      <input type="time" [(ngModel)]="defaultStart" />
+      <label>End Time</label>
+      <input type="time" [(ngModel)]="defaultEnd" />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="save-btn" (click)="onSave()">Save</button>
+  </div>
+</div>

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 import { DashboardComponent } from './dashboard.component';
 import { ProfilesComponent } from './profiles/profiles.component';
@@ -14,6 +15,7 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import { ReactiveFormsModule } from '@angular/forms';
 import { share } from 'rxjs';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { ScheduleGridComponent } from './schedule-grid/schedule-grid.component';
 
 
 const routes: Routes = [
@@ -26,6 +28,7 @@ const routes: Routes = [
       { path: 'areas', component: AreasComponent },
       { path: 'locations', component: LocationsComponent },
       { path: 'schedule', component: ScheduleComponent },
+  { path: 'schedule-grid', component: ScheduleGridComponent },
       { path: 'tasks', component: TasksComponent },
       { path: 'clock-shift', loadComponent: () => import('./clock-shift/clock-shift.component').then(m => m.ClockShiftComponent) },
       { path: 'shiftsummaries', loadComponent: () => import('./shiftsummaries/shiftsummaries.component').then(m => m.ShiftsummariesComponent) },
@@ -44,6 +47,7 @@ const routes: Routes = [
   ],
   imports: [
     CommonModule,
+    FormsModule,
     SharedModule,
     FullCalendarModule,
     RouterModule.forChild(routes),

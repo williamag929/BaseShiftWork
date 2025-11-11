@@ -77,6 +77,7 @@ export class PeopleComponent implements OnInit {
     this.personForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
+      phoneNumber: [''],
       pin: ['', [Validators.minLength(4), Validators.maxLength(4)]],
       address: ['', Validators.required],
       city: ['', Validators.required],
