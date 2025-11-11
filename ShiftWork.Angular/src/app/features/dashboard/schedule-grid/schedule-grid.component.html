@@ -56,6 +56,30 @@
     </button>
   </div>
 
+  <!-- Bulk Actions Toolbar -->
+  <div class="bulk-actions-bar" *ngIf="showBulkActions">
+    <div class="bulk-selection-info">
+      <span class="selection-count">{{ selectedShifts.size }} shift(s) selected</span>
+      <button class="btn-link" (click)="selectAllShifts()">Select All</button>
+      <button class="btn-link" (click)="clearSelection()">Clear</button>
+    </div>
+    <div class="bulk-actions">
+      <span class="bulk-label">Update Status:</span>
+      <button class="status-btn published" (click)="bulkUpdateStatus('published')">
+        <i class="bi bi-check-circle"></i> Published
+      </button>
+      <button class="status-btn unpublished" (click)="bulkUpdateStatus('unpublished')">
+        <i class="bi bi-clock"></i> Unpublished
+      </button>
+      <button class="status-btn open" (click)="bulkUpdateStatus('open')">
+        <i class="bi bi-unlock"></i> Open
+      </button>
+      <button class="status-btn locked" (click)="bulkUpdateStatus('locked')">
+        <i class="bi bi-lock"></i> Locked
+      </button>
+    </div>
+  </div>
+
   <!-- Stats Bar -->
   <div class="stats-bar">
     <div class="stat">
@@ -157,9 +181,17 @@
               <div 
                 *ngFor="let shift of shifts" 
                 class="shift-block"
+                [class.selected]="isShiftSelected(shift)"
                 [style.background-color]="getShiftColor(shift.status)"
                 (click)="onShiftClick(shift)"
               >
+                <input 
+                  type="checkbox" 
+                  class="shift-checkbox"
+                  [checked]="isShiftSelected(shift)"
+                  (click)="toggleShiftSelection(shift, $event)"
+                  (change)="$event.stopPropagation()"
+                />
                 <div class="shift-time">{{ shift.startTime }} – {{ shift.endTime }}</div>
                 <div class="shift-person">{{ shift.personName }}</div>
                 <div class="lock-badge" *ngIf="shift.isLocked">

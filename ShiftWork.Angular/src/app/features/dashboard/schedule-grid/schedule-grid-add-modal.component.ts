@@ -109,9 +109,9 @@ export class ScheduleGridAddModalComponent implements OnInit {
   onSave() {
     const selectedLocation = this.locations.find(l => l.locationId === this.selectedLocationId);
     
-    // Create proper date objects with time
-    const startDate = this.createDateWithTime(this.date, this.defaultStart);
-    const endDate = this.createDateWithTime(this.date, this.defaultEnd);
+    // Create proper date objects with time using UTC to avoid timezone issues
+    const startDate = this.createDateWithTimeUTC(this.date, this.defaultStart);
+    const endDate = this.createDateWithTimeUTC(this.date, this.defaultEnd);
     
     const schedule: Schedule = {
       scheduleId: this.existingSchedule?.scheduleId || 0,
@@ -135,11 +135,15 @@ export class ScheduleGridAddModalComponent implements OnInit {
     this.save.emit(schedule);
   }
 
-  createDateWithTime(date: Date, time: string): Date {
+  createDateWithTimeUTC(date: Date, time: string): Date {
     const [hours, minutes] = time.split(':').map(Number);
-    const newDate = new Date(date);
-    newDate.setHours(hours, minutes, 0, 0);
-    return newDate;
+    return new Date(Date.UTC(
+      date.getFullYear(), 
+      date.getMonth(), 
+      date.getDate(), 
+      hours, 
+      minutes
+    ));
   }
 
   onClose() {

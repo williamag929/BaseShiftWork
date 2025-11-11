@@ -34,6 +34,9 @@ export class ScheduleGridComponent implements OnInit {
   selectedPersonId: number | null = null;
   selectedDate: Date | null = null;
   editingSchedule: Schedule | null = null;
+  selectedShifts: Set<string> = new Set();
+  showBulkActions: boolean = false;
+  copiedShifts: ShiftBlock[] = [];
 
   openAddScheduleModal() {
     this.editingSchedule = null;
@@ -44,6 +47,91 @@ export class ScheduleGridComponent implements OnInit {
     this.selectedPersonId = null;
     this.selectedDate = null;
     this.editingSchedule = null;
+  }
+
+  getShiftKey(shift: ShiftBlock): string {
+    return `${shift.personId}-${shift.startDate.getTime()}`;
+  }
+
+  isShiftSelected(shift: ShiftBlock): boolean {
+    return this.selectedShifts.has(this.getShiftKey(shift));
+  }
+
+  toggleShiftSelection(shift: ShiftBlock, event: Event): void {
+    event.stopPropagation();
+    const key = this.getShiftKey(shift);
+    if (this.selectedShifts.has(key)) {
+      this.selectedShifts.delete(key);
+    } else {
+      this.selectedShifts.add(key);
+    }
+    this.showBulkActions = this.selectedShifts.size > 0;
+  }
+
+  selectAllShifts(): void {
+    this.gridData.days.forEach(day => {
+      day.shifts.forEach(shift => {
+        this.selectedShifts.add(this.getShiftKey(shift));
+      });
+    });
+    this.showBulkActions = this.selectedShifts.size > 0;
+  }
+
+  clearSelection(): void {
+    this.selectedShifts.clear();
+    this.showBulkActions = false;
+  }
+
+  bulkUpdateStatus(status: string): void {
+    if (this.selectedShifts.size === 0) return;
+
+    const confirmMsg = `Update ${this.selectedShifts.size} shift(s) to ${status}?`;
+    if (!confirm(confirmMsg)) return;
+
+    const updates: Promise<any>[] = [];
+    
+    this.selectedShifts.forEach(shiftKey => {
+      const [personIdStr, timestampStr] = shiftKey.split('-');
+      const personId = parseInt(personIdStr);
+      const timestamp = parseInt(timestampStr);
+
+      // Find the shift in the current data
+      let targetShift: ShiftBlock | undefined = undefined;
+      for (const day of this.gridData.days) {
+        targetShift = day.shifts.find(s => 
+          s.personId === personId && s.startDate.getTime() === timestamp
+        );
+        if (targetShift) break;
+      }
+
+      if (targetShift) {
+        // Load and update the schedule
+        this.scheduleService.getSchedules(this.activeCompany.companyId).subscribe({
+          next: (schedules: any[]) => {
+            const schedule = schedules.find(s => 
+              s.personId === personId && 
+              new Date(s.startDate).getTime() === timestamp
+            );
+            if (schedule) {
+              const updatedSchedule = { ...schedule, status };
+              updates.push(
+                this.scheduleService.updateSchedule(
+                  this.activeCompany.companyId, 
+                  schedule.scheduleId, 
+                  updatedSchedule
+                ).toPromise()
+              );
+            }
+          }
+        });
+      }
+    });
+
+    // Wait a bit for all updates to be queued, then reload
+    setTimeout(() => {
+      this.clearSelection();
+      this.loadScheduleData();
+    }, 1000);
   }
   activeCompany$: Observable<any>;
   activeCompany: any;
