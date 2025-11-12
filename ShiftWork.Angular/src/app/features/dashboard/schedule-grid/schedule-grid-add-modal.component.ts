@@ -28,6 +28,11 @@ export class ScheduleGridAddModalComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
   @Output() delete = new EventEmitter<number>();
   @Output() viewProfileRequest = new EventEmitter<number>();
+  @Output() repeatTomorrowRequest = new EventEmitter<{ baseDate: Date; personId: number|null; locationId: number; areaId: number; start: string; end: string }>();
+  @Output() repeatRestOfWeekRequest = new EventEmitter<{ baseDate: Date; personId: number|null; locationId: number; areaId: number; start: string; end: string }>();
+  @Output() repeatSpecificDaysRequest = new EventEmitter<{ baseDate: Date; personId: number|null; locationId: number; areaId: number; start: string; end: string; dayIndices: number[] }>();
+  // Future: repeatSpecificDaysRequest, repeatSetPatternRequest
+  @Input() deleteInProgress: boolean = false;
 
   selectedPersonId: number | null = null;
   selectedLocationId: number = 0;
@@ -37,6 +42,8 @@ export class ScheduleGridAddModalComponent implements OnInit {
   shiftType: string = 'unpublished';
   // menu state
   menuOpen: boolean = false;
+  specificDaysMode: boolean = false;
+  selectedDayIndices: Set<number> = new Set();
 
   constructor(private areaService: AreaService) {}
 
@@ -162,20 +169,69 @@ export class ScheduleGridAddModalComponent implements OnInit {
   }
 
   repeatTomorrow(): void {
-    console.log('Repeat for tomorrow clicked');
     this.menuOpen = false;
+    this.repeatTomorrowRequest.emit({
+      baseDate: this.date,
+      personId: this.selectedPersonId ?? this.personId,
+      locationId: this.selectedLocationId,
+      areaId: this.selectedAreaId,
+      start: this.defaultStart,
+      end: this.defaultEnd
+    });
   }
   repeatRestOfWeek(): void {
-    console.log('Repeat for rest of the week clicked');
     this.menuOpen = false;
+    this.repeatRestOfWeekRequest.emit({
+      baseDate: this.date,
+      personId: this.selectedPersonId ?? this.personId,
+      locationId: this.selectedLocationId,
+      areaId: this.selectedAreaId,
+      start: this.defaultStart,
+      end: this.defaultEnd
+    });
   }
   repeatSpecificDays(): void {
-    console.log('Repeat for specific days clicked');
-    this.menuOpen = false;
+    // Enter day selection mode inside the menu instead of emitting immediately
+    this.specificDaysMode = true;
+    // Pre-select current date's weekday
+    const wd = this.date.getDay();
+    this.selectedDayIndices = new Set([wd]);
   }
   repeatSetPattern(): void {
     console.log('Repeat for set pattern clicked');
     this.menuOpen = false;
+  }
+
+  toggleDayIndex(idx: number): void {
+    if (this.selectedDayIndices.has(idx)) {
+      this.selectedDayIndices.delete(idx);
+    } else {
+      this.selectedDayIndices.add(idx);
+    }
+  }
+
+  cancelSpecificDays(): void {
+    this.specificDaysMode = false;
+    this.selectedDayIndices.clear();
+  }
+
+  confirmSpecificDays(): void {
+    if (this.selectedDayIndices.size === 0) {
+      alert('Select at least one day.');
+      return;
+    }
+    this.menuOpen = false;
+    this.specificDaysMode = false;
+    this.repeatSpecificDaysRequest.emit({
+      baseDate: this.date,
+      personId: this.selectedPersonId ?? this.personId,
+      locationId: this.selectedLocationId,
+      areaId: this.selectedAreaId,
+      start: this.defaultStart,
+      end: this.defaultEnd,
+      dayIndices: Array.from(this.selectedDayIndices.values()).sort()
+    });
+    this.selectedDayIndices.clear();
   }
   findReplacement(): void {
     console.log('Find replacement clicked');

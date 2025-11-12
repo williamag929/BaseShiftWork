@@ -88,6 +88,24 @@
   padding: 10px 0;
   z-index: 1002;
 }
+.action-menu .delete-spinner { 
+  padding: 8px 16px; 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+}
+.action-menu .spinner { 
+  width: 18px; 
+  height: 18px; 
+  border: 3px solid #d2d2e2; 
+  border-top-color: #4B2EDD; 
+  border-radius: 50%; 
+  animation: spin 0.9s linear infinite; 
+}
+@keyframes spin { 
+  from { transform: rotate(0deg); } 
+  to { transform: rotate(360deg); } 
+}
 .action-menu::after {
   content: '';
   position: absolute;
@@ -123,6 +141,36 @@
 }
 .menu-item.danger {
   color: #d93025;
+}
+.days-selector {
+  padding: 8px 16px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.day-chip {
+  background: #f2f2f9;
+  border: 1px solid #d7d7e6;
+  border-radius: 8px;
+  padding: 6px 4px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #33354d;
+}
+.day-chip.selected {
+  background: #4B2EDD;
+  color: #fff;
+  border-color: #4B2EDD;
+}
+.days-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
 }
 .badge-shortcut {
   background: #eeeef7;

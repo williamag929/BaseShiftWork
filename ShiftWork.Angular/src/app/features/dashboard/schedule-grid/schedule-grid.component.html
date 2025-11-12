@@ -287,6 +287,10 @@
     (close)="closeAddScheduleModal()"
     (delete)="onDeleteSchedule($event)"
     (viewProfileRequest)="onViewProfile($event)"
+    (repeatTomorrowRequest)="handleRepeatTomorrow($event)"
+    (repeatRestOfWeekRequest)="handleRepeatRestOfWeek($event)"
+    (repeatSpecificDaysRequest)="handleRepeatSpecificDays($event)"
+    [deleteInProgress]="deleteInProgress"
   ></app-schedule-grid-add-modal>
 </div>
 

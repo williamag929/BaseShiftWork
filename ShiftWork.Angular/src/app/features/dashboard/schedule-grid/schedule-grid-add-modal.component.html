@@ -39,7 +39,23 @@
         <div class="action-menu" *ngIf="menuOpen" (click)="$event.stopPropagation()">
           <button class="menu-item" (click)="repeatTomorrow()">Repeat for tomorrow</button>
           <button class="menu-item" (click)="repeatRestOfWeek()">Repeat for rest of the week</button>
-          <button class="menu-item" (click)="repeatSpecificDays()">Repeat for specific days</button>
+          <ng-container *ngIf="!specificDaysMode; else daysSelector">
+            <button class="menu-item" (click)="repeatSpecificDays()">Repeat for specific days</button>
+          </ng-container>
+          <ng-template #daysSelector>
+            <div class="days-selector">
+              <div class="days-grid">
+                <button type="button" class="day-chip" *ngFor="let d of [0,1,2,3,4,5,6]" 
+                        [class.selected]="selectedDayIndices.has(d)" (click)="toggleDayIndex(d)">
+                  {{ ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d] }}
+                </button>
+              </div>
+              <div class="days-actions">
+                <button type="button" class="menu-item" (click)="confirmSpecificDays()">Confirm days</button>
+                <button type="button" class="menu-item" (click)="cancelSpecificDays()">Cancel</button>
+              </div>
+            </div>
+          </ng-template>
           <button class="menu-item" (click)="repeatSetPattern()">Repeat for set pattern</button>
           <hr class="menu-separator" />
           <button class="menu-item" (click)="findReplacement()">Find replacement</button>
@@ -50,6 +66,9 @@
           </button>
           <hr class="menu-separator" />
           <button class="menu-item danger" (click)="deleteShiftClicked()">Delete shift</button>
+            <div class="delete-spinner" *ngIf="deleteInProgress">
+              <div class="spinner"></div>
+            </div>
         </div>
       </div>
       <button class="save-btn" (click)="onSave()">Save</button>

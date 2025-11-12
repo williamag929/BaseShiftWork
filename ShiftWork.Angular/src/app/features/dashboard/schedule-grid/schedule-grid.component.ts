@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -37,17 +38,21 @@ export class ScheduleGridComponent implements OnInit {
   selectedShifts: Set<string> = new Set();
   showBulkActions: boolean = false;
   copiedShifts: ShiftBlock[] = [];
+  deleteInProgress: boolean = false;
 
   // Handle delete emitted from modal
   onDeleteSchedule(scheduleId: number): void {
     if (!this.activeCompany?.companyId) return;
     if (!confirm('Delete this shift? This action cannot be undone.')) return;
+    this.deleteInProgress = true;
     this.scheduleService.deleteSchedule(this.activeCompany.companyId, scheduleId).subscribe({
       next: () => {
+        this.deleteInProgress = false;
         this.closeAddScheduleModal();
         this.loadScheduleData();
       },
       error: (err) => {
+        this.deleteInProgress = false;
         console.error('Failed to delete schedule', err);
         alert('Failed to delete schedule');
       }
@@ -56,8 +61,104 @@ export class ScheduleGridComponent implements OnInit {
 
   // Handle view profile emitted from modal
   onViewProfile(personId: number): void {
-    // Placeholder: navigate or open profile panel
-    alert(`View profile for personId ${personId}`);
+    // Navigate to people route with query param (assumption)
+    this.closeAddScheduleModal();
+    this.router.navigate(['/dashboard/people'], { queryParams: { personId } });
+  }
+
+  handleRepeatTomorrow(payload: { baseDate: Date; personId: number|null; locationId: number; areaId: number; start: string; end: string }): void {
+    if (!this.activeCompany?.companyId || !payload.personId) return;
+    const tomorrow = new Date(payload.baseDate);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const startDate = this.buildDateWithTime(tomorrow, payload.start);
+    const endDate = this.buildDateWithTime(tomorrow, payload.end);
+    const schedule: Schedule = {
+      scheduleId: 0,
+      name: `Schedule for ${tomorrow.toDateString()}`,
+      companyId: this.activeCompany.companyId,
+      personId: payload.personId,
+      startDate,
+      endDate,
+      locationId: payload.locationId,
+      areaId: payload.areaId,
+      status: 'unpublished',
+      timezone: 'UTC'
+    } as Schedule;
+    this.scheduleService.createSchedule(this.activeCompany.companyId, schedule).subscribe({
+      next: () => this.loadScheduleData(),
+      error: err => console.error('Failed to repeat tomorrow', err)
+    });
+  }
+
+  handleRepeatRestOfWeek(payload: { baseDate: Date; personId: number|null; locationId: number; areaId: number; start: string; end: string }): void {
+    if (!this.activeCompany?.companyId || !payload.personId) return;
+    const base = new Date(payload.baseDate);
+    const promises: Promise<any>[] = [];
+    for (let offset = 1; offset <= 6; offset++) {
+      const d = new Date(base);
+      d.setDate(d.getDate() + offset);
+      const startDate = this.buildDateWithTime(d, payload.start);
+      const endDate = this.buildDateWithTime(d, payload.end);
+      const schedule: Schedule = {
+        scheduleId: 0,
+        name: `Schedule for ${d.toDateString()}`,
+        companyId: this.activeCompany.companyId,
+        personId: payload.personId,
+        startDate,
+        endDate,
+        locationId: payload.locationId,
+        areaId: payload.areaId,
+        status: 'unpublished',
+        timezone: 'UTC'
+      } as Schedule;
+      promises.push(this.scheduleService.createSchedule(this.activeCompany.companyId, schedule).toPromise());
+    }
+    Promise.all(promises).then(() => this.loadScheduleData()).catch(err => console.error('Repeat rest of week failed', err));
+  }
+
+  private buildDateWithTime(date: Date, time: string): Date {
+    const [h,m] = time.split(':').map(Number);
+    const copy = new Date(date);
+    copy.setHours(h, m, 0, 0);
+    return copy;
+  }
+
+  handleRepeatSpecificDays(payload: { baseDate: Date; personId: number|null; locationId: number; areaId: number; start: string; end: string; dayIndices: number[] }): void {
+    if (!this.activeCompany?.companyId || !payload.personId) return;
+    if (!payload.dayIndices || payload.dayIndices.length === 0) {
+      console.warn('repeatSpecificDays called with empty dayIndices');
+      return;
+    }
+    // Compute start of week (Sunday) for the base date
+    const base = new Date(payload.baseDate);
+    const startOfWeek = new Date(base);
+    startOfWeek.setDate(base.getDate() - base.getDay()); // Sunday-based
+    const createPromises: Promise<any>[] = [];
+    payload.dayIndices.forEach(idx => {
+      const d = new Date(startOfWeek);
+      d.setDate(startOfWeek.getDate() + idx);
+      const startDate = this.buildDateWithTime(d, payload.start);
+      const endDate = this.buildDateWithTime(d, payload.end);
+      const schedule: Schedule = {
+        scheduleId: 0,
+        name: `Schedule for ${d.toDateString()}`,
+        companyId: this.activeCompany!.companyId,
+        personId: payload.personId!,
+        startDate,
+        endDate,
+        locationId: payload.locationId,
+        areaId: payload.areaId,
+        status: 'unpublished',
+        timezone: 'UTC'
+      } as Schedule;
+      createPromises.push(this.scheduleService.createSchedule(this.activeCompany!.companyId, schedule).toPromise());
+    });
+    Promise.all(createPromises)
+      .then(() => this.loadScheduleData())
+      .catch(err => {
+        console.error('Failed to repeat on specific days', err);
+        alert('Failed to create some schedules for specific days.');
+      });
   }
 
   openAddScheduleModal() {
@@ -297,10 +398,11 @@ export class ScheduleGridComponent implements OnInit {
 
   constructor(
     private store: Store<AppState>,
-  private scheduleService: ScheduleService,
-  private scheduleShiftService: ScheduleShiftService,
+    private scheduleService: ScheduleService,
+    private scheduleShiftService: ScheduleShiftService,
     private peopleService: PeopleService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private router: Router
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
