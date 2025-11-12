@@ -11,8 +11,10 @@ import { ScheduleShiftService } from 'src/app/core/services/schedule-shift.servi
 import { PeopleService } from 'src/app/core/services/people.service';
 import { LocationService } from 'src/app/core/services/location.service';
 import { ShiftEventService } from 'src/app/core/services/shift-event.service';
+import { TimeOffRequestService } from 'src/app/core/services/time-off-request.service';
 import { ShiftEvent } from 'src/app/core/models/shift-event.model';
 import { ReplacementCandidate } from 'src/app/core/models/replacement-candidate.model';
+import { CreateTimeOffRequest } from 'src/app/core/models/time-off-request.model';
 import { 
   ScheduleGridData, 
   TeamMember, 
@@ -25,11 +27,14 @@ import { People } from 'src/app/core/models/people.model';
 import { Schedule } from 'src/app/core/models/schedule.model';
 import { ScheduleGridAddModalComponent } from './schedule-grid-add-modal.component';
 import { ReplacementPanelComponent } from './replacement-panel.component';
+import { TimeOffRequestModalComponent } from './time-off-request-modal.component';
+import { SickReportModalComponent, SickReportRequest } from './sick-report-modal.component';
+import { RepeatPatternModalComponent, RepeatPatternRequest } from './repeat-pattern-modal.component';
 
 @Component({
   selector: 'app-schedule-grid',
   standalone: true,
-  imports: [CommonModule, FormsModule, ScheduleGridAddModalComponent, ReplacementPanelComponent],
+  imports: [CommonModule, FormsModule, ScheduleGridAddModalComponent, ReplacementPanelComponent, TimeOffRequestModalComponent, SickReportModalComponent, RepeatPatternModalComponent],
   templateUrl: './schedule-grid.component.html',
   styleUrl: './schedule-grid.component.css',
   providers: [ScheduleService, PeopleService, LocationService]
@@ -129,41 +134,97 @@ export class ScheduleGridComponent implements OnInit {
 
   handleRequestTimeOff(payload: { personId: number|null; start: Date; end: Date; note?: string }): void {
     if (!this.activeCompany?.companyId || !payload.personId) return;
-    const event: ShiftEvent = {
-      eventLogId: '',
-      eventDate: new Date(),
-      eventType: 'timeoff',
-      companyId: this.activeCompany.companyId,
-      personId: payload.personId,
-      eventObject: JSON.stringify({ start: payload.start, end: payload.end, note: payload.note ?? '' }),
-      description: 'Time off request',
-      kioskDevice: null,
-      geoLocation: null,
-      photoUrl: null
-    };
-    this.shiftEventService.createShiftEvent(this.activeCompany.companyId, event).subscribe({
-      next: () => alert('Time off submitted'),
-      error: (err) => { console.error('Time off failed', err); alert('Failed to submit time off'); }
+    
+    // Find the person name from peopleList
+    const person = this.peopleList.find(p => p.personId === payload.personId);
+    this.timeOffPersonId = payload.personId;
+    this.timeOffPersonName = person?.name || 'Unknown';
+    this.showTimeOffModal = true;
+  }
+
+  closeTimeOffModal(): void {
+    this.showTimeOffModal = false;
+    this.timeOffPersonId = null;
+    this.timeOffPersonName = '';
+  }
+
+  onSaveTimeOffRequest(request: CreateTimeOffRequest): void {
+    if (!this.activeCompany?.companyId) return;
+    
+    this.timeOffRequestService.createTimeOffRequest(this.activeCompany.companyId, request).subscribe({
+      next: (response) => {
+        alert('Time off request submitted successfully');
+        this.closeTimeOffModal();
+        this.loadScheduleData(); // Refresh grid to show changes
+      },
+      error: (err) => {
+        console.error('Failed to submit time off request', err);
+        alert(err.error?.message || 'Failed to submit time off request. Please try again.');
+      }
     });
   }
 
   handleReportSick(payload: { personId: number|null; date: Date; note?: string }): void {
     if (!this.activeCompany?.companyId || !payload.personId) return;
+    
+    // Find the person name from peopleList
+    const person = this.peopleList.find(p => p.personId === payload.personId);
+    this.sickReportPersonId = payload.personId;
+    this.sickReportPersonName = person?.name || 'Unknown';
+    this.sickReportDate = payload.date;
+    this.showSickReportModal = true;
+  }
+
+  closeSickReportModal(): void {
+    this.showSickReportModal = false;
+    this.sickReportPersonId = null;
+    this.sickReportPersonName = '';
+    this.sickReportDate = null;
+  }
+
+  onSaveSickReport(request: SickReportRequest): void {
+    if (!this.activeCompany?.companyId) return;
+
+    // Determine the date range
+    const startDate = request.date;
+    const endDate = request.isMultiDay && request.endDate ? request.endDate : request.date;
+
+    // Create ShiftEvent with detailed information
+    const eventObject = {
+      start: startDate.toISOString(),
+      end: endDate.toISOString(),
+      isMultiDay: request.isMultiDay,
+      symptoms: request.symptoms,
+      requiresDoctor: request.requiresDoctor,
+      note: request.note
+    };
+
     const event: ShiftEvent = {
       eventLogId: '',
       eventDate: new Date(),
       eventType: 'sick',
       companyId: this.activeCompany.companyId,
-      personId: payload.personId,
-      eventObject: JSON.stringify({ date: payload.date, note: payload.note ?? '' }),
-      description: 'Reported sick',
+      personId: request.personId,
+      eventObject: JSON.stringify(eventObject),
+      description: `Sick leave: ${startDate.toLocaleDateString()}${request.isMultiDay ? ' - ' + endDate.toLocaleDateString() : ''}`,
       kioskDevice: null,
       geoLocation: null,
       photoUrl: null
     };
+
     this.shiftEventService.createShiftEvent(this.activeCompany.companyId, event).subscribe({
-      next: () => alert('Sick event reported'),
-      error: (err) => { console.error('Sick event failed', err); alert('Failed to report sick'); }
+      next: () => {
+        const days = request.isMultiDay 
+          ? Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+          : 1;
+        alert(`Sick leave reported successfully for ${days} day(s). Affected shifts have been marked as open.`);
+        this.closeSickReportModal();
+        this.loadScheduleData();
+      },
+      error: (err) => {
+        console.error('Failed to report sick', err);
+        alert('Failed to report sick. Please try again.');
+      }
     });
   }
 
@@ -269,6 +330,20 @@ export class ScheduleGridComponent implements OnInit {
         console.error('Failed to repeat on specific days', err);
         alert('Failed to create some schedules for specific days.');
       });
+  }
+
+  handleRepeatSetPattern(payload: { personId: number|null; baseDate: Date; locationId: number; areaId: number; start: string; end: string; personName: string }): void {
+    if (!this.activeCompany?.companyId || !payload.personId) return;
+    
+    const person = this.peopleList.find(p => p.personId === payload.personId);
+    this.repeatPatternPersonId = payload.personId;
+    this.repeatPatternPersonName = person?.name || payload.personName || 'Unknown';
+    this.repeatPatternBaseDate = payload.baseDate;
+    this.repeatPatternStartTime = payload.start;
+    this.repeatPatternEndTime = payload.end;
+    this.repeatPatternLocationId = payload.locationId;
+    this.repeatPatternAreaId = payload.areaId;
+    this.showRepeatPatternModal = true;
   }
 
   openAddScheduleModal() {
@@ -508,6 +583,21 @@ export class ScheduleGridComponent implements OnInit {
   replacementCandidates: ReplacementCandidate[] = [];
   showReplacementPanel: boolean = false;
   replacementContext: { start: Date; end: Date; locationId: number; areaId: number; personId: number | null } | null = null;
+  showTimeOffModal: boolean = false;
+  timeOffPersonId: number | null = null;
+  timeOffPersonName: string = '';
+  showSickReportModal: boolean = false;
+  sickReportPersonId: number | null = null;
+  sickReportPersonName: string = '';
+  sickReportDate: Date | null = null;
+  showRepeatPatternModal: boolean = false;
+  repeatPatternPersonId: number | null = null;
+  repeatPatternPersonName: string = '';
+  repeatPatternBaseDate: Date = new Date();
+  repeatPatternStartTime: string = '09:00';
+  repeatPatternEndTime: string = '17:00';
+  repeatPatternLocationId: number = 0;
+  repeatPatternAreaId: number = 0;
 
   constructor(
     private store: Store<AppState>,
@@ -516,6 +606,7 @@ export class ScheduleGridComponent implements OnInit {
     private peopleService: PeopleService,
     private locationService: LocationService,
     private shiftEventService: ShiftEventService,
+    private timeOffRequestService: TimeOffRequestService,
     private router: Router
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
@@ -823,6 +914,196 @@ export class ScheduleGridComponent implements OnInit {
 
   get activeFilterCount(): number {
     return (this.filters.shiftTypes?.length || 0) + (this.filters.trainingTypes?.length || 0);
+  }
+
+  onPublishAllShifts(): void {
+    if (!this.activeCompany?.companyId) return;
+    
+    const unpublishedCount = this.gridData.stats.unpublished;
+    if (unpublishedCount === 0) return;
+
+    const confirmMsg = `Publish ${unpublishedCount} unpublished shift${unpublishedCount > 1 ? 's' : ''}?`;
+    if (!confirm(confirmMsg)) return;
+
+    this.loading = true;
+
+    // Get all schedules for the current week
+    this.scheduleService.getSchedules(this.activeCompany.companyId).subscribe({
+      next: (schedules: any[]) => {
+        // Filter unpublished schedules within current week
+        const weekStart = new Date(this.currentWeekStart);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 7);
+
+        const unpublishedSchedules = schedules.filter(s => {
+          const scheduleDate = new Date(s.startDate);
+          return s.status === 'unpublished' && 
+                 scheduleDate >= weekStart && 
+                 scheduleDate < weekEnd;
+        });
+
+        if (unpublishedSchedules.length === 0) {
+          this.loading = false;
+          alert('No unpublished schedules found for this week.');
+          return;
+        }
+
+        // Update each schedule to published status
+        const updatePromises = unpublishedSchedules.map(schedule => {
+          const updatedSchedule = { ...schedule, status: 'published' };
+          return this.scheduleService.updateSchedule(
+            this.activeCompany.companyId,
+            schedule.scheduleId,
+            updatedSchedule
+          ).toPromise();
+        });
+
+        Promise.all(updatePromises)
+          .then(() => {
+            this.loading = false;
+            alert(`Successfully published ${unpublishedSchedules.length} shift(s)!`);
+            this.loadScheduleData();
+          })
+          .catch(err => {
+            this.loading = false;
+            console.error('Error publishing schedules:', err);
+            alert('Failed to publish some schedules. Please try again.');
+          });
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('Error loading schedules:', err);
+        alert('Failed to load schedules. Please try again.');
+      }
+    });
+  }
+
+  closeRepeatPatternModal(): void {
+    this.showRepeatPatternModal = false;
+    this.repeatPatternPersonId = null;
+    this.repeatPatternPersonName = '';
+  }
+
+  onSaveRepeatPattern(request: RepeatPatternRequest): void {
+    if (!this.activeCompany?.companyId) return;
+
+    const dates = this.generateDatesFromPattern(request);
+    
+    if (dates.length === 0) {
+      alert('No dates generated from pattern. Please check your settings.');
+      return;
+    }
+
+    const confirmMsg = `This will create ${dates.length} shift(s). Continue?`;
+    if (!confirm(confirmMsg)) return;
+
+    this.loading = true;
+
+    const createPromises = dates.map(date => {
+      const startDate = this.buildDateWithTime(date, request.startTime);
+      const endDate = this.buildDateWithTime(date, request.endTime);
+
+      const schedule: Schedule = {
+        scheduleId: 0,
+        name: `Recurring shift for ${date.toDateString()}`,
+        companyId: this.activeCompany.companyId,
+        personId: request.personId,
+        startDate,
+        endDate,
+        locationId: request.locationId,
+        areaId: request.areaId,
+        status: 'unpublished',
+        timezone: 'UTC'
+      } as Schedule;
+
+      return this.scheduleService.createSchedule(this.activeCompany.companyId, schedule).toPromise();
+    });
+
+    Promise.all(createPromises)
+      .then(() => {
+        this.loading = false;
+        alert(`Successfully created ${dates.length} shift(s)!`);
+        this.closeRepeatPatternModal();
+        this.loadScheduleData();
+      })
+      .catch(err => {
+        this.loading = false;
+        console.error('Error creating pattern shifts:', err);
+        alert('Failed to create some shifts. Please check the console.');
+      });
+  }
+
+  generateDatesFromPattern(request: RepeatPatternRequest): Date[] {
+    const dates: Date[] = [];
+    const pattern = request.pattern;
+    const baseDate = new Date(request.baseDate);
+    baseDate.setHours(0, 0, 0, 0);
+
+    // Determine end condition
+    let endDate: Date | null = null;
+    let maxOccurrences = pattern.occurrences || 52; // Default to 52 if not specified
+
+    if (pattern.endDate) {
+      endDate = new Date(pattern.endDate);
+      endDate.setHours(23, 59, 59, 999);
+    }
+
+    let currentDate = new Date(baseDate);
+    let occurrenceCount = 0;
+
+    switch (pattern.patternType) {
+      case 'daily':
+        while (occurrenceCount < maxOccurrences && (!endDate || currentDate <= endDate)) {
+          dates.push(new Date(currentDate));
+          currentDate.setDate(currentDate.getDate() + (pattern.repeatEvery || 1));
+          occurrenceCount++;
+        }
+        break;
+
+      case 'weekly':
+      case 'biweekly':
+        const weekMultiplier = pattern.patternType === 'biweekly' ? 2 : 1;
+        const daysOfWeek = pattern.daysOfWeek || [baseDate.getDay()];
+        
+        // Start from the beginning of the base week
+        const weekStart = new Date(baseDate);
+        weekStart.setDate(baseDate.getDate() - baseDate.getDay());
+
+        let weekCount = 0;
+        while (occurrenceCount < maxOccurrences && (!endDate || weekStart <= endDate)) {
+          // For each selected day of week
+          daysOfWeek.forEach(dayIndex => {
+            const targetDate = new Date(weekStart);
+            targetDate.setDate(weekStart.getDate() + dayIndex);
+
+            // Only include if it's not before base date and within end date
+            if (targetDate >= baseDate && (!endDate || targetDate <= endDate) && occurrenceCount < maxOccurrences) {
+              dates.push(new Date(targetDate));
+              occurrenceCount++;
+            }
+          });
+
+          weekStart.setDate(weekStart.getDate() + (7 * weekMultiplier));
+          weekCount++;
+        }
+        break;
+
+      case 'monthly':
+        const dayOfMonth = baseDate.getDate();
+        while (occurrenceCount < maxOccurrences && (!endDate || currentDate <= endDate)) {
+          dates.push(new Date(currentDate));
+          currentDate.setMonth(currentDate.getMonth() + (pattern.repeatEvery || 1));
+          
+          // Handle month end edge cases (e.g., Jan 31 -> Feb 28)
+          if (currentDate.getDate() !== dayOfMonth) {
+            currentDate.setDate(0); // Set to last day of previous month
+          }
+          occurrenceCount++;
+        }
+        break;
+    }
+
+    return dates;
   }
 
   createDateWithTimeUTC(date: Date, time: string): Date {

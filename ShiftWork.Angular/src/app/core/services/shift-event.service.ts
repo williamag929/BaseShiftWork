@@ -56,6 +56,13 @@ export class ShiftEventService {
       );
   }
 
+  getShiftEventsByPersonId(companyId: string, personId: number): Observable<ShiftEvent[]> {
+    return this.http.get<ShiftEvent[]>(`${this.apiUrl}/companies/${companyId}/shiftevents/person/${personId}`)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Unknown error!';
     if (error.error instanceof ErrorEvent) {

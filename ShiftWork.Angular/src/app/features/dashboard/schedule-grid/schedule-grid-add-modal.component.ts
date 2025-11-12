@@ -34,7 +34,7 @@ export class ScheduleGridAddModalComponent implements OnInit {
   @Output() requestTimeOffRequest = new EventEmitter<{ personId: number|null; start: Date; end: Date; note?: string }>();
   @Output() reportSickRequest = new EventEmitter<{ personId: number|null; date: Date; note?: string }>();
   @Output() findReplacementRequest = new EventEmitter<{ personId: number|null; start: Date; end: Date; locationId: number; areaId: number }>();
-  // Future: repeatSpecificDaysRequest, repeatSetPatternRequest
+  @Output() repeatSetPatternRequest = new EventEmitter<{ personId: number|null; baseDate: Date; locationId: number; areaId: number; start: string; end: string; personName: string }>();
   @Input() deleteInProgress: boolean = false;
 
   selectedPersonId: number | null = null;
@@ -201,8 +201,21 @@ export class ScheduleGridAddModalComponent implements OnInit {
     this.selectedDayIndices = new Set([wd]);
   }
   repeatSetPattern(): void {
-    console.log('Repeat for set pattern clicked');
     this.menuOpen = false;
+    const personId = this.selectedPersonId ?? this.personId ?? null;
+    if (!personId) { 
+      alert('Select a person first'); 
+      return; 
+    }
+    this.repeatSetPatternRequest.emit({
+      personId,
+      baseDate: this.date,
+      locationId: this.selectedLocationId,
+      areaId: this.selectedAreaId,
+      start: this.defaultStart,
+      end: this.defaultEnd,
+      personName: this.personName
+    });
   }
 
   requestTimeOff(): void {

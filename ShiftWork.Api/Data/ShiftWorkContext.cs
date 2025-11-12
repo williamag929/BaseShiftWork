@@ -125,6 +125,18 @@ namespace ShiftWork.Api.Data
                 .HasForeignKey(t => t.ApprovedBy)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<TimeOffRequest>()
+                .Property(t => t.HoursRequested)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<TimeOffRequest>()
+                .Property(t => t.PtoBalanceBefore)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<TimeOffRequest>()
+                .Property(t => t.PtoBalanceAfter)
+                .HasPrecision(18, 2);
+
         }
     }
 }

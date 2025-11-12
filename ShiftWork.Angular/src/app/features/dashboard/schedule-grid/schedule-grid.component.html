@@ -35,7 +35,17 @@
       <button class="btn btn-primary ms-2" (click)="openAddScheduleModal()">
         <i class="bi bi-calendar-plus"></i> Add Schedule
       </button>
-      <div class="publish-badge">All shifts published</div>
+      <div 
+        class="publish-badge" 
+        [class.has-pending]="gridData.stats.unpublished > 0"
+        [class.clickable]="gridData.stats.unpublished > 0"
+        (click)="onPublishAllShifts()"
+        [title]="gridData.stats.unpublished > 0 ? 'Click to publish ' + gridData.stats.unpublished + ' unpublished shift(s)' : ''"
+      >
+        <i class="bi" [ngClass]="gridData.stats.unpublished > 0 ? 'bi-exclamation-circle' : 'bi-check-circle'"></i>
+        <span *ngIf="gridData.stats.unpublished === 0">All shifts published</span>
+        <span *ngIf="gridData.stats.unpublished > 0">{{ gridData.stats.unpublished }} unpublished shift{{ gridData.stats.unpublished > 1 ? 's' : '' }}</span>
+      </div>
     </div>
   </div>
 
@@ -290,6 +300,7 @@
     (repeatTomorrowRequest)="handleRepeatTomorrow($event)"
     (repeatRestOfWeekRequest)="handleRepeatRestOfWeek($event)"
     (repeatSpecificDaysRequest)="handleRepeatSpecificDays($event)"
+    (repeatSetPatternRequest)="handleRepeatSetPattern($event)"
     (requestTimeOffRequest)="handleRequestTimeOff($event)"
     (reportSickRequest)="handleReportSick($event)"
     (findReplacementRequest)="handleFindReplacement($event)"
@@ -305,5 +316,38 @@
     (notify)="onNotifyCandidate($event)"
     (assign)="onAssignCandidate($event)"
   ></app-replacement-panel>
+
+  <!-- Time Off Request Modal -->
+  <app-time-off-request-modal
+    *ngIf="showTimeOffModal"
+    [personId]="timeOffPersonId!"
+    [personName]="timeOffPersonName"
+    (save)="onSaveTimeOffRequest($event)"
+    (close)="closeTimeOffModal()"
+  ></app-time-off-request-modal>
+
+  <!-- Sick Report Modal -->
+  <app-sick-report-modal
+    *ngIf="showSickReportModal"
+    [personId]="sickReportPersonId!"
+    [personName]="sickReportPersonName"
+    [initialDate]="sickReportDate!"
+    (save)="onSaveSickReport($event)"
+    (close)="closeSickReportModal()"
+  ></app-sick-report-modal>
+
+  <!-- Repeat Pattern Modal -->
+  <app-repeat-pattern-modal
+    *ngIf="showRepeatPatternModal"
+    [personId]="repeatPatternPersonId!"
+    [personName]="repeatPatternPersonName"
+    [baseDate]="repeatPatternBaseDate"
+    [startTime]="repeatPatternStartTime"
+    [endTime]="repeatPatternEndTime"
+    [locationId]="repeatPatternLocationId"
+    [areaId]="repeatPatternAreaId"
+    (save)="onSaveRepeatPattern($event)"
+    (close)="closeRepeatPatternModal()"
+  ></app-repeat-pattern-modal>
 </div>
 

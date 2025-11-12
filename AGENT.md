@@ -286,4 +286,82 @@ After both API and Angular are running:
 
 ---
 
+## Recent Features Implemented
+
+### Time-Off Management (MVP Complete)
+- **TimeOffRequest** model with approval workflow (Pending/Approved/Denied/Cancelled states)
+- Full CRUD API endpoints with overlap validation and hours calculation
+- Angular modal for requesting time off with partial day support
+- Auto-creates ShiftEvent on approval to trigger shift opening logic
+
+### Sick Event Reporting (MVP Complete)
+- Dedicated modal with multi-day support
+- Symptom tracking and doctor's note indicator
+- ShiftEventService automatically opens overlapping shifts
+- Rich metadata capture (symptoms, requiresDoctor, notes)
+
+### Replacement Candidate System (MVP Complete)
+- Filter replacement candidates by availability and conflicts
+- Side panel UI showing candidates with reasons and scores
+- Notify and assign functionality
+- ReplacementRequest model with full workflow endpoints
+
+### Schedule Publishing
+- Smart publish badge showing pending count
+- Click-to-publish all unpublished shifts for current week
+- Visual feedback with status colors
+
+### Shift Repeat Functions
+- Repeat tomorrow
+- Repeat rest of week
+- Repeat specific days (select which days)
+
+---
+
+## Potential Future Enhancements (Backlog)
+
+### 🔄 Shift Management
+- **Shift Swap/Trade** - Allow employees to exchange shifts with approval workflow
+- **Recurring Shift Patterns** - Define templates (e.g., every Monday 9-5) for bulk scheduling
+- **Shift Conflict Warnings** - Alert when assigning overlapping or double-booked shifts
+- **Overtime Tracking** - Calculate and display weekly/monthly overtime hours with alerts
+
+### 📅 Time-Off & Scheduling
+- **Calendar/Timeline View** - Visual calendar showing time-off requests, sick days, and availability
+- **PTO Accrual System** - Calculate balance based on tenure, accrual rate, track usage
+- **Time-Off Approval Dashboard** - Manager view to list and approve/deny pending requests (backend ready)
+- **Team Availability View** - Show who's available/unavailable across date ranges
+
+### 🔔 Notifications & Communication
+- **Real Notification Service** - Replace placeholder with email/SMS/push via SendGrid, Twilio, Firebase
+- **Replacement Request Alerts** - Notify candidates when selected for replacement
+- **Approval Notifications** - Alert employees when time-off approved/denied
+- **Shift Reminder Notifications** - Remind employees of upcoming shifts
+
+### 📊 Reporting & Analytics
+- **Shift History View** - Complete history modal showing past shifts, clock times, events per person
+- **Attendance Reports** - Generate reports on late arrivals, absences, overtime
+- **Labor Cost Analysis** - Track labor costs by location, department, time period
+- **Schedule Coverage Heatmap** - Visual representation of staffing levels
+
+### 📱 Mobile & User Experience
+- **Mobile App Integration** - Native apps for clock-in/out, time-off requests, schedule viewing
+- **Offline Mode** - Support offline clock events with sync when connection restored
+- **Biometric Clock-In** - Fingerprint/face recognition for time tracking
+- **Geofencing** - Restrict clock-in/out to specific locations
+
+### 🔐 Security & Compliance
+- **Audit Trail** - Comprehensive logging of all schedule changes, approvals, edits
+- **Role-Based Permissions** - Fine-grained access control (manager, supervisor, employee)
+- **Labor Law Compliance** - Break time rules, minimum rest periods, overtime limits
+- **Data Export** - Export schedules and time data for payroll integration
+
+### 🤖 Automation & Intelligence
+- **Smart Scheduling** - AI-powered shift assignment based on skills, availability, preferences
+- **Predictive Staffing** - Forecast staffing needs based on historical data
+- **Auto-Fill Open Shifts** - Automatically suggest and assign replacements for open shifts
+- **Shift Marketplace** - Let employees claim available/open shifts
+
+---
+
 ShiftEvents PUT/DELETE, Firebase JWT configuration, and DTO alignment have been implemented.

@@ -91,12 +91,38 @@
 }
 
 .publish-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 6px 12px;
   background-color: #C8E6C9;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 600;
   color: #2E7D32;
+  transition: all 0.2s;
+}
+
+.publish-badge.has-pending {
+  background-color: #FFF9C4;
+  color: #F57C00;
+}
+
+.publish-badge.clickable {
+  cursor: pointer;
+}
+
+.publish-badge.clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.publish-badge.has-pending:hover {
+  background-color: #FFF59D;
+}
+
+.publish-badge i {
+  font-size: 14px;
 }
 
 /* Filter Bar */

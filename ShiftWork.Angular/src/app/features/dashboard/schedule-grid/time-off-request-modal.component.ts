@@ -8,7 +8,7 @@ import { CreateTimeOffRequest } from 'src/app/core/models/time-off-request.model
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './time-off-request-modal.component.html',
-  styleUrls: ['./time-off-request-modal.component.css']
+  styleUrl: './time-off-request-modal.component.css'
 })
 export class TimeOffRequestModalComponent implements OnInit {
   @Input() personId: number | null = null;
