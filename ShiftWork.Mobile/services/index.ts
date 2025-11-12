@@ -6,3 +6,4 @@ export { kioskService } from './kiosk.service';
 export { locationService } from './location.service';
 export { apiClient } from './api-client';
 export { dbService } from './db';
+export { companySettingsService } from './company-settings.service';

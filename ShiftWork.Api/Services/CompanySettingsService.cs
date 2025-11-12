@@ -25,8 +25,8 @@ public class CompanySettingsService : ICompanySettingsService
         {
             CompanyId = companyId,
             // All default values are set in the model
-            CreatedAt = DateTime.UtcNow,
-            LastUpdatedAt = DateTime.UtcNow
+            LastUpdatedAt = DateTime.UtcNow,
+            LastUpdatedBy = "System"
         };
 
         _context.CompanySettings.Add(settings);
@@ -38,6 +38,7 @@ public class CompanySettingsService : ICompanySettingsService
     public async Task<CompanySettings> UpdateSettings(CompanySettings settings)
     {
         settings.LastUpdatedAt = DateTime.UtcNow;
+        settings.LastUpdatedBy = settings.LastUpdatedBy ?? "System";
         _context.CompanySettings.Update(settings);
         await _context.SaveChangesAsync();
 

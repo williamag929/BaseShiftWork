@@ -95,6 +95,7 @@ builder.Services.AddScoped<IScheduleShiftSummaryService, ScheduleShiftSummarySer
 builder.Services.AddScoped<IKioskService, KioskService>();
 builder.Services.AddScoped<IPtoService, PtoService>();
 builder.Services.AddScoped<ICompanySettingsService, CompanySettingsService>();
+builder.Services.AddScoped<IScheduleValidationService, ScheduleValidationService>();
 
 
 // Your AuthController uses AutoMapper, so you need to add it and its DI package.

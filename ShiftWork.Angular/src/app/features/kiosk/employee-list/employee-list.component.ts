@@ -14,6 +14,8 @@ import { PinDialogComponent } from '../pin-dialog/pin-dialog.component';
 import { Company } from 'src/app/core/models/company.model';
 import { FormControl } from '@angular/forms';
 import { startWith, map } from 'rxjs/operators';
+import { SettingsHelperService } from 'src/app/core/services/settings-helper.service';
+import { CompanySettings } from 'src/app/core/models/company-settings.model';
 
 @Component({
   selector: 'app-employee-list',
@@ -29,6 +31,9 @@ export class EmployeeListComponent implements OnInit {
   activeCompany$: Observable<Company | null>;
   activeCompany: Company | null = null;
   searchControl = new FormControl('');
+  settings: CompanySettings | null = null;
+  showEmployeePhotos = true;
+  kioskTimeout = 30000; // milliseconds
 
   constructor(
     private peopleService: PeopleService,
@@ -37,7 +42,8 @@ export class EmployeeListComponent implements OnInit {
     private router: Router,
     private toastr: ToastrService,
     private store: Store<AppState>,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private settingsHelper: SettingsHelperService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
@@ -46,6 +52,14 @@ export class EmployeeListComponent implements OnInit {
     this.activeCompany$.subscribe((company: Company | null) => {
       if (company) {
         this.activeCompany = company;
+        
+        // Load settings
+        this.settingsHelper.loadSettings(company.companyId).subscribe(settings => {
+          this.settings = settings;
+          this.showEmployeePhotos = this.settingsHelper.shouldShowEmployeePhotos(settings);
+          this.kioskTimeout = this.settingsHelper.getKioskTimeout(settings);
+        });
+        
         this.loading = true;
         this.peopleService.getPeople(company.companyId).subscribe(
           (people: Person[]) => {
