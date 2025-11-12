@@ -6,6 +6,24 @@
   </div>
   
   <div class="panel-body">
+    <div class="channel-selector">
+      <label>Notify via:</label>
+      <div class="channel-options">
+        <label>
+          <input type="radio" name="channel" [(ngModel)]="selectedChannel" value="push" />
+          Push
+        </label>
+        <label>
+          <input type="radio" name="channel" [(ngModel)]="selectedChannel" value="sms" />
+          SMS
+        </label>
+        <label>
+          <input type="radio" name="channel" [(ngModel)]="selectedChannel" value="email" />
+          Email
+        </label>
+      </div>
+    </div>
+
     <div class="loading-indicator" *ngIf="loading">
       <div class="spinner"></div>
       <p>Finding candidates...</p>

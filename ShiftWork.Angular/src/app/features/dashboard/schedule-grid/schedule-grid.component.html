@@ -304,6 +304,7 @@
     (requestTimeOffRequest)="handleRequestTimeOff($event)"
     (reportSickRequest)="handleReportSick($event)"
     (findReplacementRequest)="handleFindReplacement($event)"
+    (viewShiftHistoryRequest)="onViewShiftHistory($event)"
     [deleteInProgress]="deleteInProgress"
   ></app-schedule-grid-add-modal>
 
@@ -349,5 +350,14 @@
     (save)="onSaveRepeatPattern($event)"
     (close)="closeRepeatPatternModal()"
   ></app-repeat-pattern-modal>
+
+  <!-- Shift History Modal -->
+  <app-shift-history-modal
+    *ngIf="showShiftHistoryModal"
+    [personId]="historyPersonId!"
+    [personName]="historyPersonName"
+    [companyId]="activeCompany?.companyId || ''"
+    (close)="closeShiftHistoryModal()"
+  ></app-shift-history-modal>
 </div>
 

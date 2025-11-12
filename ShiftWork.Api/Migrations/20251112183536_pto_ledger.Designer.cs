@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShiftWork.Api.Data;
 
@@ -11,9 +12,11 @@ using ShiftWork.Api.Data;
 namespace ShiftWork.Api.Migrations
 {
     [DbContext(typeof(ShiftWorkContext))]
-    partial class ShiftWorkContextModelSnapshot : ModelSnapshot
+    [Migration("20251112183536_pto_ledger")]
+    partial class pto_ledger
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -376,7 +379,6 @@ namespace ShiftWork.Api.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("PtoAccrualRatePerMonth")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("PtoLastAccruedAt")
@@ -386,7 +388,6 @@ namespace ShiftWork.Api.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal?>("PtoStartingBalance")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Region")

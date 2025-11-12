@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Models;
+using ShiftWork.Api.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,12 +20,18 @@ namespace ShiftWork.Api.Controllers
         private readonly ShiftWorkContext _context;
         private readonly ILogger<TimeOffRequestsController> _logger;
         private readonly IMapper _mapper;
+    private readonly IPeopleService _peopleService;
+    private readonly IPtoService _ptoService;
+        private readonly INotificationService _notificationService;
 
-        public TimeOffRequestsController(ShiftWorkContext context, ILogger<TimeOffRequestsController> logger, IMapper mapper)
+        public TimeOffRequestsController(ShiftWorkContext context, ILogger<TimeOffRequestsController> logger, IMapper mapper, IPeopleService peopleService, INotificationService notificationService, IPtoService ptoService)
         {
             _context = context;
             _logger = logger;
             _mapper = mapper;
+            _peopleService = peopleService;
+            _notificationService = notificationService;
+            _ptoService = ptoService;
         }
 
         /// <summary>
@@ -285,6 +292,24 @@ namespace ShiftWork.Api.Controllers
                 // If approved, create ShiftEvent to mark shifts as needing coverage
                 if (dto.Approved)
                 {
+                    // If PTO/Vacation, deduct hours from PTO balance
+                    try
+                    {
+                        if (request.HoursRequested.HasValue &&
+                            (string.Equals(request.Type, "Vacation", StringComparison.OrdinalIgnoreCase) ||
+                             string.Equals(request.Type, "PTO", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            var (before, after) = await _ptoService.ApplyTimeOff(companyId, request.PersonId, request.HoursRequested.Value, $"TimeOff #{request.TimeOffRequestId} ({request.Type})");
+                            request.PtoBalanceBefore = before;
+                            request.PtoBalanceAfter = after;
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                    catch (Exception ptoEx)
+                    {
+                        _logger.LogWarning(ptoEx, "Failed to apply PTO deduction for request {RequestId}", requestId);
+                    }
+
                     var shiftEvent = new ShiftEvent
                     {
                         EventDate = DateTime.UtcNow,
@@ -310,6 +335,32 @@ namespace ShiftWork.Api.Controllers
                     .Include(t => t.Approver)
                     .FirstOrDefaultAsync(t => t.TimeOffRequestId == requestId);
 
+                // Notify employee of decision (default channel: push)
+                try
+                {
+                    if (request?.PersonId != null)
+                    {
+                        var person = await _peopleService.Get(companyId, request.PersonId);
+                        var targets = new List<(int personId, string? email, string? phone)>
+                        {
+                            (request.PersonId, person?.Email, person?.PhoneNumber)
+                        };
+                        var subject = request.Status == "Approved" ? "Time off approved" : "Time off decision";
+                        var msg = request.Status == "Approved"
+                            ? $"Your time off ({request.Type}) from {request.StartDate:g} to {request.EndDate:g} was approved."
+                            : $"Your time off ({request.Type}) from {request.StartDate:g} to {request.EndDate:g} was denied.";
+                        if (!string.IsNullOrWhiteSpace(request.ApprovalNotes))
+                        {
+                            msg += $" Notes: {request.ApprovalNotes}";
+                        }
+                        await _notificationService.NotifyReplacementCandidates(companyId, targets, "push", subject, msg, null);
+                    }
+                }
+                catch (Exception nEx)
+                {
+                    _logger.LogWarning(nEx, "Failed to send time-off notification for request {RequestId}", requestId);
+                }
+
                 var result = new TimeOffRequestDto
                 {
                     TimeOffRequestId = request!.TimeOffRequestId,
@@ -329,7 +380,9 @@ namespace ShiftWork.Api.Controllers
                     ApproverName = request.Approver?.Name,
                     ApprovedAt = request.ApprovedAt,
                     ApprovalNotes = request.ApprovalNotes,
-                    HoursRequested = request.HoursRequested
+                    HoursRequested = request.HoursRequested,
+                    PtoBalanceBefore = request.PtoBalanceBefore,
+                    PtoBalanceAfter = request.PtoBalanceAfter
                 };
 
                 return Ok(result);

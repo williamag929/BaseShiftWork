@@ -69,8 +69,19 @@ Shift Events (Clock actions)
 - `GET /api/companies/{companyId}/shiftevents/person/{personId}` → events per person.
 - `GET /api/companies/{companyId}/shiftevents/eventtype/{eventType}` → filtered by event type.
 - `POST /api/companies/{companyId}/shiftevents` → create clock event.
- - `PUT /api/companies/{companyId}/shiftevents/{eventLogId}` → update clock event.
- - `DELETE /api/companies/{companyId}/shiftevents/{eventLogId}` → delete clock event.
+- `PUT /api/companies/{companyId}/shiftevents/{eventLogId}` → update clock event.
+- `DELETE /api/companies/{companyId}/shiftevents/{eventLogId}` → delete clock event.
+
+Time-Off Requests
+- `GET /api/companies/{companyId}/timeoff-requests` → list time-off requests (filters: personId, status, startDate, endDate).
+- `GET /api/companies/{companyId}/timeoff-requests/{requestId}` → single request.
+- `POST /api/companies/{companyId}/timeoff-requests` → create time-off request.
+- `PATCH /api/companies/{companyId}/timeoff-requests/{requestId}/approve` → approve/deny with notes; auto-creates ShiftEvent on approval.
+- `DELETE /api/companies/{companyId}/timeoff-requests/{requestId}` → cancel request (pending only).
+
+PTO Balance
+- `GET /api/companies/{companyId}/pto/balance/{personId}` → current PTO balance (optional `asOf` query param).
+- `PUT /api/companies/{companyId}/pto/config/{personId}` → configure accrual rate, starting balance, start date.
 
 Kiosk
 - `GET /api/kiosk/{companyId}/questions` → active kiosk questions.
@@ -293,6 +304,24 @@ After both API and Angular are running:
 - Full CRUD API endpoints with overlap validation and hours calculation
 - Angular modal for requesting time off with partial day support
 - Auto-creates ShiftEvent on approval to trigger shift opening logic
+- Manager approval dashboard with filters, pagination, and inline notes
+- PTO balance integration: displays balance with insufficient warnings
+
+### PTO Balance Tracking (MVP Complete)
+- **PTOLedger** model tracking accruals, usage, and running balances
+- Monthly accrual system with per-person configuration (rate, starting balance, start date)
+- Automatic deduction on approval for Vacation/PTO types
+- Before/after balance snapshot stored on TimeOffRequest
+- PtoService with idempotent accrual generation (no duplicates)
+- REST endpoints for balance queries and configuration
+- Angular PTO service and balance display in approvals UI
+
+### Notification Service (Complete)
+- Multi-channel support: Email (SMTP), SMS (Twilio), Push (simulated)
+- Configurable per notification via channel parameter
+- Integrated into replacement request notifications
+- Time-off decision notifications (approve/deny) sent to requester
+- Graceful fallback when providers not configured (simulation mode)
 
 ### Sick Event Reporting (MVP Complete)
 - Dedicated modal with multi-day support
@@ -303,20 +332,50 @@ After both API and Angular are running:
 ### Replacement Candidate System (MVP Complete)
 - Filter replacement candidates by availability and conflicts
 - Side panel UI showing candidates with reasons and scores
+- Channel selector for notifications (push/SMS/email)
 - Notify and assign functionality
 - ReplacementRequest model with full workflow endpoints
 
-### Schedule Publishing
+### Schedule Publishing & Repeats
 - Smart publish badge showing pending count
 - Click-to-publish all unpublished shifts for current week
 - Visual feedback with status colors
-
-### Shift Repeat Functions
-- Repeat tomorrow
-- Repeat rest of week
-- Repeat specific days (select which days)
+- Repeat patterns: tomorrow, rest of week, custom days selection
+- View shift history modal showing past shifts and events
 
 ---
+
+## Notification Service
+
+The backend includes a Notification Service used to contact replacement candidates via push (simulated), SMS, or email. If third-party providers aren’t configured, notifications are simulated via logs so the workflow remains testable.
+
+Channels and configuration (appsettings or environment variables):
+- Email (SMTP)
+  - Smtp:Host
+  - Smtp:Port
+  - Smtp:Username
+  - Smtp:Password
+  - Smtp:From
+- SMS (Twilio)
+  - Twilio:AccountSid
+  - Twilio:AuthToken
+  - Twilio:From
+- Push
+  - Currently simulated; future integration could target Firebase Cloud Messaging or a mobile backend.
+
+Endpoints:
+- POST /api/companies/{companyId}/replacement-requests → Create a replacement request for a shift
+- POST /api/companies/{companyId}/replacement-requests/{requestId}/notify → Notify candidates
+  - Body: { "personIds": [number], "channel": "push" | "sms" | "email" }
+  - Response: { attempted, succeeded, failed, channel, errors }
+
+Frontend hooks:
+- Replacement panel includes a channel selector (Push/SMS/Email). Clicking Notify calls the API with the chosen channel.
+- If no providers are configured for the channel, the server logs simulated sends and returns an attempted count for UX feedback.
+
+Notes:
+- Prefer push for development/testing since it requires no external credentials.
+- For production SMS/Email, set the config keys above and verify that People records include up-to-date email/phone.
 
 ## Potential Future Enhancements (Backlog)
 
@@ -328,14 +387,15 @@ After both API and Angular are running:
 
 ### 📅 Time-Off & Scheduling
 - **Calendar/Timeline View** - Visual calendar showing time-off requests, sick days, and availability
-- **PTO Accrual System** - Calculate balance based on tenure, accrual rate, track usage
-- **Time-Off Approval Dashboard** - Manager view to list and approve/deny pending requests (backend ready)
+- ✅ **PTO Accrual System** - Backend complete with monthly accrual, balance tracking, automatic deductions on approval. UI displays balances in approval screen with insufficient balance warnings.
+- ✅ **Time-Off Approval Dashboard** - Manager view with filters, pagination, inline notes, approve/deny actions. Displays PTO balances for Vacation/PTO requests.
 - **Team Availability View** - Show who's available/unavailable across date ranges
+- **Person PTO Configuration UI** - Interface to set accrual rate, starting balance, and start date per employee
 
 ### 🔔 Notifications & Communication
-- **Real Notification Service** - Replace placeholder with email/SMS/push via SendGrid, Twilio, Firebase
-- **Replacement Request Alerts** - Notify candidates when selected for replacement
-- **Approval Notifications** - Alert employees when time-off approved/denied
+- ✅ **Real Notification Service** - Email (SMTP), SMS (Twilio), and push (simulated) implemented with configurable channels
+- ✅ **Replacement Request Alerts** - Notify candidates via push/SMS/email when selected for replacement
+- ✅ **Approval Notifications** - Alert employees via push notification when time-off approved/denied
 - **Shift Reminder Notifications** - Remind employees of upcoming shifts
 
 ### 📊 Reporting & Analytics

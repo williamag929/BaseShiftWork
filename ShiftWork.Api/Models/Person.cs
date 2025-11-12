@@ -27,5 +27,11 @@ namespace ShiftWork.Api.Models
         public int? RoleId { get; set; } // Optional, if this person has a specific role
         public Company Company { get; set; }
         public ICollection<PersonCrew> PersonCrews { get; set; }
+
+        // PTO configuration (MVP): optional per-person accrual and starting balance
+        public decimal? PtoAccrualRatePerMonth { get; set; } // hours per month
+        public decimal? PtoStartingBalance { get; set; } // initial hours
+        public DateTime? PtoStartDate { get; set; } // accrual start date
+        public DateTime? PtoLastAccruedAt { get; set; } // last time accrual entries were generated
     }
 }

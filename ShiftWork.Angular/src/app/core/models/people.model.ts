@@ -16,7 +16,14 @@ export interface People {
     externalCode?: string;
     status?: string;
     photoUrl?: string;
+    phoneNumber?: string;
     roleId?: number; // Optional, if the person has a role
     scheduleDetails?: ScheduleDetail[]; // Optional, if the person has associated schedule details
+    
+    // PTO configuration fields (optional)
+    ptoAccrualRatePerMonth?: number;
+    ptoStartingBalance?: number;
+    ptoStartDate?: Date;
+    ptoLastAccruedAt?: Date;
     //roles?: Role[];
  }

@@ -35,6 +35,7 @@ export class ScheduleGridAddModalComponent implements OnInit {
   @Output() reportSickRequest = new EventEmitter<{ personId: number|null; date: Date; note?: string }>();
   @Output() findReplacementRequest = new EventEmitter<{ personId: number|null; start: Date; end: Date; locationId: number; areaId: number }>();
   @Output() repeatSetPatternRequest = new EventEmitter<{ personId: number|null; baseDate: Date; locationId: number; areaId: number; start: string; end: string; personName: string }>();
+  @Output() viewShiftHistoryRequest = new EventEmitter<{ personId: number; personName: string }>();
   @Input() deleteInProgress: boolean = false;
 
   selectedPersonId: number | null = null;
@@ -284,8 +285,15 @@ export class ScheduleGridAddModalComponent implements OnInit {
     }
   }
   viewShiftHistory(): void {
-    console.log('View shift history clicked');
     this.menuOpen = false;
+    const pid = this.selectedPersonId ?? this.personId ?? this.existingSchedule?.personId;
+    if (!pid) {
+      console.warn('No person selected for shift history');
+      return;
+    }
+    const person = this.people.find(p => p.personId === pid);
+    const personName = person?.name || 'Unknown';
+    this.viewShiftHistoryRequest.emit({ personId: pid, personName });
   }
   deleteShiftClicked(): void {
     this.menuOpen = false;

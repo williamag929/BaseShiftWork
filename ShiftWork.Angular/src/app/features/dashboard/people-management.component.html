@@ -1,0 +1,61 @@
+<div class="people-container">
+  <div class="people-header">
+    <h2>People Management</h2>
+    <div class="search-bar">
+      <input 
+        type="text" 
+        placeholder="Search by name or email..." 
+        [(ngModel)]="searchQuery" 
+        (input)="applyFilter()"
+      />
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading employees...</p>
+  </div>
+
+  <div *ngIf="!loading && filteredPeople.length === 0" class="empty">
+    No employees found.
+  </div>
+
+  <div *ngIf="!loading && filteredPeople.length > 0" class="people-list">
+    <div class="list-header">
+      <div class="col-name">Name</div>
+      <div class="col-email">Email</div>
+      <div class="col-phone">Phone</div>
+      <div class="col-actions">Actions</div>
+    </div>
+
+    <div class="list-row" *ngFor="let person of pagedPeople">
+      <div class="col-name">
+        <div class="person-name">{{ person.name }}</div>
+        <div class="person-id">ID: {{ person.personId }}</div>
+      </div>
+      <div class="col-email">{{ person.email || '-' }}</div>
+      <div class="col-phone">{{ person.phoneNumber || '-' }}</div>
+      <div class="col-actions">
+        <button class="btn btn-pto" (click)="openPtoConfig(person)">
+          <span class="icon">⚙️</span>
+          Configure PTO
+        </button>
+      </div>
+    </div>
+
+    <div class="pagination">
+      <button class="btn" (click)="prevPage()" [disabled]="page === 1">Prev</button>
+      <span>Page {{ page }} / {{ totalPages }} ({{ filteredPeople.length }} total)</span>
+      <button class="btn" (click)="nextPage()" [disabled]="page === totalPages">Next</button>
+    </div>
+  </div>
+</div>
+
+<!-- PTO Config Modal -->
+<app-pto-config-modal
+  *ngIf="showPtoConfigModal"
+  [person]="selectedPerson"
+  [companyId]="activeCompany?.companyId"
+  (close)="closePtoConfigModal()"
+  (saved)="onPtoConfigSaved()"
+></app-pto-config-modal>

@@ -12,6 +12,7 @@ import { PeopleService } from 'src/app/core/services/people.service';
 import { LocationService } from 'src/app/core/services/location.service';
 import { ShiftEventService } from 'src/app/core/services/shift-event.service';
 import { TimeOffRequestService } from 'src/app/core/services/time-off-request.service';
+import { ReplacementRequestService } from 'src/app/core/services/replacement-request.service';
 import { ShiftEvent } from 'src/app/core/models/shift-event.model';
 import { ReplacementCandidate } from 'src/app/core/models/replacement-candidate.model';
 import { CreateTimeOffRequest } from 'src/app/core/models/time-off-request.model';
@@ -30,11 +31,12 @@ import { ReplacementPanelComponent } from './replacement-panel.component';
 import { TimeOffRequestModalComponent } from './time-off-request-modal.component';
 import { SickReportModalComponent, SickReportRequest } from './sick-report-modal.component';
 import { RepeatPatternModalComponent, RepeatPatternRequest } from './repeat-pattern-modal.component';
+import { ShiftHistoryModalComponent } from './shift-history-modal.component';
 
 @Component({
   selector: 'app-schedule-grid',
   standalone: true,
-  imports: [CommonModule, FormsModule, ScheduleGridAddModalComponent, ReplacementPanelComponent, TimeOffRequestModalComponent, SickReportModalComponent, RepeatPatternModalComponent],
+  imports: [CommonModule, FormsModule, ScheduleGridAddModalComponent, ReplacementPanelComponent, TimeOffRequestModalComponent, SickReportModalComponent, RepeatPatternModalComponent, ShiftHistoryModalComponent],
   templateUrl: './schedule-grid.component.html',
   styleUrl: './schedule-grid.component.css',
   providers: [ScheduleService, PeopleService, LocationService]
@@ -257,10 +259,50 @@ export class ScheduleGridComponent implements OnInit {
     this.replacementContext = null;
   }
 
-  onNotifyCandidate(personId: number): void {
+  onNotifyCandidate(event: { personId: number; channel: 'push' | 'sms' | 'email' }): void {
     if (!this.activeCompany?.companyId || !this.replacementContext) return;
-    console.log('Notify candidate', personId, this.replacementContext);
-    alert(`Notification sent to person ${personId}`);
+
+    // Find the schedule corresponding to the replacement context
+    this.scheduleService.getSchedules(this.activeCompany.companyId).subscribe({
+      next: (schedules: any[]) => {
+        const ctx = this.replacementContext!;
+        const match = schedules.find(s =>
+          s.personId === ctx.personId &&
+          new Date(s.startDate).getTime() === ctx.start.getTime() &&
+          new Date(s.endDate).getTime() === ctx.end.getTime()
+        );
+
+        if (!match) {
+          alert('Could not locate the original shift to create a replacement request.');
+          return;
+        }
+
+        // Create replacement request then notify selected candidate using selected channel
+        this.replacementRequestService.createReplacementRequest(this.activeCompany.companyId, { shiftId: match.scheduleId }).subscribe({
+          next: (req) => {
+            this.replacementRequestService
+              .notifyReplacementCandidates(this.activeCompany!.companyId, req.requestId, { personIds: [event.personId], channel: event.channel })
+              .subscribe({
+                next: (resp) => {
+                  alert(`Notification sent (attempted ${resp.attempted}, succeeded ${resp.succeeded}).`);
+                },
+                error: (err) => {
+                  console.error('Failed to notify candidate', err);
+                  alert('Failed to notify candidate.');
+                }
+              });
+          },
+          error: (err) => {
+            console.error('Failed to create replacement request', err);
+            alert('Failed to create replacement request.');
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Failed to load schedules for notify', err);
+        alert('Failed to load schedules.');
+      }
+    });
   }
 
   onAssignCandidate(personId: number): void {
@@ -598,6 +640,9 @@ export class ScheduleGridComponent implements OnInit {
   repeatPatternEndTime: string = '17:00';
   repeatPatternLocationId: number = 0;
   repeatPatternAreaId: number = 0;
+  showShiftHistoryModal: boolean = false;
+  historyPersonId: number | null = null;
+  historyPersonName: string = '';
 
   constructor(
     private store: Store<AppState>,
@@ -607,6 +652,7 @@ export class ScheduleGridComponent implements OnInit {
     private locationService: LocationService,
     private shiftEventService: ShiftEventService,
     private timeOffRequestService: TimeOffRequestService,
+    private replacementRequestService: ReplacementRequestService,
     private router: Router
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
@@ -982,6 +1028,20 @@ export class ScheduleGridComponent implements OnInit {
     this.showRepeatPatternModal = false;
     this.repeatPatternPersonId = null;
     this.repeatPatternPersonName = '';
+  }
+
+  onViewShiftHistory(payload: { personId: number; personName: string }): void {
+    this.historyPersonId = payload.personId;
+    this.historyPersonName = payload.personName;
+    this.showShiftHistoryModal = true;
+    // Close the add/edit modal if open
+    this.closeAddScheduleModal();
+  }
+
+  closeShiftHistoryModal(): void {
+    this.showShiftHistoryModal = false;
+    this.historyPersonId = null;
+    this.historyPersonName = '';
   }
 
   onSaveRepeatPattern(request: RepeatPatternRequest): void {

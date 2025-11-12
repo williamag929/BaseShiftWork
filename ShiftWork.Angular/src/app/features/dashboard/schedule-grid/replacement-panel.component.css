@@ -85,6 +85,23 @@
   padding: 20px;
 }
 
+.channel-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.channel-selector label {
+  font-weight: 600;
+  color: #444;
+}
+
+.channel-options {
+  display: flex;
+  gap: 16px;
+}
+
 .loading-indicator {
   display: flex;
   flex-direction: column;

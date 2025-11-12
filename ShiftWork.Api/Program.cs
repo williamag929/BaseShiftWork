@@ -81,6 +81,7 @@ builder.Services.AddScoped<IAreaService, AreaService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IPeopleService, PeopleService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IScheduleShiftService, ScheduleShiftService>();
@@ -92,6 +93,8 @@ builder.Services.AddScoped<ICompanyUserService, CompanyUserService>();
 builder.Services.AddScoped<IShiftEventService, ShiftEventService>();
 builder.Services.AddScoped<IScheduleShiftSummaryService, ScheduleShiftSummaryService>();
 builder.Services.AddScoped<IKioskService, KioskService>();
+builder.Services.AddScoped<IPtoService, PtoService>();
+builder.Services.AddScoped<ICompanySettingsService, CompanySettingsService>();
 
 
 // Your AuthController uses AutoMapper, so you need to add it and its DI package.

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Models;
+using ShiftWork.Api.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,12 +20,16 @@ namespace ShiftWork.Api.Controllers
         private readonly ShiftWorkContext _context;
         private readonly ILogger<ReplacementRequestsController> _logger;
         private readonly IMapper _mapper;
+        private readonly IPeopleService _peopleService;
+        private readonly INotificationService _notificationService;
 
-        public ReplacementRequestsController(ShiftWorkContext context, ILogger<ReplacementRequestsController> logger, IMapper mapper)
+        public ReplacementRequestsController(ShiftWorkContext context, ILogger<ReplacementRequestsController> logger, IMapper mapper, IPeopleService peopleService, INotificationService notificationService)
         {
             _context = context;
             _logger = logger;
             _mapper = mapper;
+            _peopleService = peopleService;
+            _notificationService = notificationService;
         }
 
         [HttpPost]
@@ -103,12 +108,26 @@ namespace ShiftWork.Api.Controllers
                     return NotFound();
                 }
 
-                // TODO: Implement actual notification logic (push/SMS/email)
-                // For now, just log the notification
-                _logger.LogInformation("Notifying {Count} candidates for replacement request {RequestId} via {Channel}",
-                    dto.PersonIds.Length, requestId, dto.Channel);
+                // Load schedule details to compose message
+                var schedule = await _context.Schedules.FirstOrDefaultAsync(s => s.CompanyId == companyId && s.ScheduleId == request.ShiftId);
+                var start = schedule?.StartDate.ToLocalTime().ToString("g") ?? "(unknown)";
+                var end = schedule?.EndDate.ToLocalTime().ToString("g") ?? "(unknown)";
+                var subject = $"Open shift available {start} - {end}";
+                var message = $"A shift is open for replacement: {start} - {end}. Reply or open the app to accept.";
+                string? actionUrl = null; // could be set to deep link in future
 
-                return Ok(new { message = $"Notifications sent to {dto.PersonIds.Length} candidates", channel = dto.Channel });
+                // Resolve recipients (email/phone)
+                var targets = new List<(int personId, string? email, string? phone)>();
+                foreach (var pid in dto.PersonIds)
+                {
+                    var person = await _peopleService.Get(companyId, pid);
+                    targets.Add((pid, person?.Email, person?.PhoneNumber));
+                }
+
+                var batch = await _notificationService.NotifyReplacementCandidates(companyId, targets, dto.Channel ?? "push", subject, message, actionUrl);
+                _logger.LogInformation("Replacement notify completed. Attempted={Attempted} Succeeded={Succeeded}", batch.Attempted, batch.Succeeded);
+
+                return Ok(new { attempted = batch.Attempted, succeeded = batch.Succeeded, failed = batch.Failed, channel = dto.Channel, errors = batch.Errors });
             }
             catch (Exception ex)
             {

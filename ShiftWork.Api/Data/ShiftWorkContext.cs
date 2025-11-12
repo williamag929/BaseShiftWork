@@ -27,6 +27,8 @@ namespace ShiftWork.Api.Data
         public DbSet<KioskAnswer> KioskAnswers { get; set; }
         public DbSet<ReplacementRequest> ReplacementRequests { get; set; }
         public DbSet<TimeOffRequest> TimeOffRequests { get; set; }
+        public DbSet<PTOLedger> PTOLedgers { get; set; }
+        public DbSet<CompanySettings> CompanySettings { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -135,6 +137,30 @@ namespace ShiftWork.Api.Data
 
             modelBuilder.Entity<TimeOffRequest>()
                 .Property(t => t.PtoBalanceAfter)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<PTOLedger>()
+                .ToTable("PTOLedger")
+                .HasOne(l => l.Person)
+                .WithMany()
+                .HasForeignKey(l => l.PersonId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<PTOLedger>()
+                .Property(l => l.HoursChange)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<PTOLedger>()
+                .Property(l => l.BalanceAfter)
+                .HasPrecision(18, 2);
+
+            // Configure precision for Person PTO config fields
+            modelBuilder.Entity<Person>()
+                .Property(p => p.PtoAccrualRatePerMonth)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Person>()
+                .Property(p => p.PtoStartingBalance)
                 .HasPrecision(18, 2);
 
         }
