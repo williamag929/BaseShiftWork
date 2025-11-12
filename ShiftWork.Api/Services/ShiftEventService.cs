@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace ShiftWork.Api.Services
 {
@@ -83,6 +84,51 @@ namespace ShiftWork.Api.Services
                 if (!string.IsNullOrEmpty(status))
                 {
                     await _peopleService.UpdatePersonStatus(shiftEvent.PersonId, status);
+                }
+            }
+
+            // Handle sick/timeoff events: open overlapping shifts for this person
+            if (!string.IsNullOrEmpty(shiftEvent.EventType) &&
+                (shiftEvent.EventType.Equals("sick", StringComparison.OrdinalIgnoreCase) ||
+                 shiftEvent.EventType.Equals("timeoff", StringComparison.OrdinalIgnoreCase)))
+            {
+                DateTime? startWindow = null;
+                DateTime? endWindow = null;
+                if (!string.IsNullOrEmpty(shiftEvent.EventObject))
+                {
+                    try
+                    {
+                        using var doc = JsonDocument.Parse(shiftEvent.EventObject);
+                        var root = doc.RootElement;
+                        if (root.TryGetProperty("start", out var s) && root.TryGetProperty("end", out var e))
+                        {
+                            if (DateTime.TryParse(s.GetString(), out var startParsed)) startWindow = startParsed.ToUniversalTime();
+                            if (DateTime.TryParse(e.GetString(), out var endParsed)) endWindow = endParsed.ToUniversalTime();
+                        }
+                    }
+                    catch
+                    {
+                        // ignore malformed JSON
+                    }
+                }
+                if (!startWindow.HasValue || !endWindow.HasValue)
+                {
+                    var date = shiftEvent.EventDate.Date;
+                    startWindow = date;
+                    endWindow = date.AddDays(1);
+                }
+
+                var overlappingShifts = await _context.ScheduleShifts
+                    .Where(ss => ss.PersonId == shiftEvent.PersonId &&
+                                 ss.StartDate < endWindow.Value && ss.EndDate > startWindow.Value)
+                    .ToListAsync();
+                foreach (var ss in overlappingShifts)
+                {
+                    ss.Status = "open";
+                }
+                if (overlappingShifts.Count > 0)
+                {
+                    await _context.SaveChangesAsync();
                 }
             }
 

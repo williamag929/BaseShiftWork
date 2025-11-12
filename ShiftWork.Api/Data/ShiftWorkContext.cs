@@ -25,6 +25,8 @@ namespace ShiftWork.Api.Data
         public DbSet<ShiftEvent> ShiftEvents { get; set; }
         public DbSet<KioskQuestion> KioskQuestions { get; set; }
         public DbSet<KioskAnswer> KioskAnswers { get; set; }
+        public DbSet<ReplacementRequest> ReplacementRequests { get; set; }
+        public DbSet<TimeOffRequest> TimeOffRequests { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -107,7 +109,21 @@ namespace ShiftWork.Api.Data
                 .HasForeignKey(ss => ss.AreaId)
                 .OnDelete(DeleteBehavior.NoAction); // Prevents cycles
 
+            modelBuilder.Entity<ReplacementRequest>()
+                .ToTable("ReplacementRequests");
 
+            modelBuilder.Entity<TimeOffRequest>()
+                .ToTable("TimeOffRequests")
+                .HasOne(t => t.Person)
+                .WithMany()
+                .HasForeignKey(t => t.PersonId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<TimeOffRequest>()
+                .HasOne(t => t.Approver)
+                .WithMany()
+                .HasForeignKey(t => t.ApprovedBy)
+                .OnDelete(DeleteBehavior.NoAction);
 
         }
     }

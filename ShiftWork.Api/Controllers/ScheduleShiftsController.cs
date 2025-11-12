@@ -218,6 +218,60 @@ namespace ShiftWork.Api.Controllers
                 _logger.LogError(ex, "Error deleting schedule shift {ShiftId} for company {CompanyId}.", shiftId, companyId);
                 return StatusCode(500, "An internal server error occurred.");
             }
+                }
+
+        /// <summary>
+        /// Gets replacement candidates for a specific shift.
+        /// </summary>
+        [HttpGet("{shiftId}/replacement-candidates")]
+        [ProducesResponseType(typeof(IEnumerable<ReplacementCandidateDto>), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<IEnumerable<ReplacementCandidateDto>>> GetReplacementCandidatesForShift(string companyId, int shiftId)
+        {
+            try
+            {
+                var shift = await _scheduleShiftService.Get(companyId, shiftId);
+                if (shift == null)
+                {
+                    return NotFound($"Schedule shift with ID {shiftId} not found.");
+                }
+                var candidates = await _scheduleShiftService.GetReplacementCandidatesForShift(companyId, shiftId);
+                var dtos = candidates.Select(p => new ReplacementCandidateDto { PersonId = p.PersonId, Name = p.Name });
+                return Ok(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting replacement candidates for shift {ShiftId} in company {CompanyId}.", shiftId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Gets replacement candidates for an arbitrary time window.
+        /// </summary>
+        [HttpGet("replacement-candidates")]
+        [ProducesResponseType(typeof(IEnumerable<ReplacementCandidateDto>), 200)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<IEnumerable<ReplacementCandidateDto>>> GetReplacementCandidatesByWindow(
+            string companyId,
+            [FromQuery] DateTime start,
+            [FromQuery] DateTime end,
+            [FromQuery] int? locationId,
+            [FromQuery] int? areaId,
+            [FromQuery] int? excludePersonId)
+        {
+            try
+            {
+                var candidates = await _scheduleShiftService.GetReplacementCandidatesByWindow(companyId, start, end, locationId, areaId, excludePersonId);
+                var dtos = candidates.Select(p => new ReplacementCandidateDto { PersonId = p.PersonId, Name = p.Name });
+                return Ok(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting replacement candidates by window in company {CompanyId}.", companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
         }
     }
 }

@@ -31,6 +31,9 @@ export class ScheduleGridAddModalComponent implements OnInit {
   @Output() repeatTomorrowRequest = new EventEmitter<{ baseDate: Date; personId: number|null; locationId: number; areaId: number; start: string; end: string }>();
   @Output() repeatRestOfWeekRequest = new EventEmitter<{ baseDate: Date; personId: number|null; locationId: number; areaId: number; start: string; end: string }>();
   @Output() repeatSpecificDaysRequest = new EventEmitter<{ baseDate: Date; personId: number|null; locationId: number; areaId: number; start: string; end: string; dayIndices: number[] }>();
+  @Output() requestTimeOffRequest = new EventEmitter<{ personId: number|null; start: Date; end: Date; note?: string }>();
+  @Output() reportSickRequest = new EventEmitter<{ personId: number|null; date: Date; note?: string }>();
+  @Output() findReplacementRequest = new EventEmitter<{ personId: number|null; start: Date; end: Date; locationId: number; areaId: number }>();
   // Future: repeatSpecificDaysRequest, repeatSetPatternRequest
   @Input() deleteInProgress: boolean = false;
 
@@ -202,6 +205,31 @@ export class ScheduleGridAddModalComponent implements OnInit {
     this.menuOpen = false;
   }
 
+  requestTimeOff(): void {
+    this.menuOpen = false;
+    const personId = this.selectedPersonId ?? this.personId ?? null;
+    if (!personId) { alert('Select a person first'); return; }
+    const start = this.createDateWithTimeUTC(this.date, this.defaultStart);
+    const end = this.createDateWithTimeUTC(this.date, this.defaultEnd);
+    this.requestTimeOffRequest.emit({ personId, start, end });
+  }
+
+  reportSick(): void {
+    this.menuOpen = false;
+    const personId = this.selectedPersonId ?? this.personId ?? null;
+    if (!personId) { alert('Select a person first'); return; }
+    this.reportSickRequest.emit({ personId, date: this.date });
+  }
+
+  findReplacement(): void {
+    this.menuOpen = false;
+    const personId = this.selectedPersonId ?? this.personId ?? null;
+    if (!personId) { alert('Select a person first'); return; }
+    const start = this.createDateWithTimeUTC(this.date, this.defaultStart);
+    const end = this.createDateWithTimeUTC(this.date, this.defaultEnd);
+    this.findReplacementRequest.emit({ personId, start, end, locationId: this.selectedLocationId, areaId: this.selectedAreaId });
+  }
+
   toggleDayIndex(idx: number): void {
     if (this.selectedDayIndices.has(idx)) {
       this.selectedDayIndices.delete(idx);
@@ -232,10 +260,6 @@ export class ScheduleGridAddModalComponent implements OnInit {
       dayIndices: Array.from(this.selectedDayIndices.values()).sort()
     });
     this.selectedDayIndices.clear();
-  }
-  findReplacement(): void {
-    console.log('Find replacement clicked');
-    this.menuOpen = false;
   }
   viewProfile(): void {
     this.menuOpen = false;

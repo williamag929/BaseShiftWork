@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ScheduleShift } from '../models/schedule-shift.model';
+import { ReplacementCandidate } from '../models/replacement-candidate.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -54,6 +55,24 @@ export class ScheduleShiftService {
       .pipe(
         catchError(this.handleError)
       );
+  }
+
+  getReplacementCandidatesByWindow(
+    companyId: string,
+    start: Date,
+    end: Date,
+    locationId?: number,
+    areaId?: number,
+    excludePersonId?: number
+  ): Observable<ReplacementCandidate[]> {
+    const params = new URLSearchParams();
+    params.set('start', start.toISOString());
+    params.set('end', end.toISOString());
+    if (locationId != null) params.set('locationId', String(locationId));
+    if (areaId != null) params.set('areaId', String(areaId));
+    if (excludePersonId != null) params.set('excludePersonId', String(excludePersonId));
+    const url = `${this.apiUrl}/companies/${companyId}/scheduleshifts/replacement-candidates?${params.toString()}`;
+    return this.http.get<ReplacementCandidate[]>(url).pipe(catchError(this.handleError));
   }
 
   private handleError(error: HttpErrorResponse) {

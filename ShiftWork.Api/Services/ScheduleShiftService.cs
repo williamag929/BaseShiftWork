@@ -19,6 +19,8 @@ namespace ShiftWork.Api.Services
         Task<ScheduleShift> Add(ScheduleShift scheduleShift);
         Task<ScheduleShift> Update(ScheduleShift scheduleShift);
         Task<bool> Delete(int shiftId);
+        Task<IEnumerable<Person>> GetReplacementCandidatesForShift(string companyId, int shiftId);
+        Task<IEnumerable<Person>> GetReplacementCandidatesByWindow(string companyId, DateTime startUtc, DateTime endUtc, int? locationId, int? areaId, int? excludePersonId);
     }
 
     /// <summary>
@@ -74,8 +76,54 @@ namespace ShiftWork.Api.Services
 
             _context.ScheduleShifts.Remove(scheduleShift);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Schedule shift with ID {ShiftId} deleted.", shiftId);
+                        _logger.LogInformation("Schedule shift with ID {ShiftId} deleted.", shiftId);
             return true;
+        }
+
+        public async Task<IEnumerable<Person>> GetReplacementCandidatesForShift(string companyId, int shiftId)
+        {
+            var shift = await _context.ScheduleShifts.FirstOrDefaultAsync(s => s.CompanyId == companyId && s.ScheduleShiftId == shiftId);
+            if (shift == null)
+            {
+                return Enumerable.Empty<Person>();
+            }
+            return await GetReplacementCandidatesByWindow(companyId, shift.StartDate, shift.EndDate, shift.LocationId, shift.AreaId, shift.PersonId);
+        }
+
+        public async Task<IEnumerable<Person>> GetReplacementCandidatesByWindow(string companyId, DateTime startUtc, DateTime endUtc, int? locationId, int? areaId, int? excludePersonId)
+        {
+            var peopleQuery = _context.Persons.Where(p => p.CompanyId == companyId);
+            if (excludePersonId.HasValue)
+            {
+                peopleQuery = peopleQuery.Where(p => p.PersonId != excludePersonId.Value);
+            }
+
+            // Exclude people who have overlapping scheduled shifts (any status, published or unpublished)
+            var overlappingPersonIds = await _context.ScheduleShifts
+                .Where(ss => ss.CompanyId == companyId && ss.StartDate < endUtc && ss.EndDate > startUtc)
+                .Select(ss => ss.PersonId)
+                .Distinct()
+                .ToListAsync();
+
+            // Exclude people with sick or timeoff events on the date
+            var offEventTypes = new[] { "sick", "timeoff" };
+            var dateOnly = startUtc.Date;
+            var offPersonIds = await _context.ShiftEvents
+                .Where(e => e.CompanyId == companyId && e.EventType != null && offEventTypes.Contains(e.EventType))
+                .Where(e => e.EventDate.Date == dateOnly)
+                .Select(e => e.PersonId)
+                .Distinct()
+                .ToListAsync();
+
+            var excluded = new HashSet<int>(overlappingPersonIds);
+            foreach (var pid in offPersonIds) excluded.Add(pid);
+
+            var candidates = await peopleQuery
+                .Where(p => !excluded.Contains(p.PersonId))
+                .OrderBy(p => p.Name)
+                .ToListAsync();
+
+            return candidates;
         }
     }
 }

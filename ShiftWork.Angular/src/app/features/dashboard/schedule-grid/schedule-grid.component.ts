@@ -10,6 +10,9 @@ import { ScheduleService } from 'src/app/core/services/schedule.service';
 import { ScheduleShiftService } from 'src/app/core/services/schedule-shift.service';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { LocationService } from 'src/app/core/services/location.service';
+import { ShiftEventService } from 'src/app/core/services/shift-event.service';
+import { ShiftEvent } from 'src/app/core/models/shift-event.model';
+import { ReplacementCandidate } from 'src/app/core/models/replacement-candidate.model';
 import { 
   ScheduleGridData, 
   TeamMember, 
@@ -21,11 +24,12 @@ import { ScheduleShift } from 'src/app/core/models/schedule-shift.model';
 import { People } from 'src/app/core/models/people.model';
 import { Schedule } from 'src/app/core/models/schedule.model';
 import { ScheduleGridAddModalComponent } from './schedule-grid-add-modal.component';
+import { ReplacementPanelComponent } from './replacement-panel.component';
 
 @Component({
   selector: 'app-schedule-grid',
   standalone: true,
-  imports: [CommonModule, FormsModule, ScheduleGridAddModalComponent],
+  imports: [CommonModule, FormsModule, ScheduleGridAddModalComponent, ReplacementPanelComponent],
   templateUrl: './schedule-grid.component.html',
   styleUrl: './schedule-grid.component.css',
   providers: [ScheduleService, PeopleService, LocationService]
@@ -121,6 +125,112 @@ export class ScheduleGridComponent implements OnInit {
     const copy = new Date(date);
     copy.setHours(h, m, 0, 0);
     return copy;
+  }
+
+  handleRequestTimeOff(payload: { personId: number|null; start: Date; end: Date; note?: string }): void {
+    if (!this.activeCompany?.companyId || !payload.personId) return;
+    const event: ShiftEvent = {
+      eventLogId: '',
+      eventDate: new Date(),
+      eventType: 'timeoff',
+      companyId: this.activeCompany.companyId,
+      personId: payload.personId,
+      eventObject: JSON.stringify({ start: payload.start, end: payload.end, note: payload.note ?? '' }),
+      description: 'Time off request',
+      kioskDevice: null,
+      geoLocation: null,
+      photoUrl: null
+    };
+    this.shiftEventService.createShiftEvent(this.activeCompany.companyId, event).subscribe({
+      next: () => alert('Time off submitted'),
+      error: (err) => { console.error('Time off failed', err); alert('Failed to submit time off'); }
+    });
+  }
+
+  handleReportSick(payload: { personId: number|null; date: Date; note?: string }): void {
+    if (!this.activeCompany?.companyId || !payload.personId) return;
+    const event: ShiftEvent = {
+      eventLogId: '',
+      eventDate: new Date(),
+      eventType: 'sick',
+      companyId: this.activeCompany.companyId,
+      personId: payload.personId,
+      eventObject: JSON.stringify({ date: payload.date, note: payload.note ?? '' }),
+      description: 'Reported sick',
+      kioskDevice: null,
+      geoLocation: null,
+      photoUrl: null
+    };
+    this.shiftEventService.createShiftEvent(this.activeCompany.companyId, event).subscribe({
+      next: () => alert('Sick event reported'),
+      error: (err) => { console.error('Sick event failed', err); alert('Failed to report sick'); }
+    });
+  }
+
+  handleFindReplacement(payload: { personId: number|null; start: Date; end: Date; locationId: number; areaId: number }): void {
+    if (!this.activeCompany?.companyId) return;
+    this.replacementContext = payload;
+    this.showReplacementPanel = true;
+    this.scheduleShiftService.getReplacementCandidatesByWindow(
+      this.activeCompany.companyId,
+      payload.start,
+      payload.end,
+      payload.locationId,
+      payload.areaId,
+      payload.personId ?? undefined
+    ).subscribe({
+      next: (list) => {
+        this.replacementCandidates = list;
+      },
+      error: (err) => { 
+        console.error('Failed to fetch candidates', err); 
+        alert('Failed to fetch candidates');
+        this.showReplacementPanel = false;
+      }
+    });
+  }
+
+  closeReplacementPanel(): void {
+    this.showReplacementPanel = false;
+    this.replacementCandidates = [];
+    this.replacementContext = null;
+  }
+
+  onNotifyCandidate(personId: number): void {
+    if (!this.activeCompany?.companyId || !this.replacementContext) return;
+    console.log('Notify candidate', personId, this.replacementContext);
+    alert(`Notification sent to person ${personId}`);
+  }
+
+  onAssignCandidate(personId: number): void {
+    if (!this.activeCompany?.companyId || !this.replacementContext) return;
+    if (!confirm(`Assign this shift to ${this.replacementCandidates.find(c => c.personId === personId)?.name ?? 'person'}?`)) return;
+    
+    const ctx = this.replacementContext;
+    const schedule: Schedule = {
+      scheduleId: 0,
+      name: `Replacement shift for ${ctx.start.toDateString()}`,
+      companyId: this.activeCompany.companyId,
+      personId: personId,
+      startDate: ctx.start,
+      endDate: ctx.end,
+      locationId: ctx.locationId,
+      areaId: ctx.areaId,
+      status: 'unpublished',
+      timezone: 'UTC'
+    } as Schedule;
+    
+    this.scheduleService.createSchedule(this.activeCompany.companyId, schedule).subscribe({
+      next: () => {
+        alert('Shift assigned successfully');
+        this.closeReplacementPanel();
+        this.loadScheduleData();
+      },
+      error: (err) => {
+        console.error('Failed to assign shift', err);
+        alert('Failed to assign shift');
+      }
+    });
   }
 
   handleRepeatSpecificDays(payload: { baseDate: Date; personId: number|null; locationId: number; areaId: number; start: string; end: string; dayIndices: number[] }): void {
@@ -395,6 +505,9 @@ export class ScheduleGridComponent implements OnInit {
   locations: any[] = [];
   selectedLocationId: number | null = null;
   peopleList: People[] = [];
+  replacementCandidates: ReplacementCandidate[] = [];
+  showReplacementPanel: boolean = false;
+  replacementContext: { start: Date; end: Date; locationId: number; areaId: number; personId: number | null } | null = null;
 
   constructor(
     private store: Store<AppState>,
@@ -402,6 +515,7 @@ export class ScheduleGridComponent implements OnInit {
     private scheduleShiftService: ScheduleShiftService,
     private peopleService: PeopleService,
     private locationService: LocationService,
+    private shiftEventService: ShiftEventService,
     private router: Router
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);

@@ -290,7 +290,20 @@
     (repeatTomorrowRequest)="handleRepeatTomorrow($event)"
     (repeatRestOfWeekRequest)="handleRepeatRestOfWeek($event)"
     (repeatSpecificDaysRequest)="handleRepeatSpecificDays($event)"
+    (requestTimeOffRequest)="handleRequestTimeOff($event)"
+    (reportSickRequest)="handleReportSick($event)"
+    (findReplacementRequest)="handleFindReplacement($event)"
     [deleteInProgress]="deleteInProgress"
   ></app-schedule-grid-add-modal>
+
+  <!-- Replacement Candidates Panel -->
+  <app-replacement-panel
+    *ngIf="showReplacementPanel"
+    [candidates]="replacementCandidates"
+    [loading]="replacementCandidates.length === 0 && showReplacementPanel"
+    (close)="closeReplacementPanel()"
+    (notify)="onNotifyCandidate($event)"
+    (assign)="onAssignCandidate($event)"
+  ></app-replacement-panel>
 </div>
 
