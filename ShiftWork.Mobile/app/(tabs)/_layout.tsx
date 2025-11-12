@@ -65,6 +65,20 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="time-off-request"
+        options={{
+          title: 'Request Time Off',
+          href: null, // Hide from tab bar
+        }}
+      />
+      <Tabs.Screen
+        name="weekly-schedule"
+        options={{
+          title: 'Weekly Schedule',
+          href: null, // Hide from tab bar
+        }}
+      />
     </Tabs>
   );
 }

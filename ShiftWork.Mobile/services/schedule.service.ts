@@ -36,7 +36,15 @@ export const scheduleService = {
    * Get schedule shifts for a company
    */
   async getScheduleShifts(companyId: string): Promise<ScheduleShiftDto[]> {
-    return apiClient.get<ScheduleShiftDto[]>(`/api/companies/${companyId}/scheduleshifts`);
+    try {
+      return await apiClient.get<ScheduleShiftDto[]>(`/api/companies/${companyId}/scheduleshifts`);
+    } catch (err: any) {
+      // Treat 404 (no shifts) as empty result instead of error
+      if (err?.statusCode === 404) {
+        return [];
+      }
+      throw err;
+    }
   },
 
   /**
@@ -60,16 +68,16 @@ export const scheduleService = {
     startDate: string,
     endDate: string
   ): Promise<ScheduleShiftDto[]> {
-    const schedules = await this.searchSchedules(companyId, {
-      personId,
-      startDate,
-      endDate,
-    });
-    
-    // Get all shifts for these schedules
+    // Fetch all shifts for the company (404 means empty)
     const allShifts = await this.getScheduleShifts(companyId);
+
+    // Filter by person and date range
+    const start = new Date(startDate);
+    const end = new Date(endDate);
     return allShifts.filter((shift) =>
-      schedules.some((schedule) => schedule.scheduleId === shift.scheduleId)
+      shift.personId === personId &&
+      new Date(shift.startDate as unknown as string) >= start &&
+      new Date(shift.startDate as unknown as string) <= end
     );
   },
 };

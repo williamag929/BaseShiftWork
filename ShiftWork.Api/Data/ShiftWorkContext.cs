@@ -29,6 +29,7 @@ namespace ShiftWork.Api.Data
         public DbSet<TimeOffRequest> TimeOffRequests { get; set; }
         public DbSet<PTOLedger> PTOLedgers { get; set; }
         public DbSet<CompanySettings> CompanySettings { get; set; }
+        public DbSet<DeviceToken> DeviceTokens { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -162,6 +163,19 @@ namespace ShiftWork.Api.Data
             modelBuilder.Entity<Person>()
                 .Property(p => p.PtoStartingBalance)
                 .HasPrecision(18, 2);
+
+            // Configure DeviceToken foreign keys to avoid cascade cycle
+            modelBuilder.Entity<DeviceToken>()
+                .HasOne(dt => dt.Company)
+                .WithMany()
+                .HasForeignKey(dt => dt.CompanyId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<DeviceToken>()
+                .HasOne(dt => dt.Person)
+                .WithMany()
+                .HasForeignKey(dt => dt.PersonId)
+                .OnDelete(DeleteBehavior.NoAction);
 
         }
     }

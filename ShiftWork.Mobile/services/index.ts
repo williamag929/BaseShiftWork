@@ -7,3 +7,5 @@ export { locationService } from './location.service';
 export { apiClient } from './api-client';
 export { dbService } from './db';
 export { companySettingsService } from './company-settings.service';
+export { timeOffRequestService } from './time-off-request.service';
+export { notificationService } from './notification.service';

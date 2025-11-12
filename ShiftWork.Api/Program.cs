@@ -96,6 +96,8 @@ builder.Services.AddScoped<IKioskService, KioskService>();
 builder.Services.AddScoped<IPtoService, PtoService>();
 builder.Services.AddScoped<ICompanySettingsService, CompanySettingsService>();
 builder.Services.AddScoped<IScheduleValidationService, ScheduleValidationService>();
+builder.Services.AddScoped<PushNotificationService>();
+builder.Services.AddHttpClient();
 
 
 // Your AuthController uses AutoMapper, so you need to add it and its DI package.

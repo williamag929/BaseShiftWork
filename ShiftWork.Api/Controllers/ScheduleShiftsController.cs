@@ -54,7 +54,8 @@ namespace ShiftWork.Api.Controllers
 
                     if (scheduleShifts == null || !scheduleShifts.Any())
                     {
-                        return NotFound($"No schedule shifts found for company {companyId}.");
+                        // Return an empty list instead of 404 to simplify client handling
+                        return Ok(Enumerable.Empty<ScheduleShiftDto>());
                     }
 
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));

@@ -6,7 +6,9 @@ export const shiftEventService = {
    * Get all shift events for a company
    */
   async getShiftEvents(companyId: string): Promise<ShiftEventDto[]> {
-    return apiClient.get<ShiftEventDto[]>(`/api/companies/${companyId}/shiftevents`);
+    return apiClient.get<ShiftEventDto[]>(`/api/companies/${companyId}/shiftevents`, {
+      params: { noCacheBust: true },
+    });
   },
 
   /**
@@ -14,7 +16,8 @@ export const shiftEventService = {
    */
   async getShiftEventById(companyId: string, eventLogId: string): Promise<ShiftEventDto> {
     return apiClient.get<ShiftEventDto>(
-      `/api/companies/${companyId}/shiftevents/${eventLogId}`
+      `/api/companies/${companyId}/shiftevents/${eventLogId}`,
+      { params: { noCacheBust: true } }
     );
   },
 
@@ -23,7 +26,8 @@ export const shiftEventService = {
    */
   async getPersonShiftEvents(companyId: string, personId: number): Promise<ShiftEventDto[]> {
     return apiClient.get<ShiftEventDto[]>(
-      `/api/companies/${companyId}/shiftevents/person/${personId}`
+      `/api/companies/${companyId}/shiftevents/person/${personId}`,
+      { params: { noCacheBust: true } }
     );
   },
 
@@ -35,7 +39,8 @@ export const shiftEventService = {
     eventType: string
   ): Promise<ShiftEventDto[]> {
     return apiClient.get<ShiftEventDto[]>(
-      `/api/companies/${companyId}/shiftevents/eventtype/${eventType}`
+      `/api/companies/${companyId}/shiftevents/eventtype/${eventType}`,
+      { params: { noCacheBust: true } }
     );
   },
 

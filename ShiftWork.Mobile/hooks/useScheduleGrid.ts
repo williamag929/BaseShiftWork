@@ -28,14 +28,7 @@ export function useScheduleGrid({ companyId, locationId, weekStart }: UseSchedul
     setLoading(true);
     setError(null);
     try {
-      // Fetch schedules for the week
-      const scheduleData = await scheduleService.searchSchedules(companyId, {
-        locationId,
-        startDate: currentWeekStart.toISOString(),
-        endDate: currentWeekEnd.toISOString(),
-      });
-
-      // Extract shifts from schedules - get all shifts for company and filter by date range
+      // Get all shifts for company (treat 404 as empty) and filter by date range
       const allShifts = await scheduleService.getScheduleShifts(companyId);
       const weekShifts = allShifts.filter((s) => {
         const start = new Date(s.startDate);
@@ -66,7 +59,14 @@ export function useScheduleGrid({ companyId, locationId, weekStart }: UseSchedul
 
       setPeople(uniquePeople);
     } catch (e: any) {
-      setError(e?.message || 'Failed to load schedule data');
+      // Normalize 404 to empty state instead of noisy error
+      if (e?.statusCode === 404) {
+        setShifts([]);
+        setPeople([]);
+        setError(null);
+      } else {
+        setError(e?.message || 'Failed to load schedule data');
+      }
     } finally {
       setLoading(false);
     }

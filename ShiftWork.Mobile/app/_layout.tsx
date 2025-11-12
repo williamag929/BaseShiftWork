@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { getUserData, getCompanyId } from '@/utils/storage.utils';
+import { useNotifications } from '@/hooks/useNotifications';
 // Initialize Firebase before any usage
 import '@/config/firebase';
 
@@ -22,6 +23,18 @@ export default function RootLayout() {
   const setPersonId = useAuthStore((s) => s.setPersonId);
   const router = useRouter();
   const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
+
+  // Initialize push notifications
+  const { expoPushToken, error: notificationError, isRegistered } = useNotifications();
+
+  useEffect(() => {
+    if (isRegistered && expoPushToken) {
+      console.log('Push notifications registered with token:', expoPushToken);
+    }
+    if (notificationError) {
+      console.error('Push notification error:', notificationError);
+    }
+  }, [isRegistered, expoPushToken, notificationError]);
 
   useEffect(() => {
     // Hydrate auth state from secure storage on app start

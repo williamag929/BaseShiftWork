@@ -110,7 +110,9 @@ export const useDashboardData = (companyId?: string | null, personId?: number | 
           await dbService.upsertScheduleShifts([...shiftsWeek, ...shiftsNext7]);
 
           if (canceled) return;
-          setRecentEvents(events);
+          // Sort recent events by most recent first
+          const sortedEvents = [...events].sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
+          setRecentEvents(sortedEvents);
           // Merge and de-dupe by scheduleShiftId
           const byId = new Map<number, ScheduleShiftDto>();
           [...shiftsWeek, ...shiftsNext7].forEach((s) => byId.set(s.scheduleShiftId, s));
@@ -122,7 +124,8 @@ export const useDashboardData = (companyId?: string | null, personId?: number | 
             dbService.getUpcomingShifts(personId, formatDateForApi(now), formatDateForApi(next7End)),
           ]);
           if (canceled) return;
-          setRecentEvents(events);
+          const sortedCached = [...events].sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
+          setRecentEvents(sortedCached);
           setUpcoming(upcomingShifts);
         }
       } catch (e: any) {

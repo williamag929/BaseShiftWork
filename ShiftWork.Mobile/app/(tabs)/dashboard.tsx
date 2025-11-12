@@ -1,17 +1,22 @@
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
 import { useAuthStore } from '@/store/authStore';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { getActiveClockInAt } from '@/utils';
 import { formatDate, formatTime } from '@/utils/date.utils';
+import { timeOffRequestService, TimeOffRequest } from '@/services/time-off-request.service';
 
 export default function DashboardScreen() {
+  const router = useRouter();
   const { companyId, personId, personFirstName, personLastName } = useAuthStore();
   const { isOnline, loading, hoursThisWeek, shiftsThisWeek, upcoming, recentEvents, error } = useDashboardData(companyId, personId);
 
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [activeClockInAt, setActiveClockInAt] = useState<Date | null>(null);
+  const [timeOffRequests, setTimeOffRequests] = useState<TimeOffRequest[]>([]);
+  const [timeOffLoading, setTimeOffLoading] = useState(false);
 
   const isClockedIn = useMemo(() => {
     const latest = recentEvents?.[0];
@@ -45,6 +50,29 @@ export default function DashboardScreen() {
     const id = setInterval(update, 1000);
     return () => clearInterval(id);
   }, [isClockedIn, activeClockInAt]);
+
+  // Load time off requests
+  useEffect(() => {
+    if (companyId && personId) {
+      setTimeOffLoading(true);
+      Promise.all([
+  timeOffRequestService.getPendingTimeOff(companyId, personId),
+  timeOffRequestService.getUpcomingTimeOff(companyId, personId)
+      ])
+        .then(([pending, upcoming]) => {
+          // Combine and deduplicate
+          const combined = [...pending, ...upcoming];
+          const unique = combined.filter((item, index, self) =>
+            index === self.findIndex(t => t.timeOffRequestId === item.timeOffRequestId)
+          );
+          setTimeOffRequests(unique.sort((a, b) => 
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+          ));
+        })
+        .catch(err => console.error('Error loading time off:', err))
+        .finally(() => setTimeOffLoading(false));
+    }
+  }, [companyId, personId]);
 
   const fmtHM = (totalSeconds: number) => {
     const h = Math.floor(totalSeconds / 3600);
@@ -80,7 +108,12 @@ export default function DashboardScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Upcoming Shifts</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Upcoming Shifts</Text>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/weekly-schedule' as any)}>
+            <Text style={styles.requestButton}>View Weekly</Text>
+          </TouchableOpacity>
+        </View>
         {loading && <ActivityIndicator />}
         {!loading && upcoming.length === 0 && (
           <View style={styles.card}><Text style={styles.cardText}>No upcoming shifts</Text></View>
@@ -107,6 +140,59 @@ export default function DashboardScreen() {
           </View>
         ))}
         {!!error && <Text style={styles.errorText}>{error}</Text>}
+      </View>
+
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Time Off</Text>
+          <TouchableOpacity 
+            style={styles.requestButton}
+            onPress={() => router.push('/(tabs)/time-off-request' as any)}
+          >
+            <Text style={styles.requestButtonText}>+ Request</Text>
+          </TouchableOpacity>
+        </View>
+        {timeOffLoading && <ActivityIndicator />}
+        {!timeOffLoading && timeOffRequests.length === 0 && (
+          <View style={styles.card}>
+            <Text style={styles.cardText}>No time off scheduled</Text>
+            <TouchableOpacity 
+              style={styles.linkButton}
+              onPress={() => router.push('/(tabs)/time-off-request' as any)}
+            >
+              <Text style={styles.linkButtonText}>Request Time Off</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        {!timeOffLoading && timeOffRequests.map((req) => (
+          <View key={req.timeOffRequestId} style={[
+            styles.card,
+            req.status === 'Approved' && styles.cardApproved,
+            req.status === 'Denied' && styles.cardDenied,
+            req.status === 'Pending' && styles.cardPending
+          ]}>
+            <View style={styles.timeOffHeader}>
+              <Text style={styles.cardTitle}>{req.type}</Text>
+              <View style={[
+                styles.statusBadge,
+                req.status === 'Approved' && styles.statusApproved,
+                req.status === 'Denied' && styles.statusDenied,
+                req.status === 'Pending' && styles.statusPending
+              ]}>
+                <Text style={styles.statusText}>{req.status}</Text>
+              </View>
+            </View>
+            <Text style={styles.cardSubtitle}>
+              {formatDate(req.startDate)} - {formatDate(req.endDate)}
+            </Text>
+            {req.hoursRequested && (
+              <Text style={styles.cardHours}>{req.hoursRequested} hours</Text>
+            )}
+            {req.reason && (
+              <Text style={styles.cardReason}>{req.reason}</Text>
+            )}
+          </View>
+        ))}
       </View>
     </ScrollView>
   );
@@ -208,4 +294,81 @@ const styles = StyleSheet.create({
   },
   errorText: { color: '#E74C3C', marginTop: 8 },
   elapsed: { color: '#fff', marginTop: 6, fontWeight: '600' },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  requestButton: {
+    backgroundColor: '#4A90E2',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  requestButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  linkButton: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: '#4A90E2',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  linkButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  timeOffHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusApproved: {
+    backgroundColor: '#27AE60',
+  },
+  statusDenied: {
+    backgroundColor: '#E74C3C',
+  },
+  statusPending: {
+    backgroundColor: '#F39C12',
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  cardApproved: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#27AE60',
+  },
+  cardDenied: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#E74C3C',
+  },
+  cardPending: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#F39C12',
+  },
+  cardHours: {
+    fontSize: 13,
+    color: '#666',
+    marginTop: 4,
+  },
+  cardReason: {
+    fontSize: 13,
+    color: '#666',
+    marginTop: 6,
+    fontStyle: 'italic',
+  },
 });
