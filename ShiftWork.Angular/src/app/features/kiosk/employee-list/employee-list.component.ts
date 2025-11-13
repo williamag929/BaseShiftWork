@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { People as Person } from 'src/app/core/models/people.model';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { ToastrService } from 'ngx-toastr';
-import { Observable } from 'rxjs';
+import { Observable, Subscription, interval, from, of } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
@@ -13,9 +13,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { PinDialogComponent } from '../pin-dialog/pin-dialog.component';
 import { Company } from 'src/app/core/models/company.model';
 import { FormControl } from '@angular/forms';
-import { startWith, map } from 'rxjs/operators';
+import { startWith, map, mergeMap, catchError, finalize } from 'rxjs/operators';
 import { SettingsHelperService } from 'src/app/core/services/settings-helper.service';
 import { CompanySettings } from 'src/app/core/models/company-settings.model';
+import { environment } from 'src/environments/environment';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-employee-list',
@@ -23,10 +25,11 @@ import { CompanySettings } from 'src/app/core/models/company-settings.model';
   styleUrls: ['./employee-list.component.css'],
   standalone: false
 })
-export class EmployeeListComponent implements OnInit {
+export class EmployeeListComponent implements OnInit, OnDestroy {
   employees: Person[] = [];
   filteredEmployees: Person[] = [];
   loading = false;
+  refreshing = false;
   error: any = null;
   activeCompany$: Observable<Company | null>;
   activeCompany: Company | null = null;
@@ -34,6 +37,10 @@ export class EmployeeListComponent implements OnInit {
   settings: CompanySettings | null = null;
   showEmployeePhotos = true;
   kioskTimeout = 30000; // milliseconds
+  private statusRefreshSub: Subscription = Subscription.EMPTY;
+  lastUpdated: Date | null = null;
+  private refreshIntervalMs = environment.kioskStatusRefreshMs || 45000;
+  showLegend = true;
 
   constructor(
     private peopleService: PeopleService,
@@ -43,12 +50,26 @@ export class EmployeeListComponent implements OnInit {
     private toastr: ToastrService,
     private store: Store<AppState>,
     private dialog: MatDialog,
-    private settingsHelper: SettingsHelperService
+    private settingsHelper: SettingsHelperService,
+    private route: ActivatedRoute
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
 
   ngOnInit(): void {
+    // Default legend collapsed on small screens; allow persisted preference to override
+    const isMobile = window.matchMedia('(max-width: 767.98px)').matches;
+    const stored = localStorage.getItem('employeeListLegendOpen');
+    if (stored === null) {
+      this.showLegend = !isMobile;
+    } else {
+      this.showLegend = stored === 'true';
+    }
+    // Optional override via query param (?refreshMs=60000)
+    const qpMs = Number(this.route.snapshot.queryParamMap.get('refreshMs'));
+    if (!isNaN(qpMs) && qpMs >= 5000) {
+      this.refreshIntervalMs = qpMs;
+    }
     this.activeCompany$.subscribe((company: Company | null) => {
       if (company) {
         this.activeCompany = company;
@@ -68,6 +89,9 @@ export class EmployeeListComponent implements OnInit {
             
             // Load published schedules for today for all employees
             this.loadPublishedSchedulesForToday();
+
+            // Start periodic status refresh (initial + interval)
+            this.startStatusRefresh();
             
             this.searchControl.valueChanges.pipe(
               startWith(''),
@@ -85,6 +109,56 @@ export class EmployeeListComponent implements OnInit {
         );
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.stopStatusRefresh();
+  }
+
+  private startStatusRefresh(): void {
+    this.stopStatusRefresh();
+    // Immediate run, then every 45 seconds
+    this.refreshStatuses();
+    this.statusRefreshSub = interval(this.refreshIntervalMs).subscribe(() => this.refreshStatuses());
+  }
+
+  private stopStatusRefresh(): void {
+    if (this.statusRefreshSub) {
+      this.statusRefreshSub.unsubscribe();
+    }
+    this.statusRefreshSub = Subscription.EMPTY;
+  }
+
+  refreshStatuses(): void {
+    if (!this.activeCompany || !this.filteredEmployees?.length) return;
+    this.refreshing = true;
+    const companyId = this.activeCompany.companyId;
+    // Limit to first 50 currently filtered employees to avoid excessive requests
+    const target = this.filteredEmployees.slice(0, 50);
+    from(target)
+      .pipe(
+        mergeMap(
+          (emp: Person) =>
+            this.peopleService
+              .getPersonStatusShiftWork(companyId, emp.personId)
+              .pipe(
+                map((status: string) => ({ personId: emp.personId, status })),
+                catchError(() => of({ personId: emp.personId, status: emp.statusShiftWork || null }))
+              ),
+          5 // concurrency limit
+        ),
+        finalize(() => {
+          this.refreshing = false;
+          this.lastUpdated = new Date();
+        })
+      )
+      .subscribe(({ personId, status }) => {
+        // Update in employees array
+        const e = this.employees.find(p => p.personId === personId);
+        if (e) e.statusShiftWork = status || undefined;
+        const f = this.filteredEmployees.find(p => p.personId === personId);
+        if (f) f.statusShiftWork = status || undefined;
+      });
   }
 
   loadPublishedSchedulesForToday(): void {
@@ -122,6 +196,32 @@ export class EmployeeListComponent implements OnInit {
   private _filter(value: string): Person[] {
     const filterValue = value.toLowerCase();
     return this.employees.filter(employee => employee.name.toLowerCase().includes(filterValue));
+  }
+
+  // Status helpers for enriched StatusShiftWork like "OnShift:Late|Early|OnTime|NoSchedule"
+  isOnShift(status?: string): boolean {
+    return !!status && status.startsWith('OnShift');
+  }
+
+  getTiming(status?: string): string | null {
+    if (!status) return null;
+    const parts = status.split(':');
+    return parts.length > 1 ? parts[1] : null;
+  }
+
+  getTimingBadgeClass(timing: string | null): string {
+    switch (timing) {
+      case 'OnTime':
+        return 'bg-success';
+      case 'Early':
+        return 'bg-warning text-dark';
+      case 'Late':
+        return 'bg-danger';
+      case 'NoSchedule':
+        return 'bg-secondary';
+      default:
+        return 'bg-secondary';
+    }
   }
 
   selectEmployee(employee: Person): void {
@@ -168,6 +268,15 @@ export class EmployeeListComponent implements OnInit {
         this.toastr.error('Error loading schedules');
       }
     );
+  }
+
+  toggleLegend(): void {
+    this.showLegend = !this.showLegend;
+    try {
+      localStorage.setItem('employeeListLegendOpen', this.showLegend ? 'true' : 'false');
+    } catch {
+      // ignore storage errors (e.g., private mode)
+    }
   }
 
   getInitials(name: string): string {

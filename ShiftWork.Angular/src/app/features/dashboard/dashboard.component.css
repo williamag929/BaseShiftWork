@@ -67,6 +67,18 @@
   align-items: center;
 }
 
+.status-badge {
+  margin-right: 0.5rem;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.35);
+}
+.status-badge.on { background: rgba(46, 204, 113, 0.25); border-color: rgba(46, 204, 113, 0.6);} /* green */
+.status-badge.off { background: rgba(231, 76, 60, 0.25); border-color: rgba(231, 76, 60, 0.6);} /* red */
+
 .profile-button {
   display: flex;
   align-items: center;
@@ -136,6 +148,43 @@
   margin: 0.25rem 0 0;
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.9);
+}
+
+.user-status {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.last-updated {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.refresh-btn {
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.refresh-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.refresh-btn mat-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .menu-item {

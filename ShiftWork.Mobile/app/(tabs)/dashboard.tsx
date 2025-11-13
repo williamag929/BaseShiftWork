@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -11,7 +11,7 @@ import { timeOffRequestService, TimeOffRequest } from '@/services/time-off-reque
 export default function DashboardScreen() {
   const router = useRouter();
   const { companyId, personId, personFirstName, personLastName } = useAuthStore();
-  const { isOnline, loading, hoursThisWeek, shiftsThisWeek, upcoming, recentEvents, error } = useDashboardData(companyId, personId);
+  const { isOnline, loading, refreshing, hoursThisWeek, shiftsThisWeek, upcoming, recentEvents, personStatus, error, refresh, lastUpdated } = useDashboardData(companyId, personId);
 
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [activeClockInAt, setActiveClockInAt] = useState<Date | null>(null);
@@ -82,7 +82,12 @@ export default function DashboardScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={refresh} />
+      }
+    >
       <StatusBar style="light" />
 
       <View style={styles.header}>
@@ -90,9 +95,15 @@ export default function DashboardScreen() {
         <Text style={styles.name}>
           {personId ? `${personFirstName ?? ''} ${personLastName ?? ''}`.trim() || `User #${personId}` : 'Please sign in'}
         </Text>
-        {!isOnline && <Text style={styles.offlineNote}>You’re offline. Showing cached data.</Text>}
+        {!isOnline && <Text style={styles.offlineNote}>You're offline. Showing cached data.</Text>}
+        {!!personStatus && (
+          <Text style={styles.offlineNote}>Status: {personStatus}</Text>
+        )}
         {isClockedIn && (
           <Text style={styles.elapsed}>Time on clock: {fmtHM(elapsedSeconds)}</Text>
+        )}
+        {lastUpdated && (
+          <Text style={styles.lastUpdated}>Last updated: {formatTime(lastUpdated.toISOString())}</Text>
         )}
       </View>
 
@@ -221,6 +232,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   offlineNote: { color: '#fff', opacity: 0.8, marginTop: 4 },
+  lastUpdated: { color: '#fff', opacity: 0.7, marginTop: 4, fontSize: 12 },
   statsContainer: {
     flexDirection: 'row',
     padding: 16,

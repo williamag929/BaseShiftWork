@@ -71,8 +71,23 @@ export class PeopleService {
       );
   }
   
+  // Kiosk-specific (ShiftWork) status endpoints
+  getPersonStatusShiftWork(companyId: string, personId: number): Observable<string> {
+    return this.http.get<string>(`${this.apiUrl}/companies/${companyId}/people/${personId}/status-shiftwork`)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+  
   updatePersonStatus(companyId: string, personId: number, status: string): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/companies/${companyId}/people/${personId}/status`, { status }, this.getHttpOptions())
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  updatePersonStatusShiftWork(companyId: string, personId: number, status: string): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/companies/${companyId}/people/${personId}/status-shiftwork`, { status }, this.getHttpOptions())
       .pipe(
         catchError(this.handleError)
       );

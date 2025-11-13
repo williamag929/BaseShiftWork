@@ -30,6 +30,29 @@ namespace ShiftWork.Api.Services
             shiftEvent.CreatedAt = DateTime.UtcNow;
             shiftEvent.EventDate = DateTime.UtcNow;
 
+            // Idempotency guard: prevent double clock-in/out based on current StatusShiftWork
+            if (shiftEvent.PersonId > 0 && !string.IsNullOrWhiteSpace(shiftEvent.EventType))
+            {
+                var currentStatus = await _peopleService.GetPersonStatusShiftWork(shiftEvent.PersonId);
+                var isOnShift = !string.IsNullOrEmpty(currentStatus) && currentStatus.StartsWith("OnShift", StringComparison.OrdinalIgnoreCase);
+                var isOffShift = string.IsNullOrEmpty(currentStatus) || currentStatus.StartsWith("OffShift", StringComparison.OrdinalIgnoreCase);
+
+                if (string.Equals(shiftEvent.EventType, "clockin", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (isOnShift)
+                    {
+                        throw new InvalidOperationException("Person is already OnShift. Duplicate clock-in prevented.");
+                    }
+                }
+                else if (string.Equals(shiftEvent.EventType, "clockout", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (isOffShift)
+                    {
+                        throw new InvalidOperationException("Person is not currently OnShift. Duplicate clock-out or invalid transition prevented.");
+                    }
+                }
+            }
+
             _context.ShiftEvents.Add(shiftEvent);
             await _context.SaveChangesAsync();
 
@@ -43,47 +66,51 @@ namespace ShiftWork.Api.Services
                 // Determine status based on shift event type and schedule shift
                 if (scheduleShift != null)
                 {
-
-                    if (shiftEvent.EventType.Equals("clockin", StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(shiftEvent.EventType, "clockin", StringComparison.OrdinalIgnoreCase))
                     {
-                        status = "OnShift";
-                        /**
-                        var latenessThreshold = scheduleShift.StartDate.AddMinutes(5);
-                        if (shiftEvent.EventDate > latenessThreshold)
+                        // Compute Late/Early/OnTime relative to scheduled start with 5-minute grace
+                        var nowUtc = shiftEvent.EventDate;
+                        var startUtc = scheduleShift.StartDate;
+                        var diffMinutes = (nowUtc - startUtc).TotalMinutes;
+                        string timing;
+                        if (diffMinutes > 5)
                         {
-                            status = "Late";
+                            timing = "Late";
                         }
-                        else if (shiftEvent.EventDate < scheduleShift.StartDate)
+                        else if (diffMinutes < -5)
                         {
-                            status = "Early";
+                            timing = "Early";
                         }
                         else
                         {
-                            status = "OnShift";
-                        }**/
+                            timing = "OnTime";
+                        }
+                        status = $"OnShift:{timing}";
                     }
-                    else if (shiftEvent.EventType.Equals("clockout", StringComparison.OrdinalIgnoreCase))
+                    else if (string.Equals(shiftEvent.EventType, "clockout", StringComparison.OrdinalIgnoreCase))
                     {
                         status = "OffShift";
                     }
                 }
                 else
                 {
-                    if (shiftEvent.EventType.Equals("clockin", StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(shiftEvent.EventType, "clockin", StringComparison.OrdinalIgnoreCase))
                     {
-                        status = "OnShift";
+                        // No schedule found; mark as OnShift with NoSchedule detail
+                        status = "OnShift:NoSchedule";
                     }
-                    else if (shiftEvent.EventType.Equals("clockout", StringComparison.OrdinalIgnoreCase))
+                    else if (string.Equals(shiftEvent.EventType, "clockout", StringComparison.OrdinalIgnoreCase))
                     {
                         status = "OffShift";
                     }
-                        
+
                     //_logger.LogWarning("No schedule shift found for person {PersonId} on date {Date}", shiftEvent.PersonId, today);
                 }
 
                 if (!string.IsNullOrEmpty(status))
                 {
-                    await _peopleService.UpdatePersonStatus(shiftEvent.PersonId, status);
+                    // Update ShiftWork status (kiosk-specific) instead of general person status
+                    await _peopleService.UpdatePersonStatusShiftWork(shiftEvent.PersonId, status);
                 }
             }
 
@@ -135,7 +162,7 @@ namespace ShiftWork.Api.Services
             return shiftEvent;
         }
 
-        public async Task<ShiftEvent> GetShiftEventByIdAsync(Guid id)
+        public async Task<ShiftEvent?> GetShiftEventByIdAsync(Guid id)
         {
             return await _context.ShiftEvents.FindAsync(id);
         }

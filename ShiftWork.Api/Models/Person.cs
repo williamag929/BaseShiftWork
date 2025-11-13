@@ -20,6 +20,8 @@ namespace ShiftWork.Api.Models
         public string? Building { get; set; }
         public string? Floor { get; set; }   
         public string Status { get; set; } = "Active"; // Default status
+        // Real-time shift status (e.g., OnShift, OffShift). Updated via ShiftEvents/PeopleService.
+        public string? StatusShiftWork { get; set; }
         public string? PhotoUrl { get; set; }
         public string? ExternalCode { get; set; }
         public DateTime? LastUpdatedAt { get; set; } = DateTime.UtcNow; // Default to current time

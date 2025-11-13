@@ -28,6 +28,7 @@ namespace ShiftWork.Api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(ShiftEventDto), 201)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(409)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<ShiftEventDto>> CreateShiftEvent(string companyId,[FromBody] ShiftEventDto shiftEventDto)
         {
@@ -42,6 +43,11 @@ namespace ShiftWork.Api.Controllers
                 var createdShiftEventDto = _mapper.Map<ShiftEventDto>(createdShiftEvent);
                 return CreatedAtAction(nameof(GetShiftEvent), new { companyId, eventLogId = createdShiftEventDto.EventLogId }, createdShiftEventDto);
                 //return CreatedAtAction(nameof(GetShiftEvent), new { id = createdShiftEventDto.EventLogId }, createdShiftEventDto);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Idempotency conflict creating shift event for person {PersonId}", shiftEventDto.PersonId);
+                return Conflict(new { message = ex.Message });
             }
             catch (Exception ex)
             {

@@ -15,6 +15,7 @@ namespace ShiftWork.Api.DTOs
         public string? Building { get; set; }
         public string? Floor { get; set; }
         public string Status { get; set; } = "Active"; // e.g., Active, Inactive, Scheduled, ShiftEarly, ShiftLate,
+    public string? StatusShiftWork { get; set; }
         public string? PhotoUrl { get; set; }
         public string? PhoneNumber { get; set; }
         public int? RoleId { get; set; } // Foreign key to Role

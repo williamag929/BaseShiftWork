@@ -2,6 +2,8 @@ export const environment = {
   production: false,
   googleAnalyticsId: 'G-7X3Z5F6Y7Z',
   apiUrl : process.env.API_URL,
+  // Kiosk auto-refresh interval for employee status (milliseconds)
+  kioskStatusRefreshMs: 45000,
   firebase: {
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,

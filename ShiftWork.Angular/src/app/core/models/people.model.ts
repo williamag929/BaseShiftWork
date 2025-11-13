@@ -15,6 +15,7 @@ export interface People {
     floor?: string;
     externalCode?: string;
     status?: string;
+    statusShiftWork?: string;
     photoUrl?: string;
     phoneNumber?: string;
     roleId?: number; // Optional, if the person has a role

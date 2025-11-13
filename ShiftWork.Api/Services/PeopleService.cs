@@ -14,13 +14,15 @@ namespace ShiftWork.Api.Services
     /// </summary>
     public interface IPeopleService
     {
-        Task<IEnumerable<Person>> GetAll(string companyId, int pageNumber, int pageSize, string searchQuery);
-        Task<Person> Get(string companyId, int personId);
-        Task<Person> Add(Person person);
-        Task<Person> Update(Person person);
+    Task<IEnumerable<Person>> GetAll(string companyId, int pageNumber, int pageSize, string searchQuery);
+    Task<Person?> Get(string companyId, int personId);
+    Task<Person> Add(Person person);
+    Task<Person> Update(Person person);
         Task<bool> Delete(string companyId, int personId);
-        Task<Person> UpdatePersonStatus(int personId, string status);
-        Task<string> GetPersonStatus(int personId);
+    Task<Person?> UpdatePersonStatus(int personId, string status);
+    Task<string?> GetPersonStatus(int personId);
+    Task<Person?> UpdatePersonStatusShiftWork(int personId, string status);
+    Task<string?> GetPersonStatusShiftWork(int personId);
     }
 
     /// <summary>
@@ -52,7 +54,7 @@ namespace ShiftWork.Api.Services
             return await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
-        public async Task<Person> Get(string companyId, int personId)
+        public async Task<Person?> Get(string companyId, int personId)
         {
             return await _context.Persons.FirstOrDefaultAsync(p => p.CompanyId == companyId && p.PersonId == personId);
         }
@@ -102,7 +104,7 @@ namespace ShiftWork.Api.Services
             return true;
         }
 
-        public async Task<Person> UpdatePersonStatus(int personId, string status)
+        public async Task<Person?> UpdatePersonStatus(int personId, string status)
         {
             var person = await _context.Persons.FindAsync(personId);
             if (person != null)
@@ -114,10 +116,29 @@ namespace ShiftWork.Api.Services
             return person;
         }
 
-        public async Task<string> GetPersonStatus(int personId)
+        public async Task<string?> GetPersonStatus(int personId)
         {
             var person = await _context.Persons.FindAsync(personId);
             return person?.Status;
         }
+
+
+    public async Task<Person?> UpdatePersonStatusShiftWork(int personId, string status)
+        {
+            var person = await _context.Persons.FindAsync(personId);
+            if (person != null)
+            {
+                person.StatusShiftWork = status;
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Status for person with ID {PersonId} updated to {Status}.", person.PersonId, status);
+            }
+            return person;
+        }
+
+    public async Task<string?> GetPersonStatusShiftWork(int personId)
+        {
+            var person = await _context.Persons.FindAsync(personId);
+            return person?.StatusShiftWork;
+        }        
     }
 }

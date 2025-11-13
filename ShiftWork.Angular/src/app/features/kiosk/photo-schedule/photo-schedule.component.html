@@ -2,7 +2,12 @@
 <div class="photo-schedule-container">
   <!-- Header -->
   <div class="d-flex justify-content-center mb-3" *ngIf="selectedEmployee">
-    <h2>{{ selectedEmployee.name }}</h2>
+    <h2>
+      {{ selectedEmployee.name }}
+      <ng-container *ngIf="getTimingFromStatus(employeeStatus) as timing">
+        <span class="badge ms-2" [ngClass]="getTimingBadgeClass(timing)">{{ timing }}</span>
+      </ng-container>
+    </h2>
   </div>
 
 
@@ -48,7 +53,7 @@
   <div *ngIf="!scheduling && selectedEmployee" class="action-buttons">
     <div class="button-group mb-3">
       <button 
-        *ngIf="!webcamImage && (!employeeStatus || !(employeeStatus === 'OnShift' || employeeStatus === 'Late' || employeeStatus === 'Early' || employeeStatus === 'ShiftEventWithoutSchedule'))"
+        *ngIf="!webcamImage && canStartShift()"
         type="button"
         class="btn btn-success btn-lg me-2"
         (click)="triggerImage(ScheduleAction.START_SHIFT)"
@@ -58,7 +63,7 @@
       </button>
       
       <button 
-        *ngIf="!webcamImage && (employeeStatus === 'OnShift' || employeeStatus === 'Late' || employeeStatus === 'Early' || employeeStatus === 'ShiftEventWithoutSchedule' )"
+        *ngIf="!webcamImage && canEndShift()"
         type="button"
         class="btn btn-danger btn-lg"
         (click)="triggerImage(ScheduleAction.END_SHIFT)"
@@ -70,7 +75,7 @@
 
     <div class="button-group mb-3">
       <button 
-        *ngIf="!webcamImage && (employeeStatus === 'OnShift' || employeeStatus === 'Late' || employeeStatus === 'Early' || employeeStatus === 'ShiftEventWithoutSchedule' )"
+        *ngIf="!webcamImage && isOnShiftStatus(employeeStatus)"
         type="button"
         class="btn btn-primary btn-lg me-2"
         (click)="triggerImage(ScheduleAction.START_BREAK)"
@@ -80,7 +85,7 @@
       </button>
       
       <button 
-        *ngIf="!webcamImage && (employeeStatus === 'OnShift' || employeeStatus === 'Late' || employeeStatus === 'Early' || employeeStatus === 'ShiftEventWithoutSchedule' )"
+        *ngIf="!webcamImage && isOnShiftStatus(employeeStatus)"
         type="button"
         class="btn btn-warning btn-lg"
         (click)="triggerImage(ScheduleAction.END_BREAK)"

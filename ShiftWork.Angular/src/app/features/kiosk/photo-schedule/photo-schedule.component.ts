@@ -68,6 +68,46 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
   // Expose enum to template
   readonly ScheduleAction = ScheduleAction;
 
+  // Derived UI helpers
+  isOnShiftStatus(status: string | null | undefined): boolean {
+    if (!status) return false;
+    return status.startsWith('OnShift') || status === 'ShiftEventWithoutSchedule';
+  }
+
+  get hasPublishedScheduleToday(): boolean {
+    return !!this.employeeSchedule;
+  }
+
+  canStartShift(): boolean {
+    return !this.isOnShiftStatus(this.employeeStatus) && this.hasPublishedScheduleToday;
+  }
+
+  canEndShift(): boolean {
+    return this.isOnShiftStatus(this.employeeStatus);
+  }
+
+  // Timing parsing for UI badge (Late/Early/OnTime/NoSchedule)
+  getTimingFromStatus(status: string | null | undefined): string | null {
+    if (!status) return null;
+    const parts = status.split(':');
+    return parts.length > 1 ? parts[1] : null;
+  }
+
+  getTimingBadgeClass(timing: string | null): string {
+    switch (timing) {
+      case 'OnTime':
+        return 'bg-success';
+      case 'Early':
+        return 'bg-warning text-dark';
+      case 'Late':
+        return 'bg-danger';
+      case 'NoSchedule':
+        return 'bg-secondary';
+      default:
+        return 'bg-secondary';
+    }
+  }
+
   constructor(
     private readonly kioskService: KioskService,
     private readonly timerService: TimerService,
@@ -93,9 +133,9 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
       this.activeCompany$.subscribe((company: Company | null) => {
         if (company && this.selectedEmployee) {
           this.activeCompany = company;
-          this.employeeStatus = this.selectedEmployee.status || null;
+          this.employeeStatus = this.selectedEmployee.statusShiftWork || null;
           if (this.selectedEmployee.personId) {
-            this.peopleService.getPersonStatus(company.companyId, this.selectedEmployee.personId)
+            this.peopleService.getPersonStatusShiftWork(company.companyId, this.selectedEmployee.personId)
               .pipe(takeUntil(this.destroy$))
               .subscribe((status: string) => {
                 this.employeeStatus = status;
@@ -234,6 +274,19 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
               .subscribe({
                 next: (event: ShiftEvent) => {
                   this.toastr.success('Shift event created successfully');
+                  // Optimistically update local status
+                  if (action === ScheduleAction.START_SHIFT) {
+                    // Optimistic update; server will enrich with timing (Late/Early/OnTime)
+                    this.employeeStatus = 'OnShift';
+                    if (this.selectedEmployee) {
+                      this.selectedEmployee.statusShiftWork = 'OnShift';
+                    }
+                  } else if (action === ScheduleAction.END_SHIFT) {
+                    this.employeeStatus = 'OffShift';
+                    if (this.selectedEmployee) {
+                      this.selectedEmployee.statusShiftWork = 'OffShift';
+                    }
+                  }
                   if (answers) {
                     const kioskAnswers: KioskAnswer[] = Object.keys(answers).map(key => ({
                       kioskAnswerId: 0,

@@ -1,59 +1,202 @@
-<div class="container">
-  <h1>Shift Summaries</h1>
-
-  <form [formGroup]="filterForm" (ngSubmit)="getShifts()">
-    <div class="form-row">
-      <div class="form-group col-md-3">
-        <label for="startDate">Start Date</label>
-        <input type="date" id="startDate" formControlName="startDate" class="form-control">
+<div class="shifts-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="fas fa-calendar-check"></i>
       </div>
-      <div class="form-group col-md-3">
-        <label for="endDate">End Date</label>
-        <input type="date" id="endDate" formControlName="endDate" class="form-control">
-      </div>
-      <div class="form-group col-md-3">
-        <label for="locationId">Location</label>
-        <select id="locationId" formControlName="locationId" class="form-control">
-          <option [ngValue]="null">All Locations</option>
-          <option *ngFor="let location of locations$ | async" [value]="location.locationId">{{ location.name }}</option>
-        </select>
-      </div>
-      <div class="form-group col-md-3">
-        <label for="personId">Person</label>
-        <select id="personId" formControlName="personId" class="form-control">
-          <option [ngValue]="null">All People</option>
-          <option *ngFor="let person of people$ | async" [value]="person.personId">{{ person.name }}</option>
-        </select>
+      <div class="header-text">
+        <h1 class="page-title">Shift Summaries</h1>
+        <p class="page-subtitle">Filter and view summarized shift activity by person, location, and date</p>
       </div>
     </div>
-    <button type="submit" class="btn btn-primary">Filter</button>
-  </form>
+  </div>
 
-  <table class="table table-striped mt-4">
-    <thead>
-      <tr>
-        <th>Day</th>
-        <th>Person</th>
-        <th>Location</th>
-        <th>Area</th>
-        <th>Start Time</th>
-        <th>End Time</th>
-        <th>Break Time</th>
-        <th>Total Hours</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let shift of shifts$ | async">
-        <td>{{ shift.day | date }}</td>
-        <td>{{ shift.personName }}</td>
-        <td>{{ shift.locationName }}</td>
-        <td>{{ shift.areaName }}</td>
-        <td>{{ shift.minStartTime | date:'shortTime' }}</td>
-        <td>{{ shift.maxEndTime | date:'shortTime' }}</td>
-        <td>{{ shift.breakTime }}</td>
-        <td>{{ shift.totalHours }}</td>
+  <div class="content-wrapper">
+    <!-- Filters Card -->
+    <div class="filters-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fas fa-filter"></i>
+          Filter Shifts
+        </h3>
+        <div class="result-count" *ngIf="(shifts$ | async) as shifts">
+          <i class="fas fa-list"></i>
+          {{ shifts.length }} result(s)
+        </div>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="filterForm" (ngSubmit)="getShifts()" class="filters-grid">
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fas fa-calendar-alt"></i>
+              Start Date
+            </label>
+            <input type="date" id="startDate" class="filter-input" formControlName="startDate">
+          </div>
 
-      </tr>
-    </tbody>
-  </table>
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fas fa-calendar-day"></i>
+              End Date
+            </label>
+            <input type="date" id="endDate" class="filter-input" formControlName="endDate">
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fas fa-location-dot"></i>
+              Location
+            </label>
+            <select id="locationId" class="filter-select" formControlName="locationId">
+              <option [ngValue]="null">All Locations</option>
+              <option *ngFor="let location of locations$ | async" [value]="location.locationId">{{ location.name }}</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fas fa-user"></i>
+              Person
+            </label>
+            <select id="personId" class="filter-select" formControlName="personId">
+              <option [ngValue]="null">All People</option>
+              <option *ngFor="let person of people$ | async" [value]="person.personId">{{ person.name }}</option>
+            </select>
+          </div>
+
+          <div class="filter-actions">
+            <button type="submit" class="btn-apply">
+              <i class="fas fa-check"></i>
+              Apply Filters
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Results Toolbar -->
+    <div class="results-toolbar" *ngIf="(shifts$ | async) as shifts">
+      <div class="toggle-group">
+        <button class="toggle-btn" [class.active]="viewMode === 'cards'" (click)="toggleView('cards')">
+          <i class="fas fa-th-large"></i>
+          Cards
+        </button>
+        <button class="toggle-btn" [class.active]="viewMode === 'table'" (click)="toggleView('table')">
+          <i class="fas fa-table"></i>
+          Table
+        </button>
+      </div>
+      <button class="export-btn" (click)="exportToCsv()">
+        <i class="fas fa-file-export"></i>
+        Export CSV
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading shift summaries...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && ((shifts$ | async)?.length || 0) === 0" class="empty-state">
+      <i class="fas fa-folder-open empty-icon"></i>
+      <p class="empty-text">No results</p>
+      <p class="empty-subtext">Try a different date range or filters</p>
+    </div>
+
+    <!-- Results Grid -->
+    <div *ngIf="!loading && (shifts$ | async) as shifts" class="summary-grid" [hidden]="viewMode !== 'cards'">
+      <div 
+        class="summary-card"
+        *ngFor="let shift of shifts; let i = index"
+        [style.animation-delay]="(i * 0.05) + 's'"
+      >
+        <div class="card-header-row">
+          <div class="person-section">
+            <div class="person-avatar">{{ (shift.personName || '?') | slice:0:2 }}</div>
+            <div class="person-info">
+              <h4 class="person-name">{{ shift.personName || 'Unknown' }}</h4>
+              <p class="shift-day">
+                <i class="fas fa-calendar-day"></i>
+                {{ shift.day | date:'fullDate' }}
+              </p>
+            </div>
+          </div>
+
+          <div class="time-range">
+            <i class="fas fa-clock"></i>
+            <span>{{ shift.minStartTime | date:'shortTime' }} – {{ shift.maxEndTime | date:'shortTime' }}</span>
+          </div>
+        </div>
+
+        <div class="card-divider"></div>
+
+        <div class="card-body-grid">
+          <div class="info-row">
+            <span class="info-label">
+              <i class="fas fa-location-dot"></i>
+              Location
+            </span>
+            <span class="info-value">{{ shift.locationName || '-' }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">
+              <i class="fas fa-layer-group"></i>
+              Area
+            </span>
+            <span class="info-value">{{ shift.areaName || '-' }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">
+              <i class="fas fa-mug-hot"></i>
+              Break Time
+            </span>
+            <span class="info-value">{{ shift.breakTime || 0 }} min</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">
+              <i class="fas fa-hourglass-half"></i>
+              Total Hours
+            </span>
+            <span class="info-value total-hours">{{ shift.totalHours | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Table -->
+    <div *ngIf="!loading && (shifts$ | async) as shifts" class="summary-table-wrapper" [hidden]="viewMode !== 'table'">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>Person</th>
+            <th>Location</th>
+            <th>Area</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Break (min)</th>
+            <th>Total Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let shift of shifts">
+            <td>{{ shift.day | date }}</td>
+            <td>{{ shift.personName }}</td>
+            <td>{{ shift.locationName }}</td>
+            <td>{{ shift.areaName }}</td>
+            <td>{{ shift.minStartTime | date:'shortTime' }}</td>
+            <td>{{ shift.maxEndTime | date:'shortTime' }}</td>
+            <td>{{ shift.breakTime || 0 }}</td>
+            <td>{{ shift.totalHours | number:'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

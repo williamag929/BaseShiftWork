@@ -17,6 +17,9 @@
     
     <!-- User Profile Menu -->
     <div class="user-section">
+      <span class="status-badge" *ngIf="personStatus$ | async as status" [ngClass]="{'on': status === 'OnShift', 'off': status === 'OffShift'}">
+        {{ status || 'Unknown' }}
+      </span>
       <button mat-icon-button [matMenuTriggerFor]="menu" class="profile-button">
         <img [src]="(user$ | async)?.photoUrl || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJDMTQuMjEgMTIgMTYgMTAuMjEgMTYgOEMxNiA1Ljc5IDE0LjIxIDQgMTIgNFM4IDUuNzkgOCA4QzggMTAuMjEgOS43OSAxMiAxMiAxMlpNMTIgMTRDNi40OCAxNCAyIDE2LjQ4IDIgMjJWMjRIMjJWMjJDMTggMTYuNDggMTUuNTIgMTQgMTIgMTRaIiBmaWxsPSIjY2NjY2NjIi8+PC9zdmc+'" 
              class="profile-avatar" 
@@ -34,6 +37,13 @@
         <div class="user-menu-info">
           <p class="user-name">{{ user.name }}</p>
           <p class="user-email">{{ user.email }}</p>
+          <p class="user-status" *ngIf="personStatus$ | async as status">
+            Status: <strong>{{ status || 'Unknown' }}</strong>
+            <button mat-icon-button (click)="refreshStatus(); $event.stopPropagation()" class="refresh-btn" [disabled]="refreshing" matTooltip="Refresh status">
+              <mat-icon [class.spinning]="refreshing">refresh</mat-icon>
+            </button>
+          </p>
+          <p class="last-updated" *ngIf="lastStatusUpdate">Updated: {{ lastStatusUpdate | date:'shortTime' }}</p>
         </div>
       </div>
       <mat-divider></mat-divider>
@@ -41,7 +51,7 @@
         <mat-icon>account_circle</mat-icon>
         <span>My Profile</span>
       </button>
-      <button mat-menu-item routerLink="/dashboard/settings" class="menu-item">
+      <button mat-menu-item routerLink="/dashboard/company-settings" class="menu-item">
         <mat-icon>settings</mat-icon>
         <span>Settings</span>
       </button>
@@ -78,16 +88,10 @@
       <mat-nav-list class="nav-list">
         <div class="nav-section-title">Main Menu</div>
         
-        <a mat-list-item routerLink="/dashboard/schedule" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>calendar_today</mat-icon>
-            <span matListItemTitle>Schedule</span>
-          </div>
-        </a>
 
         <a mat-list-item routerLink="/dashboard/schedule-grid" routerLinkActive="active-link" class="nav-item">
           <div class="nav-item-content">
-            <mat-icon matListItemIcon>grid_view</mat-icon>
+            <mat-icon matListItemIcon>apps</mat-icon>
             <span matListItemTitle>Schedule Grid</span>
           </div>
         </a>
@@ -98,13 +102,7 @@
             <span matListItemTitle>Shift Summaries</span>
           </div>
         </a>
-        
-        <a mat-list-item routerLink="/dashboard/clock-shift" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>alarm</mat-icon>
-            <span matListItemTitle>Clock In/Out</span>
-          </div>
-        </a>
+      
 
         <div class="nav-section-title">Management</div>
         
@@ -112,27 +110,6 @@
           <div class="nav-item-content">
             <mat-icon matListItemIcon>people</mat-icon>
             <span matListItemTitle>People</span>
-          </div>
-        </a>
-        
-        <a mat-list-item routerLink="/dashboard/people-management" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>manage_accounts</mat-icon>
-            <span matListItemTitle>People Management</span>
-          </div>
-        </a>
-        
-        <a mat-list-item routerLink="/dashboard/time-off-approvals" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>event_busy</mat-icon>
-            <span matListItemTitle>Time-Off Approvals</span>
-          </div>
-        </a>
-        
-        <a mat-list-item routerLink="/dashboard/company-settings" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>settings</mat-icon>
-            <span matListItemTitle>Company Settings</span>
           </div>
         </a>
         
@@ -152,10 +129,28 @@
         
         <a mat-list-item routerLink="/dashboard/tasks" routerLinkActive="active-link" class="nav-item">
           <div class="nav-item-content">
-            <mat-icon matListItemIcon>task_alt</mat-icon>
+            <mat-icon matListItemIcon>check_box</mat-icon>
             <span matListItemTitle>Tasks</span>
           </div>
         </a>
+
+        <div class="nav-section-title">PTO</div>
+
+        <a mat-list-item routerLink="/dashboard/people-management" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>event_busy</mat-icon>
+            <span matListItemTitle>PTO Management</span>
+          </div>
+        </a>
+        
+        <a mat-list-item routerLink="/dashboard/time-off-approvals" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>event_busy</mat-icon>
+            <span matListItemTitle>Time-Off Approvals</span>
+          </div>
+        </a>        
+      
+        <div class="nav-section-title">Kiosks</div>
         
         <a mat-list-item routerLink="/kiosk" routerLinkActive="active-link" class="nav-item">
           <div class="nav-item-content">
@@ -172,15 +167,7 @@
               <span>More Options</span>
             </mat-panel-title>
           </mat-expansion-panel-header>
-          
           <div class="expansion-content">
-            <a mat-list-item routerLink="/dashboard/holidays" routerLinkActive="active-link" class="nav-item sub-item">
-              <div class="nav-item-content">
-                <mat-icon matListItemIcon>holiday_village</mat-icon>
-                <span matListItemTitle>Holidays</span>
-              </div>
-            </a>
-            
             <a mat-list-item routerLink="/general/manage-companies" routerLinkActive="active-link" class="nav-item sub-item">
               <div class="nav-item-content">
                 <mat-icon matListItemIcon>business</mat-icon>
@@ -188,19 +175,28 @@
               </div>
             </a>
             
-            <a mat-list-item routerLink="/dashboard/profiles" routerLinkActive="active-link" class="nav-item sub-item">
-              <div class="nav-item-content">
-                <mat-icon matListItemIcon>account_circle</mat-icon>
-                <span matListItemTitle>Profiles</span>
-              </div>
-            </a>
-            
-            <a mat-list-item routerLink="/dashboard/settings" routerLinkActive="active-link" class="nav-item sub-item">
+            <a mat-list-item routerLink="/dashboard/company-settings" routerLinkActive="active-link" class="nav-item sub-item">
               <div class="nav-item-content">
                 <mat-icon matListItemIcon>settings</mat-icon>
                 <span matListItemTitle>Settings</span>
               </div>
             </a>
+
+            <!--
+            <a mat-list-item routerLink="/dashboard/holidays" routerLinkActive="active-link" class="nav-item sub-item">
+              <div class="nav-item-content">
+                <mat-icon matListItemIcon>holiday_village</mat-icon>
+                <span matListItemTitle>Holidays</span>
+              </div>
+            </a>
+-->
+
+            <a mat-list-item routerLink="/dashboard/profiles" routerLinkActive="active-link" class="nav-item sub-item">
+              <div class="nav-item-content">
+                <mat-icon matListItemIcon>account_circle</mat-icon>
+                <span matListItemTitle>Profiles</span>
+              </div>
+            </a>            
             
             <a mat-list-item routerLink="/dashboard/help" routerLinkActive="active-link" class="nav-item sub-item">
               <div class="nav-item-content">
@@ -209,39 +205,14 @@
               </div>
             </a>
             
-            <a mat-list-item routerLink="/dashboard/about" routerLinkActive="active-link" class="nav-item sub-item">
-              <div class="nav-item-content">
-                <mat-icon matListItemIcon>info_outline</mat-icon>
-                <span matListItemTitle>About</span>
-              </div>
-            </a>
-            
-            <a mat-list-item routerLink="/dashboard/contact" routerLinkActive="active-link" class="nav-item sub-item">
-              <div class="nav-item-content">
-                <mat-icon matListItemIcon>contact_mail</mat-icon>
-                <span matListItemTitle>Contact</span>
-              </div>
-            </a>
-            
-            <a mat-list-item routerLink="/dashboard/privacy" routerLinkActive="active-link" class="nav-item sub-item">
-              <div class="nav-item-content">
-                <mat-icon matListItemIcon>privacy_tip</mat-icon>
-                <span matListItemTitle>Privacy Policy</span>
-              </div>
-            </a>
-            
-            <a mat-list-item routerLink="/dashboard/terms" routerLinkActive="active-link" class="nav-item sub-item">
-              <div class="nav-item-content">
-                <mat-icon matListItemIcon>gavel</mat-icon>
-                <span matListItemTitle>Terms of Service</span>
-              </div>
-            </a>
           </div>
         </mat-expansion-panel>
       </mat-nav-list>
     </mat-sidenav>
 
-    <!-- Main Content Area -->
+    <!-- Main Content Area
+      todo: add contact, privacy policy and terms of service links, 
+      -->
     <mat-sidenav-content class="main-content">
       <div class="content-wrapper">
         <router-outlet></router-outlet>

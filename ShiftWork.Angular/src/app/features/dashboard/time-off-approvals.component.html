@@ -1,82 +1,274 @@
-<div class="toa-container">
-  <div class="toa-header">
-    <h2>Time-Off Approvals</h2>
-    <div class="filters">
-      <input type="text" placeholder="Search by name or reason" [(ngModel)]="search" (input)="loadRequests()" />
-      <select [(ngModel)]="status" (change)="loadRequests()">
-        <option value="Pending">Pending</option>
-        <option value="Approved">Approved</option>
-        <option value="Denied">Denied</option>
-        <option value="All">All</option>
-      </select>
-      <select [(ngModel)]="personId" (change)="loadRequests()">
-        <option [ngValue]="undefined">All people</option>
-        <option *ngFor="let p of people" [ngValue]="p.personId">{{ p.name }}</option>
-      </select>
-      <input type="date" [(ngModel)]="startDate" (change)="loadRequests()" />
-      <input type="date" [(ngModel)]="endDate" (change)="loadRequests()" />
-      <select [(ngModel)]="pageSize" (change)="page=1">
-        <option [ngValue]="10">10 / page</option>
-        <option [ngValue]="20">20 / page</option>
-        <option [ngValue]="50">50 / page</option>
-      </select>
-      <button class="btn-clear" (click)="clearFilters()">Clear</button>
-    </div>
-  </div>
-
-  <div *ngIf="loading" class="loading">
-    <div class="spinner"></div>
-    <p>Loading requests...</p>
-  </div>
-
-  <div *ngIf="error && !loading" class="error">
-    {{ error }}
-  </div>
-
-  <div *ngIf="!loading && !error && requests.length === 0" class="empty">
-    No requests found.
-  </div>
-
-  <div *ngIf="!loading && !error && requests.length > 0" class="list">
-    <div class="row header">
-      <div>Employee</div>
-      <div>Type</div>
-      <div>Dates</div>
-      <div>Reason</div>
-      <div>Status</div>
-      <div class="actions-col">Actions</div>
-    </div>
-    <div class="row" *ngFor="let r of pagedRequests">
-      <div>
-        <div class="strong">{{ r.personName || ('#' + r.personId) }}</div>
-        <div class="meta">Requested: {{ formatDate(r.createdAt) }}</div>
+<div class="approvals-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="fa fa-calendar-check-o"></i>
       </div>
-      <div>{{ r.type }}</div>
-      <div>
-        <div>{{ formatDate(r.startDate) }} → {{ formatDate(r.endDate) }}</div>
-        <div class="meta" *ngIf="r.isPartialDay">Partial: {{ r.partialStartTime }} - {{ r.partialEndTime }}</div>
-        <div class="meta" *ngIf="r.hoursRequested">Hours: {{ r.hoursRequested }}</div>
-        <div class="meta pto-balance" *ngIf="(r.type === 'Vacation' || r.type === 'PTO') && getPtoBalance(r.personId) !== undefined">
-          PTO Balance: <strong>{{ getPtoBalance(r.personId) }} hrs</strong>
-          <span class="warning" *ngIf="r.hoursRequested && getPtoBalance(r.personId)! < r.hoursRequested"> (Insufficient!)</span>
+      <div class="header-text">
+        <h1 class="page-title">Time-Off Approvals</h1>
+        <p class="page-subtitle">Review and manage employee time-off requests</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-wrapper">
+    <!-- Filters Card -->
+    <div class="filters-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fa fa-filter"></i>
+          Filters
+        </h3>
+        <button class="clear-btn" (click)="clearFilters()" title="Clear all filters">
+          <i class="fa fa-refresh"></i>
+          Clear
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fa fa-search"></i>
+              Search
+            </label>
+            <input 
+              type="text" 
+              class="filter-input" 
+              placeholder="Search by name or reason..." 
+              [(ngModel)]="search" 
+              (input)="loadRequests()"
+            />
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fa fa-info-circle"></i>
+              Status
+            </label>
+            <select class="filter-select" [(ngModel)]="status" (change)="loadRequests()">
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Denied">Denied</option>
+              <option value="All">All</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fa fa-user"></i>
+              Employee
+            </label>
+            <select class="filter-select" [(ngModel)]="personId" (change)="loadRequests()">
+              <option [ngValue]="undefined">All employees</option>
+              <option *ngFor="let p of people" [ngValue]="p.personId">{{ p.name }}</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fa fa-calendar"></i>
+              Start Date
+            </label>
+            <input 
+              type="date" 
+              class="filter-input" 
+              [(ngModel)]="startDate" 
+              (change)="loadRequests()"
+            />
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fa fa-calendar"></i>
+              End Date
+            </label>
+            <input 
+              type="date" 
+              class="filter-input" 
+              [(ngModel)]="endDate" 
+              (change)="loadRequests()"
+            />
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fa fa-list-ol"></i>
+              Per Page
+            </label>
+            <select class="filter-select" [(ngModel)]="pageSize" (change)="page=1">
+              <option [ngValue]="10">10 / page</option>
+              <option [ngValue]="20">20 / page</option>
+              <option [ngValue]="50">50 / page</option>
+            </select>
+          </div>
         </div>
       </div>
-      <div>{{ r.reason || '-' }}</div>
-      <div>
-        <span class="status" [class.pending]="r.status==='Pending'" [class.approved]="r.status==='Approved'" [class.denied]="r.status==='Denied'">{{ r.status }}</span>
-      </div>
-      <div class="actions-col">
-        <textarea [(ngModel)]="noteText[r.timeOffRequestId]" placeholder="Notes (optional)" rows="2"></textarea>
-        <div class="btn-group">
-          <button class="btn approve" (click)="approve(r)" [disabled]="r.status!=='Pending'">Approve</button>
-          <button class="btn deny" (click)="deny(r)" [disabled]="r.status!=='Pending'">Deny</button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading time-off requests...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-state">
+      <i class="fa fa-exclamation-triangle error-icon"></i>
+      <p class="error-text">{{ error }}</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && requests.length === 0" class="empty-state">
+      <i class="fa fa-inbox empty-icon"></i>
+      <p class="empty-text">No requests found</p>
+      <p class="empty-subtext">Try adjusting your filters</p>
+    </div>
+
+    <!-- Requests List -->
+    <div *ngIf="!loading && !error && requests.length > 0" class="requests-grid">
+      <div *ngFor="let r of pagedRequests; let i = index" 
+           class="request-card" 
+           [class.pending]="r.status==='Pending'"
+           [class.approved]="r.status==='Approved'"
+           [class.denied]="r.status==='Denied'"
+           [style.animation-delay.ms]="i * 50">
+        
+        <div class="card-header-row">
+          <div class="employee-section">
+            <div class="employee-avatar">
+              {{ getInitials(r.personName || '') }}
+            </div>
+            <div class="employee-info">
+              <h4 class="employee-name">{{ r.personName || ('#' + r.personId) }}</h4>
+              <p class="request-date">
+                <i class="fa fa-clock-o"></i>
+                Requested {{ formatDate(r.createdAt) }}
+              </p>
+            </div>
+          </div>
+          <div class="status-badge" [class.pending]="r.status==='Pending'" 
+               [class.approved]="r.status==='Approved'" 
+               [class.denied]="r.status==='Denied'">
+            <i class="fa" 
+               [class.fa-clock-o]="r.status==='Pending'"
+               [class.fa-check-circle]="r.status==='Approved'"
+               [class.fa-times-circle]="r.status==='Denied'"></i>
+            {{ r.status }}
+          </div>
+        </div>
+
+        <div class="card-divider"></div>
+
+        <div class="card-body-grid">
+          <div class="info-section">
+            <div class="info-row">
+              <span class="info-label">
+                <i class="fa fa-tag"></i>
+                Type
+              </span>
+              <span class="info-value type-badge">{{ r.type }}</span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">
+                <i class="fa fa-calendar-o"></i>
+                Duration
+              </span>
+              <span class="info-value">
+                {{ formatDate(r.startDate) }} → {{ formatDate(r.endDate) }}
+              </span>
+            </div>
+
+            <div class="info-row" *ngIf="r.isPartialDay">
+              <span class="info-label">
+                <i class="fa fa-clock-o"></i>
+                Time
+              </span>
+              <span class="info-value">{{ r.partialStartTime }} - {{ r.partialEndTime }}</span>
+            </div>
+
+            <div class="info-row" *ngIf="r.hoursRequested">
+              <span class="info-label">
+                <i class="fa fa-hourglass-half"></i>
+                Hours
+              </span>
+              <span class="info-value">{{ r.hoursRequested }} hrs</span>
+            </div>
+
+            <div class="info-row pto-balance-row" *ngIf="(r.type === 'Vacation' || r.type === 'PTO') && getPtoBalance(r.personId) !== undefined">
+              <span class="info-label">
+                <i class="fa fa-bank"></i>
+                PTO Balance
+              </span>
+              <span class="info-value">
+                <strong>{{ getPtoBalance(r.personId) }} hrs</strong>
+                <span class="insufficient-badge" *ngIf="r.hoursRequested && getPtoBalance(r.personId)! < r.hoursRequested">
+                  <i class="fa fa-exclamation-triangle"></i>
+                  Insufficient
+                </span>
+              </span>
+            </div>
+
+            <div class="info-row" *ngIf="r.reason">
+              <span class="info-label">
+                <i class="fa fa-comment"></i>
+                Reason
+              </span>
+              <span class="info-value reason-text">{{ r.reason }}</span>
+            </div>
+          </div>
+
+          <div class="actions-section">
+            <div class="notes-group">
+              <label class="notes-label">
+                <i class="fa fa-pencil"></i>
+                Notes (Optional)
+              </label>
+              <textarea 
+                class="notes-textarea"
+                [(ngModel)]="noteText[r.timeOffRequestId]" 
+                placeholder="Add notes for approval/denial..."
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div class="action-buttons">
+              <button 
+                class="btn btn-approve" 
+                (click)="approve(r)" 
+                [disabled]="r.status!=='Pending'">
+                <i class="fa fa-check"></i>
+                Approve
+              </button>
+              <button 
+                class="btn btn-deny" 
+                (click)="deny(r)" 
+                [disabled]="r.status!=='Pending'">
+                <i class="fa fa-times"></i>
+                Deny
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="pagination">
-      <button class="btn" (click)="prevPage()" [disabled]="page===1">Prev</button>
-      <span>Page {{ page }} / {{ totalPages }}</span>
-      <button class="btn" (click)="nextPage()" [disabled]="page===totalPages">Next</button>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && !error && requests.length > 0" class="pagination-card">
+      <button class="pagination-btn" (click)="prevPage()" [disabled]="page===1">
+        <i class="fa fa-chevron-left"></i>
+        Previous
+      </button>
+      <div class="pagination-info">
+        <span class="page-number">Page {{ page }}</span>
+        <span class="page-divider">/</span>
+        <span class="page-total">{{ totalPages }}</span>
+      </div>
+      <button class="pagination-btn" (click)="nextPage()" [disabled]="page===totalPages">
+        Next
+        <i class="fa fa-chevron-right"></i>
+      </button>
     </div>
   </div>
 </div>

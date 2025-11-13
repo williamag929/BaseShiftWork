@@ -19,6 +19,7 @@ namespace ShiftWork.Api.Controllers
     [Route("api/companies/{companyId}/[controller]")]
     public class PeopleController : ControllerBase
     {
+        public class UpdateStatusRequest { public string? Status { get; set; } }
         private readonly IPeopleService _peopleService;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
@@ -42,13 +43,13 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(typeof(IEnumerable<PersonDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<IEnumerable<PersonDto>>> GetPeople(string companyId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchQuery = null)
+    public async Task<ActionResult<IEnumerable<PersonDto>>> GetPeople(string companyId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchQuery = null)
         {
             //pagination added
             //filtering added
             try
             {
-                var people = await _peopleService.GetAll(companyId, pageNumber, pageSize, searchQuery);
+                var people = await _peopleService.GetAll(companyId, pageNumber, pageSize, searchQuery ?? string.Empty);
 
                 if (people == null || !people.Any())
                 {
@@ -76,7 +77,7 @@ namespace ShiftWork.Api.Controllers
             try
             {
                 var cacheKey = $"person_{companyId}_{personId}";
-                if (!_memoryCache.TryGetValue(cacheKey, out Person person))
+                if (!_memoryCache.TryGetValue(cacheKey, out Person? person))
                 {
                     _logger.LogInformation("Cache miss for person {PersonId} in company {CompanyId}", personId, companyId);
                     person = await _peopleService.Get(companyId, personId);
@@ -223,14 +224,15 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Updates the status of a person.
         /// </summary>
-        [HttpPut("{personId}/status")]
+    [HttpPut("{personId}/status")]
         [ProducesResponseType(typeof(PersonDto), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<PersonDto>> UpdatePersonStatus(string companyId, int personId, [FromBody] string status)
+        public async Task<ActionResult<PersonDto>> UpdatePersonStatus(string companyId, int personId, [FromBody] UpdateStatusRequest request)
         {
-            if (string.IsNullOrEmpty(status))
+            var status = request?.Status;
+            if (string.IsNullOrWhiteSpace(status))
             {
                 return BadRequest("Status cannot be empty.");
             }
@@ -283,6 +285,74 @@ namespace ShiftWork.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving status for person {PersonId} in company {CompanyId}.", personId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Updates the kiosk (ShiftWork) status of a person (OnShift/OffShift).
+        /// </summary>
+        [HttpPut("{personId}/status-shiftwork")]
+        [ProducesResponseType(typeof(PersonDto), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<PersonDto>> UpdatePersonStatusShiftWork(string companyId, int personId, [FromBody] UpdateStatusRequest request)
+        {
+            var status = request?.Status;
+            if (string.IsNullOrWhiteSpace(status))
+            {
+                return BadRequest("Status cannot be empty.");
+            }
+
+            try
+            {
+                var person = await _peopleService.Get(companyId, personId);
+                if (person == null)
+                {
+                    return NotFound($"Person with ID {personId} not found.");
+                }
+
+                var updatedPerson = await _peopleService.UpdatePersonStatusShiftWork(personId, status);
+                if (updatedPerson == null)
+                {
+                    return NotFound($"Person with ID {personId} not found.");
+                }
+
+                _memoryCache.Remove($"people_{companyId}");
+                _memoryCache.Remove($"person_{companyId}_{personId}");
+                var updatedPersonDto = _mapper.Map<PersonDto>(updatedPerson);
+
+                return Ok(updatedPersonDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating ShiftWork status for person {PersonId} in company {CompanyId}.", personId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the kiosk (ShiftWork) status of a person.
+        /// </summary>
+        [HttpGet("{personId}/status-shiftwork")]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<string>> GetPersonStatusShiftWork(string companyId, int personId)
+        {
+            try
+            {
+                var status = await _peopleService.GetPersonStatusShiftWork(personId);
+                if (status == null)
+                {
+                    return NotFound($"Person with ID {personId} not found or status is not set.");
+                }
+                return Ok(status);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving ShiftWork status for person {PersonId} in company {CompanyId}.", personId, companyId);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
