@@ -59,12 +59,7 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Default legend collapsed on small screens; allow persisted preference to override
     const isMobile = window.matchMedia('(max-width: 767.98px)').matches;
-    const stored = localStorage.getItem('employeeListLegendOpen');
-    if (stored === null) {
-      this.showLegend = !isMobile;
-    } else {
-      this.showLegend = stored === 'true';
-    }
+    this.showLegend = !isMobile; // temporary default until company is known
     // Optional override via query param (?refreshMs=60000)
     const qpMs = Number(this.route.snapshot.queryParamMap.get('refreshMs'));
     if (!isNaN(qpMs) && qpMs >= 5000) {
@@ -73,6 +68,18 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
     this.activeCompany$.subscribe((company: Company | null) => {
       if (company) {
         this.activeCompany = company;
+        // Re-evaluate legend preference per company
+        try {
+          const key = `employeeListLegendOpen_${company.companyId}`;
+          const storedPerCompany = localStorage.getItem(key);
+          if (storedPerCompany === null) {
+            this.showLegend = !isMobile; // default based on device
+          } else {
+            this.showLegend = storedPerCompany === 'true';
+          }
+        } catch {
+          // ignore storage errors
+        }
         
         // Load settings
         this.settingsHelper.loadSettings(company.companyId).subscribe(settings => {
@@ -108,6 +115,15 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
           }
         );
       }
+    });
+
+    // Apply immediate status updates from the photo-schedule flow
+    this.kioskService.statusUpdate$.subscribe(({ personId, status }) => {
+      const e = this.employees.find(p => p.personId === personId);
+      if (e) e.statusShiftWork = status;
+      const f = this.filteredEmployees.find(p => p.personId === personId);
+      if (f) f.statusShiftWork = status;
+      this.lastUpdated = new Date();
     });
   }
 
@@ -273,7 +289,8 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   toggleLegend(): void {
     this.showLegend = !this.showLegend;
     try {
-      localStorage.setItem('employeeListLegendOpen', this.showLegend ? 'true' : 'false');
+      const key = this.activeCompany ? `employeeListLegendOpen_${this.activeCompany.companyId}` : 'employeeListLegendOpen';
+      localStorage.setItem(key, this.showLegend ? 'true' : 'false');
     } catch {
       // ignore storage errors (e.g., private mode)
     }

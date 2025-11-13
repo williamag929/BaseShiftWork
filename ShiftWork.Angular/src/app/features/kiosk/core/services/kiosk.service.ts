@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, throwError } from 'rxjs';
 import { People } from 'src/app/core/models/people.model';
 import { Schedule } from 'src/app/core/models/schedule.model';
 import { ScheduleEmployee } from '../models/schedule-employee.model';
@@ -26,6 +26,10 @@ export class KioskService {
   private scheduleEmployeeSource = new BehaviorSubject<ScheduleEmployee | null>(null);
   scheduleEmployee$ = this.scheduleEmployeeSource.asObservable();
 
+  // Emits on-the-fly status updates from photo-schedule to employee list
+  private statusUpdateSource = new Subject<{ personId: number; status: string }>();
+  statusUpdate$ = this.statusUpdateSource.asObservable();
+
   constructor(private http: HttpClient) { }
 
   setSelectedEmployee(employee: People | null) {
@@ -42,6 +46,10 @@ export class KioskService {
 
   getScheduleEmployee(): ScheduleEmployee | null {
     return this.scheduleEmployeeSource.getValue();  
+  }
+
+  emitStatusUpdate(personId: number, status: string) {
+    this.statusUpdateSource.next({ personId, status });
   }
 
   setSelectedLocation(location: Location) {

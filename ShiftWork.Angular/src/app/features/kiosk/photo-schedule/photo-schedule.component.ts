@@ -274,17 +274,19 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
               .subscribe({
                 next: (event: ShiftEvent) => {
                   this.toastr.success('Shift event created successfully');
-                  // Optimistically update local status
+                  // Optimistically update local status and notify kiosk list immediately
                   if (action === ScheduleAction.START_SHIFT) {
                     // Optimistic update; server will enrich with timing (Late/Early/OnTime)
                     this.employeeStatus = 'OnShift';
                     if (this.selectedEmployee) {
                       this.selectedEmployee.statusShiftWork = 'OnShift';
+                      this.kioskService.emitStatusUpdate(this.selectedEmployee.personId!, 'OnShift');
                     }
                   } else if (action === ScheduleAction.END_SHIFT) {
                     this.employeeStatus = 'OffShift';
                     if (this.selectedEmployee) {
                       this.selectedEmployee.statusShiftWork = 'OffShift';
+                      this.kioskService.emitStatusUpdate(this.selectedEmployee.personId!, 'OffShift');
                     }
                   }
                   if (answers) {
@@ -308,6 +310,11 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
               location: {}
             };
             this.kioskService.setscheduleEmployee(scheduleEmployee);
+
+            // Navigate back to the employee list promptly so users see updated status
+            setTimeout(() => {
+              this.router.navigate(['/kiosk/employee-list']);
+            }, 400);
           },
           error: (err: any) => this.toastr.error('Error uploading photo')
         });
