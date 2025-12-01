@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { People } from '../models/people.model';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, throwError, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -65,17 +65,33 @@ export class PeopleService {
   }
 
   getPersonStatus(companyId: string, personId: number): Observable<string> {
-    return this.http.get<string>(`${this.apiUrl}/companies/${companyId}/people/${personId}/status`)
+    return this.http.get<string | null>(`${this.apiUrl}/companies/${companyId}/people/${personId}/status`, { observe: 'body', responseType: 'text' as 'json' })
       .pipe(
-        catchError(this.handleError)
+        // Coalesce null/empty responses (e.g., 204 No Content) to empty string
+        map((val: any) => (val ?? '') as string),
+        // Treat 404 as "no status set" and return empty string instead of error
+        catchError((err: HttpErrorResponse) => {
+          if (err.status === 404 || err.status === 204) {
+            return of('');
+          }
+          return this.handleError(err);
+        })
       );
   }
   
   // Kiosk-specific (ShiftWork) status endpoints
   getPersonStatusShiftWork(companyId: string, personId: number): Observable<string> {
-    return this.http.get<string>(`${this.apiUrl}/companies/${companyId}/people/${personId}/status-shiftwork`)
+    return this.http.get<string | null>(`${this.apiUrl}/companies/${companyId}/people/${personId}/status-shiftwork`, { observe: 'body', responseType: 'text' as 'json' })
       .pipe(
-        catchError(this.handleError)
+        // Coalesce null/empty responses (e.g., 204 No Content) to empty string
+        map((val: any) => (val ?? '') as string),
+        // Treat 404 as "no kiosk status set" and return empty string instead of error
+        catchError((err: HttpErrorResponse) => {
+          if (err.status === 404 || err.status === 204) {
+            return of('');
+          }
+          return this.handleError(err);
+        })
       );
   }
   

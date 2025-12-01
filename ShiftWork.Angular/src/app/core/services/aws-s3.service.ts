@@ -29,10 +29,11 @@ export class AwsS3Service {
       // Client-side errors
       errorMessage = `Error: ${error.error.message}`;
     } else {
-      // Server-side errors
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      // Server-side errors; prefer server-provided body text when available
+      const serverBody = typeof error.error === 'string' ? error.error : (error.error?.message || '');
+      errorMessage = `Error Code: ${error.status}\nMessage: ${serverBody || error.message}`;
     }
-    console.error(errorMessage);
+    console.error(error);
     return throwError(() => new Error(errorMessage));
   }
 }

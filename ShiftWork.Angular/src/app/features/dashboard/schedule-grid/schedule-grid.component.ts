@@ -730,18 +730,26 @@ export class ScheduleGridComponent implements OnInit {
       });
       const shiftBlocks: ShiftBlock[] = dayShifts.map(s => {
         const person = people.find(p => p.personId === s.personId);
+        const now = new Date();
+        const startDate = new Date(s.startDate);
+        const endDate = new Date(s.endDate);
+        const isOnShift = !!person?.statusShiftWork && person.statusShiftWork.startsWith('OnShift');
+        const isWithinWindow = now >= startDate && now <= endDate;
+  const isCompleted = now > endDate || (!!s.status && s.status.toLowerCase() === 'locked');
         return {
           scheduleShiftId: s.scheduleShiftId || 0,
           personId: s.personId,
           personName: person?.name || `Person ${s.personId}`,
-          startTime: this.formatTime(new Date(s.startDate)),
-          endTime: this.formatTime(new Date(s.endDate)),
-          startDate: new Date(s.startDate),
-          endDate: new Date(s.endDate),
+          startTime: this.formatTime(startDate),
+          endTime: this.formatTime(endDate),
+          startDate,
+          endDate,
           locationName: undefined,
           areaName: undefined,
           status: this.mapStatus(s.status),
-          isLocked: s.status.toLowerCase() === 'locked'
+          isLocked: s.status.toLowerCase() === 'locked',
+          isOnShiftNow: isOnShift && isWithinWindow,
+          isCompleted
         };
       });
       days.push({

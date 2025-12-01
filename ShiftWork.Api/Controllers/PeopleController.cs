@@ -278,7 +278,8 @@ namespace ShiftWork.Api.Controllers
                 var status = await _peopleService.GetPersonStatus(personId);
                 if (status == null)
                 {
-                    return NotFound($"Person with ID {personId} not found or status is not set.");
+                    // Return 204 No Content when no status is set, instead of 404
+                    return NoContent();
                 }
                 return Ok(status);
             }
@@ -346,7 +347,8 @@ namespace ShiftWork.Api.Controllers
                 var status = await _peopleService.GetPersonStatusShiftWork(personId);
                 if (status == null)
                 {
-                    return NotFound($"Person with ID {personId} not found or status is not set.");
+                    // Return 204 No Content when no ShiftWork status is set, instead of 404
+                    return NoContent();
                 }
                 return Ok(status);
             }

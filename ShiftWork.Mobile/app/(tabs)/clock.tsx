@@ -22,7 +22,7 @@ export default function ClockScreen() {
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
 
   const lastEvent = useMemo(() => (events.length ? events[0] : null), [events]);
-  const isClockedIn = lastEvent?.eventType === 'clock_in' || !!activeClockInAt;
+  const isClockedIn = lastEvent?.eventType === 'clockin' || !!activeClockInAt;
 
   const loadEvents = async () => {
     if (!companyId || !personId) return;
@@ -35,7 +35,7 @@ export default function ClockScreen() {
       setEvents(sorted);
       // derive active clock-in from latest event
       const latest = sorted[0];
-      if (latest?.eventType === 'clock_in') {
+      if (latest?.eventType === 'clockin') {
         setActiveClockInAt(new Date(latest.eventDate));
         await saveActiveClockInAt(new Date(latest.eventDate).toISOString());
       } else {
@@ -51,7 +51,7 @@ export default function ClockScreen() {
         );
         setEvents(sorted);
         const latest = sorted[0];
-        if (latest?.eventType === 'clock_in') {
+        if (latest?.eventType === 'clockin') {
           setActiveClockInAt(new Date(latest.eventDate));
         } else {
           // If no cached event, try persisted clock-in timestamp
@@ -76,7 +76,7 @@ export default function ClockScreen() {
 
   // Update elapsed time every second when clocked in
   useEffect(() => {
-    const start = activeClockInAt || (lastEvent?.eventType === 'clock_in' ? new Date(lastEvent.eventDate) : null);
+    const start = activeClockInAt || (lastEvent?.eventType === 'clockin' ? new Date(lastEvent.eventDate) : null);
     if (!isClockedIn || !start) {
       setElapsedSeconds(0);
       return;
@@ -137,10 +137,10 @@ export default function ClockScreen() {
       // Prepend to events
       setEvents((prev) => [result, ...prev]);
       // Update active clock-in persistence
-      if (result.eventType === 'clock_in') {
+      if (result.eventType === 'clockin') {
         setActiveClockInAt(new Date(result.eventDate));
         await saveActiveClockInAt(new Date(result.eventDate).toISOString());
-      } else if (result.eventType === 'clock_out') {
+      } else if (result.eventType === 'clockout') {
         setActiveClockInAt(null);
         await clearActiveClockInAt();
       }

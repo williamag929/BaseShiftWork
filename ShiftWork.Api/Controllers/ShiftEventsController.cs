@@ -41,6 +41,7 @@ namespace ShiftWork.Api.Controllers
             {
                 var createdShiftEvent = await _shiftEventService.CreateShiftEventAsync(shiftEventDto);
                 var createdShiftEventDto = _mapper.Map<ShiftEventDto>(createdShiftEvent);
+                _logger.LogInformation("Shift event created: {EventLogId} PersonId={PersonId} Type={EventType}", createdShiftEventDto.EventLogId, createdShiftEventDto.PersonId, createdShiftEventDto.EventType);
                 return CreatedAtAction(nameof(GetShiftEvent), new { companyId, eventLogId = createdShiftEventDto.EventLogId }, createdShiftEventDto);
                 //return CreatedAtAction(nameof(GetShiftEvent), new { id = createdShiftEventDto.EventLogId }, createdShiftEventDto);
             }

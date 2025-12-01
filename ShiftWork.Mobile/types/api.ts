@@ -45,7 +45,7 @@ export interface ScheduleShiftDto {
 export interface ShiftEventDto {
   eventLogId: string;
   eventDate: Date;
-  eventType: 'clock_in' | 'clock_out' | 'break_start' | 'break_end';
+  eventType: 'clockin' | 'clockout' | 'break_start' | 'break_end';
   companyId: string;
   personId: number;
   scheduleShiftId?: number;

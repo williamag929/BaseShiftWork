@@ -20,6 +20,9 @@ export interface ShiftBlock {
   areaName?: string;
   status: 'published' | 'unpublished' | 'locked' | 'open';
   isLocked?: boolean;
+  // UI helpers
+  isOnShiftNow?: boolean; // true when person is currently OnShift and within this block's time window
+  isCompleted?: boolean;  // true when the shift's end time is in the past (completed)
 }
 
 export interface DaySchedule {

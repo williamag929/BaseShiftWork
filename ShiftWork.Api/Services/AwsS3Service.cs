@@ -94,6 +94,35 @@ namespace ShiftWork.Api.Services
         {
             try
             {
+                _logger.LogInformation("Uploading file to S3 bucket '{BucketName}' in region '{Region}'", bucketName, _s3Client.Config.RegionEndpoint?.SystemName);
+
+                // Validate that the target bucket exists in the configured region
+                var exists = await AmazonS3Util.DoesS3BucketExistV2Async(_s3Client, bucketName);
+                if (!exists)
+                {
+                    var autoCreate = (Environment.GetEnvironmentVariable("AWS_S3_AUTO_CREATE") ?? "false").Equals("true", StringComparison.OrdinalIgnoreCase);
+                    if (autoCreate)
+                    {
+                        _logger.LogWarning("Bucket '{BucketName}' not found. Attempting auto-create (AWS_S3_AUTO_CREATE=true).", bucketName);
+                        try
+                        {
+                            var putBucketRequest = new PutBucketRequest { BucketName = bucketName, UseClientRegion = true };
+                            var createResp = await _s3Client.PutBucketAsync(putBucketRequest);
+                            _logger.LogInformation("Auto-created bucket '{BucketName}' (StatusCode={Status}).", bucketName, (int)createResp.HttpStatusCode);
+                        }
+                        catch (Exception bex)
+                        {
+                            _logger.LogError(bex, "Failed to auto-create bucket '{BucketName}'.", bucketName);
+                            return new AwsS3Response { StatusCode = 404, Message = $"Bucket '{bucketName}' not found and auto-create failed: {bex.Message}" };
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogError("S3 bucket '{BucketName}' not found in region '{Region}' and auto-create disabled.", bucketName, _s3Client.Config.RegionEndpoint?.SystemName);
+                        return new AwsS3Response { StatusCode = 404, Message = $"Bucket '{bucketName}' not found in region '{_s3Client.Config.RegionEndpoint?.SystemName}'. Set AWS_S3_AUTO_CREATE=true to create automatically." };
+                    }
+                }
+
                 await using var memoryStream = new MemoryStream();
                 await file.CopyToAsync(memoryStream);
 
@@ -107,6 +136,7 @@ namespace ShiftWork.Api.Services
                     InputStream = memoryStream,
                     ContentType = file.ContentType
                 };
+                putRequest.Headers.CacheControl = "public, max-age=31536000";
 
                 var response = await _s3Client.PutObjectAsync(putRequest);
 

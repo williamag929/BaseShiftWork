@@ -730,6 +730,28 @@
   box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
 }
 
+/* Completed shift: green border */
+.shift-block.completed {
+  border-color: #28a745;
+}
+
+/* On-shift indicator: top-left clock icon in green */
+.onshift-indicator {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #28a745;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
 /* Loading and Error States */
 .loading-state, .error-state {
   display: flex;

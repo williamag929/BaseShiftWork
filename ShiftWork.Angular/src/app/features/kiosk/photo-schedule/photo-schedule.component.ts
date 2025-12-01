@@ -61,6 +61,10 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
   activeCompany$: Observable<Company | null>;
   activeCompany: Company | null = null;
 
+  // Pending action/answers are used to defer scheduling until the flipped image is ready
+  private pendingAction?: ScheduleAction;
+  private pendingAnswers?: { [key: string]: string };
+
   // Observables
   countdown$: Observable<number>;
   triggerObservable$: Observable<void>;
@@ -123,6 +127,16 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     this.activeCompany$ = this.store.select(selectActiveCompany);
     this.countdown$ = this.timerService.countdown;
     this.triggerObservable$ = this.trigger.asObservable();
+
+    this.activeCompany$.subscribe((company: any) => {
+      if (company) {
+        this.activeCompany = company;
+        console.log('Active company set:', this.activeCompany);
+      } else {
+        console.log('No active company found');
+      }
+    });
+
   }
 
   ngOnInit(): void {
@@ -188,14 +202,17 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
   }
 
   private startScheduling(action?: ScheduleAction, answers?: { [key: string]: string }): void {
+    console.log('Starting scheduling process');
+    
     this.scheduling = true;
     this.startCountdown();
 
+    // Remember requested action and answers so we can run after photo is processed
+    this.pendingAction = action;
+    this.pendingAnswers = answers;
+
     setTimeout(() => {
       this.capturePhoto();
-      if (action) {
-        this.setSchedule(action, answers);
-      }
     }, this.PHOTO_DELAY_MS);
 
     setTimeout(() => {
@@ -234,15 +251,22 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
   }
 
   private setSchedule(action: ScheduleAction, answers?: { [key: string]: string }): void {
+    
+    console.log('Setting schedule with action:', action);
+    console.log('Selected employee:', this.selectedEmployee);
     if (!this.selectedEmployee || !this.selectedEmployee.companyId || !this.selectedEmployee.personId) {
       this.toastr.error('No employee selected for scheduling or companyId/personId is missing');
       return;
     }
 
+    console.log('Preparing photo');
+
     if (!this.flippedImage) {
+      console.log('No flipped image available');
       this.toastr.error('No photo captured');
       return;
     }
+    console.log('Preparing to upload photo and create shift event');
 
     const now = new Date();
     const blob = this.dataURItoBlob(this.flippedImage);
@@ -252,9 +276,11 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
       next: (coords: GeolocationCoordinates) => {
         const geoLocation = `{${coords.latitude},${coords.longitude}}`;
 
+        console.log('Uploading photo to S3 bucket: shiftwork-photos');
         this.awsS3Service.uploadFile('shiftwork-photos', file).subscribe({
-          next: (response: { message: string }) => {
-            const photoUrl = response.message;
+          next: (response: any) => {
+            const photoUrl = typeof response === 'string' ? response : response?.message;
+            console.log('Photo uploaded, received URL:', photoUrl);
 
             const newShiftEvent: ShiftEvent = {
               eventLogId: '00000000-0000-0000-0000-000000000000',
@@ -268,11 +294,12 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
               geoLocation: geoLocation,
               photoUrl: photoUrl
             };
-
+            console.log('Creating shift event payload:', newShiftEvent);
             this.shiftEventService.createShiftEvent(this.selectedEmployee!.companyId!, newShiftEvent)
               .pipe(takeUntil(this.destroy$))
               .subscribe({
                 next: (event: ShiftEvent) => {
+                  console.log('Shift event created on server:', event);
                   this.toastr.success('Shift event created successfully');
                   // Optimistically update local status and notify kiosk list immediately
                   if (action === ScheduleAction.START_SHIFT) {
@@ -289,6 +316,22 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
                       this.kioskService.emitStatusUpdate(this.selectedEmployee.personId!, 'OffShift');
                     }
                   }
+                  // Broadcast schedule action so other views can react
+                  const scheduleEmployee: ScheduleEmployee = {
+                    employee: this.selectedEmployee!,
+                    action: action,
+                    dateTime: now.toString(),
+                    dateTimeUTC: this.convertToUTC(now).toISOString(),
+                    location: {}
+                  };
+                  this.kioskService.setscheduleEmployee(scheduleEmployee);
+
+                  // Navigate back to the employee list promptly so users see updated status
+                  setTimeout(() => {
+                    this.router.navigate(['/kiosk/employee-list']);
+                  }, 400);
+
+                  console.log('Scheduling flow completed successfully for person:', this.selectedEmployee?.personId);
                   if (answers) {
                     const kioskAnswers: KioskAnswer[] = Object.keys(answers).map(key => ({
                       kioskAnswerId: 0,
@@ -296,30 +339,31 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
                       kioskQuestionId: parseInt(key, 10),
                       answerText: answers[key]
                     }));
-                    this.kioskService.postKioskAnswers(kioskAnswers).subscribe();
+                    this.kioskService.postKioskAnswers(kioskAnswers).subscribe({
+                      next: () => console.log('Kiosk answers submitted'),
+                      error: (e) => console.error('Error submitting kiosk answers', e)
+                    });
                   }
                 },
-                error: (err: any) => this.toastr.error('Error creating shift event')
+                error: (err: any) => {
+                  console.error('Error creating shift event', err);
+                  const msg = err?.message || 'Error creating shift event';
+                  this.toastr.error(msg);
+                }
               });
-
-            const scheduleEmployee: ScheduleEmployee = {
-              employee: this.selectedEmployee!,
-              action: action,
-              dateTime: now.toString(),
-              dateTimeUTC: this.convertToUTC(now).toISOString(),
-              location: {}
-            };
-            this.kioskService.setscheduleEmployee(scheduleEmployee);
-
-            // Navigate back to the employee list promptly so users see updated status
-            setTimeout(() => {
-              this.router.navigate(['/kiosk/employee-list']);
-            }, 400);
           },
-          error: (err: any) => this.toastr.error('Error uploading photo')
+          error: (err: any) => {
+            console.error('Error uploading photo to S3', err);
+            const msg = err?.message || 'Error uploading photo';
+            this.toastr.error(msg);
+          }
         });
       },
-      error: (err: any) => this.toastr.error('Error getting geolocation')
+      error: (err: any) => {
+        console.error('Error getting geolocation', err);
+        const msg = err?.message || 'Error getting geolocation';
+        this.toastr.error(msg);
+      }
     });
   }
 
@@ -341,6 +385,16 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
       ctx.drawImage(img, -img.width, 0);
 
       this.flippedImage = canvas.toDataURL();
+      console.log('Flipped image prepared');
+      // If an action was requested, run scheduling now that the image is ready
+      if (this.pendingAction) {
+        const actionToRun = this.pendingAction;
+        const answersToUse = this.pendingAnswers;
+        // Clear pending before calling to prevent accidental double-execution
+        this.pendingAction = undefined;
+        this.pendingAnswers = undefined;
+        this.setSchedule(actionToRun, answersToUse);
+      }
     };
 
     img.onerror = () => {

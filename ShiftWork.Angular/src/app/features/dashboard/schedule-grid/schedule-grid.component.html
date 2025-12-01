@@ -206,6 +206,7 @@
                 *ngFor="let shift of shifts" 
                 class="shift-block"
                 [class.selected]="isShiftSelected(shift)"
+                [class.completed]="shift.isCompleted"
                 [style.background-color]="getShiftColor(shift.status)"
                 (click)="onShiftClick(shift)"
               >
@@ -216,6 +217,9 @@
                   (click)="toggleShiftSelection(shift, $event)"
                   (change)="$event.stopPropagation()"
                 />
+                <div class="onshift-indicator" *ngIf="shift.isOnShiftNow" title="On shift now">
+                  <i class="bi bi-clock-fill"></i>
+                </div>
                 <div class="shift-time">{{ shift.startTime }} – {{ shift.endTime }}</div>
                 <div class="shift-person">{{ shift.personName }}</div>
                 <div class="lock-badge" *ngIf="shift.isLocked">

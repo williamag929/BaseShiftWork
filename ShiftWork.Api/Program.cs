@@ -1,5 +1,7 @@
 using DotNetEnv;
 using Amazon.S3;
+using Amazon;
+using Amazon.Extensions.NETCore.Setup;
 using FirebaseAdmin;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -54,6 +56,18 @@ builder.Services.AddDbContext<ShiftWorkContext>((sp, options) =>
 
 // Add In-Memory Caching service, used by several controllers.
 builder.Services.AddMemoryCache();
+
+// Configure AWS Region from environment (.env), required for S3 client
+var awsRegion = Environment.GetEnvironmentVariable("AWS_REGION")
+                ?? Environment.GetEnvironmentVariable("AWS_DEFAULT_REGION");
+if (string.IsNullOrWhiteSpace(awsRegion))
+{
+    throw new InvalidOperationException("AWS_REGION (or AWS_DEFAULT_REGION) is not set in the environment.");
+}
+builder.Services.AddDefaultAWSOptions(new AWSOptions
+{
+    Region = RegionEndpoint.GetBySystemName(awsRegion)
+});
 
 if (builder.Environment.IsDevelopment())
 {
