@@ -84,6 +84,7 @@ export interface AreaDto {
   areaId: number;
   companyId: string;
   name: string;
+  status: string;
   description?: string;
   isActive: boolean;
 }

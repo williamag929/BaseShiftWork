@@ -24,6 +24,61 @@ import { AppState } from 'src/app/store/app.state';
   imports: [ReactiveFormsModule, FormsModule, CommonModule]
 })
 export class ShiftsummariesComponent implements OnInit {
+  // TODO: Add option to view and check geolocation data from shift events
+  // TODO: Add option to view and display photos captured during shift events (clockin/clockout)
+  // TODO: Implement modal/dialog to show event details including GPS coordinates and photo URLs
+  // TODO: Add visual indicators for shifts that have geolocation and/or photo data
+  
+  // TODO: Implement biometric photo comparison system:
+  //       - Compare profile photo with shift event photos (clockin/clockout)
+  //       - Display similarity percentage/confidence score for each photo match
+  //       - Use machine learning to learn and improve accuracy across different shift photos
+  //       - Train model with historical shift photos to detect patterns and improve verification
+  //       - Flag suspicious shifts where photo similarity is below threshold
+  //       - Integrate facial recognition API (e.g., AWS Rekognition, Azure Face API, or Face-api.js)
+  
+  // TODO: Add anomaly detection and alerts:
+  //       - Detect unusual patterns: early clock-ins, late clock-outs, missing breaks
+  //       - Flag shifts with GPS location outside designated work area radius
+  //       - Alert on duplicate clock-ins from different locations at same time
+  //       - Identify patterns of suspicious behavior (buddy punching, location spoofing)
+  //       - Real-time notifications for managers when anomalies are detected
+  
+  // TODO: Enhance reporting and analytics:
+  //       - Add charts/graphs for shift trends (overtime, attendance patterns, location distribution)
+  //       - Export to Excel with formatting and multiple sheets (summary, details, anomalies)
+  //       - Add PDF export with company branding and signature fields for approvals
+  //       - Generate payroll-ready reports with overtime calculations and rate multipliers
+  //       - Scheduled automatic report generation and email delivery
+  
+  // TODO: Improve filtering and search:
+  //       - Add date range presets (Today, This Week, Last Week, This Month, Custom)
+  //       - Multi-select for locations and areas to compare across sites
+  //       - Search by employee name, ID, or external code
+  //       - Save and reuse custom filter combinations
+  //       - Add filters for shift status, overtime, missing breaks, photo/GPS presence
+  
+  // TODO: Add bulk operations enhancements:
+  //       - Add comments/notes to bulk approvals with reason codes
+  //       - Implement approval workflow with multi-level authorization
+  //       - Track approval history and audit trail (who approved, when, why)
+  //       - Add ability to reject shifts with required manager comments
+  //       - Undo/revert recent approvals within time window
+  
+  // TODO: Add shift comparison and validation:
+  //       - Compare actual shift times vs scheduled shifts to detect early/late arrivals
+  //       - Calculate and display overtime automatically based on company rules
+  //       - Show break compliance (required vs actual break time taken)
+  //       - Highlight shifts missing clock-in or clock-out events
+  //       - Add warnings for shifts exceeding maximum daily/weekly hours
+  
+  // TODO: Performance and UX improvements:
+  //       - Implement pagination or virtual scrolling for large datasets
+  //       - Add loading skeletons instead of generic spinner
+  //       - Cache filter results and implement smart refresh
+  //       - Add keyboard shortcuts for common actions (approve, reject, select all)
+  //       - Implement drag-and-drop for bulk status changes
+  //       - Add tooltips with detailed shift information on hover
 
   filterForm: FormGroup = this.fb.group({
     startDate: [new Date().toISOString().substring(0, 10)],
