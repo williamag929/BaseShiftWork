@@ -29,6 +29,8 @@ namespace ShiftWork.Api.Services
             var shiftEvent = _mapper.Map<ShiftEvent>(shiftEventDto);
             shiftEvent.CreatedAt = DateTime.UtcNow;
             shiftEvent.EventDate = DateTime.UtcNow;
+            // Ensure PhotoUrl from DTO is preserved even if mapper configuration changes
+            shiftEvent.PhotoUrl = shiftEventDto.PhotoUrl;
 
             // Idempotency guard: prevent double clock-in/out based on current StatusShiftWork
             if (shiftEvent.PersonId > 0 && !string.IsNullOrWhiteSpace(shiftEvent.EventType))
@@ -59,9 +61,18 @@ namespace ShiftWork.Api.Services
             // Update person status based on shift event
             if (shiftEvent.PersonId > 0)
             {
-                var today = DateTime.UtcNow.Date;
+                // Use an overlap check for "today" in UTC to avoid timezone date mismatches.
+                var nowUtc = shiftEvent.EventDate;
+                var startOfDayUtc = nowUtc.Date;
+                var endOfDayUtc = startOfDayUtc.AddDays(1);
+
                 var scheduleShift = await _context.ScheduleShifts
-                    .FirstOrDefaultAsync(ss => ss.PersonId == shiftEvent.PersonId && ss.StartDate.Date == today);
+                    .Where(ss => ss.PersonId == shiftEvent.PersonId &&
+                                 ss.StartDate < endOfDayUtc &&
+                                 ss.EndDate > startOfDayUtc)
+                    .OrderBy(ss => ss.StartDate)
+                    .FirstOrDefaultAsync();
+
                 string status = "";
                 // Determine status based on shift event type and schedule shift
                 if (scheduleShift != null)
@@ -69,7 +80,6 @@ namespace ShiftWork.Api.Services
                     if (string.Equals(shiftEvent.EventType, "clockin", StringComparison.OrdinalIgnoreCase))
                     {
                         // Compute Late/Early/OnTime relative to scheduled start with 5-minute grace
-                        var nowUtc = shiftEvent.EventDate;
                         var startUtc = scheduleShift.StartDate;
                         var diffMinutes = (nowUtc - startUtc).TotalMinutes;
                         string timing;
@@ -96,15 +106,13 @@ namespace ShiftWork.Api.Services
                 {
                     if (string.Equals(shiftEvent.EventType, "clockin", StringComparison.OrdinalIgnoreCase))
                     {
-                        // No schedule found; mark as OnShift with NoSchedule detail
+                        // No schedule found overlapping today; mark as OnShift with NoSchedule detail
                         status = "OnShift:NoSchedule";
                     }
                     else if (string.Equals(shiftEvent.EventType, "clockout", StringComparison.OrdinalIgnoreCase))
                     {
                         status = "OffShift";
                     }
-
-                    //_logger.LogWarning("No schedule shift found for person {PersonId} on date {Date}", shiftEvent.PersonId, today);
                 }
 
                 if (!string.IsNullOrEmpty(status))

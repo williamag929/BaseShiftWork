@@ -57,6 +57,13 @@ namespace ShiftWork.Api.Services
                     var location = await _context.Locations.Include(l => l.Areas).FirstOrDefaultAsync(l => l.LocationId == locationInfo.LocationId);
                     var area = location?.Areas.FirstOrDefault();
 
+                    // Get approval if exists for this person/day
+                    var approval = await _context.ShiftSummaryApprovals
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(a => a.CompanyId == companyId.ToString()
+                                              && a.PersonId == group.Key.PersonId
+                                              && a.Day == group.Key.Date);
+
                     summary.Add(new ScheduleShiftSummaryDto
                     {
                         Day = group.Key.Date,
@@ -69,7 +76,10 @@ namespace ShiftWork.Api.Services
                         MinStartTime = clockInEvent.EventDate,
                         MaxEndTime = clockOutEvent.EventDate,
                         BreakTime = 30, // Default break time
-                        TotalHours = (clockOutEvent.EventDate - clockInEvent.EventDate).TotalHours - 0.5 // Subtracting break time
+                        TotalHours = (clockOutEvent.EventDate - clockInEvent.EventDate).TotalHours - 0.5, // Subtracting break time
+                        Status = approval?.Status ?? "shifted",
+                        ApprovedBy = approval?.ApprovedBy,
+                        ApprovedAt = approval?.ApprovedAt
                     });
                 }
             }

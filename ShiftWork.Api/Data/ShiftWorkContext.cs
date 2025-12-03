@@ -30,6 +30,7 @@ namespace ShiftWork.Api.Data
         public DbSet<PTOLedger> PTOLedgers { get; set; }
         public DbSet<CompanySettings> CompanySettings { get; set; }
         public DbSet<DeviceToken> DeviceTokens { get; set; }
+        public DbSet<ShiftSummaryApproval> ShiftSummaryApprovals { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -176,6 +177,11 @@ namespace ShiftWork.Api.Data
                 .WithMany()
                 .HasForeignKey(dt => dt.PersonId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            // Approval unique key (CompanyId, PersonId, Day)
+            modelBuilder.Entity<ShiftSummaryApproval>()
+                .HasIndex(a => new { a.CompanyId, a.PersonId, a.Day })
+                .IsUnique();
 
         }
     }

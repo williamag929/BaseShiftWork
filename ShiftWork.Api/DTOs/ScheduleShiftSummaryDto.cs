@@ -15,5 +15,11 @@ namespace ShiftWork.Api.DTOs
         public DateTime MaxEndTime { get; set; }
         public double BreakTime { get; set; }
         public double TotalHours { get; set; }
+
+        // Payroll approval status for this person-day summary
+        // Values: not_shifted, shifted, approved, avoid
+        public string Status { get; set; } = "shifted";
+        public int? ApprovedBy { get; set; }
+        public DateTime? ApprovedAt { get; set; }
     }
 }
