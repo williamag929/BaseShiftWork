@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import Constants from 'expo-constants';
-import { getAuth } from 'firebase/auth';
+import { auth } from '@/config/firebase';
 
 // Resolve API base URL, rewriting localhost/0.0.0.0 to the Expo host when running on device
 const resolveApiBaseUrl = () => {
@@ -55,7 +55,6 @@ class ApiClient {
     // Request interceptor to add auth token
     this.client.interceptors.request.use(
       async (config) => {
-        const auth = getAuth();
         const user = auth.currentUser;
         
         if (user) {

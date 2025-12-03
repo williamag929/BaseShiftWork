@@ -1,6 +1,6 @@
 import { apiClient } from './api-client';
 import * as FileSystem from 'expo-file-system';
-import { getAuth } from 'firebase/auth';
+import { auth } from '@/config/firebase';
 
 /**
  * Upload service for photos to S3 via backend API
@@ -35,7 +35,6 @@ export async function uploadPhoto(localUri: string, bucketName: string = 'shiftw
     const baseURL = await apiClient.getBaseURL();
     
     // Get Firebase auth token for authorization
-    const auth = getAuth();
     const user = auth.currentUser;
     const headers: Record<string, string> = {
       'Accept': 'application/json',
