@@ -11,10 +11,12 @@ import { timeOffRequestService, TimeOffRequest } from '@/services/time-off-reque
 import * as Notifications from 'expo-notifications';
 import { notificationService } from '@/services/notification.service';
 import { Ionicons } from '@expo/vector-icons';
+import { peopleService } from '@/services/people.service';
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { companyId, personId, personFirstName, personLastName } = useAuthStore();
+  const { companyId, personId, name } = useAuthStore();
+  const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
   const { isOnline, loading, refreshing, hoursThisWeek, shiftsThisWeek, upcoming, recentEvents, personStatus, error, refresh, lastUpdated } = useDashboardData(companyId, personId);
 
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -45,6 +47,23 @@ export default function DashboardScreen() {
       }
     })();
   }, [recentEvents]);
+
+  // Hydrate person name if missing
+  useEffect(() => {
+    (async () => {
+      try {
+        if (companyId && personId && !name) {
+          const person = await peopleService.getPersonById(companyId, personId);
+          if (person) {
+            setPersonProfile({
+              name: person.name ?? null,
+              email: person.email ?? null,
+            });
+          }
+        }
+      } catch {}
+    })();
+  }, [companyId, personId, name, setPersonProfile]);
 
   useEffect(() => {
     if (!isClockedIn || !activeClockInAt) {
@@ -166,7 +185,9 @@ export default function DashboardScreen() {
       <View style={styles.header}>
         <Text style={styles.greeting}>{isOnline ? 'Good day!' : 'Offline Mode'}</Text>
         <Text style={styles.name}>
-          {personId ? `${personFirstName ?? ''} ${personLastName ?? ''}`.trim() || `User #${personId}` : 'Please sign in'}
+          {personId
+            ? name || `User #${personId}`
+            : 'Please sign in'}
         </Text>
         {!isOnline && <Text style={styles.offlineNote}>You're offline. Showing cached data.</Text>}
         {!!personStatus && (

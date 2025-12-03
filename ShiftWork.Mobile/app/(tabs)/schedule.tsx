@@ -1,13 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Modal } from 'react-native';
 import { useAuthStore } from '@/store/authStore';
+import { peopleService } from '@/services/people.service';
 import { useScheduleData } from '@/hooks/useScheduleData';
 import { formatDate, formatTime, getEndOfDay, getEndOfMonth, getEndOfWeek, getStartOfDay, getStartOfMonth, getStartOfWeek } from '@/utils/date.utils';
 
 type ViewMode = 'day' | 'week' | 'month';
 
 export default function ScheduleScreen() {
-  const { companyId, personId } = useAuthStore();
+  const { companyId, personId, personFirstName, personLastName } = useAuthStore();
+  const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [mode, setMode] = useState<ViewMode>('week');
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -19,6 +21,24 @@ export default function ScheduleScreen() {
   }, [selectedDate, mode]);
 
   const { isOnline, loading, error, shifts, events } = useScheduleData(companyId, personId, from, to);
+
+  // Hydrate person name if missing
+  useEffect(() => {
+    (async () => {
+      try {
+        if (companyId && personId && (!personFirstName || !personLastName)) {
+          const person = await peopleService.getPersonById(companyId, personId);
+          if (person) {
+            setPersonProfile({
+              firstName: person.firstName ?? null,
+              lastName: person.lastName ?? null,
+              email: person.email ?? null,
+            });
+          }
+        }
+      } catch {}
+    })();
+  }, [companyId, personId]);
 
   const shiftDate = (delta: number) => {
     const d = new Date(selectedDate);

@@ -42,9 +42,7 @@ export default function TabsLayout() {
         name="schedule-grid"
         options={{
           title: 'Grid',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="grid" size={size} color={color} />
-          ),
+          href: null, // Hide from tab bar - disabled for now
         }}
       />
       <Tabs.Screen

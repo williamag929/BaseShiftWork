@@ -8,8 +8,7 @@ export interface BiometricCredentials {
   email: string;
   personId: number;
   companyId: string;
-  firstName?: string;
-  lastName?: string;
+  name?: string;
 }
 
 class BiometricAuthService {

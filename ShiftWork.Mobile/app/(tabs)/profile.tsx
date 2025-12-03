@@ -1,13 +1,15 @@
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, RefreshControl, Switch } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, RefreshControl, Switch, Image } from 'react-native';
 import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from '@/store/authStore';
 import { peopleService, biometricAuthService } from '@/services';
+import { uploadPhoto } from '@/services/upload.service';
 import { Ionicons } from '@expo/vector-icons';
 import type { PersonDto } from '@/types/api';
+import PhotoCapture from '@/components/PhotoCapture';
 
 export default function ProfileScreen() {
-  const { companyId, personId, signOut } = useAuthStore();
+  const { companyId, personId, signOut, setPersonProfile } = useAuthStore();
   
   const [person, setPerson] = useState<PersonDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -18,12 +20,14 @@ export default function ProfileScreen() {
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [biometricType, setBiometricType] = useState('Biometric');
+  const [showPhotoCapture, setShowPhotoCapture] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   
   // Form fields
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [photoUrl, setPhotoUrl] = useState('');
   
   // PIN change fields
   const [currentPin, setCurrentPin] = useState('');
@@ -58,10 +62,10 @@ export default function ProfileScreen() {
       setLoading(true);
       const data = await peopleService.getPersonById(companyId, personId);
       setPerson(data);
-      setFirstName(data.firstName || '');
-      setLastName(data.lastName || '');
+      setName(data.name || '');
       setEmail(data.email || '');
       setPhoneNumber(data.phoneNumber || '');
+      setPhotoUrl(data.photoUrl || '');
     } catch (error: any) {
       console.error('Error loading profile:', error);
       Alert.alert('Error', error.message || 'Failed to load profile');
@@ -87,8 +91,7 @@ export default function ProfileScreen() {
           email: person.email || '',
           personId: personId,
           companyId: companyId,
-          firstName: person.firstName,
-          lastName: person.lastName,
+          name: person.name,
         });
         
         if (success) {
@@ -109,19 +112,58 @@ export default function ProfileScreen() {
     }
   };
 
+  const handlePhotoCapture = async (uri: string) => {
+    if (!companyId || !personId) return;
+
+    try {
+      setUploadingPhoto(true);
+      
+      // Upload photo to S3
+      const uploadedUrl = await uploadPhoto(uri, 'shiftwork-photos');
+      
+      // Validate that we got a valid S3 URL, not a local file path
+      if (uploadedUrl.startsWith('file://') || uploadedUrl.includes('/var/mobile/')) {
+        throw new Error('Upload failed: Got local file path instead of S3 URL');
+      }
+      
+      console.log('Saving S3 URL to database:', uploadedUrl);
+      
+      // Update profile with new photo URL using partial update
+      const updated = await peopleService.partialUpdatePerson(companyId, personId, {
+        photoUrl: uploadedUrl,
+      });
+      
+      setPerson(updated);
+      setPhotoUrl(uploadedUrl);
+      
+      // Update auth store
+      setPersonProfile({ photoUrl: uploadedUrl });
+      
+      Alert.alert('Success', 'Photo updated successfully');
+    } catch (error: any) {
+      console.error('Error uploading photo:', error);
+      Alert.alert('Error', error.message || 'Failed to update photo');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   const handleSaveProfile = async () => {
     if (!companyId || !personId) return;
 
     try {
       setSaving(true);
       const updated = await peopleService.updatePerson(companyId, personId, {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
+        name: name.trim(),
         email: email.trim(),
         phoneNumber: phoneNumber.trim(),
       });
       setPerson(updated);
       setEditMode(false);
+      
+      // Update auth store
+      setPersonProfile({ name: name.trim(), email: email.trim() });
+      
       Alert.alert('Success', 'Profile updated successfully');
     } catch (error: any) {
       console.error('Error saving profile:', error);
@@ -133,10 +175,10 @@ export default function ProfileScreen() {
 
   const handleCancelEdit = () => {
     if (person) {
-      setFirstName(person.firstName || '');
-      setLastName(person.lastName || '');
+      setName(person.name || '');
       setEmail(person.email || '');
       setPhoneNumber(person.phoneNumber || '');
+      setPhotoUrl(person.photoUrl || '');
     }
     setEditMode(false);
   };
@@ -210,14 +252,35 @@ export default function ProfileScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.avatarContainer}>
-          <Ionicons name="person-circle" size={80} color="#4A90E2" />
-        </View>
+        <TouchableOpacity 
+          style={styles.avatarContainer} 
+          onPress={() => setShowPhotoCapture(true)}
+          disabled={uploadingPhoto}
+        >
+          {photoUrl ? (
+            <Image source={{ uri: photoUrl }} style={styles.avatar} />
+          ) : (
+            <Ionicons name="person-circle" size={80} color="#4A90E2" />
+          )}
+          <View style={styles.cameraIconContainer}>
+            {uploadingPhoto ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Ionicons name="camera" size={20} color="#fff" />
+            )}
+          </View>
+        </TouchableOpacity>
         <Text style={styles.headerName}>
-          {person?.firstName} {person?.lastName}
+          {person?.name || 'No Name'}
         </Text>
-        <Text style={styles.headerRole}>Person ID: {personId}</Text>
       </View>
+
+      {/* Photo Capture Modal */}
+      <PhotoCapture
+        visible={showPhotoCapture}
+        onClose={() => setShowPhotoCapture(false)}
+        onCaptured={handlePhotoCapture}
+      />
 
       {/* Profile Information Section */}
       <View style={styles.section}>
@@ -233,23 +296,12 @@ export default function ProfileScreen() {
 
         <View style={styles.card}>
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>First Name</Text>
+            <Text style={styles.fieldLabel}>Name</Text>
             <TextInput
               style={[styles.input, !editMode && styles.inputDisabled]}
-              value={firstName}
-              onChangeText={setFirstName}
-              placeholder="First Name"
-              editable={editMode}
-            />
-          </View>
-
-          <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Last Name</Text>
-            <TextInput
-              style={[styles.input, !editMode && styles.inputDisabled]}
-              value={lastName}
-              onChangeText={setLastName}
-              placeholder="Last Name"
+              value={name}
+              onChangeText={setName}
+              placeholder="Full Name"
               editable={editMode}
             />
           </View>
@@ -460,6 +512,27 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     marginBottom: 16,
+    position: 'relative',
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  cameraIconContainer: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#4A90E2',
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
   },
   headerName: {
     fontSize: 24,

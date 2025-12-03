@@ -25,8 +25,8 @@ Cross-platform mobile application for workforce scheduling and time tracking, bu
 ### Local Development
 
 ```powershell
-# Install dependencies
-npm install
+# Install dependencies (use legacy-peer-deps flag due to React 19)
+npm install --legacy-peer-deps
 
 # Copy environment variables
 cp .env.example .env
@@ -78,15 +78,17 @@ ShiftWork.Mobile/
 
 ## Environment Variables
 
-Required environment variables (see `.env.example`):
+Required environment variables (see `.env` file - must use `EXPO_PUBLIC_` prefix):
 
-- `API_URL` - Backend API URL
-- `FIREBASE_API_KEY` - Firebase configuration
-- `FIREBASE_AUTH_DOMAIN`
-- `FIREBASE_PROJECT_ID`
-- `FIREBASE_STORAGE_BUCKET`
-- `FIREBASE_MESSAGING_SENDER_ID`
-- `FIREBASE_APP_ID`
+- `EXPO_PUBLIC_API_URL` - Backend API URL (use machine IP for device testing, not localhost)
+- `EXPO_PUBLIC_API_TIMEOUT` - API timeout in milliseconds
+- `EXPO_PUBLIC_FIREBASE_API_KEY` - Firebase configuration
+- `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN`
+- `EXPO_PUBLIC_FIREBASE_PROJECT_ID`
+- `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET`
+- `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+- `EXPO_PUBLIC_FIREBASE_APP_ID`
+- `EXPO_PUBLIC_DEFAULT_COMPANY_ID` - Default company ID for the app
 
 ## Documentation
 
@@ -101,15 +103,15 @@ For detailed documentation, see:
 
 ## Tech Stack
 
-- React Native 0.73
-- Expo SDK 50
-- TypeScript
-- Expo Router (file-based routing)
-- Zustand (state management)
-- TanStack Query (data fetching)
+- React Native 0.81.5
+- Expo SDK 54
+- TypeScript 5.3+
+- Expo Router 6.x (file-based routing)
+- Zustand 4.x (state management)
+- TanStack Query 5.x (data fetching)
 - Axios (API client)
-- Firebase Auth
-- expo-camera, expo-location, expo-secure-store
+- Firebase Auth (currently disabled - see Known Issues)
+- expo-camera 17.x, expo-location 19.x, expo-secure-store 15.x
 
 ## Scripts
 
@@ -157,8 +159,42 @@ eas build --platform android --profile production
 
 ## License
 
-See [LICENSE](../LICENSE) file in root directory.
+## Known Issues
+
+### Firebase Authentication (CRITICAL)
+Firebase 10.x has a critical bug with React Native where the auth component cannot be initialized, throwing:
+```
+Error: Component auth has not been registered yet
+```
+
+**Current Status:** Firebase Auth is **temporarily disabled** with a mock implementation in `config/firebase.ts`
+
+**Workarounds:**
+1. **Recommended:** Downgrade to Firebase 9.x:
+   ```bash
+   npm install firebase@^9.23.0 --legacy-peer-deps
+   ```
+   Then restore the proper Firebase initialization code in `config/firebase.ts`
+
+2. Use alternative authentication (custom JWT, OAuth, etc.)
+
+3. Wait for Firebase to fix the React Native compatibility in v10.x
+
+**Impact:** Authentication features will not work until this is resolved. The app will load and run, but login functionality is disabled.
+
+### Expo Camera API Changes
+The app now uses expo-camera v17 with the new `CameraView` component and `useCameraPermissions()` hook. If you experience camera issues:
+- Ensure `expo-camera` is version ~17.0.9
+- Run `npm install --legacy-peer-deps` to reinstall dependencies
+
+### React 19 Peer Dependencies
+This project uses React 19, which may cause peer dependency warnings. Always use the `--legacy-peer-deps` flag when installing packages:
+```bash
+npm install --legacy-peer-deps
+```
 
 ## Support
+
+For issues or questions, refer to [MOBILE_AGENT.md](./MOBILE_AGENT.md) for detailed documentation.
 
 For issues or questions, refer to [MOBILE_AGENT.md](./MOBILE_AGENT.md) for detailed documentation.

@@ -49,14 +49,12 @@ export default function LoginScreen() {
         setCompanyId(credentials.companyId);
         setPersonProfile({
           email: credentials.email,
-          firstName: credentials.firstName,
-          lastName: credentials.lastName,
+          name: credentials.name,
         });
         await saveUserData({
           personId: credentials.personId,
           email: credentials.email,
-          firstName: credentials.firstName,
-          lastName: credentials.lastName,
+          name: credentials.name,
         });
         await saveCompanyId(credentials.companyId);
         
@@ -86,8 +84,8 @@ export default function LoginScreen() {
       // Persist in store and secure storage
   setPersonId(Number(person.personId));
   setCompanyId(person.companyId);
-  setPersonProfile({ email: person.email, firstName: person.firstName, lastName: person.lastName });
-  await saveUserData({ personId: person.personId, email: person.email, firstName: person.firstName, lastName: person.lastName });
+  setPersonProfile({ email: person.email, name: person.name });
+  await saveUserData({ personId: person.personId, email: person.email, name: person.name });
       await saveCompanyId(person.companyId);
 
       setLoading(false);

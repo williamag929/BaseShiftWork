@@ -3,10 +3,10 @@
 export interface PersonDto {
   personId: number;
   companyId: string;
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   phoneNumber?: string;
+  photoUrl?: string;
   pin?: string;
   isActive: boolean;
   createdAt: Date;

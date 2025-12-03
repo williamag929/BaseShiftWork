@@ -13,6 +13,7 @@ import { useState, useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from '@/store/authStore';
 import { scheduleService } from '@/services';
+import { peopleService } from '@/services/people.service';
 import { formatDate, formatTime } from '@/utils/date.utils';
 import type { ScheduleShiftDto } from '@/types/api';
 import * as Notifications from 'expo-notifications';
@@ -25,7 +26,8 @@ interface DaySchedule {
 }
 
 export default function WeeklyScheduleScreen() {
-  const { companyId, personId } = useAuthStore();
+  const { companyId, personId, personFirstName, personLastName } = useAuthStore();
+  const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
   
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(getWeekStart(new Date()));
   const [weekSchedule, setWeekSchedule] = useState<DaySchedule[]>([]);
@@ -42,6 +44,24 @@ export default function WeeklyScheduleScreen() {
   useEffect(() => {
     loadWeekSchedule();
   }, [currentWeekStart, companyId, personId]);
+
+  // Hydrate person name if missing
+  useEffect(() => {
+    (async () => {
+      try {
+        if (companyId && personId && (!personFirstName || !personLastName)) {
+          const person = await peopleService.getPersonById(companyId, personId);
+          if (person) {
+            setPersonProfile({
+              firstName: person.firstName ?? null,
+              lastName: person.lastName ?? null,
+              email: person.email ?? null,
+            });
+          }
+        }
+      } catch {}
+    })();
+  }, [companyId, personId]);
 
   // Setup polling and notification listeners
   useEffect(() => {

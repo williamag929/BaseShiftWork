@@ -1,15 +1,16 @@
 import { create } from 'zustand';
+import { clearAllStorage } from '@/utils/storage.utils';
 
 interface AuthState {
-  name: string | null | undefined;
+  name: string | null;
+  photoUrl: string | null;
   companyId: string;
   personId: number | null;
   personEmail: string | null;
-  personFirstName: string | null;
-  personLastName: string | null;
   setCompanyId: (companyId: string) => void;
   setPersonId: (personId: number | null) => void;
-  setPersonProfile: (p: { email?: string | null; name?: string | null; firstName?: string | null; lastName?: string | null }) => void;
+  setPersonProfile: (p: { email?: string | null; name?: string | null; photoUrl?: string | null }) => void;
+  signOut: () => Promise<void>;
 }
 
 const getDefaultCompanyId = () =>
@@ -20,15 +21,23 @@ export const useAuthStore = create<AuthState>((set) => ({
   personId: null,
   personEmail: null,
   name: null,
-  personFirstName: null,
-  personLastName: null,
+  photoUrl: null,
   setCompanyId: (companyId) => set({ companyId }),
   setPersonId: (personId) => set({ personId }),
-  setPersonProfile: ({ email, name, firstName, lastName }) =>
+  setPersonProfile: ({ email, name, photoUrl }) =>
     set((s) => ({
       personEmail: email ?? s.personEmail,
       name: name ?? s.name,
-      personFirstName: firstName ?? s.personFirstName,
-      personLastName: lastName ?? s.personLastName,
+      photoUrl: photoUrl ?? s.photoUrl,
     })),
+  signOut: async () => {
+    await clearAllStorage();
+    set({
+      personId: null,
+      personEmail: null,
+      name: null,
+      photoUrl: null,
+      companyId: getDefaultCompanyId(),
+    });
+  },
 }));

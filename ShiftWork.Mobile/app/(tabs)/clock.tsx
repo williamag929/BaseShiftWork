@@ -7,11 +7,13 @@ import { getCurrentLocation } from '@/utils';
 import { useAuthStore } from '@/store/authStore';
 import type { ShiftEventDto } from '@/types/api';
 import PhotoCapture from '@/components/PhotoCapture';
+import { peopleService } from '@/services/people.service';
 import { uploadService } from '@/services/upload.service';
 import { getActiveClockInAt, saveActiveClockInAt, clearActiveClockInAt } from '@/utils';
 
 export default function ClockScreen() {
-  const { companyId, personId } = useAuthStore();
+  const { companyId, personId, name } = useAuthStore();
+  const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
   const [events, setEvents] = useState<ShiftEventDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [initializing, setInitializing] = useState(true);
@@ -73,6 +75,23 @@ export default function ClockScreen() {
     loadEvents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyId, personId]);
+
+  // Hydrate person name if missing
+  useEffect(() => {
+    (async () => {
+      try {
+        if (companyId && personId && !name) {
+          const person = await peopleService.getPersonById(companyId, personId);
+          if (person) {
+            setPersonProfile({
+              name: person.name ?? null,
+              email: person.email ?? null,
+            });
+          }
+        }
+      } catch {}
+    })();
+  }, [companyId, personId, name, setPersonProfile]);
 
   // Update elapsed time every second when clocked in
   useEffect(() => {
@@ -169,7 +188,7 @@ export default function ClockScreen() {
         {/* Person is sourced from previous auth; no manual input */}
         <View style={styles.personRow}>
           <Text style={styles.personLabel}>Person</Text>
-          <Text style={styles.personValue}>{personId ? `#${personId}` : 'Not signed in'}</Text>
+          <Text style={styles.personValue}>{name || 'Not signed in'}</Text>
         </View>
       </View>
 

@@ -46,8 +46,7 @@ export function useScheduleGrid({ companyId, locationId, weekStart }: UseSchedul
             {
               personId: s.personId,
               companyId: s.companyId,
-              firstName: `Person`,
-              lastName: `${s.personId}`,
+              name: `Person ${s.personId}`,
               email: `person${s.personId}@example.com`,
               isActive: true,
               createdAt: new Date(),
@@ -118,8 +117,8 @@ export function useScheduleGrid({ companyId, locationId, weekStart }: UseSchedul
 
       return {
         personId: p.personId,
-        initials: `${p.firstName?.charAt(0) || ''}${p.lastName?.charAt(0) || ''}`,
-        fullName: `${p.firstName} ${p.lastName}`,
+        initials: p.name ? p.name.split(' ').map(n => n.charAt(0)).slice(0, 2).join('') : '',
+        fullName: p.name || `Person ${p.personId}`,
         totalHours: `${hours}h${minutes > 0 ? ` ${minutes}m` : ''}`,
         profilePhotoUrl: undefined,
       };

@@ -3,10 +3,9 @@ import type { PersonDto } from '../types/api';
 
 export interface UpdatePersonDto {
   name?: string;
-  firstName?: string;
-  lastName?: string;
   email?: string;
   phoneNumber?: string;
+  photoUrl?: string;
   pin?: string;
   currentPin?: string; // For PIN verification
 }
@@ -93,9 +92,23 @@ class PeopleService {
     personId: number,
     photoUrl: string
   ): Promise<PersonDto> {
-    return apiClient.put<PersonDto>(
+    return apiClient.patch<PersonDto>(
       `/api/companies/${companyId}/people/${personId}`,
       { photoUrl }
+    );
+  }
+
+  /**
+   * Partial update person (only specified fields)
+   */
+  async partialUpdatePerson(
+    companyId: string,
+    personId: number,
+    updates: Partial<UpdatePersonDto>
+  ): Promise<PersonDto> {
+    return apiClient.patch<PersonDto>(
+      `/api/companies/${companyId}/people/${personId}`,
+      updates
     );
   }
 }

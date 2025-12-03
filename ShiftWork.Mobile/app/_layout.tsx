@@ -7,6 +7,9 @@ import { getUserData, getCompanyId } from '@/utils/storage.utils';
 import { useNotifications } from '@/hooks/useNotifications';
 // Initialize Firebase before any usage
 import '@/config/firebase';
+import { auth } from '@/config/firebase';
+import { authService } from '@/services';
+import { saveUserData, saveCompanyId } from '@/utils/storage.utils';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -44,8 +47,8 @@ export default function RootLayout() {
         const savedCompany = await getCompanyId();
         if (savedCompany) setCompanyId(savedCompany);
         if (savedUser?.personId) setPersonId(Number(savedUser.personId));
-        if (savedUser?.email || savedUser?.firstName || savedUser?.lastName) {
-          setPersonProfile({ email: savedUser?.email ?? null, firstName: savedUser?.firstName ?? null, lastName: savedUser?.lastName ?? null });
+        if (savedUser?.email || savedUser?.name) {
+          setPersonProfile({ email: savedUser?.email ?? null, name: savedUser?.name ?? null });
         }
         // If personal app and we have person, go to tabs by default
         // else stay on index/login
@@ -54,6 +57,29 @@ export default function RootLayout() {
       }
     })();
   }, []);
+
+  // When Firebase auth is enabled, map user -> person automatically
+  useEffect(() => {
+    const unsubscribe = auth?.onAuthStateChanged?.(async (user: any) => {
+      try {
+        if (user?.email) {
+          const person = await authService.getUserByEmail(user.email);
+          if (person?.personId && person?.companyId) {
+            setCompanyId(person.companyId);
+            setPersonId(Number(person.personId));
+            setPersonProfile({ email: person.email, name: person.name });
+            await saveUserData({ personId: person.personId, email: person.email, name: person.name });
+            await saveCompanyId(person.companyId);
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to map auth user to person:', e);
+      }
+    });
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  }, [setCompanyId, setPersonId, setPersonProfile]);
 
   return (
     <QueryClientProvider client={queryClient}>

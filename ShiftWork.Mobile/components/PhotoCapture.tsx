@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 
 interface Props {
@@ -10,8 +10,8 @@ interface Props {
 }
 
 export default function PhotoCapture({ visible, onClose, onCaptured }: Props) {
-  const cameraRef = useRef<Camera | null>(null);
-  const [permission, requestPermission] = Camera.useCameraPermissions();
+  const cameraRef = useRef<CameraView | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [isReady, setIsReady] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const [previewUri, setPreviewUri] = useState<string | null>(null);
@@ -26,10 +26,12 @@ export default function PhotoCapture({ visible, onClose, onCaptured }: Props) {
     if (!cameraRef.current || isCapturing) return;
     try {
       setIsCapturing(true);
-      const photo = await cameraRef.current.takePictureAsync({ quality: 0.6, skipProcessing: true });
-      setPreviewUri(photo.uri);
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.6 });
+      if (photo) {
+        setPreviewUri(photo.uri);
+      }
     } catch (e) {
-      // noop
+      console.error('Failed to take photo:', e);
     } finally {
       setIsCapturing(false);
     }
@@ -59,9 +61,9 @@ export default function PhotoCapture({ visible, onClose, onCaptured }: Props) {
           <View style={styles.previewContainer}>
             {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
             {/* @ts-ignore ImageBackground not needed; we can use expo-image later */}
-            <Camera style={styles.preview} type={CameraType.back}>
+            <CameraView style={styles.preview} facing="back">
               {/* Using camera only for consistent view; we could show Image with source={{uri: previewUri}} */}
-            </Camera>
+            </CameraView>
             <View style={styles.previewActions}>
               <TouchableOpacity style={styles.actionBtn} onPress={retake}>
                 <Ionicons name="refresh" size={24} color="#fff" />
@@ -75,10 +77,10 @@ export default function PhotoCapture({ visible, onClose, onCaptured }: Props) {
           </View>
         ) : (
           <View style={styles.cameraWrapper}>
-            <Camera
+            <CameraView
               ref={(r) => (cameraRef.current = r)}
               style={styles.camera}
-              type={CameraType.front}
+              facing="front"
               onCameraReady={() => setIsReady(true)}
             />
             <View style={styles.captureBar}>

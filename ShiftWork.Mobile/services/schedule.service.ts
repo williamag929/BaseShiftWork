@@ -68,16 +68,30 @@ export const scheduleService = {
     startDate: string,
     endDate: string
   ): Promise<ScheduleShiftDto[]> {
-    // Fetch all shifts for the company (404 means empty)
-    const allShifts = await this.getScheduleShifts(companyId);
-
-    // Filter by person and date range
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    return allShifts.filter((shift) =>
-      shift.personId === personId &&
-      new Date(shift.startDate as unknown as string) >= start &&
-      new Date(shift.startDate as unknown as string) <= end
-    );
+    // Prefer server-side filtering to ensure parity with kiosk
+    try {
+      const results = await this.searchSchedules(companyId, {
+        personId,
+        startDate,
+        endDate,
+      } as any);
+      // Some APIs may return ScheduleDto; normalize to shifts array if needed
+      // If API already returns ScheduleShiftDto[], cast directly
+      return (results as unknown as ScheduleShiftDto[]) ?? [];
+    } catch (err: any) {
+      if (err?.statusCode === 404) {
+        return [];
+      }
+      // Fallback to client-side filter if search endpoint unavailable
+      const allShifts = await this.getScheduleShifts(companyId);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      return allShifts.filter(
+        (shift) =>
+          shift.personId === personId &&
+          new Date(shift.startDate as unknown as string) >= start &&
+          new Date(shift.startDate as unknown as string) <= end
+      );
+    }
   },
 };

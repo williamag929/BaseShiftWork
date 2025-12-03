@@ -14,12 +14,6 @@ interface S3UploadResponse {
 
 export async function uploadPhoto(localUri: string, bucketName: string = 'shiftwork-photos'): Promise<string> {
   try {
-    // Read the file as base64
-    const fileInfo = await FileSystem.getInfoAsync(localUri);
-    if (!fileInfo.exists) {
-      throw new Error('Photo file does not exist');
-    }
-
     // Create form data for multipart upload
     const filename = localUri.split('/').pop() || `photo_${Date.now()}.jpg`;
     const formData = new FormData();
@@ -46,31 +40,36 @@ export async function uploadPhoto(localUri: string, bucketName: string = 'shiftw
     }
     
     // Upload to backend S3 endpoint
+    console.log(`Uploading to: ${baseURL}/api/s3/file/${bucketName}`);
     const response = await fetch(`${baseURL}/api/s3/file/${bucketName}`, {
       method: 'POST',
       headers,
       body: formData,
     });
 
+    console.log('Upload response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
+      console.error('Upload failed response:', errorText);
       throw new Error(`Upload failed: ${response.status} - ${errorText}`);
     }
 
-    const result: S3UploadResponse = await response.json();
+    const responseText = await response.text();
+    console.log('Upload response body:', responseText);
+    
+    const result: S3UploadResponse = JSON.parse(responseText);
     const photoUrl = result.url || result.message;
     
     if (!photoUrl) {
       throw new Error('No URL returned from upload');
     }
 
-    console.log('Photo uploaded successfully:', photoUrl);
+    console.log('Photo uploaded successfully to S3:', photoUrl);
     return photoUrl;
   } catch (error: any) {
     console.error('Error uploading photo:', error);
-    // Fallback to local URI if upload fails (offline scenario)
-    console.warn('Using local URI as fallback:', localUri);
-    return localUri;
+    throw new Error(`Failed to upload photo: ${error.message || 'Unknown error'}`);
   }
 }
 

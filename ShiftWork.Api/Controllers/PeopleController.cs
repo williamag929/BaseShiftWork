@@ -193,6 +193,62 @@ namespace ShiftWork.Api.Controllers
         }
 
         /// <summary>
+        /// Partially updates a person (e.g., just photoUrl).
+        /// </summary>
+        [HttpPatch("{personId}")]
+        [ProducesResponseType(typeof(PersonDto), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<PersonDto>> PatchPerson(string companyId, int personId, [FromBody] Dictionary<string, object> updates)
+        {
+            try
+            {
+                var person = await _peopleService.Get(companyId, personId);
+                if (person == null)
+                {
+                    return NotFound($"Person with ID {personId} not found.");
+                }
+
+                // Apply only the fields that were sent
+                foreach (var update in updates)
+                {
+                    var property = typeof(Person).GetProperty(update.Key, System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                    if (property != null && property.CanWrite)
+                    {
+                        var value = update.Value?.ToString();
+                        if (property.PropertyType == typeof(string))
+                        {
+                            property.SetValue(person, value);
+                        }
+                        else if (property.PropertyType == typeof(int) || property.PropertyType == typeof(int?))
+                        {
+                            if (int.TryParse(value, out int intValue))
+                            {
+                                property.SetValue(person, intValue);
+                            }
+                        }
+                    }
+                }
+
+                var updatedPerson = await _peopleService.Update(person);
+                if (updatedPerson == null)
+                {
+                    return NotFound($"Person with ID {personId} not found.");
+                }
+
+                _memoryCache.Remove($"people_{companyId}");
+                _memoryCache.Remove($"person_{companyId}_{personId}");
+
+                return Ok(_mapper.Map<PersonDto>(updatedPerson));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error partially updating person {PersonId} for company {CompanyId}.", personId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
         /// Deletes a person by their ID.
         /// </summary>
         [HttpDelete("{personId}")]
