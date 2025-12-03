@@ -81,14 +81,14 @@ export class ScheduleEditComponent implements OnInit {
       name: [this.schedule?.name, Validators.required],
       locationId: [this.schedule?.locationId, Validators.required],
       areaId: [this.schedule?.areaId, Validators.required],
-      startDate: [this.schedule?.startDate, Validators.required],
-      endDate: [this.schedule?.endDate, Validators.required],
+      startDate: [this.formatDateForInput(this.schedule?.startDate), Validators.required],
+      endDate: [this.formatDateForInput(this.schedule?.endDate), Validators.required],
       //startTime: [this.schedule?.startTime, Validators.required],
       //endTime: [this.schedule?.endTime, Validators.required],
       description: [this.schedule?.description],
       status: [this.schedule?.status, Validators.required],
       color: [this.schedule?.color],
-      timezone: [this.schedule?.timezone, Validators.required],
+      timezone: [this.schedule?.timezone],
       type: [this.schedule?.type]
     });
   this.scheduleForm.get('locationId')?.valueChanges.subscribe(locationId => {
@@ -100,6 +100,20 @@ export class ScheduleEditComponent implements OnInit {
   }
   companyId(companyId: any) {
     throw new Error('Method not implemented.');
+  }
+
+  private formatDateForInput(date: Date | string | undefined): string {
+    if (!date) {
+      return '';
+    }
+    const d = new Date(date);
+    // Format to 'yyyy-MM-ddTHH:mm' which is required for datetime-local input
+    const year = d.getFullYear();
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    const hours = d.getHours().toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
   save(): void {

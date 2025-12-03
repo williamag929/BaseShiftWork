@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
@@ -22,15 +23,17 @@ namespace ShiftWork.Api.Controllers
         private readonly ShiftWorkContext _context;
         private readonly IMapper _mapper;
         private readonly ILogger<CrewsController> _logger;
+        private readonly IMemoryCache _memoryCache;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CrewsController"/> class.
         /// </summary>
-        public CrewsController(ShiftWorkContext context, IMapper mapper, ILogger<CrewsController> logger)
+        public CrewsController(ShiftWorkContext context, IMapper mapper, ILogger<CrewsController> logger, IMemoryCache memoryCache)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         }
 
         /// <summary>
@@ -39,14 +42,31 @@ namespace ShiftWork.Api.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<CrewDto>), 200)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<IEnumerable<CrewDto>>> GetCrews(string companyId)
+        public async Task<ActionResult<IEnumerable<CrewDto>>> GetCrews(string companyId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var crews = await _context.Crews
-                    .Where(c => c.CompanyId == companyId)
-                    .ToListAsync();
-                return Ok(_mapper.Map<IEnumerable<CrewDto>>(crews));
+                var cacheKey = $"crews_{companyId}_{pageNumber}_{pageSize}";
+                if (!_memoryCache.TryGetValue(cacheKey, out IEnumerable<CrewDto> crewDtos))
+                {
+                    _logger.LogInformation("Cache miss for crews in company {CompanyId}", companyId);
+                    var crews = await _context.Crews
+                        .Where(c => c.CompanyId == companyId)
+                        .Skip((pageNumber - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToListAsync();
+
+                    crewDtos = _mapper.Map<IEnumerable<CrewDto>>(crews);
+
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
+                    _memoryCache.Set(cacheKey, crewDtos, cacheEntryOptions);
+                }
+                else
+                {
+                    _logger.LogInformation("Cache hit for crews in company {CompanyId}", companyId);
+                }
+
+                return Ok(crewDtos);
             }
             catch (Exception ex)
             {

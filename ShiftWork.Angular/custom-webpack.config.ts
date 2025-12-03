@@ -1,8 +1,10 @@
-import * as webpack from 'webpack';
-const Dotenv = require('dotenv-webpack');
+const webpack = require('webpack');
+const dotenv = require('dotenv').config({ path: './.env' });
 
-export default {
+module.exports = {
   plugins: [
-    new Dotenv()
+    new webpack.DefinePlugin({
+      'process.env': JSON.stringify(dotenv.parsed)
+    })
   ]
-} as webpack.Configuration;
+};

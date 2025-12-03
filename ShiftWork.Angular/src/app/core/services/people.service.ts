@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { People } from '../models/people.model';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable, throwError, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -22,8 +22,15 @@ export class PeopleService {
     };
   }
 
-  getPeople(companyId: string): Observable<People[]> {
-    return this.http.get<People[]>(`${this.apiUrl}/companies/${companyId}/People`)
+  getPeople(companyId: string, pageNumber = 1, pageSize = 10, searchQuery = ''): Observable<People[]> {
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+    if (searchQuery) {
+      params = params.set('searchQuery', searchQuery);
+    }
+
+    return this.http.get<People[]>(`${this.apiUrl}/companies/${companyId}/People`, { params })
       .pipe(
         catchError(this.handleError)
       );
@@ -52,6 +59,58 @@ export class PeopleService {
 
   deletePerson(companyId: string, id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/companies/${companyId}/People/${id}`, this.getHttpOptions())
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  getPersonStatus(companyId: string, personId: number): Observable<string> {
+    return this.http.get<string | null>(`${this.apiUrl}/companies/${companyId}/people/${personId}/status`, { observe: 'body', responseType: 'text' as 'json' })
+      .pipe(
+        // Coalesce null/empty responses (e.g., 204 No Content) to empty string
+        map((val: any) => (val ?? '') as string),
+        // Treat 404 as "no status set" and return empty string instead of error
+        catchError((err: HttpErrorResponse) => {
+          if (err.status === 404 || err.status === 204) {
+            return of('');
+          }
+          return this.handleError(err);
+        })
+      );
+  }
+  
+  // Kiosk-specific (ShiftWork) status endpoints
+  getPersonStatusShiftWork(companyId: string, personId: number): Observable<string> {
+    return this.http.get<string | null>(`${this.apiUrl}/companies/${companyId}/people/${personId}/status-shiftwork`, { observe: 'body', responseType: 'text' as 'json' })
+      .pipe(
+        // Coalesce null/empty responses (e.g., 204 No Content) to empty string
+        map((val: any) => (val ?? '') as string),
+        // Treat 404 as "no kiosk status set" and return empty string instead of error
+        catchError((err: HttpErrorResponse) => {
+          if (err.status === 404 || err.status === 204) {
+            return of('');
+          }
+          return this.handleError(err);
+        })
+      );
+  }
+  
+  updatePersonStatus(companyId: string, personId: number, status: string): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/companies/${companyId}/people/${personId}/status`, { status }, this.getHttpOptions())
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  updatePersonStatusShiftWork(companyId: string, personId: number, status: string): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/companies/${companyId}/people/${personId}/status-shiftwork`, { status }, this.getHttpOptions())
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  getPersonByEmail(companyId: string, email: string): Observable<People> {
+    return this.http.get<People>(`${this.apiUrl}/companies/${companyId}/people/by-email/${email}`)
       .pipe(
         catchError(this.handleError)
       );

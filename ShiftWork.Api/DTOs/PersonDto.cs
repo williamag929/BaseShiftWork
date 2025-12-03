@@ -6,7 +6,7 @@ namespace ShiftWork.Api.DTOs
         public string Name { get; set; }
         public string Email { get; set; }
         public string CompanyId { get; set; }
-        public string? PhoneNumber { get; set; }
+        public string? Pin { get; set; }
         public string? Address { get; set; }
         public string? City { get; set; }
         public string? State { get; set; }
@@ -14,10 +14,19 @@ namespace ShiftWork.Api.DTOs
         public string? Street { get; set; }
         public string? Building { get; set; }
         public string? Floor { get; set; }
-        public string Status { get; set; }
+        public string Status { get; set; } = "Active"; // e.g., Active, Inactive, Scheduled, ShiftEarly, ShiftLate,
+    public string? StatusShiftWork { get; set; }
         public string? PhotoUrl { get; set; }
+        public string? PhoneNumber { get; set; }
         public int? RoleId { get; set; } // Foreign key to Role
         public string? ExternalCode { get; set; }
+        
+        // PTO configuration fields (optional)
+        public decimal? PtoAccrualRatePerMonth { get; set; }
+        public decimal? PtoStartingBalance { get; set; }
+        public DateTime? PtoStartDate { get; set; }
+        public DateTime? PtoLastAccruedAt { get; set; }
+        
         // Consider if you need related entities like PersonCrews in the DTO.  If so, add them.
         // public ICollection<PersonCrew> PersonCrews { get; set; } 
     }

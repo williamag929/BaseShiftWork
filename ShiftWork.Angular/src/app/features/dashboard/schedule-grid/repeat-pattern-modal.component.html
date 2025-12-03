@@ -1,0 +1,122 @@
+<div class="modal-backdrop" (click)="onClose()"></div>
+<div class="modal-content">
+  <div class="modal-header">
+    <span class="modal-title">Repeat Shift Pattern</span>
+    <button class="close-btn" (click)="onClose()">&times;</button>
+  </div>
+
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="person-name">Employee</label>
+      <input 
+        type="text" 
+        id="person-name" 
+        class="form-input" 
+        [value]="personName" 
+        disabled 
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="pattern-type">Pattern Type</label>
+      <select 
+        id="pattern-type" 
+        class="form-select" 
+        [(ngModel)]="patternType"
+      >
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="biweekly">Bi-weekly (every 2 weeks)</option>
+        <option value="monthly">Monthly</option>
+      </select>
+    </div>
+
+    <div class="form-group" *ngIf="patternType === 'daily' || patternType === 'monthly'">
+      <label for="repeat-every">Repeat Every</label>
+      <div class="repeat-input-group">
+        <input 
+          type="number" 
+          id="repeat-every" 
+          class="form-input-small" 
+          [(ngModel)]="repeatEvery"
+          min="1"
+        />
+        <span class="repeat-label">{{ patternType === 'daily' ? 'day(s)' : 'month(s)' }}</span>
+      </div>
+    </div>
+
+    <div class="form-group" *ngIf="patternType === 'weekly' || patternType === 'biweekly'">
+      <label>Repeat On</label>
+      <div class="days-selector">
+        <button 
+          *ngFor="let day of dayNames; let i = index"
+          type="button"
+          class="day-btn"
+          [class.selected]="selectedDaysOfWeek[i]"
+          (click)="toggleDay(i)"
+        >
+          {{ day }}
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>End</label>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input 
+            type="radio" 
+            name="endType" 
+            value="occurrences"
+            [(ngModel)]="endType"
+          />
+          <span>After</span>
+          <input 
+            type="number" 
+            class="form-input-inline" 
+            [(ngModel)]="occurrences"
+            [disabled]="endType !== 'occurrences'"
+            min="1"
+          />
+          <span>occurrence(s)</span>
+        </label>
+      </div>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input 
+            type="radio" 
+            name="endType" 
+            value="date"
+            [(ngModel)]="endType"
+          />
+          <span>On</span>
+          <input 
+            type="date" 
+            class="form-input-inline-date" 
+            [(ngModel)]="endDate"
+            [disabled]="endType !== 'date'"
+          />
+        </label>
+      </div>
+    </div>
+
+    <div class="info-message">
+      <i class="bi bi-info-circle"></i>
+      <span>This will create multiple shifts based on your pattern. Review them in the schedule grid.</span>
+    </div>
+
+    <div class="error-message" *ngIf="errorMessage">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn-cancel" (click)="onClose()">
+      Cancel
+    </button>
+    <button class="btn-submit" (click)="onSubmit()">
+      Create Shifts
+    </button>
+  </div>
+</div>

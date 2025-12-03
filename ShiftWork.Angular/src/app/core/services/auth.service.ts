@@ -1,44 +1,57 @@
 import { Injectable, NgZone } from '@angular/core';
-import { User } from '../models/user.model';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
-import { Observable, of, map } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
+import { switchMap, map, catchError, filter, withLatestFrom } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { User } from '../models/user.model';
+import { People } from '../models/people.model';
+import { PeopleService } from './people.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  user$: Observable<User | null | undefined>;
-  activeCompany$: any;
+  user$: Observable<People | null | undefined>;
+  activeCompany$: Observable<any>;
   activeCompany: any;
+  private readonly apiUrl = environment.apiUrl;
+
   constructor(
     private afAuth: AngularFireAuth,
     private afs: AngularFirestore,
     private router: Router,
     private ngZone: NgZone,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private http: HttpClient,
+    private peopleService: PeopleService
   ) {
-
     this.afAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
 
     this.user$ = this.afAuth.authState.pipe(
       switchMap(user => {
-        if (user) {
-          localStorage.setItem('user', JSON.stringify(user));
-          return this.afs.doc<User>(`users/${user.uid}`).valueChanges().
-            pipe(map(u => u ? { ...u, emailVerified: user.emailVerified } : null));
+        if (user && user.email) {
+          return this.activeCompany$.pipe(
+            filter(company => !!company),
+            switchMap(company => {
+              if (user && user.email) {
+                return this.peopleService.getPersonByEmail(company.companyId, user.email);
+              } else {
+                return of(null);
+              }
+            })
+          );
         } else {
           return of(null);
         }
       })
     );
 
-    // Listen for auth state changes to save/remove the token
     this.afAuth.onIdTokenChanged(async user => {
       if (user) {
         const token = await user.getIdToken();
@@ -65,35 +78,34 @@ export class AuthService {
       })
     );
 
-    this.activeCompany$.subscribe((company:any) => {
+    this.activeCompany$.subscribe((company: any) => {
       if (company) {
         this.activeCompany = company;
-        console.log('Active company set:', this.activeCompany);
-      } else {
-        console.log('No active company found');
       }
     });
   }
 
+  private getHttpOptions() {
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    };
+  }
 
   async SignIn(email: string, password: string) {
     try {
-      const result = await this.afAuth.signInWithEmailAndPassword(email, password);
-      //this.SetUserData(result.user);
+      await this.afAuth.signInWithEmailAndPassword(email, password);
       this.afAuth.authState.subscribe((user) => {
         if (user) {
           this.router.navigate(['company-switch']);
-          //this.peopleService.GetbyEmail(email).subscribe(
-          //  (data:any) => {
-          //    console.log('person',data);
-          //    this.router.navigate(['dashboard']);
-          //  })
         }
       });
     } catch (error: any) {
       window.alert(error.message);
     }
   }
+
   SetUserData(user: any) {
     const userRef: AngularFirestoreDocument<any> = this.afs.doc(
       `users/${user.uid}`
@@ -117,15 +129,11 @@ export class AuthService {
         this.ngZone.run(() => {
           this.toastr.success('Google sign-in successful');
           this.router.navigate(['company-switch']);
-          //this.router.navigate(['/dashboard']);
         });
       }
     } catch (error) {
       this.handleError(error);
-    } finally {
-      this.toastr.clear();
     }
-
   }
 
   async signOut() {
@@ -135,7 +143,6 @@ export class AuthService {
   }
 
   async updateUserData(user: any) {
-
     const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user?.uid}`);
     const data: User = {
       uid: user.uid,
@@ -144,25 +151,7 @@ export class AuthService {
       photoURL: user.photoURL || '',
       emailVerified: user.emailVerified || false
     };
-    console.log('Updating user data:', data);
     return userRef.set(data, { merge: true });
-  }
-
-  async signIn(email: string, password: string): Promise<void> {
-    try {
-      const credential = await (await this.afAuth.signInWithEmailAndPassword(email, password));
-      if (credential.user) {
-        console.log('User signed in:', credential);
-        localStorage.setItem('user', JSON.stringify(credential.user));
-        this.ngZone.run(() => {
-          this.toastr.success('Signed in successfully');
-          this.router.navigate(['company-switch']);
-          //this.router.navigate(['/dashboard']);
-        });
-      }
-    } catch (error) {
-      this.handleError(error);
-    }
   }
 
   async signUp(email: string, password: string): Promise<void> {
@@ -190,6 +179,14 @@ export class AuthService {
     }
   }
 
+  verifyPin(personId: number, pin: string): Observable<{ verified: boolean }> {
+    const request = { personId, pin };
+    return this.http.post<{ verified: boolean }>(`${this.apiUrl}/auth/verify-pin`, request, this.getHttpOptions())
+      .pipe(
+        catchError((err) => this.handleHttpError(err))
+      );
+  }
+
   async forgotPassword(passwordResetEmail: string): Promise<void> {
     try {
       await this.afAuth.sendPasswordResetEmail(passwordResetEmail);
@@ -201,7 +198,7 @@ export class AuthService {
 
   isEmailVerified(): Observable<boolean> {
     return this.user$.pipe(
-      switchMap(user => of(!!user && user.emailVerified === true))
+      map(user => !!user)
     );
   }
 
@@ -209,6 +206,18 @@ export class AuthService {
     console.error('Error occurred:', error);
     this.toastr.error(error.message || 'An error occurred');
   }
+
+  private handleHttpError(error: HttpErrorResponse) {
+    let errorMessage = 'Unknown error!';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    console.error(errorMessage);
+    return throwError(() => new Error(errorMessage));
+  }
+
   async getToken(): Promise<string | null> {
     const user = await this.afAuth.currentUser;
     if (user) {
@@ -221,14 +230,6 @@ export class AuthService {
     }
   }
 
-  async getTokenSilently(): Promise<string | null> {
-    const user = await this.afAuth.currentUser;
-    if (user) {
-      return user.getIdToken(true);
-    } else {
-      return null;
-    }
-  }
   getTokenFromSessionStorage(): string | null {
     return sessionStorage.getItem('authToken');
   }

@@ -1,16 +1,98 @@
+<div class="toolbar">
+  <div class="search-container">
+    <input type="text" [formControl]="searchControl" placeholder="Search employees..." class="search-input">
+  </div>
+  <div class="status-controls">
+    <button class="btn btn-sm btn-outline-primary" (click)="refreshStatuses()" [disabled]="refreshing">
+      <span *ngIf="!refreshing">Refresh</span>
+      <span *ngIf="refreshing">Refreshing...</span>
+    </button>
+    <div class="last-updated" *ngIf="lastUpdated as lu">
+      Last updated: {{ lu | date:'shortTime' }}
+    </div>
+  </div>
+  <div class="legend-toggle">
+    <button class="btn btn-sm btn-outline-secondary" (click)="toggleLegend()" [attr.aria-expanded]="showLegend" aria-controls="legend-desktop legend-mobile" aria-label="Toggle timing legend visibility">
+      Legend
+      <i class="ms-1" [ngClass]="{ 'bi bi-chevron-up': showLegend, 'bi bi-chevron-down': !showLegend }"></i>
+    </button>
+    <button type="button" class="btn btn-sm btn-link info-icon" title="Legend: OnTime = within 5 minutes of scheduled start; Early = before start; Late = more than 5 minutes after start; NoSchedule = no published schedule for today" aria-label="Legend information">
+      <i class="bi bi-info-circle"></i>
+    </button>
+  </div>
+  <div class="wake-lock-indicator ms-2" *ngIf="wakeLock.isSupported()" title="Screen wake lock active to prevent sleep">
+    <span class="badge bg-secondary" [class.bg-success]="wakeLock.isActive()">
+      {{ wakeLock.isActive() ? 'Screen Locked' : 'Screen May Sleep' }}
+    </span>
+  </div>
+  <div class="wake-lock-indicator ms-2" *ngIf="!wakeLock.isSupported()" title="Wake Lock not supported on this device">
+    <span class="badge bg-secondary">Wake Lock Unsupported</span>
+  </div>
+  <div id="legend-desktop" class="legend desktop-only" aria-label="Timing legend" role="region" *ngIf="showLegend">
+    <span class="badge bg-success" title="Arrived within 5 minutes of scheduled start">OnTime</span>
+    <span class="badge bg-warning text-dark" title="Arrived before scheduled start">Early</span>
+    <span class="badge bg-danger" title="Arrived more than 5 minutes after scheduled start">Late</span>
+
+
+  </div>
+  
+  <div *ngIf="refreshing" class="inline-spinner" aria-label="Refreshing statuses">
+    <div class="spinner-border spinner-border-sm" role="status"></div>
+  </div>
+</div>
+
 <div *ngIf="loading" class="text-center">
   <div class="spinner-border" role="status">
     <span class="sr-only">Loading...</span>
   </div>
 </div>
+
+<!-- Mobile legend placed under the grid -->
+<div id="legend-mobile" class="legend mobile-only" aria-label="Timing legend" role="region" *ngIf="showLegend">
+  <span class="badge bg-success" title="Arrived within 5 minutes of scheduled start">OnTime</span>
+  <span class="badge bg-warning text-dark" title="Arrived before scheduled start">Early</span>
+  <span class="badge bg-danger" title="Arrived more than 5 minutes after scheduled start">Late</span>
+
+</div>
 <div *ngIf="error" class="alert alert-danger">
   Error loading employees.
 </div>
+
+<div *ngIf="!loading && filteredEmployees.length === 0" class="text-center">
+  <p>No employees found.</p>
+</div>
+
 <div class="employee-grid">
-  <div *ngFor="let employee of employees" class="employee-card" (click)="selectEmployee(employee)">
-    <div class="initials-circle">
+  <div *ngFor="let employee of filteredEmployees" class="employee-card" 
+       [class.has-published-schedule]="hasPublishedScheduleToday(employee)"
+       (click)="selectEmployee(employee)">
+    <div class="initials-circle" 
+         [class.on-shift]="isOnShift(employee.statusShiftWork)"
+         [class.scheduled]="hasPublishedScheduleToday(employee)">
       <span class="initials">{{ getInitials(employee.name) }}</span>
+      <div *ngIf="isOnShift(employee.statusShiftWork)" class="status-indicator">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div *ngIf="hasPublishedScheduleToday(employee) && !isOnShift(employee.statusShiftWork)" class="schedule-indicator">
+        <i class="bi bi-calendar-check"></i>
+      </div>
     </div>
-    <div class="employee-name">{{ employee.name }}</div>
+    <div class="employee-name">
+      {{ employee.name }}
+      <span *ngIf="getTiming(employee.statusShiftWork) as timing" class="badge ms-2" [ngClass]="getTimingBadgeClass(timing)" title="Shift arrival timing">
+        {{ timing }}
+      </span>
+    </div>
+    <div class="subtle-label" *ngIf="hasPublishedScheduleToday(employee) && !isOnShift(employee.statusShiftWork)" title="Has a published schedule for today">
+      Published today
+    </div>
+    <div class="action-buttons mt-2">
+      <div class="btn btn-sm btn-outline-success me-2" *ngIf="canStartShift(employee)" title="Start Shift">
+        <i class="bi bi-play-circle"></i> Start
+      </div>
+      <div class="btn btn-sm btn-outline-danger" *ngIf="canEndShift(employee)"  title="End Shift">
+        <i class="bi bi-stop-circle"></i> End
+      </div>
+    </div>
   </div>
 </div>

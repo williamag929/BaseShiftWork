@@ -1,0 +1,449 @@
+<div class="settings-container" *ngIf="settings">
+  <div class="settings-header">
+    <h1>Company Settings</h1>
+    <button class="btn-save" (click)="saveSettings()" [disabled]="saving || loading">
+      {{ saving ? 'Saving...' : 'Save Settings' }}
+    </button>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tabs">
+    <button 
+      class="tab" 
+      [class.active]="activeTab === 'time-regional'" 
+      (click)="setActiveTab('time-regional')">
+      Time & Regional
+    </button>
+    <button 
+      class="tab" 
+      [class.active]="activeTab === 'pay-overtime'" 
+      (click)="setActiveTab('pay-overtime')">
+      Pay & Overtime
+    </button>
+    <button 
+      class="tab" 
+      [class.active]="activeTab === 'pto-leave'" 
+      (click)="setActiveTab('pto-leave')">
+      PTO & Leave
+    </button>
+    <button 
+      class="tab" 
+      [class.active]="activeTab === 'scheduling'" 
+      (click)="setActiveTab('scheduling')">
+      Scheduling
+    </button>
+    <button 
+      class="tab" 
+      [class.active]="activeTab === 'clock-inout'" 
+      (click)="setActiveTab('clock-inout')">
+      Clock-In/Out
+    </button>
+    <button 
+      class="tab" 
+      [class.active]="activeTab === 'notifications'" 
+      (click)="setActiveTab('notifications')">
+      Notifications
+    </button>
+    <button 
+      class="tab" 
+      [class.active]="activeTab === 'system'" 
+      (click)="setActiveTab('system')">
+      System
+    </button>
+    <button 
+      class="tab" 
+      [class.active]="activeTab === 'kiosk'" 
+      (click)="setActiveTab('kiosk')">
+      Kiosk
+    </button>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content" *ngIf="!loading">
+    
+    <!-- Time & Regional Settings -->
+    <div *ngIf="activeTab === 'time-regional'" class="settings-section">
+      <h2>Time & Regional Settings</h2>
+      
+      <div class="form-group">
+        <label for="defaultTimeZone">Default Time Zone</label>
+        <input type="text" id="defaultTimeZone" [(ngModel)]="settings.defaultTimeZone" placeholder="UTC">
+      </div>
+
+      <div class="form-group">
+        <label for="defaultLanguage">Default Language</label>
+        <select id="defaultLanguage" [(ngModel)]="settings.defaultLanguage">
+          <option value="en">English</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="pt">Portuguese</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="firstDayOfWeek">First Day of Week</label>
+        <select id="firstDayOfWeek" [(ngModel)]="settings.firstDayOfWeek">
+          <option value="Sunday">Sunday</option>
+          <option value="Monday">Monday</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="dateFormat">Date Format</label>
+        <select id="dateFormat" [(ngModel)]="settings.dateFormat">
+          <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+          <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+          <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="timeFormat">Time Format</label>
+        <select id="timeFormat" [(ngModel)]="settings.timeFormat">
+          <option value="12">12-hour</option>
+          <option value="24">24-hour</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="currencySymbol">Currency Symbol</label>
+        <input type="text" id="currencySymbol" [(ngModel)]="settings.currencySymbol" placeholder="$">
+      </div>
+    </div>
+
+    <!-- Pay & Overtime Settings -->
+    <div *ngIf="activeTab === 'pay-overtime'" class="settings-section">
+      <h2>Pay & Overtime Settings</h2>
+
+      <div class="form-group">
+        <label for="minimumHourlyRate">Minimum Hourly Rate ($)</label>
+        <input type="number" id="minimumHourlyRate" [(ngModel)]="settings.minimumHourlyRate" min="0" step="0.01">
+      </div>
+
+      <div class="form-group">
+        <label for="regularOvertimePercentage">Regular Overtime Percentage (%)</label>
+        <input type="number" id="regularOvertimePercentage" [(ngModel)]="settings.regularOvertimePercentage" min="100" step="1">
+        <small>e.g., 150 = 1.5x pay</small>
+      </div>
+
+      <div class="form-group">
+        <label for="nightShiftOvertimePercentage">Night Shift Overtime Percentage (%)</label>
+        <input type="number" id="nightShiftOvertimePercentage" [(ngModel)]="settings.nightShiftOvertimePercentage" min="100" step="1">
+      </div>
+
+      <div class="form-group">
+        <label for="holidayOvertimePercentage">Holiday Overtime Percentage (%)</label>
+        <input type="number" id="holidayOvertimePercentage" [(ngModel)]="settings.holidayOvertimePercentage" min="100" step="1">
+      </div>
+
+      <div class="form-group">
+        <label for="weekendOvertimePercentage">Weekend Overtime Percentage (%)</label>
+        <input type="number" id="weekendOvertimePercentage" [(ngModel)]="settings.weekendOvertimePercentage" min="100" step="1">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nightShiftStartTime">Night Shift Start Time</label>
+          <input type="time" id="nightShiftStartTime" [(ngModel)]="settings.nightShiftStartTime">
+        </div>
+
+        <div class="form-group">
+          <label for="nightShiftEndTime">Night Shift End Time</label>
+          <input type="time" id="nightShiftEndTime" [(ngModel)]="settings.nightShiftEndTime">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="dailyOvertimeThreshold">Daily Overtime Threshold (hours)</label>
+        <input type="number" id="dailyOvertimeThreshold" [(ngModel)]="settings.dailyOvertimeThreshold" min="0" step="0.5">
+      </div>
+
+      <div class="form-group">
+        <label for="weeklyOvertimeThreshold">Weekly Overtime Threshold (hours)</label>
+        <input type="number" id="weeklyOvertimeThreshold" [(ngModel)]="settings.weeklyOvertimeThreshold" min="0" step="0.5">
+      </div>
+    </div>
+
+    <!-- PTO & Leave Settings -->
+    <div *ngIf="activeTab === 'pto-leave'" class="settings-section">
+      <h2>PTO & Leave Settings</h2>
+
+      <div class="form-group">
+        <label for="defaultPtoAccrualRate">Default PTO Accrual Rate (hours/month)</label>
+        <input type="number" id="defaultPtoAccrualRate" [(ngModel)]="settings.defaultPtoAccrualRate" min="0" step="0.5">
+      </div>
+
+      <div class="form-group">
+        <label for="maximumPtoBalance">Maximum PTO Balance (hours)</label>
+        <input type="number" id="maximumPtoBalance" [(ngModel)]="settings.maximumPtoBalance" min="0" step="1">
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="ptoRolloverAllowed" [(ngModel)]="settings.ptoRolloverAllowed">
+        <label for="ptoRolloverAllowed">Allow PTO Rollover</label>
+      </div>
+
+      <div class="form-group" *ngIf="settings.ptoRolloverAllowed">
+        <label for="maximumPtoRollover">Maximum PTO Rollover (hours)</label>
+        <input type="number" id="maximumPtoRollover" [(ngModel)]="settings.maximumPtoRollover" min="0" step="1">
+      </div>
+
+      <div class="form-group">
+        <label for="sickLeaveAccrualRate">Sick Leave Accrual Rate (hours/month)</label>
+        <input type="number" id="sickLeaveAccrualRate" [(ngModel)]="settings.sickLeaveAccrualRate" min="0" step="0.5">
+      </div>
+
+      <div class="form-group">
+        <label for="sickLeaveMaximumBalance">Sick Leave Maximum Balance (hours)</label>
+        <input type="number" id="sickLeaveMaximumBalance" [(ngModel)]="settings.sickLeaveMaximumBalance" min="0" step="1">
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="requireManagerApprovalForPto" [(ngModel)]="settings.requireManagerApprovalForPto">
+        <label for="requireManagerApprovalForPto">Require Manager Approval for PTO</label>
+      </div>
+
+      <div class="form-group">
+        <label for="minimumNoticeDaysForPto">Minimum Notice Days for PTO Request</label>
+        <input type="number" id="minimumNoticeDaysForPto" [(ngModel)]="settings.minimumNoticeDaysForPto" min="0" step="1">
+      </div>
+    </div>
+
+    <!-- Scheduling Settings -->
+    <div *ngIf="activeTab === 'scheduling'" class="settings-section">
+      <h2>Scheduling Settings</h2>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="autoApproveShifts" [(ngModel)]="settings.autoApproveShifts">
+        <label for="autoApproveShifts">Auto-Approve Shifts</label>
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="allowEmployeeShiftSwaps" [(ngModel)]="settings.allowEmployeeShiftSwaps">
+        <label for="allowEmployeeShiftSwaps">Allow Employee Shift Swaps</label>
+      </div>
+
+      <div class="form-group checkbox" *ngIf="settings.allowEmployeeShiftSwaps">
+        <input type="checkbox" id="requireManagerApprovalForSwaps" [(ngModel)]="settings.requireManagerApprovalForSwaps">
+        <label for="requireManagerApprovalForSwaps">Require Manager Approval for Swaps</label>
+      </div>
+
+      <div class="form-group">
+        <label for="maximumConsecutiveWorkDays">Maximum Consecutive Work Days</label>
+        <input type="number" id="maximumConsecutiveWorkDays" [(ngModel)]="settings.maximumConsecutiveWorkDays" min="1" step="1">
+      </div>
+
+      <div class="form-group">
+        <label for="minimumHoursBetweenShifts">Minimum Hours Between Shifts</label>
+        <input type="number" id="minimumHoursBetweenShifts" [(ngModel)]="settings.minimumHoursBetweenShifts" min="0" step="0.5">
+      </div>
+
+      <div class="form-group">
+        <label for="maximumDailyHours">Maximum Daily Hours</label>
+        <input type="number" id="maximumDailyHours" [(ngModel)]="settings.maximumDailyHours" min="1" step="0.5">
+      </div>
+
+      <div class="form-group">
+        <label for="maximumWeeklyHours">Maximum Weekly Hours</label>
+        <input type="number" id="maximumWeeklyHours" [(ngModel)]="settings.maximumWeeklyHours" min="1" step="0.5">
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="allowOverlappingShifts" [(ngModel)]="settings.allowOverlappingShifts">
+        <label for="allowOverlappingShifts">Allow Overlapping Shifts</label>
+      </div>
+    </div>
+
+    <!-- Clock-In/Out Settings -->
+    <div *ngIf="activeTab === 'clock-inout'" class="settings-section">
+      <h2>Clock-In/Out Settings</h2>
+
+      <div class="form-group">
+        <label for="gracePeriodLateClockIn">Grace Period for Late Clock-In (minutes)</label>
+        <input type="number" id="gracePeriodLateClockIn" [(ngModel)]="settings.gracePeriodLateClockIn" min="0" step="1">
+      </div>
+
+      <div class="form-group">
+        <label for="autoClockOutAfter">Auto Clock-Out After (hours)</label>
+        <input type="number" id="autoClockOutAfter" [(ngModel)]="settings.autoClockOutAfter" min="1" step="1">
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="requireGeoLocationForClockIn" [(ngModel)]="settings.requireGeoLocationForClockIn">
+        <label for="requireGeoLocationForClockIn">Require Geo-Location for Clock-In</label>
+      </div>
+
+      <div class="form-group" *ngIf="settings.requireGeoLocationForClockIn">
+        <label for="geoFenceRadius">Geo-Fence Radius (meters)</label>
+        <input type="number" id="geoFenceRadius" [(ngModel)]="settings.geoFenceRadius" min="10" step="10">
+      </div>
+
+      <div class="form-group">
+        <label for="allowEarlyClockIn">Allow Early Clock-In (minutes before shift)</label>
+        <input type="number" id="allowEarlyClockIn" [(ngModel)]="settings.allowEarlyClockIn" min="0" step="1">
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="requireBreakClocks" [(ngModel)]="settings.requireBreakClocks">
+        <label for="requireBreakClocks">Require Break Clocks</label>
+      </div>
+
+      <div class="form-group" *ngIf="settings.requireBreakClocks">
+        <label for="minimumBreakDuration">Minimum Break Duration (minutes)</label>
+        <input type="number" id="minimumBreakDuration" [(ngModel)]="settings.minimumBreakDuration" min="0" step="1">
+      </div>
+    </div>
+
+    <!-- Notification Settings -->
+    <div *ngIf="activeTab === 'notifications'" class="settings-section">
+      <h2>Notification Settings</h2>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="emailNotificationsEnabled" [(ngModel)]="settings.emailNotificationsEnabled">
+        <label for="emailNotificationsEnabled">Enable Email Notifications</label>
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="smsNotificationsEnabled" [(ngModel)]="settings.smsNotificationsEnabled">
+        <label for="smsNotificationsEnabled">Enable SMS Notifications</label>
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="pushNotificationsEnabled" [(ngModel)]="settings.pushNotificationsEnabled">
+        <label for="pushNotificationsEnabled">Enable Push Notifications</label>
+      </div>
+
+      <h3>Notification Triggers</h3>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="notifyOnShiftAssignment" [(ngModel)]="settings.notifyOnShiftAssignment">
+        <label for="notifyOnShiftAssignment">Notify on Shift Assignment</label>
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="notifyOnShiftChanges" [(ngModel)]="settings.notifyOnShiftChanges">
+        <label for="notifyOnShiftChanges">Notify on Shift Changes</label>
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="notifyOnTimeOffApproval" [(ngModel)]="settings.notifyOnTimeOffApproval">
+        <label for="notifyOnTimeOffApproval">Notify on Time-Off Approval/Denial</label>
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="notifyOnReplacementRequest" [(ngModel)]="settings.notifyOnReplacementRequest">
+        <label for="notifyOnReplacementRequest">Notify on Replacement Request</label>
+      </div>
+
+      <div class="form-group">
+        <label for="reminderHoursBeforeShift">Reminder Hours Before Shift</label>
+        <input type="number" id="reminderHoursBeforeShift" [(ngModel)]="settings.reminderHoursBeforeShift" min="0" step="1">
+      </div>
+    </div>
+
+    <!-- System Settings -->
+    <div *ngIf="activeTab === 'system'" class="settings-section">
+      <h2>System Settings</h2>
+
+      <div class="form-group">
+        <label for="fiscalYearStartMonth">Fiscal Year Start Month</label>
+        <select id="fiscalYearStartMonth" [(ngModel)]="settings.fiscalYearStartMonth">
+          <option [value]="1">January</option>
+          <option [value]="2">February</option>
+          <option [value]="3">March</option>
+          <option [value]="4">April</option>
+          <option [value]="5">May</option>
+          <option [value]="6">June</option>
+          <option [value]="7">July</option>
+          <option [value]="8">August</option>
+          <option [value]="9">September</option>
+          <option [value]="10">October</option>
+          <option [value]="11">November</option>
+          <option [value]="12">December</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="payrollPeriod">Payroll Period</label>
+        <select id="payrollPeriod" [(ngModel)]="settings.payrollPeriod">
+          <option value="Weekly">Weekly</option>
+          <option value="BiWeekly">Bi-Weekly</option>
+          <option value="SemiMonthly">Semi-Monthly</option>
+          <option value="Monthly">Monthly</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="employeeIdPrefix">Employee ID Prefix</label>
+        <input type="text" id="employeeIdPrefix" [(ngModel)]="settings.employeeIdPrefix" placeholder="EMP">
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="requireTwoFactorAuth" [(ngModel)]="settings.requireTwoFactorAuth">
+        <label for="requireTwoFactorAuth">Require Two-Factor Authentication</label>
+      </div>
+
+      <div class="form-group">
+        <label for="sessionTimeout">Session Timeout (minutes)</label>
+        <input type="number" id="sessionTimeout" [(ngModel)]="settings.sessionTimeout" min="5" step="1">
+      </div>
+
+      <div class="form-group">
+        <label for="passwordExpirationDays">Password Expiration (days)</label>
+        <input type="number" id="passwordExpirationDays" [(ngModel)]="settings.passwordExpirationDays" min="0" step="1">
+        <small>0 = never expires</small>
+      </div>
+
+      <div class="form-group">
+        <label for="minimumPasswordLength">Minimum Password Length</label>
+        <input type="number" id="minimumPasswordLength" [(ngModel)]="settings.minimumPasswordLength" min="4" step="1">
+      </div>
+    </div>
+
+    <!-- Kiosk Settings -->
+    <div *ngIf="activeTab === 'kiosk'" class="settings-section">
+      <h2>Kiosk Settings</h2>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="kioskModeEnabled" [(ngModel)]="settings.kioskModeEnabled">
+        <label for="kioskModeEnabled">Enable Kiosk Mode</label>
+      </div>
+
+      <div class="form-group">
+        <label for="kioskPinLength">Kiosk PIN Length</label>
+        <input type="number" id="kioskPinLength" [(ngModel)]="settings.kioskPinLength" min="4" max="8" step="1">
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="requirePhotoOnClockIn" [(ngModel)]="settings.requirePhotoOnClockIn">
+        <label for="requirePhotoOnClockIn">Require Photo on Clock-In</label>
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="showEmployeePhotosOnKiosk" [(ngModel)]="settings.showEmployeePhotosOnKiosk">
+        <label for="showEmployeePhotosOnKiosk">Show Employee Photos on Kiosk</label>
+      </div>
+
+      <div class="form-group">
+        <label for="kioskTimeout">Kiosk Timeout (seconds)</label>
+        <input type="number" id="kioskTimeout" [(ngModel)]="settings.kioskTimeout" min="10" step="5">
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" id="allowQuestionResponsesOnClockIn" [(ngModel)]="settings.allowQuestionResponsesOnClockIn">
+        <label for="allowQuestionResponsesOnClockIn">Allow Question Responses on Clock-In</label>
+      </div>
+    </div>
+
+  </div>
+
+  <div *ngIf="loading" class="loading-message">
+    Loading settings...
+  </div>
+  </div>
+
+  <!-- Empty state when no company is selected or settings not loaded -->
+  <div *ngIf="!loading && !settings" class="loading-message">
+    Select a company to view and edit its settings.
+</div>

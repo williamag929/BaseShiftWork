@@ -1,0 +1,63 @@
+<div class="replacement-panel-backdrop" (click)="onClose()"></div>
+<div class="replacement-panel">
+  <div class="panel-header">
+    <h3>Find Replacement</h3>
+    <button class="close-btn" (click)="onClose()">&times;</button>
+  </div>
+  
+  <div class="panel-body">
+    <div class="channel-selector">
+      <label>Notify via:</label>
+      <div class="channel-options">
+        <label>
+          <input type="radio" name="channel" [(ngModel)]="selectedChannel" value="push" />
+          Push
+        </label>
+        <label>
+          <input type="radio" name="channel" [(ngModel)]="selectedChannel" value="sms" />
+          SMS
+        </label>
+        <label>
+          <input type="radio" name="channel" [(ngModel)]="selectedChannel" value="email" />
+          Email
+        </label>
+      </div>
+    </div>
+
+    <div class="loading-indicator" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Finding candidates...</p>
+    </div>
+
+    <div class="no-candidates" *ngIf="!loading && candidates.length === 0">
+      <p>No available candidates for this time window.</p>
+      <p class="help-text">All employees are either scheduled or have reported sick/time off.</p>
+    </div>
+
+    <div class="candidates-list" *ngIf="!loading && candidates.length > 0">
+      <div class="candidate-item" *ngFor="let candidate of candidates">
+        <div class="candidate-info">
+          <div class="candidate-name">{{ candidate.name }}</div>
+          <div class="candidate-reasons" *ngIf="candidate.reasons && candidate.reasons.length > 0">
+            <span class="reason-badge" *ngFor="let reason of candidate.reasons">{{ reason }}</span>
+          </div>
+          <div class="candidate-score" *ngIf="candidate.score">
+            Match: {{ candidate.score }}%
+          </div>
+        </div>
+        <div class="candidate-actions">
+          <button class="btn-notify" (click)="onNotify(candidate.personId)" title="Send notification">
+            <i class="bi bi-bell"></i> Notify
+          </button>
+          <button class="btn-assign" (click)="onAssign(candidate.personId)" title="Assign to shift">
+            <i class="bi bi-check-circle"></i> Assign
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-footer">
+    <p class="footer-note">Candidates are filtered by availability and conflicts.</p>
+  </div>
+</div>

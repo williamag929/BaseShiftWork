@@ -8,11 +8,13 @@ import { Area } from 'src/app/core/models/area.model';
 import { ScheduleService } from 'src/app/core/services/schedule.service';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AreaService } from 'src/app/core/services/area.service';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
   selector: 'app-schedule-edit',
   templateUrl: './schedule-edit.component.html',
-  styleUrls: ['./schedule-edit.component.css']
+  styleUrls: ['./schedule-edit.component.css'],
+  imports: [SharedModule],
 })
 export class ScheduleEditComponent implements OnInit {
   form: FormGroup;
@@ -37,8 +39,8 @@ export class ScheduleEditComponent implements OnInit {
       personId: [data.schedule ? data.schedule.personId : '', Validators.required],
       locationId: [data.schedule ? data.schedule.locationId : '', Validators.required],
       areaId: [data.schedule ? data.schedule.areaId : '', Validators.required],
-      startTime: [data.schedule ? data.schedule.startTime : '', Validators.required],
-      endTime: [data.schedule ? data.schedule.endTime : '', Validators.required],
+      startTime: [data.schedule ? data.schedule.startDate : '', Validators.required],
+      endTime: [data.schedule ? data.schedule.endDate : '', Validators.required],
       status: [data.schedule ? data.schedule.status : 'pending', Validators.required],
       companyId: [this.companyId]
     });

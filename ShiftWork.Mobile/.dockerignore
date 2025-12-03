@@ -1,0 +1,54 @@
+# Docker ignore file for ShiftWork Mobile
+
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Expo
+.expo/
+.expo-shared/
+dist/
+web-build/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Build outputs
+*.apk
+*.aab
+*.ipa
+android/app/build/
+ios/build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.jest/
+
+# Temporary
+tmp/
+temp/
+
+# Git
+.git/
+.gitignore
+
+# Documentation (no need in container)
+*.md
+!README.md
+
+# CI/CD
+.github/

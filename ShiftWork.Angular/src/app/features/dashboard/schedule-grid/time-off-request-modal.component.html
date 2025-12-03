@@ -1,0 +1,114 @@
+<div class="modal-backdrop" (click)="onClose()"></div>
+<div class="modal-content">
+  <div class="modal-header">
+    <span class="modal-title">Request Time Off</span>
+    <button class="close-btn" (click)="onClose()">&times;</button>
+  </div>
+
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="person-name">Employee</label>
+      <input 
+        type="text" 
+        id="person-name" 
+        class="form-input" 
+        [value]="personName" 
+        disabled 
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="request-type">Request Type</label>
+      <select 
+        id="request-type" 
+        class="form-select" 
+        [(ngModel)]="requestType"
+      >
+        <option *ngFor="let type of requestTypes" [value]="type.value">
+          {{ type.label }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="start-date">Start Date</label>
+        <input 
+          type="date" 
+          id="start-date" 
+          class="form-input" 
+          [(ngModel)]="startDate"
+        />
+      </div>
+      <div class="form-group">
+        <label for="end-date">End Date</label>
+        <input 
+          type="date" 
+          id="end-date" 
+          class="form-input" 
+          [(ngModel)]="endDate"
+        />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="checkbox-label">
+        <input 
+          type="checkbox" 
+          [(ngModel)]="isPartialDay"
+        />
+        <span>Partial Day</span>
+      </label>
+    </div>
+
+    <div class="form-row" *ngIf="isPartialDay">
+      <div class="form-group">
+        <label for="partial-start">Start Time</label>
+        <input 
+          type="time" 
+          id="partial-start" 
+          class="form-input" 
+          [(ngModel)]="partialStartTime"
+        />
+      </div>
+      <div class="form-group">
+        <label for="partial-end">End Time</label>
+        <input 
+          type="time" 
+          id="partial-end" 
+          class="form-input" 
+          [(ngModel)]="partialEndTime"
+        />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="reason">Reason (Optional)</label>
+      <textarea 
+        id="reason" 
+        class="form-textarea" 
+        rows="3"
+        placeholder="Provide additional details..."
+        [(ngModel)]="reason"
+      ></textarea>
+    </div>
+
+    <div class="error-message" *ngIf="errorMessage">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn-cancel" (click)="onClose()" [disabled]="submitting">
+      Cancel
+    </button>
+    <button class="btn-submit" (click)="onSubmit()" [disabled]="submitting">
+      <span *ngIf="!submitting">Submit Request</span>
+      <span *ngIf="submitting" class="loading-text">
+        <span class="spinner-small"></span>
+        Submitting...
+      </span>
+    </button>
+  </div>
+</div>

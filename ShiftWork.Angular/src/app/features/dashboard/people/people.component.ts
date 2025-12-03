@@ -77,7 +77,8 @@ export class PeopleComponent implements OnInit {
     this.personForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phoneNumber: ['', Validators.required],
+      phoneNumber: [''],
+      pin: ['', [Validators.minLength(4), Validators.maxLength(4)]],
       address: ['', Validators.required],
       city: ['', Validators.required],
       state: ['', Validators.required],
@@ -99,6 +100,7 @@ export class PeopleComponent implements OnInit {
       name: '',
       email: '',
       phoneNumber: '',
+      pin: '',
       address: '',
       city: '',
       state: '',
@@ -144,6 +146,15 @@ export class PeopleComponent implements OnInit {
       });
     }
   }
+
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }  
 
   getRoleName(roleId: any  | undefined): string {
     return this.roles.find(l => l.roleId === roleId)?.name || 'N/A';

@@ -1,5 +1,7 @@
 using DotNetEnv;
 using Amazon.S3;
+using Amazon;
+using Amazon.Extensions.NETCore.Setup;
 using FirebaseAdmin;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +17,10 @@ Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Initialize Firebase Admin SDK
+// Initialize Firebase Auth configuration
 var firebaseProjectId = Environment.GetEnvironmentVariable("FIREBASE_PROJECT_ID");
 var firebaseAuthDomain = Environment.GetEnvironmentVariable("FIREBASE_AUTH_DOMAIN");
-var firebaseApiKey = Environment.GetEnvironmentVariable("FIREBASE_API_ID");
+var firebaseApiKey = Environment.GetEnvironmentVariable("FIREBASE_API_KEY");
 
 if (string.IsNullOrEmpty(firebaseProjectId))
 {
@@ -32,6 +34,12 @@ if (string.IsNullOrEmpty(firebaseProjectId))
 
 // Add services to the container.
 
+// TODO: Refactor to use IConfiguration and the options pattern for connection strings and other settings.
+// This will allow for more flexible configuration sources (e.g., appsettings.json, environment variables, Azure Key Vault).
+// Example: var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// TODO: Refactor to use IConfiguration and the options pattern for connection strings and other settings.
+// This will allow for more flexible configuration sources (e.g., appsettings.json, environment variables, Azure Key Vault).
+// Example: var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 // Configure DbContext using the connection string from the .env file.
 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
 if (string.IsNullOrEmpty(connectionString))
@@ -40,15 +48,26 @@ if (string.IsNullOrEmpty(connectionString))
     throw new InvalidOperationException("DB_CONNECTION_STRING is not set in the environment.");
 }
 
-builder.Services.AddDbContext<ShiftWorkContext>(options =>
+builder.Services.AddDbContext<ShiftWorkContext>((sp, options) =>
 {
     options.UseSqlServer(connectionString);
-    var serviceProvider = builder.Services.BuildServiceProvider();
-    options.AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>());
+    options.AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
 });
 
 // Add In-Memory Caching service, used by several controllers.
 builder.Services.AddMemoryCache();
+
+// Configure AWS Region from environment (.env), required for S3 client
+var awsRegion = Environment.GetEnvironmentVariable("AWS_REGION")
+                ?? Environment.GetEnvironmentVariable("AWS_DEFAULT_REGION");
+if (string.IsNullOrWhiteSpace(awsRegion))
+{
+    throw new InvalidOperationException("AWS_REGION (or AWS_DEFAULT_REGION) is not set in the environment.");
+}
+builder.Services.AddDefaultAWSOptions(new AWSOptions
+{
+    Region = RegionEndpoint.GetBySystemName(awsRegion)
+});
 
 if (builder.Environment.IsDevelopment())
 {
@@ -76,6 +95,7 @@ builder.Services.AddScoped<IAreaService, AreaService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IPeopleService, PeopleService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IScheduleShiftService, ScheduleShiftService>();
@@ -84,6 +104,14 @@ builder.Services.AddScoped<IAwsS3Service, AwsS3Service>();
 builder.Services.AddScoped<AuditInterceptor>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<ICompanyUserService, CompanyUserService>();
+builder.Services.AddScoped<IShiftEventService, ShiftEventService>();
+builder.Services.AddScoped<IScheduleShiftSummaryService, ScheduleShiftSummaryService>();
+builder.Services.AddScoped<IKioskService, KioskService>();
+builder.Services.AddScoped<IPtoService, PtoService>();
+builder.Services.AddScoped<ICompanySettingsService, CompanySettingsService>();
+builder.Services.AddScoped<IScheduleValidationService, ScheduleValidationService>();
+builder.Services.AddScoped<PushNotificationService>();
+builder.Services.AddHttpClient();
 
 
 // Your AuthController uses AutoMapper, so you need to add it and its DI package.
@@ -97,18 +125,19 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
+{
+    // Firebase JWTs are validated against Google's public keys via Authority
+    options.Authority = $"https://securetoken.google.com/{firebaseProjectId}";
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.Authority = $"https://securetoken.google.com/{firebaseProjectId}";
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-        {
-            ValidIssuer = firebaseAuthDomain,
-            ValidateIssuer = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(firebaseApiKey ?? throw new InvalidOperationException("FIREBASE_API_KEY is not set in the environment."))),            
-            ValidateAudience = true,
-            ValidAudience = firebaseProjectId,
-            ValidateLifetime = true
-        };
-    });
+        ValidateIssuer = true,
+        ValidIssuer = $"https://securetoken.google.com/{firebaseProjectId}",
+        ValidateAudience = true,
+        ValidAudience = firebaseProjectId,
+        ValidateLifetime = true
+        // Do not set IssuerSigningKey for Firebase; keys are resolved via Authority metadata
+    };
+});
 
 var apiCorsPolicy = "ApiCorsPolicy";
 
@@ -117,12 +146,27 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: apiCorsPolicy,
                       builder =>
                       {
-                          builder.WithOrigins("http://localhost:4200",
-                              "http://localhost:32773",
-                              "https://localhost:32774")
-                            .AllowAnyHeader()
-                            .AllowAnyMethod()
-                            .AllowCredentials();
+                          // In development, allow all origins for mobile app testing
+                          if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+                          {
+                              builder.AllowAnyOrigin()
+                                    .AllowAnyHeader()
+                                    .AllowAnyMethod();
+                          }
+                          else
+                          {
+                              builder.WithOrigins("http://localhost:4200",
+                                  "http://localhost:32773",
+                                  "https://localhost:32774",
+                                  // Docker Desktop for Windows
+                                  "http://host.docker.internal:4200",
+                                  "http://app.shift-clock.com",
+                                  "https://app.shift-clock.com")
+                                  // AWS Elastic Beanstalk)
+                                .AllowAnyHeader()
+                                .AllowAnyMethod()
+                                .AllowCredentials();
+                          }
                           //.WithMethods("OPTIONS", "GET");
                       });
 });

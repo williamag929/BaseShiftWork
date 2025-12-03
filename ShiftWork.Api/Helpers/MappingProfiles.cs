@@ -15,6 +15,8 @@ namespace ShiftWork.Api.Helpers
             CreateMap<AreaDto, Area>();
             CreateMap<Company, CompanyDto>();
             CreateMap<CompanyDto, Company>();
+            CreateMap<CompanyUser, CompanyUserDto>();
+            CreateMap<CompanyUserDto, CompanyUser>();
             CreateMap<Location, LocationDto>()
                 .ForMember(dest => dest.GeoCoordinates, opt => opt.MapFrom(src =>
                     !string.IsNullOrEmpty(src.GeoCoordinates)
@@ -34,14 +36,22 @@ namespace ShiftWork.Api.Helpers
                 .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src =>
                     src.Permissions != null && src.Permissions.Any() 
                         ? JsonSerializer.Serialize(src.Permissions, (JsonSerializerOptions)null) : null));
-            CreateMap<Schedule, ScheduleDto>();
-             CreateMap<ScheduleDto, Schedule>();
+            CreateMap<Schedule, ScheduleDto>()
+                .ForMember(dest => dest.PersonId, opt => opt.MapFrom(src =>
+                    src.PersonId == null ? 0 : int.Parse(src.PersonId)));
+            CreateMap<ScheduleDto, Schedule>()
+                .ForMember(dest => dest.PersonId, opt => opt.MapFrom(src => src.PersonId.ToString()));
             CreateMap<ScheduleShift, ScheduleShiftDto>();
              CreateMap<ScheduleShiftDto, ScheduleShift>();
             CreateMap<TaskShift, TaskShiftDto>();
             CreateMap<TaskShiftDto, TaskShift>();
             CreateMap<Crew, CrewDto>();
             CreateMap<CrewDto, Crew>();
+            CreateMap<ShiftEvent, ShiftEventDto>();
+            CreateMap<ShiftEventDto, ShiftEvent>();
+            CreateMap<Schedule, ScheduleDetailDto>();
+            CreateMap<CompanySettings, CompanySettingsDto>();
+            CreateMap<CompanySettingsDto, CompanySettings>();
         }
     }
 }

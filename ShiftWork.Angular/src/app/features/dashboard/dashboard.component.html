@@ -1,45 +1,222 @@
-<mat-toolbar color="primary">
-  <button mat-icon-button (click)="sidenav.toggle()">
-    <mat-icon>more_vert</mat-icon>
-  </button>
-  <span>{{ (activeCompany$ | async)?.name }}</span>
-  <span class="spacer"></span>
-  <button mat-button (click)="logout()">Logout</button>
-</mat-toolbar>
+<!-- Modern Dashboard Layout -->
+<div class="dashboard-wrapper">
+  <!-- Top Navigation Bar -->
+  <mat-toolbar class="modern-toolbar">
+    <button mat-icon-button class="menu-toggle" (click)="sidenav.toggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    
+    <div class="toolbar-brand">
+      <div class="brand-icon">
+        <mat-icon>business_center</mat-icon>
+      </div>
+      <span class="company-name">{{ (activeCompany$ | async)?.name }}</span>
+    </div>
+    
+    <span class="spacer"></span>
+    
+    <!-- User Profile Menu -->
+    <div class="user-section">
+      <span class="status-badge" *ngIf="personStatus$ | async as status" [ngClass]="{'on': status === 'OnShift', 'off': status === 'OffShift'}">
+        {{ status || 'Unknown' }}
+      </span>
+      <button mat-icon-button [matMenuTriggerFor]="menu" class="profile-button">
+        <img [src]="(user$ | async)?.photoUrl || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJDMTQuMjEgMTIgMTYgMTAuMjEgMTYgOEMxNiA1Ljc5IDE0LjIxIDQgMTIgNFM4IDUuNzkgOCA4QzggMTAuMjEgOS43OSAxMiAxMiAxMlpNMTIgMTRDNi40OCAxNCAyIDE2LjQ4IDIgMjJWMjRIMjJWMjJDMTggMTYuNDggMTUuNTIgMTQgMTIgMTRaIiBmaWxsPSIjY2NjY2NjIi8+PC9zdmc+'" 
+             class="profile-avatar" 
+             alt="User profile">
+        <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+      </button>
+    </div>
+    
+    <!-- User Dropdown Menu -->
+    <mat-menu #menu="matMenu" class="user-menu" xPosition="before">
+      <div class="user-menu-header" *ngIf="user$ | async as user">
+        <img [src]="user.photoUrl || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJDMTQuMjEgMTIgMTYgMTAuMjEgMTYgOEMxNiA1Ljc5IDE0LjIxIDQgMTIgNFM4IDUuNzkgOCA4QzggMTAuMjEgOS43OSAxMiAxMiAxMlpNMTIgMTRDNi40OCAxNCAyIDE2LjQ4IDIgMjJWMjRIMjJWMjJDMTggMTYuNDggMTUuNTIgMTQgMTIgMTRaIiBmaWxsPSIjY2NjY2NjIi8+PC9zdmc+'" 
+             class="user-menu-avatar" 
+             alt="User profile">
+        <div class="user-menu-info">
+          <p class="user-name">{{ user.name }}</p>
+          <p class="user-email">{{ user.email }}</p>
+          <p class="user-status" *ngIf="personStatus$ | async as status">
+            Status: <strong>{{ status || 'Unknown' }}</strong>
+            <button mat-icon-button (click)="refreshStatus(); $event.stopPropagation()" class="refresh-btn" [disabled]="refreshing" matTooltip="Refresh status">
+              <mat-icon [class.spinning]="refreshing">refresh</mat-icon>
+            </button>
+          </p>
+          <p class="last-updated" *ngIf="lastStatusUpdate">Updated: {{ lastStatusUpdate | date:'shortTime' }}</p>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item routerLink="/dashboard/profiles" class="menu-item">
+        <mat-icon>account_circle</mat-icon>
+        <span>My Profile</span>
+      </button>
+      <button mat-menu-item routerLink="/dashboard/company-settings" class="menu-item">
+        <mat-icon>settings</mat-icon>
+        <span>Settings</span>
+      </button>
+      <button mat-menu-item routerLink="/general/manage-companies" class="menu-item">
+        <mat-icon>business</mat-icon>
+        <span>Manage Companies</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()" class="menu-item logout-item">
+        <mat-icon>exit_to_app</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </mat-toolbar>
 
-<mat-sidenav-container class="sidenav-container" autosize>
-  <mat-sidenav #sidenav class="sidenav"
-               [mode]="(isHandset$ | async) ? 'over' : 'side'"
-               [opened]="(isHandset$ | async) === false">
-    <mat-nav-list>
-      <a mat-list-item routerLink="/dashboard/schedule" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>dialpad</mat-icon>
-        <span matListItemTitle>Schedule</span>
-      </a>
-      <a mat-list-item routerLink="/dashboard/profiles" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>account_circle</mat-icon>
-        <span matListItemTitle>Profiles</span>
-      </a>
-      <a mat-list-item routerLink="/dashboard/people" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>people</mat-icon>
-        <span matListItemTitle>People</span>
-      </a>
-      <a mat-list-item routerLink="/dashboard/areas" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>place</mat-icon>
-        <span matListItemTitle>Areas</span>
-      </a>
-      <a mat-list-item routerLink="/dashboard/locations" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>location_on</mat-icon>
-        <span matListItemTitle>Locations</span>
-      </a>
-      <a mat-list-item routerLink="/dashboard/tasks" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>assignment</mat-icon>
-        <span matListItemTitle>Tasks</span>
-      </a>
-    </mat-nav-list>
-  </mat-sidenav>
+  <!-- Sidebar and Content Container -->
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #sidenav 
+                 class="modern-sidenav" 
+                 [mode]="(isHandset$ | async) ? 'over' : 'side'"
+                 [opened]="(isHandset$ | async) === false">
+      
+      <!-- Sidebar Header -->
+      <div class="sidenav-header">
+        <div class="app-logo">
+          <div class="logo-icon">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <span class="app-title">ShiftWork</span>
+        </div>
+      </div>
 
-  <mat-sidenav-content class="sidenav-content">
-    <router-outlet></router-outlet>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+      <!-- Main Navigation -->
+      <mat-nav-list class="nav-list">
+        <div class="nav-section-title">Main Menu</div>
+        
+
+        <a mat-list-item routerLink="/dashboard/schedule-grid" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>apps</mat-icon>
+            <span matListItemTitle>Schedule Grid</span>
+          </div>
+        </a>
+        
+        <a mat-list-item routerLink="/dashboard/shiftsummaries" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>assignment</mat-icon>
+            <span matListItemTitle>Shift Summaries</span>
+          </div>
+        </a>
+      
+
+        <div class="nav-section-title">Management</div>
+        
+        <a mat-list-item routerLink="/dashboard/people" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>people</mat-icon>
+            <span matListItemTitle>People</span>
+          </div>
+        </a>
+        
+        <a mat-list-item routerLink="/dashboard/areas" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>place</mat-icon>
+            <span matListItemTitle>Areas</span>
+          </div>
+        </a>
+        
+        <a mat-list-item routerLink="/dashboard/locations" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>location_on</mat-icon>
+            <span matListItemTitle>Locations</span>
+          </div>
+        </a>
+        
+        <a mat-list-item routerLink="/dashboard/tasks" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>check_box</mat-icon>
+            <span matListItemTitle>Tasks</span>
+          </div>
+        </a>
+
+        <div class="nav-section-title">PTO</div>
+
+        <a mat-list-item routerLink="/dashboard/people-management" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>event_busy</mat-icon>
+            <span matListItemTitle>PTO Management</span>
+          </div>
+        </a>
+        
+        <a mat-list-item routerLink="/dashboard/time-off-approvals" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>event_busy</mat-icon>
+            <span matListItemTitle>Time-Off Approvals</span>
+          </div>
+        </a>        
+      
+        <div class="nav-section-title">Kiosks</div>
+        
+        <a mat-list-item routerLink="/kiosk" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>tablet</mat-icon>
+            <span matListItemTitle>Kiosks</span>
+          </div>
+        </a>
+        
+        <!-- Expandable More Options -->
+        <mat-expansion-panel class="nav-expansion-panel">
+          <mat-expansion-panel-header class="expansion-header">
+            <mat-panel-title class="expansion-title">
+              <mat-icon>more_horiz</mat-icon>
+              <span>More Options</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="expansion-content">
+            <a mat-list-item routerLink="/general/manage-companies" routerLinkActive="active-link" class="nav-item sub-item">
+              <div class="nav-item-content">
+                <mat-icon matListItemIcon>business</mat-icon>
+                <span matListItemTitle>Manage Companies</span>
+              </div>
+            </a>
+            
+            <a mat-list-item routerLink="/dashboard/company-settings" routerLinkActive="active-link" class="nav-item sub-item">
+              <div class="nav-item-content">
+                <mat-icon matListItemIcon>settings</mat-icon>
+                <span matListItemTitle>Settings</span>
+              </div>
+            </a>
+
+            <!--
+            <a mat-list-item routerLink="/dashboard/holidays" routerLinkActive="active-link" class="nav-item sub-item">
+              <div class="nav-item-content">
+                <mat-icon matListItemIcon>holiday_village</mat-icon>
+                <span matListItemTitle>Holidays</span>
+              </div>
+            </a>
+-->
+
+            <a mat-list-item routerLink="/dashboard/profiles" routerLinkActive="active-link" class="nav-item sub-item">
+              <div class="nav-item-content">
+                <mat-icon matListItemIcon>account_circle</mat-icon>
+                <span matListItemTitle>Profiles</span>
+              </div>
+            </a>            
+            
+            <a mat-list-item routerLink="/dashboard/help" routerLinkActive="active-link" class="nav-item sub-item">
+              <div class="nav-item-content">
+                <mat-icon matListItemIcon>help_outline</mat-icon>
+                <span matListItemTitle>Help</span>
+              </div>
+            </a>
+            
+          </div>
+        </mat-expansion-panel>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <!-- Main Content Area
+      todo: add contact, privacy policy and terms of service links, 
+      -->
+    <mat-sidenav-content class="main-content">
+      <div class="content-wrapper">
+        <router-outlet></router-outlet>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

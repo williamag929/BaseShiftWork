@@ -1,6 +1,46 @@
 @ShiftWork.Api_HostAddress = http://localhost:5182
+@token = REPLACE_WITH_JWT
 
 GET {{ShiftWork.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+### Auth: verify PIN
+POST {{ShiftWork.Api_HostAddress}}/api/auth/verify-pin
+Content-Type: application/json
+
+{
+	"personId": 1,
+	"pin": "1234"
+}
+
+### ShiftEvents: create
+POST {{ShiftWork.Api_HostAddress}}/api/companies/acme-123/shiftevents
+Content-Type: application/json
+
+{
+	"eventType": "clock_in",
+	"companyId": "acme-123",
+	"personId": 1,
+	"description": "HTTP test",
+	"kioskDevice": "test-device-1"
+}
+
+### ShiftEvents: get by person
+GET {{ShiftWork.Api_HostAddress}}/api/companies/acme-123/shiftevents/person/1
+Accept: application/json
+
+### Kiosk: questions
+GET {{ShiftWork.Api_HostAddress}}/api/kiosk/1/questions
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Kiosk: submit answers
+POST {{ShiftWork.Api_HostAddress}}/api/kiosk/answers
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+[
+	{ "shiftEventId": "00000000-0000-0000-0000-000000000000", "kioskQuestionId": 1, "answerText": "Yes" }
+]

@@ -110,14 +110,17 @@ namespace ShiftWork.Api.Services
 
             try
             {
-                var query = _context.Areas.Where(a => a.CompanyId == companyId);
+                var query = _context.Areas.AsQueryable();
+                query = query.Where(a => a.CompanyId == companyId);
 
-                if (areaIds != null && areaIds.Any())
+                // Treat null as empty
+                if (areaIds != null && areaIds.Length > 0)
                 {
                     query = query.Where(a => areaIds.Contains(a.AreaId));
                 }
 
-                return await query.ToListAsync();
+                var result = await query.ToListAsync();
+                return result ?? new List<Area>();
             }
             catch (Exception ex)
             {

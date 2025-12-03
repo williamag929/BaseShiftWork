@@ -1,20 +1,49 @@
 <div class="company-switch-container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Select a Company</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div *ngIf="loading$ | async" class="loading-spinner">
-        <mat-spinner></mat-spinner>
+  <div class="company-box">
+    <!-- Header Section -->
+    <div class="company-header">
+      <div class="logo-circle">
+        <i class="fa fa-building"></i>
       </div>
-      <mat-error *ngIf="error$ | async">
-        Error loading companies.
-      </mat-error>
-      <mat-nav-list *ngIf="(companies$ | async) && (companies$ | async)!.length > 0">
-        <a mat-list-item *ngFor="let company of companies$ | async" (click)="switchCompany(company)">
-          <h3 matLine>{{ company.name }}</h3>
-        </a>
-      </mat-nav-list>
-    </mat-card-content>
-  </mat-card>
+      <h2>Select Your Company</h2>
+      <p class="subtitle">Choose a company to continue</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading$ | async" class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p class="loading-text">Loading companies...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error$ | async" class="error-container">
+      <i class="fa fa-exclamation-circle error-icon"></i>
+      <p class="error-text">Error loading companies. Please try again.</p>
+    </div>
+
+    <!-- Companies List -->
+    <div *ngIf="(companies$ | async) && (companies$ | async)!.length > 0 && !(loading$ | async)" class="companies-list">
+      <div 
+        class="company-item" 
+        *ngFor="let company of companies$ | async; let i = index" 
+        (click)="switchCompany(company)"
+        [style.animation-delay.ms]="i * 50">
+        <div class="company-icon">
+          <i class="fa fa-briefcase"></i>
+        </div>
+        <div class="company-info">
+          <h3 class="company-name">{{company.name}}</h3>
+          <span class="company-arrow">
+            <i class="fa fa-chevron-right"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="(companies$ | async)?.length === 0 && !(loading$ | async)" class="empty-state">
+      <i class="fa fa-building-o empty-icon"></i>
+      <p class="empty-text">No companies available</p>
+    </div>
+  </div>
 </div>

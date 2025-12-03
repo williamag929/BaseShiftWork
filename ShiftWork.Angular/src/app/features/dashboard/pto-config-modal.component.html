@@ -1,0 +1,78 @@
+<div class="modal-backdrop" (click)="onClose()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Configure PTO for {{ person?.name }}</h2>
+      <button class="close-btn" (click)="onClose()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="info-section" *ngIf="currentBalance !== null">
+        <div class="info-label">Current PTO Balance:</div>
+        <div class="info-value">{{ currentBalance }} hours</div>
+      </div>
+
+      <form>
+        <div class="form-group">
+          <label for="accrualRate">Accrual Rate (hours per month)</label>
+          <input 
+            type="number" 
+            id="accrualRate"
+            [(ngModel)]="accrualRatePerMonth" 
+            name="accrualRate"
+            placeholder="e.g., 10"
+            step="0.25"
+            min="0"
+          />
+          <small class="hint">How many PTO hours this employee earns each month (e.g., 10 = 10 hours/month)</small>
+        </div>
+
+        <div class="form-group">
+          <label for="startingBalance">Starting Balance (hours)</label>
+          <input 
+            type="number" 
+            id="startingBalance"
+            [(ngModel)]="startingBalance" 
+            name="startingBalance"
+            placeholder="e.g., 40"
+            step="1"
+            min="0"
+          />
+          <small class="hint">Initial PTO balance when employee started or when accrual begins</small>
+        </div>
+
+        <div class="form-group">
+          <label for="startDate">Accrual Start Date</label>
+          <input 
+            type="date" 
+            id="startDate"
+            [(ngModel)]="startDate" 
+            name="startDate"
+          />
+          <small class="hint">Date when PTO accrual begins for this employee</small>
+        </div>
+
+        <div class="form-info">
+          <strong>How it works:</strong>
+          <ul>
+            <li>Employee starts with the <strong>starting balance</strong> hours.</li>
+            <li>Each month, <strong>accrual rate</strong> hours are added automatically.</li>
+            <li>When time-off is approved, hours are deducted from the balance.</li>
+            <li>Set all to zero or leave blank to disable PTO tracking for this employee.</li>
+          </ul>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="resetForm()" [disabled]="loading">
+        Clear
+      </button>
+      <button class="btn btn-secondary" (click)="onClose()" [disabled]="loading">
+        Cancel
+      </button>
+      <button class="btn btn-primary" (click)="save()" [disabled]="loading">
+        {{ loading ? 'Saving...' : 'Save Configuration' }}
+      </button>
+    </div>
+  </div>
+</div>

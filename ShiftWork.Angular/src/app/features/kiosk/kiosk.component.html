@@ -1,12 +1,43 @@
 <div class="kiosk-container">
+  <!-- Modern Kiosk Header -->
   <header class="kiosk-header">
-    <div class="company-name">{{ activeCompany?.name }}</div>
-    <div class="clock-wrapper">
-      <div class="digital-clock">{{ currentTime | date: 'medium' }}</div>
-      <app-analog-clock class="analog-clock"></app-analog-clock>
+    <div class="header-left">
+      <div class="company-logo">
+        <i class="fa fa-building"></i>
+      </div>
+      <div class="company-info">
+        <div class="company-name">{{ activeCompany?.name }}</div>
+        <div class="kiosk-label">Employee Kiosk</div>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="clock-wrapper">
+        <div class="digital-clock">
+          <div class="time-display">{{ currentTime | date: 'shortTime' }}</div>
+          <div class="date-display">{{ currentTime | date: 'mediumDate' }}</div>
+        </div>
+        <app-analog-clock class="analog-clock"></app-analog-clock>
+      </div>
     </div>
   </header>
+
+  <!-- Kiosk Content Area -->
   <main class="kiosk-content">
     <router-outlet></router-outlet>
   </main>
+
+  <!-- Footer -->
+  <footer class="kiosk-footer">
+    <div class="footer-content">
+      <span class="footer-text">
+        <i class="fa fa-shield"></i>
+        Secure Employee Time Tracking System
+      </span>
+      <span class="footer-text">
+        <i class="fa fa-clock-o"></i>
+        {{ currentTime | date: 'EEEE, MMMM d, y' }}
+      </span>
+    </div>
+  </footer>
 </div>

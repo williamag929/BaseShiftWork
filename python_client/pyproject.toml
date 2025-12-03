@@ -1,0 +1,17 @@
+# pyproject.toml (if you want to package it)
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shiftwork-mcp-server"
+version = "1.0.0"
+description = "MCP Server for ShiftWork Schedule API"
+dependencies = [
+    "mcp>=1.0.0",
+    "httpx>=0.25.0", 
+    "pydantic>=2.0.0"
+]
+
+[project.scripts]
+shiftwork-mcp = "main:main"

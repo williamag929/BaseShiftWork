@@ -41,6 +41,19 @@
       }
     },
     {
+      "name": "api-non-cacheable-posts",
+      "urls": [
+        "/api/companies/*/shiftevents",
+        "/api/s3/file/**"
+      ],
+      "cacheConfig": {
+        "maxSize": 0,
+        "maxAge": "0s",
+        "timeout": "5s",
+        "strategy": "freshness"
+      }
+    },
+    {
       "name": "google-fonts",
       "urls": [
         "https://fonts.googleapis.com/**",

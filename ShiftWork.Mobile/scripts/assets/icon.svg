@@ -1,0 +1,6 @@
+<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" fill="#4A90E2"/>
+  <text x="512" y="512" font-family="Arial" font-size="120" fill="white" text-anchor="middle" dominant-baseline="middle">SW</text>
+  <circle cx="512" cy="700" r="80" fill="white" opacity="0.8"/>
+  <rect x="482" y="620" width="60" height="100" fill="white" opacity="0.8"/>
+</svg>

@@ -1,0 +1,79 @@
+{
+  "expo": {
+    "name": "ShiftWork Mobile",
+    "slug": "shiftwork-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shiftwork.mobile",
+      "infoPlist": {
+        "NSCameraUsageDescription": "ShiftWork needs camera access to capture photos during clock in/out",
+        "NSLocationWhenInUseUsageDescription": "ShiftWork needs your location to record where you clock in/out",
+        "NSFaceIDUsageDescription": "ShiftWork uses Face ID for quick and secure login"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.shiftwork.mobile",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.DETECT_SCREEN_CAPTURE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "scheme": "shiftwork",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow ShiftWork to access your camera for clock in/out photos"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow ShiftWork to use your location for clock in/out tracking"
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow ShiftWork to use Face ID for secure authentication"
+        }
+      ],
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "your-project-id-here"
+      }
+    }
+  }
+}

@@ -14,6 +14,7 @@ namespace ShiftWork.Api.Models
         public int? TaskShiftId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public int? BreakDuration { get; set; } // in minutes
         public string? GeoLocation { get; set; }
         public string? Notes { get; set; }
         public string Status { get; set; }

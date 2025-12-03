@@ -1,0 +1,452 @@
+// photo-schedule.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { WebcamModule, WebcamImage, WebcamInitError } from 'ngx-webcam';
+import { Subject, takeUntil, Observable } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { People } from 'src/app/core/models/people.model';
+import { Router } from '@angular/router';
+import { KioskService } from '../core/services/kiosk.service';
+import { TimerService } from '../core/services/timer.service';
+import { ScheduleEmployee } from '../core/models/schedule-employee.model';
+import { ShiftEventService } from 'src/app/core/services/shift-event.service';
+import { ShiftEvent } from 'src/app/core/models/shift-event.model';
+import { PeopleService } from 'src/app/core/services/people.service';
+import { ScheduleShiftService } from 'src/app/core/services/schedule-shift.service';
+import { ScheduleShift } from 'src/app/core/models/schedule-shift.model';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/store/app.state';
+import { selectActiveCompany } from 'src/app/store/company/company.selectors';
+import { ScheduleDetail } from 'src/app/core/models/schedule-detail.model';
+import { ToastrService } from 'ngx-toastr';
+import { KioskAnswer } from '../core/models/kiosk-answer.model';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { QuestionDialogComponent } from '../question-dialog/question-dialog.component';
+import { AwsS3Service } from 'src/app/core/services/aws-s3.service';
+import { WakeLockService } from '../core/services/wake-lock.service';
+import { Company } from 'src/app/core/models/company.model';
+import { Location } from 'src/app/core/models/location.model';
+
+export enum ScheduleAction {
+  START_SHIFT = 'clockin',
+  END_SHIFT = 'clockout',
+  START_BREAK = 'startBreak',
+  END_BREAK = 'endBreak'
+}
+
+@Component({
+  selector: 'app-photo-schedule',
+  standalone: true,
+  imports: [WebcamModule, CommonModule, MatDialogModule],
+  templateUrl: './photo-schedule.component.html',
+  styleUrls: ['./photo-schedule.component.css'],
+})
+export class PhotoScheduleComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
+  private readonly trigger = new Subject<void>();
+
+  // Constants
+  private readonly PHOTO_DELAY_MS = 3000;
+  private readonly CLEAR_DELAY_MS = 6000;
+  private readonly COUNTDOWN_START = 3;
+
+  // Public properties
+  selectedEmployee: People | null = null;
+  employeeStatus: string | null = null;
+  employeeSchedule: ScheduleDetail | null = null;
+  schedulesToday: ScheduleDetail[] = [];
+  selectedLocation: Location | null = null;
+
+  webcamImage: WebcamImage | null = null;
+  flippedImage: string | null = null;
+  scheduling = false;
+  activeCompany$: Observable<Company | null>;
+  activeCompany: Company | null = null;
+
+  // Pending action/answers are used to defer scheduling until the flipped image is ready
+  private pendingAction?: ScheduleAction;
+  private pendingAnswers?: { [key: string]: string };
+
+  // Observables
+  countdown$: Observable<number>;
+  triggerObservable$: Observable<void>;
+
+  // Expose enum to template
+  readonly ScheduleAction = ScheduleAction;
+
+  // Derived UI helpers
+  isOnShiftStatus(status: string | null | undefined): boolean {
+    if (!status) return false;
+    return status.startsWith('OnShift') || status === 'ShiftEventWithoutSchedule';
+  }
+
+  get hasPublishedScheduleToday(): boolean {
+    return !!this.employeeSchedule;
+  }
+
+  canStartShift(): boolean {
+    return !this.isOnShiftStatus(this.employeeStatus) && this.hasPublishedScheduleToday;
+  }
+
+  canEndShift(): boolean {
+    return this.isOnShiftStatus(this.employeeStatus);
+  }
+
+  // Timing parsing for UI badge (Late/Early/OnTime/NoSchedule)
+  getTimingFromStatus(status: string | null | undefined): string | null {
+    if (!status) return null;
+    const parts = status.split(':');
+    return parts.length > 1 ? parts[1] : null;
+  }
+
+  getTimingBadgeClass(timing: string | null): string {
+    switch (timing) {
+      case 'OnTime':
+        return 'bg-success';
+      case 'Early':
+        return 'bg-warning text-dark';
+      case 'Late':
+        return 'bg-danger';
+      case 'NoSchedule':
+        return 'bg-secondary';
+      default:
+        return 'bg-secondary';
+    }
+  }
+
+  constructor(
+    private readonly kioskService: KioskService,
+    private readonly timerService: TimerService,
+    private readonly router: Router,
+    private readonly shiftEventService: ShiftEventService,
+    private readonly peopleService: PeopleService,
+    private readonly scheduleShiftService: ScheduleShiftService,
+    private readonly store: Store<AppState>,
+    private readonly awsS3Service: AwsS3Service,
+    private readonly toastr: ToastrService,
+    private readonly dialog: MatDialog,
+    public readonly wakeLock: WakeLockService
+  ) {
+    this.activeCompany$ = this.store.select(selectActiveCompany);
+    this.countdown$ = this.timerService.countdown;
+    this.triggerObservable$ = this.trigger.asObservable();
+
+    this.activeCompany$.subscribe((company: any) => {
+      if (company) {
+        this.activeCompany = company;
+        console.log('Active company set:', this.activeCompany);
+      } else {
+        console.log('No active company found');
+      }
+    });
+
+  }
+
+  ngOnInit(): void {
+    // Ensure wake lock while in scheduling flow
+    this.wakeLock.request();
+    this.selectedEmployee = this.kioskService.getSelectedEmployee();
+    this.selectedLocation = this.kioskService.getSelectedLocation() || null;
+
+    if (this.selectedEmployee) {
+      this.activeCompany$.subscribe((company: Company | null) => {
+        if (company && this.selectedEmployee) {
+          this.activeCompany = company;
+          this.employeeStatus = this.selectedEmployee.statusShiftWork || null;
+          if (this.selectedEmployee.personId) {
+            this.peopleService.getPersonStatusShiftWork(company.companyId, this.selectedEmployee.personId)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe((status: string) => {
+                this.employeeStatus = status;
+              });
+          }
+
+          if (this.selectedEmployee.scheduleDetails) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            this.employeeSchedule = this.selectedEmployee.scheduleDetails.find(s => {
+              const scheduleDate = new Date(s.startDate);
+              scheduleDate.setHours(0, 0, 0, 0);
+              return s.personId === this.selectedEmployee?.personId && scheduleDate.getTime() === today.getTime();
+            }) || null;
+          }
+        }
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.wakeLock.release();
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.trigger.complete();
+  }
+
+  triggerImage(action?: ScheduleAction): void {
+    if (this.scheduling || !this.activeCompany) return;
+
+    if (action === ScheduleAction.END_SHIFT) {
+      this.kioskService.getKioskQuestions(this.activeCompany.companyId).subscribe(questions => {
+        if (questions && questions.length > 0) {
+          const dialogRef = this.dialog.open(QuestionDialogComponent, {
+            width: '400px',
+            data: { questions }
+          });
+
+          dialogRef.afterClosed().subscribe((answers: { [key: string]: string } | null) => {
+            // Proceed even if answers are null (user skipped/cancelled); end shift should still work
+            this.startScheduling(action, answers || undefined);
+          });
+        } else {
+          this.startScheduling(action);
+        }
+      });
+    } else {
+      this.startScheduling(action);
+    }
+  }
+
+  private startScheduling(action?: ScheduleAction, answers?: { [key: string]: string }): void {
+    console.log('Starting scheduling process');
+    
+    this.scheduling = true;
+    this.startCountdown();
+
+    // Remember requested action and answers so we can run after photo is processed
+    this.pendingAction = action;
+    this.pendingAnswers = answers;
+
+    setTimeout(() => {
+      this.capturePhoto();
+    }, this.PHOTO_DELAY_MS);
+
+    setTimeout(() => {
+      this.clearEmployee();
+    }, this.CLEAR_DELAY_MS);
+  }
+
+  clearEmployee(): void {
+    this.webcamImage = null;
+    this.flippedImage = null;
+    this.scheduling = false;
+    setTimeout(() => {
+      this.router.navigate(['/kiosk/employee-list']);
+    }, 2000);
+  }
+
+  handleImage(webcamImage: WebcamImage): void {
+    if (!webcamImage?.imageAsDataUrl) return;
+
+    this.webcamImage = webcamImage;
+    this.flipImage(webcamImage.imageAsDataUrl);
+  }
+
+  handleInitError(error: WebcamInitError): void {
+    console.error('Webcam initialization error:', error);
+    this.toastr.error('Webcam initialization error. Please check permissions and refresh.');
+  }
+
+  private startCountdown(): void {
+    this.timerService.countdown = this.COUNTDOWN_START;
+    this.timerService.startTimer();
+  }
+
+  private capturePhoto(): void {
+    this.trigger.next();
+  }
+
+  private setSchedule(action: ScheduleAction, answers?: { [key: string]: string }): void {
+    
+    console.log('Setting schedule with action:', action);
+    console.log('Selected employee:', this.selectedEmployee);
+    if (!this.selectedEmployee || !this.selectedEmployee.companyId || !this.selectedEmployee.personId) {
+      this.toastr.error('No employee selected for scheduling or companyId/personId is missing');
+      return;
+    }
+
+    console.log('Preparing photo');
+
+    if (!this.flippedImage) {
+      console.log('No flipped image available');
+      this.toastr.error('No photo captured');
+      return;
+    }
+    console.log('Preparing to upload photo and create shift event');
+
+    const now = new Date();
+    const blob = this.dataURItoBlob(this.flippedImage);
+    const file = new File([blob], `${this.selectedEmployee.personId}_${now.getTime()}.jpg`, { type: 'image/jpeg' });
+
+    this.getCurrentPosition().subscribe({
+      next: (coords: GeolocationCoordinates) => {
+        const geoLocation = `{${coords.latitude},${coords.longitude}}`;
+
+        console.log('Uploading photo to S3 bucket: shiftwork-photos');
+        this.awsS3Service.uploadFile('shiftwork-photos', file).subscribe({
+          next: (response: any) => {
+            const photoUrl = (response && (response.url || response.message)) || (typeof response === 'string' ? response : undefined);
+            console.log('Photo uploaded, received URL:', photoUrl);
+
+            const newShiftEvent: ShiftEvent = {
+              eventLogId: '00000000-0000-0000-0000-000000000000',
+              eventDate: now,
+              eventType: action,
+              companyId: this.selectedEmployee!.companyId!,
+              personId: this.selectedEmployee!.personId!,
+              eventObject: JSON.stringify(this.selectedLocation || {}),
+              description: `User ${this.selectedEmployee!.name} ${action}`,
+              kioskDevice: this.getKioskDeviceIdentifier(),
+              geoLocation: geoLocation,
+              photoUrl: photoUrl
+            };
+            console.log('Creating shift event payload:', newShiftEvent);
+            this.shiftEventService.createShiftEvent(this.selectedEmployee!.companyId!, newShiftEvent)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe({
+                next: (event: ShiftEvent) => {
+                  console.log('Shift event created on server:', event);
+                  this.toastr.success('Shift event created successfully');
+                  // Optimistically update local status and notify kiosk list immediately
+                  if (action === ScheduleAction.START_SHIFT) {
+                    // Optimistic update; server will enrich with timing (Late/Early/OnTime)
+                    this.employeeStatus = 'OnShift';
+                    if (this.selectedEmployee) {
+                      this.selectedEmployee.statusShiftWork = 'OnShift';
+                      this.kioskService.emitStatusUpdate(this.selectedEmployee.personId!, 'OnShift');
+                    }
+                  } else if (action === ScheduleAction.END_SHIFT) {
+                    this.employeeStatus = 'OffShift';
+                    if (this.selectedEmployee) {
+                      this.selectedEmployee.statusShiftWork = 'OffShift';
+                      this.kioskService.emitStatusUpdate(this.selectedEmployee.personId!, 'OffShift');
+                    }
+                  }
+                  // Broadcast schedule action so other views can react
+                  const scheduleEmployee: ScheduleEmployee = {
+                    employee: this.selectedEmployee!,
+                    action: action,
+                    dateTime: now.toString(),
+                    dateTimeUTC: this.convertToUTC(now).toISOString(),
+                    location: {}
+                  };
+                  this.kioskService.setscheduleEmployee(scheduleEmployee);
+
+                  // Navigate back to the employee list promptly so users see updated status
+                  setTimeout(() => {
+                    this.router.navigate(['/kiosk/employee-list']);
+                  }, 400);
+
+                  console.log('Scheduling flow completed successfully for person:', this.selectedEmployee?.personId);
+                  if (answers) {
+                    const kioskAnswers: KioskAnswer[] = Object.keys(answers).map(key => ({
+                      kioskAnswerId: 0,
+                      shiftEventId: event.eventLogId,
+                      kioskQuestionId: parseInt(key, 10),
+                      answerText: answers[key]
+                    }));
+                    this.kioskService.postKioskAnswers(kioskAnswers).subscribe({
+                      next: () => console.log('Kiosk answers submitted'),
+                      error: (e) => console.error('Error submitting kiosk answers', e)
+                    });
+                  }
+                },
+                error: (err: any) => {
+                  console.error('Error creating shift event', err);
+                  const msg = err?.message || 'Error creating shift event';
+                  this.toastr.error(msg);
+                }
+              });
+          },
+          error: (err: any) => {
+            console.error('Error uploading photo to S3', err);
+            const msg = err?.message || 'Error uploading photo';
+            this.toastr.error(msg);
+          }
+        });
+      },
+      error: (err: any) => {
+        console.error('Error getting geolocation', err);
+        const msg = err?.message || 'Error getting geolocation';
+        this.toastr.error(msg);
+      }
+    });
+  }
+
+  private flipImage(src: string): void {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        console.error('Could not get 2D context from canvas');
+        return;
+      }
+
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      ctx.scale(-1, 1);
+      ctx.drawImage(img, -img.width, 0);
+
+      this.flippedImage = canvas.toDataURL();
+      console.log('Flipped image prepared');
+      // If an action was requested, run scheduling now that the image is ready
+      if (this.pendingAction) {
+        const actionToRun = this.pendingAction;
+        const answersToUse = this.pendingAnswers;
+        // Clear pending before calling to prevent accidental double-execution
+        this.pendingAction = undefined;
+        this.pendingAnswers = undefined;
+        this.setSchedule(actionToRun, answersToUse);
+      }
+    };
+
+    img.onerror = () => {
+      console.error('Failed to load image for flipping');
+    };
+
+    img.src = src;
+  }
+
+  private getKioskDeviceIdentifier(): string {
+    let kioskId = localStorage.getItem('kioskId');
+    if (!kioskId) {
+      kioskId = `kiosk-${Math.random().toString(36).substring(2, 9)}`;
+      localStorage.setItem('kioskId', kioskId);
+    }
+    return kioskId;
+  }
+
+  private getCurrentPosition(): Observable<GeolocationCoordinates> {
+    return new Observable(observer => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position: GeolocationPosition) => {
+            observer.next(position.coords);
+            observer.complete();
+          },
+          (error: GeolocationPositionError) => {
+            observer.error(error);
+          }
+        );
+      } else {
+        observer.error('Geolocation is not supported by this browser.');
+      }
+    });
+  }
+
+  private dataURItoBlob(dataURI: string): Blob {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
+  }
+
+  private convertToUTC(date: Date): Date {
+    return new Date(date.getTime() + (date.getTimezoneOffset() * 60000));
+  }
+}

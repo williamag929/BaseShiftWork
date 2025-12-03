@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Enter PIN for {{ data.name }}</h1>
+<div mat-dialog-content>
+  <form [formGroup]="pinForm" (ngSubmit)="onSubmit()">
+    <mat-form-field>
+      <mat-label>PIN</mat-label>
+      <input matInput formControlName="pin" type="password" maxlength="4" autocomplete="off">
+      <mat-error *ngIf="pinForm.get('pin')?.hasError('required')">PIN is required.</mat-error>
+      <mat-error *ngIf="pinForm.get('pin')?.hasError('minlength') || pinForm.get('pin')?.hasError('maxlength')">PIN must be 4 digits.</mat-error>
+    </mat-form-field>
+  </form>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button [disabled]="!pinForm.valid" (click)="onSubmit()">Submit</button>
+</div>

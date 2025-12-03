@@ -6,4 +6,5 @@ export interface TaskShift {
     status?: string;
     locationId?: number;
     areaId?: number;
+    personId?: number;
  }

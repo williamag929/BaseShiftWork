@@ -17,7 +17,7 @@ namespace ShiftWork.Api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.7")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -93,6 +93,217 @@ namespace ShiftWork.Api.Migrations
                     b.ToTable("Companies", (string)null);
                 });
 
+            modelBuilder.Entity("ShiftWork.Api.Models.CompanySettings", b =>
+                {
+                    b.Property<int>("SettingsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SettingsId"));
+
+                    b.Property<int>("AllowEarlyClockIn")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("AllowEmployeeShiftSwaps")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AllowOverlappingShifts")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AllowQuestionResponsesOnClockIn")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AutoApproveShifts")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("AutoClockOutAfter")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CompanyId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CurrencySymbol")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("DailyOvertimeThreshold")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("DateFormat")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DefaultLanguage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("DefaultPtoAccrualRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("DefaultTimeZone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("EmailNotificationsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("EmployeeIdPrefix")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstDayOfWeek")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("FiscalYearStartMonth")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GeoFenceRadius")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GracePeriodLateClockIn")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("HolidayOvertimePercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("KioskModeEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("KioskPinLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("KioskTimeout")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastUpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("MaximumConsecutiveWorkDays")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("MaximumDailyHours")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MaximumPtoBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MaximumPtoRollover")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MaximumWeeklyHours")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("MinimumBreakDuration")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("MinimumHourlyRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MinimumHoursBetweenShifts")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("MinimumNoticeDaysForPto")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinimumPasswordLength")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("NightShiftEndTime")
+                        .HasColumnType("time");
+
+                    b.Property<decimal>("NightShiftOvertimePercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<TimeSpan>("NightShiftStartTime")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("NotifyOnReplacementRequest")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("NotifyOnShiftAssignment")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("NotifyOnShiftChanges")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("NotifyOnTimeOffApproval")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PasswordExpirationDays")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PayrollPeriod")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PtoRolloverAllowed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("PushNotificationsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("RegularOvertimePercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ReminderHoursBeforeShift")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("RequireBreakClocks")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RequireGeoLocationForClockIn")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RequireManagerApprovalForPto")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RequireManagerApprovalForSwaps")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RequirePhotoOnClockIn")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RequireTwoFactorAuth")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SessionTimeout")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("ShowEmployeePhotosOnKiosk")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("SickLeaveAccrualRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("SickLeaveMaximumBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("SmsNotificationsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TimeFormat")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("WeekendOvertimePercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("WeeklyOvertimeThreshold")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("SettingsId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("CompanySettings");
+                });
+
             modelBuilder.Entity("ShiftWork.Api.Models.CompanyUser", b =>
                 {
                     b.Property<string>("CompanyUserId")
@@ -155,6 +366,104 @@ namespace ShiftWork.Api.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("Crews", (string)null);
+                });
+
+            modelBuilder.Entity("ShiftWork.Api.Models.DeviceToken", b =>
+                {
+                    b.Property<int>("DeviceTokenId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("device_token_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DeviceTokenId"));
+
+                    b.Property<string>("CompanyId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)")
+                        .HasColumnName("company_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DeviceName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("device_name");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("last_updated");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int")
+                        .HasColumnName("person_id");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("platform");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("token");
+
+                    b.HasKey("DeviceTokenId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("device_tokens");
+                });
+
+            modelBuilder.Entity("ShiftWork.Api.Models.KioskAnswer", b =>
+                {
+                    b.Property<int>("KioskAnswerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("KioskAnswerId"));
+
+                    b.Property<string>("AnswerText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("KioskQuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ShiftEventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("KioskAnswerId");
+
+                    b.ToTable("KioskAnswers", (string)null);
+                });
+
+            modelBuilder.Entity("ShiftWork.Api.Models.KioskQuestion", b =>
+                {
+                    b.Property<int>("KioskQuestionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("KioskQuestionId"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("QuestionText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("KioskQuestionId");
+
+                    b.ToTable("KioskQuestions", (string)null);
                 });
 
             modelBuilder.Entity("ShiftWork.Api.Models.Location", b =>
@@ -242,6 +551,43 @@ namespace ShiftWork.Api.Migrations
                     b.ToTable("Locations", (string)null);
                 });
 
+            modelBuilder.Entity("ShiftWork.Api.Models.PTOLedger", b =>
+                {
+                    b.Property<int>("PTOLedgerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PTOLedgerId"));
+
+                    b.Property<decimal>("BalanceAfter")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("CompanyId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EntryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("HoursChange")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PTOLedgerId");
+
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("PTOLedger", (string)null);
+                });
+
             modelBuilder.Entity("ShiftWork.Api.Models.Person", b =>
                 {
                     b.Property<int>("PersonId")
@@ -289,6 +635,23 @@ namespace ShiftWork.Api.Migrations
                     b.Property<string>("PhotoUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Pin")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("PtoAccrualRatePerMonth")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("PtoLastAccruedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("PtoStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("PtoStartingBalance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Region")
                         .HasColumnType("nvarchar(max)");
 
@@ -300,6 +663,9 @@ namespace ShiftWork.Api.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StatusShiftWork")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Street")
@@ -327,6 +693,44 @@ namespace ShiftWork.Api.Migrations
                     b.HasIndex("CrewId");
 
                     b.ToTable("PersonCrews", (string)null);
+                });
+
+            modelBuilder.Entity("ShiftWork.Api.Models.ReplacementRequest", b =>
+                {
+                    b.Property<int>("RequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RequestId"));
+
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("AcceptedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CompanyId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("InitiatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ShiftId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("RequestId");
+
+                    b.ToTable("ReplacementRequests", (string)null);
                 });
 
             modelBuilder.Entity("ShiftWork.Api.Models.Role", b =>
@@ -457,6 +861,9 @@ namespace ShiftWork.Api.Migrations
                     b.Property<int>("AreaId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("BreakDuration")
+                        .HasColumnType("int");
+
                     b.Property<string>("CompanyId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -525,6 +932,94 @@ namespace ShiftWork.Api.Migrations
                     b.ToTable("ScheduleShifts", (string)null);
                 });
 
+            modelBuilder.Entity("ShiftWork.Api.Models.ShiftEvent", b =>
+                {
+                    b.Property<Guid>("EventLogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CompanyId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EventDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EventObject")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EventType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GeoLocation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("KioskDevice")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PhotoUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("EventLogId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("ShiftEvents", (string)null);
+                });
+
+            modelBuilder.Entity("ShiftWork.Api.Models.ShiftSummaryApproval", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ApprovedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CompanyId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("Day")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId", "PersonId", "Day")
+                        .IsUnique();
+
+                    b.ToTable("ShiftSummaryApprovals");
+                });
+
             modelBuilder.Entity("ShiftWork.Api.Models.TaskShift", b =>
                 {
                     b.Property<int>("TaskShiftId")
@@ -583,6 +1078,81 @@ namespace ShiftWork.Api.Migrations
                     b.ToTable("TaskShifts", (string)null);
                 });
 
+            modelBuilder.Entity("ShiftWork.Api.Models.TimeOffRequest", b =>
+                {
+                    b.Property<int>("TimeOffRequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TimeOffRequestId"));
+
+                    b.Property<string>("ApprovalNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ApprovedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CompanyId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("HoursRequested")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsPartialDay")
+                        .HasColumnType("bit");
+
+                    b.Property<TimeSpan?>("PartialEndTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan?>("PartialStartTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("PtoBalanceAfter")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("PtoBalanceBefore")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TimeOffRequestId");
+
+                    b.HasIndex("ApprovedBy");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("TimeOffRequests", (string)null);
+                });
+
             modelBuilder.Entity("ShiftWork.Api.Models.Area", b =>
                 {
                     b.HasOne("ShiftWork.Api.Models.Location", "Location")
@@ -592,6 +1162,17 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("ShiftWork.Api.Models.CompanySettings", b =>
+                {
+                    b.HasOne("ShiftWork.Api.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("ShiftWork.Api.Models.CompanyUser", b =>
@@ -616,6 +1197,25 @@ namespace ShiftWork.Api.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("ShiftWork.Api.Models.DeviceToken", b =>
+                {
+                    b.HasOne("ShiftWork.Api.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("ShiftWork.Api.Models.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Person");
+                });
+
             modelBuilder.Entity("ShiftWork.Api.Models.Location", b =>
                 {
                     b.HasOne("ShiftWork.Api.Models.Company", "Company")
@@ -625,6 +1225,17 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("ShiftWork.Api.Models.PTOLedger", b =>
+                {
+                    b.HasOne("ShiftWork.Api.Models.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Person");
                 });
 
             modelBuilder.Entity("ShiftWork.Api.Models.Person", b =>
@@ -744,6 +1355,23 @@ namespace ShiftWork.Api.Migrations
                     b.Navigation("TaskShift");
                 });
 
+            modelBuilder.Entity("ShiftWork.Api.Models.ShiftEvent", b =>
+                {
+                    b.HasOne("ShiftWork.Api.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId");
+
+                    b.HasOne("ShiftWork.Api.Models.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Person");
+                });
+
             modelBuilder.Entity("ShiftWork.Api.Models.TaskShift", b =>
                 {
                     b.HasOne("ShiftWork.Api.Models.Company", "Company")
@@ -753,6 +1381,30 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("ShiftWork.Api.Models.TimeOffRequest", b =>
+                {
+                    b.HasOne("ShiftWork.Api.Models.Person", "Approver")
+                        .WithMany()
+                        .HasForeignKey("ApprovedBy")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("ShiftWork.Api.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId");
+
+                    b.HasOne("ShiftWork.Api.Models.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Approver");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Person");
                 });
 
             modelBuilder.Entity("ShiftWork.Api.Models.Company", b =>

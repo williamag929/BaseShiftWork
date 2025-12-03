@@ -49,14 +49,15 @@ namespace ShiftWork.Api.Controllers
             try
             {
                 var cacheKey = $"areas_{companyId}";
-                if (!_memoryCache.TryGetValue(cacheKey, out IEnumerable<Area> areas))
+                if (!_memoryCache.TryGetValue(cacheKey, out IEnumerable<Area>? areas))
                 {
                     _logger.LogInformation("Cache miss for areas in company {CompanyId}", companyId);
                     areas = await _areaService.Get(companyId, Array.Empty<int>());
 
+                    // Return empty list instead of 404 to simplify clients
                     if (areas == null || !areas.Any())
                     {
-                        return NotFound($"No areas found for company {companyId}.");
+                        return Ok(Enumerable.Empty<AreaDto>());
                     }
 
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
@@ -92,7 +93,7 @@ namespace ShiftWork.Api.Controllers
             try
             {
                 var cacheKey = $"area_{companyId}_{areaId}";
-                if (!_memoryCache.TryGetValue(cacheKey, out Area area))
+                if (!_memoryCache.TryGetValue(cacheKey, out Area? area))
                 {
                     _logger.LogInformation("Cache miss for area {AreaId} in company {CompanyId}", areaId, companyId);
                     var areas = await _areaService.Get(companyId, new[] { areaId });

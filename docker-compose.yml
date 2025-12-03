@@ -1,0 +1,66 @@
+version: "3.9"
+
+name: shiftwork
+
+services:
+  api:
+    build:
+      context: ./ShiftWork.Api
+      dockerfile: Dockerfile
+    image: shiftwork/api:local
+    container_name: shiftwork-api
+    environment:
+      # REQUIRED: Update these to your environment
+      DB_CONNECTION_STRING: "Server=mssql;Database=ShiftWork;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
+      FIREBASE_PROJECT_ID: "your-project"
+      FIREBASE_AUTH_DOMAIN: "your-project.firebaseapp.com"
+      FIREBASE_API_KEY: "your-firebase-web-api-key"
+      # Optional: control ASP.NET Core runtime
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "http://0.0.0.0:80"
+    ports:
+      - "5000:80"
+    depends_on:
+      - mssql
+    networks:
+      - shiftwork-net
+
+  web:
+    build:
+      context: ./ShiftWork.Angular
+      dockerfile: Dockerfile
+    image: shiftwork/web:local
+    container_name: shiftwork-web
+    # Mount the Angular .env so custom webpack can inject process.env for ng serve
+    volumes:
+      - ./ShiftWork.Angular/.env:/app/.env:ro
+    environment:
+      # If your Angular code reads process.env directly at runtime, you can set here too
+      API_URL: "http://localhost:5000"
+    ports:
+      - "4200:4200"
+    depends_on:
+      - api
+    networks:
+      - shiftwork-net
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: shiftwork-mssql
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Your_password123"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    networks:
+      - shiftwork-net
+
+volumes:
+  mssql-data:
+
+networks:
+  shiftwork-net:
+    driver: bridge

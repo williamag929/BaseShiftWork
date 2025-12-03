@@ -1,0 +1,16 @@
+# MCP Server dependencies
+mcp>=1.0.0
+httpx>=0.25.0
+pydantic>=2.0.0
+uvicorn>=0.23.0
+
+# HTTP Server dependencies
+aiohttp>=3.8.0
+aiohttp-cors>=0.7.0
+
+# Email dependencies (for SMTP client)
+# No additional dependencies needed - uses built-in smtplib
+
+# Optional: for development and testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0

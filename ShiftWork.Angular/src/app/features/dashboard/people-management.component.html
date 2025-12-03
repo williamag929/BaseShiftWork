@@ -1,0 +1,140 @@
+<div class="people-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">People Management</h1>
+        <p class="page-subtitle">Manage employees, configure PTO, and track team information</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <!-- Search Card -->
+    <div class="search-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fas fa-search"></i>
+          Search Employees
+        </h3>
+        <div class="result-count" *ngIf="!loading">
+          <i class="fas fa-users"></i>
+          {{ filteredPeople.length }} employee(s) found
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="search-group">
+          <label class="search-label">
+            <i class="fas fa-user-search"></i>
+            Search by name or email
+          </label>
+          <input 
+            type="text" 
+            class="search-input"
+            placeholder="Type to search..." 
+            [(ngModel)]="searchQuery" 
+            (input)="applyFilter()"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading employees...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && filteredPeople.length === 0" class="empty-state">
+      <i class="fas fa-user-slash empty-icon"></i>
+      <p class="empty-text">No employees found</p>
+      <p class="empty-subtext">Try adjusting your search criteria</p>
+    </div>
+
+    <!-- People Grid -->
+    <div *ngIf="!loading && filteredPeople.length > 0" class="people-grid">
+      <div 
+        class="person-card" 
+        *ngFor="let person of pagedPeople; let i = index"
+        [style.animation-delay]="(i * 0.05) + 's'"
+      >
+        <div class="card-header-row">
+          <div class="person-section">
+            <div class="person-avatar">
+              {{ getInitials(person.name) }}
+            </div>
+            <div class="person-info">
+              <h4 class="person-name">{{ person.name }}</h4>
+              <p class="person-id">
+                <i class="fas fa-id-badge"></i>
+                ID: {{ person.personId }}
+              </p>
+            </div>
+          </div>
+          <button class="btn-pto" (click)="openPtoConfig(person)">
+            <i class="fas fa-cog"></i>
+            Configure PTO
+          </button>
+        </div>
+
+        <div class="card-divider"></div>
+
+        <div class="card-body-grid">
+          <div class="info-row" *ngIf="person.email">
+            <span class="info-label">
+              <i class="fas fa-envelope"></i>
+              Email
+            </span>
+            <span class="info-value">{{ person.email }}</span>
+          </div>
+          <div class="info-row" *ngIf="person.phoneNumber">
+            <span class="info-label">
+              <i class="fas fa-phone"></i>
+              Phone
+            </span>
+            <span class="info-value">{{ person.phoneNumber }}</span>
+          </div>
+          <div class="info-row" *ngIf="!person.email && !person.phoneNumber">
+            <span class="info-label">
+              <i class="fas fa-info-circle"></i>
+              Contact Info
+            </span>
+            <span class="info-value no-data">No contact information available</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && filteredPeople.length > 0" class="pagination-card">
+      <button class="pagination-btn" (click)="prevPage()" [disabled]="page === 1">
+        <i class="fas fa-chevron-left"></i>
+        Previous
+      </button>
+      <div class="pagination-info">
+        <span class="page-number">{{ page }}</span>
+        <span class="page-divider">/</span>
+        <span class="page-total">{{ totalPages }}</span>
+        <span class="total-count">({{ filteredPeople.length }} total)</span>
+      </div>
+      <button class="pagination-btn" (click)="nextPage()" [disabled]="page === totalPages">
+        Next
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PTO Config Modal -->
+<app-pto-config-modal
+  *ngIf="showPtoConfigModal"
+  [person]="selectedPerson"
+  [companyId]="activeCompany?.companyId"
+  (close)="closePtoConfigModal()"
+  (saved)="onPtoConfigSaved()"
+></app-pto-config-modal>

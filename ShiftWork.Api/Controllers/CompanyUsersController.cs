@@ -1,5 +1,7 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
 using System;
@@ -14,18 +16,20 @@ namespace ShiftWork.Api.Controllers
     {
         private readonly ICompanyUserService _companyUserService;
         private readonly ILogger<CompanyUsersController> _logger;
+        private readonly IMapper _mapper;
 
-        public CompanyUsersController(ICompanyUserService companyUserService, ILogger<CompanyUsersController> logger)
+        public CompanyUsersController(ICompanyUserService companyUserService, ILogger<CompanyUsersController> logger, IMapper mapper)
         {
             _companyUserService = companyUserService ?? throw new ArgumentNullException(nameof(companyUserService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<CompanyUser>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<CompanyUserDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<IEnumerable<CompanyUser>>> GetCompanyUsers(string companyId)
+        public async Task<ActionResult<IEnumerable<CompanyUserDto>>> GetCompanyUsers(string companyId)
         {
             try
             {
@@ -34,7 +38,7 @@ namespace ShiftWork.Api.Controllers
                 {
                     return NotFound($"No users found for company {companyId}");
                 }
-                return Ok(users);
+                return Ok(_mapper.Map<IEnumerable<CompanyUserDto>>(users));
             }
             catch (Exception ex)
             {
@@ -44,10 +48,10 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpGet("{uid}")]
-        [ProducesResponseType(typeof(CompanyUser), 200)]
+        [ProducesResponseType(typeof(CompanyUserDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<CompanyUser>> GetCompanyUser(string uid)
+        public async Task<ActionResult<CompanyUserDto>> GetCompanyUser(string uid)
         {
             try
             {
@@ -56,7 +60,7 @@ namespace ShiftWork.Api.Controllers
                 {
                     return NotFound($"User with UID {uid} not found.");
                 }
-                return Ok(user);
+                return Ok(_mapper.Map<CompanyUserDto>(user));
             }
             catch (Exception ex)
             {
@@ -66,10 +70,10 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(CompanyUser), 201)]
+        [ProducesResponseType(typeof(CompanyUserDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<CompanyUser>> CreateCompanyUser(string companyId, [FromBody] CompanyUser companyUser)
+        public async Task<ActionResult<CompanyUserDto>> CreateCompanyUser(string companyId, [FromBody] CompanyUserDto companyUserDto)
         {
             if (!ModelState.IsValid)
             {
@@ -78,9 +82,14 @@ namespace ShiftWork.Api.Controllers
 
             try
             {
-                companyUser.CompanyId = companyId; // Ensure CompanyId is set from the route
+                var companyUser = _mapper.Map<CompanyUser>(companyUserDto);
+                companyUser.CompanyId = companyId;
+
                 var createdUser = await _companyUserService.CreateAsync(companyUser);
-                return CreatedAtAction(nameof(GetCompanyUser), new { uid = createdUser.Uid }, createdUser);
+
+                var createdUserDto = _mapper.Map<CompanyUserDto>(createdUser);
+
+                return CreatedAtAction(nameof(GetCompanyUser), new { companyId = createdUser.CompanyId, uid = createdUserDto.Uid }, createdUserDto);
             }
             catch (Exception ex)
             {
@@ -94,16 +103,17 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateCompanyUser(string uid, [FromBody] CompanyUser companyUser)
+        public async Task<IActionResult> UpdateCompanyUser(string uid, [FromBody] CompanyUserDto companyUserDto)
         {
-            if (!ModelState.IsValid || uid != companyUser.Uid)
+            if (!ModelState.IsValid || uid != companyUserDto.Uid)
             {
                 return BadRequest(ModelState);
             }
 
             try
             {
-                var updatedUser = await _companyUserService.UpdateAsync(uid,companyUser);
+                var companyUser = _mapper.Map<CompanyUser>(companyUserDto);
+                var updatedUser = await _companyUserService.UpdateAsync(uid, companyUser);
                 if (updatedUser == null)
                 {
                     return NotFound($"User with UID {uid} not found.");
@@ -113,6 +123,31 @@ namespace ShiftWork.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating user with UID {Uid}", uid);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        [HttpDelete("{uid}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> DeleteCompanyUser(string uid)
+        {
+            try
+            {
+                var user = await _companyUserService.GetByUidAsync(uid);
+                if (user == null)
+                {
+                    return NotFound($"User with UID {uid} not found.");
+                }
+
+                await _companyUserService.DeleteAsync(uid);
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting user with UID {Uid}", uid);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }

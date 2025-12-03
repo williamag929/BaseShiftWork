@@ -1,83 +1,211 @@
-<div class="container">
-  <div class="row">
-    <div class="col-md-8">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="card-title">Roles</h4>
-        </div>
-        <div class="card-body">
-          <div *ngIf="loading" class="text-center">
-            <div class="spinner-border" role="status">
-              <span class="sr-only">Loading...</span>
+<div class="profiles-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">Roles & Permissions</h1>
+        <p class="page-subtitle">Manage user roles and configure access permissions</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <div class="layout-grid">
+      <!-- Roles List Section -->
+      <div class="roles-section">
+        <div class="roles-card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-list"></i>
+              Roles
+            </h3>
+            <div class="role-count" *ngIf="!loading">
+              <i class="fas fa-shield-alt"></i>
+              {{ roles.length }} role(s)
             </div>
           </div>
-          <div *ngIf="error" class="alert alert-danger">
-            Error loading roles.
+
+          <!-- Loading State -->
+          <div *ngIf="loading" class="loading-state">
+            <div class="spinner"></div>
+            <p class="loading-text">Loading roles...</p>
           </div>
-          <div class="table-responsive">
-            <table class="table">
-              <thead class="text-primary">
-                <th>Name</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Permissions</th>
-                <th>Actions</th>
-              </thead>
-              <tbody>
-                <tr *ngFor="let role of roles">
-                  <td>{{ role.name }}</td>
-                  <td>{{ role.description }}</td>
-                  <td><span class="badge" [ngClass]="{'badge-success': role.status === 'Active', 'badge-secondary': role.status !== 'Active'}">{{ role.status || 'Active' }}</span></td>
-                  <td>
-                    <span *ngFor="let permission of role.permissions" class="badge badge-info mr-1">{{ permission }}</span>
-                  </td>
-                  <td>
-                    <button class="btn btn-sm btn-info" (click)="editRole(role)">Edit</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+
+          <!-- Error State -->
+          <div *ngIf="!loading && error" class="error-state">
+            <i class="fas fa-exclamation-circle error-icon"></i>
+            <p class="error-text">Error loading roles</p>
+            <p class="error-subtext">Please try again later</p>
+          </div>
+
+          <!-- Roles List -->
+          <div *ngIf="!loading && !error" class="roles-list">
+            <div 
+              *ngFor="let role of roles; let i = index" 
+              class="role-item"
+              [class.active]="selectedRole?.roleId === role.roleId"
+              [style.animation-delay]="(i * 0.05) + 's'"
+              (click)="editRole(role)"
+            >
+              <div class="role-avatar">
+                {{ getInitials(role.name) }}
+              </div>
+              <div class="role-info">
+                <h4 class="role-name">{{ role.name }}</h4>
+                <p class="role-description">{{ role.description }}</p>
+                <div class="role-meta">
+                  <span class="status-badge" [class.active]="role.status === 'Active'" [class.inactive]="role.status === 'Inactive'">
+                    <i class="fas fa-circle"></i>
+                    {{ role.status }}
+                  </span>
+                  <span class="permission-count" *ngIf="role.permissions">
+                    <i class="fas fa-key"></i>
+                    {{ role.permissions.length }} permission(s)
+                  </span>
+                </div>
+              </div>
+              <button class="btn-edit" (click)="editRole(role); $event.stopPropagation()">
+                <i class="fas fa-edit"></i>
+                Edit
+              </button>
+            </div>
+
+            <div *ngIf="roles.length === 0" class="empty-roles">
+              <i class="fas fa-shield-alt empty-icon"></i>
+              <p class="empty-text">No roles created yet</p>
+              <p class="empty-subtext">Create your first role using the form</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="card-title">{{ selectedRole ? 'Edit Role' : 'Create Role' }}</h4>
-        </div>
-        <div class="card-body">
-          <form [formGroup]="roleForm" (ngSubmit)="saveRole()">
-            <div class="form-group">
-              <label for="name">Name</label>
-              <input type="text" id="name" class="form-control" formControlName="name">
-            </div>
-            <div class="form-group">
-              <label for="description">Description</label>
-              <input type="text" id="description" class="form-control" formControlName="description">
-            </div>
-            <div class="form-group">
-              <label for="status">Status</label>
-              <select id="status" class="form-control" formControlName="status">
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Permissions</label>
-              <div formGroupName="permissions" class="permissions-container">
-                <div *ngFor="let component of objectKeys(availablePermissions)" class="permission-group">
-                  <h6>{{ component }}</h6>
-                  <div *ngFor="let action of availablePermissions[component]" class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" [formControlName]="component + '.' + action" [id]="component + '.' + action">
-                    <label class="form-check-label" [for]="component + '.' + action">{{ action }}</label>
+
+      <!-- Role Form Section -->
+      <div class="form-section">
+        <div class="form-card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas" [class.fa-plus-circle]="!selectedRole" [class.fa-edit]="selectedRole"></i>
+              {{ selectedRole ? 'Edit Role' : 'Create New Role' }}
+            </h3>
+            <button *ngIf="selectedRole" class="btn-cancel-header" (click)="cancelEdit()">
+              <i class="fas fa-times"></i>
+              Cancel
+            </button>
+          </div>
+
+          <div class="card-body">
+            <form [formGroup]="roleForm" (ngSubmit)="saveRole()">
+              <!-- Basic Info Section -->
+              <div class="form-section-group">
+                <h4 class="section-title">
+                  <i class="fas fa-info-circle"></i>
+                  Basic Information
+                </h4>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-tag"></i>
+                    Role Name
+                  </label>
+                  <input 
+                    type="text" 
+                    id="name" 
+                    class="form-input" 
+                    formControlName="name"
+                    placeholder="e.g., Manager, Employee, Admin"
+                  >
+                  <div *ngIf="roleForm.get('name')?.invalid && roleForm.get('name')?.touched" class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Role name is required
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-align-left"></i>
+                    Description
+                  </label>
+                  <input 
+                    type="text" 
+                    id="description" 
+                    class="form-input" 
+                    formControlName="description"
+                    placeholder="Describe the role's purpose"
+                  >
+                  <div *ngIf="roleForm.get('description')?.invalid && roleForm.get('description')?.touched" class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Description is required
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-toggle-on"></i>
+                    Status
+                  </label>
+                  <select id="status" class="form-select" formControlName="status">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Permissions Section -->
+              <div class="form-section-group">
+                <h4 class="section-title">
+                  <i class="fas fa-key"></i>
+                  Permissions
+                </h4>
+
+                <div formGroupName="permissions" class="permissions-container">
+                  <div *ngFor="let component of objectKeys(availablePermissions)" class="permission-group">
+                    <div class="permission-header">
+                      <i class="fas fa-cube"></i>
+                      <h5>{{ component }}</h5>
+                    </div>
+                    <div class="permission-actions">
+                      <label 
+                        *ngFor="let action of availablePermissions[component]" 
+                        class="permission-checkbox"
+                        [for]="component + '.' + action"
+                      >
+                        <input 
+                          class="checkbox-input" 
+                          type="checkbox" 
+                          [formControlName]="component + '.' + action" 
+                          [id]="component + '.' + action"
+                        >
+                        <span class="checkbox-label">
+                          <i class="fas" 
+                            [class.fa-eye]="action === 'List'"
+                            [class.fa-edit]="action === 'Edit'"
+                            [class.fa-trash]="action === 'Delete'"
+                          ></i>
+                          {{ action }}
+                        </span>
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <button type="submit" class="btn btn-primary" [disabled]="!roleForm.valid">{{ selectedRole ? 'Update' : 'Create' }}</button>
-            <button type="button" class="btn btn-secondary ml-2" *ngIf="selectedRole" (click)="cancelEdit()">Cancel</button>
-          </form>
+
+              <!-- Action Buttons -->
+              <div class="form-actions">
+                <button type="submit" class="btn-submit" [disabled]="!roleForm.valid">
+                  <i class="fas" [class.fa-save]="selectedRole" [class.fa-plus]="!selectedRole"></i>
+                  {{ selectedRole ? 'Update Role' : 'Create Role' }}
+                </button>
+                <button type="button" class="btn-cancel" *ngIf="selectedRole" (click)="cancelEdit()">
+                  <i class="fas fa-times"></i>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>

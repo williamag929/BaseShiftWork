@@ -29,7 +29,7 @@ export class SignInComponent implements OnInit {
     if (this.signInForm.valid) {
       this.loading = true;
       const { email, password } = this.signInForm.value;
-      await this.authService.signIn(email, password);
+      await this.authService.SignIn(email, password);
       this.loading = false;
     }
   }

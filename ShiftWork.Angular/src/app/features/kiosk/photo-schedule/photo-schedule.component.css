@@ -1,0 +1,180 @@
+/* photo-schedule.component.css */
+
+.photo-schedule-container {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.webcam-container {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  display: block;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.photo-result {
+  animation: fadeIn 0.5s ease-in;
+}
+
+.captured-photo {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.success-message {
+  color: #28a745;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.countdown-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.countdown-overlay {
+  background-color: rgba(179, 207, 239, 0.9);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+
+.countdown-text {
+  color: #2c3e50;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.8);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.action-buttons {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  min-width: 140px;
+  transition: all 0.2s ease;
+}
+
+.btn-lg:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-lg:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn i {
+  margin-right: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .photo-schedule-container {
+    padding: 0.5rem;
+  }
+  
+  .button-group {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn-lg {
+    width: 100%;
+    max-width: 250px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .countdown-text {
+    font-size: 1.2rem;
+    padding: 0 1rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-lg {
+    font-size: 1rem;
+    padding: 0.6rem 1rem;
+    min-width: auto;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  .success-message {
+    font-size: 1.2rem;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Loading states */
+.btn-lg.loading {
+  position: relative;
+  color: transparent;
+}
+
+.btn-lg.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ffffff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}

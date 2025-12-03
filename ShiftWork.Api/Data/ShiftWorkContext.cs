@@ -22,10 +22,20 @@ namespace ShiftWork.Api.Data
         public DbSet<PersonCrew> PersonCrews { get; set; }
 
         public DbSet<CompanyUser> CompanyUsers { get; set; }
+        public DbSet<ShiftEvent> ShiftEvents { get; set; }
+        public DbSet<KioskQuestion> KioskQuestions { get; set; }
+        public DbSet<KioskAnswer> KioskAnswers { get; set; }
+        public DbSet<ReplacementRequest> ReplacementRequests { get; set; }
+        public DbSet<TimeOffRequest> TimeOffRequests { get; set; }
+        public DbSet<PTOLedger> PTOLedgers { get; set; }
+        public DbSet<CompanySettings> CompanySettings { get; set; }
+        public DbSet<DeviceToken> DeviceTokens { get; set; }
+        public DbSet<ShiftSummaryApproval> ShiftSummaryApprovals { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<ShiftEvent>().ToTable("ShiftEvents");
             modelBuilder.Entity<Company>().ToTable("Companies");
             modelBuilder.Entity<Person>().ToTable("People");
             modelBuilder.Entity<Area>().ToTable("Areas");
@@ -36,6 +46,8 @@ namespace ShiftWork.Api.Data
             modelBuilder.Entity<TaskShift>().ToTable("TaskShifts");
             modelBuilder.Entity<Crew>().ToTable("Crews");
             modelBuilder.Entity<CompanyUser>().ToTable("CompanyUsers");
+            modelBuilder.Entity<KioskQuestion>().ToTable("KioskQuestions");
+            modelBuilder.Entity<KioskAnswer>().ToTable("KioskAnswers");
 
             modelBuilder.Entity<PersonCrew>()
                 .ToTable("PersonCrews")
@@ -101,7 +113,75 @@ namespace ShiftWork.Api.Data
                 .HasForeignKey(ss => ss.AreaId)
                 .OnDelete(DeleteBehavior.NoAction); // Prevents cycles
 
+            modelBuilder.Entity<ReplacementRequest>()
+                .ToTable("ReplacementRequests");
 
+            modelBuilder.Entity<TimeOffRequest>()
+                .ToTable("TimeOffRequests")
+                .HasOne(t => t.Person)
+                .WithMany()
+                .HasForeignKey(t => t.PersonId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<TimeOffRequest>()
+                .HasOne(t => t.Approver)
+                .WithMany()
+                .HasForeignKey(t => t.ApprovedBy)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<TimeOffRequest>()
+                .Property(t => t.HoursRequested)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<TimeOffRequest>()
+                .Property(t => t.PtoBalanceBefore)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<TimeOffRequest>()
+                .Property(t => t.PtoBalanceAfter)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<PTOLedger>()
+                .ToTable("PTOLedger")
+                .HasOne(l => l.Person)
+                .WithMany()
+                .HasForeignKey(l => l.PersonId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<PTOLedger>()
+                .Property(l => l.HoursChange)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<PTOLedger>()
+                .Property(l => l.BalanceAfter)
+                .HasPrecision(18, 2);
+
+            // Configure precision for Person PTO config fields
+            modelBuilder.Entity<Person>()
+                .Property(p => p.PtoAccrualRatePerMonth)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Person>()
+                .Property(p => p.PtoStartingBalance)
+                .HasPrecision(18, 2);
+
+            // Configure DeviceToken foreign keys to avoid cascade cycle
+            modelBuilder.Entity<DeviceToken>()
+                .HasOne(dt => dt.Company)
+                .WithMany()
+                .HasForeignKey(dt => dt.CompanyId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<DeviceToken>()
+                .HasOne(dt => dt.Person)
+                .WithMany()
+                .HasForeignKey(dt => dt.PersonId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Approval unique key (CompanyId, PersonId, Day)
+            modelBuilder.Entity<ShiftSummaryApproval>()
+                .HasIndex(a => new { a.CompanyId, a.PersonId, a.Day })
+                .IsUnique();
 
         }
     }

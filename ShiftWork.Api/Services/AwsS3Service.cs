@@ -2,6 +2,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using Amazon.S3.Util;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Models;
 using System;
@@ -17,7 +18,7 @@ namespace ShiftWork.Api.Services
     {
         Task<AwsS3Response> CreateBucketAsync(string bucketName);
         Task<AwsS3Response> DeleteBucketAsync(string bucketName);
-        Task UploadFileAsync(string bucketName);
+        Task<AwsS3Response> UploadFileAsync(string bucketName, IFormFile file);
         Task<Stream> GetObjectFromS3Async(string bucketName, string keyName);
         Task DeleteObjectFromS3Async(string bucketName, string keyName);
     }
@@ -89,11 +90,77 @@ namespace ShiftWork.Api.Services
         /// <summary>
         /// Uploads a file to an S3 bucket.
         /// </summary>
-        public async Task UploadFileAsync(string bucketName)
+        public async Task<AwsS3Response> UploadFileAsync(string bucketName, IFormFile file)
         {
-            // Implementation for file upload would go here.
-            // This is a placeholder.
-            await Task.CompletedTask;
+            try
+            {
+                _logger.LogInformation("Uploading file to S3 bucket '{BucketName}' in region '{Region}'", bucketName, _s3Client.Config.RegionEndpoint?.SystemName);
+
+                // Validate that the target bucket exists in the configured region
+                var exists = await AmazonS3Util.DoesS3BucketExistV2Async(_s3Client, bucketName);
+                if (!exists)
+                {
+                    var autoCreate = (Environment.GetEnvironmentVariable("AWS_S3_AUTO_CREATE") ?? "false").Equals("true", StringComparison.OrdinalIgnoreCase);
+                    if (autoCreate)
+                    {
+                        _logger.LogWarning("Bucket '{BucketName}' not found. Attempting auto-create (AWS_S3_AUTO_CREATE=true).", bucketName);
+                        try
+                        {
+                            var putBucketRequest = new PutBucketRequest { BucketName = bucketName, UseClientRegion = true };
+                            var createResp = await _s3Client.PutBucketAsync(putBucketRequest);
+                            _logger.LogInformation("Auto-created bucket '{BucketName}' (StatusCode={Status}).", bucketName, (int)createResp.HttpStatusCode);
+                        }
+                        catch (Exception bex)
+                        {
+                            _logger.LogError(bex, "Failed to auto-create bucket '{BucketName}'.", bucketName);
+                            return new AwsS3Response { StatusCode = 404, Message = $"Bucket '{bucketName}' not found and auto-create failed: {bex.Message}" };
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogError("S3 bucket '{BucketName}' not found in region '{Region}' and auto-create disabled.", bucketName, _s3Client.Config.RegionEndpoint?.SystemName);
+                        return new AwsS3Response { StatusCode = 404, Message = $"Bucket '{bucketName}' not found in region '{_s3Client.Config.RegionEndpoint?.SystemName}'. Set AWS_S3_AUTO_CREATE=true to create automatically." };
+                    }
+                }
+
+                await using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+
+                var fileExt = Path.GetExtension(file.FileName);
+                var fileName = $"{Guid.NewGuid()}{fileExt}";
+
+                var putRequest = new PutObjectRequest
+                {
+                    BucketName = bucketName,
+                    Key = fileName,
+                    InputStream = memoryStream,
+                    ContentType = file.ContentType
+                };
+                putRequest.Headers.CacheControl = "public, max-age=31536000";
+
+                var response = await _s3Client.PutObjectAsync(putRequest);
+
+                _logger.LogInformation("File '{FileName}' uploaded to bucket '{BucketName}' successfully.", fileName, bucketName);
+
+                var url = _s3Client.GetPreSignedURL(new GetPreSignedUrlRequest
+                {
+                    BucketName = bucketName,
+                    Key = fileName,
+                    Expires = DateTime.UtcNow.AddYears(1)
+                });
+
+                return new AwsS3Response { StatusCode = (int)response.HttpStatusCode, Message = url };
+            }
+            catch (AmazonS3Exception e)
+            {
+                _logger.LogError(e, "Error uploading file to bucket '{BucketName}'.", bucketName);
+                return new AwsS3Response { StatusCode = (int)e.StatusCode, Message = e.Message };
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Unexpected error uploading file to bucket '{BucketName}'.", bucketName);
+                throw;
+            }
         }
 
         /// <summary>

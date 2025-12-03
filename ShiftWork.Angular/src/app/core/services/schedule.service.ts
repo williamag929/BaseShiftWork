@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Schedule } from '../models/schedule.model';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { ScheduleDetail } from '../models/schedule-detail.model';
 
 @Injectable({
   providedIn: 'root'
@@ -55,6 +56,34 @@ export class ScheduleService {
       .pipe(
         catchError(this.handleError)
       );
+  }
+
+  search(companyId: string, starDate: string, endDate: string, searchQuery = '', personId?: number, locationId?: number): Observable<ScheduleDetail[]> {
+    let params = new HttpParams();
+    if (starDate){ 
+      params = params.set('startDate', starDate);
+    }
+    if (endDate){ 
+      params = params.set('endDate', endDate);
+    }
+    if (personId) {
+      params = params.set('personId', personId.toString());
+    }
+    if (locationId) {
+      params = params.set('locationId', locationId.toString());
+    }
+    if (searchQuery) {
+      params = params.set('searchQuery', searchQuery);
+    }
+
+    var result = this.http.get(`${this.apiUrl}/companies/${companyId}/schedules/search`, { params })
+      .pipe(
+        catchError(this.handleError)
+      );
+
+
+
+    return result as Observable<any>;
   }
 
   private handleError(error: HttpErrorResponse) {

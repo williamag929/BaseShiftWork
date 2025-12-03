@@ -1,0 +1,138 @@
+<div class="modal-backdrop" (click)="onClose()"></div>
+<div class="modal-content">
+  <div class="modal-header">
+    <div class="header-title">
+      <span class="modal-title">Shift History</span>
+      <span class="person-name">{{ personName }}</span>
+    </div>
+    <button class="close-btn" (click)="onClose()">&times;</button>
+  </div>
+
+  <div class="modal-filters">
+    <div class="filter-group">
+      <label for="date-range">Date Range</label>
+      <select 
+        id="date-range" 
+        class="filter-select" 
+        [(ngModel)]="dateRange"
+        (change)="onDateRangeChange()"
+      >
+        <option value="week">Past Week</option>
+        <option value="month">Past Month</option>
+        <option value="quarter">Past 3 Months</option>
+        <option value="year">Past Year</option>
+        <option value="all">All History</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="status-filter">Status</label>
+      <select 
+        id="status-filter" 
+        class="filter-select" 
+        [(ngModel)]="statusFilter"
+      >
+        <option value="all">All</option>
+        <option value="completed">Completed</option>
+        <option value="missed">Missed</option>
+        <option value="sick">Sick</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="modal-body">
+    <div class="loading-spinner" *ngIf="loading">
+      <div class="spinner"></div>
+      <span>Loading shift history...</span>
+    </div>
+
+    <div class="error-message" *ngIf="errorMessage && !loading">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+
+    <div class="no-data" *ngIf="!loading && !errorMessage && filteredEntries.length === 0">
+      <i class="bi bi-calendar-x"></i>
+      <span>No shift history found for the selected period</span>
+    </div>
+
+    <div class="history-list" *ngIf="!loading && !errorMessage && filteredEntries.length > 0">
+      <div 
+        class="history-entry" 
+        *ngFor="let entry of filteredEntries"
+        [class.completed]="entry.status === 'completed'"
+        [class.missed]="entry.status === 'missed'"
+        [class.partial]="entry.status === 'partial'"
+        [class.sick]="entry.status === 'sick'"
+        [class.timeoff]="entry.status === 'timeoff'"
+      >
+        <div class="entry-date">
+          <div class="date-label">{{ entry.date | date:'MMM d, y' }}</div>
+          <div class="day-label">{{ entry.date | date:'EEEE' }}</div>
+        </div>
+
+        <div class="entry-details">
+          <div class="status-badge" [style.background-color]="getStatusColor(entry.status)">
+            <i class="bi" [ngClass]="getStatusIcon(entry.status)"></i>
+            <span>{{ getStatusLabel(entry.status) }}</span>
+          </div>
+
+          <div class="time-info" *ngIf="entry.status === 'completed' || entry.status === 'partial'">
+            <div class="time-row">
+              <i class="bi bi-box-arrow-in-right"></i>
+              <span class="time-label">Clock In:</span>
+              <span class="time-value">{{ formatTime(entry.clockIn) }}</span>
+            </div>
+            <div class="time-row" *ngIf="entry.clockOut">
+              <i class="bi bi-box-arrow-left"></i>
+              <span class="time-label">Clock Out:</span>
+              <span class="time-value">{{ formatTime(entry.clockOut) }}</span>
+            </div>
+            <div class="duration-row" *ngIf="entry.duration">
+              <i class="bi bi-clock"></i>
+              <span class="duration-label">Duration:</span>
+              <span class="duration-value">{{ entry.duration }}</span>
+            </div>
+          </div>
+
+          <div class="schedule-info" *ngIf="entry.schedules.length > 0">
+            <div class="schedule-item" *ngFor="let schedule of entry.schedules">
+              <i class="bi bi-calendar-week"></i>
+              <span>
+                {{ schedule.startDate | date:'shortTime' }} - {{ schedule.endDate | date:'shortTime' }}
+              </span>
+              <span class="schedule-status" [class.status-unpublished]="schedule.status === 'unpublished'">
+                {{ schedule.status }}
+              </span>
+            </div>
+          </div>
+
+          <div class="event-info" *ngIf="entry.events.length > 0 && (entry.status === 'sick' || entry.status === 'timeoff')">
+            <div class="event-note" *ngFor="let event of entry.events">
+              <i class="bi bi-info-circle"></i>
+              <span>{{ event.description || event.eventType }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <div class="summary-stats" *ngIf="!loading && filteredEntries.length > 0">
+      <div class="stat">
+        <span class="stat-label">Total Shifts:</span>
+        <span class="stat-value">{{ filteredEntries.length }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Completed:</span>
+        <span class="stat-value completed">{{ getCompletedCount() }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Missed:</span>
+        <span class="stat-value missed">{{ getMissedCount() }}</span>
+      </div>
+    </div>
+    <button class="btn-close" (click)="onClose()">Close</button>
+  </div>
+</div>

@@ -1,0 +1,79 @@
+<div class="modal-backdrop" (click)="onClose()"></div>
+<div class="modal-content">
+  <div class="modal-header">
+    <span class="modal-title">{{ existingSchedule ? 'Edit Schedule' : 'Add Schedule' }}</span>
+    <button class="close-btn" (click)="onClose()">&times;</button>
+  </div>
+  <div class="modal-body">
+    <label for="person-select">Select Person</label>
+    <select id="person-select" [(ngModel)]="selectedPersonId" class="form-select">
+      <option [ngValue]="null">-- Select a person --</option>
+      <option *ngFor="let person of people" [ngValue]="person.personId">
+        {{ person.name }}
+      </option>
+    </select>
+    <div class="modal-row">
+      <label for="location-select">Location</label>
+      <select id="location-select" class="form-select" [(ngModel)]="selectedLocationId" (change)="onLocationChange()">
+        <option *ngFor="let loc of locations" [value]="loc.locationId">{{ loc.name }}</option>
+      </select>
+    </div>
+    <div class="modal-row">
+      <label for="area-select">Area</label>
+      <select id="area-select" class="form-select" [(ngModel)]="selectedAreaId">
+        <option [value]="0">-- Select an area --</option>
+        <option *ngFor="let area of filteredAreas" [value]="area.areaId">{{ area.name }}</option>
+      </select>
+    </div>
+    <div class="modal-row">
+      <label>Start Time</label>
+      <input type="time" [(ngModel)]="defaultStart" />
+      <label>End Time</label>
+      <input type="time" [(ngModel)]="defaultEnd" />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <div class="footer-actions">
+      <div class="more-wrapper">
+        <button type="button" class="more-btn" (click)="toggleMenu($event)">…</button>
+        <div class="action-menu" *ngIf="menuOpen" (click)="$event.stopPropagation()">
+          <button class="menu-item" (click)="repeatTomorrow()">Repeat for tomorrow</button>
+          <button class="menu-item" (click)="repeatRestOfWeek()">Repeat for rest of the week</button>
+          <ng-container *ngIf="!specificDaysMode; else daysSelector">
+            <button class="menu-item" (click)="repeatSpecificDays()">Repeat for specific days</button>
+          </ng-container>
+          <ng-template #daysSelector>
+            <div class="days-selector">
+              <div class="days-grid">
+                <button type="button" class="day-chip" *ngFor="let d of [0,1,2,3,4,5,6]" 
+                        [class.selected]="selectedDayIndices.has(d)" (click)="toggleDayIndex(d)">
+                  {{ ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d] }}
+                </button>
+              </div>
+              <div class="days-actions">
+                <button type="button" class="menu-item" (click)="confirmSpecificDays()">Confirm days</button>
+                <button type="button" class="menu-item" (click)="cancelSpecificDays()">Cancel</button>
+              </div>
+            </div>
+          </ng-template>
+          <button class="menu-item" (click)="repeatSetPattern()">Repeat for set pattern</button>
+          <hr class="menu-separator" />
+          <button class="menu-item" (click)="requestTimeOff()">Request time off</button>
+          <button class="menu-item" (click)="reportSick()">Report sick</button>
+          <button class="menu-item" (click)="findReplacement()">Find replacement</button>
+          <button class="menu-item" (click)="viewProfile()">View {{ personName }}'s profile</button>
+          <button class="menu-item" (click)="viewShiftHistory()">
+            View shift history
+            <span class="badge-shortcut">H</span>
+          </button>
+          <hr class="menu-separator" />
+          <button class="menu-item danger" (click)="deleteShiftClicked()">Delete shift</button>
+            <div class="delete-spinner" *ngIf="deleteInProgress">
+              <div class="spinner"></div>
+            </div>
+        </div>
+      </div>
+      <button class="save-btn" (click)="onSave()">Save</button>
+    </div>
+  </div>
+</div>
