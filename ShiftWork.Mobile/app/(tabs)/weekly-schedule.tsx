@@ -5,13 +5,18 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  RefreshControl,
+  AppState,
+  AppStateStatus,
 } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from '@/store/authStore';
 import { scheduleService } from '@/services';
 import { formatDate, formatTime } from '@/utils/date.utils';
 import type { ScheduleShiftDto } from '@/types/api';
+import * as Notifications from 'expo-notifications';
+import { notificationService } from '@/services/notification.service';
 
 interface DaySchedule {
   date: Date;
@@ -25,11 +30,80 @@ export default function WeeklyScheduleScreen() {
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(getWeekStart(new Date()));
   const [weekSchedule, setWeekSchedule] = useState<DaySchedule[]>([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [silentRefreshing, setSilentRefreshing] = useState(false);
+  
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const notificationListenerRef = useRef<Notifications.Subscription | null>(null);
+  const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 
   useEffect(() => {
     loadWeekSchedule();
   }, [currentWeekStart, companyId, personId]);
+
+  // Setup polling and notification listeners
+  useEffect(() => {
+    if (!companyId || !personId) return;
+
+    // Start background polling (every 5 minutes)
+    const startPolling = () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+      pollingIntervalRef.current = setInterval(() => {
+        if (appStateRef.current === 'active') {
+          console.log('Background polling: refreshing schedule...');
+          setSilentRefreshing(true);
+          loadWeekSchedule(true).finally(() => {
+            setTimeout(() => setSilentRefreshing(false), 1000);
+          }); // Silent refresh
+        }
+      }, 5 * 60 * 1000); // 5 minutes
+    };
+
+    startPolling();
+
+    // Listen for push notifications about schedule changes
+    notificationListenerRef.current = notificationService.addNotificationReceivedListener(
+      (notification) => {
+        const data = notification.request.content.data;
+        if (data?.type === 'schedule_published' || 
+            data?.type === 'shift_assigned' || 
+            data?.type === 'shift_changed') {
+          console.log('Schedule update notification received, refreshing...');
+          setSilentRefreshing(true);
+          loadWeekSchedule(true).finally(() => {
+            setTimeout(() => setSilentRefreshing(false), 1000);
+          });
+        }
+      }
+    );
+
+    // Handle app state changes (foreground/background)
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (appStateRef.current.match(/inactive|background/) && nextAppState === 'active') {
+        // App came to foreground, refresh schedule
+        console.log('App resumed, refreshing schedule...');
+        setSilentRefreshing(true);
+        loadWeekSchedule(true).finally(() => {
+          setTimeout(() => setSilentRefreshing(false), 1000);
+        });
+      }
+      appStateRef.current = nextAppState;
+    });
+
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+      if (notificationListenerRef.current) {
+        Notifications.removeNotificationSubscription(notificationListenerRef.current);
+      }
+      subscription.remove();
+    };
+  }, [companyId, personId]);
 
   function getWeekStart(date: Date): Date {
     const d = new Date(date);
@@ -64,10 +138,12 @@ export default function WeeklyScheduleScreen() {
     return days;
   }
 
-  async function loadWeekSchedule() {
+  async function loadWeekSchedule(silent: boolean = false): Promise<void> {
     if (!companyId || !personId) return;
 
-    setLoading(true);
+    if (!silent) {
+      setLoading(true);
+    }
     setError(null);
 
     try {
@@ -106,12 +182,23 @@ export default function WeeklyScheduleScreen() {
       });
 
       setWeekSchedule(days);
+      setLastUpdate(new Date());
     } catch (err: any) {
       console.error('Error loading week schedule:', err);
-      setError(err.message || 'Failed to load schedule');
+      if (!silent) {
+        setError(err.message || 'Failed to load schedule');
+      }
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
+  }
+
+  async function onRefresh() {
+    setRefreshing(true);
+    await loadWeekSchedule(false);
+    setRefreshing(false);
   }
 
   function goToPreviousWeek() {
@@ -150,7 +237,17 @@ export default function WeeklyScheduleScreen() {
   }, 0);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor="#4A90E2"
+          title="Pull to refresh"
+        />
+      }
+    >
       <StatusBar style="light" />
 
       <View style={styles.header}>
@@ -183,6 +280,18 @@ export default function WeeklyScheduleScreen() {
             <Text style={styles.statLabel}>Days Scheduled</Text>
           </View>
         </View>
+        {lastUpdate && (
+          <View style={styles.updateRow}>
+            <Text style={styles.lastUpdateText}>
+              Last updated: {lastUpdate.toLocaleTimeString()}
+            </Text>
+            {silentRefreshing && (
+              <View style={styles.syncIndicator}>
+                <Text style={styles.syncText}>🔄 Syncing...</Text>
+              </View>
+            )}
+          </View>
+        )}
       </View>
 
       {loading && (
@@ -330,6 +439,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     opacity: 0.9,
   },
+  lastUpdateText: {
+    color: '#fff',
+    fontSize: 11,
+    opacity: 0.8,
+    marginTop: 8,
+    textAlign: 'center',
+  },
   loadingContainer: {
     padding: 40,
     alignItems: 'center',
@@ -458,5 +574,25 @@ const styles = StyleSheet.create({
     color: '#27AE60',
     fontWeight: '600',
     textTransform: 'uppercase',
+  },
+  updateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  syncIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#E3F2FD',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  syncText: {
+    fontSize: 12,
+    color: '#4A90E2',
+    fontWeight: '500',
   },
 });

@@ -34,7 +34,8 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.USE_BIOMETRIC",
-        "android.permission.USE_FINGERPRINT"
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.DETECT_SCREEN_CAPTURE"
       ]
     },
     "web": {
@@ -60,7 +61,8 @@
         {
           "faceIDPermission": "Allow ShiftWork to use Face ID for secure authentication"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

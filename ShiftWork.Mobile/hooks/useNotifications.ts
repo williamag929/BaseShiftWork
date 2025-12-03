@@ -40,7 +40,7 @@ export function useNotifications(): UseNotificationsReturn {
           setExpoPushToken(token);
           
           // Save token to backend
-          await notificationService.saveDeviceToken(parseInt(companyId), personId, token);
+          await notificationService.saveDeviceToken(String(companyId), personId, token);
           setIsRegistered(true);
           
           console.log('Push notification token registered:', token);

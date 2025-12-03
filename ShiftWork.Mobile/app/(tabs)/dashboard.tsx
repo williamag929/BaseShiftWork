@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { ShiftEventTypes } from '@/types/api';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl, AppState, AppStateStatus } from 'react-native';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '@/store/authStore';
@@ -7,6 +8,9 @@ import { useDashboardData } from '@/hooks/useDashboardData';
 import { getActiveClockInAt } from '@/utils';
 import { formatDate, formatTime } from '@/utils/date.utils';
 import { timeOffRequestService, TimeOffRequest } from '@/services/time-off-request.service';
+import * as Notifications from 'expo-notifications';
+import { notificationService } from '@/services/notification.service';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -17,10 +21,15 @@ export default function DashboardScreen() {
   const [activeClockInAt, setActiveClockInAt] = useState<Date | null>(null);
   const [timeOffRequests, setTimeOffRequests] = useState<TimeOffRequest[]>([]);
   const [timeOffLoading, setTimeOffLoading] = useState(false);
+  const [silentRefreshing, setSilentRefreshing] = useState(false);
+  
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const notificationListenerRef = useRef<Notifications.Subscription | null>(null);
+  const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 
   const isClockedIn = useMemo(() => {
     const latest = recentEvents?.[0];
-    if (latest?.eventType === 'clock_in') return true;
+    if (latest?.eventType === ShiftEventTypes.ClockIn) return true;
     return !!activeClockInAt; // persisted fallback
   }, [recentEvents, activeClockInAt]);
 
@@ -28,7 +37,7 @@ export default function DashboardScreen() {
     // derive start from recentEvents or persisted value
     const latest = recentEvents?.[0];
     (async () => {
-      if (latest?.eventType === 'clock_in') {
+      if (latest?.eventType === ShiftEventTypes.ClockIn) {
         setActiveClockInAt(new Date(latest.eventDate));
       } else {
         const saved = await getActiveClockInAt();
@@ -74,6 +83,70 @@ export default function DashboardScreen() {
     }
   }, [companyId, personId]);
 
+  // Setup polling and notification listeners for real-time updates
+  useEffect(() => {
+    if (!companyId || !personId) return;
+
+    // Start background polling (every 3 minutes)
+    const startPolling = () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+      pollingIntervalRef.current = setInterval(() => {
+        if (appStateRef.current === 'active') {
+          console.log('Background polling: refreshing dashboard...');
+          setSilentRefreshing(true);
+          refresh().finally(() => {
+            setTimeout(() => setSilentRefreshing(false), 1000);
+          });
+        }
+      }, 3 * 60 * 1000); // 3 minutes
+    };
+
+    startPolling();
+
+    // Listen for push notifications about shift/schedule changes
+    notificationListenerRef.current = notificationService.addNotificationReceivedListener(
+      (notification) => {
+        const data = notification.request.content.data;
+        if (data?.type === 'schedule_published' || 
+            data?.type === 'shift_assigned' || 
+            data?.type === 'shift_changed' ||
+            data?.type === 'time_off_approved' ||
+            data?.type === 'time_off_denied') {
+          console.log('Dashboard update notification received, refreshing...');
+          setSilentRefreshing(true);
+          refresh().finally(() => {
+            setTimeout(() => setSilentRefreshing(false), 1000);
+          });
+        }
+      }
+    );
+
+    // Handle app state changes (foreground/background)
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (appStateRef.current.match(/inactive|background/) && nextAppState === 'active') {
+        // App came to foreground, refresh dashboard
+        console.log('App resumed, refreshing dashboard...');
+        setSilentRefreshing(true);
+        refresh().finally(() => {
+          setTimeout(() => setSilentRefreshing(false), 1000);
+        });
+      }
+      appStateRef.current = nextAppState;
+    });
+
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+      if (notificationListenerRef.current) {
+        Notifications.removeNotificationSubscription(notificationListenerRef.current);
+      }
+      subscription.remove();
+    };
+  }, [companyId, personId, refresh]);
+
   const fmtHM = (totalSeconds: number) => {
     const h = Math.floor(totalSeconds / 3600);
     const m = Math.floor((totalSeconds % 3600) / 60);
@@ -103,7 +176,15 @@ export default function DashboardScreen() {
           <Text style={styles.elapsed}>Time on clock: {fmtHM(elapsedSeconds)}</Text>
         )}
         {lastUpdated && (
-          <Text style={styles.lastUpdated}>Last updated: {formatTime(lastUpdated.toISOString())}</Text>
+          <View style={styles.updateRow}>
+            <Text style={styles.lastUpdated}>Last updated: {formatTime(lastUpdated.toISOString())}</Text>
+            {silentRefreshing && (
+              <View style={styles.syncIndicator}>
+                <Ionicons name="sync" size={14} color="#4A90E2" />
+                <Text style={styles.syncText}>Syncing...</Text>
+              </View>
+            )}
+          </View>
         )}
       </View>
 
@@ -382,5 +463,25 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 6,
     fontStyle: 'italic',
+  },
+  updateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 6,
+  },
+  syncIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  syncText: {
+    fontSize: 11,
+    color: '#fff',
+    fontWeight: '500',
   },
 });

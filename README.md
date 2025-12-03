@@ -8,12 +8,14 @@ ShiftWork is a full-stack web application designed for time tracking and employe
 
 ## 2. System Architecture
 
-The application is built with a modern web architecture, consisting of a single-page application (SPA) frontend and a RESTful API backend.
+The application is built with a modern web architecture, consisting of multiple frontend applications and a RESTful API backend.
 
-*   **Frontend:** Angular (TypeScript)
+*   **Web Frontend:** Angular (TypeScript) - Admin/kiosk interface
+*   **Mobile App:** React Native with Expo (TypeScript) - Employee mobile app
 *   **Backend:** .NET Core Web API (C#)
-*   **Database:** The backend uses Entity Framework Core, suggesting a relational database like SQL Server, PostgreSQL, or SQLite. Migrations are managed with EF Core Migrations.
-*   **Storage:** The system integrates with AWS S3 for storing user-uploaded photos (e.g., profile pictures or clock-in photos).
+*   **Database:** The backend uses Entity Framework Core with SQL Server/PostgreSQL. Migrations are managed with EF Core Migrations.
+*   **Storage:** AWS S3 integration for storing user-uploaded photos (profile pictures, clock-in photos)
+*   **Authentication:** Firebase Authentication for mobile, token-based auth for web
 
 ---
 
@@ -74,7 +76,48 @@ The frontend is located in the `ShiftWork.Angular/` directory.
 
 ---
 
-## 5. Kiosk Module Features
+## 5. Mobile Application (React Native + Expo)
+
+The mobile app is located in the `ShiftWork.Mobile/` directory.
+
+*   **Framework:** React Native with Expo SDK 50
+*   **Language:** TypeScript
+*   **Routing:** Expo Router (file-based)
+*   **State Management:** Zustand
+
+### Key Mobile Features:
+
+*   **Personal Clock In/Out:** Employees can clock in/out with photo capture and GPS tracking from their personal device
+*   **Weekly Schedule View:** View published shifts in a 7-day calendar grid with total hours calculation
+*   **Dashboard:** Display shift stats, upcoming shifts, and time off requests
+*   **Time Off Requests:** Submit and view time off requests with PTO balance tracking
+*   **Profile Management:** Update personal information and change PIN
+*   **Push Notifications:** Real-time updates for schedule changes, shift assignments, and time off approvals
+*   **Biometric Authentication:** Face ID/Fingerprint login support for quick access
+*   **Real-time Updates:** Automatic refresh with polling and app state monitoring
+*   **Photo Uploads:** S3 integration for shift photos with Firebase auth
+
+### Mobile Tech Stack:
+
+*   React Native 0.73
+*   Expo SDK 50 (expo-camera, expo-location, expo-notifications, expo-local-authentication)
+*   TypeScript
+*   Zustand (state management)
+*   Axios (API client)
+*   Firebase Authentication
+*   AWS S3 (photo storage)
+
+### Mobile Documentation:
+
+*   **[ShiftWork.Mobile/README.md](./ShiftWork.Mobile/README.md)** - Setup and development guide
+*   **[ShiftWork.Mobile/MOBILE_AGENT.md](./ShiftWork.Mobile/MOBILE_AGENT.md)** - Complete agent guide
+*   **[ShiftWork.Mobile/BIOMETRIC_AUTH.md](./ShiftWork.Mobile/BIOMETRIC_AUTH.md)** - Biometric implementation details
+*   **[MOBILE_FEATURES_SUMMARY.md](./MOBILE_FEATURES_SUMMARY.md)** - Feature implementation summary
+*   **[PUSH_NOTIFICATIONS.md](./PUSH_NOTIFICATIONS.md)** - Push notification setup
+
+---
+
+## 6. Kiosk Module Features
 
 The application includes a kiosk mode with the following features:
 
@@ -90,9 +133,9 @@ The application includes a kiosk mode with the following features:
 
 ---
 
-## 6. Personal Clock-in/out
+## 7. Personal Clock-in/out
 
-In addition to the kiosk mode, the application provides a personal clock-in/out feature for individual users who are logged into the application. This feature is accessible from the user's dashboard and provides the same functionality as the kiosk mode, but for the currently logged-in user.
+In addition to the kiosk mode, the application provides personal clock-in/out features for individual users through both the web dashboard and mobile app. This feature is accessible from the user's dashboard and provides the same functionality as the kiosk mode, but for the currently logged-in user.
 
 *   **Personal Time Tracking:** Allows individual users to clock in, clock out, and manage breaks from their own device (phone or web browser).
 *   **Automatic Project/Location Selection:** The system automatically selects the project or location based on the user's schedule for the day. If no schedule is set, the user can select it manually.
@@ -101,13 +144,13 @@ In addition to the kiosk mode, the application provides a personal clock-in/out 
 
 ---
 
-## 7. Python Client
+## 8. Python Client
 
 The `python_client/` directory contains various Python scripts. These scripts appear to be for testing the backend API or for other utility purposes. It includes MCP (Mission Critical Protocol) clients and servers, which might be for a specialized testing scenario or a legacy part of the project. This part of the codebase seems separate from the main Angular/.NET application.
 
 ---
 
-## 8. How to Run
+## 9. How to Run
 
 ### Backend
 
@@ -115,8 +158,20 @@ The `python_client/` directory contains various Python scripts. These scripts ap
 2.  Restore dependencies: `dotnet restore`
 3.  Run the application: `dotnet run`
 
-### Frontend
+### Web Frontend (Angular)
 
 1.  Navigate to `ShiftWork.Angular/`.
 2.  Install dependencies: `npm install`
 3.  Run the development server: `npm start`
+
+### Mobile App (React Native)
+
+1.  Navigate to `ShiftWork.Mobile/`.
+2.  Install dependencies: `npm install`
+3.  Copy `.env.example` to `.env` and configure
+4.  Start Expo dev server: `npm start`
+5.  Run on iOS: `npm run ios` (requires macOS and Xcode)
+6.  Run on Android: `npm run android` (requires Android Studio)
+7.  Scan QR code with Expo Go app on physical device
+
+See [ShiftWork.Mobile/README.md](./ShiftWork.Mobile/README.md) for detailed mobile setup instructions.

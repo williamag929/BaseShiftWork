@@ -1,3 +1,4 @@
+import { ShiftEventTypes } from '@/types/api';
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import * as Network from 'expo-network';
 import { scheduleService, shiftEventService } from '@/services';
@@ -43,9 +44,9 @@ export const useDashboardData = (companyId?: string | null, personId?: number | 
     let total = 0;
     let openClockIn: ShiftEventDto | null = null;
     for (const e of events) {
-      if (e.eventType === 'clock_in') {
+      if (e.eventType === ShiftEventTypes.ClockIn) {
         openClockIn = e;
-      } else if (e.eventType === 'clock_out' && openClockIn) {
+      } else if (e.eventType === ShiftEventTypes.ClockOut && openClockIn) {
         const startTime = new Date(openClockIn.eventDate).getTime();
         const endTime = new Date(e.eventDate).getTime();
         if (endTime > startTime) {

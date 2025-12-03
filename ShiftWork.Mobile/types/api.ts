@@ -42,10 +42,19 @@ export interface ScheduleShiftDto {
   updatedAt: Date;
 }
 
+export const ShiftEventTypes = {
+  ClockIn: 'clockin',
+  ClockOut: 'clockout',
+  BreakStart: 'break_start',
+  BreakEnd: 'break_end',
+} as const;
+
+export type ShiftEventType = typeof ShiftEventTypes[keyof typeof ShiftEventTypes];
+
 export interface ShiftEventDto {
   eventLogId: string;
   eventDate: Date;
-  eventType: 'clockin' | 'clockout' | 'break_start' | 'break_end';
+  eventType: ShiftEventType;
   companyId: string;
   personId: number;
   scheduleShiftId?: number;

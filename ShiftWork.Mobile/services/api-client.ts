@@ -157,6 +157,11 @@ class ApiClient {
   setBaseURL(url: string) {
     this.client.defaults.baseURL = url;
   }
+
+  // Get the current base URL
+  async getBaseURL(): Promise<string> {
+    return this.client.defaults.baseURL || API_BASE_URL;
+  }
 }
 
 export const apiClient = new ApiClient();

@@ -1,5 +1,6 @@
 import { apiClient } from './api-client';
 import type { ShiftEventDto } from '../types/api';
+import { ShiftEventTypes } from '../types/api';
 
 export const shiftEventService = {
   /**
@@ -84,7 +85,7 @@ export const shiftEventService = {
   ): Promise<ShiftEventDto> {
     return this.createShiftEvent(companyId, {
       eventDate: new Date(),
-      eventType: 'clock_in',
+      eventType: ShiftEventTypes.ClockIn,
       companyId,
       personId,
       geoLocation,
@@ -106,7 +107,7 @@ export const shiftEventService = {
   ): Promise<ShiftEventDto> {
     return this.createShiftEvent(companyId, {
       eventDate: new Date(),
-      eventType: 'clock_out',
+      eventType: ShiftEventTypes.ClockOut,
       companyId,
       personId,
       geoLocation,

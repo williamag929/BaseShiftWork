@@ -36,6 +36,8 @@ This will open Expo DevTools in your browser.
 
 ### 4. Run on Device/Emulator
 
+> Android 14 devices require a Dev Client (Expo Go cannot include extra permissions like `DETECT_SCREEN_CAPTURE`). Use the steps below.
+
 **Option A: Physical Device (Easiest)**
 1. Install "Expo Go" app from App Store (iOS) or Play Store (Android)
 2. Scan the QR code from the terminal
@@ -50,8 +52,37 @@ npm run ios
 1. Start Android emulator from Android Studio
 2. Run:
 ```powershell
-npm run android
+# One-time: ensure Java 17 is set for this session (auto-detect)
+$roots = @(
+  "C:\Program Files\Eclipse Adoptium",
+  "C:\Program Files\Microsoft",
+  "C:\Program Files\Java"
+)
+$jdk = $null
+foreach ($root in $roots) {
+  if (Test-Path $root) {
+    $candidate = Get-ChildItem -Path $root -Directory -ErrorAction SilentlyContinue |
+      Where-Object { $_.Name -like "jdk-17*" } |
+      Sort-Object Name -Descending |
+      Select-Object -First 1 -ExpandProperty FullName
+    if ($candidate -and (Test-Path "$candidate\bin\java.exe")) { $jdk = $candidate; break }
+  }
+}
+if (-not $jdk) {
+  Write-Error "JDK 17 not found. Install Temurin 17 from https://adoptium.net/temurin/releases/?version=17 (x64), then retry."; exit 1
+}
+$env:JAVA_HOME = $jdk
+$env:Path = "$env:JAVA_HOME\bin;$env:Path"
+java -version
+
+# Build and install the Dev Client (includes Android 14 permissions)
+npx expo run:android
+
+# Start Metro in Dev Client mode
+npx expo start --dev-client
 ```
+
+If you see a SecurityException about `DETECT_SCREEN_CAPTURE`, make sure you opened the installed app "ShiftWork Mobile" (Dev Client) on the device/emulator, not Expo Go. You can uninstall Expo Go to avoid confusion during testing.
 
 ### Option B: Docker Development
 
@@ -81,7 +112,7 @@ Once running, the Expo DevTools will be available at:
 - DevTools: http://localhost:19000
 - Metro bundler: http://localhost:8081
 
-You can still scan the QR code with Expo Go app on your phone.
+Note: Docker runs Expo Go flow. On Android 14, use the Dev Client approach above instead of Expo Go to avoid permission crashes.
 
 #### 3. Docker Production Web Build
 

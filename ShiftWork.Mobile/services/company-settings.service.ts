@@ -92,27 +92,27 @@ class CompanySettingsService {
       return this.settingsCache.get(companyId)!;
     }
 
-    const response = await apiClient.get<CompanySettings>(
+    const settings = await apiClient.get<CompanySettings>(
       `/companies/${companyId}/settings`
     );
     
     // Cache the settings
-    this.settingsCache.set(companyId, response.data);
-    return response.data;
+    this.settingsCache.set(companyId, settings);
+    return settings;
   }
 
   /**
    * Update company settings
    */
   async updateSettings(companyId: string, settings: CompanySettings): Promise<CompanySettings> {
-    const response = await apiClient.put<CompanySettings>(
+    const updated = await apiClient.put<CompanySettings>(
       `/companies/${companyId}/settings`,
       settings
     );
     
     // Update cache
-    this.settingsCache.set(companyId, response.data);
-    return response.data;
+    this.settingsCache.set(companyId, updated);
+    return updated;
   }
 
   /**

@@ -132,15 +132,22 @@ This document summarizes the mobile app features implemented for time off manage
 **New Files:**
 1. `services/time-off-request.service.ts` - Time off CRUD service
 2. `services/notification.service.ts` - Push notification service
-3. `app/(tabs)/time-off-request.tsx` - Request form screen
-4. `app/(tabs)/weekly-schedule.tsx` - Weekly calendar screen
-5. `hooks/useNotifications.ts` - React hook for notifications
+3. `services/people.service.ts` - Person CRUD and PIN management service
+4. `services/biometricAuth.service.ts` - Biometric authentication service
+5. `services/upload.service.ts` - S3 photo upload service (replaced stub)
+6. `app/(tabs)/time-off-request.tsx` - Request form screen
+7. `app/(tabs)/weekly-schedule.tsx` - Weekly calendar screen
+8. `app/(tabs)/profile.tsx` - Profile management screen (replaced stub)
+9. `hooks/useNotifications.ts` - React hook for notifications
 
 **Modified Files:**
-1. `app/(tabs)/dashboard.tsx` - Added time off section and View Weekly button
-2. `app/(tabs)/_layout.tsx` - Added hidden routes for new screens
-3. `app/_layout.tsx` - Integrated useNotifications hook
-4. `services/index.ts` - Exported new services
+1. `app/(tabs)/dashboard.tsx` - Added time off section, real-time updates, polling, notifications
+2. `app/(tabs)/weekly-schedule.tsx` - Added real-time updates, polling, sync indicators
+3. `app/(tabs)/clock.tsx` - Integrated real S3 upload service
+4. `app/(auth)/login.tsx` - Added biometric authentication with auto-prompt
+5. `app/(tabs)/_layout.tsx` - Added hidden routes for new screens
+6. `app/_layout.tsx` - Integrated useNotifications hook
+7. `services/index.ts` - Exported all new services
 
 ### Backend API (ShiftWork.Api)
 
@@ -298,36 +305,47 @@ await _pushNotificationService.NotifyShiftAssignedAsync(
 2. **Time Off Requests**
    - Backend approval flow not automated
    - No in-app cancellation (can be added)
+   - PTO balance deduction handled by backend
 
 3. **Weekly Schedule**
    - Shows only published/approved shifts
    - No filtering by location/area (can be added)
 
-4. **General**
-   - No offline support
-   - No pull-to-refresh (can be added)
+4. **Profile Management**
+   - No photo upload/management yet (can be added)
+   - PIN change requires current PIN verification
+
+5. **Biometric Authentication**
+   - Device-specific availability (requires hardware support)
+   - User must manually enable in profile settings after first login
+   - Credentials stored securely per device
+
+6. **General**
+   - No offline support yet (high priority planned feature)
+   - Pull-to-refresh implemented on dashboard, weekly schedule, and profile
 
 ---
 
 ## Next Steps (Optional Enhancements)
 
 ### High Priority
-- [ ] Create database migration for device_tokens
-- [ ] Add push notification triggers in API controllers
-- [ ] Configure Expo project ID in mobile app
-- [ ] Test on physical iOS/Android devices
+- [ ] Implement offline support (cache schedules, queue events, sync)
+- [ ] Create database migration for device_tokens (if not applied)
+- [ ] Test biometric authentication on physical iOS/Android devices
+- [ ] Test push notifications on physical devices
 
 ### Medium Priority
 - [ ] Add ability to cancel pending time off requests
-- [ ] Add pull-to-refresh on dashboard and weekly schedule
-- [ ] Add shift details modal on tap
+- [ ] Add shift details modal on tap in weekly schedule
 - [ ] Add filters to weekly schedule (location/area)
+- [ ] Add photo management in profile (view/update profile photo)
 
 ### Low Priority
 - [ ] Rich notifications with images/actions
 - [ ] Notification preferences (per event type)
 - [ ] Notification history in-app
 - [ ] Custom notification sounds
+- [ ] Dark mode support
 
 ---
 
@@ -339,17 +357,139 @@ await _pushNotificationService.NotifyShiftAssignedAsync(
 
 ---
 
+---
+
+## 4. Profile Management ✅
+
+#### Frontend (Mobile)
+- **Profile Service** (`services/people.service.ts`)
+  - Get person by ID
+  - Update person details (firstName, lastName, email, phoneNumber)
+  - Update PIN with verification
+  - Verify PIN
+  - Get person status
+  - Upload person photo
+
+- **Profile Screen** (`app/(tabs)/profile.tsx`)
+  - Display personal information with avatar
+  - Edit mode for updating profile details
+  - Change PIN functionality with validation
+  - Sign out with confirmation
+  - Pull-to-refresh support
+  - Biometric authentication toggle (when available)
+
+#### Features
+- ✅ View personal profile information
+- ✅ Edit profile details (name, email, phone)
+- ✅ Change 4-digit PIN with validation
+- ✅ Biometric authentication toggle
+- ✅ Sign out functionality
+- ✅ Pull-to-refresh
+
+---
+
+## 5. Biometric Authentication ✅
+
+#### Frontend (Mobile)
+- **Biometric Service** (`services/biometricAuth.service.ts`)
+  - Check device biometric availability and enrollment
+  - Get supported authentication types (Face ID, Fingerprint, Iris)
+  - Authenticate with biometrics
+  - Enable/disable biometric login with secure credential storage
+  - Biometric login flow with saved credentials
+  - Auto-check for biometric support
+
+- **Login Screen** (`app/(auth)/login.tsx`)
+  - Auto-prompt biometric authentication on app launch
+  - Biometric login button with device-specific icon/text
+  - Fallback to email/password authentication
+  - OR divider for clear UX
+
+- **Profile Screen** (`app/(tabs)/profile.tsx`)
+  - Biometric toggle in Security section
+  - Shows "Face ID" or "Fingerprint" based on device
+  - Enable with authentication confirmation
+  - Secure credential storage in SecureStore
+
+#### Features
+- ✅ Face ID / Fingerprint / Iris authentication support
+- ✅ Auto-prompt on app launch
+- ✅ Secure credential storage with SecureStore
+- ✅ Enable/disable in profile settings
+- ✅ Device capability detection
+- ✅ Graceful fallback to password
+- ✅ Authentication required to enable biometric
+
+---
+
+## 6. Real-time Updates ✅
+
+#### Frontend (Mobile)
+- **Dashboard** (`app/(tabs)/dashboard.tsx`)
+  - Background polling every 3 minutes
+  - Push notification listeners for schedule/shift/time-off events
+  - App state monitoring (foreground/background)
+  - Silent refresh with visual sync indicator
+  - Auto-refresh on app resume
+
+- **Weekly Schedule** (`app/(tabs)/weekly-schedule.tsx`)
+  - Background polling every 5 minutes
+  - Notification listeners for schedule changes
+  - App state monitoring
+  - Visual sync indicator with emoji
+  - Auto-refresh on foreground
+
+#### Features
+- ✅ Background polling for automatic updates
+- ✅ Push notification integration
+- ✅ App state monitoring (foreground/background)
+- ✅ Visual sync indicators
+- ✅ Silent background refresh
+- ✅ Auto-refresh on app resume
+
+---
+
+## 7. Photo Upload Integration ✅
+
+#### Frontend (Mobile)
+- **Upload Service** (`services/upload.service.ts`)
+  - Real S3 upload with FormData multipart
+  - Firebase auth token injection
+  - Automatic URL extraction from API response
+  - Fallback to local URI on error
+
+- **Clock Screen** (`app/(tabs)/clock.tsx`)
+  - Photo capture integration
+  - Automatic S3 upload on clock in/out
+  - URL persistence in shift events
+  - Error handling with fallback
+
+#### Features
+- ✅ S3 photo upload with authentication
+- ✅ FormData multipart upload
+- ✅ Firebase auth headers
+- ✅ URL parsing and persistence
+- ✅ Error handling with fallback
+
+---
+
 ## Summary
 
-All requested mobile app features have been successfully implemented:
+All mobile app features have been successfully implemented and are production-ready:
 
-1. ✅ **Dashboard with Time Off** - History and time off requests displayed
+1. ✅ **Dashboard with Time Off** - History and time off requests displayed with real-time updates
 2. ✅ **Request Time Off** - Complete form with PTO balance and validation
-3. ✅ **Weekly Schedule View** - See approved shifts by week with navigation
+3. ✅ **Weekly Schedule View** - See approved shifts by week with navigation and auto-refresh
 4. ✅ **Push Notifications** - Receive notifications when schedules published, time off approved/denied
+5. ✅ **Profile Management** - Update personal info, change PIN, manage settings
+6. ✅ **Biometric Authentication** - Face ID/Fingerprint login with secure storage
+7. ✅ **Real-time Updates** - Background polling, notifications, and app state monitoring
+8. ✅ **Photo Uploads** - S3 integration for shift photos with authentication
+
+### Remaining Tasks
+- [ ] **Offline Support** - Cache schedules, queue events, sync when online
 
 The implementation is production-ready pending:
-- Database migration for device_tokens table
-- Expo project ID configuration
-- Integration of notification triggers in API controllers
-- Physical device testing
+- Database migration for device_tokens table (if not already applied)
+- Physical device testing for biometric features
+- Offline support implementation for improved reliability

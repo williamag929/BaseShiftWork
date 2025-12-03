@@ -4,13 +4,21 @@ Cross-platform mobile application for workforce scheduling and time tracking, bu
 
 ## Features
 
-- ✅ Clock in/out with photo and GPS tracking
-- 📅 View schedules (day, week, month)
-- 📊 Dashboard with hours worked and upcoming shifts
-- 📍 Location-based kiosk questions
-- 🔐 Firebase authentication with PIN/biometric support
-- 📱 iOS and Android support
-- 🔄 Real-time sync with backend API
+### ✅ Completed
+- ✅ **Clock In/Out** - Photo capture with GPS tracking and automatic S3 upload
+- ✅ **Weekly Schedule View** - 7-day calendar grid with total hours and shift details
+- ✅ **Dashboard** - Shift stats, upcoming shifts, and time off requests
+- ✅ **Time Off Requests** - Submit requests with PTO balance tracking and validation
+- ✅ **Profile Management** - Update personal info, change PIN, view details
+- ✅ **Push Notifications** - Real-time updates for schedules, shifts, and time off
+- ✅ **Biometric Authentication** - Face ID/Fingerprint login support
+- ✅ **Real-time Updates** - Background polling and app state monitoring
+- ✅ **Photo Uploads** - S3 integration with Firebase auth headers
+- 📱 **Cross-Platform** - iOS and Android support via Expo
+
+### 🚧 Planned
+- 🔄 **Offline Support** - Cache schedules, queue events, sync when online
+- 📊 **Advanced Analytics** - Detailed time tracking reports and insights
 
 ## Quick Start
 
@@ -84,7 +92,12 @@ Required environment variables (see `.env.example`):
 
 For detailed documentation, see:
 - **[MOBILE_AGENT.md](./MOBILE_AGENT.md)** - Complete agent guide with API integration, architecture, and automation tasks
-- **[AGENT.md](../AGENT.md)** - Main project documentation
+- **[BIOMETRIC_AUTH.md](./BIOMETRIC_AUTH.md)** - Biometric authentication implementation guide
+- **[SETUP.md](./SETUP.md)** - Detailed setup and configuration instructions
+- **[ASSETS_SETUP.md](./ASSETS_SETUP.md)** - Asset configuration and guidelines
+- **[../MOBILE_FEATURES_SUMMARY.md](../MOBILE_FEATURES_SUMMARY.md)** - Feature implementation summary
+- **[../PUSH_NOTIFICATIONS.md](../PUSH_NOTIFICATIONS.md)** - Push notification setup and testing
+- **[../AGENT.md](../AGENT.md)** - Main project documentation
 
 ## Tech Stack
 
