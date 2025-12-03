@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { SummaryShift, SummaryShiftService } from 'src/app/core/services/summary-shift.service';
@@ -20,7 +21,7 @@ import { AppState } from 'src/app/store/app.state';
   templateUrl: './shiftsummaries.component.html',
   styleUrls: ['./shiftsummaries.component.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule]
+  imports: [ReactiveFormsModule, FormsModule, CommonModule]
 })
 export class ShiftsummariesComponent implements OnInit {
 
@@ -36,10 +37,20 @@ export class ShiftsummariesComponent implements OnInit {
   activeCompany$: Observable<any>;
   activeCompany: any;
   loading = false;
+  currentApproverPersonId?: number;
 
   // UI state
   viewMode: 'cards' | 'table' = 'cards';
   shiftsList: SummaryShift[] = [];
+  exportApprovedOnly = true;
+  bulkStatus: 'not_shifted'|'shifted'|'approved'|'avoid' = 'approved';
+  private selectedKeys = new Set<string>();
+  readonly statusOptions: Array<{ value: 'not_shifted'|'shifted'|'approved'|'avoid'; label: string }> = [
+    { value: 'not_shifted', label: 'Not Shifted' },
+    { value: 'shifted', label: 'Shifted' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'avoid', label: 'Avoid' },
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -76,6 +87,11 @@ export class ShiftsummariesComponent implements OnInit {
         this.loading = false;
       }
     });
+
+    // Capture current user personId to stamp approvals
+    this.authService.user$.subscribe((p) => {
+      this.currentApproverPersonId = p?.personId ?? undefined;
+    });
   }
 
 
@@ -89,7 +105,12 @@ export class ShiftsummariesComponent implements OnInit {
         locationId,
         personId
       ).pipe(
-        tap(list => this.shiftsList = list || [])
+        tap(list => {
+          this.shiftsList = list || [];
+          // prune selections no longer present
+          const valid = new Set(this.shiftsList.map(s => this.selectionKey(s)));
+          this.selectedKeys.forEach(k => { if (!valid.has(k)) this.selectedKeys.delete(k); });
+        })
       );
     }
   }
@@ -99,7 +120,7 @@ export class ShiftsummariesComponent implements OnInit {
   }
 
   exportToCsv() {
-    const rows = this.shiftsList || [];
+    const rows = (this.shiftsList || []).filter(r => !this.exportApprovedOnly || r.status === 'approved');
     if (!rows.length) {
       return;
     }
@@ -156,5 +177,86 @@ export class ShiftsummariesComponent implements OnInit {
     if (field == null) return '';
     const f = String(field);
     return /[",\n]/.test(f) ? '"' + f.replace(/"/g, '""') + '"' : f;
+  }
+
+  onStatusChange(shift: SummaryShift, status: 'not_shifted'|'shifted'|'approved'|'avoid') {
+    if (!this.activeCompany) return;
+    const dayIso = new Date(shift.day).toISOString();
+    const payload = {
+      personId: shift.personId,
+      day: dayIso,
+      status,
+      approvedBy: this.currentApproverPersonId,
+    } as const;
+    this.summaryShiftService.upsertApproval(this.activeCompany.companyId, payload)
+      .subscribe({
+        next: _ => {
+          // Update local state
+          shift.status = status;
+        },
+        error: err => console.error('Failed to update approval', err)
+      });
+  }
+
+  // Selection helpers
+  private selectionKey(s: SummaryShift): string {
+    const d = new Date(s.day);
+    const yyyy = d.getUTCFullYear();
+    const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(d.getUTCDate()).padStart(2, '0');
+    return `${s.personId}-${yyyy}-${mm}-${dd}`;
+  }
+
+  isSelected(s: SummaryShift): boolean {
+    return this.selectedKeys.has(this.selectionKey(s));
+  }
+
+  get allSelected(): boolean {
+    const rows = this.shiftsList || [];
+    return rows.length > 0 && rows.every(s => this.isSelected(s));
+  }
+
+  toggleSelection(s: SummaryShift, checked: boolean) {
+    const key = this.selectionKey(s);
+    if (checked) this.selectedKeys.add(key); else this.selectedKeys.delete(key);
+  }
+
+  toggleSelectAll(checked: boolean) {
+    if (checked) {
+      (this.shiftsList || []).forEach(s => this.selectedKeys.add(this.selectionKey(s)));
+    } else {
+      this.selectedKeys.clear();
+    }
+  }
+
+  applyBulk() {
+    if (!this.activeCompany) return;
+    const status = this.bulkStatus;
+    const map = new Map(this.shiftsList.map(s => [this.selectionKey(s), s] as const));
+    const keys = Array.from(this.selectedKeys);
+    keys.forEach(k => {
+      const s = map.get(k);
+      if (s) this.onStatusChange(s, status);
+    });
+  }
+
+  statusLabel(status?: string): string {
+    switch (status) {
+      case 'approved': return 'Approved';
+      case 'avoid': return 'Avoid';
+      case 'not_shifted': return 'Not Shifted';
+      case 'shifted':
+      default: return 'Shifted';
+    }
+  }
+
+  statusClass(status?: string): string {
+    switch (status) {
+      case 'approved': return 'status-badge status-approved';
+      case 'avoid': return 'status-badge status-avoid';
+      case 'not_shifted': return 'status-badge status-not-shifted';
+      case 'shifted':
+      default: return 'status-badge status-shifted';
+    }
   }
 }

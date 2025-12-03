@@ -18,6 +18,7 @@ import { SettingsHelperService } from 'src/app/core/services/settings-helper.ser
 import { CompanySettings } from 'src/app/core/models/company-settings.model';
 import { environment } from 'src/environments/environment';
 import { ActivatedRoute } from '@angular/router';
+import { WakeLockService } from '../core/services/wake-lock.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -51,12 +52,15 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private dialog: MatDialog,
     private settingsHelper: SettingsHelperService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    public wakeLock: WakeLockService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
 
   ngOnInit(): void {
+    // Acquire wake lock for kiosk list view
+    this.wakeLock.request();
     // Default legend collapsed on small screens; allow persisted preference to override
     const isMobile = window.matchMedia('(max-width: 767.98px)').matches;
     this.showLegend = !isMobile; // temporary default until company is known
@@ -128,6 +132,8 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Release wake lock when leaving kiosk view
+    this.wakeLock.release();
     this.stopStatusRefresh();
   }
 
@@ -222,7 +228,13 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   getTiming(status?: string): string | null {
     if (!status) return null;
     const parts = status.split(':');
-    return parts.length > 1 ? parts[1] : null;
+    const timing = parts.length > 1 ? parts[1] : null;
+    // If timing is NoSchedule but we have a published schedule, suppress NoSchedule
+    // so the badge doesn't conflict with a valid schedule.
+    if (timing === 'NoSchedule') {
+      return null;
+    }
+    return timing;
   }
 
   getTimingBadgeClass(timing: string | null): string {
@@ -284,6 +296,26 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
         this.toastr.error('Error loading schedules');
       }
     );
+  }
+
+  // Quick actions: Start/End shift directly from the list
+  canStartShift(employee: Person): boolean {
+    return !this.isOnShift(employee.statusShiftWork) && this.hasPublishedScheduleToday(employee);
+  }
+
+  canEndShift(employee: Person): boolean {
+    return this.isOnShift(employee.statusShiftWork);
+  }
+
+  startShift(employee: Person): void {
+    // Navigate to photo-schedule with selected employee; action is handled there
+    this.kioskService.setSelectedEmployee(employee);
+    this.router.navigate(['/kiosk/photo-schedule'], { state: { employee } });
+  }
+
+  endShift(employee: Person): void {
+    this.kioskService.setSelectedEmployee(employee);
+    this.router.navigate(['/kiosk/photo-schedule'], { state: { employee } });
   }
 
   toggleLegend(): void {

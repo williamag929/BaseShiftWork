@@ -22,6 +22,7 @@ import { KioskAnswer } from '../core/models/kiosk-answer.model';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { QuestionDialogComponent } from '../question-dialog/question-dialog.component';
 import { AwsS3Service } from 'src/app/core/services/aws-s3.service';
+import { WakeLockService } from '../core/services/wake-lock.service';
 import { Company } from 'src/app/core/models/company.model';
 import { Location } from 'src/app/core/models/location.model';
 
@@ -122,7 +123,8 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     private readonly store: Store<AppState>,
     private readonly awsS3Service: AwsS3Service,
     private readonly toastr: ToastrService,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    public readonly wakeLock: WakeLockService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
     this.countdown$ = this.timerService.countdown;
@@ -140,6 +142,8 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Ensure wake lock while in scheduling flow
+    this.wakeLock.request();
     this.selectedEmployee = this.kioskService.getSelectedEmployee();
     this.selectedLocation = this.kioskService.getSelectedLocation() || null;
 
@@ -171,6 +175,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.wakeLock.release();
     this.destroy$.next();
     this.destroy$.complete();
     this.trigger.complete();
@@ -188,9 +193,8 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
           });
 
           dialogRef.afterClosed().subscribe((answers: { [key: string]: string } | null) => {
-            if (answers) {
-              this.startScheduling(action, answers);
-            }
+            // Proceed even if answers are null (user skipped/cancelled); end shift should still work
+            this.startScheduling(action, answers || undefined);
           });
         } else {
           this.startScheduling(action);
@@ -279,7 +283,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
         console.log('Uploading photo to S3 bucket: shiftwork-photos');
         this.awsS3Service.uploadFile('shiftwork-photos', file).subscribe({
           next: (response: any) => {
-            const photoUrl = typeof response === 'string' ? response : response?.message;
+            const photoUrl = (response && (response.url || response.message)) || (typeof response === 'string' ? response : undefined);
             console.log('Photo uploaded, received URL:', photoUrl);
 
             const newShiftEvent: ShiftEvent = {

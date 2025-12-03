@@ -198,6 +198,48 @@
 .export-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(56, 178, 172, 0.4); }
 
 /* ==================== STATES ==================== */
+/* Status badges */
+.status-badge {
+	display: inline-block;
+	padding: 0.2rem 0.6rem;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	border: 1px solid transparent;
+	vertical-align: middle;
+}
+.status-approved {
+	background: #DEF7EC;
+	color: #03543F;
+	border-color: #84E1BC;
+}
+.status-shifted {
+	background: #E1EFFE;
+	color: #1E429F;
+	border-color: #A4CAFE;
+}
+.status-not-shifted {
+	background: #FDF6B2;
+	color: #723B13;
+	border-color: #FCE588;
+}
+.status-avoid {
+	background: #FDE8E8;
+	color: #9B1C1C;
+	border-color: #F8B4B4;
+}
+
+/* Inputs near badges */
+.info-row .info-value select {
+	margin-left: 0.5rem;
+	padding: 0.35rem 0.5rem;
+	border-radius: 6px;
+	border: 1px solid #E2E8F0;
+}
+
+/* Card selection checkbox */
+.summary-card { position: relative; }
+.card-select { position: absolute; top: 10px; left: 10px; z-index: 2; }
 .loading-state,
 .empty-state {
 	display: flex;

@@ -209,8 +209,8 @@ export class ClockShiftComponent implements OnInit, OnDestroy {
         const geoLocation = `{${coords.latitude},${coords.longitude}}`;
 
         this.awsS3Service.uploadFile('shiftwork-photos', file).subscribe({
-          next: (response: { message: string; }) => {
-            const photoUrl = response.message;
+          next: (response: any) => {
+            const photoUrl = (response && (response.url || response.message)) || (typeof response === 'string' ? response : undefined);
 
             const newShiftEvent: ShiftEvent = {
               eventLogId: '00000000-0000-0000-0000-000000000000',

@@ -20,11 +20,20 @@
       <i class="bi bi-info-circle"></i>
     </button>
   </div>
+  <div class="wake-lock-indicator ms-2" *ngIf="wakeLock.isSupported()" title="Screen wake lock active to prevent sleep">
+    <span class="badge bg-secondary" [class.bg-success]="wakeLock.isActive()">
+      {{ wakeLock.isActive() ? 'Screen Locked' : 'Screen May Sleep' }}
+    </span>
+  </div>
+  <div class="wake-lock-indicator ms-2" *ngIf="!wakeLock.isSupported()" title="Wake Lock not supported on this device">
+    <span class="badge bg-secondary">Wake Lock Unsupported</span>
+  </div>
   <div id="legend-desktop" class="legend desktop-only" aria-label="Timing legend" role="region" *ngIf="showLegend">
     <span class="badge bg-success" title="Arrived within 5 minutes of scheduled start">OnTime</span>
     <span class="badge bg-warning text-dark" title="Arrived before scheduled start">Early</span>
     <span class="badge bg-danger" title="Arrived more than 5 minutes after scheduled start">Late</span>
-    <span class="badge bg-secondary" title="No published schedule found for today">NoSchedule</span>
+
+
   </div>
   
   <div *ngIf="refreshing" class="inline-spinner" aria-label="Refreshing statuses">
@@ -43,7 +52,7 @@
   <span class="badge bg-success" title="Arrived within 5 minutes of scheduled start">OnTime</span>
   <span class="badge bg-warning text-dark" title="Arrived before scheduled start">Early</span>
   <span class="badge bg-danger" title="Arrived more than 5 minutes after scheduled start">Late</span>
-  <span class="badge bg-secondary" title="No published schedule found for today">NoSchedule</span>
+
 </div>
 <div *ngIf="error" class="alert alert-danger">
   Error loading employees.
@@ -76,6 +85,14 @@
     </div>
     <div class="subtle-label" *ngIf="hasPublishedScheduleToday(employee) && !isOnShift(employee.statusShiftWork)" title="Has a published schedule for today">
       Published today
+    </div>
+    <div class="action-buttons mt-2">
+      <div class="btn btn-sm btn-outline-success me-2" *ngIf="canStartShift(employee)" title="Start Shift">
+        <i class="bi bi-play-circle"></i> Start
+      </div>
+      <div class="btn btn-sm btn-outline-danger" *ngIf="canEndShift(employee)"  title="End Shift">
+        <i class="bi bi-stop-circle"></i> End
+      </div>
     </div>
   </div>
 </div>

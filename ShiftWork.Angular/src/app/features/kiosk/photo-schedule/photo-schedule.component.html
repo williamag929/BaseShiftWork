@@ -4,9 +4,9 @@
   <div class="d-flex justify-content-center mb-3" *ngIf="selectedEmployee">
     <h2>
       {{ selectedEmployee.name }}
-      <ng-container *ngIf="getTimingFromStatus(employeeStatus) as timing">
+      <!--ng-container *ngIf="getTimingFromStatus(employeeStatus) as timing">
         <span class="badge ms-2" [ngClass]="getTimingBadgeClass(timing)">{{ timing }}</span>
-      </ng-container>
+      </ng-container-->
     </h2>
   </div>
 
@@ -51,6 +51,11 @@
 
   <!-- Action Buttons -->
   <div *ngIf="!scheduling && selectedEmployee" class="action-buttons">
+    <div class="mb-2" *ngIf="wakeLock.isSupported()" title="Screen wake lock active to prevent sleep">
+      <span class="badge bg-secondary" [class.bg-success]="wakeLock.isActive()">
+        {{ wakeLock.isActive() ? 'Screen Locked' : 'Screen May Sleep' }}
+      </span>
+    </div>
     <div class="button-group mb-3">
       <button 
         *ngIf="!webcamImage && canStartShift()"

@@ -15,6 +15,9 @@ export interface SummaryShift {
   maxEndTime: string;
   breakTime: number;
   totalHours: number;
+  status?: 'not_shifted' | 'shifted' | 'approved' | 'avoid';
+  approvedBy?: number | null;
+  approvedAt?: string | null;
 }
 
 @Injectable({
@@ -46,5 +49,12 @@ export class SummaryShiftService {
     }
 
     return this.http.get<SummaryShift[]>(`${this.apiUrl}/companies/${companyId}/ScheduleShiftSummaries`, { params });
+  }
+
+  upsertApproval(
+    companyId: string,
+    payload: { personId: number; day: string; status: 'not_shifted' | 'shifted' | 'approved' | 'avoid'; approvedBy?: number; notes?: string }
+  ): Observable<any> {
+    return this.http.put(`${this.apiUrl}/companies/${companyId}/ShiftSummaryApprovals`, payload);
   }
 }

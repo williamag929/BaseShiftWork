@@ -87,10 +87,29 @@
           Table
         </button>
       </div>
-      <button class="export-btn" (click)="exportToCsv()">
+      <div class="toggle-group bulk-actions" style="gap:0.5rem; display:flex; align-items:center;">
+        <label class="bulk-select-all">
+          <input type="checkbox" [checked]="allSelected" (change)="toggleSelectAll($any($event.target).checked)">
+          Select all
+        </label>
+        <select [(ngModel)]="bulkStatus" [ngModelOptions]="{standalone: true}">
+          <option *ngFor="let o of statusOptions" [ngValue]="o.value">{{ o.label }}</option>
+        </select>
+        <button class="export-btn" (click)="applyBulk()" title="Apply status to selected">
+          <i class="fas fa-check-double"></i>
+          Apply
+        </button>
+      </div>
+      <div class="toggle-group" style="margin-left:auto; gap: 0.5rem; align-items:center; display:flex;">
+        <label style="display:flex; align-items:center; gap:0.5rem; padding:0 0.5rem;">
+          <input type="checkbox" [(ngModel)]="exportApprovedOnly" [ngModelOptions]="{standalone: true}">
+          Export approved only
+        </label>
+        <button class="export-btn" (click)="exportToCsv()">
         <i class="fas fa-file-export"></i>
         Export CSV
-      </button>
+        </button>
+      </div>
     </div>
 
     <!-- Loading State -->
@@ -113,6 +132,9 @@
         *ngFor="let shift of shifts; let i = index"
         [style.animation-delay]="(i * 0.05) + 's'"
       >
+        <div class="card-select">
+          <input type="checkbox" [checked]="isSelected(shift)" (change)="toggleSelection(shift, $any($event.target).checked)">
+        </div>
         <div class="card-header-row">
           <div class="person-section">
             <div class="person-avatar">{{ (shift.personName || '?') | slice:0:2 }}</div>
@@ -165,6 +187,18 @@
             </span>
             <span class="info-value total-hours">{{ shift.totalHours | number:'1.2-2' }}</span>
           </div>
+          <div class="info-row">
+            <span class="info-label">
+              <i class="fas fa-circle-check"></i>
+              Status
+            </span>
+            <span class="info-value">
+              <span [class]="statusClass(shift.status)" class="status-badge">{{ statusLabel(shift.status) }}</span>
+              <select [ngModel]="shift.status || 'shifted'" (ngModelChange)="onStatusChange(shift, $event)" [ngModelOptions]="{standalone: true}">
+                <option *ngFor="let o of statusOptions" [ngValue]="o.value">{{ o.label }}</option>
+              </select>
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -174,6 +208,9 @@
       <table class="summary-table">
         <thead>
           <tr>
+            <th style="width:36px; text-align:center;">
+              <input type="checkbox" [checked]="allSelected" (change)="toggleSelectAll($any($event.target).checked)">
+            </th>
             <th>Day</th>
             <th>Person</th>
             <th>Location</th>
@@ -182,10 +219,14 @@
             <th>End Time</th>
             <th>Break (min)</th>
             <th>Total Hours</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let shift of shifts">
+            <td style="text-align:center;">
+              <input type="checkbox" [checked]="isSelected(shift)" (change)="toggleSelection(shift, $any($event.target).checked)">
+            </td>
             <td>{{ shift.day | date }}</td>
             <td>{{ shift.personName }}</td>
             <td>{{ shift.locationName }}</td>
@@ -194,6 +235,12 @@
             <td>{{ shift.maxEndTime | date:'shortTime' }}</td>
             <td>{{ shift.breakTime || 0 }}</td>
             <td>{{ shift.totalHours | number:'1.2-2' }}</td>
+            <td>
+              <span [class]="statusClass(shift.status)" class="status-badge" style="margin-right: 0.5rem;">{{ statusLabel(shift.status) }}</span>
+              <select [ngModel]="shift.status || 'shifted'" (ngModelChange)="onStatusChange(shift, $event)" [ngModelOptions]="{standalone: true}">
+                <option *ngFor="let o of statusOptions" [ngValue]="o.value">{{ o.label }}</option>
+              </select>
+            </td>
           </tr>
         </tbody>
       </table>
