@@ -377,6 +377,50 @@ Notes:
 - Prefer push for development/testing since it requires no external credentials.
 - For production SMS/Email, set the config keys above and verify that People records include up-to-date email/phone.
 
+## Company Settings - Pending Code Implementation (22)
+
+The Company Settings UI is complete with 8 tabs covering all configuration options. The following backend enforcement/automation features require implementation:
+
+### ⏰ Clock-In/Out Enforcement (5 items)
+- [ ] **Geo-fence clock-in enforcement** - Validate clock-in coordinates against `geoFenceRadius` when `requireGeoLocationForClockIn` is enabled; reject if outside fence
+- [ ] **Auto clock-out scheduler** - Background job to find employees clocked in beyond `autoClockOutAfter` hours and auto-create clock-out events
+- [ ] **Grace period for late arrivals** - Implement `gracePeriodLateClockIn` logic: allow late clock-ins within X minutes without marking as late in attendance records
+- [ ] **Early clock-in rules** - Enforce `allowEarlyClockIn` threshold: reject clock-ins more than X minutes before scheduled shift start
+- [ ] **Break clock enforcement** - If `requireBreakClocks` is true, enforce break start/end event tracking and validate `minimumBreakDuration`
+
+### 💰 Pay & Overtime Calculations (1 item)
+- [ ] **Overtime multipliers (night/holiday/weekend)** - Calculate overtime pay using `nightShiftOvertimePercentage`, `holidayOvertimePercentage`, `weekendOvertimePercentage` based on shift time ranges and company calendar settings
+
+### 🏖️ PTO & Leave Automation (3 items)
+- [ ] **PTO accrual scheduler** - Monthly background job that adds `defaultPtoAccrualRate` hours to employee balances; enforce `maximumPtoBalance` cap
+- [ ] **Sick leave accrual scheduler** - Monthly job for `sickLeaveAccrualRate` with `sickLeaveMaximumBalance` cap
+- [ ] **Annual PTO rollover logic** - Year-end job that rolls over up to `maximumPtoRollover` hours if `ptoRolloverAllowed` is true; reset excess hours
+
+### 📋 Scheduling Workflows (2 items)
+- [ ] **Auto-approve shifts setting** - If `autoApproveShifts` is true, set shift.status to Approved on creation; otherwise Pending
+- [ ] **Shift swap approval workflow** - If `requireManagerApprovalForSwaps` is true, create approval workflow; otherwise auto-approve swap requests
+
+### 🔔 Notification Automation (2 items)
+- [ ] **Notification triggers implementation** - Send push/email/SMS when `notifyOnShiftAssignment`, `notifyOnShiftChanges`, `notifyOnTimeOffApproval`, `notifyOnReplacementRequest` are enabled
+- [ ] **Shift reminder scheduler** - Background job that sends notifications X hours before shift start based on `reminderHoursBeforeShift` setting
+
+### 🖥️ Kiosk Features (2 items)
+- [ ] **Kiosk photo on clock-in** - If `requirePhotoOnClockIn` is true, capture photo on clock-in and attach to attendance/shift event record
+- [ ] **Kiosk custom questions** - If `allowQuestionResponsesOnClockIn` is true, display custom questions on kiosk and store answers with clock event
+
+### 🔐 Security Enforcement (2 items)
+- [ ] **Password expiration enforcement** - If `passwordExpirationDays` > 0, track last password change date and force reset on expiration
+- [ ] **Session timeout middleware** - Enforce `sessionTimeout` in auth middleware; auto-logout idle sessions after X minutes
+
+### ✅ Already Implemented Settings
+These settings are validated and enforced in existing code:
+- ✅ Maximum consecutive work days (`MaximumConsecutiveWorkDays`)
+- ✅ Minimum hours between shifts (`MinimumHoursBetweenShifts`)
+- ✅ Daily/weekly hour limits (`MaximumDailyHours`, `MaximumWeeklyHours`)
+- ✅ Overlapping shifts prevention (`AllowOverlappingShifts`)
+
+---
+
 ## Potential Future Enhancements (Backlog)
 
 ### 🔄 Shift Management
@@ -407,7 +451,7 @@ Notes:
 ### 📱 Mobile & User Experience
 - **Mobile App Integration** - Native apps for clock-in/out, time-off requests, schedule viewing
 - **Offline Mode** - Support offline clock events with sync when connection restored
-- **Biometric Clock-In** - Fingerprint/face recognition for time tracking
+- **Biometric Clock-In** - Fingerprint/face recognition for time tracking; photo comparison with accuracy percentage score to verify identity against stored profile photos
 - **Geofencing** - Restrict clock-in/out to specific locations
 
 ### 🔐 Security & Compliance

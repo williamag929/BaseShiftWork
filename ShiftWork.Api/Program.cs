@@ -161,6 +161,7 @@ builder.Services.AddCors(options =>
                                   // Docker Desktop for Windows
                                   "http://host.docker.internal:4200",
                                   "http://app.shift-clock.com",
+                                  "https://endpoint.shift-clock.com",
                                   "https://app.shift-clock.com")
                                   // AWS Elastic Beanstalk)
                                 .AllowAnyHeader()
