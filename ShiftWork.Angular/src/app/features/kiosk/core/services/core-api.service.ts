@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { map, Observable, switchMap, catchError, from, of, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,8 +12,8 @@ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 
 @Injectable()
 export abstract class CoreApiService<T> {
-  private http!: HttpClient;
-  private dataService!: DataService;
+  protected http: HttpClient;
+  protected dataService: DataService;
 
   activeCompany$: Observable<any>;
   activeCompany: any;
@@ -26,11 +26,12 @@ export abstract class CoreApiService<T> {
   private httpOptions: any;
 
     constructor(
-      private store: Store<AppState>
+          protected store: Store<AppState>,
+          http: HttpClient,
+          dataService: DataService,
     ) {
-      // Ensure inject() executes within a valid Angular injection context
-      this.http = inject(HttpClient);
-      this.dataService = inject(DataService);
+      this.http = http;
+      this.dataService = dataService;
 
     this.activeCompany$ = this.store.select(selectActiveCompany);
 

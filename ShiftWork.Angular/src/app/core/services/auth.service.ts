@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, Injector, runInInjectionContext } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
@@ -29,7 +29,8 @@ export class AuthService {
     private ngZone: NgZone,
     private toastr: ToastrService,
     private http: HttpClient,
-    private peopleService: PeopleService
+    private peopleService: PeopleService,
+    private injector: Injector
   ) {
     this.afAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
 
@@ -110,7 +111,9 @@ export class AuthService {
 
   async SetUserData(user: any): Promise<void> {
     try {
-      const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user.uid}`);
+      const userRef: AngularFirestoreDocument<any> = runInInjectionContext(this.injector, () =>
+        this.afs.doc(`users/${user.uid}`)
+      );
       const userData: User = {
         uid: user.uid,
         email: user.email,
@@ -155,7 +158,9 @@ export class AuthService {
   }
 
   async updateUserData(user: any) {
-    const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user?.uid}`);
+    const userRef: AngularFirestoreDocument<any> = runInInjectionContext(this.injector, () =>
+      this.afs.doc(`users/${user?.uid}`)
+    );
     const data: User = {
       uid: user.uid,
       email: user.email || '',
