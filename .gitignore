@@ -62,3 +62,4 @@ python_client/.env
 ShiftWork.Angular/package-lock.json
 ShiftWork.Angular/yarn.lock
 /ShiftWork.Angular/dist
+docker-compose.yml
