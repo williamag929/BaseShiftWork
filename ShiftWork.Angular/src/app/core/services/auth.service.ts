@@ -95,14 +95,16 @@ export class AuthService {
 
   async SignIn(email: string, password: string) {
     try {
-      await this.afAuth.signInWithEmailAndPassword(email, password);
-      this.afAuth.authState.subscribe((user) => {
-        if (user) {
+      const credential = await this.afAuth.signInWithEmailAndPassword(email, password);
+      if (credential.user) {
+        await this.SetUserData(credential.user);
+        this.ngZone.run(() => {
+          this.toastr.success('Signed in successfully');
           this.router.navigate(['company-switch']);
-        }
-      });
+        });
+      }
     } catch (error: any) {
-      window.alert(error.message);
+      this.toastr.error(error.message);
     }
   }
 
@@ -117,6 +119,7 @@ export class AuthService {
       photoURL: user.photoURL,
       emailVerified: user.emailVerified,
     };
+    localStorage.setItem('user', JSON.stringify(userData));
     return userRef.set(userData, {
       merge: true,
     });
@@ -126,6 +129,7 @@ export class AuthService {
     try {
       const credential = await this.afAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
       if (credential.user) {
+        await this.SetUserData(credential.user);
         this.ngZone.run(() => {
           this.toastr.success('Google sign-in successful');
           this.router.navigate(['company-switch']);
@@ -138,6 +142,8 @@ export class AuthService {
 
   async signOut() {
     await this.afAuth.signOut();
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('authToken');
     this.toastr.success('Signed out successfully');
     return this.router.navigate(['/']);
   }

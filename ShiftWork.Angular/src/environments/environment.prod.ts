@@ -6,7 +6,7 @@ export const environment = {
   kioskStatusRefreshMs: 60000,
   firebase: {
     apiKey: "AIzaSyBwL0YUb-yheFPml2qJ_Q4Js7dxgwAhrcM",
-    authDomain: "shift-maps-location.firebaseapp.com",
+    authDomain: "app.shift-clock.com",
     projectId: "shift-maps-location",
     storageBucket: "shift-maps-location.appspot.com",
     messagingSenderId: "643515228422",
