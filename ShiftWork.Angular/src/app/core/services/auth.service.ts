@@ -127,13 +127,17 @@ export class AuthService {
 
   async googleSignIn() {
     try {
-      const credential = await this.afAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-      if (credential.user) {
-        await this.SetUserData(credential.user);
+      const provider = new firebase.auth.GoogleAuthProvider();
+      const result = await this.afAuth.signInWithPopup(provider);
+      const user = result?.user;
+      if (user) {
+        await this.SetUserData(user);
         this.ngZone.run(() => {
           this.toastr.success('Google sign-in successful');
           this.router.navigate(['company-switch']);
         });
+      } else {
+        throw new Error('Google sign-in returned no user. Result credential may be null.');
       }
     } catch (error) {
       this.handleError(error);
