@@ -89,4 +89,5 @@ public class CompanySettings : BaseEntity
     public bool ShowEmployeePhotosOnKiosk { get; set; } = true;
     public int KioskTimeout { get; set; } = 30; // seconds
     public bool AllowQuestionResponsesOnClockIn { get; set; } = false;
+    public string? KioskAdminPasswordHash { get; set; } // BCrypt hash of admin password
 }

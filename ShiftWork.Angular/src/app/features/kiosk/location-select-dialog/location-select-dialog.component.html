@@ -2,14 +2,20 @@
 <div mat-dialog-content>
   <mat-form-field>
     <mat-label>Locations</mat-label>
-    <mat-select #locationSelect>
+    <mat-select #locationSelect [(ngModel)]="selectedLocation">
       <mat-option *ngFor="let location of data.locations" [value]="location">
         {{location.name}}
       </mat-option>
     </mat-select>
   </mat-form-field>
+  
+  <div style="margin-top: 16px;">
+    <mat-checkbox [(ngModel)]="assignToDevice">
+      Assign this location to this device permanently
+    </mat-checkbox>
+  </div>
 </div>
 <div mat-dialog-actions>
   <button mat-button (click)="onNoClick()">Cancel</button>
-  <button mat-button [mat-dialog-close]="locationSelect.value" cdkFocusInitial>Select</button>
+  <button mat-button [disabled]="!selectedLocation" (click)="onSelectClick()" cdkFocusInitial>Select</button>
 </div>

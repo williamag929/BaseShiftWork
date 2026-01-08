@@ -434,6 +434,17 @@
         <input type="checkbox" id="allowQuestionResponsesOnClockIn" [(ngModel)]="settings.allowQuestionResponsesOnClockIn">
         <label for="allowQuestionResponsesOnClockIn">Allow Question Responses on Clock-In</label>
       </div>
+
+      <div class="form-group">
+        <label for="kioskAdminPassword">Kiosk Admin Password</label>
+        <input type="password" id="kioskAdminPassword" [(ngModel)]="settings.kioskAdminPassword" 
+               placeholder="Leave blank to keep current password"
+               autocomplete="new-password">
+        <small class="help-text">
+          This password is required to change the kiosk device location. 
+          Leave blank to keep the current password unchanged.
+        </small>
+      </div>
     </div>
 
   </div>

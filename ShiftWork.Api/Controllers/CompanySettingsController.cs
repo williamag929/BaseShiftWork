@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Services;
+using BCrypt.Net;
 
 namespace ShiftWork.Api.Controllers;
 
@@ -48,11 +49,21 @@ public class CompanySettingsController : ControllerBase
             return NotFound($"Settings for company {companyId} not found.");
         }
 
-        // Map DTO to entity, preserving SettingsId
+        // Hash the kiosk admin password if provided
+        if (!string.IsNullOrWhiteSpace(settingsDto.KioskAdminPassword))
+        {
+            existingSettings.KioskAdminPasswordHash = BCrypt.Net.BCrypt.HashPassword(settingsDto.KioskAdminPassword);
+        }
+
+        // Map DTO to entity, preserving SettingsId and password hash
         var updatedSettings = _mapper.Map<CompanySettingsDto, Models.CompanySettings>(settingsDto, existingSettings);
         
         var result = await _settingsService.UpdateSettings(updatedSettings);
         
-        return Ok(_mapper.Map<CompanySettingsDto>(result));
+        // Don't return the password in response
+        var responseDto = _mapper.Map<CompanySettingsDto>(result);
+        responseDto.KioskAdminPassword = null;
+        
+        return Ok(responseDto);
     }
 }

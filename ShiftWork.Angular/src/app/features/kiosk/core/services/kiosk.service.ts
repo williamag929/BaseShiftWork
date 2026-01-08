@@ -17,6 +17,8 @@ export class KioskService {
 
   private readonly apiUrl = environment.apiUrl;
 
+  private readonly DEVICE_LOCATION_KEY = 'kiosk_device_location';
+  
   private selectedLocationSource = new BehaviorSubject<Location | null>(null);
   selectedLocation$ = this.selectedLocationSource.asObservable();
 
@@ -30,7 +32,13 @@ export class KioskService {
   private statusUpdateSource = new Subject<{ personId: number; status: string }>();
   statusUpdate$ = this.statusUpdateSource.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    // Load saved device location on service initialization
+    const savedLocation = this.getDeviceLocation();
+    if (savedLocation) {
+      this.selectedLocationSource.next(savedLocation);
+    }
+  }
 
   setSelectedEmployee(employee: People | null) {
     this.selectedEmployeeSource.next(employee);
@@ -58,6 +66,26 @@ export class KioskService {
 
   getSelectedLocation(): Location | null {
     return this.selectedLocationSource.getValue();
+  }
+
+  // Device location assignment methods
+  saveDeviceLocation(location: Location): void {
+    localStorage.setItem(this.DEVICE_LOCATION_KEY, JSON.stringify(location));
+    this.selectedLocationSource.next(location);
+  }
+
+  getDeviceLocation(): Location | null {
+    const saved = localStorage.getItem(this.DEVICE_LOCATION_KEY);
+    return saved ? JSON.parse(saved) : null;
+  }
+
+  clearDeviceLocation(): void {
+    localStorage.removeItem(this.DEVICE_LOCATION_KEY);
+    this.selectedLocationSource.next(null);
+  }
+
+  hasDeviceLocation(): boolean {
+    return !!this.getDeviceLocation();
   }
 
   getKioskQuestions(companyId: string): Observable<KioskQuestion[]> {
