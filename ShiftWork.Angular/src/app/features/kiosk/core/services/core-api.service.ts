@@ -10,12 +10,10 @@ import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export abstract class CoreApiService<T> {
-  http = inject(HttpClient);
-  dataService = inject(DataService);
+  private http!: HttpClient;
+  private dataService!: DataService;
 
   activeCompany$: Observable<any>;
   activeCompany: any;
@@ -27,9 +25,12 @@ export abstract class CoreApiService<T> {
   private readonly token: string;
   private httpOptions: any;
 
-  constructor(
-        private store: Store<AppState>
-  ) {
+    constructor(
+      private store: Store<AppState>
+    ) {
+      // Ensure inject() executes within a valid Angular injection context
+      this.http = inject(HttpClient);
+      this.dataService = inject(DataService);
 
     this.activeCompany$ = this.store.select(selectActiveCompany);
 

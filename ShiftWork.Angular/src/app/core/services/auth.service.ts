@@ -108,21 +108,23 @@ export class AuthService {
     }
   }
 
-  SetUserData(user: any) {
-    const userRef: AngularFirestoreDocument<any> = this.afs.doc(
-      `users/${user.uid}`
-    );
-    const userData: User = {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      emailVerified: user.emailVerified,
-    };
-    localStorage.setItem('user', JSON.stringify(userData));
-    return userRef.set(userData, {
-      merge: true,
-    });
+  async SetUserData(user: any): Promise<void> {
+    try {
+      const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user.uid}`);
+      const userData: User = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        emailVerified: user.emailVerified,
+      };
+      localStorage.setItem('user', JSON.stringify(userData));
+      await userRef.set(userData, { merge: true });
+    } catch (error) {
+      // Capture and rethrow to surface the specific error source
+      console.error('SetUserData failed', error);
+      throw error;
+    }
   }
 
   async googleSignIn() {
