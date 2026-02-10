@@ -25,6 +25,8 @@ namespace ShiftWork.Api.Models
         public string? TimeZone { get; set; }
         public string? Color { get; set; }
         public string? Type { get; set; }
+        public string? VoidedBy { get; set; }
+        public DateTime? VoidedAt { get; set; }
         public Company Company { get; set; }
         public Location Location { get; set; }
         public Area Area { get; set; }

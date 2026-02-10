@@ -193,7 +193,14 @@
           </div>
 
           <!-- Day Cells -->
-          <div class="day-cell" *ngFor="let day of gridData.days">
+          <div class="day-cell" 
+            *ngFor="let day of gridData.days; let di = index"
+            cdkDropList
+            [id]="getCellDropId(member.personId, di)"
+            [cdkDropListData]="{ personId: member.personId, date: day.date }"
+            [cdkDropListConnectedTo]="allDropListIds"
+            (cdkDropListDropped)="onShiftDrop($event)"
+          >
             <ng-container *ngIf="getShiftsForPersonAndDay(member.personId, day.date) as shifts">
               <!-- Empty Cell -->
               <button 
@@ -208,11 +215,21 @@
               <div 
                 *ngFor="let shift of shifts" 
                 class="shift-block"
+                cdkDrag
+                [cdkDragData]="shift"
+                [cdkDragDisabled]="shift.isLocked"
                 [class.selected]="isShiftSelected(shift)"
                 [class.completed]="shift.isCompleted"
                 [style.background-color]="getShiftColor(shift.status)"
                 (click)="onShiftClick(shift)"
               >
+                <!-- Drag Preview -->
+                <div *cdkDragPreview class="drag-preview" [style.background-color]="getShiftColor(shift.status)">
+                  <div class="shift-time">{{ shift.startTime }} – {{ shift.endTime }}</div>
+                  <div class="shift-person">{{ shift.personName }}</div>
+                </div>
+                <!-- Drag Placeholder -->
+                <div *cdkDragPlaceholder class="drag-placeholder"></div>
                 <input 
                   type="checkbox" 
                   class="shift-checkbox"
@@ -284,7 +301,14 @@
             </div>
 
             <!-- Day Cells (location-scoped) -->
-            <div class="day-cell" *ngFor="let day of group.days">
+            <div class="day-cell" 
+              *ngFor="let day of group.days; let di = index"
+              cdkDropList
+              [id]="getCellDropId(member.personId, di, group.locationId)"
+              [cdkDropListData]="{ personId: member.personId, date: day.date, locationId: group.locationId }"
+              [cdkDropListConnectedTo]="allDropListIds"
+              (cdkDropListDropped)="onShiftDrop($any($event))"
+            >
               <ng-container *ngIf="getShiftsForPersonDayAndLocation(member.personId, day.date, group.locationId) as shifts">
                 <!-- Empty Cell -->
                 <button 
@@ -299,11 +323,21 @@
                 <div 
                   *ngFor="let shift of shifts" 
                   class="shift-block"
+                  cdkDrag
+                  [cdkDragData]="shift"
+                  [cdkDragDisabled]="shift.isLocked"
                   [class.selected]="isShiftSelected(shift)"
                   [class.completed]="shift.isCompleted"
                   [style.background-color]="getShiftColor(shift.status)"
                   (click)="onShiftClick(shift)"
                 >
+                  <!-- Drag Preview -->
+                  <div *cdkDragPreview class="drag-preview" [style.background-color]="getShiftColor(shift.status)">
+                    <div class="shift-time">{{ shift.startTime }} – {{ shift.endTime }}</div>
+                    <div class="shift-person">{{ shift.personName }}</div>
+                  </div>
+                  <!-- Drag Placeholder -->
+                  <div *cdkDragPlaceholder class="drag-placeholder"></div>
                   <input 
                     type="checkbox" 
                     class="shift-checkbox"

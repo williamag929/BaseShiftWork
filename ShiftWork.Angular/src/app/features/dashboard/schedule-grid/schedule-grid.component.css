@@ -892,3 +892,62 @@
 .location-badge i {
   font-size: 9px;
 }
+
+/* Drag and Drop Styles */
+.drag-preview {
+  padding: 10px;
+  border: 2px solid #6C5CE7;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(108, 92, 231, 0.35);
+  min-width: 120px;
+  opacity: 0.92;
+}
+
+.drag-preview .shift-time {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.drag-preview .shift-person {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.drag-placeholder {
+  min-height: 50px;
+  border: 2px dashed #6C5CE7;
+  border-radius: 6px;
+  background-color: rgba(108, 92, 231, 0.08);
+  transition: all 0.25s ease;
+}
+
+/* Highlight the drop target cell while dragging over it */
+.cdk-drop-list-dragging {
+  background-color: rgba(108, 92, 231, 0.06);
+  border-radius: 4px;
+}
+
+/* Smooth snap-back animation when dropped */
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Dim the original shift while being dragged */
+.cdk-drag-preview {
+  z-index: 1000 !important;
+}
+
+/* Make locked shifts show not-allowed cursor */
+.shift-block[cdkdragdisabled="true"] {
+  cursor: default;
+}
+
+.shift-block:not([cdkdragdisabled="true"]) {
+  cursor: grab;
+}
+
+.shift-block:active:not([cdkdragdisabled="true"]) {
+  cursor: grabbing;
+}

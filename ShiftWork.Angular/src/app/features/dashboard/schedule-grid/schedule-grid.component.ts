@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
@@ -39,7 +40,7 @@ import { ShiftHistoryModalComponent } from './shift-history-modal.component';
 @Component({
   selector: 'app-schedule-grid',
   standalone: true,
-  imports: [CommonModule, FormsModule, ScheduleGridAddModalComponent, ReplacementPanelComponent, TimeOffRequestModalComponent, SickReportModalComponent, RepeatPatternModalComponent, ShiftHistoryModalComponent],
+  imports: [CommonModule, FormsModule, DragDropModule, ScheduleGridAddModalComponent, ReplacementPanelComponent, TimeOffRequestModalComponent, SickReportModalComponent, RepeatPatternModalComponent, ShiftHistoryModalComponent],
   templateUrl: './schedule-grid.component.html',
   styleUrl: './schedule-grid.component.css',
   providers: [ScheduleService, PeopleService, LocationService]
@@ -678,6 +679,8 @@ export class ScheduleGridComponent implements OnInit {
   viewMode: ViewMode = 'single';
   locationGroups: LocationGroup[] = [];
   modalLocationId: number = 0;
+  allDropListIds: string[] = [];
+  dragInProgress: boolean = false;
 
   constructor(
     private store: Store<AppState>,
@@ -764,6 +767,7 @@ export class ScheduleGridComponent implements OnInit {
           next: (result) => {
             this.allSchedules = result.items || [];
             this.buildGridData(people, this.allSchedules);
+            this.rebuildDropListIds();
             this.loading = false;
           },
           error: (err: any) => {
@@ -951,6 +955,83 @@ export class ScheduleGridComponent implements OnInit {
       this.modalLocationId = 0;
     }
     this.openAddScheduleModal();
+  }
+
+  /** Generate a unique drop-list ID for a day cell */
+  getCellDropId(personId: number, dayIndex: number, locationId?: number): string {
+    return locationId
+      ? `cell-${locationId}-${personId}-${dayIndex}`
+      : `cell-${personId}-${dayIndex}`;
+  }
+
+  /** Rebuild the master list of all connected drop-list IDs */
+  private rebuildDropListIds(): void {
+    const ids: string[] = [];
+    if (this.viewMode === 'grouped') {
+      this.locationGroups.forEach(group => {
+        group.teamMembers.forEach(member => {
+          for (let i = 0; i < 7; i++) {
+            ids.push(this.getCellDropId(member.personId, i, group.locationId));
+          }
+        });
+      });
+    } else {
+      this.gridData.teamMembers.forEach(member => {
+        for (let i = 0; i < 7; i++) {
+          ids.push(this.getCellDropId(member.personId, i));
+        }
+      });
+    }
+    this.allDropListIds = ids;
+  }
+
+  /** Handle a shift block being dropped onto a new day cell */
+  onShiftDrop(event: CdkDragDrop<{ personId: number; date: Date; locationId?: number }, any, ShiftBlock>): void {
+    if (event.previousContainer === event.container) return;
+
+    const shift: ShiftBlock = event.item.data;
+    const targetDate: Date = event.container.data.date;
+
+    const original = this.allSchedules.find(s =>
+      s.personId === shift.personId &&
+      new Date(s.startDate).getTime() === shift.startDate.getTime()
+    );
+    if (!original) {
+      console.error('Could not find original schedule for dropped shift');
+      return;
+    }
+
+    // Keep same UTC wall-clock hours, change only the date
+    const origStart = new Date(original.startDate);
+    const origEnd = new Date(original.endDate);
+    const newStartDate = new Date(Date.UTC(
+      targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(),
+      origStart.getUTCHours(), origStart.getUTCMinutes(), 0
+    ));
+    const newEndDate = new Date(Date.UTC(
+      targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(),
+      origEnd.getUTCHours(), origEnd.getUTCMinutes(), 0
+    ));
+
+    if (this.hasScheduleConflict(original.personId, newStartDate, newEndDate, original.scheduleId)) {
+      alert(`Schedule conflict for ${this.getPersonName(original.personId)} on ${targetDate.toDateString()}.`);
+      return;
+    }
+
+    const updatedSchedule = { ...original, startDate: newStartDate, endDate: newEndDate };
+
+    this.loading = true;
+    this.scheduleService.updateSchedule(this.activeCompany.companyId, original.scheduleId, updatedSchedule).subscribe({
+      next: () => {
+        this.loading = false;
+        this.loadScheduleData();
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('Failed to move shift', err);
+        alert('Failed to move shift. Please try again.');
+      }
+    });
   }
 
   applyFilters(members: TeamMember[]): TeamMember[] {

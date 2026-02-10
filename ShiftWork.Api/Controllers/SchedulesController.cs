@@ -100,7 +100,8 @@ namespace ShiftWork.Api.Controllers
             [FromQuery] string? endDate,
             [FromQuery] string? searchQuery,
             [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 200)
+            [FromQuery] int pageSize = 200,
+            [FromQuery] bool includeVoided = false)
         {
             try
             {
@@ -128,7 +129,8 @@ namespace ShiftWork.Api.Controllers
                     endDateTime,
                     searchQuery,
                     page,
-                    pageSize);
+                    pageSize,
+                    includeVoided);
 
                 var result = new PagedResultDto<ScheduleDto>
                 {
@@ -330,6 +332,38 @@ namespace ShiftWork.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting schedule {ScheduleId} for company {CompanyId}.", scheduleId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Voids a schedule (soft delete). The schedule is kept for audit but hidden from normal queries.
+        /// </summary>
+        [HttpPost("{scheduleId}/void")]
+        [ProducesResponseType(typeof(ScheduleDto), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<ScheduleDto>> VoidSchedule(string companyId, int scheduleId, [FromQuery] string? voidedBy)
+        {
+            try
+            {
+                var userIdentifier = voidedBy ?? "system";
+                var schedule = await _scheduleService.VoidSchedule(scheduleId, userIdentifier);
+                if (schedule == null)
+                {
+                    return NotFound($"Schedule with ID {scheduleId} not found.");
+                }
+
+                _memoryCache.Remove($"schedules_{companyId}");
+                _memoryCache.Remove($"schedule_{companyId}_{scheduleId}");
+
+                _logger.LogInformation("Schedule {ScheduleId} voided by {VoidedBy} for company {CompanyId}.", scheduleId, userIdentifier, companyId);
+
+                return Ok(_mapper.Map<ScheduleDto>(schedule));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error voiding schedule {ScheduleId} for company {CompanyId}.", scheduleId, companyId);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
