@@ -22,14 +22,16 @@ namespace ShiftWork.Api.Controllers
         private readonly IMapper _mapper;
         private readonly IPeopleService _peopleService;
         private readonly INotificationService _notificationService;
+        private readonly ICompanySettingsService _settingsService;
 
-        public ReplacementRequestsController(ShiftWorkContext context, ILogger<ReplacementRequestsController> logger, IMapper mapper, IPeopleService peopleService, INotificationService notificationService)
+        public ReplacementRequestsController(ShiftWorkContext context, ILogger<ReplacementRequestsController> logger, IMapper mapper, IPeopleService peopleService, INotificationService notificationService, ICompanySettingsService settingsService)
         {
             _context = context;
             _logger = logger;
             _mapper = mapper;
             _peopleService = peopleService;
             _notificationService = notificationService;
+            _settingsService = settingsService;
         }
 
         [HttpPost]
@@ -45,6 +47,12 @@ namespace ShiftWork.Api.Controllers
 
             try
             {
+                var settings = await _settingsService.GetOrCreateSettings(companyId);
+                if (!settings.AllowEmployeeShiftSwaps)
+                {
+                    return BadRequest("Shift swaps are disabled for this company.");
+                }
+
                 var request = new ReplacementRequest
                 {
                     ShiftId = dto.ShiftId,
@@ -75,6 +83,12 @@ namespace ShiftWork.Api.Controllers
         {
             try
             {
+                var settings = await _settingsService.GetOrCreateSettings(companyId);
+                if (settings.RequireManagerApprovalForSwaps)
+                {
+                    return StatusCode(403, "Manager approval is required for shift swaps.");
+                }
+
                 var request = await _context.ReplacementRequests
                     .FirstOrDefaultAsync(r => r.CompanyId == companyId && r.RequestId == requestId);
 

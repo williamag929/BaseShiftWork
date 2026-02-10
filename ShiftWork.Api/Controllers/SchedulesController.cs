@@ -27,6 +27,8 @@ namespace ShiftWork.Api.Controllers
     {
         private readonly IScheduleService _scheduleService;
         private readonly ILocationService _locationService;
+        private readonly ICompanySettingsService _settingsService;
+        private readonly IScheduleValidationService _validationService;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<SchedulesController> _logger;
@@ -34,10 +36,12 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="SchedulesController"/> class.
         /// </summary>
-        public SchedulesController(IScheduleService scheduleService, ILocationService locationService, IMapper mapper, IMemoryCache memoryCache, ILogger<SchedulesController> logger)
+        public SchedulesController(IScheduleService scheduleService, ILocationService locationService, ICompanySettingsService settingsService, IScheduleValidationService validationService, IMapper mapper, IMemoryCache memoryCache, ILogger<SchedulesController> logger)
         {
             _scheduleService = scheduleService ?? throw new ArgumentNullException(nameof(scheduleService));
             _locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -204,9 +208,26 @@ namespace ShiftWork.Api.Controllers
                     return BadRequest($"Location with ID {scheduleDto.LocationId} not found.");
                 }
 
+                var settings = await _settingsService.GetOrCreateSettings(companyId);
+
                 var schedule = _mapper.Map<Schedule>(scheduleDto);
+                schedule.CompanyId = companyId;
                 schedule.TimeZone = location.TimeZone;
                 schedule.Type = "Shift"; // Default type, can be customized later
+
+                var validation = await _validationService.ValidateSchedule(companyId, schedule, scheduleDto.PersonId);
+                if (validation.Errors.Any() || validation.Warnings.Any())
+                {
+                    return BadRequest(new { errors = validation.Errors, warnings = validation.Warnings });
+                }
+
+                if (settings.AutoApproveShifts)
+                {
+                    if (string.IsNullOrWhiteSpace(schedule.Status) || schedule.Status.Equals("unpublished", StringComparison.OrdinalIgnoreCase))
+                    {
+                        schedule.Status = "Published";
+                    }
+                }
                 var createdSchedule = await _scheduleService.Add(schedule);
 
                 if (createdSchedule == null)
@@ -248,7 +269,22 @@ namespace ShiftWork.Api.Controllers
 
             try
             {
+                var settings = await _settingsService.GetOrCreateSettings(companyId);
                 var schedule = _mapper.Map<Schedule>(scheduleDto);
+
+                var validation = await _validationService.ValidateSchedule(companyId, schedule, scheduleDto.PersonId, scheduleId);
+                if (validation.Errors.Any() || validation.Warnings.Any())
+                {
+                    return BadRequest(new { errors = validation.Errors, warnings = validation.Warnings });
+                }
+
+                if (settings.AutoApproveShifts)
+                {
+                    if (string.IsNullOrWhiteSpace(schedule.Status) || schedule.Status.Equals("unpublished", StringComparison.OrdinalIgnoreCase))
+                    {
+                        schedule.Status = "Published";
+                    }
+                }
                 var updatedSchedule = await _scheduleService.Update(schedule);
 
                 if (updatedSchedule == null)

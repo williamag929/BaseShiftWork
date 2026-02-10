@@ -20,6 +20,8 @@ namespace ShiftWork.Api.Controllers
     public class ScheduleShiftsController : ControllerBase
     {
         private readonly IScheduleShiftService _scheduleShiftService;
+        private readonly ICompanySettingsService _settingsService;
+        private readonly IScheduleValidationService _validationService;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<ScheduleShiftsController> _logger;
@@ -27,9 +29,11 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="ScheduleShiftsController"/> class.
         /// </summary>
-        public ScheduleShiftsController(IScheduleShiftService scheduleShiftService, IMapper mapper, IMemoryCache memoryCache, ILogger<ScheduleShiftsController> logger)
+        public ScheduleShiftsController(IScheduleShiftService scheduleShiftService, ICompanySettingsService settingsService, IScheduleValidationService validationService, IMapper mapper, IMemoryCache memoryCache, ILogger<ScheduleShiftsController> logger)
         {
             _scheduleShiftService = scheduleShiftService ?? throw new ArgumentNullException(nameof(scheduleShiftService));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -191,7 +195,22 @@ namespace ShiftWork.Api.Controllers
 
             try
             {
+                var settings = await _settingsService.GetOrCreateSettings(companyId);
                 var scheduleShift = _mapper.Map<ScheduleShift>(scheduleShiftDto);
+
+                var validation = await _validationService.ValidateScheduleShift(companyId, scheduleShift, scheduleShiftDto.PersonId);
+                if (validation.Errors.Any() || validation.Warnings.Any())
+                {
+                    return BadRequest(new { errors = validation.Errors, warnings = validation.Warnings });
+                }
+
+                if (settings.AutoApproveShifts)
+                {
+                    if (string.IsNullOrWhiteSpace(scheduleShift.Status) || scheduleShift.Status.Equals("unpublished", StringComparison.OrdinalIgnoreCase))
+                    {
+                        scheduleShift.Status = "Published";
+                    }
+                }
                 var createdScheduleShift = await _scheduleShiftService.Add(scheduleShift);
 
                 if (createdScheduleShift == null)
@@ -233,7 +252,22 @@ namespace ShiftWork.Api.Controllers
 
             try
             {
+                var settings = await _settingsService.GetOrCreateSettings(companyId);
                 var scheduleShift = _mapper.Map<ScheduleShift>(scheduleShiftDto);
+
+                var validation = await _validationService.ValidateScheduleShift(companyId, scheduleShift, scheduleShiftDto.PersonId, shiftId);
+                if (validation.Errors.Any() || validation.Warnings.Any())
+                {
+                    return BadRequest(new { errors = validation.Errors, warnings = validation.Warnings });
+                }
+
+                if (settings.AutoApproveShifts)
+                {
+                    if (string.IsNullOrWhiteSpace(scheduleShift.Status) || scheduleShift.Status.Equals("unpublished", StringComparison.OrdinalIgnoreCase))
+                    {
+                        scheduleShift.Status = "Published";
+                    }
+                }
                 var updatedScheduleShift = await _scheduleShiftService.Update(scheduleShift);
 
                 if (updatedScheduleShift == null)
