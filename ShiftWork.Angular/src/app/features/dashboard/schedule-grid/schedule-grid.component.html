@@ -217,7 +217,12 @@
                   (click)="toggleShiftSelection(shift, $event)"
                   (change)="$event.stopPropagation()"
                 />
-                <div class="onshift-indicator" *ngIf="shift.isOnShiftNow" title="On shift now">
+                <div
+                  class="onshift-indicator"
+                  *ngIf="shift.isOnShiftNow || isShiftLate(shift)"
+                  [class.late]="isShiftLate(shift)"
+                  [title]="getShiftClockTooltip(shift)"
+                >
                   <i class="bi bi-clock-fill"></i>
                 </div>
                 <div class="shift-time">{{ shift.startTime }} – {{ shift.endTime }}</div>

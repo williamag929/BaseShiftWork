@@ -752,6 +752,10 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
+.onshift-indicator.late {
+  background-color: #e53935;
+}
+
 /* Loading and Error States */
 .loading-state, .error-state {
   display: flex;

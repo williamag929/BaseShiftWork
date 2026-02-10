@@ -943,6 +943,16 @@ export class ScheduleGridComponent implements OnInit {
     }
   }
 
+  isShiftLate(shift: ShiftBlock): boolean {
+    if (shift.isOnShiftNow) return false;
+    const now = new Date();
+    return now >= shift.startDate && now <= shift.endDate;
+  }
+
+  getShiftClockTooltip(shift: ShiftBlock): string {
+    return this.isShiftLate(shift) ? 'Delayed: not clocked in' : 'OnShift';
+  }
+
   getShiftsForPersonAndDay(personId: number, date: Date): ShiftBlock[] {
     const day = this.gridData.days.find(d => 
       d.date.toDateString() === date.toDateString()
