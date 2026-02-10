@@ -16,12 +16,14 @@ namespace ShiftWork.Api.Services
         private readonly ShiftWorkContext _context;
         private readonly IMapper _mapper;
         private readonly IPeopleService _peopleService;
+        private readonly ICompanySettingsService _settingsService;
 
-        public ShiftEventService(ShiftWorkContext context, IMapper mapper, IPeopleService peopleService)
+        public ShiftEventService(ShiftWorkContext context, IMapper mapper, IPeopleService peopleService, ICompanySettingsService settingsService)
         {
             _context = context;
             _mapper = mapper;
             _peopleService = peopleService;
+            _settingsService = settingsService;
         }
 
         public async Task<ShiftEvent> CreateShiftEventAsync(ShiftEventDto shiftEventDto)
@@ -221,6 +223,61 @@ namespace ShiftWork.Api.Services
 
             _context.ShiftEvents.Remove(existing);
             await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> EnsureAutoClockOutForPersonAsync(string companyId, int personId, DateTime? nowUtc = null)
+        {
+            var settings = await _settingsService.GetOrCreateSettings(companyId);
+            if (settings.AutoClockOutAfter <= 0)
+            {
+                return false;
+            }
+
+            var now = nowUtc ?? DateTime.UtcNow;
+
+            var lastClockIn = await _context.ShiftEvents
+                .Where(e => e.CompanyId == companyId && e.PersonId == personId && e.EventType == "clockin")
+                .OrderByDescending(e => e.EventDate)
+                .FirstOrDefaultAsync();
+
+            if (lastClockIn == null)
+            {
+                return false;
+            }
+
+            var lastClockOutAfter = await _context.ShiftEvents
+                .Where(e => e.CompanyId == companyId && e.PersonId == personId && e.EventType == "clockout" && e.EventDate >= lastClockIn.EventDate)
+                .OrderByDescending(e => e.EventDate)
+                .FirstOrDefaultAsync();
+
+            if (lastClockOutAfter != null)
+            {
+                return false;
+            }
+
+            var autoClockOutAt = lastClockIn.EventDate.AddHours(settings.AutoClockOutAfter);
+            if (autoClockOutAt > now)
+            {
+                return false;
+            }
+
+            var autoEvent = new ShiftEvent
+            {
+                EventLogId = Guid.NewGuid(),
+                CompanyId = companyId,
+                PersonId = personId,
+                EventType = "clockout",
+                EventDate = autoClockOutAt,
+                CreatedAt = now,
+                Description = "Auto clock-out",
+                EventObject = "{\"autoClockOut\":true}"
+            };
+
+            _context.ShiftEvents.Add(autoEvent);
+            await _context.SaveChangesAsync();
+
+            await _peopleService.UpdatePersonStatusShiftWork(personId, "OffShift");
             return true;
         }
     }

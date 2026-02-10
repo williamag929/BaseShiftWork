@@ -8,6 +8,7 @@ using ShiftWork.Api.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BCrypt.Net;
 
 namespace ShiftWork.Api.Controllers
@@ -21,6 +22,7 @@ namespace ShiftWork.Api.Controllers
     {
         public class UpdateStatusRequest { public string? Status { get; set; } }
         private readonly IPeopleService _peopleService;
+        private readonly IShiftEventService _shiftEventService;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<PeopleController> _logger;
@@ -28,9 +30,10 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="PeopleController"/> class.
         /// </summary>
-        public PeopleController(IPeopleService peopleService, IMapper mapper, IMemoryCache memoryCache, ILogger<PeopleController> logger)
+        public PeopleController(IPeopleService peopleService, IShiftEventService shiftEventService, IMapper mapper, IMemoryCache memoryCache, ILogger<PeopleController> logger)
         {
             _peopleService = peopleService ?? throw new ArgumentNullException(nameof(peopleService));
+            _shiftEventService = shiftEventService ?? throw new ArgumentNullException(nameof(shiftEventService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -55,6 +58,16 @@ namespace ShiftWork.Api.Controllers
                 {
                     return NotFound($"No people found for company {companyId}.");
                 }
+
+                var autoClockOutTasks = people.Select(async person =>
+                {
+                    var didAutoClockOut = await _shiftEventService.EnsureAutoClockOutForPersonAsync(companyId, person.PersonId);
+                    if (didAutoClockOut)
+                    {
+                        person.StatusShiftWork = "OffShift";
+                    }
+                });
+                await Task.WhenAll(autoClockOutTasks);
 
                 return Ok(_mapper.Map<IEnumerable<PersonDto>>(people));
             }
@@ -423,6 +436,7 @@ namespace ShiftWork.Api.Controllers
         {
             try
             {
+                await _shiftEventService.EnsureAutoClockOutForPersonAsync(companyId, personId);
                 var status = await _peopleService.GetPersonStatusShiftWork(personId);
                 if (status == null)
                 {
