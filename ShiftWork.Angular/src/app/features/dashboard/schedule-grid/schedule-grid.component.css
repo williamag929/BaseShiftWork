@@ -770,3 +770,125 @@
   font-size: 16px;
   color: #666;
 }
+
+/* Location Group Header (Grouped View) */
+.location-group-header {
+  display: flex;
+  min-height: 44px;
+  background: linear-gradient(135deg, #F0EDFF 0%, #E8F1FB 100%);
+  border-bottom: 2px solid #6C5CE7;
+  position: sticky;
+  top: 0;
+  z-index: 8;
+}
+
+.location-group-header .team-column {
+  background: linear-gradient(135deg, #F0EDFF 0%, #E8F1FB 100%);
+}
+
+.location-header-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  height: 100%;
+}
+
+.location-header-content i {
+  color: #6C5CE7;
+  font-size: 16px;
+}
+
+.location-header-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+}
+
+.location-member-count {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+}
+
+.location-header-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-right: 1px solid rgba(108, 92, 231, 0.15);
+}
+
+.location-day-shift-count {
+  font-size: 11px;
+  color: #6C5CE7;
+  font-weight: 600;
+}
+
+/* Add Employee Row */
+.add-employee-row {
+  min-height: 48px !important;
+  border-bottom: 2px solid #E0E0E0;
+}
+
+.add-employee-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #4A90E2;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.add-employee-btn:hover {
+  background-color: #E8F1FB;
+  border-radius: 6px;
+}
+
+.add-employee-btn i {
+  font-size: 16px;
+}
+
+.day-cell.placeholder {
+  border-right: 1px solid #E0E0E0;
+}
+
+/* Empty Grouped State */
+.empty-grouped-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+.empty-grouped-state i {
+  font-size: 18px;
+  color: #ccc;
+}
+
+/* Location badge on shift blocks (in all-employees mode) */
+.location-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+  padding: 1px 6px;
+  background-color: #E8F1FB;
+  border-radius: 3px;
+  font-size: 10px;
+  color: #4A90E2;
+  font-weight: 500;
+}
+
+.location-badge i {
+  font-size: 9px;
+}

@@ -1,5 +1,8 @@
 // Schedule Grid specific interfaces
 
+/** View mode for the schedule grid location dropdown */
+export type ViewMode = 'single' | 'grouped' | 'all';
+
 export interface TeamMember {
   personId: number;
   initials: string;
@@ -16,6 +19,7 @@ export interface ShiftBlock {
   endTime: string; // e.g., "3:30pm"
   startDate: Date;
   endDate: Date;
+  locationId?: number;
   locationName?: string;
   areaName?: string;
   status: 'published' | 'unpublished' | 'locked' | 'open';
@@ -30,6 +34,14 @@ export interface DaySchedule {
   dayName: string; // e.g., "Wed 5"
   unavailableCount: number;
   shifts: ShiftBlock[];
+}
+
+/** A location section for grouped view mode */
+export interface LocationGroup {
+  locationId: number;
+  locationName: string;
+  teamMembers: TeamMember[];
+  days: DaySchedule[];
 }
 
 export interface ScheduleGridData {

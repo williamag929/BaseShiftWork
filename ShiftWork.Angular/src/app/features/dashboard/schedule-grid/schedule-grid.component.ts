@@ -22,7 +22,9 @@ import {
   TeamMember, 
   ShiftBlock, 
   DaySchedule, 
-  ScheduleFilters 
+  ScheduleFilters,
+  LocationGroup,
+  ViewMode
 } from 'src/app/core/models/schedule-grid.model';
 import { ScheduleShift } from 'src/app/core/models/schedule-shift.model';
 import { People } from 'src/app/core/models/people.model';
@@ -415,6 +417,10 @@ export class ScheduleGridComponent implements OnInit {
 
   openAddScheduleModal() {
     this.editingSchedule = null;
+    // If modalLocationId hasn't been set by onAddShift/onAddEmployeeToLocation, resolve it
+    if (!this.modalLocationId && this.selectedLocationId && this.selectedLocationId > 0) {
+      this.modalLocationId = this.selectedLocationId;
+    }
     this.showAddScheduleModalFlag = true;
   }
   closeAddScheduleModal() {
@@ -669,6 +675,9 @@ export class ScheduleGridComponent implements OnInit {
   historyPersonName: string = '';
   firstDayOfWeek: 0 | 1 = 0;
   allSchedules: Schedule[] = [];
+  viewMode: ViewMode = 'single';
+  locationGroups: LocationGroup[] = [];
+  modalLocationId: number = 0;
 
   constructor(
     private store: Store<AppState>,
@@ -771,7 +780,61 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   buildGridData(people: People[], shifts: ScheduleShift[]): void {
+    // Filter shifts for single-location mode
+    let filteredShifts = shifts;
+    let filteredPeople = people;
+
+    if (this.viewMode === 'single' && this.selectedLocationId && this.selectedLocationId > 0) {
+      filteredShifts = shifts.filter(s => s.locationId === this.selectedLocationId);
+      // Only show people who have at least one shift at this location
+      const personIdsWithShifts = new Set(filteredShifts.map(s => s.personId));
+      filteredPeople = people.filter(p => personIdsWithShifts.has(p.personId));
+    }
+
     // Build 7 days for the week
+    const days: DaySchedule[] = this.buildDays(filteredShifts, filteredPeople);
+
+    // Build team members with hours
+    const teamMembers: TeamMember[] = this.buildTeamMembers(filteredPeople, filteredShifts);
+
+    // Calculate stats from filteredShifts
+    const totalCells = days.length * teamMembers.length;
+    const filledCells = filteredShifts.length;
+    const published = filteredShifts.filter(s => s.status.toLowerCase() === 'published').length;
+    const unpublished = filteredShifts.filter(s => s.status.toLowerCase() !== 'published').length;
+    const selectedLocation = this.locations.find(l => l.locationId === this.selectedLocationId);
+
+    this.gridData = {
+      weekStart: this.currentWeekStart,
+      weekEnd: new Date(this.currentWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000),
+      locationName: this.viewMode === 'grouped' ? 'All Locations (Grouped)' 
+                   : this.viewMode === 'all' ? 'All Employees'
+                   : (selectedLocation ? selectedLocation.name : ''),
+      teamMembers: this.applyFilters(teamMembers),
+      days,
+      stats: {
+        empty: totalCells - filledCells,
+        unpublished,
+        published,
+        requireConfirmation: 0,
+        openShifts: 0,
+        warnings: 0,
+        leaveApproved: 0,
+        leavePending: 0,
+        unavailable: 0
+      }
+    };
+
+    // Build location groups for grouped mode
+    if (this.viewMode === 'grouped') {
+      this.buildLocationGroups(people, shifts);
+    } else {
+      this.locationGroups = [];
+    }
+  }
+
+  /** Build DaySchedule[] for 7 days of the week from the given shifts */
+  private buildDays(shifts: ScheduleShift[], people: People[]): DaySchedule[] {
     const days: DaySchedule[] = [];
     for (let i = 0; i < 7; i++) {
       const date = new Date(this.currentWeekStart);
@@ -790,7 +853,7 @@ export class ScheduleGridComponent implements OnInit {
         const endDate = new Date(s.endDate);
         const isOnShift = !!person?.statusShiftWork && person.statusShiftWork.startsWith('OnShift');
         const isWithinWindow = now >= startDate && now <= endDate;
-  const isCompleted = now > endDate || (!!s.status && s.status.toLowerCase() === 'locked');
+        const isCompleted = now > endDate || (!!s.status && s.status.toLowerCase() === 'locked');
         return {
           scheduleShiftId: s.scheduleShiftId || 0,
           personId: s.personId,
@@ -799,7 +862,8 @@ export class ScheduleGridComponent implements OnInit {
           endTime: this.formatTime(endDate),
           startDate,
           endDate,
-          locationName: undefined,
+          locationId: s.locationId,
+          locationName: this.locations.find(l => l.locationId === s.locationId)?.name,
           areaName: undefined,
           status: this.mapStatus(s.status),
           isLocked: s.status.toLowerCase() === 'locked',
@@ -814,9 +878,12 @@ export class ScheduleGridComponent implements OnInit {
         shifts: shiftBlocks
       });
     }
+    return days;
+  }
 
-    // Build team members with hours
-    const teamMembers: TeamMember[] = people.map(p => {
+  /** Build TeamMember[] with total hours calculated from the given shifts */
+  private buildTeamMembers(people: People[], shifts: ScheduleShift[]): TeamMember[] {
+    return people.map(p => {
       const personShifts = shifts.filter(s => s.personId === p.personId);
       const totalMinutes = personShifts.reduce((sum, s) => {
         const start = new Date(s.startDate).getTime();
@@ -833,30 +900,57 @@ export class ScheduleGridComponent implements OnInit {
         profilePhotoUrl: p.photoUrl
       };
     });
-    // Calculate stats
-    const totalCells = days.length * teamMembers.length;
-    const filledCells = shifts.length;
-    const published = shifts.filter(s => s.status.toLowerCase() === 'published').length;
-    const unpublished = shifts.filter(s => s.status.toLowerCase() !== 'published').length;
-    const selectedLocation = this.locations.find(l => l.locationId === this.selectedLocationId);
-    this.gridData = {
-      weekStart: this.currentWeekStart,
-      weekEnd: new Date(this.currentWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000),
-      locationName: selectedLocation ? selectedLocation.name : '',
-      teamMembers: this.applyFilters(teamMembers),
-      days,
-      stats: {
-        empty: totalCells - filledCells,
-        unpublished,
-        published,
-        requireConfirmation: 0,
-        openShifts: 0,
-        warnings: 0,
-        leaveApproved: 0,
-        leavePending: 0,
-        unavailable: 0
-      }
-    };
+  }
+
+  /** Build location groups for the grouped view mode */
+  private buildLocationGroups(people: People[], shifts: ScheduleShift[]): void {
+    this.locationGroups = this.locations.map(loc => {
+      const locShifts = shifts.filter(s => s.locationId === loc.locationId);
+      const personIdsAtLocation = [...new Set(locShifts.map(s => s.personId))];
+      const locPeople = people.filter(p => personIdsAtLocation.includes(p.personId));
+
+      return {
+        locationId: loc.locationId,
+        locationName: loc.name,
+        teamMembers: this.applyFilters(this.buildTeamMembers(locPeople, locShifts)),
+        days: this.buildDays(locShifts, locPeople)
+      };
+    }).filter(g => g.teamMembers.length > 0); // Only show locations that have scheduled people
+  }
+
+  /** Get shifts for a person on a given day within a specific location group */
+  getShiftsForPersonDayAndLocation(personId: number, date: Date, locationId: number): ShiftBlock[] {
+    const group = this.locationGroups.find(g => g.locationId === locationId);
+    if (!group) return [];
+    const day = group.days.find(d => d.date.toDateString() === date.toDateString());
+    return day?.shifts.filter(s => s.personId === personId) || [];
+  }
+
+  /** Check for cross-location time overlap in grouped mode */
+  hasCrossLocationConflict(personId: number, startDate: Date, endDate: Date, ignoreScheduleId?: number): boolean {
+    return this.allSchedules.some(existing => {
+      if (existing.personId !== personId) return false;
+      if (ignoreScheduleId && existing.scheduleId === ignoreScheduleId) return false;
+      const existingStart = new Date(existing.startDate);
+      const existingEnd = new Date(existing.endDate);
+      return startDate < existingEnd && existingStart < endDate;
+    });
+  }
+
+  /** Add a new employee (person) to a location in single or grouped mode */
+  onAddEmployeeToLocation(locationId?: number): void {
+    this.editingSchedule = null;
+    this.selectedPersonId = null;
+    this.selectedDate = new Date(this.currentWeekStart); // Default to first day of week
+    // Resolve the location for the modal
+    if (locationId) {
+      this.modalLocationId = locationId;
+    } else if (this.viewMode === 'single' && this.selectedLocationId && this.selectedLocationId > 0) {
+      this.modalLocationId = this.selectedLocationId;
+    } else {
+      this.modalLocationId = 0;
+    }
+    this.openAddScheduleModal();
   }
 
   applyFilters(members: TeamMember[]): TeamMember[] {
@@ -871,8 +965,17 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   onLocationChange(): void {
-    const selectedLocation = this.locations.find(l => l.locationId === this.selectedLocationId);
-    this.gridData.locationName = selectedLocation ? selectedLocation.name : '';
+    if (this.selectedLocationId === -1) {
+      this.viewMode = 'grouped';
+      this.gridData.locationName = 'All Locations (Grouped)';
+    } else if (this.selectedLocationId === 0) {
+      this.viewMode = 'all';
+      this.gridData.locationName = 'All Employees';
+    } else {
+      this.viewMode = 'single';
+      const selectedLocation = this.locations.find(l => l.locationId === this.selectedLocationId);
+      this.gridData.locationName = selectedLocation ? selectedLocation.name : '';
+    }
     this.loadScheduleData();
   }
 
@@ -977,6 +1080,7 @@ export class ScheduleGridComponent implements OnInit {
           this.editingSchedule = schedule;
           this.selectedPersonId = schedule.personId;
           this.selectedDate = new Date(schedule.startDate);
+          this.modalLocationId = schedule.locationId || (shift.locationId ?? 0);
           this.showAddScheduleModalFlag = true;
         }
       },
@@ -987,10 +1091,18 @@ export class ScheduleGridComponent implements OnInit {
     });
   }
 
-  onAddShift(personId: number, date: Date): void {
+  onAddShift(personId: number, date: Date, locationId?: number): void {
     this.editingSchedule = null;
     this.selectedPersonId = personId;
     this.selectedDate = date;
+    // Resolve the location for the modal based on view mode
+    if (locationId) {
+      this.modalLocationId = locationId;
+    } else if (this.viewMode === 'single' && this.selectedLocationId && this.selectedLocationId > 0) {
+      this.modalLocationId = this.selectedLocationId;
+    } else {
+      this.modalLocationId = 0;
+    }
     this.openAddScheduleModal();
   }
 

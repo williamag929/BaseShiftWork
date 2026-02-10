@@ -5,7 +5,10 @@
     <div class="location-dropdown">
       <i class="bi bi-geo-alt"></i>
       <select class="form-select" [(ngModel)]="selectedLocationId" (change)="onLocationChange()">
-        <option *ngFor="let loc of locations" [value]="loc.locationId">{{ loc.name }}</option>
+        <option [ngValue]="-1">🏢 All Locations (Grouped)</option>
+        <option [ngValue]="0">👥 All Employees</option>
+        <option disabled>──────────</option>
+        <option *ngFor="let loc of locations" [ngValue]="loc.locationId">{{ loc.name }}</option>
       </select>
     </div>
     </div>
@@ -173,8 +176,8 @@
         </div>
       </div>
 
-      <!-- Team Member Rows -->
-      <div class="grid-body">
+      <!-- Team Member Rows: Single Location & All Employees modes -->
+      <div class="grid-body" *ngIf="viewMode !== 'grouped'">
         <div class="grid-row" *ngFor="let member of gridData.teamMembers">
           <!-- Team Member Column -->
           <div class="team-column">
@@ -234,6 +237,115 @@
               </div>
             </ng-container>
           </div>
+        </div>
+
+        <!-- Add Employee Row (Single Location mode only) -->
+        <div class="grid-row add-employee-row" *ngIf="viewMode === 'single'">
+          <div class="team-column">
+            <button class="add-employee-btn" (click)="onAddEmployeeToLocation(selectedLocationId || undefined)">
+              <i class="bi bi-person-plus"></i>
+              <span>Add employee</span>
+            </button>
+          </div>
+          <div class="day-cell placeholder" *ngFor="let day of gridData.days"></div>
+        </div>
+      </div>
+
+      <!-- Grouped View: Location Sections -->
+      <div class="grid-body" *ngIf="viewMode === 'grouped'">
+        <ng-container *ngFor="let group of locationGroups">
+          <!-- Location Section Header -->
+          <div class="location-group-header">
+            <div class="team-column">
+              <div class="location-header-content">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span class="location-header-name">{{ group.locationName }}</span>
+                <span class="location-member-count">({{ group.teamMembers.length }})</span>
+              </div>
+            </div>
+            <div class="day-cell location-header-cell" *ngFor="let day of group.days">
+              <span class="location-day-shift-count">{{ day.shifts.length }} shift{{ day.shifts.length !== 1 ? 's' : '' }}</span>
+            </div>
+          </div>
+
+          <!-- Team Member Rows in this Location -->
+          <div class="grid-row" *ngFor="let member of group.teamMembers">
+            <!-- Team Member Column -->
+            <div class="team-column">
+              <div class="team-member">
+                <div class="avatar" [style.background-image]="member.profilePhotoUrl ? 'url(' + member.profilePhotoUrl + ')' : 'none'">
+                  <span *ngIf="!member.profilePhotoUrl">{{ member.initials }}</span>
+                </div>
+                <div class="member-details">
+                  <div class="member-name">{{ member.fullName }}</div>
+                  <div class="member-hours">{{ member.totalHours }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Day Cells (location-scoped) -->
+            <div class="day-cell" *ngFor="let day of group.days">
+              <ng-container *ngIf="getShiftsForPersonDayAndLocation(member.personId, day.date, group.locationId) as shifts">
+                <!-- Empty Cell -->
+                <button 
+                  *ngIf="shifts.length === 0" 
+                  class="add-shift-btn"
+                  (click)="onAddShift(member.personId, day.date, group.locationId)"
+                >
+                  <i class="bi bi-plus"></i>
+                </button>
+
+                <!-- Shift Blocks -->
+                <div 
+                  *ngFor="let shift of shifts" 
+                  class="shift-block"
+                  [class.selected]="isShiftSelected(shift)"
+                  [class.completed]="shift.isCompleted"
+                  [style.background-color]="getShiftColor(shift.status)"
+                  (click)="onShiftClick(shift)"
+                >
+                  <input 
+                    type="checkbox" 
+                    class="shift-checkbox"
+                    [checked]="isShiftSelected(shift)"
+                    (click)="toggleShiftSelection(shift, $event)"
+                    (change)="$event.stopPropagation()"
+                  />
+                  <div
+                    class="onshift-indicator"
+                    *ngIf="shift.isOnShiftNow || isShiftLate(shift)"
+                    [class.late]="isShiftLate(shift)"
+                    [title]="getShiftClockTooltip(shift)"
+                  >
+                    <i class="bi bi-clock-fill"></i>
+                  </div>
+                  <div class="shift-time">{{ shift.startTime }} – {{ shift.endTime }}</div>
+                  <div class="shift-person">{{ shift.personName }}</div>
+                  <div class="lock-badge" *ngIf="shift.isLocked">
+                    <i class="bi bi-lock-fill"></i>
+                    <span>LOCKED</span>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- Add Employee Row per Location Group -->
+          <div class="grid-row add-employee-row">
+            <div class="team-column">
+              <button class="add-employee-btn" (click)="onAddEmployeeToLocation(group.locationId)">
+                <i class="bi bi-person-plus"></i>
+                <span>Add employee</span>
+              </button>
+            </div>
+            <div class="day-cell placeholder" *ngFor="let day of group.days"></div>
+          </div>
+        </ng-container>
+
+        <!-- Empty State for Grouped Mode -->
+        <div class="empty-grouped-state" *ngIf="locationGroups.length === 0">
+          <i class="bi bi-info-circle"></i>
+          <span>No schedules found. Select a location or add schedules to see grouped data.</span>
         </div>
       </div>
     </div>
@@ -298,7 +410,7 @@
     [people]="peopleList"
     [date]="selectedDate"
     [locations]="locations"
-    [locationId]="selectedLocationId || 0"
+    [locationId]="modalLocationId"
     [personId]="selectedPersonId"
     [companyId]="activeCompany?.companyId || ''"
     [existingSchedule]="editingSchedule"
