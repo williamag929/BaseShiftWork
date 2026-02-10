@@ -67,6 +67,10 @@
       <i class="bi bi-sliders"></i>
       <span *ngIf="activeFilterCount > 0" class="filter-count">{{ activeFilterCount }}</span>
     </button>
+    <label class="void-toggle">
+      <input type="checkbox" [checked]="showVoidRecords" (change)="toggleShowVoidRecords()" />
+      <span class="void-toggle-label">Show void records</span>
+    </label>
   </div>
 
   <!-- Bulk Actions Toolbar -->
@@ -93,6 +97,10 @@
       </button>
       <button class="status-btn locked" (click)="bulkUpdateStatus('locked')">
         <i class="bi bi-lock"></i> Locked
+      </button>
+      <span class="bulk-separator">|</span>
+      <button class="status-btn void" (click)="voidSelectedShifts()">
+        <i class="bi bi-x-octagon"></i> Void
       </button>
     </div>
   </div>
@@ -217,9 +225,10 @@
                 class="shift-block"
                 cdkDrag
                 [cdkDragData]="shift"
-                [cdkDragDisabled]="shift.isLocked"
+                [cdkDragDisabled]="shift.isLocked || shift.status === 'void'"
                 [class.selected]="isShiftSelected(shift)"
                 [class.completed]="shift.isCompleted"
+                [class.void]="shift.status === 'void'"
                 [style.background-color]="getShiftColor(shift.status)"
                 (click)="onShiftClick(shift)"
               >
@@ -250,6 +259,10 @@
                 <div class="lock-badge" *ngIf="shift.isLocked">
                   <i class="bi bi-lock-fill"></i>
                   <span>LOCKED</span>
+                </div>
+                <div class="void-badge" *ngIf="shift.status === 'void'">
+                  <i class="bi bi-x-octagon-fill"></i>
+                  <span>VOID</span>
                 </div>
               </div>
             </ng-container>
@@ -325,9 +338,10 @@
                   class="shift-block"
                   cdkDrag
                   [cdkDragData]="shift"
-                  [cdkDragDisabled]="shift.isLocked"
+                  [cdkDragDisabled]="shift.isLocked || shift.status === 'void'"
                   [class.selected]="isShiftSelected(shift)"
                   [class.completed]="shift.isCompleted"
+                  [class.void]="shift.status === 'void'"
                   [style.background-color]="getShiftColor(shift.status)"
                   (click)="onShiftClick(shift)"
                 >
@@ -358,6 +372,10 @@
                   <div class="lock-badge" *ngIf="shift.isLocked">
                     <i class="bi bi-lock-fill"></i>
                     <span>LOCKED</span>
+                  </div>
+                  <div class="void-badge" *ngIf="shift.status === 'void'">
+                    <i class="bi bi-x-octagon-fill"></i>
+                    <span>VOID</span>
                   </div>
                 </div>
               </ng-container>

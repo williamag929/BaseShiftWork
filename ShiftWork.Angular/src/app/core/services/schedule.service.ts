@@ -39,7 +39,8 @@ export class ScheduleService {
     pageSize: number = 200,
     personId?: number,
     locationId?: number,
-    searchQuery?: string
+    searchQuery?: string,
+    includeVoided: boolean = false
   ): Observable<PagedResult<Schedule>> {
     let params = new HttpParams();
     if (startDate) {
@@ -56,6 +57,9 @@ export class ScheduleService {
     }
     if (searchQuery) {
       params = params.set('searchQuery', searchQuery);
+    }
+    if (includeVoided) {
+      params = params.set('includeVoided', 'true');
     }
     params = params.set('page', page.toString());
     params = params.set('pageSize', pageSize.toString());
@@ -120,6 +124,16 @@ export class ScheduleService {
 
 
     return result as Observable<any>;
+  }
+
+  voidSchedule(companyId: string, scheduleId: number, voidedBy: string): Observable<Schedule> {
+    return this.http.post<Schedule>(
+      `${this.apiUrl}/companies/${companyId}/schedules/${scheduleId}/void?voidedBy=${encodeURIComponent(voidedBy)}`,
+      {},
+      this.getHttpOptions()
+    ).pipe(
+      catchError(this.handleError)
+    );
   }
 
   private handleError(error: HttpErrorResponse) {

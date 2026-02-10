@@ -23,4 +23,6 @@ export interface Schedule {
     timezone: string; // Timezone for the schedule
     externalCode?: string; // External reference code if applicable
     type?: string; // Type of schedule (e.g., shift, meeting, event)
+    voidedBy?: string; // Who voided this schedule (audit trail)
+    voidedAt?: Date; // When this schedule was voided
  }

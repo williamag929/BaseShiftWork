@@ -22,8 +22,10 @@ export interface ShiftBlock {
   locationId?: number;
   locationName?: string;
   areaName?: string;
-  status: 'published' | 'unpublished' | 'locked' | 'open';
+  status: 'published' | 'unpublished' | 'locked' | 'open' | 'void';
   isLocked?: boolean;
+  voidedBy?: string;
+  voidedAt?: Date;
   // UI helpers
   isOnShiftNow?: boolean; // true when person is currently OnShift and within this block's time window
   isCompleted?: boolean;  // true when the shift's end time is in the past (completed)

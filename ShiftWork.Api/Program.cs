@@ -189,6 +189,26 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// ── Ensure VoidedBy / VoidedAt columns exist (safe idempotent migration) ──
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ShiftWork.Api.Data.ShiftWorkContext>();
+    try
+    {
+        db.Database.ExecuteSqlRaw(@"
+            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Schedules') AND name = 'VoidedBy')
+                ALTER TABLE [Schedules] ADD [VoidedBy] nvarchar(max) NULL;
+            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Schedules') AND name = 'VoidedAt')
+                ALTER TABLE [Schedules] ADD [VoidedAt] datetime2 NULL;
+        ");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠ VoidedBy/VoidedAt migration check failed: {ex.Message}");
+    }
+}
+
 // Configure Firebase Authentication
 
 

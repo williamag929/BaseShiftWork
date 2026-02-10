@@ -617,6 +617,56 @@ export class ScheduleGridComponent implements OnInit {
       this.loadScheduleData();
     }, 1000);
   }
+
+  voidSelectedShifts(): void {
+    if (this.selectedShifts.size === 0) return;
+
+    const confirmMsg = `Void ${this.selectedShifts.size} shift(s)? Voided shifts will be hidden from the grid by default.`;
+    if (!confirm(confirmMsg)) return;
+
+    const voidPromises: Promise<any>[] = [];
+    const voidedBy = this.activeCompany?.companyId ? `user@${this.activeCompany.companyId}` : 'unknown';
+
+    this.selectedShifts.forEach(shiftKey => {
+      const [personIdStr, timestampStr] = shiftKey.split('-');
+      const personId = parseInt(personIdStr);
+      const timestamp = parseInt(timestampStr);
+
+      const original = this.allSchedules.find(s =>
+        s.personId === personId &&
+        new Date(s.startDate).getTime() === timestamp
+      );
+
+      if (original) {
+        voidPromises.push(
+          this.scheduleService.voidSchedule(
+            this.activeCompany.companyId,
+            original.scheduleId,
+            voidedBy
+          ).toPromise()
+        );
+      }
+    });
+
+    this.loading = true;
+    Promise.all(voidPromises)
+      .then(() => {
+        this.loading = false;
+        alert(`${voidPromises.length} shift(s) voided successfully.`);
+        this.clearSelection();
+        this.loadScheduleData();
+      })
+      .catch(err => {
+        this.loading = false;
+        console.error('Error voiding shifts:', err);
+        alert('Failed to void some shifts. Please check the console.');
+      });
+  }
+
+  toggleShowVoidRecords(): void {
+    this.showVoidRecords = !this.showVoidRecords;
+    this.loadScheduleData();
+  }
   activeCompany$: Observable<any>;
   activeCompany: any;
   
@@ -681,6 +731,7 @@ export class ScheduleGridComponent implements OnInit {
   modalLocationId: number = 0;
   allDropListIds: string[] = [];
   dragInProgress: boolean = false;
+  showVoidRecords: boolean = false;
 
   constructor(
     private store: Store<AppState>,
@@ -762,7 +813,11 @@ export class ScheduleGridComponent implements OnInit {
           this.currentWeekStart.toISOString(),
           weekEnd.toISOString(),
           1,
-          500
+          500,
+          undefined,
+          undefined,
+          undefined,
+          this.showVoidRecords
         ).subscribe({
           next: (result) => {
             this.allSchedules = result.items || [];
@@ -871,6 +926,8 @@ export class ScheduleGridComponent implements OnInit {
           areaName: undefined,
           status: this.mapStatus(s.status),
           isLocked: s.status.toLowerCase() === 'locked',
+          voidedBy: (s as any).voidedBy,
+          voidedAt: (s as any).voidedAt ? new Date((s as any).voidedAt) : undefined,
           isOnShiftNow: isOnShift && isWithinWindow,
           isCompleted
         };
@@ -1114,8 +1171,9 @@ export class ScheduleGridComponent implements OnInit {
     return `${displayHours}${displayMinutes}${ampm}`;
   }
 
-  mapStatus(status: string): 'published' | 'unpublished' | 'locked' | 'open' {
+  mapStatus(status: string): 'published' | 'unpublished' | 'locked' | 'open' | 'void' {
     const s = status.toLowerCase();
+    if (s === 'void') return 'void';
     if (s === 'locked') return 'locked';
     if (s === 'published') return 'published';
     if (s === 'open') return 'open';
@@ -1128,6 +1186,7 @@ export class ScheduleGridComponent implements OnInit {
       case 'locked': return '#C8E6C9';
       case 'unpublished': return '#FFF9C4';
       case 'open': return '#E1BEE7';
+      case 'void': return '#FFCDD2';
       default: return '#E0E0E0';
     }
   }

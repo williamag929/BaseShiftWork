@@ -951,3 +951,80 @@
 .shift-block:active:not([cdkdragdisabled="true"]) {
   cursor: grabbing;
 }
+
+/* ─── Void Styles ─── */
+
+/* Void shift block: strikethrough text and muted appearance */
+.shift-block.void {
+  opacity: 0.55;
+  text-decoration: line-through;
+  border: 2px dashed #E53935 !important;
+  cursor: not-allowed;
+}
+
+.shift-block.void .shift-time,
+.shift-block.void .shift-person {
+  text-decoration: line-through;
+  color: #999;
+}
+
+/* Void badge (similar to lock-badge) */
+.void-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 2px 6px;
+  background-color: rgba(229, 57, 53, 0.15);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #C62828;
+  letter-spacing: 0.5px;
+}
+
+.void-badge i {
+  font-size: 10px;
+}
+
+/* Void stat dot */
+.stat-dot.void { background-color: #FFCDD2; border: 1px solid #E53935; }
+
+/* Void status button in bulk actions */
+.status-btn.void {
+  border-color: #E53935;
+  color: #fff;
+}
+.status-btn.void:hover {
+  background-color: rgba(229, 57, 53, 0.3);
+}
+
+/* Show void records toggle in filter bar */
+.void-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #666;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.void-toggle:hover {
+  background-color: #f0f0f0;
+}
+
+.void-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #E53935;
+}
+
+.void-toggle-label {
+  font-weight: 500;
+  white-space: nowrap;
+}
