@@ -79,6 +79,28 @@ class ShiftWorkServer:
                     }
                 ),
                 Tool(
+                    name="get_people_with_unpublished_schedules",
+                    description="List people who have unpublished schedules within an optional date range.",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "company_id": {
+                                "type": "string",
+                                "description": "The unique identifier for the company"
+                            },
+                            "start_date": {
+                                "type": "string",
+                                "description": "Optional ISO date/time for range start (e.g., 2026-02-09T00:00:00Z)"
+                            },
+                            "end_date": {
+                                "type": "string",
+                                "description": "Optional ISO date/time for range end (e.g., 2026-02-09T23:59:59Z)"
+                            }
+                        },
+                        "required": ["company_id"]
+                    }
+                ),
+                Tool(
                     name="ping",
                     description="Test server connectivity",
                     inputSchema={"type": "object", "properties": {}, "required": []}
@@ -95,6 +117,10 @@ class ShiftWorkServer:
                 
                 elif name == "get_employee_schedules":
                     result = await self._get_employee_schedules_impl(arguments)
+                    return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
+                elif name == "get_people_with_unpublished_schedules":
+                    result = await self._get_people_with_unpublished_schedules_impl(arguments)
                     return [TextContent(type="text", text=json.dumps(result, indent=2))]
                 
                 else:
@@ -142,6 +168,51 @@ class ShiftWorkServer:
                 "timestamp": datetime.now().isoformat()
             }
             
+        except httpx.RequestError as e:
+            raise RuntimeError(f"Network error: {str(e)}. Is the API server running on localhost:5182?")
+        except Exception as e:
+            raise RuntimeError(f"API error: {str(e)}")
+
+    async def _get_people_with_unpublished_schedules_impl(self, arguments: dict) -> dict:
+        """Implementation for listing people with unpublished schedules"""
+        company_id = arguments.get("company_id")
+        start_date = arguments.get("start_date")
+        end_date = arguments.get("end_date")
+
+        if not company_id:
+            raise ValueError("company_id is required")
+
+        try:
+            client = await self._get_http_client()
+
+            params = {}
+            if start_date:
+                params["startDate"] = start_date
+            if end_date:
+                params["endDate"] = end_date
+
+            response = await client.get(
+                f"/api/companies/{company_id}/people/unpublished-schedules",
+                params=params
+            )
+
+            if response.status_code == 404:
+                return {
+                    "company_id": company_id,
+                    "total_people": 0,
+                    "people": [],
+                    "message": "No people with unpublished schedules found"
+                }
+
+            response.raise_for_status()
+            people = response.json()
+
+            return {
+                "company_id": company_id,
+                "total_people": len(people),
+                "people": people,
+                "timestamp": datetime.now().isoformat()
+            }
         except httpx.RequestError as e:
             raise RuntimeError(f"Network error: {str(e)}. Is the API server running on localhost:5182?")
         except Exception as e:
@@ -211,6 +282,28 @@ class ShiftWorkServer:
                     {"error": str(e), "timestamp": datetime.now().isoformat()},
                     status=500
                 )
+
+        # Get people with unpublished schedules
+        @self.routes.get('/api/companies/{company_id}/people/unpublished-schedules')
+        async def get_people_with_unpublished_schedules_endpoint(request):
+            """List people who have unpublished schedules"""
+            company_id = request.match_info['company_id']
+            start_date = request.query.get('startDate')
+            end_date = request.query.get('endDate')
+
+            try:
+                result = await self._get_people_with_unpublished_schedules_impl({
+                    "company_id": company_id,
+                    "start_date": start_date,
+                    "end_date": end_date
+                })
+                return web.json_response(result)
+            except Exception as e:
+                logger.error(f"HTTP endpoint error: {e}")
+                return web.json_response(
+                    {"error": str(e), "timestamp": datetime.now().isoformat()},
+                    status=500
+                )
         
         # MCP tools endpoint
         @self.routes.get('/api/tools')
@@ -223,6 +316,15 @@ class ShiftWorkServer:
                     "parameters": {
                         "company_id": "string (required)",
                         "person_id": "string (required)"
+                    }
+                },
+                {
+                    "name": "get_people_with_unpublished_schedules",
+                    "description": "List people who have unpublished schedules",
+                    "parameters": {
+                        "company_id": "string (required)",
+                        "start_date": "string (optional, ISO date/time)",
+                        "end_date": "string (optional, ISO date/time)"
                     }
                 },
                 {
@@ -256,6 +358,8 @@ class ShiftWorkServer:
                     result = {"message": "pong - server is running"}
                 elif tool_name == "get_employee_schedules":
                     result = await self._get_employee_schedules_impl(arguments)
+                elif tool_name == "get_people_with_unpublished_schedules":
+                    result = await self._get_people_with_unpublished_schedules_impl(arguments)
                 else:
                     return web.json_response(
                         {"error": f"Unknown tool: {tool_name}"},
@@ -320,6 +424,7 @@ class ShiftWorkServer:
             logger.info(f"  GET  /api/tools - List available tools")
             logger.info(f"  GET  /api/employees/{{company_id}}/{{person_id}}/schedules - Get schedules")
             logger.info(f"  POST /api/employees/schedules - Get schedules (JSON body)")
+            logger.info(f"  GET  /api/companies/{{company_id}}/people/unpublished-schedules - List people with unpublished schedules")
             logger.info(f"  POST /api/tools/execute - Execute any tool")
             
             return runner

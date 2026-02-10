@@ -15,6 +15,8 @@ import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAuthStore } from '@/store/authStore';
 import { timeOffRequestService, CreateTimeOffRequest } from '@/services/time-off-request.service';
+import { colors } from '@/styles/theme';
+import { Button, Card } from '@/components/ui';
 
 export default function TimeOffRequestScreen() {
   const router = useRouter();
@@ -129,10 +131,10 @@ export default function TimeOffRequestScreen() {
       </View>
 
       {ptoBalance !== null && (
-        <View style={styles.balanceCard}>
+        <Card style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Available PTO Balance</Text>
           <Text style={styles.balanceValue}>{ptoBalance.toFixed(2)} hours</Text>
-        </View>
+        </Card>
       )}
 
       <View style={styles.form}>
@@ -199,13 +201,13 @@ export default function TimeOffRequestScreen() {
           )}
         </View>
 
-        <View style={styles.estimateCard}>
+        <Card style={styles.estimateCard}>
           <Text style={styles.estimateLabel}>Estimated Hours</Text>
           <Text style={styles.estimateValue}>{estimatedHours} hours</Text>
           <Text style={styles.estimateNote}>
             Based on {timeOffRequestService.calculateBusinessDays(startDate, endDate)} business days
           </Text>
-        </View>
+        </Card>
 
         <View style={styles.formGroup}>
           <Text style={styles.label}>Reason (Optional)</Text>
@@ -214,32 +216,28 @@ export default function TimeOffRequestScreen() {
             value={reason}
             onChangeText={setReason}
             placeholder="Why are you requesting time off?"
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.muted}
             multiline
             numberOfLines={4}
             textAlignVertical="top"
           />
         </View>
 
-        <TouchableOpacity
-          style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
+        <Button
+          label={submitting ? 'Submitting...' : 'Submit Request'}
           onPress={handleSubmit}
-          disabled={submitting}
-        >
-          {submitting ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.submitButtonText}>Submit Request</Text>
-          )}
-        </TouchableOpacity>
+          loading={submitting}
+          variant="primary"
+          style={styles.submitButton}
+        />
 
-        <TouchableOpacity
-          style={styles.cancelButton}
+        <Button
+          label="Cancel"
           onPress={() => router.back()}
           disabled={submitting}
-        >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </TouchableOpacity>
+          variant="secondary"
+          style={styles.cancelButton}
+        />
       </View>
     </ScrollView>
   );
@@ -248,10 +246,10 @@ export default function TimeOffRequestScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: colors.primary,
     padding: 20,
     paddingTop: 60,
     paddingBottom: 30,
@@ -269,9 +267,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   balanceCard: {
-    backgroundColor: '#fff',
     margin: 16,
-    padding: 20,
     borderRadius: 12,
     elevation: 2,
     shadowColor: '#000',
@@ -282,13 +278,13 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     fontSize: 14,
-    color: '#666',
+    color: colors.muted,
     marginBottom: 4,
   },
   balanceValue: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#4A90E2',
+    color: colors.primary,
   },
   form: {
     padding: 16,
@@ -299,7 +295,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
     marginBottom: 8,
   },
   typeSelector: {
@@ -311,86 +307,67 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 8,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderWidth: 2,
-    borderColor: '#ddd',
+    borderColor: colors.border,
   },
   typeButtonActive: {
-    backgroundColor: '#4A90E2',
-    borderColor: '#4A90E2',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   typeButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666',
+    color: colors.muted,
   },
   typeButtonTextActive: {
     color: '#fff',
   },
   dateButton: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     padding: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.border,
   },
   dateButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: colors.text,
   },
   estimateCard: {
-    backgroundColor: '#E8F4FD',
-    padding: 16,
     borderRadius: 8,
     marginBottom: 20,
     alignItems: 'center',
   },
   estimateLabel: {
     fontSize: 14,
-    color: '#666',
+    color: colors.muted,
     marginBottom: 4,
   },
   estimateValue: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#4A90E2',
+    color: colors.primary,
     marginBottom: 4,
   },
   estimateNote: {
     fontSize: 12,
-    color: '#666',
+    color: colors.muted,
   },
   textArea: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     padding: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.border,
     fontSize: 16,
-    color: '#333',
+    color: colors.text,
     minHeight: 100,
   },
   submitButton: {
-    backgroundColor: '#27AE60',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
     marginBottom: 12,
   },
-  submitButtonDisabled: {
-    opacity: 0.6,
-  },
-  submitButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
   cancelButton: {
-    padding: 16,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    color: '#666',
-    fontSize: 16,
+    marginBottom: 12,
   },
 });

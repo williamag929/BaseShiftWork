@@ -4,6 +4,8 @@ import { useAuthStore } from '@/store/authStore';
 import { peopleService } from '@/services/people.service';
 import { useScheduleData } from '@/hooks/useScheduleData';
 import { formatDate, formatTime, getEndOfDay, getEndOfMonth, getEndOfWeek, getStartOfDay, getStartOfMonth, getStartOfWeek } from '@/utils/date.utils';
+import { colors } from '@/styles/theme';
+import { Card, EmptyState, SectionHeader } from '@/components/ui';
 
 type ViewMode = 'day' | 'week' | 'month';
 
@@ -100,31 +102,31 @@ export default function ScheduleScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Shifts ({formatDate(from)} - {formatDate(to)})</Text>
+        <SectionHeader title={`Shifts (${formatDate(from)} - ${formatDate(to)})`} />
         {loading && <ActivityIndicator />}
         {!loading && shifts.length === 0 && (
-          <View style={styles.card}><Text style={styles.cardText}>No shifts in this range</Text></View>
+          <EmptyState title="No shifts" message="No shifts in this range." icon="calendar-clear-outline" />
         )}
         {!loading && shifts.map((s) => (
-          <View key={s.scheduleShiftId} style={styles.card}>
+          <Card key={s.scheduleShiftId} style={styles.card}>
             <Text style={styles.cardTitle}>{formatDate(s.startDate)}</Text>
             <Text style={styles.cardSubtitle}>{formatTime(s.startDate)} - {formatTime(s.endDate)}</Text>
             <Text style={styles.cardMeta}>Shift #{s.scheduleShiftId} • Status: {s.status}</Text>
-          </View>
+          </Card>
         ))}
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Clocked Events</Text>
+        <SectionHeader title="Clocked Events" />
         {loading && <ActivityIndicator />}
         {!loading && events.length === 0 && (
-          <View style={styles.card}><Text style={styles.cardText}>No events in this range</Text></View>
+          <EmptyState title="No events" message="No events in this range." icon="pulse-outline" />
         )}
         {!loading && events.map((e) => (
-          <View key={e.eventLogId} style={styles.card}>
+          <Card key={e.eventLogId} style={styles.card}>
             <Text style={styles.cardText}>{e.eventType.replace('_', ' ')}</Text>
             <Text style={styles.cardMeta}>{formatDate(e.eventDate)} {formatTime(e.eventDate)}</Text>
-          </View>
+          </Card>
         ))}
         {!!error && <Text style={styles.error}>{error}</Text>}
       </View>
@@ -134,39 +136,39 @@ export default function ScheduleScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  header: { padding: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
-  title: { fontSize: 20, fontWeight: '700', color: '#333' },
-  offline: { color: '#E67E22', marginTop: 4 },
-  modeSwitcher: { flexDirection: 'row', gap: 8, padding: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
-  modeBtn: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, borderWidth: 1, borderColor: '#ccc', backgroundColor: '#fff' },
-  modeBtnActive: { borderColor: '#4A90E2', backgroundColor: '#E8F1FB' },
-  modeText: { color: '#333', fontWeight: '600' },
-  modeTextActive: { color: '#4A90E2' },
+  container: { flex: 1, backgroundColor: colors.background },
+  header: { padding: 16, backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.border },
+  title: { fontSize: 20, fontWeight: '700', color: colors.text },
+  offline: { color: colors.warning, marginTop: 4 },
+  modeSwitcher: { flexDirection: 'row', gap: 8, padding: 12, backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.border },
+  modeBtn: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  modeBtnActive: { borderColor: colors.primary, backgroundColor: '#E8F1FB' },
+  modeText: { color: colors.text, fontWeight: '600' },
+  modeTextActive: { color: colors.primary },
   section: { padding: 16, paddingTop: 8 },
-  sectionTitle: { fontSize: 18, fontWeight: '600', color: '#333', marginBottom: 12 },
-  card: { backgroundColor: '#fff', padding: 14, borderRadius: 12, marginBottom: 10, borderWidth: 1, borderColor: '#eee' },
-  cardTitle: { fontSize: 16, fontWeight: '600', color: '#333' },
-  cardSubtitle: { fontSize: 14, color: '#666', marginTop: 4 },
-  cardMeta: { fontSize: 12, color: '#999', marginTop: 6 },
-  cardText: { fontSize: 14, color: '#333' },
-  error: { color: '#E74C3C', marginTop: 8 },
-  rangeBar: { backgroundColor: '#fff', borderTopWidth: 1, borderBottomWidth: 1, borderColor: '#eee', padding: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  rangeText: { color: '#333', fontWeight: '600' },
-  rangeBtn: { paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#4A90E2', borderRadius: 8 },
-  rangeBtnText: { color: '#4A90E2', fontWeight: '600' },
+  sectionTitle: { fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: 12 },
+  card: { backgroundColor: colors.surface, padding: 14, borderRadius: 12, marginBottom: 10, borderWidth: 1, borderColor: colors.border },
+  cardTitle: { fontSize: 16, fontWeight: '600', color: colors.text },
+  cardSubtitle: { fontSize: 14, color: colors.muted, marginTop: 4 },
+  cardMeta: { fontSize: 12, color: colors.muted, marginTop: 6 },
+  cardText: { fontSize: 14, color: colors.text },
+  error: { color: colors.danger, marginTop: 8 },
+  rangeBar: { backgroundColor: colors.surface, borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.border, padding: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  rangeText: { color: colors.text, fontWeight: '600' },
+  rangeBtn: { paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: colors.primary, borderRadius: 8 },
+  rangeBtnText: { color: colors.primary, fontWeight: '600' },
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
-  modalCard: { backgroundColor: '#fff', width: '85%', borderRadius: 12, padding: 16 },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: '#333', marginBottom: 12 },
+  modalCard: { backgroundColor: colors.surface, width: '85%', borderRadius: 12, padding: 16 },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 },
   modalRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   modalRowJustify: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: 8 },
-  modalChip: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 20, borderWidth: 1, borderColor: '#ccc' },
-  modalChipActive: { borderColor: '#4A90E2', backgroundColor: '#E8F1FB' },
-  modalChipText: { color: '#333', fontWeight: '600' },
-  modalChipTextActive: { color: '#4A90E2' },
-  navBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, backgroundColor: '#f5f5f5' },
-  navBtnText: { color: '#333', fontWeight: '600' },
-  selDate: { color: '#333', fontWeight: '700' },
+  modalChip: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 20, borderWidth: 1, borderColor: colors.border },
+  modalChipActive: { borderColor: colors.primary, backgroundColor: '#E8F1FB' },
+  modalChipText: { color: colors.text, fontWeight: '600' },
+  modalChipTextActive: { color: colors.primary },
+  navBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, backgroundColor: colors.background },
+  navBtnText: { color: colors.text, fontWeight: '600' },
+  selDate: { color: colors.text, fontWeight: '700' },
   modalClose: { marginTop: 8, alignSelf: 'flex-end' },
-  modalCloseText: { color: '#4A90E2', fontWeight: '700' },
+  modalCloseText: { color: colors.primary, fontWeight: '700' },
 });

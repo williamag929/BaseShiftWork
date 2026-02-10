@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '@/styles/theme';
 
 interface Props {
   visible: boolean;
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
   text: { color: '#fff', fontSize: 16, marginBottom: 16 },
-  permBtn: { backgroundColor: '#4A90E2', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 8 },
+  permBtn: { backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 8 },
   permText: { color: '#fff', fontWeight: '600' },
   cameraWrapper: { flex: 1 },
   camera: { flex: 1 },
@@ -113,11 +114,11 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
   },
-  captureBtn: { width: 72, height: 72, borderRadius: 36, backgroundColor: '#4A90E2', alignItems: 'center', justifyContent: 'center' },
+  captureBtn: { width: 72, height: 72, borderRadius: 36, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   closeBtn: { position: 'absolute', right: 24, top: -4, padding: 12 },
   previewContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   preview: { width: '100%', height: '80%', backgroundColor: '#000' },
   previewActions: { position: 'absolute', bottom: 40, flexDirection: 'row', gap: 16 },
-  actionBtn: { backgroundColor: '#4A90E2', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  actionBtn: { backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 8 },
   actionText: { color: '#fff', fontWeight: '600' },
 });

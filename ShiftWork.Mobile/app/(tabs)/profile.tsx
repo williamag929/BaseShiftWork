@@ -7,6 +7,8 @@ import { uploadPhoto } from '@/services/upload.service';
 import { Ionicons } from '@expo/vector-icons';
 import type { PersonDto } from '@/types/api';
 import PhotoCapture from '@/components/PhotoCapture';
+import { Card, SectionHeader } from '@/components/ui';
+import { colors } from '@/styles/theme';
 
 export default function ProfileScreen() {
   const { companyId, personId, signOut, setPersonProfile } = useAuthStore();
@@ -235,7 +237,7 @@ export default function ProfileScreen() {
   if (loading && !person) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#4A90E2" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Loading profile...</Text>
       </View>
     );
@@ -260,7 +262,7 @@ export default function ProfileScreen() {
           {photoUrl ? (
             <Image source={{ uri: photoUrl }} style={styles.avatar} />
           ) : (
-            <Ionicons name="person-circle" size={80} color="#4A90E2" />
+            <Ionicons name="person-circle" size={80} color={colors.primary} />
           )}
           <View style={styles.cameraIconContainer}>
             {uploadingPhoto ? (
@@ -273,6 +275,12 @@ export default function ProfileScreen() {
         <Text style={styles.headerName}>
           {person?.name || 'No Name'}
         </Text>
+        <Text style={styles.headerSubtitle}>
+          {person?.email || 'No email on file'}
+        </Text>
+        <Text style={styles.photoHint}>
+          {uploadingPhoto ? 'Uploading photo…' : 'Tap photo to update'}
+        </Text>
       </View>
 
       {/* Photo Capture Modal */}
@@ -284,17 +292,19 @@ export default function ProfileScreen() {
 
       {/* Profile Information Section */}
       <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Personal Information</Text>
-          {!editMode && (
-            <TouchableOpacity onPress={() => setEditMode(true)} style={styles.editButton}>
-              <Ionicons name="pencil" size={20} color="#4A90E2" />
-              <Text style={styles.editButtonText}>Edit</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+        <SectionHeader
+          title="Personal Information"
+          rightSlot={
+            !editMode ? (
+              <TouchableOpacity onPress={() => setEditMode(true)} style={styles.editButton}>
+                <Ionicons name="pencil" size={20} color={colors.primary} />
+                <Text style={styles.editButtonText}>Edit</Text>
+              </TouchableOpacity>
+            ) : null
+          }
+        />
 
-        <View style={styles.card}>
+        <Card style={styles.card}>
           <View style={styles.fieldGroup}>
             <Text style={styles.fieldLabel}>Name</Text>
             <TextInput
@@ -317,6 +327,9 @@ export default function ProfileScreen() {
               autoCapitalize="none"
               editable={editMode}
             />
+            {!editMode && !email && (
+              <Text style={styles.fieldHint}>No email on file</Text>
+            )}
           </View>
 
           <View style={styles.fieldGroup}>
@@ -329,6 +342,9 @@ export default function ProfileScreen() {
               keyboardType="phone-pad"
               editable={editMode}
             />
+            {!editMode && !phoneNumber && (
+              <Text style={styles.fieldHint}>No phone number on file</Text>
+            )}
           </View>
 
           {editMode && (
@@ -353,21 +369,19 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             </View>
           )}
-        </View>
+        </Card>
       </View>
 
       {/* PIN Change Section */}
       <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Security</Text>
-        </View>
+        <SectionHeader title="Security" />
 
-        <View style={styles.card}>
+        <Card style={styles.card}>
           {/* Biometric Authentication Toggle */}
           {biometricAvailable && (
             <View style={styles.securityOptionRow}>
               <View style={styles.securityOptionLeft}>
-                <Ionicons name="finger-print" size={24} color="#4A90E2" />
+                <Ionicons name="finger-print" size={24} color={colors.primary} />
                 <View style={styles.securityOptionText}>
                   <Text style={styles.securityOptionTitle}>{biometricType} Login</Text>
                   <Text style={styles.securityOptionSubtitle}>
@@ -378,7 +392,7 @@ export default function ProfileScreen() {
               <Switch
                 value={biometricEnabled}
                 onValueChange={handleToggleBiometric}
-                trackColor={{ false: '#d1d1d6', true: '#4A90E2' }}
+                trackColor={{ false: colors.border, true: colors.primary }}
                 thumbColor="#fff"
               />
             </View>
@@ -390,14 +404,14 @@ export default function ProfileScreen() {
               onPress={() => setChangingPin(true)}
               style={[styles.securityOption, biometricAvailable && styles.securityOptionBordered]}
             >
-              <Ionicons name="lock-closed" size={24} color="#4A90E2" />
+              <Ionicons name="lock-closed" size={24} color={colors.primary} />
               <View style={styles.securityOptionText}>
                 <Text style={styles.securityOptionTitle}>Change PIN</Text>
                 <Text style={styles.securityOptionSubtitle}>
                   Update your 4-digit PIN for kiosk access
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#999" />
+              <Ionicons name="chevron-forward" size={20} color={colors.muted} />
             </TouchableOpacity>
           ) : (
             <View>
@@ -467,17 +481,17 @@ export default function ProfileScreen() {
               </View>
             </View>
           )}
-        </View>
+        </Card>
       </View>
 
       {/* Account Actions */}
       <View style={styles.section}>
-        <View style={styles.card}>
+        <Card style={styles.card}>
           <TouchableOpacity onPress={handleSignOut} style={styles.dangerOption}>
-            <Ionicons name="log-out" size={24} color="#E74C3C" />
+            <Ionicons name="log-out" size={24} color={colors.danger} />
             <Text style={styles.dangerOptionText}>Sign Out</Text>
           </TouchableOpacity>
-        </View>
+        </Card>
       </View>
 
       {/* App Info */}
@@ -492,21 +506,21 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 12,
-    color: '#666',
+    color: colors.muted,
     fontSize: 14,
   },
   header: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: colors.primary,
     padding: 32,
     alignItems: 'center',
   },
@@ -525,7 +539,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#4A90E2',
+    backgroundColor: colors.primary,
     borderRadius: 15,
     width: 30,
     height: 30,
@@ -540,6 +554,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 4,
   },
+  headerSubtitle: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.85)',
+    marginBottom: 6,
+  },
+  photoHint: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
   headerRole: {
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.8)',
@@ -547,24 +570,13 @@ const styles = StyleSheet.create({
   section: {
     padding: 16,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
   editButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
   },
   editButtonText: {
-    color: '#4A90E2',
+    color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -584,21 +596,26 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
     marginBottom: 8,
   },
+  fieldHint: {
+    marginTop: 6,
+    fontSize: 12,
+    color: '#7A8796',
+  },
   input: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    borderColor: colors.border,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: '#333',
+    color: colors.text,
   },
   inputDisabled: {
-    backgroundColor: '#f8f9fa',
-    color: '#666',
+    backgroundColor: colors.background,
+    color: colors.muted,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -612,7 +629,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonPrimary: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: colors.primary,
   },
   buttonPrimaryText: {
     color: '#fff',
@@ -620,10 +637,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   buttonSecondary: {
-    backgroundColor: '#e9ecef',
+    backgroundColor: colors.border,
   },
   buttonSecondaryText: {
-    color: '#333',
+    color: colors.text,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -635,7 +652,7 @@ const styles = StyleSheet.create({
   },
   securityOptionBordered: {
     borderTopWidth: 1,
-    borderTopColor: '#e9ecef',
+    borderTopColor: colors.border,
     paddingTop: 16,
     marginTop: 12,
   },
@@ -657,12 +674,12 @@ const styles = StyleSheet.create({
   securityOptionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
     marginBottom: 4,
   },
   securityOptionSubtitle: {
     fontSize: 14,
-    color: '#666',
+    color: colors.muted,
   },
   dangerOption: {
     flexDirection: 'row',
@@ -673,7 +690,7 @@ const styles = StyleSheet.create({
   dangerOptionText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#E74C3C',
+    color: colors.danger,
   },
   footer: {
     padding: 32,
@@ -681,7 +698,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: '#999',
+    color: colors.muted,
     marginBottom: 4,
   },
 });

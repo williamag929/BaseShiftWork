@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { colors } from '@/styles/theme';
 
 export default function Index() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#4A90E2',
+    backgroundColor: colors.primary,
   },
   header: {
     flex: 1,
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   button: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     paddingHorizontal: 48,
     paddingVertical: 16,
     borderRadius: 30,
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#4A90E2',
+    color: colors.primary,
   },
   infoText: {
     fontSize: 14,

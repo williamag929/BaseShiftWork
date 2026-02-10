@@ -66,6 +66,29 @@ namespace ShiftWork.Api.Controllers
         }
 
         /// <summary>
+        /// Retrieves people who have unpublished schedules in the given date range.
+        /// </summary>
+        [HttpGet("unpublished-schedules")]
+        [ProducesResponseType(typeof(IEnumerable<UnpublishedSchedulePersonDto>), 200)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<IEnumerable<UnpublishedSchedulePersonDto>>> GetPeopleWithUnpublishedSchedules(
+            string companyId,
+            [FromQuery] DateTime? startDate,
+            [FromQuery] DateTime? endDate)
+        {
+            try
+            {
+                var results = await _peopleService.GetPeopleWithUnpublishedSchedules(companyId, startDate, endDate);
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving people with unpublished schedules for company {CompanyId}.", companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
         /// Retrieves a specific person by their ID.
         /// </summary>
         [HttpGet("{personId}")]

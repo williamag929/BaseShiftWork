@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using ShiftWork.Api.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,8 @@ public class PushNotificationService
     private readonly ShiftWorkContext _context;
     private readonly ILogger<PushNotificationService> _logger;
     private const string ExpoApiUrl = "https://exp.host/--/api/v2/push/send";
+    private static readonly Regex ExpoTokenRegex = new("^(Expo|Exponent)PushToken\[.+\]$", RegexOptions.Compiled);
+    private const int ExpoChunkSize = 100;
 
     public PushNotificationService(
         IHttpClientFactory httpClientFactory,
@@ -106,37 +109,95 @@ public class PushNotificationService
         try
         {
             var httpClient = _httpClientFactory.CreateClient();
-            
-            var messages = expoPushTokens.Select(token => new ExpoMessage
-            {
-                To = token,
-                Title = title,
-                Body = body,
-                Data = data ?? new Dictionary<string, object>(),
-                Sound = "default",
-                Priority = "high"
-            }).ToList();
+            var cleanedTokens = expoPushTokens
+                .Where(t => !string.IsNullOrWhiteSpace(t) && ExpoTokenRegex.IsMatch(t))
+                .Distinct()
+                .ToList();
 
-            var response = await httpClient.PostAsJsonAsync(ExpoApiUrl, messages);
-            
-            if (response.IsSuccessStatusCode)
+            if (!cleanedTokens.Any())
             {
-                var result = await response.Content.ReadAsStringAsync();
-                _logger.LogInformation("Push notifications sent successfully: {Result}", result);
-                return true;
-            }
-            else
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Failed to send push notifications. Status: {Status}, Error: {Error}", 
-                    response.StatusCode, error);
+                _logger.LogWarning("No valid Expo push tokens to send.");
                 return false;
             }
+
+            var anySuccess = false;
+            var tokensToRemove = new HashSet<string>();
+
+            foreach (var chunk in Chunk(cleanedTokens, ExpoChunkSize))
+            {
+                var messages = chunk.Select(token => new ExpoMessage
+                {
+                    To = token,
+                    Title = title,
+                    Body = body,
+                    Data = data ?? new Dictionary<string, object>(),
+                    Sound = "default",
+                    Priority = "high",
+                    ChannelId = "default"
+                }).ToList();
+
+                var response = await httpClient.PostAsJsonAsync(ExpoApiUrl, messages);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Failed to send push notifications. Status: {Status}, Error: {Error}",
+                        response.StatusCode, error);
+                    continue;
+                }
+
+                var resultJson = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation("Push notifications sent successfully: {Result}", resultJson);
+                anySuccess = true;
+
+                var result = JsonSerializer.Deserialize<ExpoPushResponse>(resultJson);
+                if (result?.Data == null)
+                {
+                    continue;
+                }
+
+                for (var i = 0; i < result.Data.Count && i < chunk.Count; i++)
+                {
+                    var ticket = result.Data[i];
+                    if (ticket?.Status?.Equals("error", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        var errorCode = ticket.Details?.Error;
+                        if (!string.IsNullOrWhiteSpace(errorCode) && errorCode.Equals("DeviceNotRegistered", StringComparison.OrdinalIgnoreCase))
+                        {
+                            tokensToRemove.Add(chunk[i]);
+                        }
+                        _logger.LogWarning("Expo push error for token {Token}: {Message} ({Error})", chunk[i], ticket.Message, errorCode);
+                    }
+                }
+            }
+
+            if (tokensToRemove.Any())
+            {
+                var expiredTokens = await _context.DeviceTokens
+                    .Where(dt => tokensToRemove.Contains(dt.Token))
+                    .ToListAsync();
+
+                if (expiredTokens.Any())
+                {
+                    _context.DeviceTokens.RemoveRange(expiredTokens);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            return anySuccess;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending push notifications");
             return false;
+        }
+    }
+
+    private static IEnumerable<List<T>> Chunk<T>(List<T> source, int size)
+    {
+        for (var i = 0; i < source.Count; i += size)
+        {
+            yield return source.GetRange(i, Math.Min(size, source.Count - i));
         }
     }
 
@@ -286,4 +347,31 @@ public class ExpoMessage
 
     [JsonPropertyName("badge")]
     public int? Badge { get; set; }
+}
+
+public class ExpoPushResponse
+{
+    [JsonPropertyName("data")]
+    public List<ExpoPushTicket>? Data { get; set; }
+}
+
+public class ExpoPushTicket
+{
+    [JsonPropertyName("status")]
+    public string? Status { get; set; }
+
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    [JsonPropertyName("message")]
+    public string? Message { get; set; }
+
+    [JsonPropertyName("details")]
+    public ExpoPushTicketDetails? Details { get; set; }
+}
+
+public class ExpoPushTicketDetails
+{
+    [JsonPropertyName("error")]
+    public string? Error { get; set; }
 }

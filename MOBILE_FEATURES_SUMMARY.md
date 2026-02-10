@@ -204,12 +204,16 @@ CREATE INDEX IX_device_tokens_token ON device_tokens(token);
 
 ### 1. Mobile App Configuration
 
-Update `services/notification.service.ts` line 42:
-```typescript
-const tokenData = await Notifications.getExpoPushTokenAsync({
-  projectId: 'your-actual-expo-project-id', // Get from app.json
-});
+Set the Expo project ID in app.json under `expo.extra.eas.projectId` and the app will read it at runtime:
+```json
+"extra": {
+  "eas": {
+    "projectId": "your-actual-expo-project-id"
+  }
+}
 ```
+
+The notification service now reads this value from app.json (see [ShiftWork.Mobile/services/notification.service.ts](ShiftWork.Mobile/services/notification.service.ts)).
 
 ### 2. Database Migration
 

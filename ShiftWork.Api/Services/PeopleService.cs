@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
+using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Models;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace ShiftWork.Api.Services
     Task<string?> GetPersonStatus(int personId);
     Task<Person?> UpdatePersonStatusShiftWork(int personId, string status);
     Task<string?> GetPersonStatusShiftWork(int personId);
+    Task<IEnumerable<UnpublishedSchedulePersonDto>> GetPeopleWithUnpublishedSchedules(string companyId, DateTime? startDate, DateTime? endDate);
     }
 
     /// <summary>
@@ -139,6 +141,51 @@ namespace ShiftWork.Api.Services
         {
             var person = await _context.Persons.FindAsync(personId);
             return person?.StatusShiftWork;
+        }
+
+        public async Task<IEnumerable<UnpublishedSchedulePersonDto>> GetPeopleWithUnpublishedSchedules(string companyId, DateTime? startDate, DateTime? endDate)
+        {
+            var schedulesQuery = _context.Schedules.Where(s => s.CompanyId == companyId);
+
+            if (startDate.HasValue && endDate.HasValue)
+            {
+                var start = startDate.Value;
+                var end = endDate.Value;
+                schedulesQuery = schedulesQuery.Where(s => s.StartDate <= end && s.EndDate >= start);
+            }
+            else if (startDate.HasValue)
+            {
+                var start = startDate.Value;
+                schedulesQuery = schedulesQuery.Where(s => s.StartDate >= start);
+            }
+            else if (endDate.HasValue)
+            {
+                var end = endDate.Value;
+                schedulesQuery = schedulesQuery.Where(s => s.EndDate <= end);
+            }
+
+            schedulesQuery = schedulesQuery.Where(s => s.Status == null || s.Status.ToLower() != "published");
+
+            var results = await schedulesQuery
+                .Join(
+                    _context.Persons.Where(p => p.CompanyId == companyId),
+                    s => s.PersonId,
+                    p => p.PersonId.ToString(),
+                    (s, p) => new { Schedule = s, Person = p }
+                )
+                .GroupBy(x => new { x.Person.PersonId, x.Person.Name, x.Person.Email })
+                .Select(g => new UnpublishedSchedulePersonDto
+                {
+                    PersonId = g.Key.PersonId,
+                    Name = g.Key.Name,
+                    Email = g.Key.Email,
+                    UnpublishedScheduleCount = g.Count(),
+                    ScheduleIds = g.Select(x => x.Schedule.ScheduleId).Distinct().ToList()
+                })
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+            return results;
         }        
     }
 }

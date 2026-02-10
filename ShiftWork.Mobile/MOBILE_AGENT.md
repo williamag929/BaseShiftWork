@@ -13,13 +13,13 @@ ShiftWork Mobile is a cross-platform mobile application (iOS & Android) built wi
 
 ## Technology Stack
 
-- **Framework**: React Native 0.73 + Expo SDK 50
+- **Framework**: React Native 0.81.5 + Expo SDK 54
 - **Routing**: Expo Router (file-based routing)
 - **Language**: TypeScript (strict mode)
 - **State Management**: Zustand
 - **API Client**: Axios with Firebase JWT auth
 - **Data Fetching**: TanStack Query (React Query)
-- **Authentication**: Firebase Auth
+- **Authentication**: Firebase Auth (currently mocked/disabled in config/firebase.ts)
 - **Secure Storage**: expo-secure-store
 - **Camera**: expo-camera
 - **Location**: expo-location
@@ -82,27 +82,27 @@ ShiftWork.Mobile/
 
 ## Environment Variables
 
-Create a `.env` file based on `.env.example`:
+Create a `.env` file based on `.env.example` (Expo runtime reads `EXPO_PUBLIC_` variables):
 
 ```bash
-# API Configuration
-API_URL=https://your-api-url.com
-API_TIMEOUT=30000
+# API Configuration (Expo runtime reads EXPO_PUBLIC_*)
+EXPO_PUBLIC_API_URL=https://your-api-url.com
+EXPO_PUBLIC_API_TIMEOUT=30000
 
-# Firebase Configuration
-FIREBASE_API_KEY=your-firebase-api-key
-FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-FIREBASE_MESSAGING_SENDER_ID=000000000000
-FIREBASE_APP_ID=1:000000000000:web:xxxxxxxxxxxxxxxxxxxxxx
+# Firebase Configuration (Expo runtime reads EXPO_PUBLIC_*)
+EXPO_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=000000000000
+EXPO_PUBLIC_FIREBASE_APP_ID=1:000000000000:web:xxxxxxxxxxxxxxxxxxxxxx
 
 # AWS S3 (for photo uploads)
 AWS_REGION=us-east-1
 AWS_BUCKET_NAME=shiftwork-photos
 
-# App Configuration
-DEFAULT_COMPANY_ID=your-company-id
+# App Configuration (Expo runtime reads EXPO_PUBLIC_*)
+EXPO_PUBLIC_DEFAULT_COMPANY_ID=your-company-id
 ```
 
 Note: Expo uses `EXPO_PUBLIC_` prefix for environment variables accessible in the app.
@@ -121,8 +121,8 @@ Note: Expo uses `EXPO_PUBLIC_` prefix for environment variables accessible in th
 # Navigate to mobile directory
 cd ShiftWork.Mobile
 
-# Install dependencies
-npm install
+# Install dependencies (React 19 peer deps)
+npm install --legacy-peer-deps
 
 # Copy environment variables
 cp .env.example .env
@@ -563,9 +563,9 @@ eas update --branch production --message "Bug fixes"
 ## Future Enhancements
 
 - [x] Offline mode with local database (SQLite)
-- [ ] Push notifications for shift reminders
+- [x] Push notifications for shift reminders
 - [ ] Team chat/messaging
-- [ ] Time-off requests
+- [x] Time-off requests
 - [ ] Document/policy viewing
 - [ ] Dark mode support
 - [ ] Multi-language support
@@ -596,6 +596,6 @@ For questions or issues with the mobile app, refer to:
 
 ---
 
-**Last Updated**: November 6, 2025  
+**Last Updated**: February 9, 2026  
 **Version**: 1.0.0  
 **Maintained By**: ShiftWork Development Team

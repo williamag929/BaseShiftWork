@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { apiClient } from './api-client';
 
@@ -37,6 +38,16 @@ class NotificationService {
     }
 
     try {
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: 'Default',
+          importance: Notifications.AndroidImportance.MAX,
+          sound: 'default',
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
+      }
+
       // Check existing permissions
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
@@ -53,8 +64,14 @@ class NotificationService {
       }
 
       // Get the push notification token
+      const projectId = Constants.expoConfig?.extra?.eas?.projectId as string | undefined;
+      if (!projectId) {
+        console.warn('Expo project ID is missing (app.json -> extra.eas.projectId)');
+        return null;
+      }
+
       const tokenData = await Notifications.getExpoPushTokenAsync({
-        projectId: 'your-project-id', // Replace with your Expo project ID
+        projectId,
       });
 
       return tokenData.data;

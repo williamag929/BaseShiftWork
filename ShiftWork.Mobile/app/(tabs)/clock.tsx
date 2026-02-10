@@ -10,6 +10,8 @@ import PhotoCapture from '@/components/PhotoCapture';
 import { peopleService } from '@/services/people.service';
 import { uploadService } from '@/services/upload.service';
 import { getActiveClockInAt, saveActiveClockInAt, clearActiveClockInAt } from '@/utils';
+import { Card } from '@/components/ui';
+import { colors } from '@/styles/theme';
 
 export default function ClockScreen() {
   const { companyId, personId, name } = useAuthStore();
@@ -175,6 +177,10 @@ export default function ClockScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Clock In/Out</Text>
+        <Text style={styles.headerSubtitle}>Capture time, location, and optional photo.</Text>
+      </View>
       <View style={styles.statusContainer}>
         <Text style={styles.statusLabel}>Current Status</Text>
         <View style={[styles.statusBadge, isClockedIn ? styles.badgeIn : styles.badgeOut]}>
@@ -192,6 +198,21 @@ export default function ClockScreen() {
         </View>
       </View>
 
+      <Card style={styles.stepCard}>
+        <View style={styles.stepRow}>
+          <Ionicons name="location" size={18} color={colors.primary} />
+          <Text style={styles.stepText}>Location captured</Text>
+        </View>
+        <View style={styles.stepRow}>
+          <Ionicons name="camera" size={18} color={colors.primary} />
+          <Text style={styles.stepText}>Photo optional</Text>
+        </View>
+        <View style={styles.stepRow}>
+          <Ionicons name="phone-portrait" size={18} color={colors.primary} />
+          <Text style={styles.stepText}>Device recorded</Text>
+        </View>
+      </Card>
+
       <View style={styles.clockContainer}>
         {!!photoUri && (
           <View style={styles.previewRow}>
@@ -202,7 +223,7 @@ export default function ClockScreen() {
           </View>
         )}
         <TouchableOpacity style={styles.photoBtn} onPress={() => setCameraOpen(true)} disabled={loading}>
-          <Ionicons name="camera" size={20} color="#4A90E2" />
+          <Ionicons name="camera" size={20} color={colors.primary} />
           <Text style={styles.photoBtnText}>{photoUri ? 'Retake Photo' : 'Add Photo (optional)'}</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -227,9 +248,12 @@ export default function ClockScreen() {
         {initializing && <ActivityIndicator />}
         {!!error && <Text style={styles.errorText}>{error}</Text>}
         {!initializing && !error && (
-          <Text style={styles.infoText}>
-            Tap the button to {isClockedIn ? 'clock out' : 'clock in'}. Your location and device info will be included.
-          </Text>
+          <Card style={styles.infoCard}>
+            <Text style={styles.infoTitle}>Ready to {isClockedIn ? 'clock out' : 'clock in'}?</Text>
+            <Text style={styles.infoText}>
+              Tap the button to {isClockedIn ? 'clock out' : 'clock in'}. Your location and device info will be included.
+            </Text>
+          </Card>
         )}
       </View>
 
@@ -245,18 +269,34 @@ export default function ClockScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
+  },
+  header: {
+    backgroundColor: colors.primary,
+    paddingTop: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  headerSubtitle: {
+    marginTop: 6,
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.85)',
   },
   statusContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     padding: 20,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: colors.border,
   },
   statusLabel: {
     fontSize: 14,
-    color: '#666',
+    color: colors.muted,
     marginBottom: 8,
   },
   statusBadge: {
@@ -270,10 +310,10 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
   },
-  textIn: { color: '#2E7D32' },
-  textOut: { color: '#EF6C00' },
+  textIn: { color: colors.success },
+  textOut: { color: colors.warning },
   personRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -282,36 +322,51 @@ const styles = StyleSheet.create({
   },
   personLabel: {
     fontSize: 14,
-    color: '#333',
+    color: colors.text,
   },
-  personValue: { fontSize: 16, color: '#333', fontWeight: '600' },
+  personValue: { fontSize: 16, color: colors.text, fontWeight: '600' },
   clockContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 32,
   },
+  stepCard: {
+    marginHorizontal: 16,
+    marginTop: 12,
+    gap: 8,
+  },
+  stepRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  stepText: {
+    fontSize: 13,
+    color: '#4A4A4A',
+    fontWeight: '600',
+  },
   photoBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#4A90E2',
+    borderColor: colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
     marginBottom: 16,
   },
-  photoBtnText: { color: '#4A90E2', fontWeight: '600' },
+  photoBtnText: { color: colors.primary, fontWeight: '600' },
   previewRow: { alignItems: 'center', marginBottom: 12 },
   preview: { width: 120, height: 120, borderRadius: 8, marginBottom: 6 },
-  removePhoto: { color: '#E74C3C', textDecorationLine: 'underline' },
+  removePhoto: { color: colors.danger, textDecorationLine: 'underline' },
   clockButton: {
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: '#4A90E2',
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 8,
@@ -320,8 +375,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
-  clockInBtn: { backgroundColor: '#4A90E2' },
-  clockOutBtn: { backgroundColor: '#E74C3C' },
+  clockInBtn: { backgroundColor: colors.primary },
+  clockOutBtn: { backgroundColor: colors.danger },
   iconContainer: {
     marginBottom: 8,
   },
@@ -334,21 +389,30 @@ const styles = StyleSheet.create({
     padding: 32,
     alignItems: 'center',
   },
-  elapsedText: { marginTop: 8, color: '#2E7D32', fontWeight: '600' },
+  infoCard: {
+    alignItems: 'center',
+  },
+  infoTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  elapsedText: { marginTop: 8, color: colors.success, fontWeight: '600' },
   infoText: {
     fontSize: 16,
-    color: '#333',
+    color: colors.text,
     textAlign: 'center',
     marginBottom: 8,
   },
   infoSubtext: {
     fontSize: 14,
-    color: '#666',
+    color: colors.muted,
     textAlign: 'center',
   },
   errorText: {
     fontSize: 14,
-    color: '#E74C3C',
+    color: colors.danger,
     textAlign: 'center',
   },
 });

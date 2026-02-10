@@ -7,6 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { authService, biometricAuthService } from '@/services';
 import { useAuthStore } from '@/store/authStore';
 import { saveUserData, saveCompanyId } from '@/utils/storage.utils';
+import { colors } from '@/styles/theme';
+import { Button } from '@/components/ui';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -111,7 +113,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Enter your email"
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.muted}
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -125,7 +127,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Enter your password"
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.muted}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -133,15 +135,11 @@ export default function LoginScreen() {
           />
         </View>
 
-        <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
+        <Button
+          label={loading ? 'Signing in...' : 'Sign In'}
           onPress={handleLogin}
-          disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? 'Signing in...' : 'Sign In'}
-          </Text>
-        </TouchableOpacity>
+          loading={loading}
+        />
 
         {showBiometric && (
           <>
@@ -155,7 +153,7 @@ export default function LoginScreen() {
               style={styles.biometricButton}
               onPress={handleBiometricLogin}
             >
-              <Ionicons name="finger-print" size={24} color="#4A90E2" />
+              <Ionicons name="finger-print" size={24} color={colors.primary} />
               <Text style={styles.biometricButtonText}>
                 Sign in with {biometricType}
               </Text>
@@ -174,7 +172,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#4A90E2',
+    backgroundColor: colors.primary,
   },
   header: {
     paddingTop: 80,
@@ -194,7 +192,7 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 32,
@@ -206,36 +204,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    color: '#333',
-  },
-  button: {
-    backgroundColor: '#4A90E2',
-    paddingVertical: 16,
-    borderRadius: 12,
-    marginTop: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
+    color: colors.text,
   },
   divider: {
     flexDirection: 'row',
@@ -245,11 +223,11 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: colors.border,
   },
   dividerText: {
     marginHorizontal: 16,
-    color: '#999',
+    color: colors.muted,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -257,15 +235,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     paddingVertical: 16,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#4A90E2',
+    borderColor: colors.primary,
     gap: 8,
   },
   biometricButtonText: {
-    color: '#4A90E2',
+    color: colors.primary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -274,7 +252,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   linkText: {
-    color: '#4A90E2',
+    color: colors.primary,
     fontSize: 14,
     fontWeight: '500',
   },
