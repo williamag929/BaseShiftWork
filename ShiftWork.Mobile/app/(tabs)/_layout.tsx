@@ -65,6 +65,16 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="ai-chat"
+        options={{
+          title: 'AI Chat',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="chatbubble-ellipses" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="time-off-request"
         options={{
           title: 'Request Time Off',
