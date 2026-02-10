@@ -19,6 +19,7 @@ import { CompanySettings } from 'src/app/core/models/company-settings.model';
 import { environment } from 'src/environments/environment';
 import { ActivatedRoute } from '@angular/router';
 import { WakeLockService } from '../core/services/wake-lock.service';
+import { ShiftEventService } from 'src/app/core/services/shift-event.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -42,6 +43,7 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   lastUpdated: Date | null = null;
   private refreshIntervalMs = environment.kioskStatusRefreshMs || 45000;
   showLegend = true;
+  completedScheduleCounts: Record<number, number> = {};
 
   constructor(
     private peopleService: PeopleService,
@@ -53,7 +55,8 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private settingsHelper: SettingsHelperService,
     private route: ActivatedRoute,
-    public wakeLock: WakeLockService
+    public wakeLock: WakeLockService,
+    private shiftEventService: ShiftEventService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
@@ -208,11 +211,47 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
             s.personId === employee.personId
           );
         });
+
+        this.updateCompletedCountsForToday();
       },
       (error: any) => {
         console.error('Error loading published schedules', error);
       }
     );
+  }
+
+  private updateCompletedCountsForToday(): void {
+    if (!this.activeCompany) return;
+    const companyId = this.activeCompany.companyId;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(today);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    const target = this.employees.filter(e => (e.scheduleDetails?.length || 0) > 0).slice(0, 50);
+    from(target)
+      .pipe(
+        mergeMap(
+          (emp: Person) =>
+            this.shiftEventService.getShiftEventsByPersonId(companyId, emp.personId).pipe(
+              map(events => {
+                const todays = (events || []).filter(ev => {
+                  const dt = new Date(ev.eventDate);
+                  return dt >= today && dt < endOfDay;
+                });
+                const clockIns = todays.filter(ev => (ev.eventType || '').toLowerCase() === 'clockin').length;
+                const clockOuts = todays.filter(ev => (ev.eventType || '').toLowerCase() === 'clockout').length;
+                const completed = Math.min(clockIns, clockOuts);
+                return { personId: emp.personId, completed };
+              }),
+              catchError(() => of({ personId: emp.personId, completed: 0 }))
+            ),
+          5
+        )
+      )
+      .subscribe(({ personId, completed }) => {
+        this.completedScheduleCounts[personId] = completed;
+      });
   }
 
   private _filter(value: string): Person[] {
@@ -346,5 +385,15 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
 
     // Check if employee has scheduleDetails populated with published schedules
     return !!(employee.scheduleDetails && employee.scheduleDetails.length > 0);
+  }
+
+  getPendingScheduleCount(employee: Person): number {
+    const scheduled = employee.scheduleDetails?.length || 0;
+    const completed = this.completedScheduleCounts[employee.personId] || 0;
+    return Math.max(0, scheduled - completed);
+  }
+
+  hasPendingScheduleToday(employee: Person): boolean {
+    return this.getPendingScheduleCount(employee) > 0;
   }
 }

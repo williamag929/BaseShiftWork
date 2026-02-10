@@ -30,7 +30,7 @@ namespace ShiftWork.Api.Services
         {
             var shiftEvent = _mapper.Map<ShiftEvent>(shiftEventDto);
             shiftEvent.CreatedAt = DateTime.UtcNow;
-            shiftEvent.EventDate = DateTime.UtcNow;
+            shiftEvent.EventDate = shiftEventDto.EventDate == default ? DateTime.UtcNow : shiftEventDto.EventDate;
             // Ensure PhotoUrl from DTO is preserved even if mapper configuration changes
             shiftEvent.PhotoUrl = shiftEventDto.PhotoUrl;
 
@@ -40,17 +40,53 @@ namespace ShiftWork.Api.Services
                 var currentStatus = await _peopleService.GetPersonStatusShiftWork(shiftEvent.PersonId);
                 var isOnShift = !string.IsNullOrEmpty(currentStatus) && currentStatus.StartsWith("OnShift", StringComparison.OrdinalIgnoreCase);
                 var isOffShift = string.IsNullOrEmpty(currentStatus) || currentStatus.StartsWith("OffShift", StringComparison.OrdinalIgnoreCase);
+                var allowManualClockOut = false;
+                if (!string.IsNullOrWhiteSpace(shiftEvent.EventObject))
+                {
+                    try
+                    {
+                        using var doc = JsonDocument.Parse(shiftEvent.EventObject);
+                        if (doc.RootElement.TryGetProperty("manualClockOut", out var manualFlag) && manualFlag.ValueKind == JsonValueKind.True)
+                        {
+                            allowManualClockOut = true;
+                        }
+                    }
+                    catch
+                    {
+                        // ignore malformed JSON
+                    }
+                }
 
                 if (string.Equals(shiftEvent.EventType, "clockin", StringComparison.OrdinalIgnoreCase))
                 {
                     if (isOnShift)
                     {
-                        throw new InvalidOperationException("Person is already OnShift. Duplicate clock-in prevented.");
+                        var allowManualClockIn = false;
+                        if (!string.IsNullOrWhiteSpace(shiftEvent.EventObject))
+                        {
+                            try
+                            {
+                                using var doc = JsonDocument.Parse(shiftEvent.EventObject);
+                                if (doc.RootElement.TryGetProperty("manualClockIn", out var manualFlag) && manualFlag.ValueKind == JsonValueKind.True)
+                                {
+                                    allowManualClockIn = true;
+                                }
+                            }
+                            catch
+                            {
+                                // ignore malformed JSON
+                            }
+                        }
+
+                        if (!allowManualClockIn)
+                        {
+                            throw new InvalidOperationException("Person is already OnShift. Duplicate clock-in prevented.");
+                        }
                     }
                 }
                 else if (string.Equals(shiftEvent.EventType, "clockout", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (isOffShift)
+                    if (isOffShift && !allowManualClockOut)
                     {
                         throw new InvalidOperationException("Person is not currently OnShift. Duplicate clock-out or invalid transition prevented.");
                     }

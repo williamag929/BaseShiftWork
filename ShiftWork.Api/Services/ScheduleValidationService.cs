@@ -167,8 +167,10 @@ public class ScheduleValidationService : IScheduleValidationService
             query = query.Where(s => s.ScheduleShiftId != ignoreScheduleShiftId.Value);
         }
 
-        var existingHours = await query
-            .SumAsync(s => (decimal)(s.EndDate - s.StartDate).TotalHours);
+        var existingMinutes = await query
+            .SumAsync(s => EF.Functions.DateDiffMinute(s.StartDate, s.EndDate));
+
+        var existingHours = existingMinutes / 60m;
 
         return (existingHours + hoursToAdd) <= maxDailyHours.Value;
     }
@@ -199,8 +201,10 @@ public class ScheduleValidationService : IScheduleValidationService
             query = query.Where(s => s.ScheduleShiftId != ignoreScheduleShiftId.Value);
         }
 
-        var existingHours = await query
-            .SumAsync(s => (decimal)(s.EndDate - s.StartDate).TotalHours);
+        var existingMinutes = await query
+            .SumAsync(s => EF.Functions.DateDiffMinute(s.StartDate, s.EndDate));
+
+        var existingHours = existingMinutes / 60m;
 
         return (existingHours + hoursToAdd) <= maxWeeklyHours.Value;
     }
@@ -307,8 +311,10 @@ public class ScheduleValidationService : IScheduleValidationService
             query = query.Where(s => s.ScheduleId != ignoreScheduleId.Value);
         }
 
-        var existingHours = await query
-            .SumAsync(s => (decimal)(s.EndDate - s.StartDate).TotalHours);
+        var existingMinutes = await query
+            .SumAsync(s => EF.Functions.DateDiffMinute(s.StartDate, s.EndDate));
+
+        var existingHours = existingMinutes / 60m;
 
         return (existingHours + hoursToAdd) <= maxDailyHours.Value;
     }
@@ -336,8 +342,10 @@ public class ScheduleValidationService : IScheduleValidationService
             query = query.Where(s => s.ScheduleId != ignoreScheduleId.Value);
         }
 
-        var existingHours = await query
-            .SumAsync(s => (decimal)(s.EndDate - s.StartDate).TotalHours);
+        var existingMinutes = await query
+            .SumAsync(s => EF.Functions.DateDiffMinute(s.StartDate, s.EndDate));
+
+        var existingHours = existingMinutes / 60m;
 
         return (existingHours + hoursToAdd) <= maxWeeklyHours.Value;
     }

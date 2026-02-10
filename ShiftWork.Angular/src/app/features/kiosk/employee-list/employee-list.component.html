@@ -73,7 +73,7 @@
       <div *ngIf="isOnShift(employee.statusShiftWork)" class="status-indicator">
         <i class="fas fa-check-circle"></i>
       </div>
-      <div *ngIf="hasPublishedScheduleToday(employee) && !isOnShift(employee.statusShiftWork)" class="schedule-indicator">
+      <div *ngIf="hasPendingScheduleToday(employee) && !isOnShift(employee.statusShiftWork)" class="schedule-indicator">
         <i class="bi bi-calendar-check"></i>
       </div>
     </div>
@@ -83,8 +83,8 @@
         {{ timing }}
       </span>
     </div>
-    <div class="subtle-label" *ngIf="hasPublishedScheduleToday(employee) && !isOnShift(employee.statusShiftWork)" title="Has a published schedule for today">
-      Published today
+    <div class="subtle-label" *ngIf="hasPendingScheduleToday(employee) && !isOnShift(employee.statusShiftWork)" title="Has a pending schedule for today">
+      Pending today
     </div>
     <div class="action-buttons mt-2">
       <div class="btn btn-sm btn-outline-success me-2" *ngIf="canStartShift(employee)" title="Start Shift">

@@ -61,10 +61,17 @@ namespace ShiftWork.Api.Controllers
 
                 var autoClockOutTasks = people.Select(async person =>
                 {
-                    var didAutoClockOut = await _shiftEventService.EnsureAutoClockOutForPersonAsync(companyId, person.PersonId);
-                    if (didAutoClockOut)
+                    try
                     {
-                        person.StatusShiftWork = "OffShift";
+                        var didAutoClockOut = await _shiftEventService.EnsureAutoClockOutForPersonAsync(companyId, person.PersonId);
+                        if (didAutoClockOut)
+                        {
+                            person.StatusShiftWork = "OffShift";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Auto clock-out failed for person {PersonId} in company {CompanyId}.", person.PersonId, companyId);
                     }
                 });
                 await Task.WhenAll(autoClockOutTasks);

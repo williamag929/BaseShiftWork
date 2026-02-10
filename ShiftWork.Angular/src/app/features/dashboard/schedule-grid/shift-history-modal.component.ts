@@ -247,6 +247,10 @@ export class ShiftHistoryModalComponent implements OnInit {
     return !!entry.clockIn && !entry.clockOut;
   }
 
+  canApproveMissed(entry: ShiftHistoryEntry): boolean {
+    return entry.status === 'missed' && entry.schedules.length > 0;
+  }
+
   startEditClockTimes(entry: ShiftHistoryEntry): void {
     this.editingClockEntryKey = this.getEntryKey(entry);
     this.editClockInTime = entry.clockIn ? this.toTimeInput(entry.clockIn) : '';
@@ -303,12 +307,12 @@ export class ShiftHistoryModalComponent implements OnInit {
         });
       } else {
         const payload: ShiftEvent = {
-          eventLogId: '',
+          eventLogId: '00000000-0000-0000-0000-000000000000',
           eventDate: updatedClockOut,
           eventType: 'clockout',
           companyId: this.companyId,
           personId: this.personId,
-          eventObject: null,
+          eventObject: JSON.stringify({ manualClockOut: true }),
           description: 'Manual clock-out',
           kioskDevice: null,
           geoLocation: null,
@@ -323,13 +327,77 @@ export class ShiftHistoryModalComponent implements OnInit {
           },
           error: (err) => {
             console.error('Failed to create clock-out', err);
-            this.actionError = 'Failed to create manual clock-out.';
+            if (err?.status === 409) {
+              this.actionError = 'Clock-out already exists. Refreshing history so you can edit the clock-out time.';
+              this.loadHistory();
+            } else {
+              this.actionError = 'Failed to create manual clock-out.';
+            }
           }
         });
       }
     }
 
     this.cancelEditClockTimes();
+  }
+
+  approveMissedShift(entry: ShiftHistoryEntry): void {
+    if (!this.companyId || !this.personId) return;
+    const schedule = entry.schedules[0];
+    if (!schedule) return;
+
+    const clockInDate = this.roundToFiveMinutes(new Date(schedule.startDate));
+    const clockOutDate = this.roundToFiveMinutes(new Date(schedule.endDate));
+
+    const clockInPayload: ShiftEvent = {
+      eventLogId: '00000000-0000-0000-0000-000000000000',
+      eventDate: clockInDate,
+      eventType: 'clockin',
+      companyId: this.companyId,
+      personId: this.personId,
+      eventObject: JSON.stringify({ manualClockIn: true, approvedMissed: true }),
+      description: 'Manual clock-in (approved missed shift)',
+      kioskDevice: null,
+      geoLocation: null,
+      photoUrl: null
+    } as ShiftEvent;
+
+    const clockOutPayload: ShiftEvent = {
+      eventLogId: '00000000-0000-0000-0000-000000000000',
+      eventDate: clockOutDate,
+      eventType: 'clockout',
+      companyId: this.companyId,
+      personId: this.personId,
+      eventObject: JSON.stringify({ manualClockOut: true, approvedMissed: true }),
+      description: 'Manual clock-out (approved missed shift)',
+      kioskDevice: null,
+      geoLocation: null,
+      photoUrl: null
+    } as ShiftEvent;
+
+    this.shiftEventService.createShiftEvent(this.companyId, clockInPayload).subscribe({
+      next: (createdIn) => {
+        entry.clockIn = new Date(createdIn.eventDate);
+        entry.events.push(createdIn);
+
+        this.shiftEventService.createShiftEvent(this.companyId, clockOutPayload).subscribe({
+          next: (createdOut) => {
+            entry.clockOut = new Date(createdOut.eventDate);
+            entry.events.push(createdOut);
+            this.updateEntryDuration(entry);
+            entry.status = 'completed';
+          },
+          error: (err) => {
+            console.error('Failed to create manual clock-out for missed shift', err);
+            this.actionError = 'Failed to create manual clock-out for missed shift.';
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Failed to create manual clock-in for missed shift', err);
+        this.actionError = 'Failed to create manual clock-in for missed shift.';
+      }
+    });
   }
 
   startEditSchedule(schedule: Schedule): void {
