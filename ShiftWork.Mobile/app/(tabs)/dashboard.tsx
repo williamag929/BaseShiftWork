@@ -1,5 +1,5 @@
 import { ShiftEventTypes } from '@/types/api';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl, AppState, AppStateStatus } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl, AppState, AppStateStatus, Modal } from 'react-native';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -26,6 +26,9 @@ export default function DashboardScreen() {
   const [timeOffRequests, setTimeOffRequests] = useState<TimeOffRequest[]>([]);
   const [timeOffLoading, setTimeOffLoading] = useState(false);
   const [silentRefreshing, setSilentRefreshing] = useState(false);
+  const [recentModalVisible, setRecentModalVisible] = useState(false);
+  const [recentPage, setRecentPage] = useState(1);
+  const recentPageSize = 10;
   
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const notificationListenerRef = useRef<Notifications.Subscription | null>(null);
@@ -38,6 +41,22 @@ export default function DashboardScreen() {
   }, [recentEvents, activeClockInAt]);
 
   const nextShift = useMemo(() => (upcoming?.length ? upcoming[0] : null), [upcoming]);
+
+  const recentPreview = useMemo(() => recentEvents.slice(0, 4), [recentEvents]);
+  const recentTotalPages = useMemo(
+    () => Math.max(1, Math.ceil(recentEvents.length / recentPageSize)),
+    [recentEvents.length]
+  );
+  const pagedRecent = useMemo(() => {
+    const start = (recentPage - 1) * recentPageSize;
+    return recentEvents.slice(start, start + recentPageSize);
+  }, [recentEvents, recentPage, recentPageSize]);
+
+  useEffect(() => {
+    if (recentPage > recentTotalPages) {
+      setRecentPage(recentTotalPages);
+    }
+  }, [recentPage, recentTotalPages]);
 
   useEffect(() => {
     // derive start from recentEvents or persisted value
@@ -294,7 +313,19 @@ export default function DashboardScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recent Activity</Text>
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>Recent Activity</Text>
+          {recentEvents.length > 4 && (
+            <TouchableOpacity
+              onPress={() => {
+                setRecentPage(1);
+                setRecentModalVisible(true);
+              }}
+            >
+              <Text style={styles.viewMoreText}>View more</Text>
+            </TouchableOpacity>
+          )}
+        </View>
         {loading && <ActivityIndicator />}
         {!loading && recentEvents.length === 0 && (
           <View style={styles.emptyRow}>
@@ -302,7 +333,7 @@ export default function DashboardScreen() {
             <Text style={styles.emptyInlineText}>No recent activity</Text>
           </View>
         )}
-        {!loading && recentEvents.map((e) => (
+        {!loading && recentPreview.map((e) => (
           <Card key={e.eventLogId} style={styles.card}>
             <Text style={styles.cardText}>{e.eventType.replace('_', ' ')}</Text>
             <Text style={styles.cardDate}>{formatDate(e.eventDate)} {formatTime(e.eventDate)}</Text>
@@ -370,6 +401,59 @@ export default function DashboardScreen() {
         ))}
       </View>
     </ScrollView>
+
+    <Modal
+      visible={recentModalVisible}
+      animationType="slide"
+      transparent
+      onRequestClose={() => setRecentModalVisible(false)}
+    >
+      <View style={styles.modalBackdrop}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Recent Activity</Text>
+            <TouchableOpacity onPress={() => setRecentModalVisible(false)}>
+              <Ionicons name="close" size={22} color={colors.text} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView contentContainerStyle={styles.modalContent}>
+            {pagedRecent.length === 0 && (
+              <View style={styles.emptyRow}>
+                <Ionicons name="pulse-outline" size={18} color="#8E99A8" />
+                <Text style={styles.emptyInlineText}>No recent activity</Text>
+              </View>
+            )}
+            {pagedRecent.map((e) => (
+              <Card key={e.eventLogId} style={styles.card}>
+                <Text style={styles.cardText}>{e.eventType.replace('_', ' ')}</Text>
+                <Text style={styles.cardDate}>{formatDate(e.eventDate)} {formatTime(e.eventDate)}</Text>
+              </Card>
+            ))}
+          </ScrollView>
+
+          {recentEvents.length > recentPageSize && (
+            <View style={styles.paginationRow}>
+              <TouchableOpacity
+                style={[styles.pageButton, recentPage === 1 && styles.pageButtonDisabled]}
+                disabled={recentPage === 1}
+                onPress={() => setRecentPage((p) => Math.max(1, p - 1))}
+              >
+                <Text style={styles.pageButtonText}>Previous</Text>
+              </TouchableOpacity>
+              <Text style={styles.pageIndicator}>{recentPage} / {recentTotalPages}</Text>
+              <TouchableOpacity
+                style={[styles.pageButton, recentPage === recentTotalPages && styles.pageButtonDisabled]}
+                disabled={recentPage === recentTotalPages}
+                onPress={() => setRecentPage((p) => Math.min(recentTotalPages, p + 1))}
+              >
+                <Text style={styles.pageButtonText}>Next</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      </View>
+    </Modal>
   );
 }
 
@@ -481,6 +565,17 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.text,
     marginBottom: 12,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  viewMoreText: {
+    color: colors.primary,
+    fontSize: 13,
+    fontWeight: '600',
   },
   card: {
     backgroundColor: colors.surface,
@@ -612,6 +707,60 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 6,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  modalContainer: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    maxHeight: '80%',
+    paddingBottom: 16,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E6E9EF',
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  modalContent: {
+    padding: 16,
+  },
+  paginationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  pageButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  pageButtonDisabled: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  pageIndicator: {
+    fontSize: 12,
+    color: colors.muted,
   },
   syncIndicator: {
     flexDirection: 'row',

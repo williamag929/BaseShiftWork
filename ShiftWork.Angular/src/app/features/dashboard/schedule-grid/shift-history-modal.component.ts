@@ -32,10 +32,18 @@ export class ShiftHistoryModalComponent implements OnInit {
   loading: boolean = true;
   historyEntries: ShiftHistoryEntry[] = [];
   errorMessage: string = '';
+  actionError: string = '';
   
   // Filter options
   dateRange: 'week' | 'month' | 'quarter' | 'year' | 'all' = 'month';
   statusFilter: 'all' | 'completed' | 'missed' | 'sick' = 'all';
+
+  editingScheduleId: number | null = null;
+  editStartTime: string = '';
+  editEndTime: string = '';
+  editingClockEntryKey: string | null = null;
+  editClockInTime: string = '';
+  editClockOutTime: string = '';
 
   constructor(
     private shiftEventService: ShiftEventService,
@@ -55,6 +63,7 @@ export class ShiftHistoryModalComponent implements OnInit {
 
     this.loading = true;
     this.errorMessage = '';
+    this.actionError = '';
 
     // Calculate date range
     const endDate = new Date();
@@ -232,5 +241,204 @@ export class ShiftHistoryModalComponent implements OnInit {
 
   getMissedCount(): number {
     return this.filteredEntries.filter(e => e.status === 'missed').length;
+  }
+
+  canManualClockOut(entry: ShiftHistoryEntry): boolean {
+    return !!entry.clockIn && !entry.clockOut;
+  }
+
+  startEditClockTimes(entry: ShiftHistoryEntry): void {
+    this.editingClockEntryKey = this.getEntryKey(entry);
+    this.editClockInTime = entry.clockIn ? this.toTimeInput(entry.clockIn) : '';
+    this.editClockOutTime = entry.clockOut ? this.toTimeInput(entry.clockOut) : '';
+    this.actionError = '';
+  }
+
+  cancelEditClockTimes(): void {
+    this.editingClockEntryKey = null;
+    this.editClockInTime = '';
+    this.editClockOutTime = '';
+  }
+
+  saveClockTimes(entry: ShiftHistoryEntry): void {
+    if (!this.companyId || !this.personId) return;
+
+    const clockInEvent = this.getLatestEvent(entry, 'clockin');
+    const clockOutEvent = this.getLatestEvent(entry, 'clockout');
+
+    if (this.editClockInTime && clockInEvent) {
+      const updatedClockIn = this.roundToFiveMinutes(this.buildDateWithTime(entry.date, this.editClockInTime));
+      const payload: ShiftEvent = {
+        ...clockInEvent,
+        eventDate: updatedClockIn
+      } as ShiftEvent;
+      this.shiftEventService.updateShiftEvent(this.companyId, clockInEvent.eventLogId, payload).subscribe({
+        next: (updated) => {
+          entry.clockIn = new Date(updated.eventDate);
+        },
+        error: (err) => {
+          console.error('Failed to update clock-in', err);
+          this.actionError = 'Failed to update clock-in time.';
+        }
+      });
+    }
+
+    if (this.editClockOutTime) {
+      const updatedClockOut = this.roundToFiveMinutes(this.buildDateWithTime(entry.date, this.editClockOutTime));
+      if (clockOutEvent) {
+        const payload: ShiftEvent = {
+          ...clockOutEvent,
+          eventDate: updatedClockOut
+        } as ShiftEvent;
+        this.shiftEventService.updateShiftEvent(this.companyId, clockOutEvent.eventLogId, payload).subscribe({
+          next: (updated) => {
+            entry.clockOut = new Date(updated.eventDate);
+            this.updateEntryDuration(entry);
+            entry.status = 'completed';
+          },
+          error: (err) => {
+            console.error('Failed to update clock-out', err);
+            this.actionError = 'Failed to update clock-out time.';
+          }
+        });
+      } else {
+        const payload: ShiftEvent = {
+          eventLogId: '',
+          eventDate: updatedClockOut,
+          eventType: 'clockout',
+          companyId: this.companyId,
+          personId: this.personId,
+          eventObject: null,
+          description: 'Manual clock-out',
+          kioskDevice: null,
+          geoLocation: null,
+          photoUrl: null
+        } as ShiftEvent;
+        this.shiftEventService.createShiftEvent(this.companyId, payload).subscribe({
+          next: (created) => {
+            entry.clockOut = new Date(created.eventDate);
+            entry.events.push(created);
+            this.updateEntryDuration(entry);
+            entry.status = 'completed';
+          },
+          error: (err) => {
+            console.error('Failed to create clock-out', err);
+            this.actionError = 'Failed to create manual clock-out.';
+          }
+        });
+      }
+    }
+
+    this.cancelEditClockTimes();
+  }
+
+  startEditSchedule(schedule: Schedule): void {
+    this.editingScheduleId = schedule.scheduleId;
+    this.editStartTime = this.toTimeInput(new Date(schedule.startDate));
+    this.editEndTime = this.toTimeInput(new Date(schedule.endDate));
+    this.actionError = '';
+  }
+
+  cancelEditSchedule(): void {
+    this.editingScheduleId = null;
+    this.editStartTime = '';
+    this.editEndTime = '';
+  }
+
+  saveScheduleTime(schedule: Schedule): void {
+    if (!this.companyId) return;
+    const startDate = this.buildDateWithTime(new Date(schedule.startDate), this.editStartTime);
+    const endDate = this.buildDateWithTime(new Date(schedule.endDate), this.editEndTime);
+
+    const updated: Schedule = {
+      ...schedule,
+      startDate,
+      endDate
+    } as Schedule;
+
+    this.scheduleService.updateSchedule(this.companyId, schedule.scheduleId, updated).subscribe({
+      next: () => {
+        schedule.startDate = startDate;
+        schedule.endDate = endDate;
+        this.cancelEditSchedule();
+      },
+      error: (err) => {
+        console.error('Failed to update schedule time', err);
+        this.actionError = 'Failed to update schedule time.';
+      }
+    });
+  }
+
+  approveSchedule(schedule: Schedule): void {
+    if (!this.companyId) return;
+    const updated: Schedule = {
+      ...schedule,
+      status: 'published'
+    } as Schedule;
+
+    this.scheduleService.updateSchedule(this.companyId, schedule.scheduleId, updated).subscribe({
+      next: () => {
+        schedule.status = 'published';
+      },
+      error: (err) => {
+        console.error('Failed to approve schedule', err);
+        this.actionError = 'Failed to approve schedule.';
+      }
+    });
+  }
+
+  manualClockOut(entry: ShiftHistoryEntry): void {
+    this.startEditClockTimes(entry);
+    if (!this.editClockOutTime) {
+      this.editClockOutTime = this.toTimeInput(new Date());
+    }
+  }
+
+  isUnpublished(schedule: Schedule): boolean {
+    return (schedule.status || '').toLowerCase() !== 'published';
+  }
+
+  private toTimeInput(date: Date): string {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+  private buildDateWithTime(date: Date, time: string): Date {
+    const [h, m] = time.split(':').map(Number);
+    const copy = new Date(date);
+    copy.setHours(h, m, 0, 0);
+    return copy;
+  }
+
+  private roundToFiveMinutes(date: Date): Date {
+    const rounded = new Date(date);
+    const minutes = rounded.getMinutes();
+    const roundedMinutes = Math.round(minutes / 5) * 5;
+    if (roundedMinutes === 60) {
+      rounded.setHours(rounded.getHours() + 1, 0, 0, 0);
+    } else {
+      rounded.setMinutes(roundedMinutes, 0, 0);
+    }
+    return rounded;
+  }
+
+  private getEntryKey(entry: ShiftHistoryEntry): string {
+    return entry.date.toDateString();
+  }
+
+  private getLatestEvent(entry: ShiftHistoryEntry, type: string): ShiftEvent | undefined {
+    return entry.events
+      .filter(e => (e.eventType || '').toLowerCase() === type)
+      .sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime())[0];
+  }
+
+  private updateEntryDuration(entry: ShiftHistoryEntry): void {
+    if (entry.clockIn && entry.clockOut) {
+      const diff = entry.clockOut.getTime() - entry.clockIn.getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      entry.duration = `${hours}h ${minutes}m`;
+    }
   }
 }

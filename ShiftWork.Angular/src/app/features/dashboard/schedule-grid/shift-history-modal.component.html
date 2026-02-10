@@ -51,6 +51,11 @@
       {{ errorMessage }}
     </div>
 
+    <div class="error-message" *ngIf="actionError && !loading">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ actionError }}
+    </div>
+
     <div class="no-data" *ngIf="!loading && !errorMessage && filteredEntries.length === 0">
       <i class="bi bi-calendar-x"></i>
       <span>No shift history found for the selected period</span>
@@ -93,17 +98,68 @@
               <span class="duration-label">Duration:</span>
               <span class="duration-value">{{ entry.duration }}</span>
             </div>
+            <div class="history-actions">
+              <button class="action-btn" (click)="startEditClockTimes(entry)">
+                <i class="bi bi-pencil"></i>
+                Edit Clock Times
+              </button>
+              <button class="action-btn warn" *ngIf="canManualClockOut(entry)" (click)="manualClockOut(entry)">
+                <i class="bi bi-box-arrow-left"></i>
+                Manual Clock Out
+              </button>
+            </div>
+
+            <div class="clock-edit" *ngIf="editingClockEntryKey === entry.date.toDateString()">
+              <label>
+                Clock In
+                <input type="time" [(ngModel)]="editClockInTime" />
+              </label>
+              <label>
+                Clock Out
+                <input type="time" [(ngModel)]="editClockOutTime" />
+              </label>
+              <div class="clock-edit-actions">
+                <button class="action-btn success" (click)="saveClockTimes(entry)">Save</button>
+                <button class="action-btn ghost" (click)="cancelEditClockTimes()">Cancel</button>
+              </div>
+            </div>
           </div>
 
           <div class="schedule-info" *ngIf="entry.schedules.length > 0">
             <div class="schedule-item" *ngFor="let schedule of entry.schedules">
               <i class="bi bi-calendar-week"></i>
-              <span>
+              <span *ngIf="editingScheduleId !== schedule.scheduleId">
                 {{ schedule.startDate | date:'shortTime' }} - {{ schedule.endDate | date:'shortTime' }}
               </span>
               <span class="schedule-status" [class.status-unpublished]="schedule.status === 'unpublished'">
                 {{ schedule.status }}
               </span>
+
+              <div class="schedule-actions" *ngIf="editingScheduleId !== schedule.scheduleId">
+                <button class="action-btn" (click)="startEditSchedule(schedule)">
+                  <i class="bi bi-pencil"></i>
+                  Edit Time
+                </button>
+                <button class="action-btn success" *ngIf="isUnpublished(schedule)" (click)="approveSchedule(schedule)">
+                  <i class="bi bi-check-circle"></i>
+                  Approve
+                </button>
+              </div>
+
+              <div class="schedule-edit" *ngIf="editingScheduleId === schedule.scheduleId">
+                <label>
+                  Start
+                  <input type="time" [(ngModel)]="editStartTime" />
+                </label>
+                <label>
+                  End
+                  <input type="time" [(ngModel)]="editEndTime" />
+                </label>
+                <div class="schedule-edit-actions">
+                  <button class="action-btn success" (click)="saveScheduleTime(schedule)">Save</button>
+                  <button class="action-btn ghost" (click)="cancelEditSchedule()">Cancel</button>
+                </div>
+              </div>
             </div>
           </div>
 
