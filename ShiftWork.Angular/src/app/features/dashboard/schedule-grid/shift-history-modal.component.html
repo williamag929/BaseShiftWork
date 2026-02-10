@@ -129,7 +129,7 @@
             <div class="schedule-item" *ngFor="let schedule of entry.schedules">
               <i class="bi bi-calendar-week"></i>
               <span *ngIf="editingScheduleId !== schedule.scheduleId">
-                {{ schedule.startDate | date:'shortTime' }} - {{ schedule.endDate | date:'shortTime' }}
+                {{ schedule.startDate | date:'shortTime':'UTC' }} - {{ schedule.endDate | date:'shortTime':'UTC' }}
               </span>
               <span class="schedule-status" [class.status-unpublished]="schedule.status === 'unpublished'">
                 {{ schedule.status }}

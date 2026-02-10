@@ -162,11 +162,11 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
 
           if (this.selectedEmployee.scheduleDetails) {
             const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            const todayUTCDate = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
             this.employeeSchedule = this.selectedEmployee.scheduleDetails.find(s => {
               const scheduleDate = new Date(s.startDate);
-              scheduleDate.setHours(0, 0, 0, 0);
-              return s.personId === this.selectedEmployee?.personId && scheduleDate.getTime() === today.getTime();
+              const schedUTCDate = scheduleDate.getUTCFullYear() * 10000 + (scheduleDate.getUTCMonth() + 1) * 100 + scheduleDate.getUTCDate();
+              return s.personId === this.selectedEmployee?.personId && schedUTCDate === todayUTCDate;
             }) || null;
           }
         }

@@ -192,16 +192,19 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
     }
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayY = today.getFullYear();
+    const todayM = today.getMonth();
+    const todayD = today.getDate();
 
     // Load all schedules for today
     this.scheduleService.getSchedules(this.activeCompany.companyId).subscribe(
       (schedules: any[]) => {
-        // Filter for today's published schedules
+        // Filter for today's published schedules (compare using UTC date to match wall-clock storage)
         const todayPublishedSchedules = schedules.filter((s: any) => {
           const scheduleDate = new Date(s.startDate);
-          scheduleDate.setHours(0, 0, 0, 0);
-          return scheduleDate.getTime() === today.getTime() &&
+          return scheduleDate.getUTCFullYear() === todayY &&
+                 scheduleDate.getUTCMonth() === todayM &&
+                 scheduleDate.getUTCDate() === todayD &&
                  s.status && s.status.toLowerCase() === 'published';
         });
 
@@ -305,16 +308,19 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
     this.scheduleService.search(this.activeCompany.companyId, '', '', '', employee.personId).subscribe(
       (schedules: any) => {
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const todayY = today.getFullYear();
+        const todayM = today.getMonth();
+        const todayD = today.getDate();
         employee.scheduleDetails = schedules || [];
 
         if (schedules && schedules.length > 0) {
-          // Filter for today's published schedules only
+          // Filter for today's published schedules only (UTC date = wall-clock date)
           employee.scheduleDetails = schedules.filter((s: any) => {
             const scheduleDate = new Date(s.startDate);
-            scheduleDate.setHours(0, 0, 0, 0);
             return s.personId === employee.personId && 
-                   scheduleDate.getTime() === today.getTime() &&
+                   scheduleDate.getUTCFullYear() === todayY &&
+                   scheduleDate.getUTCMonth() === todayM &&
+                   scheduleDate.getUTCDate() === todayD &&
                    s.status && s.status.toLowerCase() === 'published';
           }) || [];
         }

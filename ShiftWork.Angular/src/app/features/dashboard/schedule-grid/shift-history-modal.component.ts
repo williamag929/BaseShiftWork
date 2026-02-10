@@ -116,12 +116,13 @@ export class ShiftHistoryModalComponent implements OnInit {
   groupHistoryByDate(schedules: Schedule[], events: ShiftEvent[]): ShiftHistoryEntry[] {
     const dateMap = new Map<string, ShiftHistoryEntry>();
 
-    // Process schedules
+    // Process schedules (use UTC date for grouping since schedule times are wall-clock UTC)
     schedules.forEach(schedule => {
-      const dateKey = new Date(schedule.startDate).toDateString();
+      const d = new Date(schedule.startDate);
+      const dateKey = `${d.getUTCFullYear()}-${d.getUTCMonth()}-${d.getUTCDate()}`;
       if (!dateMap.has(dateKey)) {
         dateMap.set(dateKey, {
-          date: new Date(schedule.startDate),
+          date: new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())),
           schedules: [],
           events: [],
           status: 'completed'
@@ -402,8 +403,10 @@ export class ShiftHistoryModalComponent implements OnInit {
 
   startEditSchedule(schedule: Schedule): void {
     this.editingScheduleId = schedule.scheduleId;
-    this.editStartTime = this.toTimeInput(new Date(schedule.startDate));
-    this.editEndTime = this.toTimeInput(new Date(schedule.endDate));
+    const sd = new Date(schedule.startDate);
+    const ed = new Date(schedule.endDate);
+    this.editStartTime = sd.getUTCHours().toString().padStart(2, '0') + ':' + sd.getUTCMinutes().toString().padStart(2, '0');
+    this.editEndTime = ed.getUTCHours().toString().padStart(2, '0') + ':' + ed.getUTCMinutes().toString().padStart(2, '0');
     this.actionError = '';
   }
 
@@ -415,8 +418,12 @@ export class ShiftHistoryModalComponent implements OnInit {
 
   saveScheduleTime(schedule: Schedule): void {
     if (!this.companyId) return;
-    const startDate = this.buildDateWithTime(new Date(schedule.startDate), this.editStartTime);
-    const endDate = this.buildDateWithTime(new Date(schedule.endDate), this.editEndTime);
+    const origStart = new Date(schedule.startDate);
+    const origEnd = new Date(schedule.endDate);
+    const [sh, sm] = this.editStartTime.split(':').map(Number);
+    const [eh, em] = this.editEndTime.split(':').map(Number);
+    const startDate = new Date(Date.UTC(origStart.getUTCFullYear(), origStart.getUTCMonth(), origStart.getUTCDate(), sh, sm, 0));
+    const endDate = new Date(Date.UTC(origEnd.getUTCFullYear(), origEnd.getUTCMonth(), origEnd.getUTCDate(), eh, em, 0));
 
     const updated: Schedule = {
       ...schedule,

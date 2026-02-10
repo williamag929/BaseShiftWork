@@ -18,7 +18,7 @@ export const formatDate = (date: Date | string): string => {
 };
 
 /**
- * Format time for display
+ * Format time for display (local timezone — use for real UTC instants like clock-in/out)
  */
 export const formatTime = (date: Date | string): string => {
   const d = typeof date === 'string' ? new Date(date) : date;
@@ -27,6 +27,21 @@ export const formatTime = (date: Date | string): string => {
     minute: '2-digit',
     hour12: true,
   });
+};
+
+/**
+ * Format schedule time for display (reads UTC hours as wall-clock time).
+ * Schedule times are stored as UTC where the UTC value IS the intended local time.
+ * Use this for ScheduleShift.startDate / endDate.
+ */
+export const formatScheduleTime = (date: Date | string): string => {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const hours = d.getUTCHours();
+  const minutes = d.getUTCMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHours = hours % 12 || 12;
+  const displayMinutes = minutes.toString().padStart(2, '0');
+  return `${displayHours}:${displayMinutes} ${ampm}`;
 };
 
 /**

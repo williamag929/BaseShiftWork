@@ -15,7 +15,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from '@/store/authStore';
 import { scheduleService } from '@/services';
 import { peopleService } from '@/services/people.service';
-import { formatDate, formatTime } from '@/utils/date.utils';
+import { formatDate, formatTime, formatScheduleTime } from '@/utils/date.utils';
 import type { ScheduleShiftDto } from '@/types/api';
 import * as Notifications from 'expo-notifications';
 import { notificationService } from '@/services/notification.service';
@@ -193,12 +193,13 @@ export default function WeeklyScheduleScreen() {
       
       publishedShifts.forEach((shift: ScheduleShiftDto) => {
         const shiftDate = new Date(shift.startDate as Date);
-        shiftDate.setHours(0, 0, 0, 0);
         
         const dayIndex = days.findIndex(day => {
           const d = new Date(day.date);
-          d.setHours(0, 0, 0, 0);
-          return d.getTime() === shiftDate.getTime();
+          // Compare using UTC date components since schedule times are stored as wall-clock UTC
+          return d.getFullYear() === shiftDate.getUTCFullYear()
+            && d.getMonth() === shiftDate.getUTCMonth()
+            && d.getDate() === shiftDate.getUTCDate();
         });
         
         if (dayIndex >= 0) {
@@ -376,7 +377,7 @@ export default function WeeklyScheduleScreen() {
                     >
                       <View style={styles.shiftTime}>
                         <Text style={styles.shiftTimeText}>
-                          {formatTime(shift.startDate)} - {formatTime(shift.endDate)}
+                          {formatScheduleTime(shift.startDate)} - {formatScheduleTime(shift.endDate)}
                         </Text>
                         <Text style={styles.shiftHours}>
                           {calculateShiftHours(shift)}h
@@ -430,7 +431,7 @@ export default function WeeklyScheduleScreen() {
                 </View>
                 <View style={styles.modalRow}>
                   <Text style={styles.modalLabel}>Time</Text>
-                  <Text style={styles.modalValue}>{formatTime(selectedShift.startDate)} - {formatTime(selectedShift.endDate)}</Text>
+                  <Text style={styles.modalValue}>{formatScheduleTime(selectedShift.startDate)} - {formatScheduleTime(selectedShift.endDate)}</Text>
                 </View>
                 <View style={styles.modalRow}>
                   <Text style={styles.modalLabel}>Duration</Text>

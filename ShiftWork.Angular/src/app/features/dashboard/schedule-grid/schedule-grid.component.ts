@@ -143,9 +143,12 @@ export class ScheduleGridComponent implements OnInit {
 
   private buildDateWithTime(date: Date, time: string): Date {
     const [h,m] = time.split(':').map(Number);
-    const copy = new Date(date);
-    copy.setHours(h, m, 0, 0);
-    return copy;
+    return new Date(Date.UTC(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      h, m, 0
+    ));
   }
 
   handleRequestTimeOff(payload: { personId: number|null; start: Date; end: Date; note?: string }): void {
@@ -505,16 +508,15 @@ export class ScheduleGridComponent implements OnInit {
             const originalStartDate = new Date(originalSchedule.startDate);
             const originalEndDate = new Date(originalSchedule.endDate);
 
-            // Create new dates with target date but keep the same time from original
-            const newStartDate = new Date(originalStartDate);
-            newStartDate.setFullYear(targetDate.getFullYear());
-            newStartDate.setMonth(targetDate.getMonth());
-            newStartDate.setDate(targetDate.getDate());
-
-            const newEndDate = new Date(originalEndDate);
-            newEndDate.setFullYear(targetDate.getFullYear());
-            newEndDate.setMonth(targetDate.getMonth());
-            newEndDate.setDate(targetDate.getDate());
+            // Create new dates with target date but keep the same wall-clock time from original (UTC)
+            const newStartDate = new Date(Date.UTC(
+              targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(),
+              originalStartDate.getUTCHours(), originalStartDate.getUTCMinutes(), 0
+            ));
+            const newEndDate = new Date(Date.UTC(
+              targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(),
+              originalEndDate.getUTCHours(), originalEndDate.getUTCMinutes(), 0
+            ));
 
             const newSchedule: Schedule = {
               scheduleId: 0,
@@ -776,7 +778,10 @@ export class ScheduleGridComponent implements OnInit {
       date.setDate(date.getDate() + i);
       const dayShifts = shifts.filter(s => {
         const shiftDate = new Date(s.startDate);
-        return shiftDate.toDateString() === date.toDateString();
+        // Compare using UTC date components to avoid timezone-shifted day mismatches
+        return shiftDate.getUTCFullYear() === date.getFullYear()
+          && shiftDate.getUTCMonth() === date.getMonth()
+          && shiftDate.getUTCDate() === date.getDate();
       });
       const shiftBlocks: ShiftBlock[] = dayShifts.map(s => {
         const person = people.find(p => p.personId === s.personId);
@@ -917,8 +922,8 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   formatTime(date: Date): string {
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
     const ampm = hours >= 12 ? 'pm' : 'am';
     const displayHours = hours % 12 || 12;
     const displayMinutes = minutes > 0 ? `:${minutes.toString().padStart(2, '0')}` : '';

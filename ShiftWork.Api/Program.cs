@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.Services;
+using ShiftWork.Api.Helpers;
 using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -172,7 +173,14 @@ builder.Services.AddCors(options =>
                       });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Ensure all DateTime values round-trip as UTC with Z suffix.
+        // This prevents timezone drift when clients parse and re-serialize dates.
+        options.JsonSerializerOptions.Converters.Add(new UtcDateTimeJsonConverter());
+        options.JsonSerializerOptions.Converters.Add(new UtcNullableDateTimeJsonConverter());
+    });
 
 // Add AWS S3 client. Requires the AWSSDK.Extensions.NETCore.Setup package.
 builder.Services.AddAWSService<IAmazonS3>();
