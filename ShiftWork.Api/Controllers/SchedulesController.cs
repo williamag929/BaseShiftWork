@@ -83,6 +83,67 @@ namespace ShiftWork.Api.Controllers
         }
 
         /// <summary>
+        /// Retrieves schedules for a company with pagination and optional filters.
+        /// </summary>
+        [HttpGet("paged")]
+        [ProducesResponseType(typeof(PagedResultDto<ScheduleDto>), 200)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<PagedResultDto<ScheduleDto>>> GetSchedulesPaged(
+            string companyId,
+            [FromQuery] int? personId,
+            [FromQuery] int? locationId,
+            [FromQuery] string? startDate,
+            [FromQuery] string? endDate,
+            [FromQuery] string? searchQuery,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 200)
+        {
+            try
+            {
+                if (page < 1) page = 1;
+                if (pageSize < 1) pageSize = 200;
+                if (pageSize > 1000) pageSize = 1000;
+
+                DateTime? startDateTime = null;
+                if (!string.IsNullOrEmpty(startDate) && DateTime.TryParse(startDate, out var parsedStartDate))
+                {
+                    startDateTime = parsedStartDate;
+                }
+
+                DateTime? endDateTime = null;
+                if (!string.IsNullOrEmpty(endDate) && DateTime.TryParse(endDate, out var parsedEndDate))
+                {
+                    endDateTime = parsedEndDate;
+                }
+
+                var (items, totalCount) = await _scheduleService.GetSchedulesPaged(
+                    companyId,
+                    personId,
+                    locationId,
+                    startDateTime,
+                    endDateTime,
+                    searchQuery,
+                    page,
+                    pageSize);
+
+                var result = new PagedResultDto<ScheduleDto>
+                {
+                    Items = _mapper.Map<IEnumerable<ScheduleDto>>(items),
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving paged schedules for company {CompanyId}.", companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
         /// Retrieves a specific schedule by its ID.
         /// </summary>
         [HttpGet("{scheduleId}")]

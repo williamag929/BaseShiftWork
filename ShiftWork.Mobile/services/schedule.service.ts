@@ -3,6 +3,7 @@ import type {
   ScheduleDto,
   ScheduleShiftDto,
   ScheduleSearchParams,
+  PagedResult,
 } from '../types/api';
 
 export const scheduleService = {
@@ -45,6 +46,27 @@ export const scheduleService = {
       }
       throw err;
     }
+  },
+
+  /**
+   * Get schedule shifts for a company with pagination and filters
+   */
+  async getScheduleShiftsPaged(
+    companyId: string,
+    params: {
+      startDate?: string;
+      endDate?: string;
+      page?: number;
+      pageSize?: number;
+      personId?: number;
+      locationId?: number;
+      areaId?: number;
+    }
+  ): Promise<PagedResult<ScheduleShiftDto>> {
+    return apiClient.get<PagedResult<ScheduleShiftDto>>(
+      `/api/companies/${companyId}/scheduleshifts/paged`,
+      { params }
+    );
   },
 
   /**

@@ -5,6 +5,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ScheduleDetail } from '../models/schedule-detail.model';
+import { PagedResult } from '../models/paged-result.model';
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +26,41 @@ export class ScheduleService {
 
   getSchedules(companyId: string): Observable<Schedule[]> {
     return this.http.get<Schedule[]>(`${this.apiUrl}/companies/${companyId}/schedules`)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  getSchedulesPaged(
+    companyId: string,
+    startDate?: string,
+    endDate?: string,
+    page: number = 1,
+    pageSize: number = 200,
+    personId?: number,
+    locationId?: number,
+    searchQuery?: string
+  ): Observable<PagedResult<Schedule>> {
+    let params = new HttpParams();
+    if (startDate) {
+      params = params.set('startDate', startDate);
+    }
+    if (endDate) {
+      params = params.set('endDate', endDate);
+    }
+    if (personId) {
+      params = params.set('personId', personId.toString());
+    }
+    if (locationId) {
+      params = params.set('locationId', locationId.toString());
+    }
+    if (searchQuery) {
+      params = params.set('searchQuery', searchQuery);
+    }
+    params = params.set('page', page.toString());
+    params = params.set('pageSize', pageSize.toString());
+
+    return this.http.get<PagedResult<Schedule>>(`${this.apiUrl}/companies/${companyId}/schedules/paged`, { params })
       .pipe(
         catchError(this.handleError)
       );

@@ -13,7 +13,7 @@ public class PushNotificationService
     private readonly ShiftWorkContext _context;
     private readonly ILogger<PushNotificationService> _logger;
     private const string ExpoApiUrl = "https://exp.host/--/api/v2/push/send";
-    private static readonly Regex ExpoTokenRegex = new("^(Expo|Exponent)PushToken\[.+\]$", RegexOptions.Compiled);
+    private static readonly Regex ExpoTokenRegex = new(@"^(Expo|Exponent)PushToken\[.+\]$", RegexOptions.Compiled);
     private const int ExpoChunkSize = 100;
 
     public PushNotificationService(
