@@ -444,6 +444,7 @@ These settings are validated and enforced in existing code:
 
 ### 📊 Reporting & Analytics
 - **Shift History View** - Complete history modal showing past shifts, clock times, events per person
+- [ ] **Historic Actions Report (People Module)** - Add option on people/employees view to see last 10 historic actions (clock-in, clock-out, published, approved timesheet); implement as time-lapse report from newer to older with page navigation
 - **Attendance Reports** - Generate reports on late arrivals, absences, overtime
 - **Labor Cost Analysis** - Track labor costs by location, department, time period
 - **Schedule Coverage Heatmap** - Visual representation of staffing levels
