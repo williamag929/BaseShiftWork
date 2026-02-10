@@ -88,7 +88,23 @@ namespace ShiftWork.Api.Services
                 {
                     if (isOffShift && !allowManualClockOut)
                     {
-                        throw new InvalidOperationException("Person is not currently OnShift. Duplicate clock-out or invalid transition prevented.");
+                        // StatusShiftWork may be stale (e.g. auto-clockout race). Check actual events as fallback.
+                        var lastClockIn = await _context.ShiftEvents
+                            .Where(e => e.PersonId == shiftEvent.PersonId && e.EventType == "clockin")
+                            .OrderByDescending(e => e.EventDate)
+                            .FirstOrDefaultAsync();
+                        var hasOpenClockIn = false;
+                        if (lastClockIn != null)
+                        {
+                            var clockOutAfter = await _context.ShiftEvents
+                                .Where(e => e.PersonId == shiftEvent.PersonId && e.EventType == "clockout" && e.EventDate >= lastClockIn.EventDate)
+                                .FirstOrDefaultAsync();
+                            hasOpenClockIn = clockOutAfter == null;
+                        }
+                        if (!hasOpenClockIn)
+                        {
+                            throw new InvalidOperationException("Person is not currently OnShift. Duplicate clock-out or invalid transition prevented.");
+                        }
                     }
                 }
             }

@@ -55,6 +55,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
   employeeSchedule: ScheduleDetail | null = null;
   schedulesToday: ScheduleDetail[] = [];
   selectedLocation: Location | null = null;
+  private isInProgressFromEvents = false;
 
   webcamImage: WebcamImage | null = null;
   flippedImage: string | null = null;
@@ -75,6 +76,8 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
 
   // Derived UI helpers
   isOnShiftStatus(status: string | null | undefined): boolean {
+    // If local event data says person is clocked in, treat as on-shift
+    if (this.isInProgressFromEvents) return true;
     if (!status) return false;
     return status.startsWith('OnShift') || status === 'ShiftEventWithoutSchedule';
   }
@@ -157,6 +160,23 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
               .pipe(takeUntil(this.destroy$))
               .subscribe((status: string) => {
                 this.employeeStatus = status;
+              });
+
+            // Also check today's shift events to detect in-progress shifts as a fallback
+            this.shiftEventService.getShiftEventsByPersonId(company.companyId, this.selectedEmployee.personId)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe((events: ShiftEvent[]) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const endOfDay = new Date(today);
+                endOfDay.setDate(endOfDay.getDate() + 1);
+                const todays = (events || []).filter(ev => {
+                  const dt = new Date(ev.eventDate);
+                  return dt >= today && dt < endOfDay;
+                });
+                const clockIns = todays.filter(ev => (ev.eventType || '').toLowerCase() === 'clockin').length;
+                const clockOuts = todays.filter(ev => (ev.eventType || '').toLowerCase() === 'clockout').length;
+                this.isInProgressFromEvents = clockIns > clockOuts;
               });
           }
 

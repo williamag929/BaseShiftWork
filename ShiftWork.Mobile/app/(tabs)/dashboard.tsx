@@ -14,6 +14,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Card, EmptyState, SectionHeader } from '@/components/ui';
 import { colors } from '@/styles/theme';
 import { peopleService } from '@/services/people.service';
+import { locationService } from '@/services/location.service';
+import { formatScheduleTime } from '@/utils/date.utils';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -26,6 +28,7 @@ export default function DashboardScreen() {
   const [timeOffRequests, setTimeOffRequests] = useState<TimeOffRequest[]>([]);
   const [timeOffLoading, setTimeOffLoading] = useState(false);
   const [silentRefreshing, setSilentRefreshing] = useState(false);
+  const [todayShiftLocationName, setTodayShiftLocationName] = useState<string | null>(null);
   const [recentModalVisible, setRecentModalVisible] = useState(false);
   const [recentPage, setRecentPage] = useState(1);
   const recentPageSize = 10;
@@ -41,6 +44,35 @@ export default function DashboardScreen() {
   }, [recentEvents, activeClockInAt]);
 
   const nextShift = useMemo(() => (upcoming?.length ? upcoming[0] : null), [upcoming]);
+
+  // Find today's shift from upcoming
+  const todayShift = useMemo(() => {
+    if (!upcoming?.length) return null;
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+    return upcoming.find((s) => {
+      const start = new Date(s.startDate);
+      return start >= todayStart && start < todayEnd;
+    }) ?? null;
+  }, [upcoming]);
+
+  // Fetch location name for today's shift
+  useEffect(() => {
+    if (!companyId || !todayShift?.locationId) {
+      setTodayShiftLocationName(null);
+      return;
+    }
+    (async () => {
+      try {
+        const loc = await locationService.getLocationById(companyId, todayShift.locationId);
+        setTodayShiftLocationName(loc?.name ?? null);
+      } catch {
+        setTodayShiftLocationName(null);
+      }
+    })();
+  }, [companyId, todayShift?.locationId]);
 
   const recentPreview = useMemo(() => recentEvents.slice(0, 4), [recentEvents]);
   const recentTotalPages = useMemo(
@@ -197,6 +229,7 @@ export default function DashboardScreen() {
   };
 
   return (
+    <>
     <ScrollView 
       style={styles.container}
       refreshControl={
@@ -241,6 +274,38 @@ export default function DashboardScreen() {
           </View>
         )}
       </View>
+
+      {/* Shift Status Banner */}
+      {!!todayShift && (
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={[styles.shiftBanner, isClockedIn ? styles.shiftBannerOut : styles.shiftBannerIn]}
+          onPress={() => router.push('/(tabs)/clock' as any)}
+        >
+          <View style={styles.shiftBannerLeft}>
+            <Ionicons
+              name={isClockedIn ? 'log-out-outline' : 'log-in-outline'}
+              size={24}
+              color="#fff"
+            />
+          </View>
+          <View style={styles.shiftBannerContent}>
+            <Text style={styles.shiftBannerTitle}>
+              {isClockedIn ? 'You are on the clock' : 'Shift Pending — Tap to Clock In'}
+            </Text>
+            <Text style={styles.shiftBannerTime}>
+              {formatScheduleTime(todayShift.startDate)} — {formatScheduleTime(todayShift.endDate)}
+            </Text>
+            {!!todayShiftLocationName && (
+              <View style={styles.shiftBannerLocRow}>
+                <Ionicons name="location-outline" size={13} color="rgba(255,255,255,0.85)" />
+                <Text style={styles.shiftBannerLoc}>{todayShiftLocationName}</Text>
+              </View>
+            )}
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.7)" />
+        </TouchableOpacity>
+      )}
 
       <View style={styles.statsContainer}>
         <Card style={styles.statCard}>
@@ -454,6 +519,7 @@ export default function DashboardScreen() {
         </View>
       </View>
     </Modal>
+    </>
   );
 }
 
@@ -775,5 +841,52 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#fff',
     fontWeight: '500',
+  },
+  shiftBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginTop: -16,
+    marginBottom: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 14,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+  },
+  shiftBannerIn: {
+    backgroundColor: '#27AE60',
+  },
+  shiftBannerOut: {
+    backgroundColor: '#E74C3C',
+  },
+  shiftBannerLeft: {
+    marginRight: 14,
+  },
+  shiftBannerContent: {
+    flex: 1,
+  },
+  shiftBannerTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  shiftBannerTime: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.9)',
+    marginTop: 2,
+  },
+  shiftBannerLocRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 3,
+  },
+  shiftBannerLoc: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.85)',
   },
 });

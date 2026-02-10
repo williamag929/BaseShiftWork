@@ -29,12 +29,14 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpGet("{companyId}/questions")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<KioskQuestion>>> GetKioskQuestions(int companyId)
         {
             return await _kioskService.GetActiveQuestionsAsync(companyId);
         }
 
         [HttpPost("answers")]
+        [AllowAnonymous]
         public async Task<IActionResult> PostKioskAnswers([FromBody] List<KioskAnswer> answers)
         {
             if (answers == null || !answers.Any())

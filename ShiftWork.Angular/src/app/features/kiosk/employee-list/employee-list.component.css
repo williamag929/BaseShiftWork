@@ -165,3 +165,8 @@
   color: #6c757d; /* Bootstrap secondary text */
   text-align: center;
 }
+
+.subtle-label.on-shift-label {
+  color: #27ae60;
+  font-weight: 600;
+}

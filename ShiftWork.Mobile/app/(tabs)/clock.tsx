@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, TextInput, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, TextInput, Image, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Device from 'expo-device';
 import { shiftEventService, dbService } from '@/services';
@@ -9,9 +9,14 @@ import type { ShiftEventDto } from '@/types/api';
 import PhotoCapture from '@/components/PhotoCapture';
 import { peopleService } from '@/services/people.service';
 import { uploadService } from '@/services/upload.service';
+import { scheduleService } from '@/services/schedule.service';
+import { kioskService } from '@/services/kiosk.service';
+import { locationService } from '@/services/location.service';
 import { getActiveClockInAt, saveActiveClockInAt, clearActiveClockInAt } from '@/utils';
+import { formatScheduleTime } from '@/utils/date.utils';
 import { Card } from '@/components/ui';
 import { colors } from '@/styles/theme';
+import type { KioskQuestionDto, ScheduleShiftDto } from '@/types/api';
 
 export default function ClockScreen() {
   const { companyId, personId, name } = useAuthStore();
@@ -24,6 +29,9 @@ export default function ClockScreen() {
   const [cameraOpen, setCameraOpen] = useState(false);
   const [activeClockInAt, setActiveClockInAt] = useState<Date | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const [todayShift, setTodayShift] = useState<ScheduleShiftDto | null>(null);
+  const [safetyQuestions, setSafetyQuestions] = useState<KioskQuestionDto[]>([]);
+  const [shiftLocationName, setShiftLocationName] = useState<string | null>(null);
 
   const lastEvent = useMemo(() => (events.length ? events[0] : null), [events]);
   const isClockedIn = lastEvent?.eventType === 'clockin' || !!activeClockInAt;
@@ -94,6 +102,43 @@ export default function ClockScreen() {
       } catch {}
     })();
   }, [companyId, personId, name, setPersonProfile]);
+
+  // Fetch today's shift and kiosk safety questions
+  useEffect(() => {
+    if (!companyId || !personId) return;
+    (async () => {
+      try {
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const todayEnd = new Date(todayStart);
+        todayEnd.setDate(todayEnd.getDate() + 1);
+        const shifts = await scheduleService.getPersonShifts(
+          companyId,
+          personId,
+          todayStart.toISOString(),
+          todayEnd.toISOString()
+        );
+        const shift = shifts?.[0] ?? null;
+        setTodayShift(shift);
+        if (shift?.locationId) {
+          try {
+            const loc = await locationService.getLocationById(companyId, shift.locationId);
+            setShiftLocationName(loc?.name ?? null);
+          } catch {
+            setShiftLocationName(null);
+          }
+        }
+      } catch {
+        setTodayShift(null);
+      }
+      try {
+        const questions = await kioskService.getKioskQuestions(companyId);
+        setSafetyQuestions(questions.filter((q) => q.isActive));
+      } catch {
+        setSafetyQuestions([]);
+      }
+    })();
+  }, [companyId, personId]);
 
   // Update elapsed time every second when clocked in
   useEffect(() => {
@@ -181,6 +226,7 @@ export default function ClockScreen() {
         <Text style={styles.headerTitle}>Clock In/Out</Text>
         <Text style={styles.headerSubtitle}>Capture time, location, and optional photo.</Text>
       </View>
+      <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer} showsVerticalScrollIndicator={false}>
       <View style={styles.statusContainer}>
         <Text style={styles.statusLabel}>Current Status</Text>
         <View style={[styles.statusBadge, isClockedIn ? styles.badgeIn : styles.badgeOut]}>
@@ -213,6 +259,42 @@ export default function ClockScreen() {
         </View>
       </Card>
 
+      {/* Pre-Task Safety Card — shown when today's shift exists and not clocked in */}
+      {!!todayShift && !isClockedIn && (
+        <Card style={styles.safetyCard}>
+          <View style={styles.safetyHeader}>
+            <Ionicons name="shield-checkmark" size={20} color="#E67E22" />
+            <Text style={styles.safetyTitle}>Pre-Task Safety Check</Text>
+          </View>
+          <View style={styles.safetyShiftRow}>
+            <Ionicons name="time-outline" size={15} color={colors.primary} />
+            <Text style={styles.safetyShiftText}>
+              Today's Shift: {formatScheduleTime(todayShift.startDate)} — {formatScheduleTime(todayShift.endDate)}
+            </Text>
+          </View>
+          {!!shiftLocationName && (
+            <View style={styles.safetyShiftRow}>
+              <Ionicons name="location-outline" size={15} color={colors.primary} />
+              <Text style={styles.safetyShiftText}>{shiftLocationName}</Text>
+            </View>
+          )}
+          {safetyQuestions.length > 0 && (
+            <>
+              <Text style={styles.safetySubtitle}>Review before starting your shift:</Text>
+              {safetyQuestions.map((q) => (
+                <View key={q.questionId} style={styles.safetyItemRow}>
+                  <Ionicons name="checkbox-outline" size={16} color="#27AE60" />
+                  <Text style={styles.safetyItemText}>{q.questionText}</Text>
+                </View>
+              ))}
+            </>
+          )}
+          {safetyQuestions.length === 0 && (
+            <Text style={styles.safetyNoItems}>No pending safety items. You’re good to go!</Text>
+          )}
+        </Card>
+      )}
+
       <View style={styles.clockContainer}>
         {!!photoUri && (
           <View style={styles.previewRow}>
@@ -236,7 +318,7 @@ export default function ClockScreen() {
           ) : (
             <>
               <View style={styles.iconContainer}>
-                <Ionicons name={isClockedIn ? 'log-out' : 'log-in'} size={64} color="#fff" />
+                <Ionicons name={isClockedIn ? 'log-out' : 'log-in'} size={48} color="#fff" />
               </View>
               <Text style={styles.clockButtonText}>{isClockedIn ? 'Clock Out' : 'Clock In'}</Text>
             </>
@@ -257,6 +339,7 @@ export default function ClockScreen() {
         )}
       </View>
 
+      </ScrollView>
       <PhotoCapture
         visible={cameraOpen}
         onClose={() => setCameraOpen(false)}
@@ -325,11 +408,16 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   personValue: { fontSize: 16, color: colors.text, fontWeight: '600' },
-  clockContainer: {
+  scrollContent: {
     flex: 1,
-    justifyContent: 'center',
+  },
+  scrollContentContainer: {
+    paddingBottom: 32,
+  },
+  clockContainer: {
     alignItems: 'center',
-    padding: 32,
+    paddingHorizontal: 24,
+    paddingVertical: 20,
   },
   stepCard: {
     marginHorizontal: 16,
@@ -359,21 +447,21 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   photoBtnText: { color: colors.primary, fontWeight: '600' },
-  previewRow: { alignItems: 'center', marginBottom: 12 },
-  preview: { width: 120, height: 120, borderRadius: 8, marginBottom: 6 },
+  previewRow: { alignItems: 'center', marginBottom: 10 },
+  preview: { width: 96, height: 96, borderRadius: 8, marginBottom: 6 },
   removePhoto: { color: colors.danger, textDecorationLine: 'underline' },
   clockButton: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+    width: 160,
+    height: 160,
+    borderRadius: 80,
     backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 8,
+    elevation: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
   },
   clockInBtn: { backgroundColor: colors.primary },
   clockOutBtn: { backgroundColor: colors.danger },
@@ -381,12 +469,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   clockButtonText: {
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: 'bold',
     color: '#fff',
   },
   infoContainer: {
-    padding: 32,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
     alignItems: 'center',
   },
   infoCard: {
@@ -414,5 +503,56 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.danger,
     textAlign: 'center',
+  },
+  safetyCard: {
+    marginHorizontal: 16,
+    marginTop: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#E67E22',
+  },
+  safetyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 10,
+  },
+  safetyTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#E67E22',
+  },
+  safetyShiftRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  safetyShiftText: {
+    fontSize: 13,
+    color: colors.text,
+    fontWeight: '600',
+  },
+  safetySubtitle: {
+    fontSize: 12,
+    color: colors.muted,
+    marginTop: 10,
+    marginBottom: 6,
+  },
+  safetyItemRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    paddingVertical: 4,
+  },
+  safetyItemText: {
+    flex: 1,
+    fontSize: 13,
+    color: colors.text,
+  },
+  safetyNoItems: {
+    fontSize: 12,
+    color: colors.muted,
+    marginTop: 8,
+    fontStyle: 'italic',
   },
 });

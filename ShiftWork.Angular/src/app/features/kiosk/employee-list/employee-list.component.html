@@ -67,13 +67,13 @@
        [class.has-published-schedule]="hasPublishedScheduleToday(employee)"
        (click)="selectEmployee(employee)">
     <div class="initials-circle" 
-         [class.on-shift]="isOnShift(employee.statusShiftWork)"
+         [class.on-shift]="isOnShift(employee.statusShiftWork) || isInProgress(employee)"
          [class.scheduled]="hasPublishedScheduleToday(employee)">
       <span class="initials">{{ getInitials(employee.name) }}</span>
-      <div *ngIf="isOnShift(employee.statusShiftWork)" class="status-indicator">
+      <div *ngIf="isOnShift(employee.statusShiftWork) || isInProgress(employee)" class="status-indicator">
         <i class="fas fa-check-circle"></i>
       </div>
-      <div *ngIf="hasPendingScheduleToday(employee) && !isOnShift(employee.statusShiftWork)" class="schedule-indicator">
+      <div *ngIf="hasPendingScheduleToday(employee) && !isOnShift(employee.statusShiftWork) && !isInProgress(employee)" class="schedule-indicator">
         <i class="bi bi-calendar-check"></i>
       </div>
     </div>
@@ -83,7 +83,10 @@
         {{ timing }}
       </span>
     </div>
-    <div class="subtle-label" *ngIf="hasPendingScheduleToday(employee) && !isOnShift(employee.statusShiftWork)" title="Has a pending schedule for today">
+    <div class="subtle-label on-shift-label" *ngIf="isInProgress(employee) || isOnShift(employee.statusShiftWork)" title="Currently on shift">
+      On Shift
+    </div>
+    <div class="subtle-label" *ngIf="hasPendingScheduleToday(employee) && !isOnShift(employee.statusShiftWork) && !isInProgress(employee)" title="Has a pending schedule for today">
       Pending today
     </div>
     <div class="action-buttons mt-2">

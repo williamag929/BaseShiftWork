@@ -44,6 +44,7 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   private refreshIntervalMs = environment.kioskStatusRefreshMs || 45000;
   showLegend = true;
   completedScheduleCounts: Record<number, number> = {};
+  inProgressCounts: Record<number, number> = {};
 
   constructor(
     private peopleService: PeopleService,
@@ -245,15 +246,17 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
                 const clockIns = todays.filter(ev => (ev.eventType || '').toLowerCase() === 'clockin').length;
                 const clockOuts = todays.filter(ev => (ev.eventType || '').toLowerCase() === 'clockout').length;
                 const completed = Math.min(clockIns, clockOuts);
-                return { personId: emp.personId, completed };
+                const inProgress = clockIns > clockOuts ? 1 : 0;
+                return { personId: emp.personId, completed, inProgress };
               }),
-              catchError(() => of({ personId: emp.personId, completed: 0 }))
+              catchError(() => of({ personId: emp.personId, completed: 0, inProgress: 0 }))
             ),
           5
         )
       )
-      .subscribe(({ personId, completed }) => {
+      .subscribe(({ personId, completed, inProgress }) => {
         this.completedScheduleCounts[personId] = completed;
+        this.inProgressCounts[personId] = inProgress;
       });
   }
 
@@ -345,11 +348,19 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
 
   // Quick actions: Start/End shift directly from the list
   canStartShift(employee: Person): boolean {
-    return !this.isOnShift(employee.statusShiftWork) && this.hasPublishedScheduleToday(employee);
+    // Can start if not on shift (API status OR local event data) and has a pending schedule
+    if (this.isOnShift(employee.statusShiftWork) || this.isInProgress(employee)) return false;
+    return this.hasPublishedScheduleToday(employee) && this.getPendingScheduleCount(employee) > 0;
   }
 
   canEndShift(employee: Person): boolean {
-    return this.isOnShift(employee.statusShiftWork);
+    // Can end if on shift via API status OR local event data shows in-progress
+    return this.isOnShift(employee.statusShiftWork) || this.isInProgress(employee);
+  }
+
+  /** Returns true if local event data shows the person is currently clocked in */
+  isInProgress(employee: Person): boolean {
+    return (this.inProgressCounts[employee.personId] || 0) > 0;
   }
 
   startShift(employee: Person): void {
@@ -396,7 +407,8 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   getPendingScheduleCount(employee: Person): number {
     const scheduled = employee.scheduleDetails?.length || 0;
     const completed = this.completedScheduleCounts[employee.personId] || 0;
-    return Math.max(0, scheduled - completed);
+    const inProgress = this.inProgressCounts[employee.personId] || 0;
+    return Math.max(0, scheduled - completed - inProgress);
   }
 
   hasPendingScheduleToday(employee: Person): boolean {
