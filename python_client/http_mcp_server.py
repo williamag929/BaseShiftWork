@@ -12,6 +12,8 @@ from typing import List, Dict, Any, Optional
 import inspect
 from datetime import datetime
 
+import os
+
 import httpx
 from mcp.server.lowlevel import NotificationOptions, Server
 from mcp.server.models import InitializationOptions
@@ -32,13 +34,15 @@ class ShiftWorkServer:
         self.http_client = None
         self.http_port = http_port
         self.http_app = None
+        self.api_base_url = os.environ.get("API_BASE_URL", "https://endpoint.shift-clock.com")
+        logger.info(f"API base URL: {self.api_base_url}")
         self._setup_handlers()
         self._setup_http_routes()
     
     async def _get_http_client(self):
         if self.http_client is None:
             self.http_client = httpx.AsyncClient(
-                base_url="http://localhost:5182",
+                base_url=self.api_base_url,
                 timeout=30.0
             )
         return self.http_client
@@ -169,7 +173,7 @@ class ShiftWorkServer:
             }
             
         except httpx.RequestError as e:
-            raise RuntimeError(f"Network error: {str(e)}. Is the API server running on localhost:5182?")
+            raise RuntimeError(f"Network error: {str(e)}. Is the API server running on {self.api_base_url}?")
         except Exception as e:
             raise RuntimeError(f"API error: {str(e)}")
 
@@ -214,7 +218,7 @@ class ShiftWorkServer:
                 "timestamp": datetime.now().isoformat()
             }
         except httpx.RequestError as e:
-            raise RuntimeError(f"Network error: {str(e)}. Is the API server running on localhost:5182?")
+            raise RuntimeError(f"Network error: {str(e)}. Is the API server running on {self.api_base_url}?")
         except Exception as e:
             raise RuntimeError(f"API error: {str(e)}")
     

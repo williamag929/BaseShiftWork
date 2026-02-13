@@ -20,8 +20,8 @@ services:
       ASPNETCORE_URLS: "http://0.0.0.0:80"
     ports:
       - "5000:80"
-    depends_on:
-      - mssql
+    #depends_on:
+    #  - mssql
     networks:
       - shiftwork-net
 
@@ -44,22 +44,37 @@ services:
     networks:
       - shiftwork-net
 
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: shiftwork-mssql
+  #mssql:
+  #  image: mcr.microsoft.com/mssql/server:2022-latest
+  #  container_name: shiftwork-mssql
+  #  environment:
+  #    ACCEPT_EULA: "Y"
+  #    SA_PASSWORD: "Your_password123"
+  #    MSSQL_PID: "Developer"
+  #  ports:
+  #    - "1433:1433"
+  #  volumes:
+  #    - mssql-data:/var/opt/mssql
+  #  networks:
+  #    - shiftwork-net
+
+  mcp:
+    build:
+      context: ./python_client
+      dockerfile: Dockerfile
+    image: shiftwork/mcp:local
+    container_name: shiftwork-mcp
     environment:
-      ACCEPT_EULA: "Y"
-      SA_PASSWORD: "Your_password123"
-      MSSQL_PID: "Developer"
+      API_BASE_URL: "http://api:80"
     ports:
-      - "1433:1433"
-    volumes:
-      - mssql-data:/var/opt/mssql
+      - "8080:8080"
+    depends_on:
+      - api
     networks:
       - shiftwork-net
 
-volumes:
-  mssql-data:
+#volumes:
+#  mssql-data:
 
 networks:
   shiftwork-net:
