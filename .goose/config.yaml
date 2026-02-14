@@ -1,0 +1,21 @@
+repo_path: /opt/shiftwork
+python:
+  venv_dir: python_client/.venv
+  test_cmd: pytest -q
+  requirements: python_client/requirements.txt
+git:
+  default_branch: main
+  feature_branch_prefix: feature/
+  push_branches:
+    - feature/mcp-server-security
+    - feature/mcp-fix-tests
+auth:
+  token_env_var: GIT_AUTH_TOKEN
+server:
+  http_listen_host: 0.0.0.0
+  http_listen_port: 8080
+pytest:
+  ini: |
+    [pytest]
+    asyncio_mode = auto
+    norecursedirs = versions
