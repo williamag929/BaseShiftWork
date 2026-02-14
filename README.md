@@ -1,4 +1,20 @@
-# ShiftWork Project Technical Overview
+# ShiftWork Project
+
+ShiftWork is a full-stack workforce management application for time tracking and employee scheduling.
+
+## 📚 Documentation
+
+- **[Technical Overview](#1-project-description)** - This file
+- **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute to the project
+- **[GitHub MCP Guide](./GITHUB_MCP_GUIDE.md)** - GitHub MCP integration and best practices
+- **[GitHub Issues Guide](./GITHUB_ISSUES_GUIDE.md)** - How to create and manage issues effectively
+- **[Agent Guide](./AGENT.md)** - Complete guide for AI agents and developers
+- **[Mobile App Guide](./ShiftWork.Mobile/README.md)** - Mobile development setup
+- **[MCP Server Architecture](./python_client/MCP_SERVER.md)** - Python MCP server details
+
+---
+
+## Technical Overview
 
 This document provides a technical overview of the ShiftWork project, intended for developers and AI agents.
 
