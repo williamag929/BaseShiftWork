@@ -4,12 +4,21 @@ ShiftWork is a full-stack workforce management application for time tracking and
 
 ## 📚 Documentation
 
-- **[Technical Overview](#1-project-description)** - This file
+### Quick Start
+- **[⚡ Quick Start Guide](./QUICK_START.md)** - Get started with GitHub MCP and Issues in 5 minutes
+
+### Core Documentation
+- **[Technical Overview](#1-project-description)** - This file - complete project overview
 - **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute to the project
+- **[Agent Guide](./AGENT.md)** - Complete guide for AI agents and developers
+
+### GitHub Integration
 - **[GitHub MCP Guide](./GITHUB_MCP_GUIDE.md)** - GitHub MCP integration and best practices
 - **[GitHub Issues Guide](./GITHUB_ISSUES_GUIDE.md)** - How to create and manage issues effectively
-- **[Agent Guide](./AGENT.md)** - Complete guide for AI agents and developers
+
+### Component-Specific
 - **[Mobile App Guide](./ShiftWork.Mobile/README.md)** - Mobile development setup
+- **[Angular App Guide](./ShiftWork.Angular/README.md)** - Web frontend setup
 - **[MCP Server Architecture](./python_client/MCP_SERVER.md)** - Python MCP server details
 
 ---
