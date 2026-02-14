@@ -26,17 +26,19 @@ namespace ShiftWork.Api.Controllers
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<PeopleController> _logger;
+        private readonly IWebhookService _webhookService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PeopleController"/> class.
         /// </summary>
-        public PeopleController(IPeopleService peopleService, IShiftEventService shiftEventService, IMapper mapper, IMemoryCache memoryCache, ILogger<PeopleController> logger)
+        public PeopleController(IPeopleService peopleService, IShiftEventService shiftEventService, IMapper mapper, IMemoryCache memoryCache, ILogger<PeopleController> logger, IWebhookService webhookService)
         {
             _peopleService = peopleService ?? throw new ArgumentNullException(nameof(peopleService));
             _shiftEventService = shiftEventService ?? throw new ArgumentNullException(nameof(shiftEventService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _webhookService = webhookService ?? throw new ArgumentNullException(nameof(webhookService));
         }
 
         /// <summary>
@@ -178,6 +180,19 @@ namespace ShiftWork.Api.Controllers
                 _memoryCache.Remove($"people_{companyId}");
                 var createdPersonDto = _mapper.Map<PersonDto>(createdPerson);
 
+                // Trigger webhook for employee.created event
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _webhookService.SendWebhookAsync(WebhookEventType.EmployeeCreated, createdPersonDto);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to send webhook for employee.created event. PersonId: {PersonId}", createdPerson.PersonId);
+                    }
+                });
+
                 return CreatedAtAction(nameof(GetPerson), new { companyId, personId = createdPerson.PersonId }, createdPersonDto);
             }
             catch (Exception ex)
@@ -226,7 +241,22 @@ namespace ShiftWork.Api.Controllers
                 _memoryCache.Remove($"people_{companyId}");
                 _memoryCache.Remove($"person_{companyId}_{personId}");
 
-                return Ok(_mapper.Map<PersonDto>(updatedPerson));
+                var updatedPersonDto = _mapper.Map<PersonDto>(updatedPerson);
+
+                // Trigger webhook for employee.updated event
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _webhookService.SendWebhookAsync(WebhookEventType.EmployeeUpdated, updatedPersonDto);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to send webhook for employee.updated event. PersonId: {PersonId}", personId);
+                    }
+                });
+
+                return Ok(updatedPersonDto);
             }
             catch (Exception ex)
             {
