@@ -27,7 +27,7 @@ namespace ShiftWork.Api.Services
 
     /// <summary>
     /// Service for sending outgoing webhook notifications with HMAC SHA256 security.
-    /// Implements retry logic and integrates with Zapier/Procore workflows.
+    /// Implements retry logic and integrates with external systems like Zapier, n8n, or custom webhook clients.
     /// </summary>
     public class WebhookService : IWebhookService
     {
@@ -59,11 +59,11 @@ namespace ShiftWork.Api.Services
         /// </summary>
         public async Task<bool> SendWebhookAsync(WebhookEventType eventType, object data)
         {
-            var webhookUrl = _config["ZAPIER_WEBHOOK_URL"] ?? Environment.GetEnvironmentVariable("ZAPIER_WEBHOOK_URL");
+            var webhookUrl = _config["WEBHOOK_URL"] ?? Environment.GetEnvironmentVariable("WEBHOOK_URL");
             
             if (string.IsNullOrWhiteSpace(webhookUrl))
             {
-                _logger.LogWarning("ZAPIER_WEBHOOK_URL not configured. Webhook not sent for event {EventType}.", eventType);
+                _logger.LogWarning("WEBHOOK_URL not configured. Webhook not sent for event {EventType}.", eventType);
                 return false;
             }
 
@@ -157,7 +157,7 @@ namespace ShiftWork.Api.Services
         }
 
         /// <summary>
-        /// Converts WebhookEventType enum to string format expected by Zapier/Procore.
+        /// Converts WebhookEventType enum to string format expected by webhook clients.
         /// </summary>
         private string ConvertEventTypeToString(WebhookEventType eventType)
         {

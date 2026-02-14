@@ -4,7 +4,7 @@ namespace ShiftWork.Api.DTOs
 {
     /// <summary>
     /// Represents the standardized payload structure for outgoing webhooks.
-    /// Compatible with Zapier and Procore integration requirements.
+    /// Compatible with external systems like Zapier, n8n, Make (Integromat), and Procore.
     /// </summary>
     public class WebhookPayloadDto
     {

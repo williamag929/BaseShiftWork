@@ -93,7 +93,7 @@ Webhooks (Automatic)
   - `employee.updated` → when a Person is updated via PUT `/api/companies/{companyId}/people/{personId}`
   - `location.created` → when a new Location is created via POST `/api/companies/{companyId}/locations`
   - `location.updated` → when a Location is updated via PUT `/api/companies/{companyId}/locations/{locationId}`
-- Webhooks are sent to the URL configured in the `ZAPIER_WEBHOOK_URL` environment variable.
+- Webhooks are sent to the URL configured in the `WEBHOOK_URL` environment variable.
 - Each webhook includes:
   - `eventType` (e.g., "employee.created")
   - `timestamp` (UTC timestamp)
@@ -186,7 +186,7 @@ Backend (.NET API)
 Environment variables expected (Program.cs):
 - `DB_CONNECTION_STRING` (SQL Server connection string)
 - `FIREBASE_PROJECT_ID`, `FIREBASE_AUTH_DOMAIN`, `FIREBASE_API_KEY` (see notes below)
-- `ZAPIER_WEBHOOK_URL` (optional; webhook endpoint URL for Zapier/Procore integration)
+- `WEBHOOK_URL` (optional; webhook endpoint URL for integration with external systems like Zapier, n8n, Make, or custom clients)
 - `WEBHOOK_SECRET_KEY` (optional; secret key for HMAC SHA256 signature; defaults to "default-secret-key")
 
 Run:
@@ -289,7 +289,7 @@ Create Schedule Shift:
 
 Webhook Payload (Automatic):
 
-When a Person or Location is created/updated, a webhook is automatically sent to the configured `ZAPIER_WEBHOOK_URL`:
+When a Person or Location is created/updated, a webhook is automatically sent to the configured `WEBHOOK_URL`:
 
 ```json
 {

@@ -2,7 +2,7 @@
 
 ## Overview
 
-ShiftWork automatically sends webhook notifications to external systems (e.g., Zapier, Procore) when employees or locations are created or updated. This enables real-time synchronization with third-party platforms.
+ShiftWork automatically sends webhook notifications to external systems (e.g., Zapier, n8n, Make, custom webhooks, or Procore) when employees or locations are created or updated. This enables real-time synchronization with third-party platforms.
 
 ## Supported Events
 
@@ -23,27 +23,27 @@ Set the following environment variables in your deployment:
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `ZAPIER_WEBHOOK_URL` | Yes | None | The webhook endpoint URL (e.g., Zapier webhook URL) |
+| `WEBHOOK_URL` | Yes | None | The webhook endpoint URL (e.g., Zapier webhook, n8n webhook, or custom endpoint) |
 | `WEBHOOK_SECRET_KEY` | No | `default-secret-key` | Secret key used for HMAC SHA256 signature generation |
 
 ### Example Configuration (Windows PowerShell)
 
 ```powershell
-$env:ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/12345/abcde/"
+$env:WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/12345/abcde/"
 $env:WEBHOOK_SECRET_KEY = "your-secret-key-here"
 ```
 
 ### Example Configuration (Linux/Mac)
 
 ```bash
-export ZAPIER_WEBHOOK_URL="https://hooks.zapier.com/hooks/catch/12345/abcde/"
+export WEBHOOK_URL="https://hooks.zapier.com/hooks/catch/12345/abcde/"
 export WEBHOOK_SECRET_KEY="your-secret-key-here"
 ```
 
 ### Example Configuration (.env file)
 
 ```env
-ZAPIER_WEBHOOK_URL=https://hooks.zapier.com/hooks/catch/12345/abcde/
+WEBHOOK_URL=https://hooks.zapier.com/hooks/catch/12345/abcde/
 WEBHOOK_SECRET_KEY=your-secret-key-here
 ```
 
@@ -164,25 +164,27 @@ The webhook service implements automatic retry logic:
 
 **Important:** Webhook delivery is best-effort. If all retries fail, the event is logged but the API request continues successfully. For critical integrations requiring guaranteed delivery, consider using a message queue or job processor.
 
-## Zapier Integration
+## Integration Examples
 
-### Setup Zapier Webhook
+### Example 1: Zapier Integration
+
+#### Setup Zapier Webhook
 
 1. Log in to [Zapier](https://zapier.com/)
 2. Create a new Zap
 3. Choose "Webhooks by Zapier" as the trigger
 4. Select "Catch Hook"
 5. Copy the webhook URL provided by Zapier
-6. Set the `ZAPIER_WEBHOOK_URL` environment variable with this URL
+6. Set the `WEBHOOK_URL` environment variable with this URL
 
-### Filter Events in Zapier
+#### Filter Events in Zapier
 
 Use Zapier's built-in filters to handle specific event types:
 
 - **Filter by Event Type:** Add a filter step checking `eventType` equals `employee.created`
 - **Path Routing:** Use Zapier Paths to route different event types to different actions
 
-### Example Zap: Employee Created → Procore
+#### Example Zap: Employee Created → Procore
 
 1. **Trigger:** Webhooks by Zapier (Catch Hook)
 2. **Filter:** Only continue if `eventType` is `employee.created`
@@ -190,6 +192,46 @@ Use Zapier's built-in filters to handle specific event types:
    - Map `data.name` to Worker Name
    - Map `data.email` to Worker Email
    - Map `data.phoneNumber` to Worker Phone
+
+### Example 2: n8n Integration
+
+1. In n8n, create a new workflow
+2. Add a "Webhook" node as the trigger
+3. Set HTTP Method to "POST"
+4. Copy the webhook URL provided by n8n
+5. Set the `WEBHOOK_URL` environment variable with this URL
+6. Add subsequent nodes to process the webhook data based on `eventType`
+
+### Example 3: Custom Webhook Endpoint
+
+Create your own webhook receiver that validates the HMAC signature and processes the events:
+
+```javascript
+// Example Node.js/Express endpoint
+app.post('/shiftwork-webhook', (req, res) => {
+  const signature = req.headers['x-shiftwork-signature'];
+  const payload = JSON.stringify(req.body);
+  
+  if (!verifyWebhookSignature(payload, signature, process.env.WEBHOOK_SECRET_KEY)) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+  
+  const { eventType, timestamp, data } = req.body;
+  
+  // Process based on event type
+  switch(eventType) {
+    case 'employee.created':
+      // Handle new employee
+      break;
+    case 'employee.updated':
+      // Handle employee update
+      break;
+    // ... handle other events
+  }
+  
+  res.status(200).json({ success: true });
+});
+```
 
 ## Procore Field Mapping
 
@@ -229,7 +271,7 @@ Webhook send attempts and failures are logged in the application logs:
 ### Troubleshooting
 
 **Webhooks not being sent:**
-- Verify `ZAPIER_WEBHOOK_URL` is configured
+- Verify `WEBHOOK_URL` is configured
 - Check application logs for errors
 - Ensure the webhook endpoint is accessible from your server
 
@@ -265,7 +307,7 @@ curl -X POST https://hooks.zapier.com/hooks/catch/12345/abcde/ \
 
 ### Disabling Webhooks for Testing
 
-If `ZAPIER_WEBHOOK_URL` is not set, webhooks will be logged but not sent, allowing you to develop and test without triggering external systems.
+If `WEBHOOK_URL` is not set, webhooks will be logged but not sent, allowing you to develop and test without triggering external systems.
 
 ## Support
 
@@ -274,4 +316,4 @@ For issues or questions about webhook integration:
 1. Check the application logs for detailed error messages
 2. Verify environment variables are set correctly
 3. Test the webhook endpoint independently with sample payloads
-4. Review Zapier task history for webhook delivery status
+4. Review your integration platform's task history for webhook delivery status (e.g., Zapier task history, n8n execution logs)
