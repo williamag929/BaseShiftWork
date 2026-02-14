@@ -180,18 +180,15 @@ namespace ShiftWork.Api.Controllers
                 _memoryCache.Remove($"people_{companyId}");
                 var createdPersonDto = _mapper.Map<PersonDto>(createdPerson);
 
-                // Trigger webhook for employee.created event
-                _ = Task.Run(async () =>
+                // Trigger webhook for employee.created event (non-blocking with timeout)
+                try
                 {
-                    try
-                    {
-                        await _webhookService.SendWebhookAsync(WebhookEventType.EmployeeCreated, createdPersonDto);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Failed to send webhook for employee.created event. PersonId: {PersonId}", createdPerson.PersonId);
-                    }
-                });
+                    await _webhookService.SendWebhookAsync(WebhookEventType.EmployeeCreated, createdPersonDto);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send webhook for employee.created event. PersonId: {PersonId}", createdPerson.PersonId);
+                }
 
                 return CreatedAtAction(nameof(GetPerson), new { companyId, personId = createdPerson.PersonId }, createdPersonDto);
             }
@@ -243,18 +240,15 @@ namespace ShiftWork.Api.Controllers
 
                 var updatedPersonDto = _mapper.Map<PersonDto>(updatedPerson);
 
-                // Trigger webhook for employee.updated event
-                _ = Task.Run(async () =>
+                // Trigger webhook for employee.updated event (non-blocking with timeout)
+                try
                 {
-                    try
-                    {
-                        await _webhookService.SendWebhookAsync(WebhookEventType.EmployeeUpdated, updatedPersonDto);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Failed to send webhook for employee.updated event. PersonId: {PersonId}", personId);
-                    }
-                });
+                    await _webhookService.SendWebhookAsync(WebhookEventType.EmployeeUpdated, updatedPersonDto);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send webhook for employee.updated event. PersonId: {PersonId}", personId);
+                }
 
                 return Ok(updatedPersonDto);
             }

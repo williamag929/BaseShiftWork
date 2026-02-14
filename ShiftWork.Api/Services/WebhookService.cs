@@ -45,6 +45,13 @@ namespace ShiftWork.Api.Services
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+
+            // Warn if using default secret key
+            var secretKey = _config["WEBHOOK_SECRET_KEY"] ?? Environment.GetEnvironmentVariable("WEBHOOK_SECRET_KEY");
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                _logger.LogCritical("WEBHOOK_SECRET_KEY is not configured. Using default key - THIS IS A SECURITY RISK. Configure WEBHOOK_SECRET_KEY in production.");
+            }
         }
 
         /// <summary>
@@ -77,6 +84,8 @@ namespace ShiftWork.Api.Services
                 try
                 {
                     var client = _httpClientFactory.CreateClient();
+                    client.Timeout = TimeSpan.FromSeconds(5); // 5 second timeout per attempt
+                    
                     var request = new HttpRequestMessage(HttpMethod.Post, webhookUrl)
                     {
                         Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json")

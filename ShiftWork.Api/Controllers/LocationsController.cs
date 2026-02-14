@@ -142,18 +142,15 @@ namespace ShiftWork.Api.Controllers
                 _memoryCache.Remove($"locations_{companyId}");
                 var createdLocationDto = _mapper.Map<LocationDto>(createdLocation);
 
-                // Trigger webhook for location.created event
-                _ = Task.Run(async () =>
+                // Trigger webhook for location.created event (non-blocking with timeout)
+                try
                 {
-                    try
-                    {
-                        await _webhookService.SendWebhookAsync(WebhookEventType.LocationCreated, createdLocationDto);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Failed to send webhook for location.created event. LocationId: {LocationId}", createdLocation.LocationId);
-                    }
-                });
+                    await _webhookService.SendWebhookAsync(WebhookEventType.LocationCreated, createdLocationDto);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send webhook for location.created event. LocationId: {LocationId}", createdLocation.LocationId);
+                }
 
                 return CreatedAtAction(nameof(GetLocation), new { companyId, locationId = createdLocation.LocationId }, createdLocationDto);
             }
@@ -201,18 +198,15 @@ namespace ShiftWork.Api.Controllers
 
                 var updatedLocationDto = _mapper.Map<LocationDto>(updatedLocation);
 
-                // Trigger webhook for location.updated event
-                _ = Task.Run(async () =>
+                // Trigger webhook for location.updated event (non-blocking with timeout)
+                try
                 {
-                    try
-                    {
-                        await _webhookService.SendWebhookAsync(WebhookEventType.LocationUpdated, updatedLocationDto);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Failed to send webhook for location.updated event. LocationId: {LocationId}", locationId);
-                    }
-                });
+                    await _webhookService.SendWebhookAsync(WebhookEventType.LocationUpdated, updatedLocationDto);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send webhook for location.updated event. LocationId: {LocationId}", locationId);
+                }
 
                 return Ok(updatedLocationDto);
             }

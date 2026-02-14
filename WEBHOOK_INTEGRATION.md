@@ -116,6 +116,8 @@ All webhooks follow a standardized JSON structure:
 
 Each webhook request includes an `X-ShiftWork-Signature` header containing an HMAC SHA256 signature for verification.
 
+**⚠️ Important:** If `WEBHOOK_SECRET_KEY` is not configured, the system will use a default key and log a **CRITICAL** warning. This is a security risk and should only be used in development. Always configure `WEBHOOK_SECRET_KEY` in production environments.
+
 **Signature Generation:**
 1. The payload JSON is serialized (camelCase formatting)
 2. HMAC SHA256 hash is computed using the `WEBHOOK_SECRET_KEY`
@@ -155,8 +157,12 @@ The webhook service implements automatic retry logic:
 
 - **Maximum Retries:** 3 attempts
 - **Backoff Strategy:** Exponential backoff (1s, 2s, 3s)
+- **Request Timeout:** 5 seconds per attempt
+- **Total Maximum Time:** Approximately 21 seconds (3 retries × 5s timeout + 6s delays)
 - **Success Criteria:** HTTP 2xx response status
-- **Failure Handling:** Logged but does not block the API request
+- **Failure Handling:** Logged and caught; does not block or fail the API request
+
+**Important:** Webhook delivery is best-effort. If all retries fail, the event is logged but the API request continues successfully. For critical integrations requiring guaranteed delivery, consider using a message queue or job processor.
 
 ## Zapier Integration
 
