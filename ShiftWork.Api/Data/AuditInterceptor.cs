@@ -196,7 +196,7 @@ namespace ShiftWork.Api.Data
         {
             var keyValues = entry.Properties
                 .Where(p => p.Metadata.IsKey())
-                .Select(p => p.CurrentValue ?? p.OriginalValue)
+                .Select(p => entry.State == EntityState.Deleted ? p.OriginalValue : (p.CurrentValue ?? p.OriginalValue))
                 .ToList();
 
             if (keyValues.Count == 0)

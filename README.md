@@ -204,12 +204,6 @@ The `python_client/` directory contains various Python scripts. These scripts ap
 
 ---
 
-## 9. Python Client
-
-The `python_client/` directory contains various Python scripts. These scripts appear to be for testing the backend API or for other utility purposes. It includes MCP (Mission Critical Protocol) clients and servers, which might be for a specialized testing scenario or a legacy part of the project. This part of the codebase seems separate from the main Angular/.NET application.
-
----
-
 ## 10. How to Run
 
 ### Backend
