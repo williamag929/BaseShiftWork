@@ -82,9 +82,19 @@
             <i class="fa" [class.fa-user-plus]="!selectedPerson" [class.fa-user-edit]="selectedPerson"></i>
             {{ selectedPerson ? 'Edit Person' : 'Create New Person' }}
           </h3>
-          <button *ngIf="selectedPerson" class="clear-btn" (click)="cancelEdit()">
-            <i class="fa fa-times"></i>
-          </button>
+          <div class="header-actions">
+            <app-audit-history-button
+              *ngIf="selectedPerson"
+              [entity]="selectedPerson"
+              entityType="Person"
+              [entityId]="selectedPerson.personId"
+              [entityDisplayName]="selectedPerson.name"
+              [companyId]="activeCompany?.companyId || ''"
+            ></app-audit-history-button>
+            <button *ngIf="selectedPerson" class="clear-btn" (click)="cancelEdit()">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
         </div>
 
         <div class="card-body">

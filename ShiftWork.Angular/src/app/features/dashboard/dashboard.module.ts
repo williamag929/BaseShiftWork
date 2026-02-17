@@ -16,6 +16,13 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { share } from 'rxjs';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ScheduleGridComponent } from './schedule-grid/schedule-grid.component';
+import { MatDialogModule } from '@angular/material/dialog';
+
+// Import Audit History Components
+import { AuditHistoryButtonComponent } from '../kiosk/audit-history/audit-history-button.component';
+import { AuditHistoryDialogComponent } from '../kiosk/audit-history/audit-history-dialog.component';
+import { AuditHistoryTimelineComponent } from '../kiosk/audit-history/audit-history-timeline.component';
+import { AuditHistoryFiltersComponent } from '../kiosk/audit-history/audit-history-filters.component';
 
 
 const routes: Routes = [
@@ -54,6 +61,12 @@ const routes: Routes = [
     SharedModule,
     FullCalendarModule,
     RouterModule.forChild(routes),
+    MatDialogModule,
+    // Import Audit History Components (standalone)
+    AuditHistoryButtonComponent,
+    AuditHistoryDialogComponent,
+    AuditHistoryTimelineComponent,
+    AuditHistoryFiltersComponent,
     // TODO: ProfilesComponent is standalone, and cannot be declared in an NgModule. Did you mean to import it instead?
   ],
   providers: [

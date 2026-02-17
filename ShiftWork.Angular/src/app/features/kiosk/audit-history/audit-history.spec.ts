@@ -339,9 +339,10 @@ describe('AuditHistoryButtonComponent', () => {
 
     expect(dialog.open).toHaveBeenCalled();
     const callArgs = dialog.open.calls.mostRecent().args;
-    expect(callArgs[1]?.data?.entityId).toBe('123');
-    expect(callArgs[1]?.data?.entityType).toBeUndefined(); // entityName is used, not entityType
-    expect(callArgs[1]?.data?.entityDisplayName).toBe('John Smith');
+    const dialogData = callArgs[1]?.data as any;
+    expect(dialogData?.entityId).toBe('123');
+    expect(dialogData?.entityType).toBeUndefined(); // entityName is used, not entityType
+    expect(dialogData?.entityDisplayName).toBe('John Smith');
   });
 
   it('should render button with correct attributes', () => {

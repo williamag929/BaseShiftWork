@@ -13,7 +13,7 @@ import {
   providedIn: 'root'
 })
 export class AuditHistoryService {
-  private apiUrl = `${environment.apiBaseUrl}/api`;
+  private readonly apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
