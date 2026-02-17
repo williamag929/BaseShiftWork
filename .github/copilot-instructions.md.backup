@@ -25,12 +25,10 @@
 - **Python MCP server:** From python_client directory, create venv, install requirements, and run `python http_mcp_server.py --mode http --port 8080` (see [AGENT.md](../AGENT.md)).
 
 ## Project-specific conventions and patterns
-- **API Routes:** Company-scoped APIs consistently use `/api/companies/{companyId}/...` routes; maintain this pattern for new endpoints and client code.
-- **Authentication Flow:** Kiosk flow uses optional PIN verification via `POST /api/auth/verify-pin` before writing ShiftEvents; PINs stored with BCrypt hashing (see [AGENT.md](../AGENT.md)).
-- **DTO Mapping:** DTOs may map between model string IDs and int DTO IDs via AutoMapper profiles in Helpers/MappingProfiles.cs (see "ScheduleDto.PersonId" note in [AGENT.md](../AGENT.md)).
-- **Kiosk Requirements:** Angular kiosk uses Wake Lock API and camera; requires HTTPS in local dev; avoid caching POST requests in PWA service worker (see [ShiftWork.Angular/README.md](../ShiftWork.Angular/README.md)).
-- **Mobile Naming:** Mobile uses `EXPO_PUBLIC_` prefix for all environment variables; Firebase Auth currently disabled with mock in config/firebase.ts.
-- **Code Organization:** Follow separation of concerns: Controllers handle HTTP, Services contain business logic, Repositories handle data access.
+- Company-scoped APIs consistently use `/api/companies/{companyId}/...` routes; prefer mirroring this in new endpoints and clients.
+- Kiosk flow expects optional PIN verification via `POST /api/auth/verify-pin` before writing ShiftEvents (see [AGENT.md](AGENT.md)).
+- DTOs may map between model string IDs and int DTO IDs via AutoMapper (see “ScheduleDto.PersonId” note in [AGENT.md](AGENT.md)).
+- Angular kiosk uses Wake Lock and camera; ensure HTTPS in local dev and avoid caching POSTs in PWA (see [ShiftWork.Angular/README.md](ShiftWork.Angular/README.md)).
 
 ## Integrations and cross-component details
 - **Authentication:** API validates Firebase JWT tokens using Google's public keys with audience/issuer checks; Angular and Mobile read API/Firebase config from environment variables (see [AGENT.md](../AGENT.md)).
