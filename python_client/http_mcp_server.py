@@ -8,9 +8,12 @@ Security / robustness improvements:
 - Validate and use API_BASE_URL defaulting to http://localhost:5182
 - Add optional bearer token authentication via MCP_AUTH_TOKEN
 - Restrict CORS to configured ALLOWED_ORIGINS (comma-separated) with safe default
+- CORS credentials only enabled when authentication is active
 - Use a small retry/backoff wrapper for HTTP calls to the .NET API
 - Avoid leaking internal exception details to clients
 - Normalize types when filtering schedules (compare strings)
+- Audit logging for authentication attempts and tool executions
+- Connection limits for httpx client (max 100 connections)
 """
 
 import asyncio
@@ -65,6 +68,17 @@ HTTPX_TIMEOUT = float(os.environ.get("HTTPX_TIMEOUT", "30.0"))
 HTTPX_RETRIES = int(os.environ.get("HTTPX_RETRIES", "3"))
 HTTPX_BACKOFF_FACTOR = float(os.environ.get("HTTPX_BACKOFF_FACTOR", "0.5"))
 
+# Audit logger for security events
+audit_logger = logging.getLogger("audit")
+audit_handler = logging.StreamHandler()
+audit_handler.setFormatter(logging.Formatter('%(asctime)s - AUDIT - %(message)s'))
+audit_logger.addHandler(audit_handler)
+audit_logger.setLevel(logging.INFO)
+
+def _log_audit_event(event_type: str, details: dict):
+    """Log security-relevant events for audit trail"""
+    audit_logger.info(f"{event_type}: {json.dumps(details)}")
+
 # Small helper for safe error responses
 def _http_error_response(message: str, status: int = 500):
     # Do not include stack traces or raw exception text in production responses
@@ -84,11 +98,12 @@ class ShiftWorkServer:
 
     async def _get_http_client(self) -> httpx.AsyncClient:
         if self.http_client is None:
-            # Create a single shared AsyncClient instance
+            # Create a single shared AsyncClient instance with connection limits
             self.http_client = httpx.AsyncClient(
                 base_url=self.api_base_url,
                 timeout=HTTPX_TIMEOUT,
-                headers={"Accept": "application/json"}
+                headers={"Accept": "application/json"},
+                limits=httpx.Limits(max_connections=100, max_keepalive_connections=20)
             )
         return self.http_client
 
@@ -278,10 +293,24 @@ class ShiftWorkServer:
             if AUTH_TOKEN and request.path.startswith('/api'):
                 auth_hdr = request.headers.get('Authorization', '')
                 if not auth_hdr.startswith('Bearer '):
+                    _log_audit_event("AUTH_FAILED", {
+                        "reason": "missing_bearer_token",
+                        "path": request.path,
+                        "remote": request.remote
+                    })
                     return _http_error_response("Unauthorized", status=401)
                 token = auth_hdr.split(' ', 1)[1].strip()
                 if token != AUTH_TOKEN:
+                    _log_audit_event("AUTH_FAILED", {
+                        "reason": "invalid_token",
+                        "path": request.path,
+                        "remote": request.remote
+                    })
                     return _http_error_response("Unauthorized", status=401)
+                _log_audit_event("AUTH_SUCCESS", {
+                    "path": request.path,
+                    "remote": request.remote
+                })
             return await handler(request)
 
         # Health check endpoint
@@ -366,6 +395,13 @@ class ShiftWorkServer:
                 if not tool_name:
                     return _http_error_response("tool_name is required", status=400)
 
+                # Audit log tool execution
+                _log_audit_event("TOOL_EXECUTE", {
+                    "tool": tool_name,
+                    "args": arguments,
+                    "remote": request.remote
+                })
+
                 if tool_name == "ping":
                     result = {"message": "pong - server is running"}
                 elif tool_name == "get_employee_schedules":
@@ -401,7 +437,7 @@ class ShiftWorkServer:
             for origin in ALLOWED_ORIGINS:
                 cors.add(route, {
                     origin: aiohttp_cors.ResourceOptions(
-                        allow_credentials=True,
+                        allow_credentials=bool(AUTH_TOKEN),  # Only allow credentials if auth is enabled
                         expose_headers="*",
                         allow_headers="*",
                         allow_methods="*"
