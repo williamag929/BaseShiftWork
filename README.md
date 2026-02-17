@@ -70,6 +70,7 @@ The backend is located in the `ShiftWork.Api/` directory.
 *   **Authentication:** `AuthController.cs` suggests a token-based authentication system.
 *   **Entity Management:** Full management of Companies, Users, People, Roles, Schedules, Shifts, and more.
 *   **AWS S3 Integration:** `AwsS3Service.cs` and `AwsS3BucketController.cs` handle file uploads, likely for employee photos.
+*   **Audit History:** Comprehensive change tracking for all entities. The `AuditInterceptor` automatically captures create, update, and delete operations with field-level granularity. History is accessible via the `/api/companies/{companyId}/audit-history/` endpoints. See [FEATURE_AUDIT_HISTORY.md](./FEATURE_AUDIT_HISTORY.md) for details.
 
 ---
 
@@ -170,13 +171,46 @@ In addition to the kiosk mode, the application provides personal clock-in/out fe
 
 ---
 
-## 8. Python Client
+## 8. Audit History
+
+The audit history feature provides comprehensive tracking of all changes to entities within the ShiftWork application. This feature is crucial for compliance, debugging, and accountability.
+
+### Features:
+
+*   **Automatic Change Tracking:** The `AuditInterceptor` automatically captures all create, update, and delete operations on entities with `CompanyId`.
+*   **Field-Level Granularity:** For updates, each modified field is tracked separately with old and new values.
+*   **Multi-Tenant Isolation:** Audit logs are scoped by `CompanyId` to ensure data privacy.
+*   **Query API:** RESTful endpoints for retrieving audit history by entity or generating summaries.
+*   **Performance Optimized:** Indexed queries ensure fast retrieval even with large audit logs.
+
+### API Endpoints:
+
+*   `GET /api/companies/{companyId}/audit-history/{entityName}/{entityId}` - Get audit history for a specific entity with optional filtering by action type and date range.
+*   `GET /api/companies/{companyId}/audit-history/summary` - Get aggregated audit summary by entity type.
+
+### Security:
+
+*   Sensitive fields (passwords, PINs, tokens) are excluded from audit logs.
+*   Audit operations are non-blocking and do not interfere with primary data operations.
+*   User context (userId, userName) is captured from JWT claims when available.
+
+For detailed documentation, see [FEATURE_AUDIT_HISTORY.md](./FEATURE_AUDIT_HISTORY.md).
+
+---
+
+## 9. Python Client
 
 The `python_client/` directory contains various Python scripts. These scripts appear to be for testing the backend API or for other utility purposes. It includes MCP (Mission Critical Protocol) clients and servers, which might be for a specialized testing scenario or a legacy part of the project. This part of the codebase seems separate from the main Angular/.NET application.
 
 ---
 
-## 9. How to Run
+## 9. Python Client
+
+The `python_client/` directory contains various Python scripts. These scripts appear to be for testing the backend API or for other utility purposes. It includes MCP (Mission Critical Protocol) clients and servers, which might be for a specialized testing scenario or a legacy part of the project. This part of the codebase seems separate from the main Angular/.NET application.
+
+---
+
+## 10. How to Run
 
 ### Backend
 
