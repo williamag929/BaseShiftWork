@@ -11,6 +11,7 @@ ShiftWork is a full-stack workforce management application for time tracking and
 - **[Technical Overview](#1-project-description)** - This file - complete project overview
 - **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute to the project
 - **[Agent Guide](./AGENT.md)** - Complete guide for AI agents and developers
+- **[Wiki Content Guide](./WIKI_CONTENT_GUIDE.md)** - Complete structure for GitHub Wiki population
 
 ### GitHub Integration
 - **[GitHub MCP Guide](./GITHUB_MCP_GUIDE.md)** - GitHub MCP integration and best practices
