@@ -31,6 +31,7 @@ namespace ShiftWork.Api.Data
         public DbSet<CompanySettings> CompanySettings { get; set; }
         public DbSet<DeviceToken> DeviceTokens { get; set; }
         public DbSet<ShiftSummaryApproval> ShiftSummaryApprovals { get; set; }
+        public DbSet<AuditHistory> AuditHistories { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -48,6 +49,14 @@ namespace ShiftWork.Api.Data
             modelBuilder.Entity<CompanyUser>().ToTable("CompanyUsers");
             modelBuilder.Entity<KioskQuestion>().ToTable("KioskQuestions");
             modelBuilder.Entity<KioskAnswer>().ToTable("KioskAnswers");
+            modelBuilder.Entity<AuditHistory>().ToTable("AuditHistories");
+
+            // Configure AuditHistory indexes for query performance
+            modelBuilder.Entity<AuditHistory>()
+                .HasIndex(a => new { a.CompanyId, a.EntityName, a.EntityId, a.ActionDate });
+            
+            modelBuilder.Entity<AuditHistory>()
+                .HasIndex(a => new { a.CompanyId, a.ActionDate });
 
             modelBuilder.Entity<PersonCrew>()
                 .ToTable("PersonCrews")
