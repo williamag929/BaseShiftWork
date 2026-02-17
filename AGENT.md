@@ -87,6 +87,20 @@ Kiosk
 - `GET /api/kiosk/{companyId}/questions` → active kiosk questions.
 - `POST /api/kiosk/answers` → submit list of kiosk answers.
 
+Webhooks (Automatic)
+- Webhook notifications are automatically triggered on the following events:
+  - `employee.created` → when a new Person is created via POST `/api/companies/{companyId}/people`
+  - `employee.updated` → when a Person is updated via PUT `/api/companies/{companyId}/people/{personId}`
+  - `location.created` → when a new Location is created via POST `/api/companies/{companyId}/locations`
+  - `location.updated` → when a Location is updated via PUT `/api/companies/{companyId}/locations/{locationId}`
+- Webhooks are sent to the URL configured in the `WEBHOOK_URL` environment variable.
+- Each webhook includes:
+  - `eventType` (e.g., "employee.created")
+  - `timestamp` (UTC timestamp)
+  - `data` (the complete Person or Location DTO)
+  - `X-ShiftWork-Signature` header (HMAC SHA256 signature for verification)
+- Webhooks use retry logic with exponential backoff (up to 3 attempts).
+
 People, Locations, Roles, Companies, Crews, etc.
 - Similar REST patterns exist in `Controllers/` to manage these resources.
 
@@ -172,6 +186,8 @@ Backend (.NET API)
 Environment variables expected (Program.cs):
 - `DB_CONNECTION_STRING` (SQL Server connection string)
 - `FIREBASE_PROJECT_ID`, `FIREBASE_AUTH_DOMAIN`, `FIREBASE_API_KEY` (see notes below)
+- `WEBHOOK_URL` (optional; webhook endpoint URL for integration with external systems like Zapier, n8n, Make, or custom clients)
+- `WEBHOOK_SECRET_KEY` (optional; secret key for HMAC SHA256 signature; defaults to "default-secret-key")
 
 Run:
 
@@ -270,6 +286,28 @@ Create Schedule Shift:
   "notes": "Day shift"
 }
 ```
+
+Webhook Payload (Automatic):
+
+When a Person or Location is created/updated, a webhook is automatically sent to the configured `WEBHOOK_URL`:
+
+```json
+{
+  "eventType": "employee.created",
+  "timestamp": "2025-11-05T14:30:00Z",
+  "data": {
+    "personId": 42,
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "companyId": "acme-123",
+    "phoneNumber": "+1234567890",
+    "status": "Active",
+    "roleId": 5
+  }
+}
+```
+
+Headers include `X-ShiftWork-Signature` with HMAC SHA256 hash for verification.
 
 ## Agent Playbook (LLM/MCP)
 
