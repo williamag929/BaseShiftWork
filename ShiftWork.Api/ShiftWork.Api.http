@@ -44,3 +44,24 @@ Content-Type: application/json
 [
 	{ "shiftEventId": "00000000-0000-0000-0000-000000000000", "kioskQuestionId": 1, "answerText": "Yes" }
 ]
+
+### AuditHistory: Get entity history for a Person
+GET {{ShiftWork.Api_HostAddress}}/api/companies/acme-123/audit-history/Person/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### AuditHistory: Get entity history with filters
+GET {{ShiftWork.Api_HostAddress}}/api/companies/acme-123/audit-history/Person/1?page=1&pageSize=10&actionType=Updated
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### AuditHistory: Get audit summary
+GET {{ShiftWork.Api_HostAddress}}/api/companies/acme-123/audit-history/summary
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### AuditHistory: Get audit summary for specific entity
+GET {{ShiftWork.Api_HostAddress}}/api/companies/acme-123/audit-history/summary?entityName=Person
+Authorization: Bearer {{token}}
+Accept: application/json
+
