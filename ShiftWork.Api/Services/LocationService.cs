@@ -58,10 +58,40 @@ namespace ShiftWork.Api.Services
 
         public async Task<Location> Update(Location location)
         {
-            _context.Entry(location).State = EntityState.Modified;
+            // Load existing entity from database to enable change tracking
+            var existingLocation = await _context.Locations
+                .FirstOrDefaultAsync(l => l.LocationId == location.LocationId && l.CompanyId == location.CompanyId);
+
+            if (existingLocation == null)
+            {
+                throw new InvalidOperationException($"Location with ID {location.LocationId} not found.");
+            }
+
+            // Update properties individually so EF Core can track which fields changed
+            existingLocation.Name = location.Name;
+            existingLocation.Address = location.Address;
+            existingLocation.City = location.City;
+            existingLocation.State = location.State;
+            existingLocation.Region = location.Region;
+            existingLocation.Street = location.Street;
+            existingLocation.Building = location.Building;
+            existingLocation.Floor = location.Floor;
+            existingLocation.Department = location.Department;
+            existingLocation.Country = location.Country;
+            existingLocation.ZipCode = location.ZipCode;
+            existingLocation.GeoCoordinates = location.GeoCoordinates;
+            existingLocation.RatioMax = location.RatioMax;
+            existingLocation.PhoneNumber = location.PhoneNumber;
+            existingLocation.Email = location.Email;
+            existingLocation.ExternalCode = location.ExternalCode;
+            existingLocation.TimeZone = location.TimeZone;
+            existingLocation.Settings = location.Settings;
+            existingLocation.Status = location.Status;
+
+            // SaveChangesAsync will trigger the audit interceptor with proper change tracking
             await _context.SaveChangesAsync();
             _logger.LogInformation("Location with ID {LocationId} updated.", location.LocationId);
-            return location;
+            return existingLocation;
         }
 
         public async Task<bool> Delete(string companyId, int locationId)
