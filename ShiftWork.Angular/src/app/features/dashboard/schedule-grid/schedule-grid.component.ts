@@ -1,9 +1,10 @@
+
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { Observable } from 'rxjs';
+import { Observable, lastValueFrom } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
@@ -30,6 +31,8 @@ import {
 import { ScheduleShift } from 'src/app/core/models/schedule-shift.model';
 import { People } from 'src/app/core/models/people.model';
 import { Schedule } from 'src/app/core/models/schedule.model';
+import { Area } from 'src/app/core/models/area.model';
+import { AreaService } from 'src/app/core/services/area.service';
 import { ScheduleGridAddModalComponent } from './schedule-grid-add-modal.component';
 import { ReplacementPanelComponent } from './replacement-panel.component';
 import { TimeOffRequestModalComponent } from './time-off-request-modal.component';
@@ -43,9 +46,18 @@ import { ShiftHistoryModalComponent } from './shift-history-modal.component';
   imports: [CommonModule, FormsModule, DragDropModule, ScheduleGridAddModalComponent, ReplacementPanelComponent, TimeOffRequestModalComponent, SickReportModalComponent, RepeatPatternModalComponent, ShiftHistoryModalComponent],
   templateUrl: './schedule-grid.component.html',
   styleUrl: './schedule-grid.component.css',
-  providers: [ScheduleService, PeopleService, LocationService]
+  providers: [ScheduleService, PeopleService, LocationService, AreaService]
 })
 export class ScheduleGridComponent implements OnInit {
+  // ...existing properties...
+
+  /**
+   * Handle bulk person checkbox change event from template
+   */
+  public onBulkPersonCheckboxChange(event: Event, personId: number): void {
+    const checked = (event.target instanceof HTMLInputElement) ? event.target.checked : false;
+    this.toggleBulkPersonSelection(personId, checked);
+  }
   showAddScheduleModalFlag: boolean = false;
   showAddSchedulePlaceholder: boolean = false;
   selectedPersonId: number | null = null;
@@ -418,25 +430,39 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   openAddScheduleModal() {
-    // Placeholder until bulk schedule builder is implemented.
+    // Placeholder until the bulk schedule builder is fully implemented.
+    this.initBulkFormDefaults();
     this.showAddSchedulePlaceholder = true;
     return;
 
     this.editingSchedule = null;
     // If modalLocationId hasn't been set by onAddShift/onAddEmployeeToLocation, resolve it
-    if (!this.modalLocationId && this.selectedLocationId && this.selectedLocationId > 0) {
-      this.modalLocationId = this.selectedLocationId;
+    const locId = this.selectedLocationId;
+    if (!this.modalLocationId && locId > 0) {
+      this.modalLocationId = locId;
     }
     this.showAddScheduleModalFlag = true;
   }
   closeAddSchedulePlaceholder() {
     this.showAddSchedulePlaceholder = false;
+    this.bulkError = '';
   }
   closeAddScheduleModal() {
     this.showAddScheduleModalFlag = false;
     this.selectedPersonId = null;
     this.selectedDate = null;
     this.editingSchedule = null;
+  }
+
+  openSingleShiftFromPlaceholder() {
+    this.closeAddSchedulePlaceholder();
+    const baseDate = this.bulkStartDate ? new Date(this.bulkStartDate) : new Date();
+    this.selectedDate = baseDate;
+    const locationId = this.bulkLocationId ?? this.selectedLocationId ?? 0;
+    if (locationId > 0) {
+      this.modalLocationId = locationId;
+    }
+    this.showAddScheduleModalFlag = true;
   }
 
   getShiftKey(shift: ShiftBlock): string {
@@ -709,7 +735,7 @@ export class ScheduleGridComponent implements OnInit {
   showFilterModal = false;
   currentWeekStart: Date = new Date();
   locations: any[] = [];
-  selectedLocationId: number | null = null;
+  selectedLocationId: number = 0;
   peopleList: People[] = [];
   replacementCandidates: ReplacementCandidate[] = [];
   showReplacementPanel: boolean = false;
@@ -740,6 +766,16 @@ export class ScheduleGridComponent implements OnInit {
   allDropListIds: string[] = [];
   dragInProgress: boolean = false;
   showVoidRecords: boolean = false;
+  areas: Area[] = [];
+  bulkLocationId: number | null = null;
+  bulkAreaId: number | null = null;
+  bulkStartDate: string = '';
+  bulkEndDate: string = '';
+  bulkStartTime: string = '09:00';
+  bulkEndTime: string = '17:00';
+  bulkSelectedPeopleIds: Set<number> = new Set();
+  bulkCreating: boolean = false;
+  bulkError: string = '';
 
   constructor(
     private store: Store<AppState>,
@@ -747,6 +783,7 @@ export class ScheduleGridComponent implements OnInit {
     private scheduleShiftService: ScheduleShiftService,
     private peopleService: PeopleService,
     private locationService: LocationService,
+    private areaService: AreaService,
     private shiftEventService: ShiftEventService,
     private timeOffRequestService: TimeOffRequestService,
     private replacementRequestService: ReplacementRequestService,
@@ -770,6 +807,7 @@ export class ScheduleGridComponent implements OnInit {
                 this.selectedLocationId = locations[0].locationId;
                 this.gridData.locationName = locations[0].name;
               }
+              this.loadAreas(company.companyId);
               this.loadScheduleData();
             });
           },
@@ -782,10 +820,23 @@ export class ScheduleGridComponent implements OnInit {
                 this.selectedLocationId = locations[0].locationId;
                 this.gridData.locationName = locations[0].name;
               }
+              this.loadAreas(company.companyId);
               this.loadScheduleData();
             });
           }
         });
+      }
+    });
+  }
+
+  private loadAreas(companyId: string): void {
+    this.areaService.getAreas(companyId).subscribe({
+      next: (areas) => {
+        this.areas = areas;
+        this.syncBulkAreaWithLocation();
+      },
+      error: () => {
+        this.areas = [];
       }
     });
   }
@@ -851,7 +902,7 @@ export class ScheduleGridComponent implements OnInit {
     let filteredShifts = shifts;
     let filteredPeople = people;
 
-    if (this.viewMode === 'single' && this.selectedLocationId && this.selectedLocationId > 0) {
+    if (this.viewMode === 'single' && this.selectedLocationId > 0) {
       filteredShifts = shifts.filter(s => s.locationId === this.selectedLocationId);
       // Only show people who have at least one shift at this location
       const personIdsWithShifts = new Set(filteredShifts.map(s => s.personId));
@@ -1014,7 +1065,7 @@ export class ScheduleGridComponent implements OnInit {
     // Resolve the location for the modal
     if (locationId) {
       this.modalLocationId = locationId;
-    } else if (this.viewMode === 'single' && this.selectedLocationId && this.selectedLocationId > 0) {
+    } else if (this.viewMode === 'single' && this.selectedLocationId > 0) {
       this.modalLocationId = this.selectedLocationId;
     } else {
       this.modalLocationId = 0;
@@ -1123,6 +1174,158 @@ export class ScheduleGridComponent implements OnInit {
       this.gridData.locationName = selectedLocation ? selectedLocation.name : '';
     }
     this.loadScheduleData();
+  }
+
+  onBulkLocationChange(): void {
+    this.syncBulkAreaWithLocation();
+  }
+
+  private initBulkFormDefaults(): void {
+    const today = new Date();
+    if (!this.bulkStartDate) {
+      this.bulkStartDate = this.formatDateInput(today);
+    }
+    if (!this.bulkEndDate) {
+      this.bulkEndDate = this.bulkStartDate;
+    }
+    if (!this.bulkLocationId || this.bulkLocationId <= 0) {
+      const firstLocation = this.locations.find(loc => loc.locationId > 0);
+      if (firstLocation) {
+        this.bulkLocationId = firstLocation.locationId;
+      }
+    }
+    this.syncBulkAreaWithLocation();
+  }
+
+  private formatDateInput(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  getAreasForLocation(locationId: number | null): Area[] {
+    if (!locationId || locationId <= 0) {
+      return [];
+    }
+    return this.areas.filter(area => String(area.locationId ?? '') === String(locationId));
+  }
+
+  private syncBulkAreaWithLocation(): void {
+    const areasForLocation = this.getAreasForLocation(this.bulkLocationId);
+    if (areasForLocation.length === 0) {
+      this.bulkAreaId = null;
+      return;
+    }
+    if (!this.bulkAreaId || !areasForLocation.some(area => area.areaId === this.bulkAreaId)) {
+      this.bulkAreaId = areasForLocation[0].areaId;
+    }
+  }
+
+  toggleBulkPersonSelection(personId: number, checked: boolean): void {
+    if (checked) {
+      this.bulkSelectedPeopleIds.add(personId);
+    } else {
+      this.bulkSelectedPeopleIds.delete(personId);
+    }
+  }
+
+  selectAllBulkPeople(): void {
+    this.peopleList.forEach(person => this.bulkSelectedPeopleIds.add(person.personId));
+  }
+
+  clearBulkPeopleSelection(): void {
+    this.bulkSelectedPeopleIds.clear();
+  }
+
+  async createBulkSchedules(): Promise<void> {
+    if (!this.activeCompany?.companyId) return;
+    this.bulkError = '';
+
+    if (!this.bulkLocationId || this.bulkLocationId <= 0) {
+      this.bulkError = 'Select a location.';
+      return;
+    }
+    if (!this.bulkAreaId || this.bulkAreaId <= 0) {
+      this.bulkError = 'Select an area for the location.';
+      return;
+    }
+    if (!this.bulkStartDate || !this.bulkEndDate) {
+      this.bulkError = 'Select a valid date range.';
+      return;
+    }
+    if (!this.bulkStartTime || !this.bulkEndTime) {
+      this.bulkError = 'Select a start and end time.';
+      return;
+    }
+    if (this.bulkSelectedPeopleIds.size === 0) {
+      this.bulkError = 'Select at least one person.';
+      return;
+    }
+
+    const start = new Date(this.bulkStartDate);
+    const end = new Date(this.bulkEndDate);
+    if (end < start) {
+      this.bulkError = 'End date must be on or after start date.';
+      return;
+    }
+
+    this.bulkCreating = true;
+    let createdCount = 0;
+    let skippedCount = 0;
+
+    const dates = this.getBulkDateRange(start, end);
+    for (const date of dates) {
+      const startDate = this.createDateWithTimeUTC(date, this.bulkStartTime);
+      const endDate = this.createDateWithTimeUTC(date, this.bulkEndTime);
+      for (const personId of this.bulkSelectedPeopleIds) {
+        if (this.hasScheduleConflict(personId, startDate, endDate)) {
+          skippedCount++;
+          continue;
+        }
+
+        const schedule: Schedule = {
+          scheduleId: 0,
+          name: `Bulk schedule for ${date.toDateString()}`,
+          companyId: this.activeCompany.companyId,
+          personId,
+          locationId: this.bulkLocationId,
+          areaId: this.bulkAreaId,
+          startDate,
+          endDate,
+          status: 'unpublished',
+          timezone: 'UTC'
+        } as Schedule;
+
+        try {
+          await lastValueFrom(this.scheduleService.createSchedule(this.activeCompany.companyId, schedule));
+          createdCount++;
+        } catch (error) {
+          console.error('Failed to create bulk schedule', error);
+          skippedCount++;
+        }
+      }
+    }
+
+    this.bulkCreating = false;
+    this.closeAddSchedulePlaceholder();
+    this.loadScheduleData();
+    if (skippedCount > 0) {
+      alert(`Created ${createdCount} shift(s). Skipped ${skippedCount} due to conflicts or errors.`);
+    }
+  }
+
+  private getBulkDateRange(start: Date, end: Date): Date[] {
+    const dates: Date[] = [];
+    const current = new Date(start);
+    current.setHours(0, 0, 0, 0);
+    const endDate = new Date(end);
+    endDate.setHours(0, 0, 0, 0);
+    while (current <= endDate) {
+      dates.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+    return dates;
   }
 
   onSaveSchedule(schedule: Schedule): void {
@@ -1246,7 +1449,7 @@ export class ScheduleGridComponent implements OnInit {
     // Resolve the location for the modal based on view mode
     if (locationId) {
       this.modalLocationId = locationId;
-    } else if (this.viewMode === 'single' && this.selectedLocationId && this.selectedLocationId > 0) {
+    } else if (this.viewMode === 'single' && this.selectedLocationId > 0) {
       this.modalLocationId = this.selectedLocationId;
     } else {
       this.modalLocationId = 0;
