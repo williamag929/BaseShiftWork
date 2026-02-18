@@ -2,7 +2,7 @@ import { Injectable, NgZone, Injector, runInInjectionContext } from '@angular/co
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, firstValueFrom } from 'rxjs';
 import { switchMap, map, catchError, filter, withLatestFrom } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import firebase from 'firebase/compat/app';
@@ -247,15 +247,13 @@ export class AuthService {
   }
 
   async getToken(): Promise<string | null> {
-    const user = await this.afAuth.currentUser;
+    const user = await firstValueFrom(this.afAuth.authState);
     if (user) {
-      return user.getIdToken().then(token => {
-        sessionStorage.setItem('authToken', token);
-        return token;
-      });
-    } else {
-      return this.getTokenFromSessionStorage();
+      const token = await user.getIdToken(true);
+      sessionStorage.setItem('authToken', token);
+      return token;
     }
+    return this.getTokenFromSessionStorage();
   }
 
   getTokenFromSessionStorage(): string | null {

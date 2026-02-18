@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -13,16 +14,22 @@ namespace ShiftWork.Api.Authorization
     public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
     {
         private readonly ShiftWorkContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PermissionAuthorizationHandler(ShiftWorkContext context)
+        public PermissionAuthorizationHandler(
+            ShiftWorkContext context,
+            IHttpContextAccessor httpContextAccessor)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
         {
-            var httpContext = (context.Resource as Microsoft.AspNetCore.Mvc.Filters.AuthorizationFilterContext)?.HttpContext
-                ?? (context.Resource as ActionContext)?.HttpContext;
+            var httpContext = context.Resource as HttpContext
+                ?? (context.Resource as Microsoft.AspNetCore.Mvc.Filters.AuthorizationFilterContext)?.HttpContext
+                ?? (context.Resource as ActionContext)?.HttpContext
+                ?? _httpContextAccessor.HttpContext;
 
             if (httpContext == null)
             {
