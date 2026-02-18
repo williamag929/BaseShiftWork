@@ -72,9 +72,8 @@ namespace ShiftWork.Api.Controllers
                     startDate, 
                     endDate);
 
-                if (result.TotalCount == 0)
-                    return NotFound($"No audit history found for {entityName} with ID {entityId}");
-
+                // Return empty result with 200 OK if no history exists yet
+                // This is normal for entities that haven't been modified since audit was implemented
                 return Ok(result);
             }
             catch (Exception ex)
