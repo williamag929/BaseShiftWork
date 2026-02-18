@@ -444,15 +444,17 @@ export class AuditHistoryDialogComponent implements OnInit {
 
     this.auditService.getAuditHistoryForEntity(params).subscribe({
       next: (result: AuditHistoryPagedResult) => {
-        this.auditHistory = result.items;
-        this.allAuditHistory = result.items;
+        this.auditHistory = result.actions || [];
+        this.allAuditHistory = result.actions || [];
         this.totalRecords = result.totalCount;
-        this.lastModifiedInfo = result.items.length > 0 ? result.items[0] : null;
+        this.lastModifiedInfo = result.actions && result.actions.length > 0 ? result.actions[0] : null;
         this.loading = false;
       },
       error: () => {
         this.loading = false;
         this.auditHistory = [];
+        this.allAuditHistory = [];
+        this.totalRecords = 0;
       }
     });
   }
@@ -465,12 +467,13 @@ export class AuditHistoryDialogComponent implements OnInit {
       .getRelatedAuditHistory(this.data.companyId, this.data.entityName, this.data.entityId)
       .subscribe({
         next: (items: AuditHistoryDto[]) => {
-          this.allRelatedAuditHistory = items;
+          this.allRelatedAuditHistory = items || [];
           this.applyRelatedFilters();
           this.loadingRelated = false;
         },
         error: () => {
           this.loadingRelated = false;
+          this.allRelatedAuditHistory = [];
           this.relatedAuditHistory = [];
         }
       });
@@ -523,10 +526,16 @@ export class AuditHistoryDialogComponent implements OnInit {
   }
 
   countActionType(actionType: string): number {
+    if (!this.allAuditHistory || !Array.isArray(this.allAuditHistory)) {
+      return 0;
+    }
     return this.allAuditHistory.filter(item => item.actionType === actionType).length;
   }
 
   getUniqueFields(): string[] {
+    if (!this.allAuditHistory || !Array.isArray(this.allAuditHistory)) {
+      return [];
+    }
     const fields = new Set<string>();
     this.allAuditHistory.forEach(item => {
       if (item.fieldName) {
@@ -537,6 +546,9 @@ export class AuditHistoryDialogComponent implements OnInit {
   }
 
   countFieldChanges(fieldName: string): number {
+    if (!this.allAuditHistory || !Array.isArray(this.allAuditHistory)) {
+      return 0;
+    }
     return this.allAuditHistory.filter(item => item.fieldName === fieldName).length;
   }
 

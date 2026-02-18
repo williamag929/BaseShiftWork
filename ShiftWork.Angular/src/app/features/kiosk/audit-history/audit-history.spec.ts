@@ -171,7 +171,7 @@ describe('AuditHistoryDialogComponent', () => {
   };
 
   const mockAuditResult: AuditHistoryPagedResult = {
-    items: [
+    actions: [
       {
         id: '1',
         entityName: 'Person',
@@ -375,7 +375,7 @@ describe('AuditHistoryService', () => {
 
   it('should fetch audit history for entity', () => {
     const mockResult: AuditHistoryPagedResult = {
-      items: [],
+      actions: [],
       totalCount: 0,
       pageNumber: 1,
       pageSize: 20,

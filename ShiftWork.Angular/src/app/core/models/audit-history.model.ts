@@ -30,7 +30,7 @@ export interface AuditHistoryParams {
 }
 
 export interface AuditHistoryPagedResult {
-  items: AuditHistoryDto[];
+  actions: AuditHistoryDto[];
   totalCount: number;
   pageNumber: number;
   pageSize: number;
