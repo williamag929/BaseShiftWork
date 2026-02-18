@@ -7,6 +7,7 @@ using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -73,6 +74,52 @@ namespace ShiftWork.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving user with UID {Uid}", uid);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        [HttpGet("me/claims")]
+        [Authorize]
+        [ProducesResponseType(typeof(UserClaimsDto), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<UserClaimsDto>> GetMyClaims(string companyId)
+        {
+            var requesterUid = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? User.FindFirstValue("user_id")
+                ?? User.FindFirstValue("uid")
+                ?? User.FindFirstValue(ClaimTypes.Name)
+                ?? User.FindFirstValue("sub");
+
+            if (string.IsNullOrWhiteSpace(requesterUid))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var roles = await _userRoleService.GetUserRolesAsync(companyId, requesterUid);
+                var permissions = await _userRoleService.GetUserPermissionsAsync(companyId, requesterUid);
+
+                if (roles == null || permissions == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                var response = new UserClaimsDto
+                {
+                    CompanyId = companyId,
+                    UserId = requesterUid,
+                    Roles = roles.Select(role => role.Name).ToList(),
+                    Permissions = permissions,
+                    PermissionsVersion = permissions.Count
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving claims for user {Uid} in company {CompanyId}.", requesterUid, companyId);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
@@ -195,9 +242,18 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(500)]
         public async Task<ActionResult<IEnumerable<RoleDto>>> UpdateUserRoles(string companyId, string uid, [FromBody] UserRolesUpdateDto updateDto)
         {
+            var requesterUid = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? User.FindFirstValue("user_id")
+                ?? User.FindFirstValue("uid")
+                ?? User.FindFirstValue(ClaimTypes.Name)
+                ?? User.FindFirstValue("sub");
+            
+            var requesterName = User.FindFirstValue(ClaimTypes.GivenName) 
+                ?? User.FindFirstValue("name");
+
             try
             {
-                var roles = await _userRoleService.UpdateUserRolesAsync(companyId, uid, updateDto.RoleIds);
+                var roles = await _userRoleService.UpdateUserRolesAsync(companyId, uid, updateDto.RoleIds, requesterUid, requesterName);
                 if (roles == null)
                 {
                     return NotFound($"User with UID {uid} not found.");
@@ -265,9 +321,13 @@ namespace ShiftWork.Api.Controllers
                 return Forbid();
             }
 
+            var requesterName = User.FindFirstValue(ClaimTypes.GivenName)
+                ?? User.FindFirstValue(ClaimTypes.Name)
+                ?? User.FindFirstValue("name");
+
             try
             {
-                var roles = await _userRoleService.BootstrapAdminAsync(companyId, uid);
+                var roles = await _userRoleService.BootstrapAdminAsync(companyId, uid, requesterUid, requesterName);
                 if (roles == null)
                 {
                     return NotFound($"User with UID {uid} not found.");

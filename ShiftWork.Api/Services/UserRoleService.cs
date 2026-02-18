@@ -12,17 +12,19 @@ namespace ShiftWork.Api.Services
     {
         Task<List<Role>?> GetUserRolesAsync(string companyId, string uid);
         Task<List<string>?> GetUserPermissionsAsync(string companyId, string uid);
-        Task<List<Role>?> UpdateUserRolesAsync(string companyId, string uid, IEnumerable<int> roleIds);
-        Task<List<Role>?> BootstrapAdminAsync(string companyId, string uid);
+        Task<List<Role>?> UpdateUserRolesAsync(string companyId, string uid, IEnumerable<int> roleIds, string? userId = null, string? userName = null);
+        Task<List<Role>?> BootstrapAdminAsync(string companyId, string uid, string? userId = null, string? userName = null);
     }
 
     public class UserRoleService : IUserRoleService
     {
         private readonly ShiftWorkContext _context;
+        private readonly IAuditLogService _auditLogService;
 
-        public UserRoleService(ShiftWorkContext context)
+        public UserRoleService(ShiftWorkContext context, IAuditLogService auditLogService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _auditLogService = auditLogService ?? throw new ArgumentNullException(nameof(auditLogService));
         }
 
         public async Task<List<Role>?> GetUserRolesAsync(string companyId, string uid)
@@ -66,7 +68,7 @@ namespace ShiftWork.Api.Services
                 .ToListAsync();
         }
 
-        public async Task<List<Role>?> UpdateUserRolesAsync(string companyId, string uid, IEnumerable<int> roleIds)
+        public async Task<List<Role>?> UpdateUserRolesAsync(string companyId, string uid, IEnumerable<int> roleIds, string? userId = null, string? userName = null)
         {
             var user = await _context.CompanyUsers.FirstOrDefaultAsync(u => u.Uid == uid && u.CompanyId == companyId);
             if (user == null)
@@ -88,7 +90,12 @@ namespace ShiftWork.Api.Services
 
             var existing = await _context.UserRoles
                 .Where(ur => ur.CompanyUserId == user.CompanyUserId && ur.CompanyId == companyId)
+                .Include(ur => ur.Role)
                 .ToListAsync();
+
+            // Capture old role names for audit
+            var oldRoleNames = existing.Select(ur => ur.Role.Name).ToList();
+            var newRoleNames = roles.Select(r => r.Name).ToList();
 
             if (existing.Count > 0)
             {
@@ -105,10 +112,16 @@ namespace ShiftWork.Api.Services
             _context.UserRoles.AddRange(newLinks);
             await _context.SaveChangesAsync();
 
+            // Log role assignment changes if userId provided
+            if (!string.IsNullOrEmpty(userId))
+            {
+                await _auditLogService.LogUserRoleAssignmentAsync(companyId, userId, userName, uid, oldRoleNames, newRoleNames);
+            }
+
             return roles.OrderBy(r => r.Name).ToList();
         }
 
-        public async Task<List<Role>?> BootstrapAdminAsync(string companyId, string uid)
+        public async Task<List<Role>?> BootstrapAdminAsync(string companyId, string uid, string? userId = null, string? userName = null)
         {
             var user = await _context.CompanyUsers.FirstOrDefaultAsync(u => u.Uid == uid && u.CompanyId == companyId);
             if (user == null)
@@ -136,6 +149,13 @@ namespace ShiftWork.Api.Services
             });
 
             await _context.SaveChangesAsync();
+
+            // Log bootstrap admin role assignment if userId provided
+            if (!string.IsNullOrEmpty(userId))
+            {
+                await _auditLogService.LogUserRoleAssignmentAsync(companyId, userId, userName, uid, new List<string>(), new List<string> { "Admin" });
+            }
+
             return new List<Role> { adminRole };
         }
     }

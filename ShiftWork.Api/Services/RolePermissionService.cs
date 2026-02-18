@@ -11,18 +11,20 @@ namespace ShiftWork.Api.Services
     public interface IRolePermissionService
     {
         Task<List<Permission>?> GetRolePermissionsAsync(string companyId, int roleId);
-        Task<List<Permission>?> UpdateRolePermissionsAsync(string companyId, int roleId, IEnumerable<string> permissionKeys);
+        Task<List<Permission>?> UpdateRolePermissionsAsync(string companyId, int roleId, IEnumerable<string> permissionKeys, string? userId = null, string? userName = null);
     }
 
     public class RolePermissionService : IRolePermissionService
     {
         private readonly ShiftWorkContext _context;
         private readonly IPermissionService _permissionService;
+        private readonly IAuditLogService _auditLogService;
 
-        public RolePermissionService(ShiftWorkContext context, IPermissionService permissionService)
+        public RolePermissionService(ShiftWorkContext context, IPermissionService permissionService, IAuditLogService auditLogService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _permissionService = permissionService ?? throw new ArgumentNullException(nameof(permissionService));
+            _auditLogService = auditLogService ?? throw new ArgumentNullException(nameof(auditLogService));
         }
 
         public async Task<List<Permission>?> GetRolePermissionsAsync(string companyId, int roleId)
@@ -42,7 +44,7 @@ namespace ShiftWork.Api.Services
             return permissions;
         }
 
-        public async Task<List<Permission>?> UpdateRolePermissionsAsync(string companyId, int roleId, IEnumerable<string> permissionKeys)
+        public async Task<List<Permission>?> UpdateRolePermissionsAsync(string companyId, int roleId, IEnumerable<string> permissionKeys, string? userId = null, string? userName = null)
         {
             var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleId == roleId && r.CompanyId == companyId);
             if (role == null)
@@ -62,7 +64,9 @@ namespace ShiftWork.Api.Services
                 }
             }
 
-            var existing = await _context.RolePermissions.Where(rp => rp.RoleId == roleId).ToListAsync();
+            var existing = await _context.RolePermissions.Where(rp => rp.RoleId == roleId).Include(rp => rp.Permission).ToListAsync();
+            var oldPermissionKeys = existing.Select(rp => rp.Permission.Key).ToList();
+
             if (existing.Count > 0)
             {
                 _context.RolePermissions.RemoveRange(existing);
@@ -76,6 +80,12 @@ namespace ShiftWork.Api.Services
 
             _context.RolePermissions.AddRange(newLinks);
             await _context.SaveChangesAsync();
+
+            // Log permission updates if userId provided
+            if (!string.IsNullOrEmpty(userId))
+            {
+                await _auditLogService.LogRolePermissionUpdateAsync(companyId, userId, userName, roleId, role.Name, oldPermissionKeys, permissions.Select(p => p.Key).ToList());
+            }
 
             return permissions.OrderBy(p => p.Key).ToList();
         }

@@ -12,6 +12,7 @@ import { environment } from '../../../environments/environment';
 import { User } from '../models/user.model';
 import { People } from '../models/people.model';
 import { PeopleService } from './people.service';
+import { PermissionService } from './permission.service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +31,7 @@ export class AuthService {
     private toastr: ToastrService,
     private http: HttpClient,
     private peopleService: PeopleService,
+    private permissionService: PermissionService,
     private injector: Injector
   ) {
     this.afAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
@@ -153,8 +155,17 @@ export class AuthService {
     await this.afAuth.signOut();
     localStorage.removeItem('user');
     sessionStorage.removeItem('authToken');
+    this.permissionService.clearClaims();
     this.toastr.success('Signed out successfully');
     return this.router.navigate(['/']);
+  }
+
+  /**
+   * Load user permissions from the API
+   * Call this after user logs in or switches company
+   */
+  loadUserPermissions(companyId: string): Observable<any> {
+    return this.permissionService.loadUserClaims(companyId);
   }
 
   async updateUserData(user: any) {
