@@ -33,6 +33,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves all companies.
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "companies.read")]
         [ProducesResponseType(typeof(IEnumerable<Company>), 200)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
@@ -53,6 +54,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves a company by its ID.
         /// </summary>
         [HttpGet("{id}")]
+        [Authorize(Policy = "companies.read")]
         [ProducesResponseType(typeof(Company), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -78,6 +80,7 @@ namespace ShiftWork.Api.Controllers
         /// Creates a new company.
         /// </summary>
         [HttpPost]
+        [Authorize(Policy = "companies.create")]
         [ProducesResponseType(typeof(Company), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -104,6 +107,7 @@ namespace ShiftWork.Api.Controllers
         /// Updates an existing company.
         /// </summary>
         [HttpPut("{id}")]
+        [Authorize(Policy = "companies.update")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -140,6 +144,7 @@ namespace ShiftWork.Api.Controllers
         /// Deletes a company by its ID.
         /// </summary>
         [HttpDelete("{id}")]
+        [Authorize(Policy = "companies.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using ShiftWork.Api.Services;
 using System.Threading.Tasks;
 
@@ -16,6 +17,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "schedule-shift-summaries.read")]
         public async Task<IActionResult> Get(int companyId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate, [FromQuery] int? locationId, [FromQuery] int? personId)
         {
             var summary = await _scheduleShiftSummaryService.GetScheduleShiftSummary(companyId, startDate, endDate, locationId, personId);

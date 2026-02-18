@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -45,6 +46,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves all people for a company.
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "people.read")]
         [ProducesResponseType(typeof(IEnumerable<PersonDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -91,6 +93,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves people who have unpublished schedules in the given date range.
         /// </summary>
         [HttpGet("unpublished-schedules")]
+        [Authorize(Policy = "people.read")]
         [ProducesResponseType(typeof(IEnumerable<UnpublishedSchedulePersonDto>), 200)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<IEnumerable<UnpublishedSchedulePersonDto>>> GetPeopleWithUnpublishedSchedules(
@@ -114,6 +117,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves a specific person by their ID.
         /// </summary>
         [HttpGet("{personId}")]
+        [Authorize(Policy = "people.read")]
         [ProducesResponseType(typeof(PersonDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -153,6 +157,7 @@ namespace ShiftWork.Api.Controllers
         /// Creates a new person.
         /// </summary>
         [HttpPost]
+        [Authorize(Policy = "people.create")]
         [ProducesResponseType(typeof(PersonDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -207,6 +212,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [Authorize(Policy = "people.update")]
         public async Task<IActionResult> PutPerson(string companyId, int personId, [FromBody] PersonDto personDto)
         {
             if (personId != personDto.PersonId)
@@ -322,6 +328,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [Authorize(Policy = "people.delete")]
         public async Task<IActionResult> DeletePerson(string companyId, int personId)
         {
             try
@@ -348,6 +355,7 @@ namespace ShiftWork.Api.Controllers
         /// Updates the status of a person.
         /// </summary>
     [HttpPut("{personId}/status")]
+        [Authorize(Policy = "people.update")]
         [ProducesResponseType(typeof(PersonDto), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -391,6 +399,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves the status of a person.
         /// </summary>
         [HttpGet("{personId}/status")]
+        [Authorize(Policy = "people.read")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -417,6 +426,7 @@ namespace ShiftWork.Api.Controllers
         /// Updates the kiosk (ShiftWork) status of a person (OnShift/OffShift).
         /// </summary>
         [HttpPut("{personId}/status-shiftwork")]
+        [Authorize(Policy = "people.update")]
         [ProducesResponseType(typeof(PersonDto), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -460,6 +470,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves the kiosk (ShiftWork) status of a person.
         /// </summary>
         [HttpGet("{personId}/status-shiftwork")]
+        [Authorize(Policy = "people.read")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

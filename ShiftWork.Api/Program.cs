@@ -4,10 +4,12 @@ using Amazon;
 using Amazon.Extensions.NETCore.Setup;
 using FirebaseAdmin;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.Services;
 using ShiftWork.Api.Helpers;
+using ShiftWork.Api.Authorization;
 using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -98,6 +100,13 @@ builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IPeopleService, PeopleService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
+builder.Services.AddScoped<IUserRoleService, UserRoleService>();
+builder.Services.AddScoped<ICompanyUserProfileService, CompanyUserProfileService>();
+builder.Services.AddScoped<IPermissionSeedService, PermissionSeedService>();
+builder.Services.AddScoped<IRoleSeedService, RoleSeedService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IScheduleShiftService, ScheduleShiftService>();
 builder.Services.AddScoped<ITaskShiftService, TaskShiftService>();
@@ -115,6 +124,7 @@ builder.Services.AddScoped<IAuditHistoryService, AuditHistoryService>();
 builder.Services.AddScoped<PushNotificationService>();
 builder.Services.AddScoped<IWebhookService, WebhookService>();
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
 
 // Your AuthController uses AutoMapper, so you need to add it and its DI package.
@@ -190,6 +200,101 @@ builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("people.read", policy => policy.Requirements.Add(new PermissionRequirement("people.read")));
+    options.AddPolicy("people.create", policy => policy.Requirements.Add(new PermissionRequirement("people.create")));
+    options.AddPolicy("people.update", policy => policy.Requirements.Add(new PermissionRequirement("people.update")));
+    options.AddPolicy("people.delete", policy => policy.Requirements.Add(new PermissionRequirement("people.delete")));
+
+    options.AddPolicy("locations.read", policy => policy.Requirements.Add(new PermissionRequirement("locations.read")));
+    options.AddPolicy("locations.create", policy => policy.Requirements.Add(new PermissionRequirement("locations.create")));
+    options.AddPolicy("locations.update", policy => policy.Requirements.Add(new PermissionRequirement("locations.update")));
+    options.AddPolicy("locations.delete", policy => policy.Requirements.Add(new PermissionRequirement("locations.delete")));
+
+    options.AddPolicy("areas.read", policy => policy.Requirements.Add(new PermissionRequirement("areas.read")));
+    options.AddPolicy("areas.create", policy => policy.Requirements.Add(new PermissionRequirement("areas.create")));
+    options.AddPolicy("areas.update", policy => policy.Requirements.Add(new PermissionRequirement("areas.update")));
+    options.AddPolicy("areas.delete", policy => policy.Requirements.Add(new PermissionRequirement("areas.delete")));
+
+    options.AddPolicy("tasks.read", policy => policy.Requirements.Add(new PermissionRequirement("tasks.read")));
+    options.AddPolicy("tasks.create", policy => policy.Requirements.Add(new PermissionRequirement("tasks.create")));
+    options.AddPolicy("tasks.update", policy => policy.Requirements.Add(new PermissionRequirement("tasks.update")));
+    options.AddPolicy("tasks.delete", policy => policy.Requirements.Add(new PermissionRequirement("tasks.delete")));
+
+    options.AddPolicy("roles.read", policy => policy.Requirements.Add(new PermissionRequirement("roles.read")));
+    options.AddPolicy("roles.create", policy => policy.Requirements.Add(new PermissionRequirement("roles.create")));
+    options.AddPolicy("roles.update", policy => policy.Requirements.Add(new PermissionRequirement("roles.update")));
+    options.AddPolicy("roles.delete", policy => policy.Requirements.Add(new PermissionRequirement("roles.delete")));
+    options.AddPolicy("permissions.read", policy => policy.Requirements.Add(new PermissionRequirement("permissions.read")));
+    options.AddPolicy("roles.permissions.update", policy => policy.Requirements.Add(new PermissionRequirement("roles.permissions.update")));
+
+    options.AddPolicy("company-users.read", policy => policy.Requirements.Add(new PermissionRequirement("company-users.read")));
+    options.AddPolicy("company-users.update", policy => policy.Requirements.Add(new PermissionRequirement("company-users.update")));
+    options.AddPolicy("company-users.roles.update", policy => policy.Requirements.Add(new PermissionRequirement("company-users.roles.update")));
+    options.AddPolicy("company-users.profile.update", policy => policy.Requirements.Add(new PermissionRequirement("company-users.profile.update")));
+
+    options.AddPolicy("audit-history.read", policy => policy.Requirements.Add(new PermissionRequirement("audit-history.read")));
+
+    options.AddPolicy("schedules.read", policy => policy.Requirements.Add(new PermissionRequirement("schedules.read")));
+    options.AddPolicy("schedules.create", policy => policy.Requirements.Add(new PermissionRequirement("schedules.create")));
+    options.AddPolicy("schedules.update", policy => policy.Requirements.Add(new PermissionRequirement("schedules.update")));
+    options.AddPolicy("schedules.delete", policy => policy.Requirements.Add(new PermissionRequirement("schedules.delete")));
+
+    options.AddPolicy("schedule-shifts.read", policy => policy.Requirements.Add(new PermissionRequirement("schedule-shifts.read")));
+    options.AddPolicy("schedule-shifts.create", policy => policy.Requirements.Add(new PermissionRequirement("schedule-shifts.create")));
+    options.AddPolicy("schedule-shifts.update", policy => policy.Requirements.Add(new PermissionRequirement("schedule-shifts.update")));
+    options.AddPolicy("schedule-shifts.delete", policy => policy.Requirements.Add(new PermissionRequirement("schedule-shifts.delete")));
+
+    options.AddPolicy("schedule-shift-summaries.read", policy => policy.Requirements.Add(new PermissionRequirement("schedule-shift-summaries.read")));
+    options.AddPolicy("shift-summary-approvals.update", policy => policy.Requirements.Add(new PermissionRequirement("shift-summary-approvals.update")));
+
+    options.AddPolicy("shift-events.read", policy => policy.Requirements.Add(new PermissionRequirement("shift-events.read")));
+    options.AddPolicy("shift-events.create", policy => policy.Requirements.Add(new PermissionRequirement("shift-events.create")));
+    options.AddPolicy("shift-events.update", policy => policy.Requirements.Add(new PermissionRequirement("shift-events.update")));
+    options.AddPolicy("shift-events.delete", policy => policy.Requirements.Add(new PermissionRequirement("shift-events.delete")));
+
+    options.AddPolicy("timeoff-requests.read", policy => policy.Requirements.Add(new PermissionRequirement("timeoff-requests.read")));
+    options.AddPolicy("timeoff-requests.create", policy => policy.Requirements.Add(new PermissionRequirement("timeoff-requests.create")));
+    options.AddPolicy("timeoff-requests.approve", policy => policy.Requirements.Add(new PermissionRequirement("timeoff-requests.approve")));
+    options.AddPolicy("timeoff-requests.delete", policy => policy.Requirements.Add(new PermissionRequirement("timeoff-requests.delete")));
+
+    options.AddPolicy("pto.read", policy => policy.Requirements.Add(new PermissionRequirement("pto.read")));
+    options.AddPolicy("pto.update", policy => policy.Requirements.Add(new PermissionRequirement("pto.update")));
+
+    options.AddPolicy("crews.read", policy => policy.Requirements.Add(new PermissionRequirement("crews.read")));
+    options.AddPolicy("crews.create", policy => policy.Requirements.Add(new PermissionRequirement("crews.create")));
+    options.AddPolicy("crews.update", policy => policy.Requirements.Add(new PermissionRequirement("crews.update")));
+    options.AddPolicy("crews.delete", policy => policy.Requirements.Add(new PermissionRequirement("crews.delete")));
+    options.AddPolicy("crews.assign", policy => policy.Requirements.Add(new PermissionRequirement("crews.assign")));
+    options.AddPolicy("person-crews.read", policy => policy.Requirements.Add(new PermissionRequirement("person-crews.read")));
+    options.AddPolicy("person-crews.update", policy => policy.Requirements.Add(new PermissionRequirement("person-crews.update")));
+
+    options.AddPolicy("company-settings.read", policy => policy.Requirements.Add(new PermissionRequirement("company-settings.read")));
+    options.AddPolicy("company-settings.update", policy => policy.Requirements.Add(new PermissionRequirement("company-settings.update")));
+
+    options.AddPolicy("device-tokens.read", policy => policy.Requirements.Add(new PermissionRequirement("device-tokens.read")));
+    options.AddPolicy("device-tokens.create", policy => policy.Requirements.Add(new PermissionRequirement("device-tokens.create")));
+    options.AddPolicy("device-tokens.delete", policy => policy.Requirements.Add(new PermissionRequirement("device-tokens.delete")));
+
+    options.AddPolicy("replacement-requests.read", policy => policy.Requirements.Add(new PermissionRequirement("replacement-requests.read")));
+    options.AddPolicy("replacement-requests.create", policy => policy.Requirements.Add(new PermissionRequirement("replacement-requests.create")));
+    options.AddPolicy("replacement-requests.update", policy => policy.Requirements.Add(new PermissionRequirement("replacement-requests.update")));
+    options.AddPolicy("replacement-requests.delete", policy => policy.Requirements.Add(new PermissionRequirement("replacement-requests.delete")));
+
+    options.AddPolicy("companies.read", policy => policy.Requirements.Add(new PermissionRequirement("companies.read")));
+    options.AddPolicy("companies.create", policy => policy.Requirements.Add(new PermissionRequirement("companies.create")));
+    options.AddPolicy("companies.update", policy => policy.Requirements.Add(new PermissionRequirement("companies.update")));
+    options.AddPolicy("companies.delete", policy => policy.Requirements.Add(new PermissionRequirement("companies.delete")));
+
+    options.AddPolicy("kiosk.admin", policy => policy.Requirements.Add(new PermissionRequirement("kiosk.admin")));
+
+    options.AddPolicy("s3.read", policy => policy.Requirements.Add(new PermissionRequirement("s3.read")));
+    options.AddPolicy("s3.write", policy => policy.Requirements.Add(new PermissionRequirement("s3.write")));
+    options.AddPolicy("s3.delete", policy => policy.Requirements.Add(new PermissionRequirement("s3.delete")));
+    options.AddPolicy("s3.manage", policy => policy.Requirements.Add(new PermissionRequirement("s3.manage")));
+});
+
 var app = builder.Build();
 
 // ── Ensure VoidedBy / VoidedAt columns exist (safe idempotent migration) ──
@@ -209,6 +314,26 @@ using (var scope = app.Services.CreateScope())
     {
         Console.WriteLine($"⚠ VoidedBy/VoidedAt migration check failed: {ex.Message}");
     }
+
+    try
+    {
+        var seedService = scope.ServiceProvider.GetRequiredService<IPermissionSeedService>();
+        seedService.SeedAsync().GetAwaiter().GetResult();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠ Permission seed failed: {ex.Message}");
+    }
+
+    try
+    {
+        var roleSeedService = scope.ServiceProvider.GetRequiredService<IRoleSeedService>();
+        roleSeedService.SeedAsync().GetAwaiter().GetResult();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠ Role seed failed: {ex.Message}");
+    }
 }
 
 // Configure Firebase Authentication
@@ -220,8 +345,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+    // Only use HTTPS redirection in production
+    app.UseHttpsRedirection();
+}
 
-app.UseHttpsRedirection();
 app.UseCors("ApiCorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();

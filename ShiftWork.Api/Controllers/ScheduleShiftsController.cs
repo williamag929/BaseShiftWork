@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -43,6 +44,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves all schedule shifts for a company.
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "schedule-shifts.read")]
         [ProducesResponseType(typeof(IEnumerable<ScheduleShiftDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -83,6 +85,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves schedule shifts for a company with pagination and optional filters.
         /// </summary>
         [HttpGet("paged")]
+        [Authorize(Policy = "schedule-shifts.read")]
         [ProducesResponseType(typeof(PagedResultDto<ScheduleShiftDto>), 200)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<PagedResultDto<ScheduleShiftDto>>> GetScheduleShiftsPaged(
@@ -144,6 +147,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves a specific schedule shift by its ID.
         /// </summary>
         [HttpGet("{shiftId}")]
+        [Authorize(Policy = "schedule-shifts.read")]
         [ProducesResponseType(typeof(ScheduleShiftDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -183,6 +187,7 @@ namespace ShiftWork.Api.Controllers
         /// Creates a new schedule shift.
         /// </summary>
         [HttpPost]
+        [Authorize(Policy = "schedule-shifts.create")]
         [ProducesResponseType(typeof(ScheduleShiftDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -234,6 +239,7 @@ namespace ShiftWork.Api.Controllers
         /// Updates an existing schedule shift.
         /// </summary>
         [HttpPut("{shiftId}")]
+        [Authorize(Policy = "schedule-shifts.update")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -291,6 +297,7 @@ namespace ShiftWork.Api.Controllers
         /// Deletes a schedule shift by its ID.
         /// </summary>
         [HttpDelete("{shiftId}")]
+        [Authorize(Policy = "schedule-shifts.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

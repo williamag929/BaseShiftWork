@@ -32,6 +32,10 @@ namespace ShiftWork.Api.Data
         public DbSet<DeviceToken> DeviceTokens { get; set; }
         public DbSet<ShiftSummaryApproval> ShiftSummaryApprovals { get; set; }
         public DbSet<AuditHistory> AuditHistories { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<CompanyUserProfile> CompanyUserProfiles { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -50,6 +54,61 @@ namespace ShiftWork.Api.Data
             modelBuilder.Entity<KioskQuestion>().ToTable("KioskQuestions");
             modelBuilder.Entity<KioskAnswer>().ToTable("KioskAnswers");
             modelBuilder.Entity<AuditHistory>().ToTable("AuditHistories");
+            modelBuilder.Entity<Permission>().ToTable("Permissions");
+            modelBuilder.Entity<RolePermission>().ToTable("RolePermissions");
+            modelBuilder.Entity<UserRole>().ToTable("UserRoles");
+            modelBuilder.Entity<CompanyUserProfile>().ToTable("CompanyUserProfiles");
+
+            modelBuilder.Entity<RolePermission>()
+                .HasKey(rp => new { rp.RoleId, rp.PermissionId });
+
+            modelBuilder.Entity<RolePermission>()
+                .HasOne(rp => rp.Role)
+                .WithMany()
+                .HasForeignKey(rp => rp.RoleId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<RolePermission>()
+                .HasOne(rp => rp.Permission)
+                .WithMany(p => p.RolePermissions)
+                .HasForeignKey(rp => rp.PermissionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserRole>()
+                .HasKey(ur => new { ur.CompanyUserId, ur.RoleId });
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.CompanyUser)
+                .WithMany()
+                .HasForeignKey(ur => ur.CompanyUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.Role)
+                .WithMany()
+                .HasForeignKey(ur => ur.RoleId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<UserRole>()
+                .HasIndex(ur => new { ur.CompanyId, ur.CompanyUserId });
+
+            modelBuilder.Entity<CompanyUserProfile>()
+                .HasKey(cup => cup.CompanyUserId);
+
+            modelBuilder.Entity<CompanyUserProfile>()
+                .HasIndex(cup => new { cup.CompanyId, cup.PersonId });
+
+            modelBuilder.Entity<CompanyUserProfile>()
+                .HasOne(cup => cup.CompanyUser)
+                .WithMany()
+                .HasForeignKey(cup => cup.CompanyUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<CompanyUserProfile>()
+                .HasOne(cup => cup.Person)
+                .WithMany()
+                .HasForeignKey(cup => cup.PersonId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             // Configure AuditHistory indexes for query performance
             modelBuilder.Entity<AuditHistory>()
