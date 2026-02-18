@@ -166,11 +166,14 @@
                     PIN Code
                   </label>
                   <input 
-                    type="password" 
+                    type="text" 
                     id="pin" 
                     class="form-input" 
                     formControlName="pin" 
                     maxlength="4"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    autocomplete="off"
                     placeholder="4-digit PIN">
                 </div>
 

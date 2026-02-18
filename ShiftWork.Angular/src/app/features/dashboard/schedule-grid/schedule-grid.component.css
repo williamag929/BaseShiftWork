@@ -121,6 +121,56 @@
   background-color: #FFF59D;
 }
 
+.add-schedule-placeholder {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+}
+
+.add-schedule-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.45);
+}
+
+.add-schedule-dialog {
+  position: relative;
+  max-width: 520px;
+  margin: 10vh auto 0;
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px 24px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.add-schedule-dialog h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.add-schedule-dialog p {
+  margin: 12px 0;
+  color: #444;
+}
+
+.add-schedule-dialog ul {
+  margin: 8px 0 16px;
+  padding-left: 18px;
+  color: #444;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+}
 .publish-badge i {
   font-size: 14px;
 }

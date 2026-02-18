@@ -532,5 +532,33 @@
     [companyId]="activeCompany?.companyId || ''"
     (close)="closeShiftHistoryModal()"
   ></app-shift-history-modal>
+
+  <!-- Add Schedule Placeholder -->
+  <div class="add-schedule-placeholder" *ngIf="showAddSchedulePlaceholder">
+    <div class="add-schedule-backdrop" (click)="closeAddSchedulePlaceholder()"></div>
+    <div class="add-schedule-dialog" role="dialog" aria-modal="true">
+      <div class="dialog-header">
+        <h3>Bulk Schedule Builder (Coming Soon)</h3>
+        <button class="icon-btn" (click)="closeAddSchedulePlaceholder()">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+      <p>
+        This button will create multiple schedule shifts for a location across a date range
+        and assign a group of people at once.
+      </p>
+      <p>
+        Planned improvements:
+      </p>
+      <ul>
+        <li>Pick a location and date range</li>
+        <li>Assign multiple people in one action</li>
+        <li>Select a crew to auto-fill the team</li>
+      </ul>
+      <div class="dialog-actions">
+        <button class="btn btn-primary" (click)="closeAddSchedulePlaceholder()">Got it</button>
+      </div>
+    </div>
+  </div>
 </div>
 

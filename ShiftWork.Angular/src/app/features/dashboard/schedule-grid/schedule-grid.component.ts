@@ -47,6 +47,7 @@ import { ShiftHistoryModalComponent } from './shift-history-modal.component';
 })
 export class ScheduleGridComponent implements OnInit {
   showAddScheduleModalFlag: boolean = false;
+  showAddSchedulePlaceholder: boolean = false;
   selectedPersonId: number | null = null;
   selectedDate: Date | null = null;
   editingSchedule: Schedule | null = null;
@@ -417,12 +418,19 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   openAddScheduleModal() {
+    // Placeholder until bulk schedule builder is implemented.
+    this.showAddSchedulePlaceholder = true;
+    return;
+
     this.editingSchedule = null;
     // If modalLocationId hasn't been set by onAddShift/onAddEmployeeToLocation, resolve it
     if (!this.modalLocationId && this.selectedLocationId && this.selectedLocationId > 0) {
       this.modalLocationId = this.selectedLocationId;
     }
     this.showAddScheduleModalFlag = true;
+  }
+  closeAddSchedulePlaceholder() {
+    this.showAddSchedulePlaceholder = false;
   }
   closeAddScheduleModal() {
     this.showAddScheduleModalFlag = false;
