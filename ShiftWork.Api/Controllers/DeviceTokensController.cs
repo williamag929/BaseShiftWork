@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.Models;
@@ -18,6 +19,7 @@ public class DeviceTokensController : ControllerBase
 
     // GET: api/companies/1/people/123/device-tokens
     [HttpGet]
+    [Authorize(Policy = "device-tokens.read")]
     public async Task<ActionResult<IEnumerable<DeviceToken>>> GetDeviceTokens(string companyId, int personId)
     {
         return await _context.DeviceTokens
@@ -27,6 +29,7 @@ public class DeviceTokensController : ControllerBase
 
     // POST: api/companies/1/people/123/device-tokens
     [HttpPost]
+    [Authorize(Policy = "device-tokens.create")]
     public async Task<ActionResult<DeviceToken>> RegisterDeviceToken(
         string companyId,
         int personId,
@@ -69,6 +72,7 @@ public class DeviceTokensController : ControllerBase
 
     // DELETE: api/companies/1/people/123/device-tokens/{token}
     [HttpDelete("{token}")]
+    [Authorize(Policy = "device-tokens.delete")]
     public async Task<IActionResult> DeleteDeviceToken(string companyId, int personId, string token)
     {
         var deviceToken = await _context.DeviceTokens

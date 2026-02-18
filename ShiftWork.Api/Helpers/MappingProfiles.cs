@@ -17,6 +17,10 @@ namespace ShiftWork.Api.Helpers
             CreateMap<CompanyDto, Company>();
             CreateMap<CompanyUser, CompanyUserDto>();
             CreateMap<CompanyUserDto, CompanyUser>();
+            CreateMap<Permission, PermissionDto>();
+            CreateMap<PermissionDto, Permission>();
+            CreateMap<CompanyUserProfile, CompanyUserProfileDto>();
+            CreateMap<CompanyUserProfileDto, CompanyUserProfile>();
             CreateMap<Location, LocationDto>()
                 .ForMember(dest => dest.GeoCoordinates, opt => opt.MapFrom(src =>
                     !string.IsNullOrEmpty(src.GeoCoordinates)

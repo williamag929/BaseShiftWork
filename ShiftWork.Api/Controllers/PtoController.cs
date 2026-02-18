@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Services;
 using System;
@@ -23,6 +24,7 @@ namespace ShiftWork.Api.Controllers
         /// Get current PTO balance for a person
         /// </summary>
         [HttpGet("balance/{personId}")]
+        [Authorize(Policy = "pto.read")]
         [ProducesResponseType(typeof(PtoBalanceDto), 200)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<PtoBalanceDto>> GetBalance(
@@ -51,6 +53,7 @@ namespace ShiftWork.Api.Controllers
         /// Configure PTO settings for a person
         /// </summary>
         [HttpPut("config/{personId}")]
+        [Authorize(Policy = "pto.update")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]

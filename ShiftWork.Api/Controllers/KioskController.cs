@@ -57,7 +57,7 @@ namespace ShiftWork.Api.Controllers
         /// <param name="request">The password verification request.</param>
         /// <returns>True if password is correct, false otherwise.</returns>
         [HttpPost("{companyId}/verify-admin-password")]
-        [AllowAnonymous] // Allow without auth since kiosk mode may not have user session
+        [Authorize(Policy = "kiosk.admin")]
         [ProducesResponseType(typeof(object), 200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> VerifyAdminPassword(string companyId, [FromBody] AdminPasswordVerificationRequest request)

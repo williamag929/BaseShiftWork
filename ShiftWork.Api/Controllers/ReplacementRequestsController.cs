@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -35,6 +36,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "replacement-requests.create")]
         [ProducesResponseType(typeof(ReplacementRequestDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -76,6 +78,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpGet("{requestId}")]
+        [Authorize(Policy = "replacement-requests.read")]
         [ProducesResponseType(typeof(ReplacementRequestDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -107,6 +110,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpPost("{requestId}/notify")]
+        [Authorize(Policy = "replacement-requests.update")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -151,6 +155,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpPost("{requestId}/accept")]
+        [Authorize(Policy = "replacement-requests.update")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
@@ -188,6 +193,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpDelete("{requestId}")]
+        [Authorize(Policy = "replacement-requests.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
