@@ -9,6 +9,7 @@ using ShiftWork.Api.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ShiftWork.Api.Controllers
@@ -270,9 +271,18 @@ namespace ShiftWork.Api.Controllers
                 return BadRequest("Role ID mismatch.");
             }
 
+            var requesterUid = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? User.FindFirstValue("user_id")
+                ?? User.FindFirstValue("uid")
+                ?? User.FindFirstValue("sub");
+
+            var requesterName = User.FindFirstValue(ClaimTypes.GivenName)
+                ?? User.FindFirstValue(ClaimTypes.Name)
+                ?? User.FindFirstValue("name");
+
             try
             {
-                var permissions = await _rolePermissionService.UpdateRolePermissionsAsync(companyId, roleId, updateDto.PermissionKeys);
+                var permissions = await _rolePermissionService.UpdateRolePermissionsAsync(companyId, roleId, updateDto.PermissionKeys, requesterUid, requesterName);
                 if (permissions == null)
                 {
                     return NotFound($"Role with ID {roleId} not found.");

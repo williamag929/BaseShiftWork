@@ -133,4 +133,35 @@ Introduce normalized tables to replace string-based permissions:
 - Permissions enforced in API for all company-scoped endpoints.
 - UI reflects permissions without breaking usability.
 - Role and permission changes are auditable.
-- Legacy fields are deprecated with migration complete.
+- Legacy fields are deprecated with migration complete. ✅
+
+## Deprecation Details (Completed Feb 18, 2026)
+
+### Legacy Fields Marked as Obsolete
+1. **Person.RoleId** - Replaced by UserRole join table
+   - Attribute: `[Obsolete("Use UserRole table instead. Single role assignment via Person.RoleId is deprecated.", false)]`
+   - Impact: Code using Person.RoleId will see compiler warnings but still compile
+   - Migration: Migration `DeprecateLegacyFields` documents deprecation with detailed comments
+
+2. **Role.Permissions** - Replaced by RolePermission join table with Permission registry
+   - Attribute: `[Obsolete("Use RolePermission table instead. String-based permissions are deprecated.", false)]`
+   - Impact: Code using Role.Permissions will see compiler warnings but still compile
+   - Database columns retained for backward compatibility
+
+### Code Changes
+- Removed legacy serialization mapping from [MappingProfiles.cs](ShiftWork.Api/Helpers/MappingProfiles.cs)
+- Removed `Permissions` property from [RoleDto](ShiftWork.Api/DTOs/RoleDto.cs) - permissions now via separate endpoints
+- Updated [Person.cs](ShiftWork.Api/Models/Person.cs) and [Role.cs](ShiftWork.Api/Models/Role.cs) with [Obsolete] attributes
+
+### Migration Strategy
+- No schema changes made (columns retained for graceful data migration)
+- Applications should transition away from legacy fields at their own pace
+- New code exclusively uses:
+  - UserRole table for user role assignments
+  - RolePermission + Permission tables for permissions
+  - RolesController endpoints: `GET /roles/{id}/permissions`, `PUT /roles/{id}/permissions`
+
+### Compiler Warnings Now Active
+- Warnings (CS0618) appear when legacy fields are accessed, guiding developers to new patterns
+- Example: `Services/PeopleService.cs` and `Services/RoleSeedService.cs` show obsolete usage warnings
+

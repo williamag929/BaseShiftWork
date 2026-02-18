@@ -31,15 +31,10 @@ namespace ShiftWork.Api.Helpers
                     src.GeoCoordinates != null ? JsonSerializer.Serialize(src.GeoCoordinates, (JsonSerializerOptions)null) : null));
             CreateMap<Person, PersonDto>();
              CreateMap<PersonDto, Person>();
-            CreateMap<Role, RoleDto>()
-                .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src =>
-                    !string.IsNullOrEmpty(src.Permissions) && src.Permissions.TrimStart().StartsWith("[")
-                        ? JsonSerializer.Deserialize<List<string>>(src.Permissions, (JsonSerializerOptions)null)
-                        : new List<string>()));
-             CreateMap<RoleDto, Role>()
-                .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src =>
-                    src.Permissions != null && src.Permissions.Any() 
-                        ? JsonSerializer.Serialize(src.Permissions, (JsonSerializerOptions)null) : null));
+            // RoleDto mapping: Permissions property is now deprecated and removed from DTO.
+            // Use /api/companies/{companyId}/roles/{roleId}/permissions endpoint instead.
+            CreateMap<Role, RoleDto>();
+             CreateMap<RoleDto, Role>();
             CreateMap<Schedule, ScheduleDto>()
                 .ForMember(dest => dest.PersonId, opt => opt.MapFrom(src =>
                     src.PersonId == null ? 0 : int.Parse(src.PersonId)));
