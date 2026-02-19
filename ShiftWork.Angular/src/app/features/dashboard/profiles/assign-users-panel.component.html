@@ -1,0 +1,26 @@
+<div class="assign-users-panel" [class.open]="open" *ngIf="open">
+  <div class="panel-overlay" (click)="close()"></div>
+  <div class="panel-content">
+    <div class="assign-users-header">
+      <h2>Assign Users to {{ roleName }}</h2>
+      <button mat-icon-button (click)="close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="assign-users-list">
+      <mat-selection-list [(ngModel)]="selectedUserIds">
+        <mat-list-option *ngFor="let person of people" [value]="person.personId">
+          <span class="user-name">{{ person.name }}</span>
+          <span class="user-email">({{ person.email }})</span>
+        </mat-list-option>
+      </mat-selection-list>
+    </div>
+    <div class="assign-users-actions">
+      <button mat-raised-button color="primary" (click)="save()">
+        <mat-icon>save</mat-icon>
+        Save
+      </button>
+      <button mat-button (click)="close()">Cancel</button>
+    </div>
+  </div>
+</div>

@@ -22,6 +22,7 @@ namespace ShiftWork.Api.Data
         public DbSet<PersonCrew> PersonCrews { get; set; }
 
         public DbSet<CompanyUser> CompanyUsers { get; set; }
+        public DbSet<CompanyUserProfile> CompanyUserProfiles { get; set; }
         public DbSet<ShiftEvent> ShiftEvents { get; set; }
         public DbSet<KioskQuestion> KioskQuestions { get; set; }
         public DbSet<KioskAnswer> KioskAnswers { get; set; }
@@ -35,8 +36,6 @@ namespace ShiftWork.Api.Data
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
-        public DbSet<CompanyUserProfile> CompanyUserProfiles { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -250,6 +249,36 @@ namespace ShiftWork.Api.Data
             modelBuilder.Entity<ShiftSummaryApproval>()
                 .HasIndex(a => new { a.CompanyId, a.PersonId, a.Day })
                 .IsUnique();
+
+            // CompanyUserProfile configuration
+            modelBuilder.Entity<CompanyUserProfile>()
+                .ToTable("CompanyUserProfiles")
+                .HasIndex(cup => new { cup.CompanyId, cup.CompanyUserId, cup.RoleId })
+                .IsUnique(); // Prevent duplicate role assignments
+
+            modelBuilder.Entity<CompanyUserProfile>()
+                .HasOne(cup => cup.CompanyUser)
+                .WithMany()
+                .HasForeignKey(cup => cup.CompanyUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CompanyUserProfile>()
+                .HasOne(cup => cup.Company)
+                .WithMany()
+                .HasForeignKey(cup => cup.CompanyId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<CompanyUserProfile>()
+                .HasOne(cup => cup.Role)
+                .WithMany()
+                .HasForeignKey(cup => cup.RoleId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<CompanyUserProfile>()
+                .HasOne(cup => cup.Person)
+                .WithMany()
+                .HasForeignKey(cup => cup.PersonId)
+                .OnDelete(DeleteBehavior.NoAction);
 
         }
     }

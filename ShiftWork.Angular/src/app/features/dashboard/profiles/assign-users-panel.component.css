@@ -1,0 +1,87 @@
+.assign-users-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.assign-users-panel.open {
+  pointer-events: all;
+  opacity: 1;
+}
+
+.panel-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  transition: opacity 0.3s ease;
+}
+
+.panel-content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 450px;
+  max-width: 90vw;
+  background: #fff;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.assign-users-panel.open .panel-content {
+  transform: translateX(0);
+}
+
+.assign-users-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+}
+
+.assign-users-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.assign-users-list {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.user-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.user-email {
+  color: #888;
+  font-size: 0.9em;
+  margin-left: 0.5em;
+}
+
+.assign-users-actions {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  justify-content: flex-end;
+}

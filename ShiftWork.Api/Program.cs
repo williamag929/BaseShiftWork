@@ -107,6 +107,7 @@ builder.Services.AddScoped<ICompanyUserProfileService, CompanyUserProfileService
 builder.Services.AddScoped<IPermissionSeedService, PermissionSeedService>();
 builder.Services.AddScoped<IRoleSeedService, RoleSeedService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<ICompanyUserProfileService, CompanyUserProfileService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IScheduleShiftService, ScheduleShiftService>();
 builder.Services.AddScoped<ITaskShiftService, TaskShiftService>();

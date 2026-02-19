@@ -51,6 +51,8 @@ namespace ShiftWork.Api.Helpers
             CreateMap<Schedule, ScheduleDetailDto>();
             CreateMap<CompanySettings, CompanySettingsDto>();
             CreateMap<CompanySettingsDto, CompanySettings>();
+            CreateMap<CompanyUserProfile, CompanyUserProfileDto>();
+            CreateMap<CompanyUserProfileDto, CompanyUserProfile>();
         }
     }
 }
