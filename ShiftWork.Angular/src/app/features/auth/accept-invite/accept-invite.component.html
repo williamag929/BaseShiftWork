@@ -1,0 +1,119 @@
+<div class="accept-invite-container">
+  <div class="invite-card">
+    <!-- Header -->
+    <div class="card-header">
+      <div class="header-icon">
+        <i class="fas fa-envelope-open-text"></i>
+      </div>
+      <h1 class="card-title">Accept Invitation</h1>
+      <p class="card-subtitle">You've been invited to join {{ companyName || 'the team' }}</p>
+    </div>
+
+    <!-- Employee Info -->
+    <div class="employee-section">
+      <div class="employee-card">
+        <div class="employee-avatar">
+          <div class="avatar-placeholder">{{ getInitials(employeeName) }}</div>
+        </div>
+        <div class="employee-details">
+          <h3 class="employee-name">{{ employeeName }}</h3>
+          <p class="employee-email">{{ employeeEmail }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="inviteForm" (ngSubmit)="acceptInvite()" class="invite-form">
+      <div class="form-section">
+        <h3 class="section-title">Create Your Password</h3>
+        <p class="section-description">
+          Set up a secure password to access your account
+        </p>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <label for="password" class="form-label">
+            <i class="fas fa-lock"></i>
+            Password
+          </label>
+          <div class="input-wrapper">
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              class="form-input"
+              placeholder="Enter your password"
+              [class.error]="inviteForm.get('password')?.invalid && inviteForm.get('password')?.touched"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="togglePasswordVisibility('password')"
+              tabindex="-1"
+            >
+              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+          <div
+            *ngIf="inviteForm.get('password')?.invalid && inviteForm.get('password')?.touched"
+            class="error-message"
+          >
+            <i class="fas fa-exclamation-circle"></i>
+            Password must be at least 6 characters
+          </div>
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div class="form-group">
+          <label for="confirmPassword" class="form-label">
+            <i class="fas fa-lock"></i>
+            Confirm Password
+          </label>
+          <div class="input-wrapper">
+            <input
+              id="confirmPassword"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              class="form-input"
+              placeholder="Confirm your password"
+              [class.error]="inviteForm.hasError('passwordMismatch') && inviteForm.get('confirmPassword')?.touched"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="togglePasswordVisibility('confirmPassword')"
+              tabindex="-1"
+            >
+              <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+          <div
+            *ngIf="inviteForm.hasError('passwordMismatch') && inviteForm.get('confirmPassword')?.touched"
+            class="error-message"
+          >
+            <i class="fas fa-exclamation-circle"></i>
+            Passwords do not match
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="btn-submit"
+        [disabled]="inviteForm.invalid || loading"
+      >
+        <i [class]="loading ? 'fas fa-spinner fa-spin' : 'fas fa-check-circle'"></i>
+        {{ loading ? 'Creating Account...' : 'Accept Invitation' }}
+      </button>
+    </form>
+
+    <!-- Footer -->
+    <div class="card-footer">
+      <p class="footer-text">
+        Already have an account?
+        <a routerLink="/sign-in" class="footer-link">Sign In</a>
+      </p>
+    </div>
+  </div>
+</div>

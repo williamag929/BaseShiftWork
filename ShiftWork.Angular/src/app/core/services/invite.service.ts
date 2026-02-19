@@ -35,11 +35,18 @@ export class InviteService {
   /**
    * Complete invite after Firebase account creation
    */
-  completeInvite(companyId: string, request: CompleteInviteRequest): Observable<any> {
+  completeInvite(companyId: string, request: CompleteInviteRequest, firebaseToken?: string): Observable<any> {
+    const headers = firebaseToken 
+      ? new HttpHeaders({
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${firebaseToken}`
+        })
+      : new HttpHeaders({ 'Content-Type': 'application/json' });
+
     return this.http.post<any>(
       `${this.apiUrl}/companies/${companyId}/people/complete-invite`,
       request,
-      this.getHttpOptions()
+      { headers }
     ).pipe(catchError(this.handleError));
   }
 

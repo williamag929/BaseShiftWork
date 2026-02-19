@@ -54,9 +54,14 @@
               <div class="person-info">
                 <h4 class="person-name">{{ person.name }}</h4>
                 <p class="person-email">{{ person.email }}</p>
-                <span class="status-badge" [class.active]="person.status === 'Active'">
-                  {{ person.status }}
-                </span>
+                <div class="person-badges">
+                  <span class="status-badge" [class.active]="person.status === 'Active'">
+                    {{ person.status }}
+                  </span>
+                  <span class="invite-badge" [ngClass]="getStatusBadgeClass(person.personId)">
+                    {{ getStatusBadgeText(person.personId) }}
+                  </span>
+                </div>
               </div>
               <button class="edit-btn" (click)="editPerson(person); $event.stopPropagation()">
                 <i class="fa fa-pencil"></i>
@@ -259,12 +264,89 @@
 
             <!-- Form Actions -->
             <div class="form-actions">
+              <!-- Send Invite Button (only show when editing and person has email) -->
+              <button 
+                type="button" 
+                class="btn-invite" 
+                *ngIf="selectedPerson && selectedPerson.email && getInviteStatus(selectedPerson.personId)?.status !== 'Active'"
+                (click)="openInviteDialog(selectedPerson); $event.stopPropagation()">
+                <i class="fa fa-envelope"></i>
+                {{ getInviteStatus(selectedPerson.personId)?.status === 'Pending' ? 'Resend' : 'Send' }} App Invite
+              </button>
               <button type="button" class="btn-cancel" *ngIf="selectedPerson" (click)="cancelEdit()">
                 <i class="fa fa-times"></i>
                 Cancel
               </button>
               <button type="submit" class="btn-submit" [disabled]="!personForm.valid">
-                <i class="fa" [class.fa-save]="selectedPerson" [class.fa-plus]="!selectedPerson"></i>
+      
+
+<!-- Invite Dialog -->
+<div class="invite-dialog-overlay" *ngIf="showInviteDialog" (click)="closeInviteDialog()">
+  <div class="invite-dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h3 class="dialog-title">
+        <i class="fa fa-envelope"></i>
+        Send App Invite
+      </h3>
+      <button class="dialog-close" (click)="closeInviteDialog()">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+
+    <div class="dialog-body">
+      <div class="invite-info">
+        <div class="employee-info">
+          <div class="employee-avatar">
+            <div class="avatar-placeholder">
+              {{selectedPerson ? getInitials(selectedPerson.name) : ''}}
+            </div>
+          </div>
+          <div class="employee-details">
+            <h4 class="employee-name">{{ selectedPerson?.name }}</h4>
+            <p class="employee-email">{{ selectedPerson?.email }}</p>
+          </div>
+        </div>
+
+        <p class="dialog-description">
+          Select the roles to assign to this employee. They will receive an email invitation to create their account and access the app.
+        </p>
+      </div>
+
+      <div class="role-selection">
+        <h4 class="section-title">Select Roles</h4>
+        <div class="role-list">
+          <div 
+            *ngFor="let role of roles" 
+            class="role-item"
+            [class.selected]="isRoleSelected(role.roleId)"
+            (click)="toggleRoleSelection(role.roleId)">
+            <div class="role-checkbox">
+              <i class="fa" [class.fa-check-square]="isRoleSelected(role.roleId)" [class.fa-square-o]="!isRoleSelected(role.roleId)"></i>
+            </div>
+            <div class="role-info">
+              <h5 class="role-name">{{ role.name }}</h5>
+              <p class="role-description">{{ role.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-footer">
+      <button class="btn-cancel" (click)="closeInviteDialog()" [disabled]="sendingInvite">
+        Cancel
+      </button>
+      <button 
+        class="btn-submit" 
+        (click)="sendInvite()" 
+        [disabled]="sendingInvite || selectedRolesForInvite.length === 0">
+        <i class="fa fa-spinner fa-spin" *ngIf="sendingInvite"></i>
+        <i class="fa fa-paper-plane" *ngIf="!sendingInvite"></i>
+        {{ sendingInvite ? 'Sending...' : 'Send Invite' }}
+      </button>
+    </div>
+  </div>
+</div>          <i class="fa" [class.fa-save]="selectedPerson" [class.fa-plus]="!selectedPerson"></i>
                 {{ selectedPerson ? 'Update Person' : 'Create Person' }}
               </button>
             </div>

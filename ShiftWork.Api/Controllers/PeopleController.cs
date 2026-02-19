@@ -29,6 +29,7 @@ namespace ShiftWork.Api.Controllers
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<PeopleController> _logger;
         private readonly IWebhookService _webhookService;
+        private readonly INotificationService _notificationService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PeopleController"/> class.
@@ -41,7 +42,8 @@ namespace ShiftWork.Api.Controllers
             IMapper mapper, 
             IMemoryCache memoryCache, 
             ILogger<PeopleController> logger, 
-            IWebhookService webhookService)
+            IWebhookService webhookService,
+            INotificationService notificationService)
         {
             _peopleService = peopleService ?? throw new ArgumentNullException(nameof(peopleService));
             _shiftEventService = shiftEventService ?? throw new ArgumentNullException(nameof(shiftEventService));
@@ -51,6 +53,7 @@ namespace ShiftWork.Api.Controllers
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _webhookService = webhookService ?? throw new ArgumentNullException(nameof(webhookService));
+            _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
         }
 
         /// <summary>
@@ -513,7 +516,7 @@ namespace ShiftWork.Api.Controllers
             try
             {
                 // Get existing Person
-                var person = await _peopleService.GetById(personId);
+                var person = await _peopleService.Get(companyId, personId);
                 if (person == null || person.CompanyId != companyId)
                 {
                     return NotFound($"Person with ID {personId} not found.");
@@ -535,8 +538,14 @@ namespace ShiftWork.Api.Controllers
 
                 // Generate invite token
                 var inviteToken = $"invite_{Guid.NewGuid():N}";
-                var inviteUrl = request.InviteUrl ?? "https://app.shiftwork.com/accept-invite";
-                var fullInviteUrl = $"{inviteUrl}?token={inviteToken}&companyId={companyId}&personId={personId}";
+                var inviteUrl = request.InviteUrl ?? "https://app.joblogsmart.com/accept-invite";
+                
+                // URL encode parameters for safety
+                var encodedEmail = System.Web.HttpUtility.UrlEncode(person.Email);
+                var encodedName = System.Web.HttpUtility.UrlEncode(person.Name);
+                var encodedCompany = System.Web.HttpUtility.UrlEncode(companyId); // TODO: Get actual company name
+                
+                var fullInviteUrl = $"{inviteUrl}?token={inviteToken}&companyId={companyId}&personId={personId}&email={encodedEmail}&name={encodedName}";
 
                 // Create or update CompanyUser with invite token as temporary UID
                 CompanyUser companyUser;
@@ -575,8 +584,46 @@ namespace ShiftWork.Api.Controllers
                     );
                 }
 
-                // TODO: Send email with invite link using NotificationService
-                // await _notificationService.SendEmailAsync(person.Email, "App Invite", $"Click here to accept: {fullInviteUrl}");
+                // Send email invitation
+                var emailSubject = "You've been invited to JobLogSmart";
+                var emailBody = $@"
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                            .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }}
+                            .content {{ background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }}
+                            .button {{ display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; }}
+                            .footer {{ text-align: center; margin-top: 20px; color: #6b7280; font-size: 12px; }}
+                        </style>
+                    </head>
+                    <body>
+                        <div class='container'>
+                            <div class='header'>
+                                <h1>Welcome to JobLogSmart!</h1>
+                            </div>
+                            <div class='content'>
+                                <p>Hi {person.Name},</p>
+                                <p>You've been invited to join your team on JobLogSmart. Accept your invitation to start managing your shifts and time tracking.</p>
+                                <p style='text-align: center;'>
+                                    <a href='{fullInviteUrl}' class='button'>Accept Invitation</a>
+                                </p>
+                                <p>Or copy and paste this link into your browser:</p>
+                                <p style='word-break: break-all; color: #667eea;'>{fullInviteUrl}</p>
+                                <p><strong>This invitation will expire in 7 days.</strong></p>
+                                <p>If you have any questions, please contact us at support@joblogsmart.com</p>
+                            </div>
+                            <div class='footer'>
+                                <p>&copy; 2026 JobLogSmart. All rights reserved.</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                ";
+
+                await _notificationService.SendEmailAsync(person.Email, emailSubject, emailBody);
 
                 var response = new SendInviteResponse
                 {
@@ -643,7 +690,7 @@ namespace ShiftWork.Api.Controllers
                 }
 
                 // Get the Person record
-                var person = await _peopleService.GetById(request.PersonId);
+                var person = await _peopleService.Get(companyId, request.PersonId);
                 if (person == null || person.CompanyId != companyId)
                 {
                     return NotFound($"Person with ID {request.PersonId} not found.");
@@ -691,7 +738,7 @@ namespace ShiftWork.Api.Controllers
         {
             try
             {
-                var person = await _peopleService.GetById(personId);
+                var person = await _peopleService.Get(companyId, personId);
                 if (person == null || person.CompanyId != companyId)
                 {
                     return NotFound($"Person with ID {personId} not found.");
@@ -876,7 +923,7 @@ namespace ShiftWork.Api.Controllers
                 }
 
                 // Get existing Person
-                var person = await _peopleService.GetById(personId);
+                var person = await _peopleService.Get(companyId, personId);
                 if (person == null || person.CompanyId != companyId)
                 {
                     return NotFound($"Person with ID {personId} not found.");
