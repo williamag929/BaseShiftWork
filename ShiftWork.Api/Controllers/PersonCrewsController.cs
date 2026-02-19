@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
@@ -33,6 +34,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves all crews a person belongs to.
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "person-crews.read")]
         [ProducesResponseType(typeof(IEnumerable<Crew>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -61,6 +63,7 @@ namespace ShiftWork.Api.Controllers
         /// Removes a person from a crew.
         /// </summary>
         [HttpDelete("{crewId}")]
+        [Authorize(Policy = "person-crews.update")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

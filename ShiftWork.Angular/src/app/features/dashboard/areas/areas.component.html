@@ -82,9 +82,19 @@
             <i class="fa" [class.fa-plus]="!selectedArea" [class.fa-edit]="selectedArea"></i>
             {{ selectedArea ? 'Edit Area' : 'Create New Area' }}
           </h3>
-          <button *ngIf="selectedArea" class="clear-btn" (click)="cancelEdit()">
-            <i class="fa fa-times"></i>
-          </button>
+          <div class="header-actions">
+            <app-audit-history-button
+              *ngIf="selectedArea"
+              [entity]="selectedArea"
+              entityType="Area"
+              [entityId]="selectedArea.areaId"
+              [entityDisplayName]="selectedArea.name"
+              [companyId]="activeCompany?.companyId || ''"
+            ></app-audit-history-button>
+            <button *ngIf="selectedArea" class="clear-btn" (click)="cancelEdit()">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
         </div>
 
         <div class="card-body">

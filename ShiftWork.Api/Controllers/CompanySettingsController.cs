@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Services;
@@ -23,6 +24,7 @@ public class CompanySettingsController : ControllerBase
     /// Get company settings. Creates default settings if none exist.
     /// </summary>
     [HttpGet]
+    [Authorize(Policy = "company-settings.read")]
     public async Task<ActionResult<CompanySettingsDto>> GetSettings(string companyId)
     {
         var settings = await _settingsService.GetOrCreateSettings(companyId);
@@ -33,6 +35,7 @@ public class CompanySettingsController : ControllerBase
     /// Update company settings
     /// </summary>
     [HttpPut]
+    [Authorize(Policy = "company-settings.update")]
     public async Task<ActionResult<CompanySettingsDto>> UpdateSettings(
         string companyId, 
         [FromBody] CompanySettingsDto settingsDto)

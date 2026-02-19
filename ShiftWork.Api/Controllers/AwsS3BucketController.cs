@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Models;
@@ -33,6 +34,7 @@ namespace ShiftWork.Api.Controllers
         /// <param name="bucketName">The name of the bucket to create.</param>
         /// <returns>A response indicating the result of the operation.</returns>
         [HttpPost("bucket/{bucketName}")]
+        [Authorize(Policy = "s3.manage")]
         [ProducesResponseType(typeof(AwsS3Response), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -65,6 +67,7 @@ namespace ShiftWork.Api.Controllers
         /// <param name="bucketName">The name of the bucket to delete.</param>
         /// <returns>A response indicating the result of the operation.</returns>
         [HttpDelete("bucket/{bucketName}")]
+        [Authorize(Policy = "s3.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -97,6 +100,7 @@ namespace ShiftWork.Api.Controllers
         /// <param name="bucketName">The name of the bucket.</param>
         /// <returns>A response indicating the result of the operation.</returns>
         [HttpPost("file/{bucketName}")]
+        [Authorize(Policy = "s3.write")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -137,6 +141,7 @@ namespace ShiftWork.Api.Controllers
         /// <param name="keyName">The key of the object to retrieve.</param>
         /// <returns>The requested object or a not found response.</returns>
         [HttpGet("file/{bucketName}")]
+        [Authorize(Policy = "s3.read")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -170,6 +175,7 @@ namespace ShiftWork.Api.Controllers
         /// <param name="keyName">The key of the object to delete.</param>
         /// <returns>A response indicating the result of the operation.</returns>
         [HttpDelete("file/{bucketName}")]
+        [Authorize(Policy = "s3.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

@@ -140,10 +140,22 @@ namespace ShiftWork.Api.Services
 
             try
             {
-                _context.Entry(area).State = EntityState.Modified;
+                // Load existing entity to enable proper change tracking for audit
+                var existingArea = await _context.Areas
+                    .FirstOrDefaultAsync(a => a.AreaId == area.AreaId && a.CompanyId == area.CompanyId);
+
+                if (existingArea == null)
+                {
+                    throw new InvalidOperationException($"Area with ID {area.AreaId} not found.");
+                }
+
+                // Update properties individually so EF Core tracks which fields changed
+                existingArea.Name = area.Name;
+                existingArea.LocationId = area.LocationId;
+
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("Successfully updated area with ID {AreaId}", area.AreaId);
-                return area;
+                return existingArea;
             }
             catch (DbUpdateConcurrencyException ex)
             {

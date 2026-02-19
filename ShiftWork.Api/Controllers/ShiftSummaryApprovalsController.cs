@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
@@ -19,6 +20,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpPut]
+        [Authorize(Policy = "shift-summary-approvals.update")]
         public async Task<IActionResult> Upsert(int companyId, [FromBody] UpdateShiftSummaryApprovalRequest request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.Status))

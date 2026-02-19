@@ -532,5 +532,105 @@
     [companyId]="activeCompany?.companyId || ''"
     (close)="closeShiftHistoryModal()"
   ></app-shift-history-modal>
+
+  <!-- Add Schedule Placeholder -->
+  <div class="add-schedule-placeholder" *ngIf="showAddSchedulePlaceholder">
+    <div class="add-schedule-backdrop" (click)="closeAddSchedulePlaceholder()"></div>
+    <div class="add-schedule-dialog" role="dialog" aria-modal="true">
+      <div class="dialog-header">
+        <h3>Bulk Schedule Builder (Coming Soon)</h3>
+        <button class="icon-btn" (click)="closeAddSchedulePlaceholder()">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+      <p>
+        Start a bulk schedule draft below. This will create multiple shifts for a location
+        across a date range and assign a group of people at once.
+      </p>
+
+      <div class="bulk-form">
+        <div class="bulk-form-row">
+          <div class="bulk-form-group">
+            <label>Location</label>
+            <select class="form-select" [(ngModel)]="bulkLocationId" (change)="onBulkLocationChange()">
+              <option [ngValue]="null" disabled>Select a location</option>
+              <option *ngFor="let loc of locations" [ngValue]="loc.locationId" [disabled]="loc.locationId <= 0">
+                {{ loc.name }}
+              </option>
+            </select>
+          </div>
+          <div class="bulk-form-group">
+            <label>Area</label>
+            <select class="form-select" [(ngModel)]="bulkAreaId">
+              <option [ngValue]="null" disabled>Select an area</option>
+              <option *ngFor="let area of getAreasForLocation(bulkLocationId)" [ngValue]="area.areaId">
+                {{ area.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bulk-form-row">
+          <div class="bulk-form-group">
+            <label>Start Date</label>
+            <input type="date" class="form-input" [(ngModel)]="bulkStartDate" />
+          </div>
+          <div class="bulk-form-group">
+            <label>End Date</label>
+            <input type="date" class="form-input" [(ngModel)]="bulkEndDate" />
+          </div>
+        </div>
+
+        <div class="bulk-form-row">
+          <div class="bulk-form-group">
+            <label>Start Time</label>
+            <input type="time" class="form-input" [(ngModel)]="bulkStartTime" />
+          </div>
+          <div class="bulk-form-group">
+            <label>End Time</label>
+            <input type="time" class="form-input" [(ngModel)]="bulkEndTime" />
+          </div>
+        </div>
+
+        <div class="bulk-form-row">
+          <div class="bulk-form-group full-width">
+            <label>People</label>
+            <div class="bulk-actions-inline">
+              <button class="btn-link" (click)="selectAllBulkPeople()">Select all</button>
+              <button class="btn-link" (click)="clearBulkPeopleSelection()">Clear</button>
+              <span class="bulk-count">{{ bulkSelectedPeopleIds.size }} selected</span>
+            </div>
+            <div class="bulk-people-list">
+              <label class="bulk-person" *ngFor="let person of peopleList">
+                <input
+                  type="checkbox"
+                  [checked]="bulkSelectedPeopleIds.has(person.personId)"
+                  (change)="onBulkPersonCheckboxChange($event, person.personId)"
+                />
+                <span>{{ person.name }}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="bulk-form-row">
+          <div class="bulk-form-group full-width">
+            <label>Crew (coming soon)</label>
+            <select class="form-select" disabled>
+              <option>Select a crew</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <p class="bulk-error" *ngIf="bulkError">{{ bulkError }}</p>
+      <div class="dialog-actions">
+        <button class="btn btn-secondary" (click)="openSingleShiftFromPlaceholder()">Create single shift now</button>
+        <button class="btn btn-primary" [disabled]="bulkCreating" (click)="createBulkSchedules()">
+          {{ bulkCreating ? 'Creating...' : 'Create shifts' }}
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 

@@ -93,9 +93,19 @@
             <i class="fa" [class.fa-plus]="!selectedTask" [class.fa-edit]="selectedTask"></i>
             {{ selectedTask ? 'Edit Task' : 'Create New Task' }}
           </h3>
-          <button *ngIf="selectedTask" class="clear-btn" (click)="cancelEdit()">
-            <i class="fa fa-times"></i>
-          </button>
+          <div class="header-actions">
+            <app-audit-history-button
+              *ngIf="selectedTask"
+              [entity]="selectedTask"
+              entityType="Task"
+              [entityId]="selectedTask.taskShiftId"
+              [entityDisplayName]="selectedTask.title || selectedTask.description || 'Task'"
+              [companyId]="activeCompany?.companyId || ''"
+            ></app-audit-history-button>
+            <button *ngIf="selectedTask" class="clear-btn" (click)="cancelEdit()">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
         </div>
 
         <div class="card-body">

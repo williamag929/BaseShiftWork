@@ -58,10 +58,30 @@ namespace ShiftWork.Api.Services
 
         public async Task<TaskShift> Update(TaskShift taskShift)
         {
-            _context.Entry(taskShift).State = EntityState.Modified;
+            // Load existing entity to enable proper change tracking for audit
+            var existingTask = await _context.TaskShifts
+                .FirstOrDefaultAsync(t => t.TaskShiftId == taskShift.TaskShiftId && t.CompanyId == taskShift.CompanyId);
+
+            if (existingTask == null)
+            {
+                throw new InvalidOperationException($"TaskShift with ID {taskShift.TaskShiftId} not found.");
+            }
+
+            // Update properties individually so EF Core tracks which fields changed
+            existingTask.Title = taskShift.Title;
+            existingTask.Description = taskShift.Description;
+            existingTask.Status = taskShift.Status;
+            existingTask.LocationId = taskShift.LocationId;
+            existingTask.AreaId = taskShift.AreaId;
+            existingTask.PersonId = taskShift.PersonId;
+            existingTask.UpdatedBy = taskShift.UpdatedBy;
+            existingTask.UpdatedAt = DateTime.UtcNow;
+            existingTask.LastUpdatedBy = taskShift.LastUpdatedBy;
+            existingTask.LastUpdatedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
             _logger.LogInformation("Task shift with ID {Id} updated.", taskShift.TaskShiftId);
-            return taskShift;
+            return existingTask;
         }
 
         public async Task<bool> Delete(string companyId, int id)

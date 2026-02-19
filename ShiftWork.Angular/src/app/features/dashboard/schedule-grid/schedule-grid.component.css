@@ -121,6 +121,123 @@
   background-color: #FFF59D;
 }
 
+.add-schedule-placeholder {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+}
+
+.add-schedule-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.45);
+}
+
+.add-schedule-dialog {
+  position: relative;
+  max-width: 520px;
+  margin: 10vh auto 0;
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px 24px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.add-schedule-dialog h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.add-schedule-dialog p {
+  margin: 12px 0;
+  color: #444;
+}
+
+.add-schedule-dialog ul {
+  margin: 8px 0 16px;
+  padding-left: 18px;
+  color: #444;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.bulk-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.bulk-form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.bulk-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.bulk-form-group.full-width {
+  flex: 1 1 100%;
+}
+
+.bulk-actions-inline {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.bulk-actions-inline .btn-link {
+  background: none;
+  border: none;
+  color: #4A90E2;
+  padding: 0;
+  cursor: pointer;
+}
+
+.bulk-count {
+  color: #666;
+  font-size: 12px;
+}
+
+.bulk-people-list {
+  max-height: 160px;
+  overflow: auto;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  padding: 8px;
+  display: grid;
+  gap: 6px;
+}
+
+.bulk-person {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.bulk-error {
+  margin-top: 8px;
+  color: #C62828;
+  font-weight: 600;
+}
 .publish-badge i {
   font-size: 14px;
 }

@@ -18,13 +18,14 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { Observable, Subject, forkJoin } from 'rxjs';
 import { filter, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { AuditHistoryButtonComponent } from '../../kiosk/audit-history/audit-history-button.component';
 
 @Component({
   selector: 'app-tasks',
   templateUrl: './tasks.component.html',
   styleUrls: ['./tasks.component.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, SharedModule,NgbModule]
+  imports: [ReactiveFormsModule, SharedModule, NgbModule, AuditHistoryButtonComponent]
 })
 export class TasksComponent implements OnInit, OnDestroy {
   activeCompany$: Observable<any>;
