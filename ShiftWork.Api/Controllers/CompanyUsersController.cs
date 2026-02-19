@@ -272,6 +272,10 @@ namespace ShiftWork.Api.Controllers
             }
         }
 
+        // DEPRECATED: This endpoint was calling a non-existent UpsertAsync method.
+        // User-Person linking now happens automatically during the invite flow via CompanyUserProfiles.
+        // If this functionality is needed, implement the method in ICompanyUserProfileService.
+        /*
         [HttpPut("{uid}/profile")]
         [Authorize(Policy = "company-users.profile.update")]
         [ProducesResponseType(typeof(CompanyUserProfileDto), 200)]
@@ -301,6 +305,7 @@ namespace ShiftWork.Api.Controllers
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
+        */
 
         [HttpPost("{uid}/bootstrap-admin")]
         [Authorize]
