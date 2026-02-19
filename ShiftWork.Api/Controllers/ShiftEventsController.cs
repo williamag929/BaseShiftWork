@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.DTOs;
@@ -26,6 +27,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "shift-events.create")]
         [ProducesResponseType(typeof(ShiftEventDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(409)]
@@ -58,6 +60,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpGet("{eventLogId}")]
+        [Authorize(Policy = "shift-events.read")]
         [ProducesResponseType(typeof(ShiftEventDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -81,6 +84,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpGet("person/{personId}")]
+        [Authorize(Policy = "shift-events.read")]
         [ProducesResponseType(typeof(IEnumerable<ShiftEventDto>), 200)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<IEnumerable<ShiftEventDto>>> GetShiftEventsByPersonId(string companyId, int personId)
@@ -99,6 +103,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "shift-events.read")]
         [ProducesResponseType(typeof(IEnumerable<ShiftEventDto>), 200)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<IEnumerable<ShiftEventDto>>> GetShiftEventsByCompanyId(string companyId)
@@ -117,6 +122,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpGet("eventtype/{eventType}")]
+        [Authorize(Policy = "shift-events.read")]
         [ProducesResponseType(typeof(IEnumerable<ShiftEventDto>), 200)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<IEnumerable<ShiftEventDto>>> GetShiftEventsByEventType(string companyId, string eventType)
@@ -135,6 +141,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpPut("{eventLogId}")]
+        [Authorize(Policy = "shift-events.update")]
         [ProducesResponseType(typeof(ShiftEventDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
@@ -163,6 +170,7 @@ namespace ShiftWork.Api.Controllers
         }
 
         [HttpDelete("{eventLogId}")]
+        [Authorize(Policy = "shift-events.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

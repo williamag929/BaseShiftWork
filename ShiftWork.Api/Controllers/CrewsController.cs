@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -40,6 +41,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves all crews for a company.
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "crews.read")]
         [ProducesResponseType(typeof(IEnumerable<CrewDto>), 200)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<IEnumerable<CrewDto>>> GetCrews(string companyId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
@@ -79,6 +81,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves a specific crew by its ID.
         /// </summary>
         [HttpGet("{crewId}")]
+        [Authorize(Policy = "crews.read")]
         [ProducesResponseType(typeof(CrewDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -104,6 +107,7 @@ namespace ShiftWork.Api.Controllers
         /// Creates a new crew.
         /// </summary>
         [HttpPost]
+        [Authorize(Policy = "crews.create")]
         [ProducesResponseType(typeof(CrewDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -134,6 +138,7 @@ namespace ShiftWork.Api.Controllers
         /// Updates an existing crew.
         /// </summary>
         [HttpPut("{crewId}")]
+        [Authorize(Policy = "crews.update")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -174,6 +179,7 @@ namespace ShiftWork.Api.Controllers
         /// Deletes a crew by its ID.
         /// </summary>
         [HttpDelete("{crewId}")]
+        [Authorize(Policy = "crews.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -202,6 +208,7 @@ namespace ShiftWork.Api.Controllers
         /// Adds a person to a crew.
         /// </summary>
         [HttpPost("{crewId}/people/{personId}")]
+        [Authorize(Policy = "crews.assign")]
         [ProducesResponseType(201)]
         [ProducesResponseType(404)]
         [ProducesResponseType(409)]

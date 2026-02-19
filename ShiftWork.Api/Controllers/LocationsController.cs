@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -41,6 +42,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves all locations for a company.
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "locations.read")]
         [ProducesResponseType(typeof(IEnumerable<LocationDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -80,6 +82,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves a specific location by its ID.
         /// </summary>
         [HttpGet("{locationId}")]
+        [Authorize(Policy = "locations.read")]
         [ProducesResponseType(typeof(LocationDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -119,6 +122,7 @@ namespace ShiftWork.Api.Controllers
         /// Creates a new location.
         /// </summary>
         [HttpPost]
+        [Authorize(Policy = "locations.create")]
         [ProducesResponseType(typeof(LocationDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -165,6 +169,7 @@ namespace ShiftWork.Api.Controllers
         /// Updates an existing location.
         /// </summary>
         [HttpPut("{locationId}")]
+        [Authorize(Policy = "locations.update")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -221,6 +226,7 @@ namespace ShiftWork.Api.Controllers
         /// Deletes a location by its ID.
         /// </summary>
         [HttpDelete("{locationId}")]
+        [Authorize(Policy = "locations.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

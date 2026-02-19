@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Services;
 using System;
@@ -37,6 +38,7 @@ namespace ShiftWork.Api.Controllers
         /// <param name="endDate">Filter by end date</param>
         /// <returns>Paginated audit history</returns>
         [HttpGet("{entityName}/{entityId}")]
+        [Authorize(Policy = "audit-history.read")]
         [ProducesResponseType(typeof(HistoricActionsPageDto), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -91,6 +93,7 @@ namespace ShiftWork.Api.Controllers
         /// <param name="endDate">End date (default: now)</param>
         /// <returns>Audit summary by entity type</returns>
         [HttpGet("summary")]
+        [Authorize(Policy = "audit-history.read")]
         [ProducesResponseType(typeof(List<AuditSummaryDto>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]

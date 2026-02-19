@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -51,6 +52,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves all schedules for a company.
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "schedules.read")]
         [ProducesResponseType(typeof(IEnumerable<ScheduleDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -90,6 +92,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves schedules for a company with pagination and optional filters.
         /// </summary>
         [HttpGet("paged")]
+        [Authorize(Policy = "schedules.read")]
         [ProducesResponseType(typeof(PagedResultDto<ScheduleDto>), 200)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<PagedResultDto<ScheduleDto>>> GetSchedulesPaged(
@@ -153,6 +156,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves a specific schedule by its ID.
         /// </summary>
         [HttpGet("{scheduleId}")]
+        [Authorize(Policy = "schedules.read")]
         [ProducesResponseType(typeof(ScheduleDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -192,6 +196,7 @@ namespace ShiftWork.Api.Controllers
         /// Creates a new schedule.
         /// </summary>
         [HttpPost]
+        [Authorize(Policy = "schedules.create")]
         [ProducesResponseType(typeof(ScheduleDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -253,6 +258,7 @@ namespace ShiftWork.Api.Controllers
         /// Updates an existing schedule.
         /// </summary>
         [HttpPut("{scheduleId}")]
+        [Authorize(Policy = "schedules.update")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -311,6 +317,7 @@ namespace ShiftWork.Api.Controllers
         /// Deletes a schedule by its ID.
         /// </summary>
         [HttpDelete("{scheduleId}")]
+        [Authorize(Policy = "schedules.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -340,6 +347,7 @@ namespace ShiftWork.Api.Controllers
         /// Voids a schedule (soft delete). The schedule is kept for audit but hidden from normal queries.
         /// </summary>
         [HttpPost("{scheduleId}/void")]
+        [Authorize(Policy = "schedules.update")]
         [ProducesResponseType(typeof(ScheduleDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -402,6 +410,7 @@ namespace ShiftWork.Api.Controllers
         /// Searches for schedules based on various criteria.
         /// </summary>
         [HttpGet("search")]
+        [Authorize(Policy = "schedules.read")]
         [ProducesResponseType(typeof(IEnumerable<ScheduleDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

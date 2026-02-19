@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
@@ -42,6 +43,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(typeof(IEnumerable<TaskShiftDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [Authorize(Policy = "tasks.read")]
         public async Task<ActionResult<IEnumerable<TaskShiftDto>>> GetTaskShifts(string companyId)
         {
             try
@@ -77,6 +79,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(typeof(TaskShiftDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [Authorize(Policy = "tasks.read")]
         public async Task<ActionResult<TaskShiftDto>> GetTaskShift(string companyId, int id)
         {
             try
@@ -112,6 +115,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(typeof(TaskShiftDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
+        [Authorize(Policy = "tasks.create")]
         public async Task<ActionResult<TaskShiftDto>> PostTaskShift(string companyId, [FromBody] TaskShiftDto taskShiftDto)
         {
             if (!ModelState.IsValid)
@@ -158,6 +162,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [Authorize(Policy = "tasks.update")]
         public async Task<ActionResult<TaskShiftDto>> PutTaskShift(string companyId, int id, [FromBody] TaskShiftDto taskShiftDto)
         {
             if (id != taskShiftDto.TaskShiftId)
@@ -209,6 +214,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [Authorize(Policy = "tasks.delete")]
         public async Task<IActionResult> DeleteTaskShift(string companyId, int id)
         {
             try
