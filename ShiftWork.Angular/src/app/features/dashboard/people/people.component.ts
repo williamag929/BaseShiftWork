@@ -84,14 +84,16 @@ export class PeopleComponent implements OnInit {
       state: ['', Validators.required],
       externalCode: [''],
       status: ['Active', Validators.required],
-      roleId: [null, Validators.required],
       photoUrl: ['']
     });
   }
 
   editPerson(person: People): void {
     this.selectedPerson = person;
-    this.personForm.patchValue(person);
+    // Patch form with roleIds array only
+    this.personForm.patchValue({
+      ...person,
+    });
   }
 
   cancelEdit(): void {
@@ -107,7 +109,6 @@ export class PeopleComponent implements OnInit {
       externalCode: '',
       status: 'Active',
       photoUrl: '',
-      roleId: null
     });
   }
 
@@ -119,12 +120,11 @@ export class PeopleComponent implements OnInit {
     if (this.selectedPerson) {
       const updatedPerson: People = {
         ...this.selectedPerson,
-        ...this.personForm.value
+        ...this.personForm.value,
+        // roleIds removed: permissions now managed via CompanyUserProfiles
       };
-      // Note: You will need to implement `updatePerson` in your PeopleService.
       this.peopleService.updatePerson(this.activeCompany.companyId, updatedPerson.personId, updatedPerson).subscribe(
         (result) => {
-          console.log('Updated person:', result);
           const index = this.people.findIndex(p => p.personId === result.personId);
           if (index > -1) {
             this.people[index] = result;
@@ -138,6 +138,7 @@ export class PeopleComponent implements OnInit {
       const newPerson: People = {
         ...this.personForm.value,
         companyId: this.activeCompany.companyId
+        // roleIds removed: permissions now managed via CompanyUserProfiles
       };
       this.peopleService.createPerson(newPerson.companyId, newPerson).subscribe(person => {
         this.people.push(person);
@@ -156,8 +157,6 @@ export class PeopleComponent implements OnInit {
       .slice(0, 2);
   }  
 
-  getRoleName(roleId: any  | undefined): string {
-    return this.roles.find(l => l.roleId === roleId)?.name || 'N/A';
-  } 
+  // getRoleName removed: roles now managed via CompanyUserProfiles
 
 }

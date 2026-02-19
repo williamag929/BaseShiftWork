@@ -174,25 +174,7 @@
                     placeholder="4-digit PIN">
                 </div>
 
-                <div class="form-group">
-                  <label for="roleId" class="form-label">
-                    <i class="fa fa-id-badge"></i>
-                    Role <span class="required">*</span>
-                  </label>
-                  <select 
-                    id="roleId" 
-                    class="form-select" 
-                    formControlName="roleId"
-                    [class.error]="personForm.get('roleId')?.touched && personForm.get('roleId')?.invalid">
-                    <option value="" disabled>Select a Role</option>
-                    <option *ngFor="let role of roles" [value]="role.roleId">{{ role.name }}</option>
-                  </select>
-                  <div *ngIf="personForm.get('roleId')?.touched && personForm.get('roleId')?.errors?.['required']" 
-                       class="error-message">
-                    <i class="fa fa-exclamation-circle"></i>
-                    Role is required
-                  </div>
-                </div>
+                <!-- Roles field removed: permissions now managed via CompanyUserProfiles -->
               </div>
             </div>
 

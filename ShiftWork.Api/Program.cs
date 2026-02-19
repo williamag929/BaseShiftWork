@@ -98,6 +98,7 @@ builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IPeopleService, PeopleService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<ICompanyUserProfileService, CompanyUserProfileService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IScheduleShiftService, ScheduleShiftService>();
 builder.Services.AddScoped<ITaskShiftService, TaskShiftService>();

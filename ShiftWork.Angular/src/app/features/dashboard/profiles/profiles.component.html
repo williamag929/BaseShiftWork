@@ -42,46 +42,60 @@
             <p class="error-subtext">Please try again later</p>
           </div>
 
-          <!-- Roles List -->
-          <div *ngIf="!loading && !error" class="roles-list">
-            <div 
-              *ngFor="let role of roles; let i = index" 
-              class="role-item"
-              [class.active]="selectedRole?.roleId === role.roleId"
-              [style.animation-delay]="(i * 0.05) + 's'"
-              (click)="editRole(role)"
-            >
-              <div class="role-avatar">
-                {{ getInitials(role.name) }}
-              </div>
-              <div class="role-info">
-                <h4 class="role-name">{{ role.name }}</h4>
-                <p class="role-description">{{ role.description }}</p>
-                <div class="role-meta">
-                  <span class="status-badge" [class.active]="role.status === 'Active'" [class.inactive]="role.status === 'Inactive'">
-                    <i class="fas fa-circle"></i>
-                    {{ role.status }}
-                  </span>
-                  <span class="permission-count" *ngIf="role.permissions">
-                    <i class="fas fa-key"></i>
-                    {{ role.permissions.length }} permission(s)
-                  </span>
+            <!-- Roles List -->
+            <div *ngIf="!loading && !error" class="roles-list">
+              <div 
+                *ngFor="let role of roles; let i = index" 
+                class="role-item"
+                [class.active]="selectedRole?.roleId === role.roleId"
+                [style.animation-delay]="(i * 0.05) + 's'"
+                (click)="editRole(role)"
+              >
+                <div class="role-avatar">
+                  {{ getInitials(role.name) }}
                 </div>
+                <div class="role-info">
+                  <h4 class="role-name">{{ role.name }}</h4>
+                  <p class="role-description">{{ role.description }}</p>
+                  <div class="role-meta">
+                    <span class="status-badge" [class.active]="role.status === 'Active'" [class.inactive]="role.status === 'Inactive'">
+                      <i class="fas fa-circle"></i>
+                      {{ role.status }}
+                    </span>
+                    <span class="permission-count" *ngIf="role.permissions">
+                      <i class="fas fa-key"></i>
+                      {{ role.permissions.length }} permission(s)
+                    </span>
+                  </div>
+                </div>
+                <button mat-raised-button class="btn-edit" (click)="editRole(role); $event.stopPropagation()">
+                  <mat-icon>edit</mat-icon>
+                  Edit
+                </button>
+                <button mat-raised-button color="accent" class="btn-assign" (click)="openAssignPanel(role); $event.stopPropagation()">
+                  <mat-icon>person_add</mat-icon>
+                  Assign Users
+                </button>
               </div>
-              <button class="btn-edit" (click)="editRole(role); $event.stopPropagation()">
-                <i class="fas fa-edit"></i>
-                Edit
-              </button>
-            </div>
 
-            <div *ngIf="roles.length === 0" class="empty-roles">
-              <i class="fas fa-shield-alt empty-icon"></i>
-              <p class="empty-text">No roles created yet</p>
-              <p class="empty-subtext">Create your first role using the form</p>
+              <div *ngIf="roles.length === 0" class="empty-roles">
+                <i class="fas fa-shield-alt empty-icon"></i>
+                <p class="empty-text">No roles created yet</p>
+                <p class="empty-subtext">Create your first role using the form</p>
+              </div>
             </div>
-          </div>
         </div>
       </div>
+
+      <!-- Assign Users Side Panel (outside roles-section for proper positioning) -->
+      <app-assign-users-panel
+        [open]="assignPanelOpen"
+        [people]="people"
+        [assignedUserIds]="assignedUserIds"
+        [roleName]="assignPanelRole?.name || ''"
+        (closePanel)="closeAssignPanel()"
+        (saveAssignments)="saveAssignments($event)">
+      </app-assign-users-panel>
 
       <!-- Role Form Section -->
       <div class="form-section">
