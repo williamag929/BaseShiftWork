@@ -4,7 +4,7 @@ import { auth } from '@/config/firebase';
 
 // Resolve API base URL, rewriting localhost/0.0.0.0 to the Expo host when running on device
 const resolveApiBaseUrl = () => {
-  let base = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5001';
+  let base = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5182';
   // If base points to localhost/0.0.0.0, try to replace with Expo dev host IP
   const isLocalHost = /^(https?:\/\/)?(0\.0\.0\.0|localhost)(:\d+)?/i.test(base);
   if (isLocalHost) {
@@ -58,8 +58,30 @@ class ApiClient {
         const user = auth.currentUser;
         
         if (user) {
-          const token = await user.getIdToken();
-          config.headers.Authorization = `Bearer ${token}`;
+          try {
+            const token = await user.getIdToken();
+            config.headers.Authorization = `Bearer ${token}`;
+            if (__DEV__) {
+              console.log('[API] Using Firebase auth token');
+            }
+          } catch (error) {
+            console.error('[API] Failed to get Firebase token:', error);
+            // Fall back to dev token if available
+            if (__DEV__ && process.env.EXPO_PUBLIC_DEV_TOKEN) {
+              config.headers.Authorization = `Bearer ${process.env.EXPO_PUBLIC_DEV_TOKEN}`;
+              console.log('[API] Falling back to dev token');
+            }
+          }
+        } else if (__DEV__ && process.env.EXPO_PUBLIC_DEV_TOKEN) {
+          // In development, use a dev token when not logged in
+          // This is the expected path with mock Firebase auth
+          const devToken = process.env.EXPO_PUBLIC_DEV_TOKEN;
+          config.headers.Authorization = `Bearer ${devToken}`;
+          if (__DEV__) {
+            console.log('[API] Using dev token for development/testing');
+          }
+        } else if (!user) {
+          console.warn('[API] No auth token available. Request may fail with 401.');
         }
 
         // Workaround Android RN cache rename bug: avoid shared cache entries
@@ -91,7 +113,13 @@ class ApiClient {
       (error) => {
         if (error.response) {
           // Server responded with error status
-          console.error('API Error:', error.response.data);
+          console.error('API Error Response:', {
+            status: error.response.status,
+            statusText: error.response.statusText,
+            data: error.response.data,
+            url: error.config?.url,
+            method: error.config?.method
+          });
           return Promise.reject({
             message: error.response.data.message || 'An error occurred',
             statusCode: error.response.status,
@@ -99,14 +127,19 @@ class ApiClient {
           });
         } else if (error.request) {
           // Request made but no response
-          console.error('Network Error:', error.request);
+          console.error('Network Error - No Response:', {
+            url: error.config?.url,
+            method: error.config?.method,
+            baseURL: error.config?.baseURL,
+            message: error.message
+          });
           return Promise.reject({
-            message: 'Network error. Please check your connection.',
+            message: 'Network error. Please check your connection and API URL.',
             statusCode: 0,
           });
         } else {
           // Something else happened
-          console.error('Error:', error.message);
+          console.error('Request Setup Error:', error.message);
           return Promise.reject({
             message: error.message,
             statusCode: -1,
