@@ -33,7 +33,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves all companies.
         /// </summary>
         [HttpGet]
-        [Authorize(Policy = "companies.read")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(IEnumerable<Company>), 200)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
