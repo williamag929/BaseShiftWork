@@ -174,7 +174,9 @@ builder.Services.AddCors(options =>
                                   "http://localhost:8081",                                  
                                   // Docker Desktop for Windows
                                   "http://host.docker.internal:4200",
-                                  "https://endpoint.shift-clock.com",
+                                  "https://mcp.joblogsmart.com",
+                                  "https://app.joblogsmart.com",
+                                  "https://endpoint.shift-clock.com",                                  
                                   "https://mcp.shift-clock.com",                                  
                                   "https://app.shift-clock.com")// Expo dev server for iOS
                                   // AWS Elastic Beanstalk)
