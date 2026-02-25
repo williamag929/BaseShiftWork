@@ -57,11 +57,12 @@ LISTEN_PORT = int(os.environ.get("LISTEN_PORT", "8080"))
 # Optional auth token: if set, require incoming requests to provide Authorization: Bearer <token>
 AUTH_TOKEN = os.environ.get("MCP_AUTH_TOKEN")
 
-# CORS allowed origins (comma-separated). Default to localhost mobile app.
-_allowed = os.environ.get("ALLOWED_ORIGINS", "http://localhost:8080")
+# CORS allowed origins (comma-separated). Default to localhost MCP server + production.
+_allowed = os.environ.get("ALLOWED_ORIGINS", "http://localhost:8080,https://mcp.joblogsmart.com")
 ALLOWED_ORIGINS = [o.strip() for o in _allowed.split(",") if o.strip()]
 if len(ALLOWED_ORIGINS) == 0:
-    ALLOWED_ORIGINS = ["http://localhost:8080"]
+    ALLOWED_ORIGINS = ["http://localhost:8080", "https://mcp.joblogsmart.com"]
+logger.info(f"CORS Allowed Origins: {ALLOWED_ORIGINS}")
 
 # HTTPX client timeout and retry settings
 HTTPX_TIMEOUT = float(os.environ.get("HTTPX_TIMEOUT", "30.0"))
