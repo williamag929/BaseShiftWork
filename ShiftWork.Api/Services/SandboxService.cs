@@ -78,26 +78,36 @@ namespace ShiftWork.Api.Services
             var types = entityTypes.Select(t => t.ToLowerInvariant()).ToHashSet();
             bool all = types.Contains("all");
 
-            if (all || types.Contains("person"))
+            await using var tx = await _context.Database.BeginTransactionAsync();
+            try
             {
-                var persons = await _context.Persons
-                    .Where(p => p.CompanyId == companyId && p.IsSandbox)
-                    .ToListAsync();
-                foreach (var p in persons) p.Status = "Sandbox";
-            }
+                if (all || types.Contains("person"))
+                {
+                    var persons = await _context.Persons
+                        .Where(p => p.CompanyId == companyId && p.IsSandbox)
+                        .ToListAsync();
+                    foreach (var p in persons) p.Status = "Sandbox";
+                }
 
-            if (all || types.Contains("location"))
+                if (all || types.Contains("location"))
+                {
+                    var locations = await _context.Locations
+                        .Where(l => l.CompanyId == companyId && l.IsSandbox)
+                        .ToListAsync();
+                    foreach (var l in locations) l.Status = "Sandbox";
+                }
+
+                // Areas don't have a Status field; mark via a note in their Name if needed.
+                // For now, hiding areas is achieved by hiding their parent Location.
+
+                await _context.SaveChangesAsync();
+                await tx.CommitAsync();
+            }
+            catch
             {
-                var locations = await _context.Locations
-                    .Where(l => l.CompanyId == companyId && l.IsSandbox)
-                    .ToListAsync();
-                foreach (var l in locations) l.Status = "Sandbox";
+                await tx.RollbackAsync();
+                throw;
             }
-
-            // Areas don't have a Status field; mark via a note in their Name if needed.
-            // For now, hiding areas is achieved by hiding their parent Location.
-
-            await _context.SaveChangesAsync();
         }
 
         /// <inheritdoc />

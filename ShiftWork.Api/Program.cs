@@ -5,7 +5,9 @@ using Amazon.Extensions.NETCore.Setup;
 using FirebaseAdmin;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.RateLimiting;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.Services;
 using ShiftWork.Api.Helpers;
@@ -130,6 +132,19 @@ builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler
 // Registration & Onboarding feature services
 builder.Services.AddScoped<ISandboxService, SandboxService>();
 builder.Services.AddScoped<IPlanService, PlanService>();
+
+// Rate limiting: protect /api/auth/register from brute-force / account enumeration
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("registration-limit", opt =>
+    {
+        opt.Window = TimeSpan.FromHours(1);
+        opt.PermitLimit = 5;
+        opt.QueueLimit = 0;
+        opt.AutoReplenishment = true;
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
 
 // Your AuthController uses AutoMapper, so you need to add it and its DI package.
@@ -358,6 +373,7 @@ else
     app.UseHttpsRedirection();
 }
 
+app.UseRateLimiter();
 app.UseCors("ApiCorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();

@@ -56,26 +56,29 @@ export class RegistrationComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
+    // Track the created Firebase user so we can roll it back if the API call fails.
+    let firebaseUser: any = null;
+
     try {
       const { email, password, displayName } = this.userForm.value;
       const { companyName, companyEmail, companyPhone, timeZone } = this.companyForm.value;
 
       // 1. Create Firebase account
       const credential = await this.afAuth.createUserWithEmailAndPassword(email, password);
-      const user = credential.user;
-      if (!user) throw new Error('Failed to create Firebase account.');
+      firebaseUser = credential.user;
+      if (!firebaseUser) throw new Error('Failed to create Firebase account.');
 
       // 2. Update Firebase display name
-      await user.updateProfile({ displayName });
+      await firebaseUser.updateProfile({ displayName });
 
       // 3. Send email verification
-      await user.sendEmailVerification();
+      await firebaseUser.sendEmailVerification();
 
       // 4. Get Firebase ID token to authenticate the registration call
-      const idToken = await user.getIdToken();
+      const idToken = await firebaseUser.getIdToken();
 
       const request: CompanyRegistrationRequest = {
-        firebaseUid: user.uid,
+        firebaseUid: firebaseUser.uid,
         userEmail: email,
         userDisplayName: displayName,
         companyName,
@@ -84,8 +87,15 @@ export class RegistrationComponent implements OnInit {
         timeZone
       };
 
-      // 5. Register company via API (interceptor will attach token automatically)
-      const response = await this.registrationService.register(request).toPromise();
+      // 5. Register company via API — if this fails we must roll back the Firebase account.
+      let response: any;
+      try {
+        response = await this.registrationService.register(request).toPromise();
+      } catch (apiErr: any) {
+        // Roll back the Firebase account to avoid an orphaned account with no company.
+        try { await firebaseUser.delete(); } catch { /* ignore cleanup error */ }
+        throw apiErr;
+      }
 
       // 6. Store companyId in session storage for the onboarding step
       if (response) {

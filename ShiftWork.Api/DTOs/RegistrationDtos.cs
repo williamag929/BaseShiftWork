@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ShiftWork.Api.DTOs
 {
     /// <summary>
@@ -8,14 +10,35 @@ namespace ShiftWork.Api.DTOs
     public class CompanyRegistrationRequest
     {
         // --- User fields ---
+        /// <summary>Firebase UID — must match the JWT sub claim. Alphanumeric, 1–128 chars.</summary>
+        [Required]
+        [StringLength(128, MinimumLength = 1)]
+        [RegularExpression(@"^[a-zA-Z0-9_-]+$",
+            ErrorMessage = "FirebaseUid must be alphanumeric (may include _ and -).")]
         public string FirebaseUid { get; set; } = string.Empty;
+
+        [Required]
+        [EmailAddress]
         public string UserEmail { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(200, MinimumLength = 1)]
         public string UserDisplayName { get; set; } = string.Empty;
 
         // --- Company fields ---
+        [Required]
+        [StringLength(200, MinimumLength = 1)]
         public string CompanyName { get; set; } = string.Empty;
+
+        [Required]
+        [EmailAddress]
         public string CompanyEmail { get; set; } = string.Empty;
+
+        [Phone]
         public string? CompanyPhone { get; set; }
+
+        [Required]
+        [StringLength(100, MinimumLength = 1)]
         public string TimeZone { get; set; } = "UTC";
     }
 

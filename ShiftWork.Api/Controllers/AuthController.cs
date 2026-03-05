@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
@@ -112,10 +113,13 @@ namespace ShiftWork.Api.Controllers
         /// Rate-limited: max 5 attempts per IP per hour.
         /// </summary>
         [HttpPost("register")]
-        [AllowAnonymous]
+        [Authorize]
+        [EnableRateLimiting("registration-limit")]
         [ProducesResponseType(typeof(CompanyRegistrationResponse), 201)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
         [ProducesResponseType(409)]
+        [ProducesResponseType(429)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<CompanyRegistrationResponse>> Register(
             [FromBody] CompanyRegistrationRequest request)
@@ -123,17 +127,14 @@ namespace ShiftWork.Api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (string.IsNullOrWhiteSpace(request.FirebaseUid))
-                return BadRequest("FirebaseUid is required.");
-
-            // Validate that the Bearer token sub claim matches the provided FirebaseUid
-            if (User.Identity?.IsAuthenticated == true)
-            {
-                var tokenUid = User.FindFirst("user_id")?.Value
-                    ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (!string.IsNullOrEmpty(tokenUid) && tokenUid != request.FirebaseUid)
-                    return BadRequest("FirebaseUid does not match the authenticated token.");
-            }
+            // Require a valid Firebase Bearer token whose sub claim matches FirebaseUid.
+            // This proves the caller owns the Firebase account they are registering.
+            var tokenUid = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                ?? User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(tokenUid))
+                return Unauthorized("A valid Firebase Bearer token is required.");
+            if (tokenUid != request.FirebaseUid)
+                return BadRequest("FirebaseUid does not match the authenticated token.");
 
             // Duplicate UID check
             var existingUser = await _context.CompanyUsers
