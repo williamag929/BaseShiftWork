@@ -41,5 +41,11 @@ namespace ShiftWork.Api.Models
         public decimal? PtoStartingBalance { get; set; } // initial hours
         public DateTime? PtoStartDate { get; set; } // accrual start date
         public DateTime? PtoLastAccruedAt { get; set; } // last time accrual entries were generated
+
+        /// <summary>
+        /// Marks this record as sandbox/demo data seeded during onboarding.
+        /// Default false — all existing records are unaffected.
+        /// </summary>
+        public bool IsSandbox { get; set; } = false;
     }
 }

@@ -1,0 +1,147 @@
+<div class="registration-container">
+  <div class="registration-card">
+    <div class="registration-header">
+      <h1>Create your ShiftWork account</h1>
+      <p class="step-indicator">Step {{ currentStep }} of {{ totalSteps }}</p>
+      <div class="step-progress">
+        <div
+          class="step-progress-fill"
+          [style.width.%]="(currentStep / totalSteps) * 100">
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+    <!-- Step 1: User Info -->
+    <form *ngIf="currentStep === 1" [formGroup]="userForm">
+      <h2>Your Account</h2>
+      <div class="form-group">
+        <label for="displayName">Full Name *</label>
+        <input
+          id="displayName"
+          type="text"
+          class="form-control"
+          formControlName="displayName"
+          placeholder="Jane Doe"
+          autocomplete="name" />
+        <div *ngIf="userForm.get('displayName')?.invalid && userForm.get('displayName')?.touched"
+             class="field-error">Name is required (min 2 characters).</div>
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address *</label>
+        <input
+          id="email"
+          type="email"
+          class="form-control"
+          formControlName="email"
+          placeholder="you@example.com"
+          autocomplete="email" />
+        <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched"
+             class="field-error">A valid email is required.</div>
+      </div>
+      <div class="form-group">
+        <label for="password">Password *</label>
+        <input
+          id="password"
+          type="password"
+          class="form-control"
+          formControlName="password"
+          placeholder="Min 8 characters"
+          autocomplete="new-password" />
+        <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched"
+             class="field-error">Password must be at least 8 characters.</div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!isStep1Valid">
+          Next: Company Info →
+        </button>
+      </div>
+    </form>
+
+    <!-- Step 2: Company Info -->
+    <form *ngIf="currentStep === 2" [formGroup]="companyForm">
+      <h2>Your Company</h2>
+      <div class="form-group">
+        <label for="companyName">Company Name *</label>
+        <input
+          id="companyName"
+          type="text"
+          class="form-control"
+          formControlName="companyName"
+          placeholder="Acme Corp" />
+        <div *ngIf="companyForm.get('companyName')?.invalid && companyForm.get('companyName')?.touched"
+             class="field-error">Company name is required.</div>
+      </div>
+      <div class="form-group">
+        <label for="companyEmail">Company Email *</label>
+        <input
+          id="companyEmail"
+          type="email"
+          class="form-control"
+          formControlName="companyEmail"
+          placeholder="contact@acme.com" />
+        <div *ngIf="companyForm.get('companyEmail')?.invalid && companyForm.get('companyEmail')?.touched"
+             class="field-error">A valid company email is required.</div>
+      </div>
+      <div class="form-group">
+        <label for="companyPhone">Phone Number</label>
+        <input
+          id="companyPhone"
+          type="tel"
+          class="form-control"
+          formControlName="companyPhone"
+          placeholder="+1 555 000 0000" />
+      </div>
+      <div class="form-group">
+        <label for="timeZone">Time Zone *</label>
+        <select id="timeZone" class="form-control" formControlName="timeZone">
+          <option value="UTC">UTC</option>
+          <option value="America/New_York">Eastern (US)</option>
+          <option value="America/Chicago">Central (US)</option>
+          <option value="America/Denver">Mountain (US)</option>
+          <option value="America/Los_Angeles">Pacific (US)</option>
+          <option value="Europe/London">London</option>
+          <option value="Europe/Paris">Paris / Madrid</option>
+          <option value="Asia/Tokyo">Tokyo</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="prevStep()">← Back</button>
+        <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!isStep2Valid">
+          Next: Confirm →
+        </button>
+      </div>
+    </form>
+
+    <!-- Step 3: Confirm & Submit -->
+    <div *ngIf="currentStep === 3">
+      <h2>Confirm & Create Account</h2>
+      <div class="summary">
+        <p><strong>Name:</strong> {{ userForm.value.displayName }}</p>
+        <p><strong>Email:</strong> {{ userForm.value.email }}</p>
+        <p><strong>Company:</strong> {{ companyForm.value.companyName }}</p>
+        <p><strong>Company Email:</strong> {{ companyForm.value.companyEmail }}</p>
+        <p><strong>Time Zone:</strong> {{ companyForm.value.timeZone }}</p>
+      </div>
+      <p class="notice">
+        After creating your account you will receive a verification email.
+        Your company will start on the <strong>Free plan</strong> with sandbox demo data
+        so you can explore the app right away.
+      </p>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="prevStep()">← Back</button>
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="onSubmit()"
+          [disabled]="isLoading">
+          {{ isLoading ? 'Creating account…' : 'Create Account' }}
+        </button>
+      </div>
+    </div>
+
+    <p class="sign-in-link">Already have an account? <a routerLink="/auth/sign-in">Sign in</a></p>
+  </div>
+</div>

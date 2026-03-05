@@ -127,6 +127,10 @@ builder.Services.AddScoped<IWebhookService, WebhookService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
+// Registration & Onboarding feature services
+builder.Services.AddScoped<ISandboxService, SandboxService>();
+builder.Services.AddScoped<IPlanService, PlanService>();
+
 
 // Your AuthController uses AutoMapper, so you need to add it and its DI package.
 // Run: dotnet add package AutoMapper.Extensions.Microsoft.DependencyInjection

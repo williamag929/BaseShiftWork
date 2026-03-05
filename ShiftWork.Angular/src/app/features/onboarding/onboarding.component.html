@@ -1,0 +1,73 @@
+<div class="onboarding-container">
+  <div class="onboarding-card">
+    <h1>Welcome to ShiftWork! 🎉</h1>
+    <p class="subtitle">Your account is set up. Let's get you started.</p>
+
+    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+    <!-- Sandbox info banner -->
+    <div class="sandbox-banner" *ngIf="sandboxStatus?.hasSandboxData">
+      <div class="sandbox-banner-header">
+        <span class="badge badge-info">Demo Data</span>
+        <h3>Your account includes sample data</h3>
+      </div>
+      <p>
+        We've added demo employees, a location, and an area so you can explore how ShiftWork works.
+        This data is clearly marked as <em>sandbox</em> — it won't affect your payroll or reports.
+      </p>
+
+      <div class="sandbox-counts" *ngIf="sandboxStatus">
+        <div class="count-item">
+          <strong>{{ sandboxStatus.sandboxPersonCount }}</strong>
+          <span>Employees</span>
+        </div>
+        <div class="count-item">
+          <strong>{{ sandboxStatus.sandboxLocationCount }}</strong>
+          <span>Locations</span>
+        </div>
+        <div class="count-item">
+          <strong>{{ sandboxStatus.sandboxAreaCount }}</strong>
+          <span>Areas</span>
+        </div>
+      </div>
+
+      <div class="sandbox-actions">
+        <button
+          class="btn btn-outline-secondary"
+          (click)="hideSandboxData()"
+          [disabled]="!!actionInProgress">
+          {{ actionInProgress === 'hide' ? 'Hiding…' : 'Hide demo data' }}
+        </button>
+        <button
+          class="btn btn-outline-warning"
+          (click)="resetSandboxData()"
+          [disabled]="!!actionInProgress">
+          {{ actionInProgress === 'reset' ? 'Resetting…' : 'Reset to defaults' }}
+        </button>
+        <button
+          class="btn btn-outline-danger"
+          (click)="deleteSandboxData()"
+          [disabled]="!!actionInProgress">
+          {{ actionInProgress === 'delete' ? 'Removing…' : 'Remove demo data permanently' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="sandbox-banner sandbox-banner--clean" *ngIf="sandboxStatus && !sandboxStatus.hasSandboxData">
+      <p>✅ Your workspace is clean and ready for real data.</p>
+    </div>
+
+    <div class="plan-banner">
+      <h3>You're on the <strong>Free plan</strong></h3>
+      <p>Upgrade to Pro to unlock advanced scheduling, analytics, multi-location support, and more.</p>
+      <a routerLink="/upgrade" class="btn btn-primary">Explore Pro →</a>
+    </div>
+
+    <div class="onboarding-footer">
+      <button class="btn btn-success btn-lg" (click)="goToDashboard()">
+        Go to Dashboard →
+      </button>
+    </div>
+  </div>
+</div>
