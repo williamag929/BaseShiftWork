@@ -338,10 +338,12 @@ namespace ShiftWork.Api.Controllers
                     .ToListAsync();
 
                 var personIds = members.Select(m => m.PersonId).ToList();
+                var personIdStrings = personIds.Select(id => id.ToString()).ToList();
 
                 // Load overlapping schedules for all crew members in one query
-                var conflictingPersonIds = await _context.Schedules
-                    .Where(s => personIds.Contains(s.PersonId)
+                // Schedule.PersonId is string, so use personIdStrings
+                var conflictingPersonIdStrings = await _context.Schedules
+                    .Where(s => personIdStrings.Contains(s.PersonId)
                                 && s.CompanyId == companyId
                                 && s.StartDate < endDate
                                 && s.EndDate > startDate
@@ -349,6 +351,9 @@ namespace ShiftWork.Api.Controllers
                     .Select(s => s.PersonId)
                     .Distinct()
                     .ToListAsync();
+                var conflictingPersonIds = conflictingPersonIdStrings
+                    .Select(id => int.TryParse(id, out var n) ? n : -1)
+                    .ToList();
 
                 // Load overlapping approved time-off requests in one query
                 var timeOffPersonIds = await _context.TimeOffRequests
