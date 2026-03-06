@@ -15,11 +15,16 @@ namespace ShiftWork.Api.Controllers
     public class SandboxController : ControllerBase
     {
         private readonly ISandboxService _sandboxService;
+        private readonly IPlanService _planService;
         private readonly ILogger<SandboxController> _logger;
 
-        public SandboxController(ISandboxService sandboxService, ILogger<SandboxController> logger)
+        public SandboxController(
+            ISandboxService sandboxService,
+            IPlanService planService,
+            ILogger<SandboxController> logger)
         {
             _sandboxService = sandboxService ?? throw new ArgumentNullException(nameof(sandboxService));
+            _planService = planService ?? throw new ArgumentNullException(nameof(planService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -94,12 +99,23 @@ namespace ShiftWork.Api.Controllers
 
         /// <summary>
         /// Permanently deletes all sandbox records. No re-seed.
+        /// Requires Pro or Trial plan — Free plan users should use Hide instead.
         /// </summary>
         [HttpPost("delete")]
         [ProducesResponseType(204)]
+        [ProducesResponseType(403)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteSandboxData(string companyId)
         {
+            // Plan gate: only Pro/Trial may permanently delete sandbox data
+            if (!await _planService.IsFeatureEnabledAsync(companyId, "sandbox.delete"))
+            {
+                _logger.LogWarning("{EventName} {CompanyId} plan=Free", "sandbox_delete_denied", companyId);
+                return StatusCode(403,
+                    "Permanently deleting sandbox data requires a Pro or Trial plan. " +
+                    "Use POST /sandbox/hide to hide demo data on the Free plan.");
+            }
+
             try
             {
                 await _sandboxService.DeleteSandboxDataAsync(companyId);

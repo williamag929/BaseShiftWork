@@ -101,4 +101,17 @@ export class RegistrationService {
       this.jsonHeaders()
     );
   }
+
+  /**
+   * PATCH /api/companies/{companyId}/onboarding-status
+   * Sets OnboardingStatus ("Pending" | "Verified" | "Complete") on the company.
+   * Called client-side after Firebase email verification is confirmed.
+   */
+  patchOnboardingStatus(companyId: string, status: string): Observable<void> {
+    return this.http.patch<void>(
+      `${this.apiUrl}/companies/${companyId}/onboarding-status`,
+      { status },
+      this.jsonHeaders()
+    );
+  }
 }

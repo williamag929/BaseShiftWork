@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
@@ -21,6 +23,7 @@ namespace ShiftWork.Api.Controllers
         private readonly ICompanyService _companyService;
         private readonly ILogger<CompanyController> _logger;
         private readonly IPlanService _planService;
+        private readonly ShiftWorkContext _context;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CompanyController"/> class.
@@ -28,11 +31,13 @@ namespace ShiftWork.Api.Controllers
         public CompanyController(
             ICompanyService companyService,
             ILogger<CompanyController> logger,
-            IPlanService planService)
+            IPlanService planService,
+            ShiftWorkContext context)
         {
             _companyService = companyService ?? throw new ArgumentNullException(nameof(companyService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _planService = planService ?? throw new ArgumentNullException(nameof(planService));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         /// <summary>
@@ -219,6 +224,48 @@ namespace ShiftWork.Api.Controllers
             {
                 _logger.LogError(ex, "{EventName} {CompanyId} {TargetPlan}",
                     "plan_upgrade_failed", companyId, request.TargetPlan);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Updates the OnboardingStatus of a company ("Pending" | "Verified" | "Complete").
+        /// Called by the client after Firebase email verification is confirmed.
+        /// </summary>
+        [HttpPatch("{companyId}/onboarding-status")]
+        [Authorize]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> PatchOnboardingStatus(
+            string companyId,
+            [FromBody] PatchOnboardingStatusRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var allowedStatuses = new[] { "Pending", "Verified", "Complete" };
+            if (!Array.Exists(allowedStatuses, s => s == request.Status))
+                return BadRequest($"Status must be one of: {string.Join(", ", allowedStatuses)}");
+
+            try
+            {
+                var company = await _context.Companies.FindAsync(companyId);
+                if (company == null)
+                    return NotFound($"Company {companyId} not found.");
+
+                company.OnboardingStatus = request.Status;
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("{EventName} {CompanyId} {Status}",
+                    "onboarding_status_updated", companyId, request.Status);
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update OnboardingStatus for {CompanyId}", companyId);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }

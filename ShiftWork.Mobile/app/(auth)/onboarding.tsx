@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { registrationService, SandboxStatusResponse } from '@/services/registration.service';
 import { colors } from '@/styles/theme';
 
@@ -11,13 +12,21 @@ export default function OnboardingScreen() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [companyId, setCompanyId] = useState<string>('');
 
-  // Retrieve companyId stored during registration
-  const companyId: string = (global as any)._onboardingCompanyId ?? '';
+  // Load companyId from AsyncStorage (persists across app restarts)
+  useEffect(() => {
+    AsyncStorage.getItem('onboarding_company_id').then(id => {
+      if (id) {
+        setCompanyId(id);
+      } else {
+        setLoading(false);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (companyId) loadStatus();
-    else setLoading(false);
   }, [companyId]);
 
   const loadStatus = async () => {
@@ -84,7 +93,8 @@ export default function OnboardingScreen() {
   };
 
   const goToDashboard = () => {
-    (global as any)._onboardingCompanyId = null;
+    // Clear onboarding data from persistent storage
+    AsyncStorage.multiRemove(['onboarding_company_id', 'onboarding_plan']);
     router.replace('/(tabs)/dashboard');
   };
 

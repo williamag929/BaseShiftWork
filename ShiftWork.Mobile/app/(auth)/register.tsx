@@ -2,6 +2,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert 
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { registrationService, CompanyRegistrationRequest } from '@/services/registration.service';
 import { colors } from '@/styles/theme';
 
@@ -50,9 +51,9 @@ export default function RegisterScreen() {
       };
 
       const response = await registrationService.register(request);
-      // Store companyId for onboarding screen
-      // TODO: use AsyncStorage for persistence
-      (global as any)._onboardingCompanyId = response.companyId;
+      // Persist companyId for onboarding screen (survives app restart)
+      await AsyncStorage.setItem('onboarding_company_id', response.companyId);
+      await AsyncStorage.setItem('onboarding_plan', response.plan ?? 'Free');
 
       router.replace('/(auth)/onboarding');
     } catch (err: any) {

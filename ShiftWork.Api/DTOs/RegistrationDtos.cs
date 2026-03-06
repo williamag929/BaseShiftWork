@@ -92,4 +92,16 @@ namespace ShiftWork.Api.DTOs
         public string? StripeSubscriptionId { get; set; }
         public string Message { get; set; } = string.Empty;
     }
+
+    /// <summary>
+    /// Request body for PATCH /api/companies/{companyId}/onboarding-status.
+    /// Valid values: "Pending", "Verified", "Complete".
+    /// </summary>
+    public class PatchOnboardingStatusRequest
+    {
+        [Required]
+        [RegularExpression("^(Pending|Verified|Complete)$",
+            ErrorMessage = "Status must be Pending, Verified, or Complete.")]
+        public string Status { get; set; } = string.Empty;
+    }
 }
