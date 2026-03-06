@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/config/firebase';
+import { getFirebaseAuthError } from '@/utils/firebase-error.utils';
 import { authService, biometricAuthService } from '@/services';
 import { useAuthStore } from '@/store/authStore';
 import { saveUserData, saveCompanyId } from '@/utils/storage.utils';
@@ -98,15 +99,7 @@ export default function LoginScreen() {
       router.replace('/(tabs)/dashboard' as Href<string>);
     } catch (error: any) {
       setLoading(false);
-      const msg =
-        error?.code === 'auth/invalid-credential' || error?.code === 'auth/wrong-password'
-          ? 'Invalid email or password'
-          : error?.code === 'auth/user-not-found'
-          ? 'No account found with this email'
-          : error?.code === 'auth/too-many-requests'
-          ? 'Too many attempts. Please try again later.'
-          : 'Login failed. Please try again.';
-      Alert.alert('Login Failed', msg);
+      Alert.alert('Login Failed', getFirebaseAuthError(error?.code));
     }
   };
 

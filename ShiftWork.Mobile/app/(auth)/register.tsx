@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/config/firebase';
+import { getFirebaseAuthError } from '@/utils/firebase-error.utils';
 import { registrationService, CompanyRegistrationRequest } from '@/services/registration.service';
 import { colors } from '@/styles/theme';
 
@@ -52,7 +53,7 @@ export default function RegisterScreen() {
 
       router.replace('/(auth)/onboarding');
     } catch (err: any) {
-      setErrorMsg(err?.message ?? 'Registration failed. Please try again.');
+      setErrorMsg(err?.code ? getFirebaseAuthError(err.code) : (err?.message ?? 'Registration failed. Please try again.'));
     } finally {
       setLoading(false);
     }
