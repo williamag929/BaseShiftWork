@@ -339,13 +339,13 @@ These two features share infrastructure but serve **different actors**:
 - Use `_context.Database.BeginTransactionAsync()` pattern.
 
 **7.5 — Smoke test checklist before release**
-- [ ] `POST /api/auth/register` → 201, returns `companyId`
-- [ ] Sandbox records visible in `GET /api/companies/{companyId}/people`
-- [ ] `POST /api/companies/{companyId}/sandbox/delete` removes only IsSandbox records
-- [ ] Existing employee invite flow (`send-invite` / `complete-invite`) unaffected
-- [ ] Existing kiosk clock-in with PIN unaffected
-- [ ] Angular `/register` is publicly accessible (no auth redirect)
-- [ ] Angular `/accept-invite` (employee flow) is publicly accessible and unchanged
+- [x] `POST /api/auth/register` → 201, returns `companyId`
+- [x] Sandbox records visible in `GET /api/companies/{companyId}/people`
+- [x] `POST /api/companies/{companyId}/sandbox/delete` removes only IsSandbox records
+- [x] Existing employee invite flow (`send-invite` / `complete-invite`) unaffected
+- [x] Existing kiosk clock-in with PIN unaffected
+- [x] Angular `/register` is publicly accessible (no auth redirect)
+- [x] Angular `/accept-invite` (employee flow) is publicly accessible and unchanged
 
 ---
 

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
+using ShiftWork.Api.Helpers;
 
 namespace ShiftWork.Api.Services
 {
@@ -67,7 +68,7 @@ namespace ShiftWork.Api.Services
             {
                 // Graceful fallback: simulate upgrade (same pattern as NotificationService)
                 _logger.LogInformation("{EventName} {CompanyId} {TargetPlan} stripe=simulated",
-                    "plan_upgrade_simulated", companyId, targetPlan);
+                    FunnelEventNames.PlanUpgradeSimulated, companyId, targetPlan);
                 company.Plan = targetPlan;
                 await _context.SaveChangesAsync();
                 return true;
@@ -79,15 +80,24 @@ namespace ShiftWork.Api.Services
             // 3. Create a subscription for the Pro price ID.
             // 4. Store subscription.Id in company.StripeSubscriptionId.
             _logger.LogInformation("{EventName} {CompanyId} {TargetPlan}",
-                "plan_upgrade_started", companyId, targetPlan);
+                FunnelEventNames.PlanUpgradeStarted, companyId, targetPlan);
 
-            company.Plan = targetPlan;
-            // company.StripeCustomerId and StripeSubscriptionId to be set after Stripe calls.
-            await _context.SaveChangesAsync();
+            try
+            {
+                company.Plan = targetPlan;
+                // company.StripeCustomerId and StripeSubscriptionId to be set after Stripe calls.
+                await _context.SaveChangesAsync();
 
-            _logger.LogInformation("{EventName} {CompanyId} {TargetPlan}",
-                "plan_upgrade_success", companyId, targetPlan);
-            return true;
+                _logger.LogInformation("{EventName} {CompanyId} {TargetPlan}",
+                    FunnelEventNames.PlanUpgradeSuccess, companyId, targetPlan);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{EventName} {CompanyId} {TargetPlan}",
+                    FunnelEventNames.PlanUpgradeFailure, companyId, targetPlan);
+                throw;
+            }
         }
 
         /// <inheritdoc />

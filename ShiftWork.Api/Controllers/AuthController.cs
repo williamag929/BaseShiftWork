@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
+using ShiftWork.Api.Helpers;
 using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
 using System;
@@ -151,7 +152,7 @@ namespace ShiftWork.Api.Controllers
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                _logger.LogInformation("{EventName} {Email}", "registration_started", request.UserEmail);
+                _logger.LogInformation("{EventName} {Email}", FunnelEventNames.RegistrationStarted, request.UserEmail);
 
                 // 1. Create Company
                 var companyId = Guid.NewGuid().ToString();

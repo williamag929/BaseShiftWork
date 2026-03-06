@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
+using ShiftWork.Api.Helpers;
 using ShiftWork.Api.Models;
 
 namespace ShiftWork.Api.Services
@@ -21,7 +22,7 @@ namespace ShiftWork.Api.Services
         /// <inheritdoc />
         public async Task SeedSandboxDataAsync(string companyId)
         {
-            _logger.LogInformation("{EventName} {CompanyId}", "sandbox_seed_started", companyId);
+            _logger.LogInformation("{EventName} {CompanyId}", FunnelEventNames.SandboxSeedStarted, companyId);
 
             // Create sandbox Location
             var location = new Location
@@ -67,13 +68,13 @@ namespace ShiftWork.Api.Services
             }
 
             await _context.SaveChangesAsync();
-            _logger.LogInformation("{EventName} {CompanyId}", "sandbox_seed_completed", companyId);
+            _logger.LogInformation("{EventName} {CompanyId}", FunnelEventNames.SandboxSeedCompleted, companyId);
         }
 
         /// <inheritdoc />
         public async Task HideSandboxDataAsync(string companyId, IEnumerable<string> entityTypes)
         {
-            _logger.LogInformation("{EventName} {CompanyId} {Types}", "sandbox_hide", companyId, string.Join(",", entityTypes));
+            _logger.LogInformation("{EventName} {CompanyId} {Types}", FunnelEventNames.SandboxHide, companyId, string.Join(",", entityTypes));
 
             var types = entityTypes.Select(t => t.ToLowerInvariant()).ToHashSet();
             bool all = types.Contains("all");
@@ -113,7 +114,7 @@ namespace ShiftWork.Api.Services
         /// <inheritdoc />
         public async Task ResetSandboxDataAsync(string companyId)
         {
-            _logger.LogInformation("{EventName} {CompanyId}", "sandbox_reset", companyId);
+            _logger.LogInformation("{EventName} {CompanyId}", FunnelEventNames.SandboxReset, companyId);
             await DeleteSandboxDataAsync(companyId);
             await SeedSandboxDataAsync(companyId);
         }
@@ -121,7 +122,7 @@ namespace ShiftWork.Api.Services
         /// <inheritdoc />
         public async Task DeleteSandboxDataAsync(string companyId)
         {
-            _logger.LogInformation("{EventName} {CompanyId}", "sandbox_delete", companyId);
+            _logger.LogInformation("{EventName} {CompanyId}", FunnelEventNames.SandboxDelete, companyId);
 
             var persons = await _context.Persons
                 .Where(p => p.CompanyId == companyId && p.IsSandbox)
