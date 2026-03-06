@@ -600,25 +600,74 @@
               <button class="btn-link" (click)="clearBulkPeopleSelection()">Clear</button>
               <span class="bulk-count">{{ bulkSelectedPeopleIds.size }} selected</span>
             </div>
+            <input
+              type="text"
+              class="form-input bulk-people-search"
+              placeholder="Search people..."
+              [(ngModel)]="bulkPeopleSearch"
+            />
             <div class="bulk-people-list">
-              <label class="bulk-person" *ngFor="let person of peopleList">
+              <label class="bulk-person" *ngFor="let person of filteredBulkPeopleList">
                 <input
                   type="checkbox"
                   [checked]="bulkSelectedPeopleIds.has(person.personId)"
                   (change)="onBulkPersonCheckboxChange($event, person.personId)"
                 />
                 <span>{{ person.name }}</span>
+                <span
+                  *ngIf="crewAvailability[person.personId]"
+                  class="avail-badge"
+                  [class.avail-ok]="crewAvailability[person.personId].available"
+                  [class.avail-conflict]="!crewAvailability[person.personId].available && crewAvailability[person.personId].reason === 'conflict'"
+                  [class.avail-timeoff]="!crewAvailability[person.personId].available && crewAvailability[person.personId].reason === 'time-off'"
+                  [title]="crewAvailability[person.personId].available ? 'Available' : (crewAvailability[person.personId].reason === 'time-off' ? 'Has time off' : 'Already scheduled')"
+                ></span>
               </label>
+              <span class="bulk-no-results" *ngIf="filteredBulkPeopleList.length === 0">No people match your search.</span>
             </div>
           </div>
         </div>
 
         <div class="bulk-form-row">
           <div class="bulk-form-group full-width">
-            <label>Crew (coming soon)</label>
-            <select class="form-select" disabled>
-              <option>Select a crew</option>
+            <label>Crew
+              <span class="avail-legend" *ngIf="bulkSelectedCrewId">
+                <span class="avail-badge avail-ok" title="Available"></span> Available
+                <span class="avail-badge avail-conflict" title="Scheduled conflict"></span> Conflict
+                <span class="avail-badge avail-timeoff" title="Time off"></span> Time off
+              </span>
+              <button class="btn-link crew-add-btn" type="button" (click)="toggleNewCrewForm()" title="Create a new crew">
+                {{ showNewCrewForm ? '✕ Cancel' : '+ New crew' }}
+              </button>
+            </label>
+
+            <div class="new-crew-form" *ngIf="showNewCrewForm">
+              <input
+                type="text"
+                class="form-input"
+                placeholder="Crew name"
+                [(ngModel)]="newCrewName"
+                (keyup.enter)="createCrewInline()"
+                maxlength="100"
+              />
+              <button
+                class="btn btn-primary btn-sm"
+                [disabled]="!newCrewName.trim() || creatingCrew"
+                (click)="createCrewInline()"
+              >{{ creatingCrew ? '...' : 'Create' }}</button>
+            </div>
+
+            <select
+              class="form-select"
+              [(ngModel)]="bulkSelectedCrewId"
+              (change)="onBulkCrewChange()"
+            >
+              <option [ngValue]="null">— No crew —</option>
+              <option *ngFor="let crew of crews" [ngValue]="crew.crewId">{{ crew.name }}</option>
             </select>
+            <div class="avail-checking" *ngIf="checkingCrewAvailability">
+              Checking availability...
+            </div>
           </div>
         </div>
       </div>

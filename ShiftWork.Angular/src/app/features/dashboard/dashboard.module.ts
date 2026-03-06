@@ -10,6 +10,7 @@ import { AreasComponent } from './areas/areas.component';
 import { LocationsComponent } from './locations/locations.component';
 import { ScheduleComponent } from './schedule/schedule.component';
 import { TasksComponent } from './tasks/tasks.component';
+import { CrewsComponent } from './crews/crews.component';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -39,6 +40,7 @@ const routes: Routes = [
       { path: 'time-off-approvals', loadComponent: () => import('./time-off-approvals.component').then(m => m.TimeOffApprovalsComponent) },
       { path: 'people-management', loadComponent: () => import('./people-management.component').then(m => m.PeopleManagementComponent) },
       { path: 'tasks', component: TasksComponent },
+      { path: 'crews', component: CrewsComponent },
       { path: 'clock-shift', loadComponent: () => import('./clock-shift/clock-shift.component').then(m => m.ClockShiftComponent) },
       { path: 'shiftsummaries', loadComponent: () => import('./shiftsummaries/shiftsummaries.component').then(m => m.ShiftsummariesComponent) },
       { path: 'company-settings', loadComponent: () => import('./company-settings.component').then(m => m.CompanySettingsComponent) },
@@ -53,7 +55,8 @@ const routes: Routes = [
     //TasksComponent,
     PeopleComponent,
     LocationsComponent,
-    DashboardComponent
+    DashboardComponent,
+    CrewsComponent
   ],
   imports: [
     CommonModule,

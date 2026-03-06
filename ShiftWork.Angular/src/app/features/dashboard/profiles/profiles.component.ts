@@ -42,12 +42,24 @@ export class ProfilesComponent implements OnInit {
   assignedUserIds: number[] = [];
 
   availablePermissions: { [key: string]: string[] } = {
-    Profiles: ['List', 'Edit', 'Delete'],
-    People: ['List', 'Edit', 'Delete'],
-    Areas: ['List', 'Edit', 'Delete'],
-    Locations: ['List', 'Edit', 'Delete'],
-    Schedule: ['List', 'Edit', 'Delete'],
-    Tasks: ['List', 'Edit', 'Delete'],
+    'People':               ['people.read', 'people.create', 'people.update', 'people.delete'],
+    'Schedules':            ['schedules.read', 'schedules.create', 'schedules.update', 'schedules.delete'],
+    'Schedule Shifts':      ['schedule-shifts.read', 'schedule-shifts.create', 'schedule-shifts.update', 'schedule-shifts.delete'],
+    'Shift Events':         ['shift-events.read', 'shift-events.create', 'shift-events.update', 'shift-events.delete'],
+    'Crews':                ['crews.read', 'crews.create', 'crews.update', 'crews.delete', 'crews.assign'],
+    'Locations':            ['locations.read', 'locations.create', 'locations.update', 'locations.delete'],
+    'Areas':                ['areas.read', 'areas.create', 'areas.update', 'areas.delete'],
+    'Tasks':                ['tasks.read', 'tasks.create', 'tasks.update', 'tasks.delete'],
+    'Roles':                ['roles.read', 'roles.create', 'roles.update', 'roles.delete', 'roles.permissions.update'],
+    'Permissions':          ['permissions.read'],
+    'Company Users':        ['company-users.read', 'company-users.update', 'company-users.roles.update', 'company-users.profile.update'],
+    'Time Off':             ['timeoff-requests.read', 'timeoff-requests.create', 'timeoff-requests.approve', 'timeoff-requests.delete'],
+    'PTO':                  ['pto.read', 'pto.update'],
+    'Replacement Requests': ['replacement-requests.read', 'replacement-requests.create', 'replacement-requests.update', 'replacement-requests.delete'],
+    'Shift Summaries':      ['schedule-shift-summaries.read', 'shift-summary-approvals.update'],
+    'Company Settings':     ['company-settings.read', 'company-settings.update'],
+    'Audit History':        ['audit-history.read'],
+    'Kiosk':                ['kiosk.admin'],
   };
   // Helper for iterating over object keys in the template
   objectKeys = Object.keys;
@@ -211,8 +223,8 @@ export class ProfilesComponent implements OnInit {
 
       const permissionsGroup = this.fb.group({});
       for (const component of this.objectKeys(this.availablePermissions)) {
-        for (const action of this.availablePermissions[component]) {
-          permissionsGroup.addControl(`${component}.${action}`, new FormControl(false));
+        for (const permKey of this.availablePermissions[component]) {
+          permissionsGroup.addControl(permKey, new FormControl(false));
         }
       }
 
@@ -307,5 +319,21 @@ export class ProfilesComponent implements OnInit {
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
+  }
+
+  /** Convert an API permission key like 'crews.assign' → 'Assign' */
+  getPermissionLabel(key: string): string {
+    const action = key.split('.').pop() ?? key;
+    return action.charAt(0).toUpperCase() + action.slice(1);
+  }
+
+  /** Semantic icon class for a permission action */
+  getPermissionIcon(key: string): string {
+    const action = key.split('.').pop() ?? '';
+    const map: { [k: string]: string } = {
+      read: 'fa-eye', create: 'fa-plus', update: 'fa-edit', delete: 'fa-trash',
+      approve: 'fa-check', assign: 'fa-link', admin: 'fa-shield-alt',
+    };
+    return map[action] ?? 'fa-circle';
   }
 }

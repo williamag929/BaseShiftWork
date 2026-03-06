@@ -185,21 +185,17 @@
                       <label 
                         *ngFor="let action of availablePermissions[component]" 
                         class="permission-checkbox"
-                        [for]="component + '.' + action"
+                        [for]="action"
                       >
                         <input 
                           class="checkbox-input" 
                           type="checkbox" 
-                          [formControlName]="component + '.' + action" 
-                          [id]="component + '.' + action"
+                          [formControlName]="action" 
+                          [id]="action"
                         >
                         <span class="checkbox-label">
-                          <i class="fas" 
-                            [class.fa-eye]="action === 'List'"
-                            [class.fa-edit]="action === 'Edit'"
-                            [class.fa-trash]="action === 'Delete'"
-                          ></i>
-                          {{ action }}
+                          <i class="fas" [class]="getPermissionIcon(action)"></i>
+                          {{ getPermissionLabel(action) }}
                         </span>
                       </label>
                     </div>

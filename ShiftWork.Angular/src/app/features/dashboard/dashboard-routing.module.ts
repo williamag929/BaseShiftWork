@@ -16,6 +16,7 @@ const routes: Routes = [
       { path: 'schedules', loadChildren: () => import('./schedules/schedules.module').then(m => m.SchedulesModule) },
       { path: 'tasks', loadChildren: () => import('./tasks/tasks.module').then(m => m.TasksModule) },
       
+      
 
       //{ path: 'holidays', loadChildren: () => import('./holidays/holidays.module').then(m => m.HolidaysModule) },
       //{ path: 'companies', loadChildren: () => import('../general/companies/companies.module').then(m => m.CompaniesModule) },

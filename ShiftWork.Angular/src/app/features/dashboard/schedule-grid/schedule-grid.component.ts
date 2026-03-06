@@ -33,6 +33,8 @@ import { People } from 'src/app/core/models/people.model';
 import { Schedule } from 'src/app/core/models/schedule.model';
 import { Area } from 'src/app/core/models/area.model';
 import { AreaService } from 'src/app/core/services/area.service';
+import { Crew, CrewMemberAvailability } from 'src/app/core/models/crew.model';
+import { CrewService } from 'src/app/core/services/crew.service';
 import { ScheduleGridAddModalComponent } from './schedule-grid-add-modal.component';
 import { ReplacementPanelComponent } from './replacement-panel.component';
 import { TimeOffRequestModalComponent } from './time-off-request-modal.component';
@@ -46,7 +48,7 @@ import { ShiftHistoryModalComponent } from './shift-history-modal.component';
   imports: [CommonModule, FormsModule, DragDropModule, ScheduleGridAddModalComponent, ReplacementPanelComponent, TimeOffRequestModalComponent, SickReportModalComponent, RepeatPatternModalComponent, ShiftHistoryModalComponent],
   templateUrl: './schedule-grid.component.html',
   styleUrl: './schedule-grid.component.css',
-  providers: [ScheduleService, PeopleService, LocationService, AreaService]
+  providers: [ScheduleService, PeopleService, LocationService, AreaService, CrewService]
 })
 export class ScheduleGridComponent implements OnInit {
   // ...existing properties...
@@ -432,6 +434,11 @@ export class ScheduleGridComponent implements OnInit {
   openAddScheduleModal() {
     // Placeholder until the bulk schedule builder is fully implemented.
     this.initBulkFormDefaults();
+    // Pre-select the person that was clicked in the grid
+    if (this.selectedPersonId != null) {
+      this.bulkSelectedPeopleIds = new Set([this.selectedPersonId]);
+    }
+    this.bulkPeopleSearch = '';
     this.showAddSchedulePlaceholder = true;
     return;
 
@@ -446,6 +453,11 @@ export class ScheduleGridComponent implements OnInit {
   closeAddSchedulePlaceholder() {
     this.showAddSchedulePlaceholder = false;
     this.bulkError = '';
+    this.bulkPeopleSearch = '';
+    this.bulkSelectedCrewId = null;
+    this.crewAvailability = {};
+    this.showNewCrewForm = false;
+    this.newCrewName = '';
   }
   closeAddScheduleModal() {
     this.showAddScheduleModalFlag = false;
@@ -776,6 +788,20 @@ export class ScheduleGridComponent implements OnInit {
   bulkSelectedPeopleIds: Set<number> = new Set();
   bulkCreating: boolean = false;
   bulkError: string = '';
+  bulkPeopleSearch: string = '';
+  crews: Crew[] = [];
+  bulkSelectedCrewId: number | null = null;
+  crewAvailability: { [personId: number]: CrewMemberAvailability } = {};
+  checkingCrewAvailability: boolean = false;
+  showNewCrewForm: boolean = false;
+  newCrewName: string = '';
+  creatingCrew: boolean = false;
+
+  get filteredBulkPeopleList(): People[] {
+    const q = this.bulkPeopleSearch.toLowerCase().trim();
+    if (!q) return this.peopleList;
+    return this.peopleList.filter(p => p.name.toLowerCase().includes(q));
+  }
 
   constructor(
     private store: Store<AppState>,
@@ -788,6 +814,7 @@ export class ScheduleGridComponent implements OnInit {
     private timeOffRequestService: TimeOffRequestService,
     private replacementRequestService: ReplacementRequestService,
     private settingsHelper: SettingsHelperService,
+    private crewService: CrewService,
     private router: Router
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
@@ -825,6 +852,7 @@ export class ScheduleGridComponent implements OnInit {
             });
           }
         });
+        this.loadCrews(String(company.companyId));
       }
     });
   }
@@ -839,6 +867,83 @@ export class ScheduleGridComponent implements OnInit {
         this.areas = [];
       }
     });
+  }
+
+  private loadCrews(companyId: string): void {
+    this.crewService.getCrews(companyId).subscribe({
+      next: (crews) => { this.crews = crews; },
+      error: () => { this.crews = []; }
+    });
+  }
+
+  toggleNewCrewForm(): void {
+    this.showNewCrewForm = !this.showNewCrewForm;
+    if (!this.showNewCrewForm) {
+      this.newCrewName = '';
+    }
+  }
+
+  createCrewInline(): void {
+    const name = this.newCrewName.trim();
+    if (!name || !this.activeCompany || this.creatingCrew) return;
+    this.creatingCrew = true;
+    this.crewService.createCrew(String(this.activeCompany.companyId), name).subscribe({
+      next: (crew) => {
+        this.crews = [...this.crews, crew];
+        this.bulkSelectedCrewId = crew.crewId;
+        this.showNewCrewForm = false;
+        this.newCrewName = '';
+        this.creatingCrew = false;
+        this.onBulkCrewChange();
+      },
+      error: () => {
+        this.creatingCrew = false;
+        this.bulkError = 'Failed to create crew. Please try again.';
+      }
+    });
+  }
+
+  onBulkCrewChange(): void {
+    if (!this.bulkSelectedCrewId || !this.activeCompany) {
+      this.crewAvailability = {};
+      return;
+    }
+    if (!this.bulkStartDate || !this.bulkEndDate) {
+      return;
+    }
+    const startDateTime = this.bulkStartTime
+      ? `${this.bulkStartDate}T${this.bulkStartTime}:00`
+      : `${this.bulkStartDate}T00:00:00`;
+    const endDateTime = this.bulkEndTime
+      ? `${this.bulkEndDate}T${this.bulkEndTime}:00`
+      : `${this.bulkEndDate}T23:59:59`;
+    this.checkingCrewAvailability = true;
+    this.crewAvailability = {};
+    this.crewService
+      .getCrewAvailability(
+        String(this.activeCompany.companyId),
+        this.bulkSelectedCrewId,
+        startDateTime,
+        endDateTime
+      )
+      .subscribe({
+        next: (availability) => {
+          const map: { [personId: number]: CrewMemberAvailability } = {};
+          const idsToSelect = new Set<number>(this.bulkSelectedPeopleIds);
+          availability.forEach(a => {
+            map[a.personId] = a;
+            if (a.available) {
+              idsToSelect.add(a.personId);
+            }
+          });
+          this.crewAvailability = map;
+          this.bulkSelectedPeopleIds = idsToSelect;
+          this.checkingCrewAvailability = false;
+        },
+        error: () => {
+          this.checkingCrewAvailability = false;
+        }
+      });
   }
 
   initializeWeek(): void {
@@ -1231,7 +1336,8 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   selectAllBulkPeople(): void {
-    this.peopleList.forEach(person => this.bulkSelectedPeopleIds.add(person.personId));
+    // Select only the currently visible (filtered) people
+    this.filteredBulkPeopleList.forEach(person => this.bulkSelectedPeopleIds.add(person.personId));
   }
 
   clearBulkPeopleSelection(): void {
