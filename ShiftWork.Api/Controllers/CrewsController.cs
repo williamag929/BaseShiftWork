@@ -232,7 +232,7 @@ namespace ShiftWork.Api.Controllers
 
                 _context.PersonCrews.Add(new PersonCrew { CrewId = crewId, PersonId = personId });
                 await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(PersonCrewsController.GetPersonCrews), "PersonCrews", new { companyId, personId }, null);
+                return Ok(new { crewId, personId });
             }
             catch (Exception ex)
             {
