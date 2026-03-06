@@ -1,4 +1,12 @@
-# Mobile Firebase Authentication - Known Issue & Workaround
+# Mobile Firebase Authentication - Known Issue & Resolution
+
+## ✅ RESOLVED — 2026-03-05
+
+**Branch:** `feature/mobile-firebase-auth-fix` (commits `149ae6c`, `b6c76c0`)  
+**Solution applied:** Option 1 — downgrade to `firebase@9.23.0` + `initializeAuth` with AsyncStorage persistence  
+**PR:** https://github.com/williamag929/BaseShiftWork/compare/main...feature/mobile-firebase-auth-fix?expand=1
+
+---
 
 ## Issue Summary
 Firebase 10.x has a critical bug in React Native/Expo environments that prevents proper initialization:
@@ -8,35 +16,41 @@ Error: Component auth has not been registered yet
 
 This error occurs when calling `initializeAuth()` in React Native contexts, making it impossible to use real Firebase authentication in the mobile app.
 
-## Current Workaround
-**Status:** ✅ IMPLEMENTED AND WORKING
+## ~~Current Workaround~~ — No Longer Active
 
-### How It Works
-1. **Mock Firebase Auth Object** - [config/firebase.ts](./ShiftWork.Mobile/config/firebase.ts)
-   - Provides same interface as Firebase Auth
-   - `auth.currentUser` always returns `null` (no user logged in)
-   - Prevents app crashes from initialization errors
+**Status:** ❌ REMOVED — replaced by real Firebase Auth
 
-2. **Development Token Fallback** - [.env](./ShiftWork.Mobile/.env)
-   - Uses `EXPO_PUBLIC_DEV_TOKEN` environment variable
-   - Automatically added to all API requests when no user is logged in
-   - Token is a valid Firebase JWT that expires after ~1 hour
+<details>
+<summary>Previous workaround (kept for reference)</summary>
 
-3. **Smart Token Management** - [services/api-client.ts](./ShiftWork.Mobile/services/api-client.ts)
-   - Checks for `auth.currentUser` (always null with current setup)
-   - Falls back to dev token from environment
-   - Logs authentication details for debugging
+### How It Worked
+1. **Mock Firebase Auth Object** - `config/firebase.ts`
+   - `auth.currentUser` always returned `null`
+   - Prevented app crashes from initialization errors
+
+2. **Development Token Fallback** - `.env`
+   - Used `EXPO_PUBLIC_DEV_TOKEN` environment variable
+   - Added to all API requests when no user was logged in
+
+3. **Smart Token Management** - `services/api-client.ts`
+   - Checked for `auth.currentUser` (always null with mock)
+   - Fell back to dev token from environment
+
+</details>
 
 ## For Future Fixes
 
-### Option 1: Downgrade Firebase to 9.x (RECOMMENDED)
+### Option 1: Downgrade Firebase to 9.x — ✅ IMPLEMENTED
+
+**Completed 2026-03-05.** Changes made:
+
 ```bash
 cd ShiftWork.Mobile
 npm uninstall firebase
-npm install firebase@9.x
+npm install firebase@9.23.0  # --legacy-peer-deps
 ```
 
-Then update [config/firebase.ts](./ShiftWork.Mobile/config/firebase.ts):
+`config/firebase.ts` now contains (with env-var validation added after reviewer pass):
 ```typescript
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
@@ -62,6 +76,12 @@ const auth = initializeAuth(app, {
 export { auth };
 export default app;
 ```
+
+Additional files updated:
+- `app/(auth)/login.tsx` — real `signInWithEmailAndPassword` call
+- `app/(auth)/register.tsx` — real `createUserWithEmailAndPassword`; real Firebase UID sent to API
+- `store/authStore.ts` — `signOut` calls `firebaseSignOut(auth)`
+- `utils/firebase-error.utils.ts` — centralised Firebase error code → user-friendly message mapping
 
 ### Option 2: Wait for Firebase to Fix React Native Support
 - Track issue: [Firebase GitHub Issues](https://github.com/firebase/firebase-js-sdk/issues)
@@ -105,22 +125,24 @@ builder.WithOrigins("http://localhost:8081", ...)
 - Ready to implement once Firebase auth is fixed
 - Location: [app/(auth)/login.tsx](./ShiftWork.Mobile/app/(auth)/login.tsx)
 
-## Implementation Checklist for Future Fix
+## Implementation Checklist — ✅ COMPLETE
 
-✅ **Before Updating:**
-- [ ] Test current app works with dev token
-- [ ] Confirm API is accessible
-- [ ] Backup current `.env` values
-- [ ] Test on both iOS and Android if possible
+**Before Updating:**
+- [x] Test current app works with dev token
+- [x] Confirm API is accessible
+- [x] Backup current `.env` values
+- [x] Test on both iOS and Android if possible
 
-✅ **After Upgrading Firebase:**
-- [ ] Remove mock auth from [config/firebase.ts](./ShiftWork.Mobile/config/firebase.ts)
-- [ ] Implement proper `initializeAuth()` with persistence
-- [ ] Update [services/api-client.ts](./ShiftWork.Mobile/services/api-client.ts) to use real `getIdToken()`
-- [ ] Test login flow thoroughly
-- [ ] Remove/deprecate `EXPO_PUBLIC_DEV_TOKEN` from `.env`
-- [ ] Test token auto-refresh works
-- [ ] Test logout and re-login flows
+**After Upgrading Firebase:**
+- [x] Remove mock auth from [config/firebase.ts](./ShiftWork.Mobile/config/firebase.ts)
+- [x] Implement proper `initializeAuth()` with persistence
+- [x] `api-client.ts` already used `getIdToken()` — works automatically once `currentUser` is non-null
+- [x] Login flow updated (`signInWithEmailAndPassword` before API profile fetch)
+- [x] Registration flow updated (real Firebase UID)
+- [x] `signOut` clears Firebase persisted session
+- [ ] Remove/deprecate `EXPO_PUBLIC_DEV_TOKEN` from `.env` (can be done after full E2E test on device)
+- [ ] Test token auto-refresh works on device
+- [ ] Test logout and re-login flows on device
 
 ## Related Files
 - **Firebase Config:** [ShiftWork.Mobile/config/firebase.ts](./ShiftWork.Mobile/config/firebase.ts)

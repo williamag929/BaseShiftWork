@@ -7,6 +7,18 @@
 
 ---
 
+## ✅ COMPLETED — All Phases Delivered
+
+| Milestone | Branch | PR | Status |
+|---|---|---|---|
+| Phases 1–4 (models, API, Angular, Mobile) | `feature/registration-onboarding-sandbox` | #15 | ✅ Merged to main |
+| Phases 5–7 + reviewer fixes (security, analytics, tests) | `feature/phase5-7-completion` | #16 | ✅ Merged to main |
+| Mobile Firebase Auth Fix (follow-on) | `feature/mobile-firebase-auth-fix` | open | 🔄 In review |
+
+**main is at commit `400525b`** (post Phase 5-7 merge). Firebase Auth fix branch is at `b6c76c0`.
+
+---
+
 ## Scope Separation (Critical — Read Before Starting)
 
 These two features share infrastructure but serve **different actors**:
@@ -257,9 +269,10 @@ These two features share infrastructure but serve **different actors**:
 - Show plan comparison.
 - For payment, deep-link to web upgrade page (avoid PCI scope on mobile for MVP).
 
-**4.4 — Do NOT modify existing mobile auth mock**
-- File: `ShiftWork.Mobile/config/firebase.ts` must remain unchanged.
-- New screens should tolerate the mock by checking if Firebase auth is enabled before calling Firebase methods.
+**4.4 — ~~Do NOT modify existing mobile auth mock~~ → SUPERSEDED**
+- ~~File: `ShiftWork.Mobile/config/firebase.ts` must remain unchanged.~~
+- **This constraint is superseded.** The mobile Firebase Auth mock has been replaced with real `initializeAuth` as part of the `feature/mobile-firebase-auth-fix` branch (see Mobile Firebase Auth Fix section below).
+- firebase downgraded from 10.7.1 → 9.23.0; `login.tsx` now calls `signInWithEmailAndPassword`; `register.tsx` uses real `createUserWithEmailAndPassword`.
 
 ---
 
@@ -362,6 +375,38 @@ The following items from `EMPLOYEE_REGISTRATION_FLOW.md` must remain **untouched
 | `EmployeeRegistrationDtos.cs` | DTOs/EmployeeRegistrationDtos.cs | Do not modify |
 | `CompanyUserProfile` assignment logic | CompanyUserProfilesController.cs | Do not modify |
 | Angular `/accept-invite` route | app-routing.module.ts | Do not modify or add guards |
+
+---
+
+## Mobile Firebase Auth Fix (Follow-on Task)
+
+> **Branch:** `feature/mobile-firebase-auth-fix`  
+> **Base commit:** `400525b` (main after Phase 5-7 merge)  
+> **Status:** 🔄 PR open — awaiting merge  
+> **Reviewer findings resolved:** 3/3 (commit `b6c76c0`)
+
+### Problem
+Firebase 10.x crashes in React Native: `Component auth has not been registered yet`.  
+Workaround was a mock auth object (`currentUser: null`) in `config/firebase.ts`, forcing all API calls to fall back to `EXPO_PUBLIC_DEV_TOKEN`.
+
+### Solution Implemented (Option 1 from MOBILE_FIREBASE_AUTH_FIX.md)
+
+| File | Change |
+|---|---|
+| `ShiftWork.Mobile/package.json` | Downgrade `firebase` 10.7.1 → 9.23.0 |
+| `config/firebase.ts` | Replace mock with real `initializeApp` + `initializeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) })` + startup env-var validation |
+| `app/(auth)/login.tsx` | Call `signInWithEmailAndPassword(auth, email, password)` before backend profile lookup |
+| `app/(auth)/register.tsx` | Replace stub UID with real `createUserWithEmailAndPassword`; real Firebase UID sent to API |
+| `store/authStore.ts` | `signOut` now calls `firebaseSignOut(auth)` to clear Firebase persisted session |
+| `utils/firebase-error.utils.ts` | New utility mapping all Firebase Auth error codes to user-friendly messages |
+
+### Token Flow (End-to-End)
+1. User signs in → `signInWithEmailAndPassword` sets `auth.currentUser`
+2. `api-client.ts` interceptor calls `auth.currentUser.getIdToken()` → real Firebase JWT in every request
+3. ASP.NET Core API validates Firebase JWT → fully authenticated
+
+### PR URL
+https://github.com/williamag929/BaseShiftWork/compare/main...feature/mobile-firebase-auth-fix?expand=1
 
 ---
 
