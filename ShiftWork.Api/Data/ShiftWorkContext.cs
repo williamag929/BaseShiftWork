@@ -92,7 +92,14 @@ namespace ShiftWork.Api.Data
                 .HasIndex(ur => new { ur.CompanyId, ur.CompanyUserId });
 
             modelBuilder.Entity<CompanyUserProfile>()
-                .HasKey(cup => cup.CompanyUserId);
+                .HasKey(cup => cup.ProfileId);
+
+            modelBuilder.Entity<CompanyUserProfile>()
+                .Property(cup => cup.ProfileId)
+                .ValueGeneratedOnAdd(); // DB IDENTITY column
+
+            modelBuilder.Entity<CompanyUserProfile>()
+                .HasIndex(cup => cup.CompanyUserId); // unique-ish index for lookups
 
             modelBuilder.Entity<CompanyUserProfile>()
                 .HasIndex(cup => new { cup.CompanyId, cup.PersonId });

@@ -53,14 +53,20 @@ export class RegistrationService {
 
   /**
    * POST /api/auth/register — public endpoint.
-   * The caller must include a Firebase Bearer token in the Authorization header
-   * (handled by the HttpInterceptor when the user is authenticated).
+   * `idToken` is the Firebase ID token for the newly-created account and is sent
+   * as the Authorization: Bearer header. Passing it explicitly avoids a race
+   * condition where the HttpInterceptor's authState observable hasn't yet
+   * received the freshly-created user and would omit the header entirely.
    */
-  register(request: CompanyRegistrationRequest): Observable<CompanyRegistrationResponse> {
+  register(request: CompanyRegistrationRequest, idToken: string): Observable<CompanyRegistrationResponse> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    });
     return this.http.post<CompanyRegistrationResponse>(
       `${this.apiUrl}/auth/register`,
       request,
-      this.jsonHeaders()
+      { headers }
     );
   }
 

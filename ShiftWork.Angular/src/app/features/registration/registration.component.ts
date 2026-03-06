@@ -10,7 +10,8 @@ import { RegistrationService, CompanyRegistrationRequest } from '../../core/serv
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   selector: 'app-registration',
-  templateUrl: './registration.component.html'
+  templateUrl: './registration.component.html',
+  styleUrls: ['./registration.component.css']
 })
 export class RegistrationComponent implements OnInit {
   currentStep = 1;
@@ -91,10 +92,11 @@ export class RegistrationComponent implements OnInit {
         timeZone
       };
 
-      // 5. Register company via API — if this fails we must roll back the Firebase account.
+      // 5. Register company via API — pass the token explicitly so the [Authorize]
+      //    endpoint always receives it regardless of interceptor timing.
       let response: any;
       try {
-        response = await this.registrationService.register(request).toPromise();
+        response = await this.registrationService.register(request, idToken).toPromise();
       } catch (apiErr: any) {
         // Roll back the Firebase account to avoid an orphaned account with no company.
         try { await firebaseUser.delete(); } catch { /* ignore cleanup error */ }

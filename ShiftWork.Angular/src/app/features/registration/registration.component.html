@@ -1,142 +1,202 @@
-<div class="registration-container">
-  <div class="registration-card">
-    <div class="registration-header">
+<div class="reg-container">
+  <div class="reg-card">
+
+    <!-- ── Header ── -->
+    <div class="reg-header">
+      <div class="logo-circle">
+        <i class="fa fa-calendar-check-o"></i>
+      </div>
       <h1>Create your ShiftWork account</h1>
-      <p class="step-indicator">Step {{ currentStep }} of {{ totalSteps }}</p>
-      <div class="step-progress">
-        <div
-          class="step-progress-fill"
-          [style.width.%]="(currentStep / totalSteps) * 100">
+      <p class="sub">Get started in just a few steps — it's free</p>
+    </div>
+
+    <!-- ── Step progress ── -->
+    <div class="step-track">
+      <div class="step-node">
+        <div class="step-dot" [class.active]="currentStep === 1" [class.done]="currentStep > 1">
+          <span *ngIf="currentStep <= 1">1</span>
+          <i *ngIf="currentStep > 1" class="fa fa-check"></i>
         </div>
+        <span class="step-label" [class.active]="currentStep === 1" [class.done]="currentStep > 1">Account</span>
+      </div>
+      <div class="step-line" [class.done]="currentStep > 1"></div>
+      <div class="step-node">
+        <div class="step-dot" [class.active]="currentStep === 2" [class.done]="currentStep > 2">
+          <span *ngIf="currentStep <= 2">2</span>
+          <i *ngIf="currentStep > 2" class="fa fa-check"></i>
+        </div>
+        <span class="step-label" [class.active]="currentStep === 2" [class.done]="currentStep > 2">Company</span>
+      </div>
+      <div class="step-line" [class.done]="currentStep > 2"></div>
+      <div class="step-node">
+        <div class="step-dot" [class.active]="currentStep === 3">
+          <span>3</span>
+        </div>
+        <span class="step-label" [class.active]="currentStep === 3">Confirm</span>
       </div>
     </div>
 
-    <!-- Error Banner -->
-    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+    <!-- ── Error Banner ── -->
+    <div *ngIf="errorMessage" class="alert-danger">
+      <i class="fa fa-exclamation-triangle"></i> {{ errorMessage }}
+    </div>
 
-    <!-- Step 1: User Info -->
+    <!-- ── Step 1: User Info ── -->
     <form *ngIf="currentStep === 1" [formGroup]="userForm">
-      <h2>Your Account</h2>
+      <p class="section-title">Your Account Details</p>
+
       <div class="form-group">
-        <label for="displayName">Full Name *</label>
-        <input
-          id="displayName"
-          type="text"
-          class="form-control"
-          formControlName="displayName"
-          placeholder="Jane Doe"
-          autocomplete="name" />
-        <div *ngIf="userForm.get('displayName')?.invalid && userForm.get('displayName')?.touched"
-             class="field-error">Name is required (min 2 characters).</div>
+        <label for="displayName">Full Name <span style="color:#dc3545">*</span></label>
+        <div class="input-wrapper">
+          <i class="fa fa-user input-icon"></i>
+          <input id="displayName" type="text" class="form-control"
+            formControlName="displayName" placeholder="Jane Doe" autocomplete="name"
+            [class.is-invalid]="userForm.get('displayName')?.invalid && userForm.get('displayName')?.touched" />
+        </div>
+        <div *ngIf="userForm.get('displayName')?.invalid && userForm.get('displayName')?.touched" class="field-error">
+          <i class="fa fa-exclamation-circle"></i> Name is required (min 2 characters).
+        </div>
       </div>
+
       <div class="form-group">
-        <label for="email">Email Address *</label>
-        <input
-          id="email"
-          type="email"
-          class="form-control"
-          formControlName="email"
-          placeholder="you@example.com"
-          autocomplete="email" />
-        <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched"
-             class="field-error">A valid email is required.</div>
+        <label for="email">Email Address <span style="color:#dc3545">*</span></label>
+        <div class="input-wrapper">
+          <i class="fa fa-envelope input-icon"></i>
+          <input id="email" type="email" class="form-control"
+            formControlName="email" placeholder="you@example.com" autocomplete="email"
+            [class.is-invalid]="userForm.get('email')?.invalid && userForm.get('email')?.touched" />
+        </div>
+        <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="field-error">
+          <i class="fa fa-exclamation-circle"></i> A valid email is required.
+        </div>
       </div>
+
       <div class="form-group">
-        <label for="password">Password *</label>
-        <input
-          id="password"
-          type="password"
-          class="form-control"
-          formControlName="password"
-          placeholder="Min 8 characters"
-          autocomplete="new-password" />
-        <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched"
-             class="field-error">Password must be at least 8 characters.</div>
+        <label for="password">Password <span style="color:#dc3545">*</span></label>
+        <div class="input-wrapper">
+          <i class="fa fa-lock input-icon"></i>
+          <input id="password" type="password" class="form-control"
+            formControlName="password" placeholder="Min 8 characters" autocomplete="new-password"
+            [class.is-invalid]="userForm.get('password')?.invalid && userForm.get('password')?.touched" />
+        </div>
+        <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="field-error">
+          <i class="fa fa-exclamation-circle"></i> Password must be at least 8 characters.
+        </div>
       </div>
+
       <div class="form-actions">
         <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!isStep1Valid">
-          Next: Company Info →
+          Next: Company Info <i class="fa fa-arrow-right"></i>
         </button>
       </div>
     </form>
 
-    <!-- Step 2: Company Info -->
+    <!-- ── Step 2: Company Info ── -->
     <form *ngIf="currentStep === 2" [formGroup]="companyForm">
-      <h2>Your Company</h2>
+      <p class="section-title">Your Company Details</p>
+
       <div class="form-group">
-        <label for="companyName">Company Name *</label>
-        <input
-          id="companyName"
-          type="text"
-          class="form-control"
-          formControlName="companyName"
-          placeholder="Acme Corp" />
-        <div *ngIf="companyForm.get('companyName')?.invalid && companyForm.get('companyName')?.touched"
-             class="field-error">Company name is required.</div>
+        <label for="companyName">Company Name <span style="color:#dc3545">*</span></label>
+        <div class="input-wrapper">
+          <i class="fa fa-building input-icon"></i>
+          <input id="companyName" type="text" class="form-control"
+            formControlName="companyName" placeholder="Acme Corp"
+            [class.is-invalid]="companyForm.get('companyName')?.invalid && companyForm.get('companyName')?.touched" />
+        </div>
+        <div *ngIf="companyForm.get('companyName')?.invalid && companyForm.get('companyName')?.touched" class="field-error">
+          <i class="fa fa-exclamation-circle"></i> Company name is required.
+        </div>
       </div>
+
       <div class="form-group">
-        <label for="companyEmail">Company Email *</label>
-        <input
-          id="companyEmail"
-          type="email"
-          class="form-control"
-          formControlName="companyEmail"
-          placeholder="contact@acme.com" />
-        <div *ngIf="companyForm.get('companyEmail')?.invalid && companyForm.get('companyEmail')?.touched"
-             class="field-error">A valid company email is required.</div>
+        <label for="companyEmail">Company Email <span style="color:#dc3545">*</span></label>
+        <div class="input-wrapper">
+          <i class="fa fa-envelope input-icon"></i>
+          <input id="companyEmail" type="email" class="form-control"
+            formControlName="companyEmail" placeholder="contact@acme.com"
+            [class.is-invalid]="companyForm.get('companyEmail')?.invalid && companyForm.get('companyEmail')?.touched" />
+        </div>
+        <div *ngIf="companyForm.get('companyEmail')?.invalid && companyForm.get('companyEmail')?.touched" class="field-error">
+          <i class="fa fa-exclamation-circle"></i> A valid company email is required.
+        </div>
       </div>
+
       <div class="form-group">
-        <label for="companyPhone">Phone Number</label>
-        <input
-          id="companyPhone"
-          type="tel"
-          class="form-control"
-          formControlName="companyPhone"
-          placeholder="+1 555 000 0000" />
+        <label for="companyPhone">Phone Number <span style="color:#adb5bd;font-weight:400">(optional)</span></label>
+        <div class="input-wrapper">
+          <i class="fa fa-phone input-icon"></i>
+          <input id="companyPhone" type="tel" class="form-control"
+            formControlName="companyPhone" placeholder="+1 555 000 0000" />
+        </div>
       </div>
+
       <div class="form-group">
-        <label for="timeZone">Time Zone *</label>
-        <select id="timeZone" class="form-control" formControlName="timeZone">
-          <option value="UTC">UTC</option>
-          <option value="America/New_York">Eastern (US)</option>
-          <option value="America/Chicago">Central (US)</option>
-          <option value="America/Denver">Mountain (US)</option>
-          <option value="America/Los_Angeles">Pacific (US)</option>
-          <option value="Europe/London">London</option>
-          <option value="Europe/Paris">Paris / Madrid</option>
-          <option value="Asia/Tokyo">Tokyo</option>
-        </select>
+        <label for="timeZone">Time Zone <span style="color:#dc3545">*</span></label>
+        <div class="input-wrapper">
+          <i class="fa fa-globe input-icon"></i>
+          <select id="timeZone" class="form-control" formControlName="timeZone">
+            <option value="UTC">UTC</option>
+            <option value="America/New_York">Eastern (US)</option>
+            <option value="America/Chicago">Central (US)</option>
+            <option value="America/Denver">Mountain (US)</option>
+            <option value="America/Los_Angeles">Pacific (US)</option>
+            <option value="Europe/London">London</option>
+            <option value="Europe/Paris">Paris / Madrid</option>
+            <option value="Asia/Tokyo">Tokyo</option>
+          </select>
+        </div>
       </div>
+
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="prevStep()">← Back</button>
+        <button type="button" class="btn btn-secondary" (click)="prevStep()">
+          <i class="fa fa-arrow-left"></i> Back
+        </button>
         <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!isStep2Valid">
-          Next: Confirm →
+          Next: Confirm <i class="fa fa-arrow-right"></i>
         </button>
       </div>
     </form>
 
-    <!-- Step 3: Confirm & Submit -->
+    <!-- ── Step 3: Confirm & Submit ── -->
     <div *ngIf="currentStep === 3">
-      <h2>Confirm & Create Account</h2>
-      <div class="summary">
-        <p><strong>Name:</strong> {{ userForm.value.displayName }}</p>
-        <p><strong>Email:</strong> {{ userForm.value.email }}</p>
-        <p><strong>Company:</strong> {{ companyForm.value.companyName }}</p>
-        <p><strong>Company Email:</strong> {{ companyForm.value.companyEmail }}</p>
-        <p><strong>Time Zone:</strong> {{ companyForm.value.timeZone }}</p>
+      <p class="section-title">Review &amp; Create Account</p>
+
+      <div class="summary-card">
+        <div class="summary-row">
+          <span class="label">Full Name</span>
+          <span class="value">{{ userForm.value.displayName }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Email</span>
+          <span class="value">{{ userForm.value.email }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Company</span>
+          <span class="value">{{ companyForm.value.companyName }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Company Email</span>
+          <span class="value">{{ companyForm.value.companyEmail }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Time Zone</span>
+          <span class="value">{{ companyForm.value.timeZone }}</span>
+        </div>
       </div>
-      <p class="notice">
-        After creating your account you will receive a verification email.
-        Your company will start on the <strong>Free plan</strong> with sandbox demo data
-        so you can explore the app right away.
-      </p>
+
+      <div class="notice">
+        <i class="fa fa-info-circle"></i>
+        A verification email will be sent to your inbox. Your company will start on the
+        <strong>Free plan</strong> with sandbox demo data so you can explore the app right away.
+      </div>
+
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="prevStep()">← Back</button>
-        <button
-          type="button"
-          class="btn btn-success"
-          (click)="onSubmit()"
-          [disabled]="isLoading">
+        <button type="button" class="btn btn-secondary" (click)="prevStep()">
+          <i class="fa fa-arrow-left"></i> Back
+        </button>
+        <button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="isLoading">
+          <span *ngIf="isLoading" class="spinner"></span>
+          <i *ngIf="!isLoading" class="fa fa-check"></i>
           {{ isLoading ? 'Creating account…' : 'Create Account' }}
         </button>
       </div>

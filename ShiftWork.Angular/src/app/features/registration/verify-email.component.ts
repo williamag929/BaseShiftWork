@@ -13,21 +13,26 @@ import { switchMap, takeWhile } from 'rxjs/operators';
   template: `
     <div class="verify-container">
       <div class="verify-card">
-        <div class="verify-icon">📧</div>
+        <div class="verify-icon-circle">
+          <i class="fa fa-envelope"></i>
+        </div>
         <h1>Check your email</h1>
-        <p class="verify-email">{{ userEmail }}</p>
+        <p class="verify-email-address">{{ userEmail }}</p>
         <p class="verify-desc">
-          We sent a verification link to your email address.
+          We sent a verification link to your email address.<br>
           Please click the link to continue — this page will advance automatically.
         </p>
 
-        <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+        <div *ngIf="errorMessage" class="alert-danger">
+          <i class="fa fa-exclamation-triangle"></i> {{ errorMessage }}
+        </div>
         <div *ngIf="checking" class="verify-checking">
-          <span class="spinner-border spinner-border-sm"></span> Checking verification status…
+          <span class="mini-spinner"></span> Checking verification status…
         </div>
 
         <div class="verify-actions">
-          <button class="btn btn-link btn-sm" (click)="resendEmail()" [disabled]="resendCooldown > 0">
+          <button class="btn-resend" (click)="resendEmail()" [disabled]="resendCooldown > 0">
+            <i class="fa fa-refresh"></i>
             {{ resendCooldown > 0 ? 'Resend in ' + resendCooldown + 's' : 'Resend verification email' }}
           </button>
         </div>
@@ -39,15 +44,145 @@ import { switchMap, takeWhile } from 'rxjs/operators';
     </div>
   `,
   styles: [`
-    .verify-container { display:flex; align-items:center; justify-content:center; min-height:100vh; background:#f5f5f5; }
-    .verify-card { background:#fff; border-radius:12px; padding:40px; max-width:440px; width:100%; text-align:center; box-shadow:0 2px 12px rgba(0,0,0,.08); }
-    .verify-icon { font-size:48px; margin-bottom:16px; }
-    h1 { font-size:22px; margin-bottom:8px; }
-    .verify-email { font-weight:600; color:#333; margin-bottom:12px; }
-    .verify-desc { color:#666; line-height:1.6; margin-bottom:20px; }
-    .verify-checking { color:#666; font-size:13px; margin-bottom:12px; }
-    .verify-actions { margin-bottom:16px; }
-    .verify-skip a { color:#aaa; font-size:13px; }
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+
+    .verify-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 2rem 1rem;
+      box-sizing: border-box;
+    }
+
+    .verify-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 2.75rem 2.5rem;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.28);
+      animation: slideUp 0.45s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity:0; transform:translateY(24px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .verify-icon-circle {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      box-shadow: 0 8px 24px rgba(102,126,234,0.38);
+    }
+
+    .verify-icon-circle i {
+      color: #fff;
+      font-size: 1.8rem;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin: 0 0 0.5rem;
+    }
+
+    .verify-email-address {
+      font-weight: 600;
+      color: #667eea;
+      margin: 0 0 0.75rem;
+      font-size: 0.95rem;
+      word-break: break-all;
+    }
+
+    .verify-desc {
+      color: #6c757d;
+      line-height: 1.65;
+      font-size: 0.9rem;
+      margin: 0 0 1.5rem;
+    }
+
+    .alert-danger {
+      background: #fff5f5;
+      border: 1.5px solid #f5c2c7;
+      border-radius: 10px;
+      color: #842029;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+
+    .verify-checking {
+      color: #667eea;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .mini-spinner {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(102,126,234,0.25);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .verify-actions {
+      margin-bottom: 1.25rem;
+    }
+
+    .btn-resend {
+      background: #f0f4ff;
+      border: 1.5px solid #d0d8ff;
+      border-radius: 10px;
+      color: #667eea;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.55rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-resend:hover:not(:disabled) {
+      background: #e4eaff;
+    }
+
+    .btn-resend:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .verify-skip a {
+      color: #adb5bd;
+      font-size: 0.825rem;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .verify-skip a:hover {
+      color: #667eea;
+    }
   `]
 })
 export class VerifyEmailComponent implements OnInit, OnDestroy {
