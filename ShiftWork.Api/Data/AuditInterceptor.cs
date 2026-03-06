@@ -234,6 +234,6 @@ namespace ShiftWork.Api.Data
 
     public abstract class BaseEntity {
         public DateTime? LastUpdatedAt { get; set; }
-        public string LastUpdatedBy { get; set; }
+        public string LastUpdatedBy { get; set; } = string.Empty;
     }
 }

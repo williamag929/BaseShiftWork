@@ -200,7 +200,9 @@ namespace ShiftWork.Api.Controllers
                         RoleId = ownerRole.RoleId,
                         IsActive = true,
                         AssignedAt = DateTime.UtcNow,
-                        AssignedBy = "system"
+                        AssignedBy = "system",
+                        LastUpdatedBy = "system",
+                        LastUpdatedAt = DateTime.UtcNow
                     });
                     await _context.SaveChangesAsync();
                 }
