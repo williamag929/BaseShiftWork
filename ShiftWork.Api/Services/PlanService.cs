@@ -81,13 +81,22 @@ namespace ShiftWork.Api.Services
             _logger.LogInformation("{EventName} {CompanyId} {TargetPlan}",
                 "plan_upgrade_started", companyId, targetPlan);
 
-            company.Plan = targetPlan;
-            // company.StripeCustomerId and StripeSubscriptionId to be set after Stripe calls.
-            await _context.SaveChangesAsync();
+            try
+            {
+                company.Plan = targetPlan;
+                // company.StripeCustomerId and StripeSubscriptionId to be set after Stripe calls.
+                await _context.SaveChangesAsync();
 
-            _logger.LogInformation("{EventName} {CompanyId} {TargetPlan}",
-                "plan_upgrade_success", companyId, targetPlan);
-            return true;
+                _logger.LogInformation("{EventName} {CompanyId} {TargetPlan}",
+                    "plan_upgrade_success", companyId, targetPlan);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{EventName} {CompanyId} {TargetPlan}",
+                    "plan_upgrade_failure", companyId, targetPlan);
+                throw;
+            }
         }
 
         /// <inheritdoc />

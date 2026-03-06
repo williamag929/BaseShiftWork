@@ -120,6 +120,8 @@ namespace ShiftWork.Api.Controllers
             {
                 await _sandboxService.DeleteSandboxDataAsync(companyId);
                 _logger.LogInformation("{EventName} {CompanyId}", "sandbox_delete_via_api", companyId);
+                // Onboarding funnel completion event (Phase 6.1)
+                _logger.LogInformation("{EventName} {CompanyId}", "onboarding_completed", companyId);
                 return NoContent();
             }
             catch (Exception ex)

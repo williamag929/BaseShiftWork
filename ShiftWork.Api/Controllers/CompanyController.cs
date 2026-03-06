@@ -261,6 +261,12 @@ namespace ShiftWork.Api.Controllers
                 _logger.LogInformation("{EventName} {CompanyId} {Status}",
                     "onboarding_status_updated", companyId, request.Status);
 
+                // Emit funnel-specific events for observability dashboards (Phase 6.1)
+                if (request.Status == "Verified")
+                    _logger.LogInformation("{EventName} {CompanyId}", "email_verified", companyId);
+                else if (request.Status == "Complete")
+                    _logger.LogInformation("{EventName} {CompanyId}", "onboarding_completed", companyId);
+
                 return NoContent();
             }
             catch (Exception ex)

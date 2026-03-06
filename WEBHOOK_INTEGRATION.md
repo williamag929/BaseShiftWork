@@ -309,6 +309,69 @@ curl -X POST https://hooks.zapier.com/hooks/catch/12345/abcde/ \
 
 If `WEBHOOK_URL` is not set, webhooks will be logged but not sent, allowing you to develop and test without triggering external systems.
 
+---
+
+## Stripe Subscription Lifecycle Webhooks (Phase 5.5 — PCI Compliance)
+
+### Overview
+
+ShiftWork's plan upgrade flow (`POST /api/companies/{companyId}/plan/upgrade`) uses Stripe for payment processing. To maintain accurate subscription state, a **Stripe webhook endpoint** must be added for production deployments.
+
+### PCI Compliance Approach
+
+- **Angular**: Uses [Stripe.js hosted fields](https://stripe.com/docs/js) so raw card data never touches the ShiftWork server. The server receives only a `paymentMethodId` token.
+- **Mobile**: The upgrade flow deep-links to the Angular web page, keeping mobile apps outside PCI scope entirely.
+- **Server**: The API never stores raw card numbers; it stores only Stripe `customerId` and `subscriptionId` after a successful charge.
+
+### Required Stripe Events to Handle
+
+When `STRIPE_SECRET_KEY` is configured and Stripe is active, register the following events in the [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks):
+
+| Stripe Event | Action Required |
+|---|---|
+| `customer.subscription.created` | Set `Company.Plan = "Pro"`, store `StripeSubscriptionId` |
+| `customer.subscription.updated` | Update `Company.Plan` based on price tier |
+| `customer.subscription.deleted` | Downgrade `Company.Plan = "Free"`, clear `StripeSubscriptionId` |
+| `invoice.payment_succeeded` | Extend `Company.PlanExpiresAt`, log `plan_payment_success` |
+| `invoice.payment_failed` | Log `plan_payment_failure`, send admin notification (email via SMTP service) |
+
+### Webhook Signature Verification
+
+All Stripe webhook payloads must be verified using `STRIPE_WEBHOOK_SECRET` (separate from `STRIPE_SECRET_KEY`):
+
+```csharp
+// Example handler skeleton — add to a new StripeWebhookController
+[HttpPost("/api/webhooks/stripe")]
+[AllowAnonymous]
+public async Task<IActionResult> HandleStripeEvent()
+{
+    var payload = await new StreamReader(Request.Body).ReadToEndAsync();
+    var signature = Request.Headers["Stripe-Signature"];
+    var webhookSecret = Environment.GetEnvironmentVariable("STRIPE_WEBHOOK_SECRET");
+
+    // Verify signature before processing
+    // var stripeEvent = EventUtility.ConstructEvent(payload, signature, webhookSecret);
+    // switch (stripeEvent.Type) { ... }
+
+    return Ok();
+}
+```
+
+Add `STRIPE_WEBHOOK_SECRET` to `.env` / deployment environment variables alongside `STRIPE_SECRET_KEY`.
+
+### Logging
+
+The following structured log events are emitted by `PlanService` for observability:
+
+| Log Event | Meaning |
+|---|---|
+| `plan_upgrade_started` | Stripe API call in progress |
+| `plan_upgrade_success` | Subscription created, DB updated |
+| `plan_upgrade_simulated` | Stripe not configured — plan updated in DB directly |
+| `plan_upgrade_failure` | Exception during Stripe call or DB save |
+
+---
+
 ## Support
 
 For issues or questions about webhook integration:
