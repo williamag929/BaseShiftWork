@@ -14,6 +14,7 @@ namespace ShiftWork.Api.Services
     public interface ICompanyService
     {
         Task<IEnumerable<Company>> GetAllCompanies();
+        Task<IEnumerable<Company>> GetCompaniesByUidAsync(string uid);
         Task<Company> GetCompanyByIdAsync(string id);
         Task CreateCompanyAsync(Company company);
         Task<bool> UpdateCompanyAsync(Company company);
@@ -40,6 +41,15 @@ namespace ShiftWork.Api.Services
         public async Task<IEnumerable<Company>> GetAllCompanies()
         {
             return await _context.Companies.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Company>> GetCompaniesByUidAsync(string uid)
+        {
+            return await _context.CompanyUsers
+                .Where(cu => cu.Uid == uid)
+                .Select(cu => cu.Company)
+                .Distinct()
+                .ToListAsync();
         }
 
         public async Task<Company> GetCompanyByIdAsync(string id)
