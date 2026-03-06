@@ -177,6 +177,7 @@ namespace ShiftWork.Api.Controllers
                     Uid = request.FirebaseUid,
                     Email = request.UserEmail,
                     DisplayName = request.UserDisplayName,
+                    PhotoURL = string.Empty,
                     CompanyId = companyId,
                     EmailVerified = false
                 };
