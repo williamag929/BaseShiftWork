@@ -11,234 +11,115 @@ namespace ShiftWork.Api.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_CompanyUserProfiles",
-                table: "CompanyUserProfiles");
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_CompanyUserProfiles' AND parent_object_id = OBJECT_ID('CompanyUserProfiles'))
+                    ALTER TABLE [CompanyUserProfiles] DROP CONSTRAINT [PK_CompanyUserProfiles];
+            ");
 
-            migrationBuilder.DropIndex(
-                name: "IX_CompanyUserProfiles_CompanyUserId",
-                table: "CompanyUserProfiles");
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_CompanyUserProfiles_CompanyUserId' AND object_id = OBJECT_ID('CompanyUserProfiles'))
+                    DROP INDEX [IX_CompanyUserProfiles_CompanyUserId] ON [CompanyUserProfiles];
+            ");
 
-            migrationBuilder.AddColumn<bool>(
-                name: "IsSandbox",
-                table: "People",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
+            migrationBuilder.Sql("IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('People') AND name='IsSandbox') ALTER TABLE [People] ADD [IsSandbox] bit NOT NULL DEFAULT 0;");
+            migrationBuilder.Sql("IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Locations') AND name='IsSandbox') ALTER TABLE [Locations] ADD [IsSandbox] bit NOT NULL DEFAULT 0;");
+            migrationBuilder.Sql("IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Companies') AND name='OnboardingStatus') ALTER TABLE [Companies] ADD [OnboardingStatus] nvarchar(max) NULL;");
+            migrationBuilder.Sql("IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Companies') AND name='Plan') ALTER TABLE [Companies] ADD [Plan] nvarchar(max) NULL;");
+            migrationBuilder.Sql("IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Companies') AND name='PlanExpiresAt') ALTER TABLE [Companies] ADD [PlanExpiresAt] datetime2 NULL;");
+            migrationBuilder.Sql("IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Companies') AND name='StripeCustomerId') ALTER TABLE [Companies] ADD [StripeCustomerId] nvarchar(max) NULL;");
+            migrationBuilder.Sql("IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Companies') AND name='StripeSubscriptionId') ALTER TABLE [Companies] ADD [StripeSubscriptionId] nvarchar(max) NULL;");
+            migrationBuilder.Sql("IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Areas') AND name='IsSandbox') ALTER TABLE [Areas] ADD [IsSandbox] bit NOT NULL DEFAULT 0;");
 
-            migrationBuilder.AddColumn<bool>(
-                name: "IsSandbox",
-                table: "Locations",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_CompanyUserProfiles' AND parent_object_id = OBJECT_ID('CompanyUserProfiles'))
+                    ALTER TABLE [CompanyUserProfiles] ADD CONSTRAINT [PK_CompanyUserProfiles] PRIMARY KEY ([CompanyUserId]);
+            ");
 
-            migrationBuilder.AlterColumn<int>(
-                name: "ProfileId",
-                table: "CompanyUserProfiles",
-                type: "int",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "int")
-                .OldAnnotation("SqlServer:Identity", "1, 1");
+            // Permissions, UserRoles, RolePermissions and their indexes already created by AddRbacTables migration.
+            // Use conditional SQL to avoid duplicate-object errors if tables already exist.
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Permissions')
+                BEGIN
+                    CREATE TABLE [Permissions] (
+                        [PermissionId] int NOT NULL IDENTITY,
+                        [Key] nvarchar(max) NOT NULL,
+                        [Name] nvarchar(max) NOT NULL,
+                        [Description] nvarchar(max) NULL,
+                        [Status] nvarchar(max) NOT NULL,
+                        [CompanyId] nvarchar(max) NULL,
+                        CONSTRAINT [PK_Permissions] PRIMARY KEY ([PermissionId])
+                    );
+                END
+            ");
 
-            migrationBuilder.AddColumn<string>(
-                name: "OnboardingStatus",
-                table: "Companies",
-                type: "nvarchar(max)",
-                nullable: true);
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'UserRoles')
+                BEGIN
+                    CREATE TABLE [UserRoles] (
+                        [CompanyUserId] nvarchar(450) NOT NULL,
+                        [RoleId] int NOT NULL,
+                        [CompanyId] nvarchar(450) NOT NULL,
+                        [CreatedAt] datetime2 NOT NULL,
+                        CONSTRAINT [PK_UserRoles] PRIMARY KEY ([CompanyUserId], [RoleId])
+                    );
+                END
+            ");
 
-            migrationBuilder.AddColumn<string>(
-                name: "Plan",
-                table: "Companies",
-                type: "nvarchar(max)",
-                nullable: true);
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'RolePermissions')
+                BEGIN
+                    CREATE TABLE [RolePermissions] (
+                        [RoleId] int NOT NULL,
+                        [PermissionId] int NOT NULL,
+                        CONSTRAINT [PK_RolePermissions] PRIMARY KEY ([RoleId], [PermissionId])
+                    );
+                END
+            ");
 
-            migrationBuilder.AddColumn<DateTime>(
-                name: "PlanExpiresAt",
-                table: "Companies",
-                type: "datetime2",
-                nullable: true);
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_CompanyUserProfiles_CompanyId_PersonId' AND object_id = OBJECT_ID('CompanyUserProfiles'))
+                    CREATE INDEX [IX_CompanyUserProfiles_CompanyId_PersonId] ON [CompanyUserProfiles] ([CompanyId], [PersonId]);
+            ");
 
-            migrationBuilder.AddColumn<string>(
-                name: "StripeCustomerId",
-                table: "Companies",
-                type: "nvarchar(max)",
-                nullable: true);
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_RolePermissions_PermissionId' AND object_id = OBJECT_ID('RolePermissions'))
+                    CREATE INDEX [IX_RolePermissions_PermissionId] ON [RolePermissions] ([PermissionId]);
+            ");
 
-            migrationBuilder.AddColumn<string>(
-                name: "StripeSubscriptionId",
-                table: "Companies",
-                type: "nvarchar(max)",
-                nullable: true);
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_UserRoles_CompanyId_CompanyUserId' AND object_id = OBJECT_ID('UserRoles'))
+                    CREATE INDEX [IX_UserRoles_CompanyId_CompanyUserId] ON [UserRoles] ([CompanyId], [CompanyUserId]);
+            ");
 
-            migrationBuilder.AddColumn<bool>(
-                name: "IsSandbox",
-                table: "Areas",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_CompanyUserProfiles",
-                table: "CompanyUserProfiles",
-                column: "CompanyUserId");
-
-            migrationBuilder.CreateTable(
-                name: "Permissions",
-                columns: table => new
-                {
-                    PermissionId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Key = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CompanyId = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Permissions", x => x.PermissionId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserRoles",
-                columns: table => new
-                {
-                    CompanyUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleId = table.Column<int>(type: "int", nullable: false),
-                    CompanyId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserRoles", x => new { x.CompanyUserId, x.RoleId });
-                    table.ForeignKey(
-                        name: "FK_UserRoles_CompanyUsers_CompanyUserId",
-                        column: x => x.CompanyUserId,
-                        principalTable: "CompanyUsers",
-                        principalColumn: "CompanyUserId");
-                    table.ForeignKey(
-                        name: "FK_UserRoles_Roles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Roles",
-                        principalColumn: "RoleId");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RolePermissions",
-                columns: table => new
-                {
-                    RoleId = table.Column<int>(type: "int", nullable: false),
-                    PermissionId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RolePermissions", x => new { x.RoleId, x.PermissionId });
-                    table.ForeignKey(
-                        name: "FK_RolePermissions_Permissions_PermissionId",
-                        column: x => x.PermissionId,
-                        principalTable: "Permissions",
-                        principalColumn: "PermissionId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RolePermissions_Roles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Roles",
-                        principalColumn: "RoleId");
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyUserProfiles_CompanyId_PersonId",
-                table: "CompanyUserProfiles",
-                columns: new[] { "CompanyId", "PersonId" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RolePermissions_PermissionId",
-                table: "RolePermissions",
-                column: "PermissionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_CompanyId_CompanyUserId",
-                table: "UserRoles",
-                columns: new[] { "CompanyId", "CompanyUserId" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_RoleId",
-                table: "UserRoles",
-                column: "RoleId");
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_UserRoles_RoleId' AND object_id = OBJECT_ID('UserRoles'))
+                    CREATE INDEX [IX_UserRoles_RoleId] ON [UserRoles] ([RoleId]);
+            ");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "RolePermissions");
+            // NOTE: Do NOT drop RolePermissions, UserRoles, Permissions — owned by AddRbacTables migration.
 
-            migrationBuilder.DropTable(
-                name: "UserRoles");
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_CompanyUserProfiles' AND parent_object_id = OBJECT_ID('CompanyUserProfiles'))
+                    ALTER TABLE [CompanyUserProfiles] DROP CONSTRAINT [PK_CompanyUserProfiles];
+            ");
 
-            migrationBuilder.DropTable(
-                name: "Permissions");
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_CompanyUserProfiles_CompanyId_PersonId' AND object_id = OBJECT_ID('CompanyUserProfiles'))
+                    DROP INDEX [IX_CompanyUserProfiles_CompanyId_PersonId] ON [CompanyUserProfiles];
+            ");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_CompanyUserProfiles",
-                table: "CompanyUserProfiles");
-
-            migrationBuilder.DropIndex(
-                name: "IX_CompanyUserProfiles_CompanyId_PersonId",
-                table: "CompanyUserProfiles");
-
-            migrationBuilder.DropColumn(
-                name: "IsSandbox",
-                table: "People");
-
-            migrationBuilder.DropColumn(
-                name: "IsSandbox",
-                table: "Locations");
-
-            migrationBuilder.DropColumn(
-                name: "OnboardingStatus",
-                table: "Companies");
-
-            migrationBuilder.DropColumn(
-                name: "Plan",
-                table: "Companies");
-
-            migrationBuilder.DropColumn(
-                name: "PlanExpiresAt",
-                table: "Companies");
-
-            migrationBuilder.DropColumn(
-                name: "StripeCustomerId",
-                table: "Companies");
-
-            migrationBuilder.DropColumn(
-                name: "StripeSubscriptionId",
-                table: "Companies");
-
-            migrationBuilder.DropColumn(
-                name: "IsSandbox",
-                table: "Areas");
-
-            migrationBuilder.AlterColumn<int>(
-                name: "ProfileId",
-                table: "CompanyUserProfiles",
-                type: "int",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "int")
-                .Annotation("SqlServer:Identity", "1, 1");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_CompanyUserProfiles",
-                table: "CompanyUserProfiles",
-                column: "ProfileId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyUserProfiles_CompanyUserId",
-                table: "CompanyUserProfiles",
-                column: "CompanyUserId");
+            migrationBuilder.Sql("IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('People') AND name='IsSandbox') ALTER TABLE [People] DROP COLUMN [IsSandbox];");
+            migrationBuilder.Sql("IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Locations') AND name='IsSandbox') ALTER TABLE [Locations] DROP COLUMN [IsSandbox];");
+            migrationBuilder.Sql("IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Companies') AND name='OnboardingStatus') ALTER TABLE [Companies] DROP COLUMN [OnboardingStatus];");
+            migrationBuilder.Sql("IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Companies') AND name='Plan') ALTER TABLE [Companies] DROP COLUMN [Plan];");
+            migrationBuilder.Sql("IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Companies') AND name='PlanExpiresAt') ALTER TABLE [Companies] DROP COLUMN [PlanExpiresAt];");
+            migrationBuilder.Sql("IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Companies') AND name='StripeCustomerId') ALTER TABLE [Companies] DROP COLUMN [StripeCustomerId];");
+            migrationBuilder.Sql("IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Companies') AND name='StripeSubscriptionId') ALTER TABLE [Companies] DROP COLUMN [StripeSubscriptionId];");
+            migrationBuilder.Sql("IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('Areas') AND name='IsSandbox') ALTER TABLE [Areas] DROP COLUMN [IsSandbox];");
         }
     }
 }
