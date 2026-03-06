@@ -5,11 +5,11 @@ import { UpgradeComponent } from './upgrade.component';
 import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
-  declarations: [UpgradeComponent],
   imports: [
     CommonModule,
     UpgradeRoutingModule,
-    SharedModule
+    SharedModule,
+    UpgradeComponent
   ]
 })
 export class UpgradeModule {}

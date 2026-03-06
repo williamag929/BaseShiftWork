@@ -1,9 +1,13 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { RegistrationService, PlanUpgradeRequest } from '../../core/services/registration.service';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   selector: 'app-upgrade',
   templateUrl: './upgrade.component.html'
 })

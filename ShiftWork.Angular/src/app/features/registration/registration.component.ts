@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { RegistrationService, CompanyRegistrationRequest } from '../../core/services/registration.service';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   selector: 'app-registration',
   templateUrl: './registration.component.html'
 })

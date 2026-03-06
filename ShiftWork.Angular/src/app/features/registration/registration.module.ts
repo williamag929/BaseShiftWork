@@ -7,12 +7,13 @@ import { VerifyEmailComponent } from './verify-email.component';
 import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
-  declarations: [RegistrationComponent, VerifyEmailComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     RegistrationRoutingModule,
-    SharedModule
+    SharedModule,
+    RegistrationComponent,
+    VerifyEmailComponent
   ]
 })
 export class RegistrationModule {}

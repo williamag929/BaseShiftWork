@@ -5,11 +5,11 @@ import { OnboardingComponent } from './onboarding.component';
 import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
-  declarations: [OnboardingComponent],
   imports: [
     CommonModule,
     OnboardingRoutingModule,
-    SharedModule
+    SharedModule,
+    OnboardingComponent
   ]
 })
 export class OnboardingModule {}
