@@ -3,13 +3,10 @@ import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/config/firebase';
 import { registrationService, CompanyRegistrationRequest } from '@/services/registration.service';
 import { colors } from '@/styles/theme';
-
-// NOTE: Firebase Auth is currently mocked in config/firebase.ts
-// When real Firebase Auth is enabled, import { auth } from '@/config/firebase'
-// and use auth.createUserWithEmailAndPassword(email, password)
-// Until then, we collect the user's info and register via a stub UID.
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -34,14 +31,12 @@ export default function RegisterScreen() {
     setLoading(true);
     setErrorMsg('');
     try {
-      // TODO: When Firebase Auth mock is replaced, call:
-      //   const credential = await auth.createUserWithEmailAndPassword(email, password);
-      //   const uid = credential.user.uid;
-      // For now, use a stub UID based on email hash
-      const stubUid = `stub_${email.replace(/[^a-z0-9]/gi, '_')}`;
+      // Create Firebase account first — sets auth.currentUser for token-authenticated API calls
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = credential.user.uid;
 
       const request: CompanyRegistrationRequest = {
-        firebaseUid: stubUid,
+        firebaseUid: uid,
         userEmail: email,
         userDisplayName: displayName,
         companyName,

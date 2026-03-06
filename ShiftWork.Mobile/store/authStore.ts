@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { signOut as firebaseSignOut } from 'firebase/auth';
+import { auth } from '@/config/firebase';
 import { clearAllStorage } from '@/utils/storage.utils';
 
 interface AuthState {
@@ -31,6 +33,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       photoUrl: photoUrl ?? s.photoUrl,
     })),
   signOut: async () => {
+    await firebaseSignOut(auth).catch(() => {});
     await clearAllStorage();
     set({
       personId: null,
