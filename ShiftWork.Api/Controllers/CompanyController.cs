@@ -9,6 +9,7 @@ using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ShiftWork.Api.Controllers
@@ -58,6 +59,35 @@ namespace ShiftWork.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while retrieving all companies.");
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves companies linked to the currently authenticated user.
+        /// </summary>
+        [HttpGet("my")]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<Company>), 200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<IEnumerable<Company>>> GetMyCompanies()
+        {
+            var firebaseUid = User.FindFirst("user_id")?.Value
+                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? User.FindFirst("sub")?.Value;
+
+            if (string.IsNullOrEmpty(firebaseUid))
+                return Unauthorized("Valid Firebase authentication required.");
+
+            try
+            {
+                var companies = await _companyService.GetCompaniesByUidAsync(firebaseUid);
+                return Ok(companies);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving companies for user {FirebaseUid}.", firebaseUid);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
