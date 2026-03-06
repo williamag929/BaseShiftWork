@@ -4,6 +4,9 @@ import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/config/firebase';
+import { getFirebaseAuthError } from '@/utils/firebase-error.utils';
 import { authService, biometricAuthService } from '@/services';
 import { useAuthStore } from '@/store/authStore';
 import { saveUserData, saveCompanyId } from '@/utils/storage.utils';
@@ -76,25 +79,27 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      // TODO: Replace with real Firebase authentication and token handling
-      // For personal app: look up the person by email and persist local state
+      // Sign in with Firebase — sets auth.currentUser so api-client.ts picks up real token
+      await signInWithEmailAndPassword(auth, email, password);
+
+      // Fetch app profile (personId, companyId) from backend
       const person = await authService.getUserByEmail(email);
       if (!person?.personId || !person?.companyId) {
         throw new Error('User not found or invalid');
       }
 
       // Persist in store and secure storage
-  setPersonId(Number(person.personId));
-  setCompanyId(person.companyId);
-  setPersonProfile({ email: person.email, name: person.name });
-  await saveUserData({ personId: person.personId, email: person.email, name: person.name });
+      setPersonId(Number(person.personId));
+      setCompanyId(person.companyId);
+      setPersonProfile({ email: person.email, name: person.name });
+      await saveUserData({ personId: person.personId, email: person.email, name: person.name });
       await saveCompanyId(person.companyId);
 
       setLoading(false);
       router.replace('/(tabs)/dashboard' as Href<string>);
-    } catch (error) {
+    } catch (error: any) {
       setLoading(false);
-      Alert.alert('Login Failed', 'Invalid email or password');
+      Alert.alert('Login Failed', getFirebaseAuthError(error?.code));
     }
   };
 

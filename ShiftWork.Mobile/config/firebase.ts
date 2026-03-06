@@ -1,29 +1,35 @@
-// Firebase configuration - DISABLED DUE TO REACT NATIVE BUG
-// Firebase 10.x has a critical bug with React Native/Expo: "Component auth has not been registered yet"
-// This prevents initializeAuth() from working in React Native environments
-// 
-// WORKAROUND: Use a mock auth object that allows graceful fallback to dev tokens
-// TODO: Either downgrade to Firebase 9.x or wait for Firebase to fix the React Native integration
-
+import { initializeApp } from 'firebase/app';
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Mock auth object that provides the same interface as Firebase Auth
-// This allows the app to run without crashing
-export const auth = {
-  currentUser: null, // No user when mock auth is used
-  onAuthStateChanged: (callback: (user: any) => void) => {
-    // Simulate checking for previously stored auth
-    AsyncStorage.getItem('firebase_user').then(user => {
-      callback(user ? JSON.parse(user) : null);
-    });
-    return () => {}; // Unsubscribe function
-  },
-  signInWithEmailAndPassword: async (email: string, password: string) => {
-    throw new Error('Firebase auth is not available. Using dev token instead.');
-  },
-  signOut: async () => {
-    await AsyncStorage.removeItem('firebase_user');
-  },
-} as any;
+const REQUIRED_FIREBASE_VARS: Array<[string, string | undefined]> = [
+  ['EXPO_PUBLIC_FIREBASE_API_KEY', process.env.EXPO_PUBLIC_FIREBASE_API_KEY],
+  ['EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN', process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN],
+  ['EXPO_PUBLIC_FIREBASE_PROJECT_ID', process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID],
+  ['EXPO_PUBLIC_FIREBASE_APP_ID', process.env.EXPO_PUBLIC_FIREBASE_APP_ID],
+];
 
-export default null;
+const missingVars = REQUIRED_FIREBASE_VARS.filter(([, v]) => !v).map(([k]) => k);
+if (missingVars.length > 0) {
+  throw new Error(
+    `Firebase configuration is incomplete. Missing environment variables: ${missingVars.join(', ')}. ` +
+    'Ensure all EXPO_PUBLIC_FIREBASE_* variables are set in your .env file.'
+  );
+}
+
+const firebaseConfig = {
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+};
+
+const app = initializeApp(firebaseConfig);
+
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});
+
+export default app;
