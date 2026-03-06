@@ -340,18 +340,49 @@ When `STRIPE_SECRET_KEY` is configured and Stripe is active, register the follow
 All Stripe webhook payloads must be verified using `STRIPE_WEBHOOK_SECRET` (separate from `STRIPE_SECRET_KEY`):
 
 ```csharp
-// Example handler skeleton — add to a new StripeWebhookController
+// Handler skeleton — add to a new StripeWebhookController
+// Requires NuGet: Stripe.net
 [HttpPost("/api/webhooks/stripe")]
 [AllowAnonymous]
 public async Task<IActionResult> HandleStripeEvent()
 {
     var payload = await new StreamReader(Request.Body).ReadToEndAsync();
-    var signature = Request.Headers["Stripe-Signature"];
-    var webhookSecret = Environment.GetEnvironmentVariable("STRIPE_WEBHOOK_SECRET");
+    var signature = Request.Headers["Stripe-Signature"].ToString();
+    var webhookSecret = Environment.GetEnvironmentVariable("STRIPE_WEBHOOK_SECRET")
+        ?? throw new InvalidOperationException("STRIPE_WEBHOOK_SECRET is not configured.");
 
-    // Verify signature before processing
-    // var stripeEvent = EventUtility.ConstructEvent(payload, signature, webhookSecret);
-    // switch (stripeEvent.Type) { ... }
+    // Signature MUST be verified before trusting any payload data.
+    // ConstructEvent throws StripeException if the signature is invalid.
+    Event stripeEvent;
+    try
+    {
+        stripeEvent = EventUtility.ConstructEvent(payload, signature, webhookSecret);
+    }
+    catch (StripeException ex)
+    {
+        _logger.LogWarning(ex, "Stripe webhook signature verification failed.");
+        return BadRequest("Invalid Stripe webhook signature.");
+    }
+
+    switch (stripeEvent.Type)
+    {
+        case Events.CustomerSubscriptionCreated:
+        case Events.CustomerSubscriptionUpdated:
+            // Update Company.Plan and Company.StripeSubscriptionId
+            break;
+        case Events.CustomerSubscriptionDeleted:
+            // Downgrade Company.Plan to "Free", clear StripeSubscriptionId
+            break;
+        case Events.InvoicePaymentSucceeded:
+            // Extend Company.PlanExpiresAt
+            break;
+        case Events.InvoicePaymentFailed:
+            // Log plan_payment_failure, trigger admin notification via INotificationService
+            break;
+        default:
+            _logger.LogInformation("Unhandled Stripe event type: {EventType}", stripeEvent.Type);
+            break;
+    }
 
     return Ok();
 }

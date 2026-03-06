@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.DTOs;
+using ShiftWork.Api.Helpers;
 using ShiftWork.Api.Services;
 
 namespace ShiftWork.Api.Controllers
@@ -66,7 +67,7 @@ namespace ShiftWork.Api.Controllers
             {
                 await _sandboxService.HideSandboxDataAsync(companyId, request.EntityTypes);
                 _logger.LogInformation("{EventName} {CompanyId} {Types}",
-                    "sandbox_hide_via_api", companyId, string.Join(",", request.EntityTypes));
+                    FunnelEventNames.SandboxHideViaApi, companyId, string.Join(",", request.EntityTypes));
                 return NoContent();
             }
             catch (Exception ex)
@@ -87,7 +88,7 @@ namespace ShiftWork.Api.Controllers
             try
             {
                 await _sandboxService.ResetSandboxDataAsync(companyId);
-                _logger.LogInformation("{EventName} {CompanyId}", "sandbox_reset_via_api", companyId);
+                _logger.LogInformation("{EventName} {CompanyId}", FunnelEventNames.SandboxResetViaApi, companyId);
                 return NoContent();
             }
             catch (Exception ex)
@@ -110,7 +111,7 @@ namespace ShiftWork.Api.Controllers
             // Plan gate: only Pro/Trial may permanently delete sandbox data
             if (!await _planService.IsFeatureEnabledAsync(companyId, "sandbox.delete"))
             {
-                _logger.LogWarning("{EventName} {CompanyId} plan=Free", "sandbox_delete_denied", companyId);
+                _logger.LogWarning("{EventName} {CompanyId} plan=Free", FunnelEventNames.SandboxDeleteDenied, companyId);
                 return StatusCode(403,
                     "Permanently deleting sandbox data requires a Pro or Trial plan. " +
                     "Use POST /sandbox/hide to hide demo data on the Free plan.");
@@ -119,9 +120,10 @@ namespace ShiftWork.Api.Controllers
             try
             {
                 await _sandboxService.DeleteSandboxDataAsync(companyId);
-                _logger.LogInformation("{EventName} {CompanyId}", "sandbox_delete_via_api", companyId);
-                // Onboarding funnel completion event (Phase 6.1)
-                _logger.LogInformation("{EventName} {CompanyId}", "onboarding_completed", companyId);
+                // sandbox_delete_via_api marks the permanent removal; onboarding_completed
+                // marks end of the customer onboarding funnel (Phase 6.1)
+                _logger.LogInformation("{EventName} {CompanyId}", FunnelEventNames.SandboxDeleteViaApi, companyId);
+                _logger.LogInformation("{EventName} {CompanyId}", FunnelEventNames.OnboardingCompleted, companyId);
                 return NoContent();
             }
             catch (Exception ex)

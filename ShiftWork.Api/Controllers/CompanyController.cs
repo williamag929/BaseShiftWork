@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
+using ShiftWork.Api.Helpers;
 using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
 using System;
@@ -259,13 +260,13 @@ namespace ShiftWork.Api.Controllers
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation("{EventName} {CompanyId} {Status}",
-                    "onboarding_status_updated", companyId, request.Status);
+                    FunnelEventNames.OnboardingStatusUpdated, companyId, request.Status);
 
                 // Emit funnel-specific events for observability dashboards (Phase 6.1)
                 if (request.Status == "Verified")
-                    _logger.LogInformation("{EventName} {CompanyId}", "email_verified", companyId);
+                    _logger.LogInformation("{EventName} {CompanyId}", FunnelEventNames.EmailVerified, companyId);
                 else if (request.Status == "Complete")
-                    _logger.LogInformation("{EventName} {CompanyId}", "onboarding_completed", companyId);
+                    _logger.LogInformation("{EventName} {CompanyId}", FunnelEventNames.OnboardingCompleted, companyId);
 
                 return NoContent();
             }
