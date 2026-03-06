@@ -78,7 +78,7 @@ namespace ShiftWork.Api.Controllers
                     return NotFound($"No people found for company {companyId}.");
                 }
 
-                var autoClockOutTasks = people.Select(async person =>
+                foreach (var person in people)
                 {
                     try
                     {
@@ -92,8 +92,7 @@ namespace ShiftWork.Api.Controllers
                     {
                         _logger.LogError(ex, "Auto clock-out failed for person {PersonId} in company {CompanyId}.", person.PersonId, companyId);
                     }
-                });
-                await Task.WhenAll(autoClockOutTasks);
+                }
 
                 return Ok(_mapper.Map<IEnumerable<PersonDto>>(people));
             }

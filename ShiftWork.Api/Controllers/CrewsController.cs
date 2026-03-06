@@ -217,17 +217,11 @@ namespace ShiftWork.Api.Controllers
         {
             try
             {
-                var crewExistsTask = _context.Crews.AnyAsync(c => c.CrewId == crewId && c.CompanyId == companyId);
-                var personExistsTask = _context.Persons.AnyAsync(p => p.PersonId == personId && p.CompanyId == companyId);
-                var associationExistsTask = _context.PersonCrews.AnyAsync(pc => pc.CrewId == crewId && pc.PersonId == personId);
-
-                await Task.WhenAll(crewExistsTask, personExistsTask, associationExistsTask);
-
-                if (!crewExistsTask.Result)
+                if (!await _context.Crews.AnyAsync(c => c.CrewId == crewId && c.CompanyId == companyId))
                     return NotFound($"Crew with ID {crewId} not found in company {companyId}.");
-                if (!personExistsTask.Result)
+                if (!await _context.Persons.AnyAsync(p => p.PersonId == personId && p.CompanyId == companyId))
                     return NotFound($"Person with ID {personId} not found in company {companyId}.");
-                if (associationExistsTask.Result)
+                if (await _context.PersonCrews.AnyAsync(pc => pc.CrewId == crewId && pc.PersonId == personId))
                     return Conflict($"Person {personId} is already assigned to crew {crewId}.");
 
                 _context.PersonCrews.Add(new PersonCrew { CrewId = crewId, PersonId = personId });
