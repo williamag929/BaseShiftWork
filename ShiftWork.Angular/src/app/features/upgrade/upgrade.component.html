@@ -1,0 +1,75 @@
+<div class="upgrade-container">
+  <div class="upgrade-card">
+    <h1>Upgrade to Pro</h1>
+    <p class="subtitle">Unlock the full power of ShiftWork for your team.</p>
+
+    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+    <!-- Plan Comparison Table -->
+    <div class="plan-comparison">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th class="plan-col plan-free">Free</th>
+            <th class="plan-col plan-pro">Pro ⭐</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Kiosk Clock-In / Out</td>
+            <td>✅</td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td>Basic Scheduling</td>
+            <td>✅</td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td>Sandbox Demo Data</td>
+            <td>✅</td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td>Remove Sandbox Data</td>
+            <td>❌</td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td>Advanced Scheduling</td>
+            <td>❌</td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td>Analytics & Reports</td>
+            <td>❌</td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td>Multi-Location Support</td>
+            <td>❌</td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td>Data Export</td>
+            <td>❌</td>
+            <td>✅</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="upgrade-cta">
+      <p class="price-info">Pro plan — contact sales for pricing</p>
+      <button
+        class="btn btn-primary btn-lg"
+        (click)="upgradeToPro()"
+        [disabled]="isLoading">
+        {{ isLoading ? 'Processing…' : 'Upgrade to Pro Now' }}
+      </button>
+      <p class="back-link"><a routerLink="/dashboard">← Back to Dashboard</a></p>
+    </div>
+  </div>
+</div>

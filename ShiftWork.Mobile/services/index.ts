@@ -12,3 +12,5 @@ export { timeOffRequestService } from './time-off-request.service';
 export { notificationService } from './notification.service';
 export { biometricAuthService } from './biometricAuth.service';
 export { mcpService } from './mcp.service';
+// Registration & Onboarding feature (Phase 4)
+export { registrationService } from './registration.service';
