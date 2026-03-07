@@ -31,8 +31,10 @@ jobs:
           exit 1
         fi
         mkdir -p ~/.ssh
-        echo "$SSH_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+        echo "$SSH_KEY" | tr -d '\n\r ' | base64 -d > ~/.ssh/id_ed25519
         chmod 600 ~/.ssh/id_ed25519
+        # Verify key loaded correctly
+        ssh-keygen -l -f ~/.ssh/id_ed25519 || { echo "SSH key is invalid. Check SSH_KEY secret."; exit 1; }
         ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>&1
         if [ ! -s ~/.ssh/known_hosts ]; then
           echo "ssh-keyscan failed: could not reach $HOST. Check HOST secret and server firewall."
