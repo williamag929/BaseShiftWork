@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ShiftWork Mobile",
+    "name": "Job Log Smart",
     "slug": "shiftwork-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -16,7 +16,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.shiftwork.mobile",
+      "bundleIdentifier": "com.joblogsmart.mobile",
       "infoPlist": {
         "NSCameraUsageDescription": "ShiftWork needs camera access to capture photos during clock in/out",
         "NSLocationWhenInUseUsageDescription": "ShiftWork needs your location to record where you clock in/out",
@@ -28,7 +28,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.shiftwork.mobile",
+      "package": "com.joblogsmart.mobile",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.ACCESS_FINE_LOCATION",
@@ -41,25 +41,25 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "shiftwork",
+    "scheme": "joblogsmart",
     "plugins": [
       "expo-router",
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow ShiftWork to access your camera for clock in/out photos"
+          "cameraPermission": "Allow Job Log Smart to access your camera for clock in/out photos"
         }
       ],
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow ShiftWork to use your location for clock in/out tracking"
+          "locationAlwaysAndWhenInUsePermission": "Allow Job Log Smart to use your location for clock in/out tracking"
         }
       ],
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Allow ShiftWork to use Face ID for secure authentication"
+          "faceIDPermission": "Allow Job Log Smart to use Face ID for secure authentication"
         }
       ],
       "expo-font"
@@ -72,7 +72,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "shiftwork-mobile-5b2c1"
+        "projectId": "joblogsmart-mobile-5b2c1"
       }
     }
   }
