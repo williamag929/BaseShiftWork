@@ -26,8 +26,8 @@ jobs:
           exit 1
         fi
         mkdir -p ~/.ssh
-        echo "$SSH_KEY" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
+        echo "$SSH_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
         ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>&1
         if [ ! -s ~/.ssh/known_hosts ]; then
           echo "ssh-keyscan failed: could not reach $HOST. Check HOST secret and server firewall."
@@ -39,18 +39,18 @@ jobs:
 
     - name: Navigate to project and pull latest changes
       run: |
-        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
+        ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
           ${{ secrets.USER }}@${{ secrets.HOST }} \
           "cd ${{ secrets.PROJECT_PATH }} && git pull origin main"
 
     - name: Deploy MCP, API, and Web Projects with Docker Compose
       run: |
-        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
+        ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
           ${{ secrets.USER }}@${{ secrets.HOST }} \
           "cd ${{ secrets.PROJECT_PATH }} && docker compose up -d --build mcp api web && docker compose ps --filter 'status=running' | grep -E 'mcp|api|web' || { echo 'One or more services failed to start'; exit 1; }"
 
     - name: Cleanup dangling Docker images
       run: |
-        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
+        ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
           ${{ secrets.USER }}@${{ secrets.HOST }} \
           "docker image prune -f"
