@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'ShiftWork.Mobile/**'
   workflow_dispatch:
 
 jobs:
@@ -15,6 +17,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        submodules: false
 
     - name: Setup SSH
       run: |
@@ -49,7 +53,7 @@ jobs:
         CLEAN_PATH=$(echo "$DEPLOY_PATH" | tr -d '\n\r')
         ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
           "${CLEAN_USER}@${CLEAN_HOST}" \
-          "cd ${CLEAN_PATH} && git pull origin main"
+          "cd ${CLEAN_PATH} && git pull --no-recurse-submodules origin main"
 
     - name: Deploy MCP, API, and Web Projects with Docker Compose
       env:
