@@ -38,19 +38,38 @@ jobs:
         HOST: ${{ secrets.HOST }}
 
     - name: Navigate to project and pull latest changes
+      env:
+        DEPLOY_USER: ${{ secrets.USER }}
+        DEPLOY_HOST: ${{ secrets.HOST }}
+        DEPLOY_PATH: ${{ secrets.PROJECT_PATH }}
       run: |
+        CLEAN_USER=$(echo "$DEPLOY_USER" | tr -d '\n\r')
+        CLEAN_HOST=$(echo "$DEPLOY_HOST" | tr -d '\n\r')
+        CLEAN_PATH=$(echo "$DEPLOY_PATH" | tr -d '\n\r')
         ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
-          ${{ secrets.USER }}@${{ secrets.HOST }} \
-          "cd ${{ secrets.PROJECT_PATH }} && git pull origin main"
+          "${CLEAN_USER}@${CLEAN_HOST}" \
+          "cd ${CLEAN_PATH} && git pull origin main"
 
     - name: Deploy MCP, API, and Web Projects with Docker Compose
+      env:
+        DEPLOY_USER: ${{ secrets.USER }}
+        DEPLOY_HOST: ${{ secrets.HOST }}
+        DEPLOY_PATH: ${{ secrets.PROJECT_PATH }}
       run: |
+        CLEAN_USER=$(echo "$DEPLOY_USER" | tr -d '\n\r')
+        CLEAN_HOST=$(echo "$DEPLOY_HOST" | tr -d '\n\r')
+        CLEAN_PATH=$(echo "$DEPLOY_PATH" | tr -d '\n\r')
         ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
-          ${{ secrets.USER }}@${{ secrets.HOST }} \
-          "cd ${{ secrets.PROJECT_PATH }} && docker compose up -d --build mcp api web && docker compose ps --filter 'status=running' | grep -E 'mcp|api|web' || { echo 'One or more services failed to start'; exit 1; }"
+          "${CLEAN_USER}@${CLEAN_HOST}" \
+          "cd ${CLEAN_PATH} && docker compose up -d --build mcp api web && docker compose ps --filter 'status=running' | grep -E 'mcp|api|web' || { echo 'One or more services failed to start'; exit 1; }"
 
     - name: Cleanup dangling Docker images
+      env:
+        DEPLOY_USER: ${{ secrets.USER }}
+        DEPLOY_HOST: ${{ secrets.HOST }}
       run: |
+        CLEAN_USER=$(echo "$DEPLOY_USER" | tr -d '\n\r')
+        CLEAN_HOST=$(echo "$DEPLOY_HOST" | tr -d '\n\r')
         ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
-          ${{ secrets.USER }}@${{ secrets.HOST }} \
+          "${CLEAN_USER}@${CLEAN_HOST}" \
           "docker image prune -f"
