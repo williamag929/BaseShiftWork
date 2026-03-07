@@ -1,0 +1,51 @@
+name: Deploy to Remote Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup SSH
+      run: |
+        if [ -z "$SSH_KEY" ]; then
+          echo "SSH_KEY secret is not set. Aborting deployment."
+          exit 1
+        fi
+        mkdir -p ~/.ssh
+        echo "$SSH_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+      env:
+        SSH_KEY: ${{ secrets.SSH_KEY }}
+        HOST: ${{ secrets.HOST }}
+
+    - name: Navigate to project and pull latest changes
+      run: |
+        ssh ${{ secrets.USER }}@${{ secrets.HOST }} << 'EOF'
+          cd ${{ secrets.PROJECT_PATH }}
+          git pull origin main
+        EOF
+
+    - name: Deploy MCP, API, and Web Projects with Docker Compose
+      run: |
+        ssh ${{ secrets.USER }}@${{ secrets.HOST }} << 'EOF'
+          cd ${{ secrets.PROJECT_PATH }}
+          docker compose up -d --build mcp api web
+          docker compose ps --filter "status=running" | grep -E "mcp|api|web" || { echo "One or more services failed to start"; exit 1; }
+        EOF
+
+    - name: Cleanup dangling Docker images
+      run: |
+        ssh ${{ secrets.USER }}@${{ secrets.HOST }} << 'EOF'
+          docker image prune -f
+        EOF
