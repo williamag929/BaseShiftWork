@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Image } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing } from '@/styles/tokens';
 
@@ -15,7 +16,13 @@ export function ProfileHeader({ name, email, photoUrl, uploadingPhoto, onPhotoPr
     <View style={styles.header}>
       <Pressable style={styles.avatarContainer} onPress={onPhotoPress} disabled={uploadingPhoto}>
         {photoUrl ? (
-          <Image source={{ uri: photoUrl }} style={styles.avatar} />
+          <Image
+            source={{ uri: photoUrl }}
+            style={styles.avatar}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            transition={200}
+          />
         ) : (
           <Ionicons name="person-circle" size={80} color={colors.primary} />
         )}

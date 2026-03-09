@@ -1,5 +1,6 @@
 ﻿import { useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Image } from 'expo-image';
 import Animated, {
   useSharedValue,
   withSpring,
@@ -57,7 +58,13 @@ export function ClockButton({
     <View style={styles.container}>
       {!!photoUri && (
         <View style={styles.previewRow}>
-          <Image source={{ uri: photoUri }} style={styles.preview} />
+          <Image
+            source={{ uri: photoUri }}
+            style={styles.preview}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            transition={200}
+          />
           <Pressable onPress={onRemovePhoto}>
             <Text style={styles.removePhoto}>Remove photo</Text>
           </Pressable>

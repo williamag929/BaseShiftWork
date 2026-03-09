@@ -4,13 +4,13 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
-  FlatList,
+  Pressable,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
   Keyboard,
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius } from '@/styles/theme';
 import { useAuthStore } from '@/store/authStore';
@@ -60,7 +60,7 @@ export default function AiChatScreen() {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
-  const flatListRef = useRef<FlatList>(null);
+  const flatListRef = useRef<FlashList<ChatMessage>>(null);
 
   // ---------- Boot: health check + welcome message -------------------------
   useEffect(() => {
@@ -265,24 +265,24 @@ export default function AiChatScreen() {
       {/* Quick actions */}
       <View style={styles.quickRow}>
         {quickActions.map((q) => (
-          <TouchableOpacity
+          <Pressable
             key={q.msg}
-            style={styles.quickChip}
+            style={({ pressed }) => [styles.quickChip, pressed && { opacity: 0.7 }]}
             onPress={() => tapQuick(q.msg)}
             disabled={sending}
-            activeOpacity={0.7}
           >
             <Text style={styles.quickChipText}>{q.label}</Text>
-          </TouchableOpacity>
+          </Pressable>
         ))}
       </View>
 
       {/* Messages */}
-      <FlatList
+      <FlashList
         ref={flatListRef}
         data={messages}
         keyExtractor={(m) => m.id}
         renderItem={renderItem}
+        estimatedItemSize={88}
         contentContainerStyle={styles.messagesList}
         showsVerticalScrollIndicator={false}
       />
@@ -301,18 +301,17 @@ export default function AiChatScreen() {
           multiline
           blurOnSubmit
         />
-        <TouchableOpacity
-          style={[styles.sendBtn, (!input.trim() || sending) && styles.sendBtnDisabled]}
+        <Pressable
+          style={({ pressed }) => [styles.sendBtn, (!input.trim() || sending) && styles.sendBtnDisabled, pressed && { opacity: 0.8 }]}
           onPress={send}
           disabled={!input.trim() || sending}
-          activeOpacity={0.7}
         >
           {sending ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
             <Ionicons name="send" size={20} color="#fff" />
           )}
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </KeyboardAvoidingView>
   );
@@ -357,9 +356,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#aaa',
   },
-  statusOnline: { backgroundColor: '#2ECC71' },
-  statusOffline: { backgroundColor: '#E74C3C' },
-  statusUnknown: { backgroundColor: '#F39C12' },
+  statusOnline: { backgroundColor: colors.success },
+  statusOffline: { backgroundColor: colors.danger },
+  statusUnknown: { backgroundColor: colors.warning },
   statusText: {
     fontSize: 12,
     color: 'rgba(255,255,255,0.85)',

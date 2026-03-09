@@ -1,16 +1,76 @@
-import { ShiftEventTypes } from '@/types/api';
-import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState, useEffect } from 'react';
 import * as Network from 'expo-network';
 import { scheduleService, shiftEventService } from '@/services';
 import { apiClient } from '@/services/api-client';
 import { dbService } from '@/services/db';
 import { getStartOfWeek, getEndOfWeek, formatDateForApi } from '@/utils/date.utils';
+import { ShiftEventTypes } from '@/types/api';
 import type { ScheduleShiftDto, ShiftEventDto } from '@/types/api';
-import { timeOffRequestService, TimeOffRequest } from '@/services/time-off-request.service';
-import { locationService } from '@/services/location.service';
+import type { TimeOffRequest } from '@/services/time-off-request.service';
 import { getActiveClockInAt } from '@/utils';
 import { logger } from '@/utils/logger';
+import { useTimeOffRequests, useLocationName } from './queries';
 
+// ---------------------------------------------------------------------------
+// Pure async function — orchestrates all dashboard fetches with offline fallback
+// ---------------------------------------------------------------------------
+interface DashboardQueryData {
+  recentEvents: ShiftEventDto[];
+  upcoming: ScheduleShiftDto[];
+  personStatus: string | null;
+  isOnline: boolean;
+}
+
+async function fetchDashboardData(companyId: string, personId: number): Promise<DashboardQueryData> {
+  await dbService.initDb().catch(() => {});
+
+  const state = await Network.getNetworkStateAsync();
+  const online = !!state.isConnected && !!state.isInternetReachable;
+
+  const now = new Date();
+  const weekStart = getStartOfWeek(now);
+  const weekEnd = getEndOfWeek(now);
+  const next7End = new Date(now);
+  next7End.setDate(now.getDate() + 7);
+
+  if (online) {
+    const [events, shiftsWeek, shiftsNext7, status] = await Promise.all([
+      shiftEventService.getPersonShiftEvents(companyId, personId),
+      scheduleService.getPersonShifts(companyId, personId, formatDateForApi(weekStart), formatDateForApi(weekEnd)),
+      scheduleService.getPersonShifts(companyId, personId, formatDateForApi(now), formatDateForApi(next7End)),
+      apiClient
+        .get<string>(`/api/companies/${companyId}/people/${personId}/status`, { params: { noCacheBust: true } })
+        .catch(() => null),
+    ]);
+    await Promise.allSettled([
+      dbService.upsertShiftEvents(events),
+      dbService.upsertScheduleShifts([...shiftsWeek, ...shiftsNext7]),
+    ]);
+    const sortedEvents = [...events].sort(
+      (a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime(),
+    );
+    const byId = new Map<number, ScheduleShiftDto>();
+    [...shiftsWeek, ...shiftsNext7].forEach((s) => byId.set(s.scheduleShiftId, s));
+    const sortedUpcoming = Array.from(byId.values()).sort(
+      (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
+    );
+    return { recentEvents: sortedEvents, upcoming: sortedUpcoming, personStatus: status as string | null, isOnline: true };
+  } else {
+    const [events, upcomingShifts] = await Promise.all([
+      dbService.getEventsInRange(personId, formatDateForApi(weekStart), formatDateForApi(weekEnd)),
+      dbService.getUpcomingShifts(personId, formatDateForApi(now), formatDateForApi(next7End)),
+    ]);
+    const sortedCached = [...events].sort(
+      (a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime(),
+    );
+    return { recentEvents: sortedCached, upcoming: upcomingShifts, personStatus: null, isOnline: false };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Public hook interface — identical to original so no consuming code changes
+// ---------------------------------------------------------------------------
 export interface DashboardData {
   isOnline: boolean;
   loading: boolean;
@@ -23,7 +83,6 @@ export interface DashboardData {
   error?: string | null;
   refresh: () => Promise<void>;
   lastUpdated: Date | null;
-  // Phase 2 additions
   timeOffRequests: TimeOffRequest[];
   timeOffLoading: boolean;
   activeClockInAt: Date | null;
@@ -33,23 +92,73 @@ export interface DashboardData {
   todayShiftLocationName: string | null;
 }
 
-export const useDashboardData = (companyId?: string | null, personId?: number | null): DashboardData => {
-  const [isOnline, setIsOnline] = useState<boolean>(true);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [upcoming, setUpcoming] = useState<ScheduleShiftDto[]>([]);
-  const [recentEvents, setRecentEvents] = useState<ShiftEventDto[]>([]);
-  const [personStatus, setPersonStatus] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [timeOffRequests, setTimeOffRequests] = useState<TimeOffRequest[]>([]);
-  const [timeOffLoading, setTimeOffLoading] = useState(false);
+export const useDashboardData = (
+  companyId?: string | null,
+  personId?: number | null,
+): DashboardData => {
   const [activeClockInAt, setActiveClockInAt] = useState<Date | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [todayShiftLocationName, setTodayShiftLocationName] = useState<string | null>(null);
-  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const hoursThisWeek = useMemo(() => {    // Compute hours from recent events constrained to this week
+  // ── Main dashboard query (replaces manual fetchData + auto-refresh interval) ──
+  const {
+    data,
+    isLoading,
+    isFetching,
+    isError,
+    error: queryError,
+    refetch,
+    dataUpdatedAt,
+  } = useQuery({
+    queryKey: ['dashboard', companyId, personId],
+    queryFn: () => fetchDashboardData(companyId!, personId!),
+    enabled: !!companyId && !!personId,
+    staleTime: 30_000,
+    refetchInterval: 60_000,   // replaces the setInterval auto-refresh
+    retry: 1,
+  });
+
+  // ── Time-off requests ──
+  const { data: timeOffRequests = [], isLoading: timeOffLoading } = useTimeOffRequests(
+    companyId,
+    personId,
+  );
+
+  const recentEvents = data?.recentEvents ?? [];
+  const upcoming = data?.upcoming ?? [];
+  const isOnline = data?.isOnline ?? true;
+  const personStatus = data?.personStatus ?? null;
+  const lastUpdated = dataUpdatedAt ? new Date(dataUpdatedAt) : null;
+
+  // ── Today's shift (memoised) ──
+  const todayShift = useMemo(() => {
+    if (!upcoming.length) return null;
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+    return (
+      upcoming.find((s) => {
+        const start = new Date(s.startDate);
+        return start >= todayStart && start < todayEnd;
+      }) ?? null
+    );
+  }, [upcoming]);
+
+  // ── Location name for today's shift (dependent query via shared hook) ──
+  const { data: todayShiftLocationName = null } = useLocationName(
+    companyId,
+    todayShift?.locationId,
+  );
+
+  // ── Derived clock state ──
+  const isClockedIn = useMemo(() => {
+    const latest = recentEvents?.[0];
+    if (latest?.eventType === ShiftEventTypes.ClockIn) return true;
+    return !!activeClockInAt;
+  }, [recentEvents, activeClockInAt]);
+
+  // ── Weekly stats ──
+  const hoursThisWeek = useMemo(() => {
     const now = new Date();
     const start = getStartOfWeek(now);
     const end = getEndOfWeek(now);
@@ -63,48 +172,26 @@ export const useDashboardData = (companyId?: string | null, personId?: number | 
       if (e.eventType === ShiftEventTypes.ClockIn) {
         openClockIn = e;
       } else if (e.eventType === ShiftEventTypes.ClockOut && openClockIn) {
-        const startTime = new Date(openClockIn.eventDate).getTime();
-        const endTime = new Date(e.eventDate).getTime();
-        if (endTime > startTime) {
-          total += (endTime - startTime) / (1000 * 60 * 60);
-        }
-        openClockIn = null; // reset after pairing
+        const s = new Date(openClockIn.eventDate).getTime();
+        const en = new Date(e.eventDate).getTime();
+        if (en > s) total += (en - s) / (1000 * 60 * 60);
+        openClockIn = null;
       }
     }
     return Math.round(total * 100) / 100;
   }, [recentEvents]);
 
   const shiftsThisWeek = useMemo(() => {
-    // Count scheduled shifts that fall within this week
     const now = new Date();
     const start = getStartOfWeek(now);
     const end = getEndOfWeek(now);
-    const count = upcoming.filter((s) => {
+    return upcoming.filter((s) => {
       const startDate = new Date(s.startDate);
       return startDate >= start && startDate <= end;
     }).length;
-    return count;
   }, [upcoming]);
 
-  const isClockedIn = useMemo(() => {
-    const latest = recentEvents?.[0];
-    if (latest?.eventType === ShiftEventTypes.ClockIn) return true;
-    return !!activeClockInAt;
-  }, [recentEvents, activeClockInAt]);
-
-  const todayShift = useMemo(() => {
-    if (!upcoming?.length) return null;
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const todayEnd = new Date(todayStart);
-    todayEnd.setDate(todayEnd.getDate() + 1);
-    return upcoming.find((s) => {
-      const start = new Date(s.startDate);
-      return start >= todayStart && start < todayEnd;
-    }) ?? null;
-  }, [upcoming]);
-
-  // Derive activeClockInAt from recentEvents
+  // ── Derive activeClockInAt from recentEvents ──
   useEffect(() => {
     const latest = recentEvents?.[0];
     (async () => {
@@ -117,7 +204,7 @@ export const useDashboardData = (companyId?: string | null, personId?: number | 
     })();
   }, [recentEvents]);
 
-  // Live elapsed timer
+  // ── Elapsed timer (1-second tick) ──
   useEffect(() => {
     if (!isClockedIn || !activeClockInAt) {
       setElapsedSeconds(0);
@@ -132,151 +219,32 @@ export const useDashboardData = (companyId?: string | null, personId?: number | 
     return () => clearInterval(id);
   }, [isClockedIn, activeClockInAt]);
 
-  // Load time off requests
-  useEffect(() => {
-    if (!companyId || !personId) return;
-    setTimeOffLoading(true);
-    Promise.all([
-      timeOffRequestService.getPendingTimeOff(companyId, personId),
-      timeOffRequestService.getUpcomingTimeOff(companyId, personId),
-    ])
-      .then(([pending, upcomingTOR]) => {
-        const combined = [...pending, ...upcomingTOR];
-        const unique = combined.filter((item, idx, self) =>
-          idx === self.findIndex((t) => t.timeOffRequestId === item.timeOffRequestId)
-        );
-        setTimeOffRequests(unique.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()));
-      })
-      .catch((err) => logger.error('[useDashboardData] Error loading time off:', err))
-      .finally(() => setTimeOffLoading(false));
-  }, [companyId, personId]);
-
-  // Fetch location name for today's shift
-  useEffect(() => {
-    if (!companyId || !todayShift?.locationId) {
-      setTodayShiftLocationName(null);
-      return;
+  const refresh = async () => {
+    try { await refetch(); } catch (e) {
+      logger.error('[useDashboardData] refresh error:', e);
     }
-    (async () => {
-      try {
-        const loc = await locationService.getLocationById(companyId, todayShift.locationId);
-        setTodayShiftLocationName(loc?.name ?? null);
-      } catch {
-        setTodayShiftLocationName(null);
-      }
-    })();
-  }, [companyId, todayShift?.locationId]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        await dbService.initDb();
-      } catch {
-        // ignore
-      }
-    })();
-  }, []);
-
-  const fetchData = useCallback(async (isRefresh = false) => {
-    if (!companyId || !personId) return;
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
-    setError(null);
-    try {
-      const state = await Network.getNetworkStateAsync();
-      const online = !!state.isConnected && !!state.isInternetReachable;
-      setIsOnline(online);
-
-      const now = new Date();
-      const weekStart = getStartOfWeek(now);
-      const weekEnd = getEndOfWeek(now);
-      const next7End = new Date(now);
-      next7End.setDate(now.getDate() + 7);
-
-      if (online) {
-        // Fetch from API
-        const [events, shiftsWeek, shiftsNext7, status] = await Promise.all([
-          shiftEventService.getPersonShiftEvents(companyId, personId),
-          scheduleService.getPersonShifts(
-            companyId,
-            personId,
-            formatDateForApi(weekStart),
-            formatDateForApi(weekEnd)
-          ),
-          scheduleService.getPersonShifts(
-            companyId,
-            personId,
-            formatDateForApi(now),
-            formatDateForApi(next7End)
-          ),
-          apiClient.get<string>(`/api/companies/${companyId}/people/${personId}/status`, { params: { noCacheBust: true } }),
-        ]);
-
-        // Persist to SQLite
-        await dbService.upsertShiftEvents(events);
-        await dbService.upsertScheduleShifts([...shiftsWeek, ...shiftsNext7]);
-
-        // Sort recent events by most recent first
-        const sortedEvents = [...events].sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
-        setRecentEvents(sortedEvents);
-        setPersonStatus(status ?? null);
-        // Merge and de-dupe by scheduleShiftId
-        const byId = new Map<number, ScheduleShiftDto>();
-        [...shiftsWeek, ...shiftsNext7].forEach((s) => byId.set(s.scheduleShiftId, s));
-        setUpcoming(Array.from(byId.values()).sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()));
-        setLastUpdated(new Date());
-      } else {
-        // Offline: load from SQLite
-        const [events, upcomingShifts] = await Promise.all([
-          dbService.getEventsInRange(personId, formatDateForApi(weekStart), formatDateForApi(weekEnd)),
-          dbService.getUpcomingShifts(personId, formatDateForApi(now), formatDateForApi(next7End)),
-        ]);
-        const sortedCached = [...events].sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
-        setRecentEvents(sortedCached);
-        setUpcoming(upcomingShifts);
-        setLastUpdated(new Date());
-      }
-    } catch (e: any) {
-      setError(e?.message || 'Failed to load dashboard data');
-    } finally {
-      if (isRefresh) setRefreshing(false);
-      else setLoading(false);
-    }
-  }, [companyId, personId]);
-
-  const refresh = useCallback(async () => {
-    await fetchData(true);
-  }, [fetchData]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        await dbService.initDb();
-      } catch {
-        // ignore
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    fetchData(false);
-  }, [fetchData]);
-
-  // Auto-refresh every 60 seconds (configurable)
-  useEffect(() => {
-    const interval = 60000; // 60 seconds
-    refreshIntervalRef.current = setInterval(() => {
-      refresh();
-    }, interval);
-    return () => {
-      if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
-    };
-  }, [refresh]);
+  };
 
   return {
-    isOnline, loading, refreshing, hoursThisWeek, shiftsThisWeek,
-    upcoming, recentEvents, personStatus, error, refresh, lastUpdated,
-    timeOffRequests, timeOffLoading, activeClockInAt, elapsedSeconds,
-    isClockedIn, todayShift, todayShiftLocationName,
+    isOnline,
+    loading: isLoading,
+    refreshing: isFetching && !isLoading,
+    hoursThisWeek,
+    shiftsThisWeek,
+    upcoming,
+    recentEvents,
+    personStatus,
+    error: isError ? ((queryError as Error)?.message ?? 'Failed to load') : null,
+    refresh,
+    lastUpdated,
+    timeOffRequests,
+    timeOffLoading,
+    activeClockInAt,
+    elapsedSeconds,
+    isClockedIn,
+    todayShift,
+    todayShiftLocationName,
   };
 };
+
+
