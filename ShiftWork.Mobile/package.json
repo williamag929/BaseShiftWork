@@ -11,7 +11,7 @@
     "type-check": "tsc --noEmit",
     "create-assets": "node scripts/create-placeholder-assets.js",
     "postinstall": "node scripts/create-placeholder-assets.js",
-    "test": "jest --passWithNoTests"
+    "test": "node node_modules/jest-expo/bin/jest.js --passWithNoTests"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

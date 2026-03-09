@@ -1,6 +1,18 @@
 // Manual mock for react-native-reanimated — avoids the worklets plugin requirement
-const Reanimated = {
-  default: {},
+const { View, Text, ScrollView, FlatList, Image } = require('react-native');
+
+// Animated namespace (e.g. <Animated.View>)
+const AnimatedComponents = {
+  View,
+  Text,
+  ScrollView,
+  FlatList,
+  Image,
+  createAnimatedComponent: jest.fn((c) => c),
+};
+
+const mock = {
+  // Shared value / style utilities
   useSharedValue: jest.fn((v) => ({ value: v })),
   useAnimatedStyle: jest.fn(() => ({})),
   withSpring: jest.fn((v) => v),
@@ -20,17 +32,19 @@ const Reanimated = {
   runOnUI: jest.fn((fn) => fn),
   makeMutable: jest.fn((v) => ({ value: v })),
   createAnimatedComponent: jest.fn((c) => c),
-};
-
-// Animated namespace with passthrough components
-const { View, Text, ScrollView, FlatList, Image } = require('react-native');
-Reanimated.Animated = {
+  // Animated namespace: <Animated.View> etc.
+  Animated: AnimatedComponents,
+  // Also expose components at the top level so the default import
+  // (which babel resolves to `mock.default`) has .View, .Text etc.
   View,
   Text,
   ScrollView,
   FlatList,
   Image,
-  createAnimatedComponent: jest.fn((c) => c),
 };
 
-module.exports = Reanimated;
+// `import Animated from 'react-native-reanimated'` gets mock.default.
+// We set default = mock so Animated.View = mock.View = react-native View.
+mock.default = mock;
+
+module.exports = mock;

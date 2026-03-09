@@ -8,17 +8,24 @@ jest.mock('@/hooks/queries', () => ({
 jest.mock('@tanstack/react-query', () => ({
   useQuery: jest.fn(() => ({ data: null, isLoading: false })),
 }));
-jest.mock('@/store/authStore', () => ({
-  useAuthStore: jest.fn((selector) =>
-    selector({
-      companyId: 'co1',
-      personId: 1,
-      name: 'Test User',
-      personEmail: 'test@example.com',
-      photoUrl: null,
-    }),
-  ),
-}));
+jest.mock('@/store/authStore', () => {
+  const s = {
+    companyId: 'co1',
+    personId: 1,
+    name: 'Test User',
+    personEmail: 'test@example.com',
+    photoUrl: null,
+    setCompanyId: jest.fn(),
+    setPersonId: jest.fn(),
+    setPersonProfile: jest.fn(),
+    signOut: jest.fn(),
+  };
+  return {
+    useAuthStore: jest.fn((selector?: (st: typeof s) => unknown) =>
+      typeof selector === 'function' ? selector(s) : s,
+    ),
+  };
+});
 jest.mock('expo-haptics', () => ({
   impactAsync: jest.fn(),
   notificationAsync: jest.fn(),
@@ -28,7 +35,17 @@ jest.mock('expo-haptics', () => ({
 jest.mock('@/hooks/useToast', () => ({ useToast: () => ({ showToast: jest.fn() }) }));
 jest.mock('expo-device', () => ({ isDevice: false }));
 jest.mock('@/services/people.service', () => ({ personService: { getPersonById: jest.fn() } }));
-jest.mock('@/utils', () => ({ getCurrentLocation: jest.fn() }));
+jest.mock('@/utils', () => ({
+  getCurrentLocation: jest.fn().mockResolvedValue(null),
+  getActiveClockInAt: jest.fn().mockResolvedValue(null),
+  saveActiveClockInAt: jest.fn().mockResolvedValue(undefined),
+  clearActiveClockInAt: jest.fn().mockResolvedValue(undefined),
+  // storage.utils re-exports
+  saveUserData: jest.fn(),
+  saveCompanyId: jest.fn(),
+  clearAllStorage: jest.fn(),
+  getFirebaseAuthError: jest.fn(),
+}));
 
 import { renderHook } from '@testing-library/react-native';
 import { useClockAction } from '../useClockAction';
@@ -42,8 +59,7 @@ describe('useClockAction', () => {
     expect(typeof data.initializing).toBe('boolean');
     expect(Object.prototype.hasOwnProperty.call(data, 'isClockedIn')).toBe(true);
     expect(Object.prototype.hasOwnProperty.call(data, 'elapsedSeconds')).toBe(true);
-    expect(Object.prototype.hasOwnProperty.call(data, 'personName')).toBe(true);
-    expect(Object.prototype.hasOwnProperty.call(data, 'locationName')).toBe(true);
+    expect(Object.prototype.hasOwnProperty.call(data, 'shiftLocationName')).toBe(true);
     expect(Object.prototype.hasOwnProperty.call(data, 'events')).toBe(true);
   });
 
