@@ -1,63 +1,18 @@
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
-import { useState } from 'react';
+﻿import { View, Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Controller } from 'react-hook-form';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/config/firebase';
-import { getFirebaseAuthError } from '@/utils/firebase-error.utils';
-import { registrationService, CompanyRegistrationRequest } from '@/services/registration.service';
-import { colors } from '@/styles/theme';
+import { colors } from '@/styles/tokens';
+import { useRegister } from '@/hooks/useRegister';
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const [step, setStep] = useState(1);
+  const { step, setStep, loading, step1Form, step2Form, handleRegister } = useRegister();
   const totalSteps = 3;
-
-  // Step 1 fields
-  const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  // Step 2 fields
-  const [companyName, setCompanyName] = useState('');
-  const [companyEmail, setCompanyEmail] = useState('');
-  const [companyPhone, setCompanyPhone] = useState('');
-  const [timeZone, setTimeZone] = useState('UTC');
-
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-
-  const handleRegister = async () => {
-    setLoading(true);
-    setErrorMsg('');
-    try {
-      // Create Firebase account first — sets auth.currentUser for token-authenticated API calls
-      const credential = await createUserWithEmailAndPassword(auth, email, password);
-      const uid = credential.user.uid;
-
-      const request: CompanyRegistrationRequest = {
-        firebaseUid: uid,
-        userEmail: email,
-        userDisplayName: displayName,
-        companyName,
-        companyEmail,
-        companyPhone: companyPhone || undefined,
-        timeZone,
-      };
-
-      const response = await registrationService.register(request);
-      // Persist companyId for onboarding screen (survives app restart)
-      await AsyncStorage.setItem('onboarding_company_id', response.companyId);
-      await AsyncStorage.setItem('onboarding_plan', response.plan ?? 'Free');
-
-      router.replace('/(auth)/onboarding');
-    } catch (err: any) {
-      setErrorMsg(err?.code ? getFirebaseAuthError(err.code) : (err?.message ?? 'Registration failed. Please try again.'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const s1 = step1Form;
+  const s2 = step2Form;
+  const s1v = s1.watch();
+  const s2v = s2.watch();
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -65,33 +20,44 @@ export default function RegisterScreen() {
       <Text style={styles.title}>Create your ShiftWork account</Text>
       <Text style={styles.stepIndicator}>Step {step} of {totalSteps}</Text>
 
-      {!!errorMsg && <Text style={styles.error}>{errorMsg}</Text>}
-
       {step === 1 && (
         <View>
           <Text style={styles.sectionTitle}>Your Account</Text>
-          <TextInput style={styles.input} placeholder="Full Name" value={displayName} onChangeText={setDisplayName} autoCapitalize="words" />
-          <TextInput style={styles.input} placeholder="Email Address" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
-          <TextInput style={styles.input} placeholder="Password (min 8 chars)" value={password} onChangeText={setPassword} secureTextEntry />
-          <TouchableOpacity style={styles.btnPrimary} onPress={() => setStep(2)} disabled={!displayName || !email || password.length < 8}>
-            <Text style={styles.btnPrimaryText}>Next: Company Info →</Text>
-          </TouchableOpacity>
+          <Controller control={s1.control} name="displayName" render={({ field: { value, onChange } }) => (
+            <TextInput style={styles.input} placeholder="Full Name" value={value} onChangeText={onChange} autoCapitalize="words" />
+          )} />
+          {s1.formState.errors.displayName && <Text style={styles.error}>{s1.formState.errors.displayName.message}</Text>}
+          <Controller control={s1.control} name="email" render={({ field: { value, onChange } }) => (
+            <TextInput style={styles.input} placeholder="Email Address" value={value} onChangeText={onChange} keyboardType="email-address" autoCapitalize="none" />
+          )} />
+          {s1.formState.errors.email && <Text style={styles.error}>{s1.formState.errors.email.message}</Text>}
+          <Controller control={s1.control} name="password" render={({ field: { value, onChange } }) => (
+            <TextInput style={styles.input} placeholder="Password (min 8 chars)" value={value} onChangeText={onChange} secureTextEntry />
+          )} />
+          {s1.formState.errors.password && <Text style={styles.error}>{s1.formState.errors.password.message}</Text>}
+          <Pressable style={styles.btnPrimary} onPress={s1.handleSubmit(() => setStep(2))}>
+            <Text style={styles.btnPrimaryText}>Next: Company Info</Text>
+          </Pressable>
         </View>
       )}
 
       {step === 2 && (
         <View>
           <Text style={styles.sectionTitle}>Your Company</Text>
-          <TextInput style={styles.input} placeholder="Company Name" value={companyName} onChangeText={setCompanyName} />
-          <TextInput style={styles.input} placeholder="Company Email" value={companyEmail} onChangeText={setCompanyEmail} keyboardType="email-address" autoCapitalize="none" />
-          <TextInput style={styles.input} placeholder="Phone (optional)" value={companyPhone} onChangeText={setCompanyPhone} keyboardType="phone-pad" />
+          <Controller control={s2.control} name="companyName" render={({ field: { value, onChange } }) => (
+            <TextInput style={styles.input} placeholder="Company Name" value={value} onChangeText={onChange} />
+          )} />
+          {s2.formState.errors.companyName && <Text style={styles.error}>{s2.formState.errors.companyName.message}</Text>}
+          <Controller control={s2.control} name="companyEmail" render={({ field: { value, onChange } }) => (
+            <TextInput style={styles.input} placeholder="Company Email" value={value} onChangeText={onChange} keyboardType="email-address" autoCapitalize="none" />
+          )} />
+          {s2.formState.errors.companyEmail && <Text style={styles.error}>{s2.formState.errors.companyEmail.message}</Text>}
+          <Controller control={s2.control} name="companyPhone" render={({ field: { value, onChange } }) => (
+            <TextInput style={styles.input} placeholder="Phone (optional)" value={value} onChangeText={onChange} keyboardType="phone-pad" />
+          )} />
           <View style={styles.row}>
-            <TouchableOpacity style={styles.btnSecondary} onPress={() => setStep(1)}>
-              <Text style={styles.btnSecondaryText}>← Back</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btnPrimary} onPress={() => setStep(3)} disabled={!companyName || !companyEmail}>
-              <Text style={styles.btnPrimaryText}>Next: Confirm →</Text>
-            </TouchableOpacity>
+            <Pressable style={styles.btnSecondary} onPress={() => setStep(1)}><Text style={styles.btnSecondaryText}>Back</Text></Pressable>
+            <Pressable style={styles.btnPrimary} onPress={s2.handleSubmit(() => setStep(3))}><Text style={styles.btnPrimaryText}>Next: Confirm</Text></Pressable>
           </View>
         </View>
       )}
@@ -99,27 +65,23 @@ export default function RegisterScreen() {
       {step === 3 && (
         <View>
           <Text style={styles.sectionTitle}>Confirm & Create Account</Text>
-          <Text style={styles.summaryLine}><Text style={styles.summaryLabel}>Name: </Text>{displayName}</Text>
-          <Text style={styles.summaryLine}><Text style={styles.summaryLabel}>Email: </Text>{email}</Text>
-          <Text style={styles.summaryLine}><Text style={styles.summaryLabel}>Company: </Text>{companyName}</Text>
-          <Text style={styles.summaryLine}><Text style={styles.summaryLabel}>Company Email: </Text>{companyEmail}</Text>
-          <Text style={styles.notice}>
-            Your account starts on the Free plan with demo sandbox data so you can explore immediately.
-          </Text>
+          <Text style={styles.summaryLine}><Text style={styles.summaryLabel}>Name: </Text>{s1v.displayName}</Text>
+          <Text style={styles.summaryLine}><Text style={styles.summaryLabel}>Email: </Text>{s1v.email}</Text>
+          <Text style={styles.summaryLine}><Text style={styles.summaryLabel}>Company: </Text>{s2v.companyName}</Text>
+          <Text style={styles.summaryLine}><Text style={styles.summaryLabel}>Company Email: </Text>{s2v.companyEmail}</Text>
+          <Text style={styles.notice}>Your account starts on the Free plan with demo sandbox data so you can explore immediately.</Text>
           <View style={styles.row}>
-            <TouchableOpacity style={styles.btnSecondary} onPress={() => setStep(2)}>
-              <Text style={styles.btnSecondaryText}>← Back</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.btnPrimary, styles.btnSuccess]} onPress={handleRegister} disabled={loading}>
-              <Text style={styles.btnPrimaryText}>{loading ? 'Creating…' : 'Create Account'}</Text>
-            </TouchableOpacity>
+            <Pressable style={styles.btnSecondary} onPress={() => setStep(2)}><Text style={styles.btnSecondaryText}>Back</Text></Pressable>
+            <Pressable style={[styles.btnPrimary, styles.btnSuccess]} onPress={handleRegister} disabled={loading}>
+              <Text style={styles.btnPrimaryText}>{loading ? 'Creating...' : 'Create Account'}</Text>
+            </Pressable>
           </View>
         </View>
       )}
 
-      <TouchableOpacity onPress={() => router.replace('/(auth)/login')} style={styles.signInLink}>
+      <Pressable onPress={() => router.replace('/(auth)/login')} style={styles.signInLink}>
         <Text style={styles.signInLinkText}>Already have an account? Sign in</Text>
-      </TouchableOpacity>
+      </Pressable>
     </ScrollView>
   );
 }
@@ -131,13 +93,13 @@ const styles = StyleSheet.create({
   stepIndicator: { color: colors.muted, marginBottom: 20 },
   sectionTitle: { fontSize: 18, fontWeight: '600', marginBottom: 16 },
   input: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, marginBottom: 12, backgroundColor: '#fff', fontSize: 16 },
+  error: { color: colors.danger, fontSize: 12, marginTop: -8, marginBottom: 8 },
   btnPrimary: { backgroundColor: colors.primary, padding: 14, borderRadius: 8, alignItems: 'center', flex: 1, marginLeft: 4 },
   btnPrimaryText: { color: '#fff', fontWeight: '600', fontSize: 16 },
   btnSuccess: { backgroundColor: '#28a745' },
   btnSecondary: { backgroundColor: '#6c757d', padding: 14, borderRadius: 8, alignItems: 'center', flex: 1, marginRight: 4 },
   btnSecondaryText: { color: '#fff', fontWeight: '600', fontSize: 16 },
   row: { flexDirection: 'row', marginTop: 8 },
-  error: { backgroundColor: '#f8d7da', color: '#721c24', padding: 12, borderRadius: 8, marginBottom: 16 },
   summaryLine: { fontSize: 15, marginBottom: 8 },
   summaryLabel: { fontWeight: '600' },
   notice: { color: colors.muted, marginVertical: 16, lineHeight: 20 },
