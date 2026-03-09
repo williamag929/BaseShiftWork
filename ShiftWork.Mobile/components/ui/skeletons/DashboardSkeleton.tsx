@@ -5,7 +5,7 @@ import { colors, spacing } from '@/styles/tokens';
 
 function SkeletonCard({ height = 80 }: { height?: number }) {
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { minHeight: height }]}>
       <Skeleton width="40%" height={14} borderRadius={6} style={{ marginBottom: 10 }} />
       <Skeleton width="70%" height={20} borderRadius={6} />
     </View>

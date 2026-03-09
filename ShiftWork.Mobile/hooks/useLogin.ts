@@ -35,6 +35,7 @@ export function useLogin(): UseLoginReturn {
   const form = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
 
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
     (async () => {
       try {
         const shouldOffer = await biometricAuthService.shouldOfferBiometric();
@@ -42,12 +43,13 @@ export function useLogin(): UseLoginReturn {
           const types = await biometricAuthService.getSupportedTypes();
           setBiometricType(biometricAuthService.getAuthTypeName(types));
           setShowBiometric(true);
-          setTimeout(() => handleBiometricLogin(), 500);
+          timer = setTimeout(() => handleBiometricLogin(), 500);
         }
       } catch (error) {
         logger.error('[Login] Error checking biometric:', error);
       }
     })();
+    return () => clearTimeout(timer);
   }, []);
 
   const handleBiometricLogin = async () => {

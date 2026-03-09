@@ -13,15 +13,15 @@ interface TimeOffSectionProps {
 }
 
 const STATUS_BG: Record<string, string> = {
-  Approved: '#27AE60',
-  Denied: '#E74C3C',
-  Pending: '#F39C12',
+  Approved: colors.success,
+  Denied: colors.danger,
+  Pending: colors.warning,
 };
 
 const CARD_BORDER: Record<string, ViewStyle> = {
-  Approved: { borderLeftWidth: 4, borderLeftColor: '#27AE60' },
-  Denied: { borderLeftWidth: 4, borderLeftColor: '#E74C3C' },
-  Pending: { borderLeftWidth: 4, borderLeftColor: '#F39C12' },
+  Approved: { borderLeftWidth: 4, borderLeftColor: colors.success },
+  Denied: { borderLeftWidth: 4, borderLeftColor: colors.danger },
+  Pending: { borderLeftWidth: 4, borderLeftColor: colors.warning },
 };
 
 export function TimeOffSection({ loading, requests, onRequest }: TimeOffSectionProps) {

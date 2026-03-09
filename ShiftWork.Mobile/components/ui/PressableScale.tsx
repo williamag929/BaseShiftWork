@@ -11,7 +11,7 @@ interface PressableScaleProps extends PressableProps {
   scaleTo?: number;
 }
 
-export function PressableScale({ scaleTo = 0.96, style, children, ...props }: PressableScaleProps) {
+export function PressableScale({ scaleTo = 0.96, style, children, onPressIn, onPressOut, ...props }: PressableScaleProps) {
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -21,8 +21,14 @@ export function PressableScale({ scaleTo = 0.96, style, children, ...props }: Pr
   return (
     <AnimatedPressable
       style={[animatedStyle, style as any]}
-      onPressIn={() => { scale.value = withSpring(scaleTo, { damping: 15, stiffness: 300 }); }}
-      onPressOut={() => { scale.value = withSpring(1, { damping: 15, stiffness: 300 }); }}
+      onPressIn={(e) => {
+        scale.value = withSpring(scaleTo, { damping: 15, stiffness: 300 });
+        onPressIn?.(e);
+      }}
+      onPressOut={(e) => {
+        scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+        onPressOut?.(e);
+      }}
       {...props}
     >
       {children}

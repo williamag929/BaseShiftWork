@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import type { StyleProp, ViewStyle } from 'react-native';
 import Animated, {
   useSharedValue,
   withRepeat,
@@ -11,7 +12,7 @@ interface SkeletonProps {
   width: number | string;
   height: number;
   borderRadius?: number;
-  style?: object;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function Skeleton({ width, height, borderRadius = 8, style }: SkeletonProps) {
@@ -28,7 +29,7 @@ export function Skeleton({ width, height, borderRadius = 8, style }: SkeletonPro
       style={[
         { width: width as any, height, borderRadius, backgroundColor: colors.border },
         animatedStyle,
-        style,
+        style as ViewStyle,
       ]}
     />
   );

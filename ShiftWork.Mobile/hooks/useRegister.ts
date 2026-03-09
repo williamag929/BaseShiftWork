@@ -25,10 +25,11 @@ export function useRegister() {
     const step1 = step1Form.getValues();
     const step2 = step2Form.getValues();
     setLoading(true);
+    let firebaseCredential: Awaited<ReturnType<typeof createUserWithEmailAndPassword>> | null = null;
     try {
-      const credential = await createUserWithEmailAndPassword(auth, step1.email, step1.password);
+      firebaseCredential = await createUserWithEmailAndPassword(auth, step1.email, step1.password);
       const response = await registrationService.register({
-        firebaseUid: credential.user.uid,
+        firebaseUid: firebaseCredential.user.uid,
         userEmail: step1.email,
         userDisplayName: step1.displayName,
         companyName: step2.companyName,
@@ -41,6 +42,10 @@ export function useRegister() {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace('/(auth)/onboarding' as any);
     } catch (err: any) {
+      // Roll back the Firebase account if the API call failed to prevent orphaned accounts.
+      if (firebaseCredential) {
+        try { await firebaseCredential.user.delete(); } catch { /* ignore cleanup failure */ }
+      }
       const msg = err?.code ? getFirebaseAuthError(err.code) : (err?.message ?? 'Registration failed. Please try again.');
       toast.error(msg);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
