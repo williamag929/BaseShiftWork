@@ -1,0 +1,24 @@
+﻿node : FAIL utils/__tests__/schemas.test.ts
+At line:1 char:1
++ node "node_modules/jest-expo/bin/jest.js" "utils/__tests__/schemas.te ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (FAIL utils/__tests__/schemas.test 
+   .ts:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  ΓùÅ Test suite failed to run
+
+    ReferenceError: You are trying to `import` a file outside of the scope of 
+the test code.
+
+      at Runtime._execModule (node_modules/jest-runtime/build/index.js:1216:13)
+      at require (node_modules/expo/src/winter/runtime.native.ts:20:43)
+      at getValue (node_modules/expo/src/winter/installGlobal.ts:97:21)
+      at Object.get [as __ExpoImportMetaRegistry] 
+(node_modules/expo/src/winter/installGlobal.ts:44:16)
+
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        1.277 s
+Ran all test suites matching utils/__tests__/schemas.test.ts.

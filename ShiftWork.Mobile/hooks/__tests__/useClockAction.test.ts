@@ -1,3 +1,5 @@
+jest.mock('@/config/firebase', () => ({ auth: {}, app: {} }));
+jest.mock('firebase/auth', () => ({ getAuth: jest.fn(), signOut: jest.fn() }));
 jest.mock('@/hooks/queries', () => ({
   useShiftEvents: jest.fn(() => ({ data: [], isLoading: false, isError: false, error: null })),
   useClockMutation: jest.fn(() => ({ mutateAsync: jest.fn(), isPending: false })),

@@ -4,7 +4,6 @@ jest.mock('expo-haptics', () => ({
   ImpactFeedbackStyle: { Heavy: 'heavy' },
   NotificationFeedbackType: { Success: 'success' },
 }));
-jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 jest.mock('expo-image', () => ({ Image: 'Image' }));
 jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Ionicons' }));
 jest.mock('@/styles/tokens', () => ({
