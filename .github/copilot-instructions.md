@@ -1,6 +1,8 @@
 # Copilot Instructions — ShiftWork
 
-> **Quick Reference:** For comprehensive documentation, see [WIKI_CONTENT_GUIDE.md](../WIKI_CONTENT_GUIDE.md)
+> **Quick Reference:** For comprehensive documentation, see [WIKI_CONTENT_GUIDE.md](../Docs/WIKI_CONTENT_GUIDE.md)
+>
+> **Mobile work?** Read [ShiftWork.Mobile/Docs/SKILLS.md](../ShiftWork.Mobile/Docs/SKILLS.md) and [ShiftWork.Mobile/Docs/PRODUCTION_PLAN.md](../ShiftWork.Mobile/Docs/PRODUCTION_PLAN.md) **before writing any mobile code.**
 
 ## Big picture architecture
 - **Monorepo Structure:** Three primary apps in one repository
@@ -19,9 +21,10 @@
 - **Angular:** Run `npm install`, then `npm run start` in ShiftWork.Angular; camera + Wake Lock require HTTPS with a local cert (see [ShiftWork.Angular/README.md](../ShiftWork.Angular/README.md)).
   - For HTTPS: `ng serve --ssl true --ssl-key "./ssl/localhost.key" --ssl-cert "./ssl/localhost.crt"`
   - Required env vars: `API_URL`, Firebase config vars
-- **Mobile:** Run `npm install --legacy-peer-deps`, copy `.env.example` to `.env`, configure, then `npm start` in ShiftWork.Mobile directory (see [ShiftWork.Mobile/README.md](../ShiftWork.Mobile/README.md)).
+- **Mobile:** Run `npm install --legacy-peer-deps`, copy `.env.example` to `.env`, configure, then `npx expo start --clear` in ShiftWork.Mobile directory (see [ShiftWork.Mobile/README.md](../ShiftWork.Mobile/README.md)).
   - Use `npm run ios` or `npm run android` for platform-specific builds
   - Requires `EXPO_PUBLIC_` prefixed env vars
+  - **Metro cache must be cleared after any Babel/package change:** `npx expo start --clear`
 - **Python MCP server:** From python_client directory, create venv, install requirements, and run `python http_mcp_server.py --mode http --port 8080` (see [AGENT.md](../AGENT.md)).
 
 ## Project-specific conventions and patterns
@@ -31,6 +34,23 @@
 - **Kiosk Requirements:** Angular kiosk uses Wake Lock API and camera; requires HTTPS in local dev; avoid caching POST requests in PWA service worker (see [ShiftWork.Angular/README.md](../ShiftWork.Angular/README.md)).
 - **Mobile Naming:** Mobile uses `EXPO_PUBLIC_` prefix for all environment variables; Firebase Auth currently disabled with mock in config/firebase.ts.
 - **Code Organization:** Follow separation of concerns: Controllers handle HTTP, Services contain business logic, Repositories handle data access.
+
+## Mobile UI — Mandatory Rules for Agents
+
+> These rules apply to ALL work inside `ShiftWork.Mobile/`. Read [SKILLS.md](../ShiftWork.Mobile/Docs/SKILLS.md) for full code patterns.
+
+- **Screen size limit:** No screen file in `app/(tabs)/` or `app/(auth)/` may exceed 200 lines. Extract to `components/screens/` and `hooks/` if needed.
+- **No raw useState for forms:** All forms (login, register, PIN, time-off, profile edit) must use `react-hook-form` + `zod`. See `utils/schemas/` for shared schemas.
+- **No TouchableOpacity:** Use `Pressable` or the `PressableScale` component from `components/ui/`.
+- **No FlatList:** Use `@shopify/flash-list` `FlashList` with `estimatedItemSize` for all lists.
+- **No hardcoded colors or sizes:** Import from `styles/tokens.ts` — never use hex values or raw pixel numbers inline.
+- **No unguarded console.log:** Use `utils/logger.ts` wrapper or guard with `if (__DEV__)`.
+- **No Alert.alert() in screens:** Use the `useToast()` hook from `hooks/useToast.ts`.
+- **Animations required:** Every list item mount, modal open/close, and button press must use `react-native-reanimated`. Haptics on every action outcome.
+- **Haptics required:** Call `expo-haptics` on every successful action and every error.
+- **Three states always:** Every data-dependent UI must handle: loading skeleton → populated → empty state (`EmptyState` component).
+- **Active branch:** Mobile production work happens on `feature/mobile-ui-enhancements`.
+- **Execution order:** Follow the 6-phase plan in [PRODUCTION_PLAN.md](../ShiftWork.Mobile/Docs/PRODUCTION_PLAN.md) — do not skip phases.
 
 ## Integrations and cross-component details
 - **Authentication:** API validates Firebase JWT tokens using Google's public keys with audience/issuer checks; Angular and Mobile read API/Firebase config from environment variables (see [AGENT.md](../AGENT.md)).
@@ -46,9 +66,30 @@
 - **MCP Utilities:** python_client/http_mcp_server.py (MCP server); documentation in python_client/README.txt and python_client/MCP_SERVER.md.
 
 ## Key documentation files
-- **[AGENT.md](../AGENT.md)** - Complete agent guide with API reference, workflows, and local development setup
+
+### Solution-wide (in `Docs/`)
+- **[Docs/AGENT.md](../Docs/AGENT.md)** - Complete agent guide with API reference, workflows, and local development setup
 - **[README.md](../README.md)** - Project overview and architecture
-- **[QUICK_START.md](../QUICK_START.md)** - 5-minute quick start guide for MCP and issues
-- **[CONTRIBUTING.md](../CONTRIBUTING.md)** - Contribution guidelines and development workflow
-- **[WIKI_CONTENT_GUIDE.md](../WIKI_CONTENT_GUIDE.md)** - Complete wiki structure and content mapping
-- **Component READMEs:** ShiftWork.Angular/README.md, ShiftWork.Mobile/README.md, ShiftWork.Mobile/MOBILE_AGENT.md
+- **[Docs/QUICK_START.md](../Docs/QUICK_START.md)** - 5-minute quick start guide for MCP and issues
+- **[Docs/CONTRIBUTING.md](../Docs/CONTRIBUTING.md)** - Contribution guidelines and development workflow
+- **[Docs/WIKI_CONTENT_GUIDE.md](../Docs/WIKI_CONTENT_GUIDE.md)** - Complete wiki structure and content mapping
+- **[Docs/WEBHOOK_INTEGRATION.md](../Docs/WEBHOOK_INTEGRATION.md)** - Webhook integration guide
+
+### API (`ShiftWork.Api/Docs/`)
+- **[ShiftWork.Api/Docs/AUDIT_API_REFERENCE.md](../ShiftWork.Api/Docs/AUDIT_API_REFERENCE.md)** - Audit API endpoints
+- **[ShiftWork.Api/Docs/WEBHOOK_INTEGRATION.md](../ShiftWork.Api/Docs/WEBHOOK_INTEGRATION.md)** - API webhook details
+- **[ShiftWork.Api/Docs/ROLE_PERMISSION_REFACTOR.md](../ShiftWork.Api/Docs/ROLE_PERMISSION_REFACTOR.md)** - Auth/roles architecture
+
+### Mobile (`ShiftWork.Mobile/Docs/`)
+- **[ShiftWork.Mobile/Docs/SKILLS.md](../ShiftWork.Mobile/Docs/SKILLS.md)** - ⚠️ READ FIRST — UI skill requirements, code patterns, package usage
+- **[ShiftWork.Mobile/Docs/PRODUCTION_PLAN.md](../ShiftWork.Mobile/Docs/PRODUCTION_PLAN.md)** - ⚠️ READ FIRST — 6-phase refactor plan with acceptance criteria
+- **[ShiftWork.Mobile/Docs/MOBILE_AGENT.md](../ShiftWork.Mobile/Docs/MOBILE_AGENT.md)** - Mobile-specific agent guide
+- **[ShiftWork.Mobile/README.md](../ShiftWork.Mobile/README.md)** - Mobile project overview
+
+### Angular (`ShiftWork.Angular/Docs/`)
+- **[ShiftWork.Angular/Docs/PERMISSION_GATING_GUIDE.md](../ShiftWork.Angular/Docs/PERMISSION_GATING_GUIDE.md)** - Angular permission system
+- **[ShiftWork.Angular/README.md](../ShiftWork.Angular/README.md)** - Angular project overview
+
+### Python MCP (`python_client/Docs/`)
+- **[python_client/Docs/MCP_SERVER.md](../python_client/Docs/MCP_SERVER.md)** - MCP server reference
+- **[python_client/Docs/MCP_TOOLS_BUILD_GUIDE.md](../python_client/Docs/MCP_TOOLS_BUILD_GUIDE.md)** - Building MCP tools
