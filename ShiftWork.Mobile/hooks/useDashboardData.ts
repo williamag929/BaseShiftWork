@@ -6,6 +6,10 @@ import { apiClient } from '@/services/api-client';
 import { dbService } from '@/services/db';
 import { getStartOfWeek, getEndOfWeek, formatDateForApi } from '@/utils/date.utils';
 import type { ScheduleShiftDto, ShiftEventDto } from '@/types/api';
+import { timeOffRequestService, TimeOffRequest } from '@/services/time-off-request.service';
+import { locationService } from '@/services/location.service';
+import { getActiveClockInAt } from '@/utils';
+import { logger } from '@/utils/logger';
 
 export interface DashboardData {
   isOnline: boolean;
@@ -19,6 +23,14 @@ export interface DashboardData {
   error?: string | null;
   refresh: () => Promise<void>;
   lastUpdated: Date | null;
+  // Phase 2 additions
+  timeOffRequests: TimeOffRequest[];
+  timeOffLoading: boolean;
+  activeClockInAt: Date | null;
+  elapsedSeconds: number;
+  isClockedIn: boolean;
+  todayShift: ScheduleShiftDto | null;
+  todayShiftLocationName: string | null;
 }
 
 export const useDashboardData = (companyId?: string | null, personId?: number | null): DashboardData => {
@@ -30,10 +42,14 @@ export const useDashboardData = (companyId?: string | null, personId?: number | 
   const [recentEvents, setRecentEvents] = useState<ShiftEventDto[]>([]);
   const [personStatus, setPersonStatus] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [timeOffRequests, setTimeOffRequests] = useState<TimeOffRequest[]>([]);
+  const [timeOffLoading, setTimeOffLoading] = useState(false);
+  const [activeClockInAt, setActiveClockInAt] = useState<Date | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [todayShiftLocationName, setTodayShiftLocationName] = useState<string | null>(null);
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const hoursThisWeek = useMemo(() => {
-    // Compute hours from recent events constrained to this week
+  const hoursThisWeek = useMemo(() => {    // Compute hours from recent events constrained to this week
     const now = new Date();
     const start = getStartOfWeek(now);
     const end = getEndOfWeek(now);
@@ -69,6 +85,87 @@ export const useDashboardData = (companyId?: string | null, personId?: number | 
     }).length;
     return count;
   }, [upcoming]);
+
+  const isClockedIn = useMemo(() => {
+    const latest = recentEvents?.[0];
+    if (latest?.eventType === ShiftEventTypes.ClockIn) return true;
+    return !!activeClockInAt;
+  }, [recentEvents, activeClockInAt]);
+
+  const todayShift = useMemo(() => {
+    if (!upcoming?.length) return null;
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+    return upcoming.find((s) => {
+      const start = new Date(s.startDate);
+      return start >= todayStart && start < todayEnd;
+    }) ?? null;
+  }, [upcoming]);
+
+  // Derive activeClockInAt from recentEvents
+  useEffect(() => {
+    const latest = recentEvents?.[0];
+    (async () => {
+      if (latest?.eventType === ShiftEventTypes.ClockIn) {
+        setActiveClockInAt(new Date(latest.eventDate));
+      } else {
+        const saved = await getActiveClockInAt();
+        setActiveClockInAt(saved ? new Date(saved) : null);
+      }
+    })();
+  }, [recentEvents]);
+
+  // Live elapsed timer
+  useEffect(() => {
+    if (!isClockedIn || !activeClockInAt) {
+      setElapsedSeconds(0);
+      return;
+    }
+    const update = () => {
+      const ms = Date.now() - activeClockInAt.getTime();
+      setElapsedSeconds(Math.max(0, Math.floor(ms / 1000)));
+    };
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, [isClockedIn, activeClockInAt]);
+
+  // Load time off requests
+  useEffect(() => {
+    if (!companyId || !personId) return;
+    setTimeOffLoading(true);
+    Promise.all([
+      timeOffRequestService.getPendingTimeOff(companyId, personId),
+      timeOffRequestService.getUpcomingTimeOff(companyId, personId),
+    ])
+      .then(([pending, upcomingTOR]) => {
+        const combined = [...pending, ...upcomingTOR];
+        const unique = combined.filter((item, idx, self) =>
+          idx === self.findIndex((t) => t.timeOffRequestId === item.timeOffRequestId)
+        );
+        setTimeOffRequests(unique.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()));
+      })
+      .catch((err) => logger.error('[useDashboardData] Error loading time off:', err))
+      .finally(() => setTimeOffLoading(false));
+  }, [companyId, personId]);
+
+  // Fetch location name for today's shift
+  useEffect(() => {
+    if (!companyId || !todayShift?.locationId) {
+      setTodayShiftLocationName(null);
+      return;
+    }
+    (async () => {
+      try {
+        const loc = await locationService.getLocationById(companyId, todayShift.locationId);
+        setTodayShiftLocationName(loc?.name ?? null);
+      } catch {
+        setTodayShiftLocationName(null);
+      }
+    })();
+  }, [companyId, todayShift?.locationId]);
 
   useEffect(() => {
     (async () => {
@@ -176,5 +273,10 @@ export const useDashboardData = (companyId?: string | null, personId?: number | 
     };
   }, [refresh]);
 
-  return { isOnline, loading, refreshing, hoursThisWeek, shiftsThisWeek, upcoming, recentEvents, personStatus, error, refresh, lastUpdated };
+  return {
+    isOnline, loading, refreshing, hoursThisWeek, shiftsThisWeek,
+    upcoming, recentEvents, personStatus, error, refresh, lastUpdated,
+    timeOffRequests, timeOffLoading, activeClockInAt, elapsedSeconds,
+    isClockedIn, todayShift, todayShiftLocationName,
+  };
 };
