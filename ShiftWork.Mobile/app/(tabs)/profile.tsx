@@ -9,9 +9,12 @@ import type { PersonDto } from '@/types/api';
 import PhotoCapture from '@/components/PhotoCapture';
 import { Card, SectionHeader } from '@/components/ui';
 import { colors } from '@/styles/theme';
+import { useToast } from '@/hooks/useToast';
+import { logger } from '@/utils/logger';
 
 export default function ProfileScreen() {
   const { companyId, personId, signOut, setPersonProfile } = useAuthStore();
+  const toast = useToast();
   
   const [person, setPerson] = useState<PersonDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,7 +56,7 @@ export default function ProfileScreen() {
       setBiometricEnabled(enabled);
       setBiometricType(typeName);
     } catch (error) {
-      console.error('Error checking biometric availability:', error);
+      logger.error('[Profile] Error checking biometric availability:', error);
     }
   };
 
@@ -69,8 +72,8 @@ export default function ProfileScreen() {
       setPhoneNumber(data.phoneNumber || '');
       setPhotoUrl(data.photoUrl || '');
     } catch (error: any) {
-      console.error('Error loading profile:', error);
-      Alert.alert('Error', error.message || 'Failed to load profile');
+      logger.error('[Profile] Error loading profile:', error);
+      toast.error(error.message || 'Failed to load profile');
     } finally {
       setLoading(false);
     }
@@ -98,19 +101,19 @@ export default function ProfileScreen() {
         
         if (success) {
           setBiometricEnabled(true);
-          Alert.alert('Success', `${biometricType} login enabled`);
+          toast.success(`${biometricType} login enabled`);
         } else {
-          Alert.alert('Failed', `Could not enable ${biometricType} login`);
+          toast.error(`Could not enable ${biometricType} login`);
         }
       } else {
         // Disable biometric
         await biometricAuthService.disableBiometric();
         setBiometricEnabled(false);
-        Alert.alert('Success', `${biometricType} login disabled`);
+        toast.success(`${biometricType} login disabled`);
       }
     } catch (error: any) {
-      console.error('Error toggling biometric:', error);
-      Alert.alert('Error', error.message || 'Failed to update biometric settings');
+      logger.error('[Profile] Error toggling biometric:', error);
+      toast.error(error.message || 'Failed to update biometric settings');
     }
   };
 
@@ -128,7 +131,7 @@ export default function ProfileScreen() {
         throw new Error('Upload failed: Got local file path instead of S3 URL');
       }
       
-      console.log('Saving S3 URL to database:', uploadedUrl);
+      logger.log('[Profile] Saving S3 URL to database:', uploadedUrl);
       
       // Update profile with new photo URL using partial update
       const updated = await peopleService.partialUpdatePerson(companyId, personId, {
@@ -141,10 +144,10 @@ export default function ProfileScreen() {
       // Update auth store
       setPersonProfile({ photoUrl: uploadedUrl });
       
-      Alert.alert('Success', 'Photo updated successfully');
+      toast.success('Photo updated successfully');
     } catch (error: any) {
-      console.error('Error uploading photo:', error);
-      Alert.alert('Error', error.message || 'Failed to update photo');
+      logger.error('[Profile] Error uploading photo:', error);
+      toast.error(error.message || 'Failed to update photo');
     } finally {
       setUploadingPhoto(false);
     }
@@ -166,10 +169,10 @@ export default function ProfileScreen() {
       // Update auth store
       setPersonProfile({ name: name.trim(), email: email.trim() });
       
-      Alert.alert('Success', 'Profile updated successfully');
+      toast.success('Profile updated successfully');
     } catch (error: any) {
-      console.error('Error saving profile:', error);
-      Alert.alert('Error', error.message || 'Failed to update profile');
+      logger.error('[Profile] Error saving profile:', error);
+      toast.error(error.message || 'Failed to update profile');
     } finally {
       setSaving(false);
     }
@@ -189,17 +192,17 @@ export default function ProfileScreen() {
     if (!companyId || !personId) return;
 
     if (!currentPin || !newPin || !confirmPin) {
-      Alert.alert('Validation Error', 'Please fill in all PIN fields');
+      toast.error('Please fill in all PIN fields');
       return;
     }
 
     if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
-      Alert.alert('Validation Error', 'PIN must be exactly 4 digits');
+      toast.error('PIN must be exactly 4 digits');
       return;
     }
 
     if (newPin !== confirmPin) {
-      Alert.alert('Validation Error', 'New PIN and confirmation do not match');
+      toast.error('New PIN and confirmation do not match');
       return;
     }
 
@@ -210,16 +213,17 @@ export default function ProfileScreen() {
       setCurrentPin('');
       setNewPin('');
       setConfirmPin('');
-      Alert.alert('Success', 'PIN changed successfully');
+      toast.success('PIN changed successfully');
     } catch (error: any) {
-      console.error('Error changing PIN:', error);
-      Alert.alert('Error', error.message || 'Failed to change PIN. Please check your current PIN.');
+      logger.error('[Profile] Error changing PIN:', error);
+      toast.error(error.message || 'Failed to change PIN. Please check your current PIN.');
     } finally {
       setSaving(false);
     }
   };
 
   const handleSignOut = () => {
+    // TODO Phase 3: replace with bottom-sheet confirm
     Alert.alert(
       'Sign Out',
       'Are you sure you want to sign out?',

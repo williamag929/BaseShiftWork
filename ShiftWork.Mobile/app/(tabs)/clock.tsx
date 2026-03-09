@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, TextInput, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, TextInput, Image, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Device from 'expo-device';
 import { shiftEventService, dbService } from '@/services';
@@ -16,9 +16,12 @@ import { getActiveClockInAt, saveActiveClockInAt, clearActiveClockInAt } from '@
 import { formatScheduleTime } from '@/utils/date.utils';
 import { Card } from '@/components/ui';
 import { colors } from '@/styles/theme';
+import { logger } from '@/utils/logger';
+import { useToast } from '@/hooks/useToast';
 import type { KioskQuestionDto, ScheduleShiftDto } from '@/types/api';
 
 export default function ClockScreen() {
+  const toast = useToast();
   const { companyId, personId, name } = useAuthStore();
   const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
   const [events, setEvents] = useState<ShiftEventDto[]>([]);
@@ -166,11 +169,11 @@ export default function ClockScreen() {
 
   const handleClock = async () => {
     if (!companyId) {
-      Alert.alert('Missing Company', 'Company ID is not set.');
+      toast.error('Company ID is not set.');
       return;
     }
     if (!personId) {
-      Alert.alert('Not Signed In', 'Please sign in to clock in/out.');
+      toast.error('Please sign in to clock in/out.');
       return;
     }
 
@@ -210,11 +213,12 @@ export default function ClockScreen() {
         setActiveClockInAt(null);
         await clearActiveClockInAt();
       }
-      Alert.alert('Success', isClockedIn ? 'Clocked out successfully' : 'Clocked in successfully');
+      toast.success(isClockedIn ? 'Clocked out successfully' : 'Clocked in successfully');
     } catch (e: any) {
       const msg = e?.message || 'Clock action failed';
       setError(msg);
-      Alert.alert('Error', msg);
+      logger.error('[ClockScreen] handleClock error:', msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

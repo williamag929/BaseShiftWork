@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
@@ -12,6 +12,8 @@ import { useAuthStore } from '@/store/authStore';
 import { saveUserData, saveCompanyId } from '@/utils/storage.utils';
 import { colors } from '@/styles/theme';
 import { Button } from '@/components/ui';
+import { useToast } from '@/hooks/useToast';
+import { logger } from '@/utils/logger';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -23,6 +25,7 @@ export default function LoginScreen() {
   const setCompanyId = useAuthStore((s) => s.setCompanyId);
   const setPersonId = useAuthStore((s) => s.setPersonId);
   const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
+  const toast = useToast();
 
   useEffect(() => {
     checkBiometricAndAttemptLogin();
@@ -41,7 +44,7 @@ export default function LoginScreen() {
         setTimeout(() => handleBiometricLogin(), 500);
       }
     } catch (error) {
-      console.error('Error checking biometric:', error);
+      logger.error('[Login] Error checking biometric:', error);
     }
   };
 
@@ -66,14 +69,14 @@ export default function LoginScreen() {
         router.replace('/(tabs)/dashboard' as Href<string>);
       }
     } catch (error) {
-      console.error('Biometric login error:', error);
-      Alert.alert('Error', 'Biometric authentication failed');
+      logger.error('[Login] Biometric login error:', error);
+      toast.error('Biometric authentication failed');
     }
   };
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password');
+      toast.error('Please enter email and password');
       return;
     }
 
@@ -99,7 +102,7 @@ export default function LoginScreen() {
       router.replace('/(tabs)/dashboard' as Href<string>);
     } catch (error: any) {
       setLoading(false);
-      Alert.alert('Login Failed', getFirebaseAuthError(error?.code));
+      toast.error(getFirebaseAuthError(error?.code));
     }
   };
 

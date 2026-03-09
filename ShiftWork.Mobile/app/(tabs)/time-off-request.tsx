@@ -5,7 +5,6 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
   ActivityIndicator,
   Platform,
 } from 'react-native';
@@ -17,10 +16,13 @@ import { useAuthStore } from '@/store/authStore';
 import { timeOffRequestService, CreateTimeOffRequest } from '@/services/time-off-request.service';
 import { colors } from '@/styles/theme';
 import { Button, Card } from '@/components/ui';
+import { useToast } from '@/hooks/useToast';
+import { logger } from '@/utils/logger';
 
 export default function TimeOffRequestScreen() {
   const router = useRouter();
   const { companyId, personId } = useAuthStore();
+  const toast = useToast();
 
   const [type, setType] = useState<'Vacation' | 'Sick' | 'PTO' | 'Unpaid' | 'Personal'>('Vacation');
   const [startDate, setStartDate] = useState(new Date());
@@ -45,7 +47,7 @@ export default function TimeOffRequestScreen() {
       timeOffRequestService
         .getPtoBalance(companyId, personId)
         .then(balance => setPtoBalance(balance.balance))
-        .catch(err => console.error('Error loading PTO balance:', err));
+        .catch(err => logger.error('[TimeOff] Error loading PTO balance:', err));
     }
   }, [companyId, personId]);
 
@@ -56,12 +58,12 @@ export default function TimeOffRequestScreen() {
 
   const handleSubmit = async () => {
     if (!companyId || !personId) {
-      Alert.alert('Error', 'User not authenticated');
+      toast.error('User not authenticated');
       return;
     }
 
     if (startDate > endDate) {
-      Alert.alert('Error', 'End date must be after start date');
+      toast.error('End date must be after start date');
       return;
     }
 
@@ -78,17 +80,11 @@ export default function TimeOffRequestScreen() {
 
     try {
       await timeOffRequestService.createTimeOffRequest(companyId, request);
-      Alert.alert(
-        'Success',
-        'Your time off request has been submitted for approval.',
-        [{ text: 'OK', onPress: () => router.back() }]
-      );
+      toast.success('Time off request submitted for approval.');
+      router.back();
     } catch (error: any) {
-      console.error('Error submitting time off request:', error);
-      Alert.alert(
-        'Error',
-        error.message || 'Failed to submit time off request. Please try again.'
-      );
+      logger.error('[TimeOff] Error submitting time off request:', error);
+      toast.error(error.message || 'Failed to submit time off request. Please try again.');
     } finally {
       setSubmitting(false);
     }

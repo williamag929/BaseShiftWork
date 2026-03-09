@@ -16,6 +16,7 @@ import { colors } from '@/styles/theme';
 import { peopleService } from '@/services/people.service';
 import { locationService } from '@/services/location.service';
 import { formatScheduleTime } from '@/utils/date.utils';
+import { logger } from '@/utils/logger';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -152,7 +153,7 @@ export default function DashboardScreen() {
             new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
           ));
         })
-        .catch(err => console.error('Error loading time off:', err))
+        .catch(err => logger.error('[Dashboard] Error loading time off:', err))
         .finally(() => setTimeOffLoading(false));
     }
   }, [companyId, personId]);
@@ -168,7 +169,7 @@ export default function DashboardScreen() {
       }
       pollingIntervalRef.current = setInterval(() => {
         if (appStateRef.current === 'active') {
-          console.log('Background polling: refreshing dashboard...');
+          logger.log('[Dashboard] Background polling: refreshing...');
           setSilentRefreshing(true);
           refresh().finally(() => {
             setTimeout(() => setSilentRefreshing(false), 1000);
@@ -188,7 +189,7 @@ export default function DashboardScreen() {
             data?.type === 'shift_changed' ||
             data?.type === 'time_off_approved' ||
             data?.type === 'time_off_denied') {
-          console.log('Dashboard update notification received, refreshing...');
+          logger.log('[Dashboard] Update notification received, refreshing...');
           setSilentRefreshing(true);
           refresh().finally(() => {
             setTimeout(() => setSilentRefreshing(false), 1000);
@@ -201,7 +202,7 @@ export default function DashboardScreen() {
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (appStateRef.current.match(/inactive|background/) && nextAppState === 'active') {
         // App came to foreground, refresh dashboard
-        console.log('App resumed, refreshing dashboard...');
+        logger.log('[Dashboard] App resumed, refreshing...');
         setSilentRefreshing(true);
         refresh().finally(() => {
           setTimeout(() => setSilentRefreshing(false), 1000);

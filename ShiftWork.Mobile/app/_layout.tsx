@@ -2,9 +2,13 @@ import { Stack, useRouter } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAuthStore } from '@/store/authStore';
 import { getUserData, getCompanyId } from '@/utils/storage.utils';
 import { useNotifications } from '@/hooks/useNotifications';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ToastContainer } from '@/components/ui';
+import { logger } from '@/utils/logger';
 // Initialize Firebase before any usage
 import '@/config/firebase';
 import { auth } from '@/config/firebase';
@@ -32,10 +36,10 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (isRegistered && expoPushToken) {
-      console.log('Push notifications registered with token:', expoPushToken);
+      logger.log('[Notifications] Registered with token:', expoPushToken);
     }
     if (notificationError) {
-      console.error('Push notification error:', notificationError);
+      logger.error('[Notifications] Registration error:', notificationError);
     }
   }, [isRegistered, expoPushToken, notificationError]);
 
@@ -73,7 +77,7 @@ export default function RootLayout() {
           }
         }
       } catch (e) {
-        console.warn('Failed to map auth user to person:', e);
+        logger.warn('[Auth] Failed to map auth user to person:', e);
       }
     });
     return () => {
@@ -82,13 +86,18 @@ export default function RootLayout() {
   }, [setCompanyId, setPersonId, setPersonProfile]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
+          <ToastContainer />
+          <StatusBar style="auto" />
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </GestureHandlerRootView>
   );
 }
