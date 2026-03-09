@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Modal, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Modal, ScrollView } from 'react-native';
 import { useState, useMemo } from 'react';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/ui';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { formatDate, formatTime } from '@/utils/date.utils';
 import { colors, spacing } from '@/styles/tokens';
 import type { ShiftEventDto } from '@/types/api';
@@ -39,18 +41,20 @@ export function RecentActivitySection({ loading, recentEvents, error }: RecentAc
         )}
       </View>
 
-      {loading && <ActivityIndicator />}
+      {loading && [0,1,2,3].map((i) => <Skeleton key={i} width="100%" height={60} borderRadius={12} style={{ marginBottom: 12 }} />)}
       {!loading && recentEvents.length === 0 && (
         <View style={styles.emptyRow}>
           <Ionicons name="pulse-outline" size={18} color={colors.muted} />
           <Text style={styles.emptyText}>No recent activity</Text>
         </View>
       )}
-      {!loading && preview.map((e) => (
-        <Card key={e.eventLogId} style={styles.card}>
+      {!loading && preview.map((e, i) => (
+        <Animated.View key={e.eventLogId} entering={FadeInDown.delay(i * 60).duration(300)}>
+        <Card style={styles.card}>
           <Text style={styles.cardText}>{e.eventType.replace('_', ' ')}</Text>
           <Text style={styles.cardDate}>{formatDate(e.eventDate)} {formatTime(e.eventDate)}</Text>
         </Card>
+        </Animated.View>
       ))}
       {!!error && <Text style={styles.error}>{error}</Text>}
 

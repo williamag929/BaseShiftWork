@@ -18,7 +18,8 @@ export function useRegister() {
   const [loading, setLoading] = useState(false);
 
   const step1Form = useForm<RegisterStep1Data>({ resolver: zodResolver(registerStep1Schema) });
-  const step2Form = useForm<RegisterStep2Data>({ resolver: zodResolver(registerStep2Schema), defaultValues: { timeZone: 'UTC' } });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const step2Form = useForm<RegisterStep2Data>({ resolver: zodResolver(registerStep2Schema) as any, defaultValues: { timeZone: 'UTC' } });
 
   const handleRegister = async () => {
     const step1 = step1Form.getValues();
@@ -38,7 +39,7 @@ export function useRegister() {
       await AsyncStorage.setItem('onboarding_company_id', response.companyId);
       await AsyncStorage.setItem('onboarding_plan', response.plan ?? 'Free');
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace('/(auth)/onboarding');
+      router.replace('/(auth)/onboarding' as any);
     } catch (err: any) {
       const msg = err?.code ? getFirebaseAuthError(err.code) : (err?.message ?? 'Registration failed. Please try again.');
       toast.error(msg);

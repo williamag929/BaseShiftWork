@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, Pressable } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import PhotoCapture from '@/components/PhotoCapture';
 import { Card } from '@/components/ui';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { colors, spacing } from '@/styles/tokens';
 import { useProfile } from '@/hooks/useProfile';
 import { ProfileHeader } from '@/components/screens/profile/ProfileHeader';
@@ -15,8 +16,9 @@ export default function ProfileScreen() {
   if (profile.loading && !profile.person) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>Loading profile...</Text>
+        <Skeleton width={80} height={80} borderRadius={40} />
+        <Skeleton width={160} height={18} borderRadius={6} style={{ marginTop: 16 }} />
+        <Skeleton width={200} height={14} borderRadius={6} style={{ marginTop: 8 }} />
       </View>
     );
   }

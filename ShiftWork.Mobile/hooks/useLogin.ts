@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import type { Href } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import { getFirebaseAuthError } from '@/utils/firebase-error.utils';
@@ -61,7 +60,7 @@ export function useLogin(): UseLoginReturn {
         await saveUserData({ personId: credentials.personId, email: credentials.email, name: credentials.name });
         await saveCompanyId(credentials.companyId);
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        router.replace('/(tabs)/dashboard' as Href<string>);
+        router.replace('/(tabs)/dashboard' as any);
       }
     } catch (error) {
       logger.error('[Login] Biometric login error:', error);
@@ -82,7 +81,7 @@ export function useLogin(): UseLoginReturn {
       await saveUserData({ personId: person.personId, email: person.email, name: person.name });
       await saveCompanyId(person.companyId);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace('/(tabs)/dashboard' as Href<string>);
+      router.replace('/(tabs)/dashboard' as any);
     } catch (error: any) {
       toast.error(getFirebaseAuthError(error?.code));
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);

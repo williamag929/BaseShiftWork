@@ -1,4 +1,13 @@
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Image } from 'react-native';
+﻿import { useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
+import Animated, {
+  useSharedValue,
+  withSpring,
+  withTiming,
+  useAnimatedStyle,
+  interpolateColor,
+} from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing } from '@/styles/tokens';
 
@@ -14,6 +23,36 @@ interface ClockButtonProps {
 export function ClockButton({
   isClockedIn, loading, onPress, photoUri, onPhotoPress, onRemovePhoto,
 }: ClockButtonProps) {
+  const scale = useSharedValue(1);
+  const colorProgress = useSharedValue(isClockedIn ? 1 : 0);
+
+  useEffect(() => {
+    colorProgress.value = withTiming(isClockedIn ? 1 : 0, { duration: 400 });
+  }, [isClockedIn]);
+
+  const animatedButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    backgroundColor: interpolateColor(
+      colorProgress.value,
+      [0, 1],
+      [colors.primary, colors.danger],
+    ),
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.92, { damping: 12, stiffness: 280 });
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 12, stiffness: 280 });
+  };
+
+  const handlePress = () => {
+    onPress();
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  };
+
   return (
     <View style={styles.container}>
       {!!photoUri && (
@@ -28,24 +67,25 @@ export function ClockButton({
         <Ionicons name="camera" size={20} color={colors.primary} />
         <Text style={styles.photoBtnText}>{photoUri ? 'Retake Photo' : 'Add Photo (optional)'}</Text>
       </Pressable>
-      <Pressable
-        style={({ pressed }) => [
-          styles.button,
-          isClockedIn ? styles.clockOutBtn : styles.clockInBtn,
-          pressed && { opacity: 0.85 },
-        ]}
-        onPress={onPress}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#fff" size="large" />
-        ) : (
-          <>
-            <Ionicons name={isClockedIn ? 'log-out' : 'log-in'} size={48} color="#fff" style={{ marginBottom: 8 }} />
-            <Text style={styles.buttonText}>{isClockedIn ? 'Clock Out' : 'Clock In'}</Text>
-          </>
-        )}
-      </Pressable>
+
+      <Animated.View style={[styles.button, animatedButtonStyle]}>
+        <Pressable
+          style={styles.buttonInner}
+          onPress={handlePress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          disabled={loading}
+        >
+          {loading ? (
+            <Animated.View style={styles.loadingRing} />
+          ) : (
+            <>
+              <Ionicons name={isClockedIn ? 'log-out' : 'log-in'} size={48} color="#fff" style={{ marginBottom: 8 }} />
+              <Text style={styles.buttonText}>{isClockedIn ? 'Clock Out' : 'Clock In'}</Text>
+            </>
+          )}
+        </Pressable>
+      </Animated.View>
     </View>
   );
 }
@@ -63,11 +103,10 @@ const styles = StyleSheet.create({
   photoBtnText: { color: colors.primary, fontWeight: '600' },
   button: {
     width: 160, height: 160, borderRadius: 80,
-    justifyContent: 'center', alignItems: 'center',
-    elevation: 6, shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.25, shadowRadius: 6,
+    elevation: 8, shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8,
   },
-  clockInBtn: { backgroundColor: colors.primary },
-  clockOutBtn: { backgroundColor: colors.danger },
+  buttonInner: { width: '100%', height: '100%', borderRadius: 80, justifyContent: 'center', alignItems: 'center' },
   buttonText: { fontSize: 17, fontWeight: 'bold', color: '#fff' },
+  loadingRing: { width: 48, height: 48, borderRadius: 24, borderWidth: 4, borderColor: 'rgba(255,255,255,0.5)', borderTopColor: '#fff' },
 });

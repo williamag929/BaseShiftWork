@@ -1,6 +1,8 @@
-import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, EmptyState, SectionHeader } from '@/components/ui';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { formatDate, formatTime } from '@/utils/date.utils';
 import { colors, spacing } from '@/styles/tokens';
 import type { ScheduleShiftDto } from '@/types/api';
@@ -17,7 +19,7 @@ export function UpcomingShiftsSection({ loading, upcoming, onViewWeekly }: Upcom
     <>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Next Shift</Text>
-        {loading && <ActivityIndicator />}
+        {loading && <Skeleton width="100%" height={70} borderRadius={12} />}
         {!loading && !nextShift && (
           <EmptyState
             title="No upcoming shifts"
@@ -43,19 +45,21 @@ export function UpcomingShiftsSection({ loading, upcoming, onViewWeekly }: Upcom
             </Pressable>
           }
         />
-        {loading && <ActivityIndicator />}
+        {loading && [0,1,2].map((i) => <Skeleton key={i} width="100%" height={70} borderRadius={12} style={{ marginBottom: 12 }} />)}
         {!loading && upcoming.length === 0 && (
           <View style={styles.emptyRow}>
             <Ionicons name="calendar-clear-outline" size={18} color={colors.muted} />
             <Text style={styles.emptyText}>No upcoming shifts</Text>
           </View>
         )}
-        {!loading && upcoming.map((s) => (
-          <Card key={s.scheduleShiftId} style={styles.card}>
+        {!loading && upcoming.map((s, i) => (
+          <Animated.View key={s.scheduleShiftId} entering={FadeInDown.delay(i * 60).duration(300)}>
+          <Card style={styles.card}>
             <Text style={styles.cardTitle}>{formatDate(s.startDate)}</Text>
             <Text style={styles.cardSubtitle}>{formatTime(s.startDate)} - {formatTime(s.endDate)}</Text>
             <Text style={styles.cardLocation}>Shift #{s.scheduleShiftId}</Text>
           </Card>
+          </Animated.View>
         ))}
       </View>
     </>

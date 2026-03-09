@@ -1,5 +1,7 @@
-import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import type { ViewStyle } from 'react-native';
 import { Card, EmptyState, SectionHeader } from '@/components/ui';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { formatDate } from '@/utils/date.utils';
 import { colors, spacing } from '@/styles/tokens';
 import type { TimeOffRequest } from '@/services/time-off-request.service';
@@ -16,7 +18,7 @@ const STATUS_BG: Record<string, string> = {
   Pending: '#F39C12',
 };
 
-const CARD_BORDER: Record<string, object> = {
+const CARD_BORDER: Record<string, ViewStyle> = {
   Approved: { borderLeftWidth: 4, borderLeftColor: '#27AE60' },
   Denied: { borderLeftWidth: 4, borderLeftColor: '#E74C3C' },
   Pending: { borderLeftWidth: 4, borderLeftColor: '#F39C12' },
@@ -33,7 +35,7 @@ export function TimeOffSection({ loading, requests, onRequest }: TimeOffSectionP
           </Pressable>
         }
       />
-      {loading && <ActivityIndicator />}
+      {loading && [0,1,2].map((i) => <Skeleton key={i} width="100%" height={64} borderRadius={12} style={{ marginBottom: 12 }} />)}
       {!loading && requests.length === 0 && (
         <View>
           <EmptyState
