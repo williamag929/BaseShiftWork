@@ -67,3 +67,4 @@ ShiftWork.Angular/package-lock.json
 ShiftWork.Angular/yarn.lock
 /ShiftWork.Angular/dist
 docker-compose.yml
+ShiftWork.Mobile/temp-expo
