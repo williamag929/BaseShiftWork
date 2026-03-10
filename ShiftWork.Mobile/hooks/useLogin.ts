@@ -75,8 +75,10 @@ export function useLogin(): UseLoginReturn {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
-      const person = await authService.getUserByEmail(data.email);
-      if (!person?.personId || !person?.companyId) throw new Error('User not found or invalid');
+      // Resolve person via Firebase JWT — the api-client interceptor injects
+      // the ID token from auth.currentUser automatically at this point.
+      const person = await authService.getCurrentUser();
+      if (!person?.personId || !person?.companyId) throw new Error('User profile not found. Contact support.');
       setPersonId(Number(person.personId));
       setCompanyId(person.companyId);
       setPersonProfile({ email: person.email, name: person.name });

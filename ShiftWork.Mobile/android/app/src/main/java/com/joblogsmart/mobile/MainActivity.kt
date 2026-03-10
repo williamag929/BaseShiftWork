@@ -1,4 +1,4 @@
-package com.shiftwork.mobile
+package com.joblogsmart.mobile
 
 import android.os.Build
 import android.os.Bundle

@@ -1,21 +1,12 @@
-import { initializeApp } from 'firebase/app';
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import {
+  initializeAuth,
+  getAuth,
+  getReactNativePersistence,
+  inMemoryPersistence,
+  type Auth,
+} from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const REQUIRED_FIREBASE_VARS: Array<[string, string | undefined]> = [
-  ['EXPO_PUBLIC_FIREBASE_API_KEY', process.env.EXPO_PUBLIC_FIREBASE_API_KEY],
-  ['EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN', process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN],
-  ['EXPO_PUBLIC_FIREBASE_PROJECT_ID', process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID],
-  ['EXPO_PUBLIC_FIREBASE_APP_ID', process.env.EXPO_PUBLIC_FIREBASE_APP_ID],
-];
-
-const missingVars = REQUIRED_FIREBASE_VARS.filter(([, v]) => !v).map(([k]) => k);
-if (missingVars.length > 0) {
-  throw new Error(
-    `Firebase configuration is incomplete. Missing environment variables: ${missingVars.join(', ')}. ` +
-    'Ensure all EXPO_PUBLIC_FIREBASE_* variables are set in your .env file.'
-  );
-}
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -26,10 +17,49 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+const REQUIRED_KEYS: Array<keyof typeof firebaseConfig> = ['apiKey', 'authDomain', 'projectId', 'appId'];
+const missing = REQUIRED_KEYS.filter((k) => !firebaseConfig[k]);
+if (missing.length > 0) {
+  console.warn('[Firebase] Missing config keys:', missing.join(', '));
+}
 
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
+// Guard against duplicate app initialization (hot reload / Fast Refresh)
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
+function createAuth(): Auth {
+  // Attempt 1: Full initialization with AsyncStorage persistence (best case)
+  try {
+    return initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage),
+    });
+  } catch (e: any) {
+    const isAlreadyInitialized =
+      e?.code === 'auth/already-initialized' ||
+      (typeof e?.message === 'string' && e.message.toLowerCase().includes('already initialized'));
+
+    if (isAlreadyInitialized) {
+      // Hot reload path — auth is already set up, just retrieve it
+      return getAuth(app);
+    }
+
+    // Attempt 2: AsyncStorage unavailable or incompatible — fall back to in-memory.
+    // Auth will still work; the user will need to re-login after an app restart.
+    console.warn('[Firebase] AsyncStorage persistence failed, using in-memory auth:', e?.message);
+    try {
+      return initializeAuth(app, { persistence: inMemoryPersistence });
+    } catch (e2: any) {
+      const isAlreadyInit2 =
+        e2?.code === 'auth/already-initialized' ||
+        (typeof e2?.message === 'string' && e2.message.toLowerCase().includes('already initialized'));
+      if (isAlreadyInit2) {
+        return getAuth(app);
+      }
+      // If we get here, something is fundamentally broken with the Firebase setup.
+      console.error('[Firebase] Auth initialization completely failed:', e2?.message);
+      throw e2;
+    }
+  }
+}
+
+export const auth = createAuth();
 export default app;

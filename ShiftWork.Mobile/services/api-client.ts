@@ -53,27 +53,31 @@ class ApiClient {
     this.client.interceptors.request.use(
       async (config) => {
         const user = auth.currentUser;
-        
+
         if (user) {
           try {
+            // getIdToken() returns a cached token; Firebase auto-refreshes when
+            // the token is within 5 minutes of expiry. Pass `true` to force a
+            // fresh token — only needed if you suspect stale-token 401s.
             const token = await user.getIdToken();
             config.headers.Authorization = `Bearer ${token}`;
             logger.log('[API] Using Firebase auth token');
           } catch (error) {
             logger.error('[API] Failed to get Firebase token:', error);
-            // Fall back to dev token if available
+            // DEV-ONLY fallback — Metro strips this entire branch in production
+            // builds because __DEV__ is false. Never ships to production.
             if (__DEV__ && process.env.EXPO_PUBLIC_DEV_TOKEN) {
               config.headers.Authorization = `Bearer ${process.env.EXPO_PUBLIC_DEV_TOKEN}`;
-              logger.log('[API] Falling back to dev token');
+              logger.log('[API] Falling back to EXPO_PUBLIC_DEV_TOKEN (dev only)');
             }
           }
         } else if (__DEV__ && process.env.EXPO_PUBLIC_DEV_TOKEN) {
-          // In development, use a dev token when not logged in
-          // This is the expected path with mock Firebase auth
-          const devToken = process.env.EXPO_PUBLIC_DEV_TOKEN;
-          config.headers.Authorization = `Bearer ${devToken}`;
-          logger.log('[API] Using dev token for development/testing');
-        } else if (!user) {
+          // DEV-ONLY: allows API calls while running without a logged-in user.
+          // Strip EXPO_PUBLIC_DEV_TOKEN from .env before any production build.
+          config.headers.Authorization = `Bearer ${process.env.EXPO_PUBLIC_DEV_TOKEN}`;
+          logger.log('[API] Using EXPO_PUBLIC_DEV_TOKEN (dev only — no Firebase user)');
+        } else {
+          // No user, no dev token — request will likely 401 unless the endpoint is public.
           logger.warn('[API] No auth token available. Request may fail with 401.');
         }
 

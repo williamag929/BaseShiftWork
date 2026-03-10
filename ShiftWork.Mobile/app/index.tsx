@@ -1,28 +1,58 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { colors } from '@/styles/theme';
+import { auth } from '@/config/firebase';
 
 export default function Index() {
   const router = useRouter();
+  // Three states: 'checking' → Firebase resolves → 'authenticated' or 'unauthenticated'
+  const [authState, setAuthState] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking');
+
+  useEffect(() => {
+    // Firebase fires once immediately with the persisted auth state.
+    // _layout.tsx also has a listener that syncs person data + navigates to dashboard.
+    let unsubscribe: (() => void) | undefined;
+    try {
+      unsubscribe = auth.onAuthStateChanged((user) => {
+        setAuthState(user ? 'authenticated' : 'unauthenticated');
+      });
+    } catch (e) {
+      // auth failed to initialize entirely — go straight to login
+      console.error('[Index] Firebase auth unavailable:', e);
+      setAuthState('unauthenticated');
+    }
+    return () => unsubscribe?.();
+  }, []);
+
+  // While Firebase resolves persisted auth (<200ms), show subtle loading
+  if (authState === 'checking' || authState === 'authenticated') {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <StatusBar style="light" />
+        <ActivityIndicator color="#fff" size="large" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <StatusBar style="auto" />
-      
+      <StatusBar style="light" />
+
       <View style={styles.header}>
         <Text style={styles.title}>ShiftWork Mobile</Text>
         <Text style={styles.subtitle}>Workforce Management</Text>
       </View>
 
       <View style={styles.content}>
-        <TouchableOpacity
-          style={styles.button}
+        <Pressable
+          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
           onPress={() => router.push('(auth)/login' as Href<string>)}
         >
           <Text style={styles.buttonText}>Get Started</Text>
-        </TouchableOpacity>
+        </Pressable>
 
         <Text style={styles.infoText}>
           Clock in/out • View Schedules • Track Hours
@@ -40,6 +70,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primary,
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flex: 1,
@@ -75,6 +109,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+  },
+  buttonPressed: {
+    opacity: 0.8,
+    transform: [{ scale: 0.97 }],
   },
   buttonText: {
     fontSize: 18,

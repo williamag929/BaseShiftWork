@@ -1,10 +1,10 @@
 import { Stack, useRouter } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import type { User } from 'firebase/auth';
 import { useAuthStore } from '@/store/authStore';
-import { getUserData, getCompanyId } from '@/utils/storage.utils';
 import { useNotifications } from '@/hooks/useNotifications';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastContainer } from '@/components/ui';
@@ -30,6 +30,8 @@ export default function RootLayout() {
   const setPersonId = useAuthStore((s) => s.setPersonId);
   const router = useRouter();
   const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
+  // Track whether the initial auth check has completed to avoid redirect loops
+  const authInitialized = useRef(false);
 
   // Initialize push notifications
   const { expoPushToken, error: notificationError, isRegistered } = useNotifications();
@@ -43,47 +45,46 @@ export default function RootLayout() {
     }
   }, [isRegistered, expoPushToken, notificationError]);
 
+  // Single authoritative auth listener.
+  // - On app start: Firebase persistence re-hydrates; if user is found,
+  //   fetch person via JWT (getCurrentUser) and redirect to dashboard.
+  // - On login/logout: update store accordingly.
   useEffect(() => {
-    // Hydrate auth state from secure storage on app start
-    (async () => {
-      try {
-        const savedUser = await getUserData();
-        const savedCompany = await getCompanyId();
-        if (savedCompany) setCompanyId(savedCompany);
-        if (savedUser?.personId) setPersonId(Number(savedUser.personId));
-        if (savedUser?.email || savedUser?.name) {
-          setPersonProfile({ email: savedUser?.email ?? null, name: savedUser?.name ?? null });
-        }
-        // If personal app and we have person, go to tabs by default
-        // else stay on index/login
-      } catch {
-        // ignore
-      }
-    })();
-  }, []);
-
-  // When Firebase auth is enabled, map user -> person automatically
-  useEffect(() => {
-    const unsubscribe = auth?.onAuthStateChanged?.(async (user: any) => {
-      try {
-        if (user?.email) {
-          const person = await authService.getUserByEmail(user.email);
-          if (person?.personId && person?.companyId) {
-            setCompanyId(person.companyId);
-            setPersonId(Number(person.personId));
-            setPersonProfile({ email: person.email, name: person.name });
-            await saveUserData({ personId: person.personId, email: person.email, name: person.name });
-            await saveCompanyId(person.companyId);
+    let unsubscribe: (() => void) | undefined;
+    try {
+      unsubscribe = auth.onAuthStateChanged(async (user: User | null) => {
+        try {
+          if (user) {
+            // Fetch person data using Firebase JWT — avoids email-in-URL lookup
+            const person = await authService.getCurrentUser();
+            if (person?.personId && person?.companyId) {
+              setCompanyId(person.companyId);
+              setPersonId(Number(person.personId));
+              setPersonProfile({ email: person.email ?? null, name: person.name ?? null });
+              await saveUserData({ personId: person.personId, email: person.email, name: person.name });
+              await saveCompanyId(person.companyId);
+              // Redirect returning users to dashboard on cold start only
+              if (!authInitialized.current) {
+                router.replace('/(tabs)/dashboard' as any);
+              }
+            }
+          } else {
+            // User signed out — clear persisted store
+            setPersonId(null);
+            setPersonProfile({ email: null, name: null, photoUrl: null });
           }
+        } catch (e) {
+          logger.warn('[Auth] onAuthStateChanged: failed to fetch person:', e);
+        } finally {
+          authInitialized.current = true;
         }
-      } catch (e) {
-        logger.warn('[Auth] Failed to map auth user to person:', e);
-      }
-    });
-    return () => {
-      if (typeof unsubscribe === 'function') unsubscribe();
-    };
-  }, [setCompanyId, setPersonId, setPersonProfile]);
+      });
+    } catch (e) {
+      logger.error('[Auth] Failed to subscribe to onAuthStateChanged:', e);
+      authInitialized.current = true;
+    }
+    return () => unsubscribe?.();
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
