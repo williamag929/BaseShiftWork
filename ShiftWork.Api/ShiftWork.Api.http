@@ -1,8 +1,15 @@
 @ShiftWork.Api_HostAddress = http://localhost:5182
 @token = REPLACE_WITH_JWT
 
-GET {{ShiftWork.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Auth: test SMTP (requires valid JWT in @token)
+POST {{ShiftWork.Api_HostAddress}}/api/auth/test-email
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "to": "your-email@example.com",
+  "subject": "ShiftWork SMTP Test"
+}
 
 ###
 

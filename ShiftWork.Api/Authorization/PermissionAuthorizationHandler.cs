@@ -53,6 +53,19 @@ namespace ShiftWork.Api.Authorization
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Uid == uid && u.CompanyId == companyId);
 
+            // Fallback: API JWT tokens use personId as NameIdentifier, not CompanyUser.Uid.
+            // Match by email so invite-accepted users can pass authorization.
+            if (companyUser == null)
+            {
+                var email = context.User.FindFirstValue(ClaimTypes.Email);
+                if (!string.IsNullOrWhiteSpace(email))
+                {
+                    companyUser = await _context.CompanyUsers
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(u => u.Email == email && u.CompanyId == companyId);
+                }
+            }
+
             if (companyUser == null)
             {
                 return;

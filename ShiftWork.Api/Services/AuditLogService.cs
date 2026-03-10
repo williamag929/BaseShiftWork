@@ -12,6 +12,7 @@ namespace ShiftWork.Api.Services
     {
         Task LogUserRoleAssignmentAsync(string companyId, string userId, string? userName, string uid, List<string> oldRoleNames, List<string> newRoleNames);
         Task LogRolePermissionUpdateAsync(string companyId, string userId, string? userName, int roleId, string roleName, List<string> oldPermissionKeys, List<string> newPermissionKeys);
+        Task LogInviteSentAsync(string companyId, string performedByName, int targetPersonId, string targetEmail, bool isResend, bool isPasswordReset);
     }
 
     public class AuditLogService : IAuditLogService
@@ -139,6 +140,38 @@ namespace ShiftWork.Api.Services
             {
                 await _context.SaveChangesAsync();
             }
+        }
+
+        /// <summary>
+        /// Log when an app invite is sent or resent to an employee.
+        /// </summary>
+        public async Task LogInviteSentAsync(string companyId, string performedByName, int targetPersonId, string targetEmail, bool isResend, bool isPasswordReset)
+        {
+            var actionType = isPasswordReset ? "PasswordReset" : (isResend ? "InviteResent" : "InviteSent");
+            var description = isPasswordReset
+                ? $"Password reset invite sent to {targetEmail} (PersonId={targetPersonId}) by {performedByName}"
+                : isResend
+                    ? $"App invite resent to {targetEmail} (PersonId={targetPersonId}) by {performedByName}"
+                    : $"App invite sent to {targetEmail} (PersonId={targetPersonId}) by {performedByName}";
+
+            var auditEntry = new AuditHistory
+            {
+                Id = Guid.NewGuid(),
+                CompanyId = companyId,
+                EntityName = "Person",
+                EntityId = targetPersonId.ToString(),
+                ActionType = actionType,
+                ActionDate = DateTime.UtcNow,
+                UserId = performedByName,
+                UserName = performedByName,
+                FieldName = "AppAccess",
+                NewValue = targetEmail,
+                ChangeDescription = description,
+                Metadata = null
+            };
+
+            _context.AuditHistories.Add(auditEntry);
+            await _context.SaveChangesAsync();
         }
     }
 }

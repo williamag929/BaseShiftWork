@@ -8,9 +8,6 @@ import { PeopleService } from 'src/app/core/services/people.service';
 import { CompanyUsersService } from 'src/app/core/services/company-users.service';
 import { CompanyUser } from 'src/app/core/models/company-user.model';
 import { CommonModule } from '@angular/common';
-import { Store } from '@ngrx/store';
-import { AppState } from 'src/app/store/app.state';
-import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 
 @Component({
   selector: 'app-manage-companies',
@@ -21,33 +18,26 @@ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 })
 export class ManageCompaniesComponent implements OnInit {
   companies: Company[] = [];
-  allPeople: People[] = [];
   selectedCompany: Company | null = null;
-  usersInCompany: People[] = [];
-  usersNotInCompany: People[] = [];
-  userCompanyLinks: CompanyUser[] = [];
+
+  // "In Company" — raw CompanyUser records from the API
+  companyMembers: CompanyUser[] = [];
+  // "Available" — people from the selected company not yet in companyMembers
+  availablePeople: People[] = [];
 
   isLoading = false;
   isLoadingUsers = false;
-  private activeCompanyId: string = '';
 
   constructor(
     private companyService: CompanyService,
     private peopleService: PeopleService,
     private companyUsersService: CompanyUsersService,
     private router: Router,
-    private toastr: ToastrService,
-    private store: Store<AppState>
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
     this.loadCompanies();
-    this.store.select(selectActiveCompany).subscribe((company: any) => {
-      if (company?.companyId) {
-        this.activeCompanyId = company.companyId;
-        this.loadAllPeople();
-      }
-    });
   }
 
   loadCompanies(): void {
@@ -65,40 +55,37 @@ export class ManageCompaniesComponent implements OnInit {
     });
   }
 
-  loadAllPeople(): void {
-    if (!this.activeCompanyId) return;
-    this.peopleService.getPeople(this.activeCompanyId).subscribe({
-      next: (data: any) => {
-        this.allPeople = data;
-      },
-      error: (err: any) => {
-        this.toastr.error('Failed to load people.');
-        console.error(err);
-      }
-    });
-  }
-
   selectCompany(company: Company): void {
     this.selectedCompany = company;
-    this.usersInCompany = [];
-    this.usersNotInCompany = [];
+    this.companyMembers = [];
+    this.availablePeople = [];
     this.loadUsersForCompany(company.companyId);
   }
 
   loadUsersForCompany(companyId: string): void {
     this.isLoadingUsers = true;
-    // NOTE: This assumes `getCompanyUsers()` can fetch all user-company links.
-    // You may need a dedicated admin endpoint for this.
-    this.companyUsersService.getCompanyUsers(companyId).subscribe({
-      next: (links: any) => {
-        this.userCompanyLinks = links;
-        const userIdsInCompany = this.userCompanyLinks
-          .filter(link => link.companyId === companyId)
-          .map(link => link.uid); // Assuming userProfileId is personId
 
-        this.usersInCompany = this.allPeople.filter(p => userIdsInCompany.includes(p.personId.toString()));
-        this.usersNotInCompany = this.allPeople.filter(p => !userIdsInCompany.includes(p.personId.toString()));
-        this.isLoadingUsers = false;
+    // Load CompanyUsers and People for the selected company in parallel
+    this.companyUsersService.getCompanyUsers(companyId).subscribe({
+      next: (members: CompanyUser[]) => {
+        this.companyMembers = members;
+
+        // Load people for this specific company to build the "available" list
+        this.peopleService.getPeople(companyId).subscribe({
+          next: (people: People[]) => {
+            const memberEmails = new Set(
+              members.map(m => (m.email || '').toLowerCase())
+            );
+            this.availablePeople = people.filter(
+              p => !memberEmails.has((p.email || '').toLowerCase())
+            );
+            this.isLoadingUsers = false;
+          },
+          error: (err: any) => {
+            console.error('Failed to load people for company.', err);
+            this.isLoadingUsers = false;
+          }
+        });
       },
       error: (err: any) => {
         this.toastr.error('Failed to load users for company.');
@@ -111,19 +98,19 @@ export class ManageCompaniesComponent implements OnInit {
   addUserToCompany(person: People): void {
     if (!this.selectedCompany) return;
 
-    const newUserCompany: CompanyUser = {
-      companyUserId: '0', // API should handle this
+    const newMember: CompanyUser = {
+      companyUserId: '',
       companyId: this.selectedCompany.companyId,
-      uid: person.personId.toString(),
-      email: '',
-      displayName: '',
+      uid: `invite_${Date.now().toString(36)}`,
+      email: person.email,
+      displayName: person.name,
       photoURL: '',
       emailVerified: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
-    this.companyUsersService.createCompanyUser(this.selectedCompany.companyId, newUserCompany).subscribe({
+    this.companyUsersService.createCompanyUser(this.selectedCompany.companyId, newMember).subscribe({
       next: () => {
         this.toastr.success(`${person.name} added to ${this.selectedCompany?.name}.`);
         this.loadUsersForCompany(this.selectedCompany!.companyId);
@@ -135,21 +122,12 @@ export class ManageCompaniesComponent implements OnInit {
     });
   }
 
-  removeUserFromCompany(person: People): void {
+  removeUserFromCompany(member: CompanyUser): void {
     if (!this.selectedCompany) return;
 
-    const linkToRemove = this.userCompanyLinks.find(
-      link => link.companyId === this.selectedCompany?.companyId && link.uid === person.personId.toString()
-    );
-
-    if (!linkToRemove) {
-      this.toastr.error('Could not find user-company link to remove.');
-      return;
-    }
-
-    this.companyUsersService.deleteCompanyUser(this.selectedCompany.companyId, linkToRemove.companyUserId).subscribe({
+    this.companyUsersService.deleteCompanyUser(this.selectedCompany.companyId, member.companyUserId).subscribe({
       next: () => {
-        this.toastr.success(`${person.name} removed from ${this.selectedCompany?.name}.`);
+        this.toastr.success(`${member.displayName || member.email} removed from ${this.selectedCompany?.name}.`);
         this.loadUsersForCompany(this.selectedCompany!.companyId);
       },
       error: (err: any) => {
@@ -160,13 +138,10 @@ export class ManageCompaniesComponent implements OnInit {
   }
 
   createCompany(): void {
-    //[routerLink]="['/admin/company/new']"
     this.router.navigate(['/admin/company/new']);
   }
 
-  
   editCompany(company: Company): void {
-    //[routerLink]="['/admin/company/edit', company.companyId]"
     this.router.navigate(['/admin/company/edit', company.companyId]);
   }
 
@@ -178,8 +153,8 @@ export class ManageCompaniesComponent implements OnInit {
           this.loadCompanies();
           if (this.selectedCompany?.companyId === company.companyId) {
             this.selectedCompany = null;
-            this.usersInCompany = [];
-            this.usersNotInCompany = [];
+            this.companyMembers = [];
+            this.availablePeople = [];
           }
         },
         error: (err: any) => {

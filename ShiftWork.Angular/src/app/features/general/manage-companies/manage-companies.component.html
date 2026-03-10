@@ -45,23 +45,29 @@
           </div>
           <div *ngIf="!isLoadingUsers" class="row">
             <div class="col-md-6">
-              <h5>In Company ({{ usersInCompany.length }})</h5>
+              <h5>In Company ({{ companyMembers.length }})</h5>
               <ul class="list-group">
-                <li *ngFor="let user of usersInCompany" class="list-group-item d-flex justify-content-between align-items-center">
-                  {{ user.name }}
-                  <button class="btn btn-danger btn-sm" (click)="removeUserFromCompany(user)">Remove</button>
+                <li *ngFor="let member of companyMembers" class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>
+                    <strong>{{ member.displayName || member.email }}</strong>
+                    <small *ngIf="member.displayName" class="text-muted ms-1">{{ member.email }}</small>
+                  </span>
+                  <button class="btn btn-danger btn-sm" (click)="removeUserFromCompany(member)">Remove</button>
                 </li>
-                <li *ngIf="usersInCompany.length === 0" class="list-group-item text-muted">No users in this company.</li>
+                <li *ngIf="companyMembers.length === 0" class="list-group-item text-muted">No users in this company.</li>
               </ul>
             </div>
             <div class="col-md-6">
-              <h5>Available Users ({{ usersNotInCompany.length }})</h5>
+              <h5>Available Users ({{ availablePeople.length }})</h5>
               <ul class="list-group">
-                <li *ngFor="let user of usersNotInCompany" class="list-group-item d-flex justify-content-between align-items-center">
-                  {{ user.name }}
-                  <button class="btn btn-success btn-sm" (click)="addUserToCompany(user)">Add</button>
+                <li *ngFor="let person of availablePeople" class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>
+                    <strong>{{ person.name }}</strong>
+                    <small class="text-muted ms-1">{{ person.email }}</small>
+                  </span>
+                  <button class="btn btn-success btn-sm" (click)="addUserToCompany(person)">Add</button>
                 </li>
-                <li *ngIf="usersNotInCompany.length === 0" class="list-group-item text-muted">No available users to add.</li>
+                <li *ngIf="availablePeople.length === 0" class="list-group-item text-muted">No available users to add.</li>
               </ul>
             </div>
           </div>

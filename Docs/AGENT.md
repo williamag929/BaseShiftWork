@@ -47,6 +47,12 @@ Unless noted, endpoints require the `companyId` path segment.
 Auth
 - `GET /api/auth/user/{email}` → Person by email.
 - `POST /api/auth/verify-pin` → `{ personId, pin }` returns `{ verified: boolean }` (BCrypt-based).
+- `POST /api/auth/login` (anonymous) → `{ email, password }` → `{ token, personId, companyId, email, name, photoUrl }`. Issues API JWT (BCrypt password, no Firebase).
+- `POST /api/auth/accept-invite` (anonymous) → `{ token, companyId, personId, email, password }` → same shape as login. Validates invite token, sets `PasswordHash`, promotes `CompanyUser.Uid` from `invite_*` to `api_*`, returns JWT.
+- `POST /api/auth/test-email` (Authorize) → `{ to, subject? }` — sends a test email to verify SMTP config.
+
+Invites (under `/api/companies/{companyId}/people`)
+- `POST /api/companies/{companyId}/people/{personId}/send-invite` → `{ roleIds, inviteUrl }`. Detects pending vs active user and sends invite/resend/password-reset email. Logs audit entry. (`PeopleController.SendInvite`)
 
 Schedules
 - `GET /api/companies/{companyId}/schedules` → list schedules (DTO).
@@ -224,6 +230,26 @@ npm run start
 
 ## Security & Auth Notes
 
+### Dual JWT Scheme
+
+The API supports **two authentication schemes**:
+
+1. **Firebase JWT** (default, for Angular admin users) — validated against `https://securetoken.google.com/{projectId}`. JWT subject = Firebase UID.
+2. **API JWT** (for mobile invited employees) — issued by `POST /api/auth/login` and `POST /api/auth/accept-invite`. Signed with `JwtSettings:SecretKey`, issuer `shiftwork-api`, audience `shiftwork-mobile`. JWT subject = `CompanyUser.Uid` (`api_{guid}`).
+
+Key rules:
+- `PermissionAuthorizationHandler` looks up `CompanyUser.Uid == JWT.NameIdentifier` first; falls back to `CompanyUser.Email == JWT.Email` to support legacy tokens.
+- `GET /api/companies/my` extracts both UID and email claims and passes email to `GetCompaniesByUidAsync` as a fallback for API JWT users.
+- `Person.PasswordHash` (BCrypt) is set only for mobile-app users who have accepted an invite. Firebase admin users authenticate via Firebase only.
+
+### Invite Flow
+
+1. Admin sends invite via `POST .../people/{id}/send-invite` → creates/updates `CompanyUser` with `Uid = invite_{guid}` → sends email.
+2. Employee opens invite email link → `GET /auth/accept-invite?token=...&companyId=...&personId=...&email=...&name=...`.
+3. Angular accept-invite page POSTs to `POST /api/auth/accept-invite` with token + password.
+4. API sets `PasswordHash`, promotes `Uid` to `api_{guid}`, returns JWT.
+5. Mobile: after accept-invite or regular login, app navigates to `/(auth)/company-select` which auto-selects if there's only one company.
+
 - Firebase JWT validation now uses Google's public keys via `Authority = https://securetoken.google.com/{projectId}` with issuer/audience checks. No symmetric signing key is configured from the web API key.
 - CORS allows several origins including localhost and production domains.
 - Kiosk endpoints now require auth via `[Authorize]`. Include `Authorization: Bearer <JWT>` on:
@@ -336,6 +362,18 @@ After both API and Angular are running:
 ---
 
 ## Recent Features Implemented
+
+### Employee Invite / Password-Reset Flow (Complete)
+- `POST /api/auth/login` — BCrypt-based API login for mobile users; returns API JWT.
+- `POST /api/auth/accept-invite` — validates invite token, sets `PasswordHash`, promotes `CompanyUser.Uid`, returns JWT.
+- `PeopleController.SendInvite` — detects pending invite (`invite_*`) vs active user (`api_*`) and sends the appropriate contextual email (invite / resend / password-reset) via SMTP/Zoho.
+- Audit logging via `AuditLogService.LogInviteSentAsync` on every invite action.
+- Angular `people.component.ts` `sendInvite()` correctly sends `/auth/accept-invite` as the invite URL.
+- Angular `accept-invite.component.ts` fully rewritten — no Firebase dependency; `invalidLink` flag shows an in-page error instead of redirecting; `+` characters in name query param decoded correctly.
+
+### Company-Switch Email Fallback (Complete)
+- `ICompanyService.GetCompaniesByUidAsync(uid, email?)` — if UID lookup returns empty and email provided, falls back to matching `CompanyUser.Email`.
+- `GET /api/companies/my` — extracts both UID and email claims from JWT; passes email as fallback. Works for both Firebase admin users (UID match) and API JWT employees (email fallback).
 
 ### Time-Off Management (MVP Complete)
 - **TimeOffRequest** model with approval workflow (Pending/Approved/Denied/Cancelled states)

@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { InviteService } from '../../../core/services/invite.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -14,12 +13,13 @@ import { ToastrService } from 'ngx-toastr';
 export class AcceptInviteComponent implements OnInit {
   inviteForm: FormGroup;
   loading = false;
+  success = false;
+  invalidLink = false;   // shown in-page instead of redirecting to sign-in
   inviteToken = '';
-  companyId = 0;
+  companyId = '';
   personId = 0;
   employeeName = '';
   employeeEmail = '';
-  companyName = '';
   showPassword = false;
   showConfirmPassword = false;
 
@@ -27,8 +27,7 @@ export class AcceptInviteComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private afAuth: AngularFireAuth,
-    private inviteService: InviteService,
+    private authService: AuthService,
     private toastr: ToastrService
   ) {
     this.inviteForm = this.fb.group({
@@ -38,26 +37,24 @@ export class AcceptInviteComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Parse query parameters
     this.route.queryParams.subscribe(params => {
-      this.inviteToken = params['token'] || '';
-      this.companyId = parseInt(params['companyId']) || 0;
-      this.personId = parseInt(params['personId']) || 0;
-      this.employeeName = params['name'] || '';
-      this.employeeEmail = params['email'] || '';
-      this.companyName = params['company'] || '';
+      this.inviteToken    = params['token']     || '';
+      this.companyId     = params['companyId']  || '';
+      this.personId      = parseInt(params['personId'], 10) || 0;
+      // Angular decodes %xx but NOT + (form-encoded space) — replace manually.
+      this.employeeName  = (params['name']  || '').replace(/\+/g, ' ');
+      this.employeeEmail = (params['email'] || '').replace(/\+/g, ' ');
 
       if (!this.inviteToken || !this.companyId || !this.personId || !this.employeeEmail) {
-        this.toastr.error('Invalid invite link');
-        this.router.navigate(['/sign-in']);
+        this.invalidLink = true;
       }
     });
   }
 
   passwordMatchValidator(group: FormGroup) {
-    const password = group.get('password')?.value;
-    const confirmPassword = group.get('confirmPassword')?.value;
-    return password === confirmPassword ? null : { passwordMismatch: true };
+    const pw  = group.get('password')?.value;
+    const cpw = group.get('confirmPassword')?.value;
+    return pw === cpw ? null : { passwordMismatch: true };
   }
 
   togglePasswordVisibility(field: 'password' | 'confirmPassword'): void {
@@ -68,63 +65,36 @@ export class AcceptInviteComponent implements OnInit {
     }
   }
 
-  async acceptInvite() {
+  acceptInvite(): void {
     if (this.inviteForm.invalid) {
-      this.toastr.error('Please fill in all fields correctly');
+      this.inviteForm.markAllAsTouched();
       return;
     }
 
     this.loading = true;
+    const password = this.inviteForm.get('password')!.value;
 
-    try {
-      const password = this.inviteForm.get('password')?.value;
-
-      // Step 1: Create Firebase account
-      const userCredential = await this.afAuth.createUserWithEmailAndPassword(this.employeeEmail, password);
-      
-      if (!userCredential || !userCredential.user) {
-        throw new Error('Failed to create account');
+    this.authService.acceptInvite(
+      this.inviteToken,
+      this.companyId,
+      this.personId,
+      this.employeeEmail,
+      password
+    ).subscribe({
+      next: () => {
+        this.loading = false;
+        this.success = true;
+        this.toastr.success('Password set! You can now log in with the mobile app.');
+      },
+      error: (err) => {
+        this.loading = false;
+        this.toastr.error(err?.message || 'Failed to set password. The link may have expired.');
       }
-
-      // Step 2: Get Firebase ID token
-      const firebaseToken = await userCredential.user.getIdToken();
-
-      // Step 3: Complete invite on backend
-      this.inviteService.completeInvite(this.companyId.toString(), {
-        inviteToken: this.inviteToken,
-        personId: this.personId
-      }, firebaseToken).subscribe(
-        () => {
-          this.toastr.success('Account created successfully! Please sign in.');
-          this.router.navigate(['/sign-in']);
-        },
-        error => {
-          console.error('Error completing invite:', error);
-          this.toastr.error('Failed to complete account setup. Please contact support.');
-          this.loading = false;
-        }
-      );
-    } catch (error: any) {
-      console.error('Error creating Firebase account:', error);
-      
-      if (error.code === 'auth/email-already-in-use') {
-        this.toastr.error('An account with this email already exists. Please sign in.');
-        this.router.navigate(['/sign-in']);
-      } else {
-        this.toastr.error('Failed to create account. Please try again.');
-      }
-      
-      this.loading = false;
-    }
+    });
   }
 
   getInitials(name: string): string {
     if (!name) return '??';
-    return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
   }
 }

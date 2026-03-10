@@ -66,7 +66,8 @@ export default function AcceptInviteScreen() {
       await saveCompanyId(result.companyId);
 
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace('/(tabs)/dashboard' as any);
+      // Navigate to company-select — it auto-skips if the user has only one company.
+      router.replace('/(auth)/company-select' as any);
     } catch (error: any) {
       logger.error('[AcceptInvite] error:', error);
       toast.error(error?.message || 'Failed to activate invite. Please try again.');

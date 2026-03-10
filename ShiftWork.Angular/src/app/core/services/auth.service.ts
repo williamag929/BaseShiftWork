@@ -215,6 +215,14 @@ export class AuthService {
       );
   }
 
+  acceptInvite(token: string, companyId: string, personId: number, email: string, password: string): Observable<{
+    token: string; personId: number; companyId: string; email: string; name: string; photoUrl: string;
+  }> {
+    return this.http.post<any>(`${this.apiUrl}/auth/accept-invite`, {
+      token, companyId, personId, email, password
+    }, this.getHttpOptions()).pipe(catchError((err) => this.handleHttpError(err)));
+  }
+
   async forgotPassword(passwordResetEmail: string): Promise<void> {
     try {
       await this.afAuth.sendPasswordResetEmail(passwordResetEmail);

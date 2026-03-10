@@ -14,3 +14,5 @@ export { biometricAuthService } from './biometricAuth.service';
 export { mcpService } from './mcp.service';
 // Registration & Onboarding feature (Phase 4)
 export { registrationService } from './registration.service';
+export { companyService } from './company.service';
+export type { CompanySummary } from './company.service';

@@ -30,6 +30,7 @@ namespace ShiftWork.Api.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly ISandboxService _sandboxService;
         private readonly IConfiguration _configuration;
+        private readonly INotificationService _notificationService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthController"/> class.
@@ -39,13 +40,51 @@ namespace ShiftWork.Api.Controllers
             IMapper mapper,
             ILogger<AuthController> logger,
             ISandboxService sandboxService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            INotificationService notificationService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _sandboxService = sandboxService ?? throw new ArgumentNullException(nameof(sandboxService));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+        }
+
+        /// <summary>
+        /// DEV ONLY — sends a test email to verify SMTP configuration.
+        /// Requires a valid admin JWT.
+        /// </summary>
+        [HttpPost("test-email")]
+        [Authorize]
+        public async Task<IActionResult> TestEmail([FromBody] TestEmailRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.To))
+                return BadRequest(new { message = "'to' email address is required." });
+
+            var smtpHost = _configuration["Smtp:Host"];
+            var smtpPort = _configuration["Smtp:Port"];
+            var smtpUser = _configuration["Smtp:Username"];
+            var smtpFrom = _configuration["Smtp:From"] ?? _configuration["Email:From"];
+
+            _logger.LogInformation(
+                "[test-email] SMTP config — Host={Host} Port={Port} User={User} From={From}",
+                smtpHost ?? "(not set)", smtpPort ?? "(not set)",
+                smtpUser ?? "(not set)", smtpFrom ?? "(not set)");
+
+            await _notificationService.SendEmailAsync(
+                request.To,
+                request.Subject ?? "ShiftWork SMTP Test",
+                $"<p>This is a test email sent at <strong>{DateTime.UtcNow:u}</strong>.</p>" +
+                $"<p>SMTP Host: <code>{smtpHost}</code> | Port: <code>{smtpPort}</code></p>");
+
+            return Ok(new
+            {
+                message = $"Test email dispatched to {request.To}. Check the API logs for any SMTP errors.",
+                smtpHost,
+                smtpPort,
+                smtpFrom
+            });
         }
 
         /// <summary>
@@ -262,7 +301,13 @@ namespace ShiftWork.Api.Controllers
             if (!valid)
                 return Unauthorized(new { message = "Invalid email or password." });
 
-            var token = GenerateApiJwt(person);
+            // Look up CompanyUser.Uid so the JWT subject matches what PermissionAuthorizationHandler
+            // and UserRoleService use for role/permission lookups.
+            var companyUser = await _context.CompanyUsers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(cu => cu.Email == person.Email && cu.CompanyId == person.CompanyId);
+
+            var token = GenerateApiJwt(person, companyUser?.Uid);
             _logger.LogInformation("API login successful for {Email}", person.Email);
 
             return Ok(new
@@ -343,8 +388,9 @@ namespace ShiftWork.Api.Controllers
 
             await _context.SaveChangesAsync();
 
-            // Issue a JWT so the user is immediately logged in after accepting
-            var token = GenerateApiJwt(person);
+            // Issue a JWT so the user is immediately logged in after accepting.
+            // Pass the new CompanyUser.Uid as subject so all Uid-based auth lookups work.
+            var token = GenerateApiJwt(person, companyUser.Uid);
             _logger.LogInformation("Invite accepted: PersonId={PersonId}, CompanyId={CompanyId}", person.PersonId, person.CompanyId);
 
             return Ok(new
@@ -360,7 +406,12 @@ namespace ShiftWork.Api.Controllers
 
         // ── Helpers ───────────────────────────────────────────────────────────────
 
-        private string GenerateApiJwt(Person person)
+        /// <summary>
+        /// Generates an API JWT. Pass <paramref name="companyUserUid"/> so the token subject
+        /// matches <c>CompanyUser.Uid</c>, which is required by PermissionAuthorizationHandler
+        /// and UserRoleService. Falls back to personId when no CompanyUser record exists.
+        /// </summary>
+        private string GenerateApiJwt(Person person, string? companyUserUid = null)
         {
             var jwtSecret = _configuration["JwtSettings:SecretKey"]
                 ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
@@ -371,9 +422,13 @@ namespace ShiftWork.Api.Controllers
 
             int expirationDays = int.TryParse(_configuration["JwtSettings:ExpirationDays"], out var d) ? d : 30;
 
+            // Use CompanyUser.Uid as subject so PermissionAuthorizationHandler and
+            // UserRoleService can resolve the CompanyUser record from the JWT.
+            var subject = companyUserUid ?? person.PersonId.ToString();
+
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, person.PersonId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, subject),
                 new Claim(ClaimTypes.Email, person.Email),
                 new Claim(ClaimTypes.Name, person.Email),
                 new Claim("companyId", person.CompanyId),
@@ -396,6 +451,7 @@ namespace ShiftWork.Api.Controllers
 
     public record ApiLoginRequest(string Email, string Password);
     public record SetPasswordRequest(int PersonId, string Password);
+    public record TestEmailRequest(string To, string? Subject);
 
     /// <summary>
     /// Payload for the accept-invite endpoint (no Firebase required).

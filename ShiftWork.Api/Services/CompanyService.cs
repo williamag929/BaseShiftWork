@@ -14,7 +14,7 @@ namespace ShiftWork.Api.Services
     public interface ICompanyService
     {
         Task<IEnumerable<Company>> GetAllCompanies();
-        Task<IEnumerable<Company>> GetCompaniesByUidAsync(string uid);
+        Task<IEnumerable<Company>> GetCompaniesByUidAsync(string uid, string? email = null);
         Task<Company> GetCompanyByIdAsync(string id);
         Task CreateCompanyAsync(Company company);
         Task<bool> UpdateCompanyAsync(Company company);
@@ -43,10 +43,22 @@ namespace ShiftWork.Api.Services
             return await _context.Companies.ToListAsync();
         }
 
-        public async Task<IEnumerable<Company>> GetCompaniesByUidAsync(string uid)
+        public async Task<IEnumerable<Company>> GetCompaniesByUidAsync(string uid, string? email = null)
         {
-            return await _context.CompanyUsers
+            // Match by Uid (Firebase UID or api_{guid})
+            var byUid = await _context.CompanyUsers
                 .Where(cu => cu.Uid == uid)
+                .Select(cu => cu.Company)
+                .Distinct()
+                .ToListAsync();
+
+            if (byUid.Any() || string.IsNullOrWhiteSpace(email))
+                return byUid;
+
+            // Fallback: API JWT users have Uid = api_{guid}, not the Firebase UID.
+            // Match by email so invited employees see their companies.
+            return await _context.CompanyUsers
+                .Where(cu => cu.Email.ToLower() == email.ToLower())
                 .Select(cu => cu.Company)
                 .Distinct()
                 .ToListAsync();
