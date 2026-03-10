@@ -8,6 +8,9 @@ import { PeopleService } from 'src/app/core/services/people.service';
 import { CompanyUsersService } from 'src/app/core/services/company-users.service';
 import { CompanyUser } from 'src/app/core/models/company-user.model';
 import { CommonModule } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/store/app.state';
+import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 
 @Component({
   selector: 'app-manage-companies',
@@ -26,18 +29,25 @@ export class ManageCompaniesComponent implements OnInit {
 
   isLoading = false;
   isLoadingUsers = false;
+  private activeCompanyId: string = '';
 
   constructor(
     private companyService: CompanyService,
     private peopleService: PeopleService,
     private companyUsersService: CompanyUsersService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private store: Store<AppState>
   ) {}
 
   ngOnInit(): void {
     this.loadCompanies();
-    this.loadAllPeople();
+    this.store.select(selectActiveCompany).subscribe((company: any) => {
+      if (company?.companyId) {
+        this.activeCompanyId = company.companyId;
+        this.loadAllPeople();
+      }
+    });
   }
 
   loadCompanies(): void {
@@ -56,9 +66,8 @@ export class ManageCompaniesComponent implements OnInit {
   }
 
   loadAllPeople(): void {
-    // NOTE: This assumes `getPeople()` can fetch all users.
-    // You may need to adjust the `people.service.ts` for this.
-    this.peopleService.getPeople('').subscribe({
+    if (!this.activeCompanyId) return;
+    this.peopleService.getPeople(this.activeCompanyId).subscribe({
       next: (data: any) => {
         this.allPeople = data;
       },

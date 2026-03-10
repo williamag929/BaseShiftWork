@@ -46,7 +46,10 @@
               "src/styles.css"
             ],
             "serviceWorker": true,
-            "ngswConfigPath": "ngsw-config.json"
+            "ngswConfigPath": "ngsw-config.json",
+            "allowedCommonJsDependencies": [
+              "ngrx-store-persist"
+            ]
           },
           "configurations": {
             "production": {

@@ -217,26 +217,165 @@ namespace ShiftWork.Api.Controllers
         {
             try
             {
-                var crewExistsTask = _context.Crews.AnyAsync(c => c.CrewId == crewId && c.CompanyId == companyId);
-                var personExistsTask = _context.Persons.AnyAsync(p => p.PersonId == personId && p.CompanyId == companyId);
-                var associationExistsTask = _context.PersonCrews.AnyAsync(pc => pc.CrewId == crewId && pc.PersonId == personId);
-
-                await Task.WhenAll(crewExistsTask, personExistsTask, associationExistsTask);
-
-                if (!crewExistsTask.Result)
+                if (!await _context.Crews.AnyAsync(c => c.CrewId == crewId && c.CompanyId == companyId))
                     return NotFound($"Crew with ID {crewId} not found in company {companyId}.");
-                if (!personExistsTask.Result)
+                if (!await _context.Persons.AnyAsync(p => p.PersonId == personId && p.CompanyId == companyId))
                     return NotFound($"Person with ID {personId} not found in company {companyId}.");
-                if (associationExistsTask.Result)
+                if (await _context.PersonCrews.AnyAsync(pc => pc.CrewId == crewId && pc.PersonId == personId))
                     return Conflict($"Person {personId} is already assigned to crew {crewId}.");
 
                 _context.PersonCrews.Add(new PersonCrew { CrewId = crewId, PersonId = personId });
                 await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(PersonCrewsController.GetPersonCrews), "PersonCrews", new { companyId, personId }, null);
+                return Ok(new { crewId, personId });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding person {PersonId} to crew {CrewId} for company {CompanyId}.", personId, crewId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Removes a person from a crew.
+        /// DELETE api/companies/{companyId}/crews/{crewId}/people/{personId}
+        /// </summary>
+        [HttpDelete("{crewId}/people/{personId}")]
+        [Authorize(Policy = "crews.assign")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> RemovePersonFromCrew(string companyId, int crewId, int personId)
+        {
+            try
+            {
+                var link = await _context.PersonCrews
+                    .FirstOrDefaultAsync(pc => pc.CrewId == crewId && pc.PersonId == personId);
+                if (link == null)
+                    return NotFound($"Person {personId} is not a member of crew {crewId}.");
+                _context.PersonCrews.Remove(link);
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing person {PersonId} from crew {CrewId} for company {CompanyId}.", personId, crewId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Returns all people who are members of a crew.
+        /// GET api/companies/{companyId}/crews/{crewId}/people
+        /// </summary>
+        [HttpGet("{crewId}/people")]
+        [Authorize(Policy = "crews.read")]
+        [ProducesResponseType(typeof(IEnumerable<CrewMemberDto>), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<IEnumerable<CrewMemberDto>>> GetCrewMembers(string companyId, int crewId)
+        {
+            try
+            {
+                var crewExists = await _context.Crews.AnyAsync(c => c.CrewId == crewId && c.CompanyId == companyId);
+                if (!crewExists)
+                    return NotFound($"Crew {crewId} not found in company {companyId}.");
+
+                var members = await _context.PersonCrews
+                    .Where(pc => pc.CrewId == crewId && pc.Person.CompanyId == companyId)
+                    .Select(pc => new CrewMemberDto
+                    {
+                        PersonId = pc.Person.PersonId,
+                        Name = pc.Person.Name,
+                        PhotoUrl = pc.Person.PhotoUrl
+                    })
+                    .ToListAsync();
+
+                return Ok(members);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting members for crew {CrewId} in company {CompanyId}.", crewId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Returns availability status for each crew member for a given time window.
+        /// Checks existing schedule conflicts AND approved time-off requests.
+        /// GET api/companies/{companyId}/crews/{crewId}/availability?startDate=...&endDate=...
+        /// </summary>
+        [HttpGet("{crewId}/availability")]
+        [Authorize(Policy = "crews.read")]
+        [ProducesResponseType(typeof(IEnumerable<CrewMemberAvailabilityDto>), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<IEnumerable<CrewMemberAvailabilityDto>>> GetCrewAvailability(
+            string companyId,
+            int crewId,
+            [FromQuery] DateTime startDate,
+            [FromQuery] DateTime endDate)
+        {
+            if (endDate <= startDate)
+                return BadRequest("endDate must be after startDate.");
+
+            try
+            {
+                var crewExists = await _context.Crews.AnyAsync(c => c.CrewId == crewId && c.CompanyId == companyId);
+                if (!crewExists)
+                    return NotFound($"Crew {crewId} not found in company {companyId}.");
+
+                // Load crew members
+                var members = await _context.PersonCrews
+                    .Where(pc => pc.CrewId == crewId && pc.Person.CompanyId == companyId)
+                    .Select(pc => new { pc.Person.PersonId, pc.Person.Name, pc.Person.PhotoUrl })
+                    .ToListAsync();
+
+                var personIds = members.Select(m => m.PersonId).ToList();
+                var personIdStrings = personIds.Select(id => id.ToString()).ToList();
+
+                // Load overlapping schedules for all crew members in one query
+                // Schedule.PersonId is string, so use personIdStrings
+                var conflictingPersonIdStrings = await _context.Schedules
+                    .Where(s => personIdStrings.Contains(s.PersonId)
+                                && s.CompanyId == companyId
+                                && s.StartDate < endDate
+                                && s.EndDate > startDate
+                                && s.Status.ToLower() != "void")
+                    .Select(s => s.PersonId)
+                    .Distinct()
+                    .ToListAsync();
+                var conflictingPersonIds = conflictingPersonIdStrings
+                    .Select(id => int.TryParse(id, out var n) ? n : -1)
+                    .ToList();
+
+                // Load overlapping approved time-off requests in one query
+                var timeOffPersonIds = await _context.TimeOffRequests
+                    .Where(t => personIds.Contains(t.PersonId)
+                                && t.CompanyId == companyId
+                                && t.Status.ToLower() == "approved"
+                                && t.StartDate < endDate
+                                && t.EndDate > startDate)
+                    .Select(t => t.PersonId)
+                    .Distinct()
+                    .ToListAsync();
+
+                var result = members.Select(m => new CrewMemberAvailabilityDto
+                {
+                    PersonId = m.PersonId,
+                    Name = m.Name,
+                    PhotoUrl = m.PhotoUrl,
+                    Available = !conflictingPersonIds.Contains(m.PersonId) && !timeOffPersonIds.Contains(m.PersonId),
+                    Reason = timeOffPersonIds.Contains(m.PersonId) ? "time-off"
+                             : conflictingPersonIds.Contains(m.PersonId) ? "conflict"
+                             : null
+                });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking availability for crew {CrewId} in company {CompanyId}.", crewId, companyId);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }

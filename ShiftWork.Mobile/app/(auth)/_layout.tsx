@@ -18,6 +18,31 @@ export default function AuthLayout() {
           headerBackTitle: 'Back',
         }}
       />
+      {/* New customer self-registration wizard (public - no auth required) */}
+      <Stack.Screen
+        name="register"
+        options={{
+          title: 'Create Account',
+          headerShown: false,
+        }}
+      />
+      {/* Onboarding sandbox management after registration */}
+      <Stack.Screen
+        name="accept-invite"
+        options={{
+          title: 'Accept Invitation',
+          headerShown: false,
+        }}
+      />
+      {/* Onboarding sandbox management after registration */}
+      <Stack.Screen
+        name="onboarding"
+        options={{
+          title: 'Get Started',
+          headerShown: true,
+          headerBackVisible: false,
+        }}
+      />
     </Stack>
   );
 }

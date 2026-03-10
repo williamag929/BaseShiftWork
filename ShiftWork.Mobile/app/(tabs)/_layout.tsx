@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@/styles/theme';
+import { colors } from '@/styles/tokens';
 
 export default function TabsLayout() {
   return (
@@ -86,6 +86,18 @@ export default function TabsLayout() {
         options={{
           title: 'Weekly Schedule',
           href: null, // Hide from tab bar
+        }}
+      />
+      {/* Plan upgrade screen - hidden from tab bar, accessible via push navigation */}
+      <Tabs.Screen
+        name="upgrade"
+        options={{
+          title: 'Upgrade to Pro',
+          href: null, // Hide from tab bar
+          headerStyle: {
+            backgroundColor: '#fff',
+          },
+          headerTintColor: '#333',
         }}
       />
     </Tabs>

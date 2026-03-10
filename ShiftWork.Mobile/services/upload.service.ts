@@ -1,6 +1,9 @@
 import { apiClient } from './api-client';
 import * as FileSystem from 'expo-file-system';
-import { auth } from '@/config/firebase';
+// Firebase auth is DISABLED — token is read from SecureStore instead.
+// import { auth } from '@/config/firebase';
+import { getToken } from '@/utils/storage.utils';
+import { logger } from '@/utils/logger';
 
 /**
  * Upload service for photos to S3 via backend API
@@ -28,35 +31,34 @@ export async function uploadPhoto(localUri: string, bucketName: string = 'shiftw
     // Get the base URL from the API client
     const baseURL = await apiClient.getBaseURL();
     
-    // Get Firebase auth token for authorization
-    const user = auth.currentUser;
+    // Get stored API token for authorization
+    const token = await getToken();
     const headers: Record<string, string> = {
       'Accept': 'application/json',
     };
-    
-    if (user) {
-      const token = await user.getIdToken();
+
+    if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
     
     // Upload to backend S3 endpoint
-    console.log(`Uploading to: ${baseURL}/api/s3/file/${bucketName}`);
+    logger.log(`[Upload] Uploading to: ${baseURL}/api/s3/file/${bucketName}`);
     const response = await fetch(`${baseURL}/api/s3/file/${bucketName}`, {
       method: 'POST',
       headers,
       body: formData,
     });
 
-    console.log('Upload response status:', response.status);
+    logger.log('[Upload] Response status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Upload failed response:', errorText);
+      logger.error('[Upload] Failed response:', errorText);
       throw new Error(`Upload failed: ${response.status} - ${errorText}`);
     }
 
     const responseText = await response.text();
-    console.log('Upload response body:', responseText);
+    logger.log('[Upload] Response body:', responseText);
     
     const result: S3UploadResponse = JSON.parse(responseText);
     const photoUrl = result.url || result.message;
@@ -65,10 +67,10 @@ export async function uploadPhoto(localUri: string, bucketName: string = 'shiftw
       throw new Error('No URL returned from upload');
     }
 
-    console.log('Photo uploaded successfully to S3:', photoUrl);
+    logger.log('[Upload] Photo uploaded successfully to S3:', photoUrl);
     return photoUrl;
   } catch (error: any) {
-    console.error('Error uploading photo:', error);
+    logger.error('[Upload] Error uploading photo:', error);
     throw new Error(`Failed to upload photo: ${error.message || 'Unknown error'}`);
   }
 }

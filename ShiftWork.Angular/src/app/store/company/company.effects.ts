@@ -9,7 +9,7 @@ import { loadCompanies, loadCompaniesSuccess, loadCompaniesFailure } from './com
 export class CompanyEffects {
   loadCompanies$ = createEffect(() => this.actions$.pipe(
     ofType(loadCompanies),
-    mergeMap(() => this.companyService.getCompanies()
+    mergeMap(() => this.companyService.getMyCompanies()
       .pipe(
         map((companies: any) => loadCompaniesSuccess({ companies })),
         catchError((error: any) => of(loadCompaniesFailure({ error })))

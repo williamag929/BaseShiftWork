@@ -1,5 +1,6 @@
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
+import { logger } from '@/utils/logger';
 
 const BIOMETRIC_ENABLED_KEY = 'biometric_enabled';
 const BIOMETRIC_CREDENTIALS_KEY = 'biometric_credentials';
@@ -20,7 +21,7 @@ class BiometricAuthService {
       const compatible = await LocalAuthentication.hasHardwareAsync();
       return compatible;
     } catch (error) {
-      console.error('Error checking biometric availability:', error);
+      logger.error('[Biometric] Error checking biometric availability:', error);
       return false;
     }
   }
@@ -33,7 +34,7 @@ class BiometricAuthService {
       const enrolled = await LocalAuthentication.isEnrolledAsync();
       return enrolled;
     } catch (error) {
-      console.error('Error checking biometric enrollment:', error);
+      logger.error('[Biometric] Error checking biometric enrollment:', error);
       return false;
     }
   }
@@ -46,7 +47,7 @@ class BiometricAuthService {
       const types = await LocalAuthentication.supportedAuthenticationTypesAsync();
       return types;
     } catch (error) {
-      console.error('Error getting supported types:', error);
+      logger.error('[Biometric] Error getting supported types:', error);
       return [];
     }
   }
@@ -79,7 +80,7 @@ class BiometricAuthService {
 
       return result.success;
     } catch (error) {
-      console.error('Biometric authentication error:', error);
+      logger.error('[Biometric] Biometric authentication error:', error);
       return false;
     }
   }
@@ -92,7 +93,7 @@ class BiometricAuthService {
       const enabled = await SecureStore.getItemAsync(BIOMETRIC_ENABLED_KEY);
       return enabled === 'true';
     } catch (error) {
-      console.error('Error checking biometric enabled state:', error);
+      logger.error('[Biometric] Error checking biometric enabled state:', error);
       return false;
     }
   }
@@ -120,7 +121,7 @@ class BiometricAuthService {
       
       return true;
     } catch (error) {
-      console.error('Error enabling biometric:', error);
+      logger.error('[Biometric] Error enabling biometric:', error);
       return false;
     }
   }
@@ -133,7 +134,7 @@ class BiometricAuthService {
       await SecureStore.deleteItemAsync(BIOMETRIC_CREDENTIALS_KEY);
       await SecureStore.deleteItemAsync(BIOMETRIC_ENABLED_KEY);
     } catch (error) {
-      console.error('Error disabling biometric:', error);
+      logger.error('[Biometric] Error disabling biometric:', error);
     }
   }
 
@@ -145,7 +146,7 @@ class BiometricAuthService {
       const data = await SecureStore.getItemAsync(BIOMETRIC_CREDENTIALS_KEY);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error('Error getting biometric credentials:', error);
+      logger.error('[Biometric] Error getting biometric credentials:', error);
       return null;
     }
   }
@@ -170,7 +171,7 @@ class BiometricAuthService {
       // Return saved credentials
       return await this.getCredentials();
     } catch (error) {
-      console.error('Biometric login error:', error);
+      logger.error('[Biometric] Biometric login error:', error);
       return null;
     }
   }
@@ -186,7 +187,7 @@ class BiometricAuthService {
       
       return available && enrolled && enabled;
     } catch (error) {
-      console.error('Error checking if should offer biometric:', error);
+      logger.error('[Biometric] Error checking if should offer biometric:', error);
       return false;
     }
   }

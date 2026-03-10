@@ -1,15 +1,14 @@
 import { Stack, useRouter } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAuthStore } from '@/store/authStore';
-import { getUserData, getCompanyId } from '@/utils/storage.utils';
 import { useNotifications } from '@/hooks/useNotifications';
-// Initialize Firebase before any usage
-import '@/config/firebase';
-import { auth } from '@/config/firebase';
-import { authService } from '@/services';
-import { saveUserData, saveCompanyId } from '@/utils/storage.utils';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ToastContainer } from '@/components/ui';
+import { logger } from '@/utils/logger';
+import { getToken, getUserData, getCompanyId } from '@/utils/storage.utils';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -26,69 +25,69 @@ export default function RootLayout() {
   const setPersonId = useAuthStore((s) => s.setPersonId);
   const router = useRouter();
   const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
+  // Track whether the initial auth check has completed to avoid redirect loops
+  const authInitialized = useRef(false);
 
   // Initialize push notifications
   const { expoPushToken, error: notificationError, isRegistered } = useNotifications();
 
   useEffect(() => {
     if (isRegistered && expoPushToken) {
-      console.log('Push notifications registered with token:', expoPushToken);
+      logger.log('[Notifications] Registered with token:', expoPushToken);
     }
     if (notificationError) {
-      console.error('Push notification error:', notificationError);
+      logger.error('[Notifications] Registration error:', notificationError);
     }
   }, [isRegistered, expoPushToken, notificationError]);
 
+  // Restore auth state from SecureStore on cold start.
+  // Firebase auth is DISABLED — we read the stored API JWT and user data instead.
   useEffect(() => {
-    // Hydrate auth state from secure storage on app start
+    let cancelled = false;
     (async () => {
       try {
-        const savedUser = await getUserData();
-        const savedCompany = await getCompanyId();
-        if (savedCompany) setCompanyId(savedCompany);
-        if (savedUser?.personId) setPersonId(Number(savedUser.personId));
-        if (savedUser?.email || savedUser?.name) {
-          setPersonProfile({ email: savedUser?.email ?? null, name: savedUser?.name ?? null });
-        }
-        // If personal app and we have person, go to tabs by default
-        // else stay on index/login
-      } catch {
-        // ignore
-      }
-    })();
-  }, []);
+        const [token, userData, companyId] = await Promise.all([
+          getToken(),
+          getUserData(),
+          getCompanyId(),
+        ]);
 
-  // When Firebase auth is enabled, map user -> person automatically
-  useEffect(() => {
-    const unsubscribe = auth?.onAuthStateChanged?.(async (user: any) => {
-      try {
-        if (user?.email) {
-          const person = await authService.getUserByEmail(user.email);
-          if (person?.personId && person?.companyId) {
-            setCompanyId(person.companyId);
-            setPersonId(Number(person.personId));
-            setPersonProfile({ email: person.email, name: person.name });
-            await saveUserData({ personId: person.personId, email: person.email, name: person.name });
-            await saveCompanyId(person.companyId);
+        if (cancelled) return;
+
+        if (token && userData) {
+          setPersonId(Number(userData.personId));
+          setPersonProfile({ email: userData.email ?? null, name: userData.name ?? null });
+          if (companyId) setCompanyId(companyId);
+          // Only redirect to dashboard on the very first mount
+          if (!authInitialized.current) {
+            router.replace('/(tabs)/dashboard' as any);
           }
+        } else {
+          setPersonId(null);
+          setPersonProfile({ email: null, name: null, photoUrl: null });
         }
       } catch (e) {
-        console.warn('Failed to map auth user to person:', e);
+        logger.warn('[Auth] Failed to restore auth from storage:', e);
+      } finally {
+        if (!cancelled) authInitialized.current = true;
       }
-    });
-    return () => {
-      if (typeof unsubscribe === 'function') unsubscribe();
-    };
-  }, [setCompanyId, setPersonId, setPersonProfile]);
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <Stack screenOptions={{ animation: 'slide_from_right' }}>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
+          <ToastContainer />
+          <StatusBar style="auto" />
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </GestureHandlerRootView>
   );
 }

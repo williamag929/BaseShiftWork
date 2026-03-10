@@ -34,6 +34,9 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsSandbox")
+                        .HasColumnType("bit");
+
                     b.Property<int>("LocationId")
                         .HasColumnType("int");
 
@@ -130,11 +133,26 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OnboardingStatus")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Plan")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("PlanExpiresAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Settings")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StripeCustomerId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StripeSubscriptionId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TimeZone")
@@ -450,6 +468,8 @@ namespace ShiftWork.Api.Migrations
 
                     b.HasIndex("RoleId");
 
+                    b.HasIndex("CompanyId", "PersonId");
+
                     b.HasIndex("CompanyId", "CompanyUserId", "RoleId")
                         .IsUnique();
 
@@ -620,6 +640,9 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsSandbox")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -699,6 +722,37 @@ namespace ShiftWork.Api.Migrations
                     b.ToTable("PTOLedger", (string)null);
                 });
 
+            modelBuilder.Entity("ShiftWork.Api.Models.Permission", b =>
+                {
+                    b.Property<int>("PermissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PermissionId"));
+
+                    b.Property<string>("CompanyId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PermissionId");
+
+                    b.ToTable("Permissions", (string)null);
+                });
+
             modelBuilder.Entity("ShiftWork.Api.Models.Person", b =>
                 {
                     b.Property<int>("PersonId")
@@ -730,6 +784,9 @@ namespace ShiftWork.Api.Migrations
                     b.Property<string>("Floor")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsSandbox")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("LastUpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -738,6 +795,9 @@ namespace ShiftWork.Api.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
@@ -876,6 +936,21 @@ namespace ShiftWork.Api.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("Roles", (string)null);
+                });
+
+            modelBuilder.Entity("ShiftWork.Api.Models.RolePermission", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissions", (string)null);
                 });
 
             modelBuilder.Entity("ShiftWork.Api.Models.Schedule", b =>
@@ -1270,6 +1345,30 @@ namespace ShiftWork.Api.Migrations
                     b.ToTable("TimeOffRequests", (string)null);
                 });
 
+            modelBuilder.Entity("ShiftWork.Api.Models.UserRole", b =>
+                {
+                    b.Property<string>("CompanyUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CompanyId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CompanyUserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("CompanyId", "CompanyUserId");
+
+                    b.ToTable("UserRoles", (string)null);
+                });
+
             modelBuilder.Entity("ShiftWork.Api.Models.Area", b =>
                 {
                     b.HasOne("ShiftWork.Api.Models.Location", "Location")
@@ -1434,6 +1533,25 @@ namespace ShiftWork.Api.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("ShiftWork.Api.Models.RolePermission", b =>
+                {
+                    b.HasOne("ShiftWork.Api.Models.Permission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ShiftWork.Api.Models.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("ShiftWork.Api.Models.Schedule", b =>
                 {
                     b.HasOne("ShiftWork.Api.Models.Area", "Area")
@@ -1558,6 +1676,25 @@ namespace ShiftWork.Api.Migrations
                     b.Navigation("Person");
                 });
 
+            modelBuilder.Entity("ShiftWork.Api.Models.UserRole", b =>
+                {
+                    b.HasOne("ShiftWork.Api.Models.CompanyUser", "CompanyUser")
+                        .WithMany()
+                        .HasForeignKey("CompanyUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("ShiftWork.Api.Models.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("CompanyUser");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("ShiftWork.Api.Models.Company", b =>
                 {
                     b.Navigation("Crews");
@@ -1581,6 +1718,11 @@ namespace ShiftWork.Api.Migrations
             modelBuilder.Entity("ShiftWork.Api.Models.Location", b =>
                 {
                     b.Navigation("Areas");
+                });
+
+            modelBuilder.Entity("ShiftWork.Api.Models.Permission", b =>
+                {
+                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("ShiftWork.Api.Models.Person", b =>

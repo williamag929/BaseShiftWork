@@ -78,7 +78,7 @@ namespace ShiftWork.Api.Controllers
                     return NotFound($"No people found for company {companyId}.");
                 }
 
-                var autoClockOutTasks = people.Select(async person =>
+                foreach (var person in people)
                 {
                     try
                     {
@@ -92,8 +92,7 @@ namespace ShiftWork.Api.Controllers
                     {
                         _logger.LogError(ex, "Auto clock-out failed for person {PersonId} in company {CompanyId}.", person.PersonId, companyId);
                     }
-                });
-                await Task.WhenAll(autoClockOutTasks);
+                }
 
                 return Ok(_mapper.Map<IEnumerable<PersonDto>>(people));
             }
@@ -190,6 +189,10 @@ namespace ShiftWork.Api.Controllers
                 {
                     person.Pin = BCrypt.Net.BCrypt.HashPassword(personDto.Pin);
                 }
+                if (!string.IsNullOrEmpty(personDto.Password))
+                {
+                    person.PasswordHash = BCrypt.Net.BCrypt.HashPassword(personDto.Password);
+                }
                 var createdPerson = await _peopleService.Add(person);
 
                 if (createdPerson == null)
@@ -246,6 +249,10 @@ namespace ShiftWork.Api.Controllers
                 if (!string.IsNullOrEmpty(personDto.Pin))
                 {
                     person.Pin = BCrypt.Net.BCrypt.HashPassword(personDto.Pin);
+                }
+                if (!string.IsNullOrEmpty(personDto.Password))
+                {
+                    person.PasswordHash = BCrypt.Net.BCrypt.HashPassword(personDto.Password);
                 }
                 var updatedPerson = await _peopleService.Update(person);
 
