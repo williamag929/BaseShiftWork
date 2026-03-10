@@ -5,15 +5,12 @@ module.exports = function (api) {
     presets: [
       [
         'babel-preset-expo',
-        // babel-preset-expo auto-includes react-native-reanimated/plugin which
-        // requires react-native-worklets — not available in Jest environment.
-        // Disable it; react-native-reanimated/mock handles tests instead.
+        // Disable the reanimated plugin in the Jest environment — the worklets
+        // transformer is not available there; the reanimated mock handles tests.
         isTest ? { reanimated: false } : {},
       ],
     ],
-    plugins: [
-      // react-native-reanimated MUST be the last plugin (only in non-test builds)
-      ...(isTest ? [] : ['react-native-reanimated/plugin']),
-    ],
+    // No explicit react-native-reanimated/plugin entry needed for 4.x —
+    // babel-preset-expo auto-includes it when reanimated option is not false.
   };
 };

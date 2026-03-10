@@ -4,27 +4,24 @@ import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { colors } from '@/styles/theme';
-import { auth } from '@/config/firebase';
+import { getToken } from '@/utils/storage.utils';
 
 export default function Index() {
   const router = useRouter();
-  // Three states: 'checking' → Firebase resolves → 'authenticated' or 'unauthenticated'
+  // Check stored API token to decide where to navigate
   const [authState, setAuthState] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking');
 
   useEffect(() => {
-    // Firebase fires once immediately with the persisted auth state.
-    // _layout.tsx also has a listener that syncs person data + navigates to dashboard.
-    let unsubscribe: (() => void) | undefined;
-    try {
-      unsubscribe = auth.onAuthStateChanged((user) => {
-        setAuthState(user ? 'authenticated' : 'unauthenticated');
-      });
-    } catch (e) {
-      // auth failed to initialize entirely — go straight to login
-      console.error('[Index] Firebase auth unavailable:', e);
-      setAuthState('unauthenticated');
-    }
-    return () => unsubscribe?.();
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = await getToken();
+        if (!cancelled) setAuthState(token ? 'authenticated' : 'unauthenticated');
+      } catch {
+        if (!cancelled) setAuthState('unauthenticated');
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   // While Firebase resolves persisted auth (<200ms), show subtle loading

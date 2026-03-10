@@ -1,6 +1,8 @@
 import { apiClient } from './api-client';
 import * as FileSystem from 'expo-file-system';
-import { auth } from '@/config/firebase';
+// Firebase auth is DISABLED — token is read from SecureStore instead.
+// import { auth } from '@/config/firebase';
+import { getToken } from '@/utils/storage.utils';
 import { logger } from '@/utils/logger';
 
 /**
@@ -29,14 +31,13 @@ export async function uploadPhoto(localUri: string, bucketName: string = 'shiftw
     // Get the base URL from the API client
     const baseURL = await apiClient.getBaseURL();
     
-    // Get Firebase auth token for authorization
-    const user = auth.currentUser;
+    // Get stored API token for authorization
+    const token = await getToken();
     const headers: Record<string, string> = {
       'Accept': 'application/json',
     };
-    
-    if (user) {
-      const token = await user.getIdToken();
+
+    if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
     

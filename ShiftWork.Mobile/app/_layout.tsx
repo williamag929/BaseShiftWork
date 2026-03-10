@@ -3,17 +3,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import type { User } from 'firebase/auth';
 import { useAuthStore } from '@/store/authStore';
 import { useNotifications } from '@/hooks/useNotifications';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastContainer } from '@/components/ui';
 import { logger } from '@/utils/logger';
-// Initialize Firebase before any usage
-import '@/config/firebase';
-import { auth } from '@/config/firebase';
-import { authService } from '@/services';
-import { saveUserData, saveCompanyId } from '@/utils/storage.utils';
+import { getToken, getUserData, getCompanyId } from '@/utils/storage.utils';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -45,45 +40,39 @@ export default function RootLayout() {
     }
   }, [isRegistered, expoPushToken, notificationError]);
 
-  // Single authoritative auth listener.
-  // - On app start: Firebase persistence re-hydrates; if user is found,
-  //   fetch person via JWT (getCurrentUser) and redirect to dashboard.
-  // - On login/logout: update store accordingly.
+  // Restore auth state from SecureStore on cold start.
+  // Firebase auth is DISABLED — we read the stored API JWT and user data instead.
   useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
-    try {
-      unsubscribe = auth.onAuthStateChanged(async (user: User | null) => {
-        try {
-          if (user) {
-            // Fetch person data using Firebase JWT — avoids email-in-URL lookup
-            const person = await authService.getCurrentUser();
-            if (person?.personId && person?.companyId) {
-              setCompanyId(person.companyId);
-              setPersonId(Number(person.personId));
-              setPersonProfile({ email: person.email ?? null, name: person.name ?? null });
-              await saveUserData({ personId: person.personId, email: person.email, name: person.name });
-              await saveCompanyId(person.companyId);
-              // Redirect returning users to dashboard on cold start only
-              if (!authInitialized.current) {
-                router.replace('/(tabs)/dashboard' as any);
-              }
-            }
-          } else {
-            // User signed out — clear persisted store
-            setPersonId(null);
-            setPersonProfile({ email: null, name: null, photoUrl: null });
+    let cancelled = false;
+    (async () => {
+      try {
+        const [token, userData, companyId] = await Promise.all([
+          getToken(),
+          getUserData(),
+          getCompanyId(),
+        ]);
+
+        if (cancelled) return;
+
+        if (token && userData) {
+          setPersonId(Number(userData.personId));
+          setPersonProfile({ email: userData.email ?? null, name: userData.name ?? null });
+          if (companyId) setCompanyId(companyId);
+          // Only redirect to dashboard on the very first mount
+          if (!authInitialized.current) {
+            router.replace('/(tabs)/dashboard' as any);
           }
-        } catch (e) {
-          logger.warn('[Auth] onAuthStateChanged: failed to fetch person:', e);
-        } finally {
-          authInitialized.current = true;
+        } else {
+          setPersonId(null);
+          setPersonProfile({ email: null, name: null, photoUrl: null });
         }
-      });
-    } catch (e) {
-      logger.error('[Auth] Failed to subscribe to onAuthStateChanged:', e);
-      authInitialized.current = true;
-    }
-    return () => unsubscribe?.();
+      } catch (e) {
+        logger.warn('[Auth] Failed to restore auth from storage:', e);
+      } finally {
+        if (!cancelled) authInitialized.current = true;
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   return (

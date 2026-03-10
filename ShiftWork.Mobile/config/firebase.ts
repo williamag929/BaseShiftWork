@@ -1,12 +1,13 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import {
-  initializeAuth,
-  getAuth,
-  getReactNativePersistence,
-  inMemoryPersistence,
-  type Auth,
-} from 'firebase/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+/**
+ * Firebase configuration.
+ * Firebase Auth is DISABLED — initializeAuth is never called so the
+ * "Component auth has not been registered" crash cannot occur.
+ *
+ * The Firebase App is still initialized so that other Firebase services
+ * (e.g. Firestore, Storage) can be used in the future if needed.
+ * All auth is handled via direct API JWT tokens (see services/auth.service.ts).
+ */
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -17,49 +18,25 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-const REQUIRED_KEYS: Array<keyof typeof firebaseConfig> = ['apiKey', 'authDomain', 'projectId', 'appId'];
-const missing = REQUIRED_KEYS.filter((k) => !firebaseConfig[k]);
-if (missing.length > 0) {
-  console.warn('[Firebase] Missing config keys:', missing.join(', '));
-}
-
 // Guard against duplicate app initialization (hot reload / Fast Refresh)
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const app: FirebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-function createAuth(): Auth {
-  // Attempt 1: Full initialization with AsyncStorage persistence (best case)
-  try {
-    return initializeAuth(app, {
-      persistence: getReactNativePersistence(AsyncStorage),
-    });
-  } catch (e: any) {
-    const isAlreadyInitialized =
-      e?.code === 'auth/already-initialized' ||
-      (typeof e?.message === 'string' && e.message.toLowerCase().includes('already initialized'));
+// ── Auth stub ─────────────────────────────────────────────────────────────
+// Firebase Auth is disabled. Exporting a lightweight stub so that any code
+// that still references `auth` compiles without error and behaves safely:
+//   • onAuthStateChanged(cb) → immediately calls cb(null) so guards that
+//     check `if (user)` fall through to the "not logged in" path.
+//   • currentUser → always null
+//   • signOut() → resolves immediately
+export const auth = {
+  currentUser: null as null,
+  onAuthStateChanged: (callback: (user: null) => void): (() => void) => {
+    // Call once synchronously so listeners resolve instantly (no loading hang)
+    try { callback(null); } catch { /* ignore */ }
+    // Return a no-op unsubscribe
+    return () => {};
+  },
+  signOut: async () => {},
+} as const;
 
-    if (isAlreadyInitialized) {
-      // Hot reload path — auth is already set up, just retrieve it
-      return getAuth(app);
-    }
-
-    // Attempt 2: AsyncStorage unavailable or incompatible — fall back to in-memory.
-    // Auth will still work; the user will need to re-login after an app restart.
-    console.warn('[Firebase] AsyncStorage persistence failed, using in-memory auth:', e?.message);
-    try {
-      return initializeAuth(app, { persistence: inMemoryPersistence });
-    } catch (e2: any) {
-      const isAlreadyInit2 =
-        e2?.code === 'auth/already-initialized' ||
-        (typeof e2?.message === 'string' && e2.message.toLowerCase().includes('already initialized'));
-      if (isAlreadyInit2) {
-        return getAuth(app);
-      }
-      // If we get here, something is fundamentally broken with the Firebase setup.
-      console.error('[Firebase] Auth initialization completely failed:', e2?.message);
-      throw e2;
-    }
-  }
-}
-
-export const auth = createAuth();
 export default app;
