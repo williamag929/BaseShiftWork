@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
@@ -31,6 +32,8 @@ namespace ShiftWork.Api.Controllers
         private readonly ILogger<PeopleController> _logger;
         private readonly IWebhookService _webhookService;
         private readonly INotificationService _notificationService;
+        private readonly IAuditLogService _auditLogService;
+        private readonly ShiftWorkContext _context;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PeopleController"/> class.
@@ -44,7 +47,9 @@ namespace ShiftWork.Api.Controllers
             IMemoryCache memoryCache, 
             ILogger<PeopleController> logger, 
             IWebhookService webhookService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IAuditLogService auditLogService,
+            ShiftWorkContext context)
         {
             _peopleService = peopleService ?? throw new ArgumentNullException(nameof(peopleService));
             _shiftEventService = shiftEventService ?? throw new ArgumentNullException(nameof(shiftEventService));
@@ -55,6 +60,8 @@ namespace ShiftWork.Api.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _webhookService = webhookService ?? throw new ArgumentNullException(nameof(webhookService));
             _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+            _auditLogService = auditLogService ?? throw new ArgumentNullException(nameof(auditLogService));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         /// <summary>
@@ -545,42 +552,50 @@ namespace ShiftWork.Api.Controllers
                     return BadRequest("Employee must have an email address to receive app invite.");
                 }
 
-                // Check if already has CompanyUser
+                // Check existing CompanyUser state
                 var existingUsers = await _companyUserService.GetAllByCompanyIdAsync(companyId);
                 var existingUser = existingUsers?.FirstOrDefault(u => u.Email == person.Email);
-                
-                if (existingUser != null && !existingUser.Uid.StartsWith("invite_"))
-                {
-                    return BadRequest("Employee already has app access.");
-                }
 
-                // Generate invite token
+                bool isResend = existingUser != null && existingUser.Uid.StartsWith("invite_");
+                bool isPasswordReset = existingUser != null && !existingUser.Uid.StartsWith("invite_");
+
+                // Generate new invite token
                 var inviteToken = $"invite_{Guid.NewGuid():N}";
                 var inviteUrl = request.InviteUrl ?? "https://app.joblogsmart.com/accept-invite";
-                
-                // URL encode parameters for safety
+
                 var encodedEmail = System.Web.HttpUtility.UrlEncode(person.Email);
                 var encodedName = System.Web.HttpUtility.UrlEncode(person.Name);
-                var encodedCompany = System.Web.HttpUtility.UrlEncode(companyId); // TODO: Get actual company name
-                
                 var fullInviteUrl = $"{inviteUrl}?token={inviteToken}&companyId={companyId}&personId={personId}&email={encodedEmail}&name={encodedName}";
 
-                // Create or update CompanyUser with invite token as temporary UID
+                // Create or update CompanyUser
                 CompanyUser companyUser;
                 if (existingUser != null)
                 {
-                    // Update existing pending invite
+                    // Resend pending invite OR reset password for an active user:
+                    // In both cases we replace the UID with a fresh invite token and clear the password.
+                    var oldUid = existingUser.Uid;
                     existingUser.Uid = inviteToken;
+                    existingUser.EmailVerified = false;
                     existingUser.UpdatedAt = DateTime.UtcNow;
-                    companyUser = await _companyUserService.UpdateAsync(existingUser.Uid, existingUser);
+                    companyUser = await _companyUserService.UpdateAsync(oldUid, existingUser);
+
+                    if (isPasswordReset)
+                    {
+                        // Clear stored password so the accept-invite flow sets a fresh one
+                        var personRecord = await _context.Persons.FindAsync(personId);
+                        if (personRecord != null)
+                        {
+                            personRecord.PasswordHash = null;
+                            await _context.SaveChangesAsync();
+                        }
+                    }
                 }
                 else
                 {
-                    // Create new CompanyUser with invite token
                     companyUser = new CompanyUser
                     {
                         CompanyUserId = Guid.NewGuid().ToString(),
-                        Uid = inviteToken, // Temporary UID = invite token
+                        Uid = inviteToken,
                         Email = person.Email,
                         DisplayName = person.Name,
                         CompanyId = companyId,
@@ -589,21 +604,33 @@ namespace ShiftWork.Api.Controllers
                     companyUser = await _companyUserService.CreateAsync(companyUser);
                 }
 
-                // Store pending roles in CompanyUserProfiles
+                // Assign roles (only for new invites; keep existing roles on resend/reset)
                 var assignedBy = User?.Identity?.Name ?? "Admin";
-                foreach (var roleId in request.RoleIds)
+                if (!isResend && !isPasswordReset)
                 {
-                    await _profileService.AssignRoleToUser(
-                        companyId,
-                        companyUser.CompanyUserId,
-                        roleId,
-                        personId,
-                        assignedBy
-                    );
+                    foreach (var roleId in request.RoleIds)
+                    {
+                        await _profileService.AssignRoleToUser(
+                            companyId,
+                            companyUser.CompanyUserId,
+                            roleId,
+                            personId,
+                            assignedBy
+                        );
+                    }
                 }
 
-                // Send email invitation
-                var emailSubject = "You've been invited to JobLogSmart";
+                // Build email — different copy for reset vs first invite
+                var emailSubject = isPasswordReset
+                    ? "Reset your JobLogSmart app password"
+                    : "You've been invited to JobLogSmart";
+
+                var headline = isPasswordReset ? "Reset Your Password" : "Welcome to JobLogSmart!";
+                var bodyIntro = isPasswordReset
+                    ? $"<p>Hi {person.Name},</p><p>A password reset was requested for your JobLogSmart account. Click the button below to set a new password and regain access to the app.</p>"
+                    : $"<p>Hi {person.Name},</p><p>You've been invited to join your team on JobLogSmart. Accept your invitation to start managing your shifts and time tracking.</p>";
+                var btnLabel = isPasswordReset ? "Reset Password" : "Accept Invitation";
+
                 var emailBody = $@"
                     <!DOCTYPE html>
                     <html>
@@ -620,18 +647,17 @@ namespace ShiftWork.Api.Controllers
                     <body>
                         <div class='container'>
                             <div class='header'>
-                                <h1>Welcome to JobLogSmart!</h1>
+                                <h1>{headline}</h1>
                             </div>
                             <div class='content'>
-                                <p>Hi {person.Name},</p>
-                                <p>You've been invited to join your team on JobLogSmart. Accept your invitation to start managing your shifts and time tracking.</p>
+                                {bodyIntro}
                                 <p style='text-align: center;'>
-                                    <a href='{fullInviteUrl}' class='button'>Accept Invitation</a>
+                                    <a href='{fullInviteUrl}' class='button'>{btnLabel}</a>
                                 </p>
                                 <p>Or copy and paste this link into your browser:</p>
                                 <p style='word-break: break-all; color: #667eea;'>{fullInviteUrl}</p>
-                                <p><strong>This invitation will expire in 7 days.</strong></p>
-                                <p>If you have any questions, please contact us at support@joblogsmart.com</p>
+                                <p><strong>This link will expire in 7 days.</strong></p>
+                                <p>If you did not request this, please contact your administrator.</p>
                             </div>
                             <div class='footer'>
                                 <p>&copy; 2026 JobLogSmart. All rights reserved.</p>
@@ -643,6 +669,14 @@ namespace ShiftWork.Api.Controllers
 
                 await _notificationService.SendEmailAsync(person.Email, emailSubject, emailBody);
 
+                // Audit log
+                await _auditLogService.LogInviteSentAsync(
+                    companyId, assignedBy, personId, person.Email, isResend, isPasswordReset);
+
+                var actionLabel = isPasswordReset ? "Password reset invite" : (isResend ? "Invite resent" : "Invite sent");
+                _logger.LogInformation("{Action}: PersonId={PersonId}, Email={Email}, Token={Token}",
+                    actionLabel, personId, person.Email, inviteToken);
+
                 var response = new SendInviteResponse
                 {
                     InviteToken = inviteToken,
@@ -650,9 +684,6 @@ namespace ShiftWork.Api.Controllers
                     ExpiresAt = DateTime.UtcNow.AddDays(7),
                     PendingUser = _mapper.Map<CompanyUserDto>(companyUser)
                 };
-
-                _logger.LogInformation("Invite sent to PersonId={PersonId}, Email={Email}, Token={Token}", 
-                    personId, person.Email, inviteToken);
 
                 return Ok(response);
             }

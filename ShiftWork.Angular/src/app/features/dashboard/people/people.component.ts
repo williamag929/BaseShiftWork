@@ -202,12 +202,6 @@ export class PeopleComponent implements OnInit {
       return;
     }
 
-    const status = this.getInviteStatus(person.personId);
-    if (status?.hasAppAccess) {
-      this.toastr.info('Employee already has app access.');
-      return;
-    }
-
     this.selectedPerson = person;
     this.selectedRolesForInvite = [];
     this.showInviteDialog = true;
@@ -249,7 +243,10 @@ export class PeopleComponent implements OnInit {
       return;
     }
 
-    if (this.selectedRolesForInvite.length === 0) {
+    const status = this.getInviteStatus(this.selectedPerson.personId);
+    const isPasswordReset = status?.status === 'Active';
+
+    if (!isPasswordReset && this.selectedRolesForInvite.length === 0) {
       this.toastr.warning('Please select at least one role for the employee.');
       return;
     }
@@ -265,9 +262,11 @@ export class PeopleComponent implements OnInit {
     ).subscribe(
       response => {
         this.sendingInvite = false;
-        this.toastr.success(`Invite sent to ${this.selectedPerson?.email}`);
+        const msg = isPasswordReset
+          ? `Password reset link sent to ${this.selectedPerson?.email}`
+          : `Invite sent to ${this.selectedPerson?.email}`;
+        this.toastr.success(msg);
         this.closeInviteDialog();
-        // Reload invite status
         this.loadInviteStatuses();
       },
       error => {
@@ -314,5 +313,79 @@ export class PeopleComponent implements OnInit {
   }
 
   // getRoleName removed: roles now managed via CompanyUserProfiles
+
+  /**
+   * Get the label for the invite button in the edit form
+   */
+  getInviteActionLabel(personId: number): string {
+    const status = this.getInviteStatus(personId);
+    switch (status?.status) {
+      case 'Active':  return 'Reset App Password';
+      case 'Pending': return 'Resend App Invite';
+      default:        return 'Send App Invite';
+    }
+  }
+
+  /**
+   * Get dialog title based on current person's invite status
+   */
+  getDialogTitle(): string {
+    if (!this.selectedPerson) return 'Send App Invite';
+    const status = this.getInviteStatus(this.selectedPerson.personId);
+    switch (status?.status) {
+      case 'Active':  return 'Reset App Password';
+      case 'Pending': return 'Resend App Invite';
+      default:        return 'Send App Invite';
+    }
+  }
+
+  /**
+   * Get dialog description based on current person's invite status
+   */
+  getDialogDescription(): string {
+    if (!this.selectedPerson) return '';
+    const status = this.getInviteStatus(this.selectedPerson.personId);
+    if (status?.status === 'Active') {
+      return 'This employee already has app access. Sending a reset link will invalidate their current password. They will receive an email to set a new password.';
+    }
+    return 'Select the roles to assign to this employee. They will receive an email invitation to create their account and access the app.';
+  }
+
+  /**
+   * Get the submit button label inside the dialog
+   */
+  getDialogSendLabel(): string {
+    if (!this.selectedPerson) return 'Send Invite';
+    const status = this.getInviteStatus(this.selectedPerson.personId);
+    switch (status?.status) {
+      case 'Active':  return 'Send Reset Link';
+      case 'Pending': return 'Resend Invite';
+      default:        return 'Send Invite';
+    }
+  }
+
+  /**
+   * Tooltip for the envelope icon in the people list
+   */
+  getInviteIconTooltip(personId: number): string {
+    const status = this.getInviteStatus(personId);
+    switch (status?.status) {
+      case 'Active':  return 'Reset app password';
+      case 'Pending': return 'Resend invite';
+      default:        return 'Send app invite';
+    }
+  }
+
+  /**
+   * Icon class for the inline envelope button in the people list
+   */
+  getInviteStatusBadgeClass(personId: number): string {
+    const status = this.getInviteStatus(personId);
+    switch (status?.status) {
+      case 'Active':  return 'fa-key';
+      case 'Pending': return 'fa-envelope-o';
+      default:        return 'fa-envelope';
+    }
+  }
 
 }

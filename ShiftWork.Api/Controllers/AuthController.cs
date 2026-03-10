@@ -30,6 +30,7 @@ namespace ShiftWork.Api.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly ISandboxService _sandboxService;
         private readonly IConfiguration _configuration;
+        private readonly INotificationService _notificationService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthController"/> class.
@@ -39,13 +40,51 @@ namespace ShiftWork.Api.Controllers
             IMapper mapper,
             ILogger<AuthController> logger,
             ISandboxService sandboxService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            INotificationService notificationService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _sandboxService = sandboxService ?? throw new ArgumentNullException(nameof(sandboxService));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+        }
+
+        /// <summary>
+        /// DEV ONLY — sends a test email to verify SMTP configuration.
+        /// Requires a valid admin JWT.
+        /// </summary>
+        [HttpPost("test-email")]
+        [Authorize]
+        public async Task<IActionResult> TestEmail([FromBody] TestEmailRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.To))
+                return BadRequest(new { message = "'to' email address is required." });
+
+            var smtpHost = _configuration["Smtp:Host"];
+            var smtpPort = _configuration["Smtp:Port"];
+            var smtpUser = _configuration["Smtp:Username"];
+            var smtpFrom = _configuration["Smtp:From"] ?? _configuration["Email:From"];
+
+            _logger.LogInformation(
+                "[test-email] SMTP config — Host={Host} Port={Port} User={User} From={From}",
+                smtpHost ?? "(not set)", smtpPort ?? "(not set)",
+                smtpUser ?? "(not set)", smtpFrom ?? "(not set)");
+
+            await _notificationService.SendEmailAsync(
+                request.To,
+                request.Subject ?? "ShiftWork SMTP Test",
+                $"<p>This is a test email sent at <strong>{DateTime.UtcNow:u}</strong>.</p>" +
+                $"<p>SMTP Host: <code>{smtpHost}</code> | Port: <code>{smtpPort}</code></p>");
+
+            return Ok(new
+            {
+                message = $"Test email dispatched to {request.To}. Check the API logs for any SMTP errors.",
+                smtpHost,
+                smtpPort,
+                smtpFrom
+            });
         }
 
         /// <summary>
@@ -396,6 +435,7 @@ namespace ShiftWork.Api.Controllers
 
     public record ApiLoginRequest(string Email, string Password);
     public record SetPasswordRequest(int PersonId, string Password);
+    public record TestEmailRequest(string To, string? Subject);
 
     /// <summary>
     /// Payload for the accept-invite endpoint (no Firebase required).

@@ -63,6 +63,13 @@
                   </span>
                 </div>
               </div>
+              <button
+                class="invite-icon-btn"
+                *ngIf="person.email"
+                [title]="getInviteIconTooltip(person.personId)"
+                (click)="openInviteDialog(person); $event.stopPropagation()">
+                <i class="fa" [ngClass]="getInviteStatusBadgeClass(person.personId)"></i>
+              </button>
               <button class="edit-btn" (click)="editPerson(person); $event.stopPropagation()">
                 <i class="fa fa-pencil"></i>
               </button>
@@ -267,14 +274,15 @@
 
             <!-- Form Actions -->
             <div class="form-actions">
-              <!-- Send Invite Button (only show when editing and person has email) -->
+              <!-- Send / Resend / Reset Invite Button -->
               <button 
                 type="button" 
                 class="btn-invite" 
-                *ngIf="selectedPerson && selectedPerson.email && getInviteStatus(selectedPerson.personId)?.status !== 'Active'"
+                *ngIf="selectedPerson && selectedPerson.email"
+                [class.btn-invite-reset]="getInviteStatus(selectedPerson.personId)?.status === 'Active'"
                 (click)="openInviteDialog(selectedPerson); $event.stopPropagation()">
                 <i class="fa fa-envelope"></i>
-                {{ getInviteStatus(selectedPerson.personId)?.status === 'Pending' ? 'Resend' : 'Send' }} App Invite
+                {{ getInviteActionLabel(selectedPerson.personId) }}
               </button>
               <button type="button" class="btn-cancel" *ngIf="selectedPerson" (click)="cancelEdit()">
                 <i class="fa fa-times"></i>
@@ -289,7 +297,7 @@
     <div class="dialog-header">
       <h3 class="dialog-title">
         <i class="fa fa-envelope"></i>
-        Send App Invite
+        {{ getDialogTitle() }}
       </h3>
       <button class="dialog-close" (click)="closeInviteDialog()">
         <i class="fa fa-times"></i>
@@ -311,11 +319,11 @@
         </div>
 
         <p class="dialog-description">
-          Select the roles to assign to this employee. They will receive an email invitation to create their account and access the app.
+          {{ getDialogDescription() }}
         </p>
       </div>
 
-      <div class="role-selection">
+      <div class="role-selection" *ngIf="getInviteStatus(selectedPerson?.personId || 0)?.status !== 'Active'">
         <h4 class="section-title">Select Roles</h4>
         <div class="role-list">
           <div 
@@ -342,10 +350,10 @@
       <button 
         class="btn-submit" 
         (click)="sendInvite()" 
-        [disabled]="sendingInvite || selectedRolesForInvite.length === 0">
+        [disabled]="sendingInvite || (getInviteStatus(selectedPerson?.personId || 0)?.status !== 'Active' && selectedRolesForInvite.length === 0)">
         <i class="fa fa-spinner fa-spin" *ngIf="sendingInvite"></i>
         <i class="fa fa-paper-plane" *ngIf="!sendingInvite"></i>
-        {{ sendingInvite ? 'Sending...' : 'Send Invite' }}
+        {{ sendingInvite ? 'Sending...' : getDialogSendLabel() }}
       </button>
     </div>
   </div>
