@@ -31,9 +31,11 @@ ShiftWork Mobile is a cross-platform mobile application (iOS & Android) built wi
 ```
 ShiftWork.Mobile/
 ├── app/                        # Expo Router screens
-│   ├── (auth)/                # Auth-protected routes
+│   ├── (auth)/                # Auth screens (no guard)
 │   │   ├── login.tsx
-│   │   └── pin-verify.tsx
+│   │   ├── pin-verify.tsx
+│   │   ├── accept-invite.tsx  # Accepts invite token, sets password, navigates to company-select
+│   │   └── company-select.tsx # Post-login company picker; auto-skips if only one company
 │   ├── (tabs)/                # Main tab navigation
 │   │   ├── dashboard.tsx
 │   │   ├── schedule.tsx
@@ -49,7 +51,8 @@ ShiftWork.Mobile/
 │   └── LoadingSpinner.tsx
 ├── services/                  # API service layer
 │   ├── api-client.ts          # Axios instance with interceptors
-│   ├── auth.service.ts        # Auth endpoints
+│   ├── auth.service.ts        # Auth endpoints (login, accept-invite, verify-pin)
+│   ├── company.service.ts     # GET /api/companies/my → CompanySummary[]
 │   ├── schedule.service.ts    # Schedule/shift endpoints
 │   ├── shift-event.service.ts # Clock in/out endpoints
 │   ├── kiosk.service.ts       # Kiosk questions/answers
@@ -160,29 +163,45 @@ npm start
 
 ### Authentication Flow
 
-1. **Firebase Login**
-   ```typescript
-   import { signInWithEmailAndPassword } from 'firebase/auth';
-   import { auth } from '@/config/firebase';
-   
-   const user = await signInWithEmailAndPassword(auth, email, password);
-   const token = await user.user.getIdToken();
-   ```
+> **Note:** Firebase Auth is **disabled** in the mobile app. All auth goes through the ShiftWork API directly (`POST /api/auth/login` and `POST /api/auth/accept-invite`). The `config/firebase.ts` exports a mock so imports don't break.
 
-2. **Get Person Data**
-   ```typescript
-   import { authService } from '@services';
-   
-   const person = await authService.getUserByEmail(email);
-   ```
+**Login (email + password)**
+```typescript
+import { authService } from '@/services';
 
-3. **Verify PIN** (optional biometric alternative)
-   ```typescript
-   const result = await authService.verifyPin({ personId, pin });
-   if (result.verified) {
-     // Proceed to app
-   }
-   ```
+const result = await authService.login({ email, password });
+// result: { token, personId, companyId, email, name, photoUrl }
+// Store token with saveToken(result.token), companyId with saveCompanyId(result.companyId)
+```
+
+**Accept invite (first login after invite email)**
+```typescript
+const result = await authService.acceptInvite({
+  token,       // from invite URL query param
+  companyId,
+  personId: Number(personId),
+  email,
+  password,    // user-chosen password
+});
+// Same shape as login response; navigate to /(auth)/company-select
+```
+
+**Company selection (after login / accept-invite)**
+```typescript
+import { companyService } from '@/services';
+
+const companies = await companyService.getMyCompanies();
+// Auto-navigate to dashboard if companies.length === 1
+// Otherwise render picker — see app/(auth)/company-select.tsx
+```
+
+**Verify PIN** (optional biometric alternative)
+```typescript
+const result = await authService.verifyPin({ personId, pin });
+if (result.verified) {
+  // Proceed to app
+}
+```
 
 ### Clock In/Out Workflow
 

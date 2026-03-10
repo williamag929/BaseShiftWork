@@ -301,7 +301,13 @@ namespace ShiftWork.Api.Controllers
             if (!valid)
                 return Unauthorized(new { message = "Invalid email or password." });
 
-            var token = GenerateApiJwt(person);
+            // Look up CompanyUser.Uid so the JWT subject matches what PermissionAuthorizationHandler
+            // and UserRoleService use for role/permission lookups.
+            var companyUser = await _context.CompanyUsers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(cu => cu.Email == person.Email && cu.CompanyId == person.CompanyId);
+
+            var token = GenerateApiJwt(person, companyUser?.Uid);
             _logger.LogInformation("API login successful for {Email}", person.Email);
 
             return Ok(new
@@ -382,8 +388,9 @@ namespace ShiftWork.Api.Controllers
 
             await _context.SaveChangesAsync();
 
-            // Issue a JWT so the user is immediately logged in after accepting
-            var token = GenerateApiJwt(person);
+            // Issue a JWT so the user is immediately logged in after accepting.
+            // Pass the new CompanyUser.Uid as subject so all Uid-based auth lookups work.
+            var token = GenerateApiJwt(person, companyUser.Uid);
             _logger.LogInformation("Invite accepted: PersonId={PersonId}, CompanyId={CompanyId}", person.PersonId, person.CompanyId);
 
             return Ok(new
@@ -399,7 +406,12 @@ namespace ShiftWork.Api.Controllers
 
         // ── Helpers ───────────────────────────────────────────────────────────────
 
-        private string GenerateApiJwt(Person person)
+        /// <summary>
+        /// Generates an API JWT. Pass <paramref name="companyUserUid"/> so the token subject
+        /// matches <c>CompanyUser.Uid</c>, which is required by PermissionAuthorizationHandler
+        /// and UserRoleService. Falls back to personId when no CompanyUser record exists.
+        /// </summary>
+        private string GenerateApiJwt(Person person, string? companyUserUid = null)
         {
             var jwtSecret = _configuration["JwtSettings:SecretKey"]
                 ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
@@ -410,9 +422,13 @@ namespace ShiftWork.Api.Controllers
 
             int expirationDays = int.TryParse(_configuration["JwtSettings:ExpirationDays"], out var d) ? d : 30;
 
+            // Use CompanyUser.Uid as subject so PermissionAuthorizationHandler and
+            // UserRoleService can resolve the CompanyUser record from the JWT.
+            var subject = companyUserUid ?? person.PersonId.ToString();
+
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, person.PersonId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, subject),
                 new Claim(ClaimTypes.Email, person.Email),
                 new Claim(ClaimTypes.Name, person.Email),
                 new Claim("companyId", person.CompanyId),

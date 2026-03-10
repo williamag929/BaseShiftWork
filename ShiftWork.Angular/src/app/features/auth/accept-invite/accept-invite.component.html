@@ -1,12 +1,42 @@
 <div class="accept-invite-container">
-  <div class="invite-card">
+
+  <!-- ── Invalid / expired link ── -->
+  <div class="invite-card" *ngIf="invalidLink">
+    <div class="card-header">
+      <div class="header-icon" style="background: #fee2e2;">
+        <i class="fas fa-exclamation-triangle" style="color:#dc2626;"></i>
+      </div>
+      <h1 class="card-title">Invalid Invite Link</h1>
+      <p class="card-subtitle">
+        This invite link is missing required information or has already been used.<br>
+        Ask your administrator to send a new invite.
+      </p>
+    </div>
+    <div class="card-footer" style="text-align:center; margin-top:24px;">
+      <a routerLink="/auth/sign-in" class="footer-link">Go to Sign In</a>
+    </div>
+  </div>
+
+  <!-- ── Success state ── -->
+  <div class="invite-card" *ngIf="success && !invalidLink">
+    <div class="card-header">
+      <div class="header-icon success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h1 class="card-title">Password Set!</h1>
+      <p class="card-subtitle">Your account is ready. Open the <strong>JobLogSmart</strong> mobile app and log in with <strong>{{ employeeEmail }}</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ── Form state ── -->
+  <div class="invite-card" *ngIf="!success && !invalidLink">
     <!-- Header -->
     <div class="card-header">
       <div class="header-icon">
         <i class="fas fa-envelope-open-text"></i>
       </div>
       <h1 class="card-title">Accept Invitation</h1>
-      <p class="card-subtitle">You've been invited to join {{ companyName || 'the team' }}</p>
+      <p class="card-subtitle">Set a password to access the JobLogSmart mobile app</p>
     </div>
 
     <!-- Employee Info -->
@@ -42,7 +72,7 @@
               [type]="showPassword ? 'text' : 'password'"
               formControlName="password"
               class="form-input"
-              placeholder="Enter your password"
+              placeholder="Enter your password (min 6 chars)"
               [class.error]="inviteForm.get('password')?.invalid && inviteForm.get('password')?.touched"
             />
             <button
@@ -104,7 +134,7 @@
         [disabled]="inviteForm.invalid || loading"
       >
         <i [class]="loading ? 'fas fa-spinner fa-spin' : 'fas fa-check-circle'"></i>
-        {{ loading ? 'Creating Account...' : 'Accept Invitation' }}
+        {{ loading ? 'Setting Password...' : 'Set Password & Activate Account' }}
       </button>
     </form>
 
@@ -112,7 +142,7 @@
     <div class="card-footer">
       <p class="footer-text">
         Already have an account?
-        <a routerLink="/sign-in" class="footer-link">Sign In</a>
+        <a routerLink="/auth/sign-in" class="footer-link">Sign In</a>
       </p>
     </div>
   </div>

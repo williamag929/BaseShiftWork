@@ -571,13 +571,16 @@ namespace ShiftWork.Api.Controllers
                 CompanyUser companyUser;
                 if (existingUser != null)
                 {
-                    // Resend pending invite OR reset password for an active user:
-                    // In both cases we replace the UID with a fresh invite token and clear the password.
-                    var oldUid = existingUser.Uid;
-                    existingUser.Uid = inviteToken;
-                    existingUser.EmailVerified = false;
-                    existingUser.UpdatedAt = DateTime.UtcNow;
-                    companyUser = await _companyUserService.UpdateAsync(oldUid, existingUser);
+                    // Resend pending invite OR reset password for an active user.
+                    // Uid is NOT the PK (CompanyUserId is), so we can update it directly.
+                    var tracked = await _context.CompanyUsers.FindAsync(existingUser.CompanyUserId);
+                    if (tracked == null) return NotFound("CompanyUser record not found.");
+
+                    tracked.Uid = inviteToken;
+                    tracked.EmailVerified = false;
+                    tracked.UpdatedAt = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                    companyUser = tracked;
 
                     if (isPasswordReset)
                     {

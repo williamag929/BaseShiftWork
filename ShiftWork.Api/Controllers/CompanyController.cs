@@ -73,21 +73,24 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(500)]
         public async Task<ActionResult<IEnumerable<Company>>> GetMyCompanies()
         {
-            var firebaseUid = User.FindFirst("user_id")?.Value
+            var uid = User.FindFirst("user_id")?.Value
                 ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                 ?? User.FindFirst("sub")?.Value;
 
-            if (string.IsNullOrEmpty(firebaseUid))
-                return Unauthorized("Valid Firebase authentication required.");
+            var email = User.FindFirst(ClaimTypes.Email)?.Value
+                ?? User.FindFirst("email")?.Value;
+
+            if (string.IsNullOrEmpty(uid) && string.IsNullOrEmpty(email))
+                return Unauthorized("Authentication required.");
 
             try
             {
-                var companies = await _companyService.GetCompaniesByUidAsync(firebaseUid);
+                var companies = await _companyService.GetCompaniesByUidAsync(uid ?? string.Empty, email);
                 return Ok(companies);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while retrieving companies for user {FirebaseUid}.", firebaseUid);
+                _logger.LogError(ex, "An error occurred while retrieving companies for user {Uid}.", uid ?? email);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }

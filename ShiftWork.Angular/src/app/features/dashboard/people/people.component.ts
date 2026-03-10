@@ -257,7 +257,7 @@ export class PeopleComponent implements OnInit {
       this.selectedPerson.personId,
       {
         roleIds: this.selectedRolesForInvite,
-        inviteUrl: window.location.origin + '/accept-invite'
+        inviteUrl: window.location.origin + '/auth/accept-invite'
       }
     ).subscribe(
       response => {

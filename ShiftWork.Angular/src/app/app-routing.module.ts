@@ -21,6 +21,7 @@ const routes: Routes = [
   { path: 'upgrade', loadChildren: () => import('./features/upgrade/upgrade.module').then(m => m.UpgradeModule), canActivate: [authGuard] },
 
   // Back-compat redirects for older links
+  { path: 'accept-invite', redirectTo: '/auth/accept-invite', pathMatch: 'full' },
   { path: 'forgot-password', redirectTo: '/auth/forgot-password', pathMatch: 'full' },
   { path: 'register-user', redirectTo: '/auth/sign-up', pathMatch: 'full' },
   { path: '', redirectTo: '/auth/sign-in', pathMatch: 'full' },

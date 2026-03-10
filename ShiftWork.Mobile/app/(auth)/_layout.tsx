@@ -43,6 +43,13 @@ export default function AuthLayout() {
           headerBackVisible: false,
         }}
       />
+      <Stack.Screen
+        name="company-select"
+        options={{
+          title: 'Select Company',
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

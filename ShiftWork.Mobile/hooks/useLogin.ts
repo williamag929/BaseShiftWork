@@ -63,7 +63,7 @@ export function useLogin(): UseLoginReturn {
         await saveUserData({ personId: credentials.personId, email: credentials.email, name: credentials.name });
         await saveCompanyId(credentials.companyId);
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        router.replace('/(tabs)/dashboard' as any);
+        router.replace('/(auth)/company-select' as any);
       }
     } catch (error) {
       logger.error('[Login] Biometric login error:', error);
@@ -84,7 +84,8 @@ export function useLogin(): UseLoginReturn {
       await saveUserData({ personId: result.personId, email: result.email, name: result.name });
       await saveCompanyId(result.companyId);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace('/(tabs)/dashboard' as any);
+      // Navigate to company-select — it auto-skips if the user has only one company.
+      router.replace('/(auth)/company-select' as any);
     } catch (error: any) {
       const message = error?.message || 'Invalid email or password.';
       toast.error(message);
