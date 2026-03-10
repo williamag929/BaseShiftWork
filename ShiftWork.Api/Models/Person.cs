@@ -47,5 +47,11 @@ namespace ShiftWork.Api.Models
         /// Default false — all existing records are unaffected.
         /// </summary>
         public bool IsSandbox { get; set; } = false;
+
+        /// <summary>
+        /// BCrypt-hashed password for direct API authentication (Firebase auth disabled).
+        /// Null when the person has no API password set.
+        /// </summary>
+        public string? PasswordHash { get; set; }
     }
 }

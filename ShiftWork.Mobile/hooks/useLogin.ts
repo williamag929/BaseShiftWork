@@ -3,12 +3,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/config/firebase';
-import { getFirebaseAuthError } from '@/utils/firebase-error.utils';
+// Firebase auth is DISABLED — kept here for reference only.
+// import { signInWithEmailAndPassword } from 'firebase/auth';
+// import { auth } from '@/config/firebase';
+// import { getFirebaseAuthError } from '@/utils/firebase-error.utils';
 import { authService, biometricAuthService } from '@/services';
 import { useAuthStore } from '@/store/authStore';
-import { saveUserData, saveCompanyId } from '@/utils/storage.utils';
+import { saveUserData, saveCompanyId, saveToken } from '@/utils/storage.utils';
 import { useToast } from '@/hooks/useToast';
 import { logger } from '@/utils/logger';
 import { loginSchema, LoginFormData } from '@/utils/schemas/auth';
@@ -74,20 +75,19 @@ export function useLogin(): UseLoginReturn {
   const handleLogin = async (data: LoginFormData) => {
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
-      // Resolve person via Firebase JWT — the api-client interceptor injects
-      // the ID token from auth.currentUser automatically at this point.
-      const person = await authService.getCurrentUser();
-      if (!person?.personId || !person?.companyId) throw new Error('User profile not found. Contact support.');
-      setPersonId(Number(person.personId));
-      setCompanyId(person.companyId);
-      setPersonProfile({ email: person.email, name: person.name });
-      await saveUserData({ personId: person.personId, email: person.email, name: person.name });
-      await saveCompanyId(person.companyId);
+      // Direct API login — Firebase auth is disabled.
+      const result = await authService.login({ email: data.email, password: data.password });
+      await saveToken(result.token);
+      setPersonId(Number(result.personId));
+      setCompanyId(result.companyId);
+      setPersonProfile({ email: result.email, name: result.name, photoUrl: result.photoUrl });
+      await saveUserData({ personId: result.personId, email: result.email, name: result.name });
+      await saveCompanyId(result.companyId);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace('/(tabs)/dashboard' as any);
     } catch (error: any) {
-      toast.error(getFirebaseAuthError(error?.code));
+      const message = error?.message || 'Invalid email or password.';
+      toast.error(message);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setLoading(false);

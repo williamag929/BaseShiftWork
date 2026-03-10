@@ -28,6 +28,14 @@ export default function AuthLayout() {
       />
       {/* Onboarding sandbox management after registration */}
       <Stack.Screen
+        name="accept-invite"
+        options={{
+          title: 'Accept Invitation',
+          headerShown: false,
+        }}
+      />
+      {/* Onboarding sandbox management after registration */}
+      <Stack.Screen
         name="onboarding"
         options={{
           title: 'Get Started',
