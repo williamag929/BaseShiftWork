@@ -424,8 +424,11 @@ namespace ShiftWork.Api.Migrations
 
             modelBuilder.Entity("ShiftWork.Api.Models.CompanyUserProfile", b =>
                 {
-                    b.Property<string>("CompanyUserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("ProfileId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProfileId"));
 
                     b.Property<DateTime>("AssignedAt")
                         .HasColumnType("datetime2");
@@ -434,6 +437,10 @@ namespace ShiftWork.Api.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompanyId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CompanyUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -450,13 +457,12 @@ namespace ShiftWork.Api.Migrations
                     b.Property<int?>("PersonId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProfileId")
-                        .HasColumnType("int");
-
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
-                    b.HasKey("CompanyUserId");
+                    b.HasKey("ProfileId");
+
+                    b.HasIndex("CompanyUserId");
 
                     b.HasIndex("PersonId");
 
@@ -789,6 +795,9 @@ namespace ShiftWork.Api.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")

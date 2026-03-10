@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { signOut as firebaseSignOut } from 'firebase/auth';
-import { auth } from '@/config/firebase';
+// Firebase sign-out is DISABLED — kept for reference only.
+// import { signOut as firebaseSignOut } from 'firebase/auth';
+// import { auth } from '@/config/firebase';
 import { clearAllStorage } from '@/utils/storage.utils';
 
 interface AuthState {
@@ -33,7 +34,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       photoUrl: photoUrl ?? s.photoUrl,
     })),
   signOut: async () => {
-    await firebaseSignOut(auth).catch(() => {});
+    // Firebase sign-out is disabled. Just clear token + profile from storage.
     await clearAllStorage();
     set({
       personId: null,

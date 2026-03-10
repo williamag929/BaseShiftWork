@@ -5,29 +5,29 @@ import { useScheduleGrid } from '@/hooks/useScheduleGrid';
 import ScheduleGrid from '@/components/ScheduleGrid';
 import { colors } from '@/styles/theme';
 import { EmptyState } from '@/components/ui';
+import { useToast } from '@/hooks/useToast';
+import { logger } from '@/utils/logger';
 
 export default function ScheduleGridScreen() {
   const { companyId } = useAuthStore();
+  const toast = useToast();
   const { loading, error, data, filters, setFilters, refresh } = useScheduleGrid({
     companyId,
     locationId: undefined, // TODO: allow user to select location
   });
 
   const handleShiftPress = (shift: any) => {
-    Alert.alert(
-      'Shift Details',
-      `${shift.personName}\n${shift.startTime} - ${shift.endTime}\nStatus: ${shift.status}`,
-      [{ text: 'OK' }]
-    );
+    toast.info(`${shift.personName} · ${shift.startTime} - ${shift.endTime} · ${shift.status}`);
   };
 
   const handleAddShift = (personId: number, date: Date) => {
+    // TODO Phase 3: Replace with bottom sheet
     Alert.alert(
       'Add Shift',
       `Add shift for Person ${personId} on ${date.toLocaleDateString()}`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Add', onPress: () => console.log('Add shift') },
+        { text: 'Add', onPress: () => logger.log('[ScheduleGrid] Add shift tapped') },
       ]
     );
   };

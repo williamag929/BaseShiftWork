@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { registrationService } from '@/services/registration.service';
 import { useAuthStore } from '@/store/authStore';
 import { colors } from '@/styles/theme';
+import { useToast } from '@/hooks/useToast';
 
 const FEATURES = [
   { label: 'Kiosk Clock-In / Out', free: true, pro: true },
@@ -21,10 +22,11 @@ export default function UpgradeScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const companyId = useAuthStore((s) => s.companyId);
+  const toast = useToast();
 
   const handleUpgrade = () => {
     if (!companyId) {
-      Alert.alert('Error', 'No active company. Please sign in again.');
+      toast.error('No active company. Please sign in again.');
       return;
     }
     // For mobile MVP: deep-link to web upgrade page to stay out of PCI scope.
@@ -37,6 +39,7 @@ export default function UpgradeScreen() {
       Linking.openURL(webUpgradeUrl);
     } else {
       // Fallback: call API directly (stub payment method for dev)
+      // TODO Phase 3: replace with bottom-sheet confirm
       Alert.alert(
         'Upgrade to Pro',
         'This will upgrade your plan to Pro. Continue?',
@@ -52,14 +55,13 @@ export default function UpgradeScreen() {
                   targetPlan: 'Pro',
                 });
                 if (response.success) {
-                  Alert.alert('Success!', `You are now on the ${response.plan} plan.`, [
-                    { text: 'OK', onPress: () => router.back() }
-                  ]);
+                  toast.success(`You are now on the ${response.plan} plan.`);
+                  router.back();
                 } else {
-                  Alert.alert('Error', response.message);
+                  toast.error(response.message);
                 }
               } catch {
-                Alert.alert('Error', 'Upgrade failed. Please try from the web app.');
+                toast.error('Upgrade failed. Please try from the web app.');
               } finally {
                 setLoading(false);
               }

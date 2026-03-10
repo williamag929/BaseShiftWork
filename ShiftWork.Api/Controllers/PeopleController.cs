@@ -189,6 +189,10 @@ namespace ShiftWork.Api.Controllers
                 {
                     person.Pin = BCrypt.Net.BCrypt.HashPassword(personDto.Pin);
                 }
+                if (!string.IsNullOrEmpty(personDto.Password))
+                {
+                    person.PasswordHash = BCrypt.Net.BCrypt.HashPassword(personDto.Password);
+                }
                 var createdPerson = await _peopleService.Add(person);
 
                 if (createdPerson == null)
@@ -245,6 +249,10 @@ namespace ShiftWork.Api.Controllers
                 if (!string.IsNullOrEmpty(personDto.Pin))
                 {
                     person.Pin = BCrypt.Net.BCrypt.HashPassword(personDto.Pin);
+                }
+                if (!string.IsNullOrEmpty(personDto.Password))
+                {
+                    person.PasswordHash = BCrypt.Net.BCrypt.HashPassword(personDto.Password);
                 }
                 var updatedPerson = await _peopleService.Update(person);
 

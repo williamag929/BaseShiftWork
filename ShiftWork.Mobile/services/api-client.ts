@@ -1,6 +1,9 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import Constants from 'expo-constants';
-import { auth } from '@/config/firebase';
+// Firebase auth is DISABLED — token is now read from SecureStore.
+// import { auth } from '@/config/firebase';
+import { getToken } from '@/utils/storage.utils';
+import { logger } from '@/utils/logger';
 
 // Resolve API base URL, rewriting localhost/0.0.0.0 to the Expo host when running on device
 const resolveApiBaseUrl = () => {
@@ -46,42 +49,23 @@ class ApiClient {
     });
 
     // Helpful during dev to verify the resolved API base
-    if (__DEV__) {
-      // Avoid noisy logs in production
-      // eslint-disable-next-line no-console
-      console.log('[API] Base URL:', this.client.defaults.baseURL);
-    }
+    logger.log('[API] Base URL:', this.client.defaults.baseURL);
 
     // Request interceptor to add auth token
     this.client.interceptors.request.use(
       async (config) => {
-        const user = auth.currentUser;
-        
-        if (user) {
-          try {
-            const token = await user.getIdToken();
-            config.headers.Authorization = `Bearer ${token}`;
-            if (__DEV__) {
-              console.log('[API] Using Firebase auth token');
-            }
-          } catch (error) {
-            console.error('[API] Failed to get Firebase token:', error);
-            // Fall back to dev token if available
-            if (__DEV__ && process.env.EXPO_PUBLIC_DEV_TOKEN) {
-              config.headers.Authorization = `Bearer ${process.env.EXPO_PUBLIC_DEV_TOKEN}`;
-              console.log('[API] Falling back to dev token');
-            }
-          }
+        // Firebase auth is DISABLED. Read the stored API JWT from SecureStore.
+        // When Firebase was active the token came from auth.currentUser.getIdToken().
+        const token = await getToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          logger.log('[API] Using stored API JWT');
         } else if (__DEV__ && process.env.EXPO_PUBLIC_DEV_TOKEN) {
-          // In development, use a dev token when not logged in
-          // This is the expected path with mock Firebase auth
-          const devToken = process.env.EXPO_PUBLIC_DEV_TOKEN;
-          config.headers.Authorization = `Bearer ${devToken}`;
-          if (__DEV__) {
-            console.log('[API] Using dev token for development/testing');
-          }
-        } else if (!user) {
-          console.warn('[API] No auth token available. Request may fail with 401.');
+          // DEV-ONLY fallback — strip EXPO_PUBLIC_DEV_TOKEN before any production build.
+          config.headers.Authorization = `Bearer ${process.env.EXPO_PUBLIC_DEV_TOKEN}`;
+          logger.log('[API] Using EXPO_PUBLIC_DEV_TOKEN (dev only — no stored token)');
+        } else {
+          logger.warn('[API] No auth token available. Request may fail with 401.');
         }
 
         // Workaround Android RN cache rename bug: avoid shared cache entries
@@ -113,7 +97,7 @@ class ApiClient {
       (error) => {
         if (error.response) {
           // Server responded with error status
-          console.error('API Error Response:', {
+          logger.error('[API] Error Response:', {
             status: error.response.status,
             statusText: error.response.statusText,
             data: error.response.data,
@@ -127,7 +111,7 @@ class ApiClient {
           });
         } else if (error.request) {
           // Request made but no response
-          console.error('Network Error - No Response:', {
+          logger.error('[API] Network Error - No Response:', {
             url: error.config?.url,
             method: error.config?.method,
             baseURL: error.config?.baseURL,
@@ -139,7 +123,7 @@ class ApiClient {
           });
         } else {
           // Something else happened
-          console.error('Request Setup Error:', error.message);
+          logger.error('[API] Request Setup Error:', error.message);
           return Promise.reject({
             message: error.message,
             statusCode: -1,

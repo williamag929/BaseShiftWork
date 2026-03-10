@@ -67,6 +67,7 @@ export default function OnboardingScreen() {
   };
 
   const handleDelete = () => {
+    // TODO Phase 3: replace with bottom-sheet confirm
     Alert.alert(
       'Remove Demo Data',
       'This will permanently remove all demo data. Are you sure?',

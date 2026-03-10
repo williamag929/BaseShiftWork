@@ -15,6 +15,7 @@ using ShiftWork.Api.Authorization;
 using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 
 // Load environment variables from .env file
 Env.TraversePath().Load();
@@ -151,13 +152,41 @@ builder.Services.AddRateLimiter(options =>
 // Run: dotnet add package AutoMapper.Extensions.Microsoft.DependencyInjection
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-// Configure authentication using Firebase
+// Configure authentication: supports both Firebase JWTs and custom API JWTs.
+// "Combined" policy scheme automatically forwards to the correct validator based on token issuer.
+var jwtSecret = builder.Configuration["JwtSettings:SecretKey"]
+    ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+    ?? "CHANGE_THIS_TO_A_LONG_RANDOM_SECRET_KEY_AT_LEAST_32_CHARS_LONG";
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
+    options.DefaultAuthenticateScheme = "Combined";
+    options.DefaultChallengeScheme = "Combined";
+    options.DefaultScheme = "Combined";
+})
+.AddPolicyScheme("Combined", "Firebase or API JWT", policyOptions =>
+{
+    policyOptions.ForwardDefaultSelector = context =>
+    {
+        var authorization = context.Request.Headers["Authorization"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("Bearer "))
+        {
+            var token = authorization["Bearer ".Length..].Trim();
+            try
+            {
+                var jwtHandler = new JwtSecurityTokenHandler();
+                if (jwtHandler.CanReadToken(token))
+                {
+                    var jwtToken = jwtHandler.ReadJwtToken(token);
+                    if (jwtToken.Issuer == "shiftwork-api")
+                        return "ApiJwt";
+                }
+            }
+            catch { /* fall through to Firebase */ }
+        }
+        return JwtBearerDefaults.AuthenticationScheme;
+    };
+})
+.AddJwtBearer(options =>
 {
     // Firebase JWTs are validated against Google's public keys via Authority
     options.Authority = $"https://securetoken.google.com/{firebaseProjectId}";
@@ -169,6 +198,19 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = firebaseProjectId,
         ValidateLifetime = true
         // Do not set IssuerSigningKey for Firebase; keys are resolved via Authority metadata
+    };
+})
+.AddJwtBearer("ApiJwt", apiJwtOptions =>
+{
+    // Custom JWT for direct API authentication (mobile app when Firebase is disabled)
+    apiJwtOptions.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = "shiftwork-api",
+        ValidateAudience = true,
+        ValidAudience = "shiftwork-mobile",
+        ValidateLifetime = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
     };
 });
 

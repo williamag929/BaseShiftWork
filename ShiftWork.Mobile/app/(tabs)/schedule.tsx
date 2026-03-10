@@ -1,11 +1,13 @@
 import { useMemo, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useAuthStore } from '@/store/authStore';
 import { peopleService } from '@/services/people.service';
 import { useScheduleData } from '@/hooks/useScheduleData';
 import { formatDate, formatTime, getEndOfDay, getEndOfMonth, getEndOfWeek, getStartOfDay, getStartOfMonth, getStartOfWeek } from '@/utils/date.utils';
-import { colors } from '@/styles/theme';
+import { colors } from '@/styles/tokens';
 import { Card, EmptyState, SectionHeader } from '@/components/ui';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 type ViewMode = 'day' | 'week' | 'month';
 
@@ -103,30 +105,34 @@ export default function ScheduleScreen() {
 
       <View style={styles.section}>
         <SectionHeader title={`Shifts (${formatDate(from)} - ${formatDate(to)})`} />
-        {loading && <ActivityIndicator />}
+        {loading && [0,1,2].map((i) => <Skeleton key={i} width="100%" height={70} borderRadius={12} style={{ marginBottom: 12 }} />)}
         {!loading && shifts.length === 0 && (
           <EmptyState title="No shifts" message="No shifts in this range." icon="calendar-clear-outline" />
         )}
-        {!loading && shifts.map((s) => (
-          <Card key={s.scheduleShiftId} style={styles.card}>
+        {!loading && shifts.map((s, i) => (
+          <Animated.View key={s.scheduleShiftId} entering={FadeInDown.delay(i * 60).duration(300)}>
+          <Card style={styles.card}>
             <Text style={styles.cardTitle}>{formatDate(s.startDate)}</Text>
             <Text style={styles.cardSubtitle}>{formatTime(s.startDate)} - {formatTime(s.endDate)}</Text>
             <Text style={styles.cardMeta}>Shift #{s.scheduleShiftId} • Status: {s.status}</Text>
           </Card>
+          </Animated.View>
         ))}
       </View>
 
       <View style={styles.section}>
         <SectionHeader title="Clocked Events" />
-        {loading && <ActivityIndicator />}
+        {loading && [0,1,2].map((i) => <Skeleton key={i} width="100%" height={60} borderRadius={12} style={{ marginBottom: 12 }} />)}
         {!loading && events.length === 0 && (
           <EmptyState title="No events" message="No events in this range." icon="pulse-outline" />
         )}
-        {!loading && events.map((e) => (
-          <Card key={e.eventLogId} style={styles.card}>
+        {!loading && events.map((e, i) => (
+          <Animated.View key={e.eventLogId} entering={FadeInDown.delay(i * 60).duration(300)}>
+          <Card style={styles.card}>
             <Text style={styles.cardText}>{e.eventType.replace('_', ' ')}</Text>
             <Text style={styles.cardMeta}>{formatDate(e.eventDate)} {formatTime(e.eventDate)}</Text>
           </Card>
+          </Animated.View>
         ))}
         {!!error && <Text style={styles.error}>{error}</Text>}
       </View>

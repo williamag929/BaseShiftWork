@@ -9,6 +9,7 @@
  */
 import axios, { AxiosInstance } from 'axios';
 import Constants from 'expo-constants';
+import { logger } from '@/utils/logger';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -87,7 +88,7 @@ class McpService {
     });
 
     if (__DEV__) {
-      console.log('[MCP] Base URL:', this.baseUrl);
+      logger.log('[MCP] Base URL:', this.baseUrl);
     }
   }
 

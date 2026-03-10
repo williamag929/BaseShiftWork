@@ -1,21 +1,13 @@
-import { initializeApp } from 'firebase/app';
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const REQUIRED_FIREBASE_VARS: Array<[string, string | undefined]> = [
-  ['EXPO_PUBLIC_FIREBASE_API_KEY', process.env.EXPO_PUBLIC_FIREBASE_API_KEY],
-  ['EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN', process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN],
-  ['EXPO_PUBLIC_FIREBASE_PROJECT_ID', process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID],
-  ['EXPO_PUBLIC_FIREBASE_APP_ID', process.env.EXPO_PUBLIC_FIREBASE_APP_ID],
-];
-
-const missingVars = REQUIRED_FIREBASE_VARS.filter(([, v]) => !v).map(([k]) => k);
-if (missingVars.length > 0) {
-  throw new Error(
-    `Firebase configuration is incomplete. Missing environment variables: ${missingVars.join(', ')}. ` +
-    'Ensure all EXPO_PUBLIC_FIREBASE_* variables are set in your .env file.'
-  );
-}
+/**
+ * Firebase configuration.
+ * Firebase Auth is DISABLED — initializeAuth is never called so the
+ * "Component auth has not been registered" crash cannot occur.
+ *
+ * The Firebase App is still initialized so that other Firebase services
+ * (e.g. Firestore, Storage) can be used in the future if needed.
+ * All auth is handled via direct API JWT tokens (see services/auth.service.ts).
+ */
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -26,10 +18,25 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+// Guard against duplicate app initialization (hot reload / Fast Refresh)
+const app: FirebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
+// ── Auth stub ─────────────────────────────────────────────────────────────
+// Firebase Auth is disabled. Exporting a lightweight stub so that any code
+// that still references `auth` compiles without error and behaves safely:
+//   • onAuthStateChanged(cb) → immediately calls cb(null) so guards that
+//     check `if (user)` fall through to the "not logged in" path.
+//   • currentUser → always null
+//   • signOut() → resolves immediately
+export const auth = {
+  currentUser: null as null,
+  onAuthStateChanged: (callback: (user: null) => void): (() => void) => {
+    // Call once synchronously so listeners resolve instantly (no loading hang)
+    try { callback(null); } catch { /* ignore */ }
+    // Return a no-op unsubscribe
+    return () => {};
+  },
+  signOut: async () => {},
+} as const;
 
 export default app;

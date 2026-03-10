@@ -16,6 +16,7 @@ import { useAuthStore } from '@/store/authStore';
 import { scheduleService } from '@/services';
 import { peopleService } from '@/services/people.service';
 import { formatDate, formatTime, formatScheduleTime } from '@/utils/date.utils';
+import { logger } from '@/utils/logger';
 import type { ScheduleShiftDto } from '@/types/api';
 import * as Notifications from 'expo-notifications';
 import { notificationService } from '@/services/notification.service';
@@ -79,7 +80,7 @@ export default function WeeklyScheduleScreen() {
       }
       pollingIntervalRef.current = setInterval(() => {
         if (appStateRef.current === 'active') {
-          console.log('Background polling: refreshing schedule...');
+          logger.log('[Schedule] Background polling: refreshing...');
           setSilentRefreshing(true);
           loadWeekSchedule(true).finally(() => {
             setTimeout(() => setSilentRefreshing(false), 1000);
@@ -97,7 +98,7 @@ export default function WeeklyScheduleScreen() {
         if (data?.type === 'schedule_published' || 
             data?.type === 'shift_assigned' || 
             data?.type === 'shift_changed') {
-          console.log('Schedule update notification received, refreshing...');
+          logger.log('[Schedule] Update notification received, refreshing...');
           setSilentRefreshing(true);
           loadWeekSchedule(true).finally(() => {
             setTimeout(() => setSilentRefreshing(false), 1000);
@@ -110,7 +111,7 @@ export default function WeeklyScheduleScreen() {
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (appStateRef.current.match(/inactive|background/) && nextAppState === 'active') {
         // App came to foreground, refresh schedule
-        console.log('App resumed, refreshing schedule...');
+        logger.log('App resumed, refreshing schedule...');
         setSilentRefreshing(true);
         loadWeekSchedule(true).finally(() => {
           setTimeout(() => setSilentRefreshing(false), 1000);
@@ -210,7 +211,7 @@ export default function WeeklyScheduleScreen() {
       setWeekSchedule(days);
       setLastUpdate(new Date());
     } catch (err: any) {
-      console.error('Error loading week schedule:', err);
+      logger.error('Error loading week schedule:', err);
       if (!silent) {
         setError(err.message || 'Failed to load schedule');
       }
