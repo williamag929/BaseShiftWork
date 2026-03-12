@@ -601,6 +601,7 @@ namespace ShiftWork.Api.Controllers
                         Uid = inviteToken,
                         Email = person.Email,
                         DisplayName = person.Name,
+                        PhotoURL = person.PhotoUrl ?? string.Empty,
                         CompanyId = companyId,
                         EmailVerified = false
                     };
@@ -609,7 +610,7 @@ namespace ShiftWork.Api.Controllers
 
                 // Assign roles (only for new invites; keep existing roles on resend/reset)
                 var assignedBy = User?.Identity?.Name ?? "Admin";
-                if (!isResend && !isPasswordReset)
+                if (!isResend && !isPasswordReset && request.RoleIds != null)
                 {
                     foreach (var roleId in request.RoleIds)
                     {

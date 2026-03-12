@@ -2,7 +2,6 @@ import { StyleSheet, ScrollView, RefreshControl, AppState, AppStateStatus } from
 import { useEffect, useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import * as Notifications from 'expo-notifications';
 import { useAuthStore } from '@/store/authStore';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { notificationService } from '@/services/notification.service';
@@ -77,7 +76,7 @@ export default function DashboardScreen() {
     });
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
-      if (notificationRef.current) Notifications.removeNotificationSubscription(notificationRef.current);
+      if (notificationRef.current) notificationRef.current.remove();
       sub.remove();
     };
   }, [companyId, personId, refresh]);

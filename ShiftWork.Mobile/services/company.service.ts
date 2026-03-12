@@ -11,7 +11,7 @@ export interface CompanySummary {
 class CompanyService {
   /** Returns all companies the current user belongs to (based on CompanyUser.Uid in JWT). */
   async getMyCompanies(): Promise<CompanySummary[]> {
-    return apiClient.get<CompanySummary[]>('/companies/my');
+    return apiClient.get<CompanySummary[]>('/api/companies/my');
   }
 }
 
