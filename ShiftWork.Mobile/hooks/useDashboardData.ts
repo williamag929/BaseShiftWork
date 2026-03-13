@@ -4,13 +4,13 @@ import * as Network from 'expo-network';
 import { scheduleService, shiftEventService } from '@/services';
 import { apiClient } from '@/services/api-client';
 import { dbService } from '@/services/db';
-import { getStartOfWeek, getEndOfWeek, formatDateForApi } from '@/utils/date.utils';
+import { getStartOfWeekUTC, getEndOfWeekUTC, formatDateForApi } from '@/utils/date.utils';
 import { ShiftEventTypes } from '@/types/api';
 import type { ScheduleShiftDto, ShiftEventDto } from '@/types/api';
 import type { TimeOffRequest } from '@/services/time-off-request.service';
 import { getActiveClockInAt } from '@/utils';
 import { logger } from '@/utils/logger';
-import { useTimeOffRequests, useLocationName } from './queries';
+import { useCompanyTimeZone, useTimeOffRequests, useLocationName } from './queries';
 
 // ---------------------------------------------------------------------------
 // Pure async function — orchestrates all dashboard fetches with offline fallback
@@ -29,10 +29,9 @@ async function fetchDashboardData(companyId: string, personId: number): Promise<
   const online = !!state.isConnected && !!state.isInternetReachable;
 
   const now = new Date();
-  const weekStart = getStartOfWeek(now);
-  const weekEnd = getEndOfWeek(now);
-  const next7End = new Date(now);
-  next7End.setDate(now.getDate() + 7);
+  const weekStart = getStartOfWeekUTC(now);
+  const weekEnd = getEndOfWeekUTC(now);
+  const next7End = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 7));
 
   if (online) {
     const [events, shiftsWeek, shiftsNext7, status] = await Promise.all([
@@ -90,6 +89,7 @@ export interface DashboardData {
   isClockedIn: boolean;
   todayShift: ScheduleShiftDto | null;
   todayShiftLocationName: string | null;
+  companyTimeZone: string | null;
 }
 
 export const useDashboardData = (
@@ -150,6 +150,9 @@ export const useDashboardData = (
     todayShift?.locationId,
   );
 
+  // ── Company timezone for shift time display ──
+  const companyTimeZone = useCompanyTimeZone(companyId);
+
   // ── Derived clock state ──
   const isClockedIn = useMemo(() => {
     const latest = recentEvents?.[0];
@@ -160,8 +163,8 @@ export const useDashboardData = (
   // ── Weekly stats ──
   const hoursThisWeek = useMemo(() => {
     const now = new Date();
-    const start = getStartOfWeek(now);
-    const end = getEndOfWeek(now);
+    const start = getStartOfWeekUTC(now);
+    const end = getEndOfWeekUTC(now);
     const events = recentEvents
       .filter((e) => new Date(e.eventDate) >= start && new Date(e.eventDate) <= end)
       .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
@@ -183,8 +186,8 @@ export const useDashboardData = (
 
   const shiftsThisWeek = useMemo(() => {
     const now = new Date();
-    const start = getStartOfWeek(now);
-    const end = getEndOfWeek(now);
+    const start = getStartOfWeekUTC(now);
+    const end = getEndOfWeekUTC(now);
     return upcoming.filter((s) => {
       const startDate = new Date(s.startDate);
       return startDate >= start && startDate <= end;
@@ -244,6 +247,7 @@ export const useDashboardData = (
     isClockedIn,
     todayShift,
     todayShiftLocationName,
+    companyTimeZone,
   };
 };
 

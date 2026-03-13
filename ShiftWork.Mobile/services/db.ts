@@ -100,7 +100,7 @@ export const getRecentEvents = async (
 ): Promise<ShiftEventDto[]> => {
   const database = await getDb();
   const result = await database.getAllAsync<ShiftEventDto>(
-    `SELECT * FROM shift_events WHERE personId = ? ORDER BY datetime(eventDate) DESC LIMIT ?`,
+    `SELECT * FROM shift_events WHERE personId = ? ORDER BY datetime(eventDate, 'utc') DESC LIMIT ?`,
     [personId, limit]
   );
   return result;
@@ -114,8 +114,8 @@ export const getUpcomingShifts = async (
   const database = await getDb();
   const result = await database.getAllAsync<ScheduleShiftDto>(
     `SELECT * FROM schedule_shifts 
-     WHERE personId = ? AND datetime(startDate) >= datetime(?) AND datetime(startDate) < datetime(?)
-     ORDER BY datetime(startDate) ASC`,
+     WHERE personId = ? AND datetime(startDate, 'utc') >= datetime(?, 'utc') AND datetime(startDate, 'utc') < datetime(?, 'utc')
+     ORDER BY datetime(startDate, 'utc') ASC`,
     [personId, fromISO, toISO]
   );
   return result;
@@ -129,8 +129,8 @@ export const getEventsInRange = async (
   const database = await getDb();
   const result = await database.getAllAsync<ShiftEventDto>(
     `SELECT * FROM shift_events 
-     WHERE personId = ? AND datetime(eventDate) >= datetime(?) AND datetime(eventDate) <= datetime(?)
-     ORDER BY datetime(eventDate) ASC`,
+     WHERE personId = ? AND datetime(eventDate, 'utc') >= datetime(?, 'utc') AND datetime(eventDate, 'utc') <= datetime(?, 'utc')
+     ORDER BY datetime(eventDate, 'utc') ASC`,
     [personId, fromISO, toISO]
   );
   return result;

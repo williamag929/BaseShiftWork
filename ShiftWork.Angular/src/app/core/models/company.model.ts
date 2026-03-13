@@ -5,7 +5,7 @@ export interface Company {
     phoneNumber: string;
     email: string;
     website: string;
-    timezone: string;
+    timeZone: string;
     externalCode?: string;
     currency?: string;
     logoUrl?: string;

@@ -10,6 +10,8 @@ import { Company } from 'src/app/core/models/company.model';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CompanySettingsService } from 'src/app/core/services/company-settings.service';
 import { CompanySettings } from 'src/app/core/models/company-settings.model';
+import { TIMEZONES } from 'src/app/core/data/timezones';
+import { Timezone } from 'src/app/core/models/timezone.model';
 
 @Component({
   selector: 'app-company-settings',
@@ -24,6 +26,7 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
   saving = false;
   activeCompany: any;
   activeTab: string = 'time-regional';
+  timezones: Timezone[] = TIMEZONES;
   company$: Observable<Company | null>;
   companyId: string | null = null;
   private destroy$ = new Subject<void>();

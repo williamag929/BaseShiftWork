@@ -121,6 +121,7 @@ namespace ShiftWork.Api.Services
                 var endOfDayUtc = startOfDayUtc.AddDays(1);
 
                 var scheduleShift = await _context.ScheduleShifts
+                    .Include(ss => ss.Location)
                     .Where(ss => ss.PersonId == shiftEvent.PersonId &&
                                  ss.StartDate < endOfDayUtc &&
                                  ss.EndDate > startOfDayUtc)
@@ -133,9 +134,14 @@ namespace ShiftWork.Api.Services
                 {
                     if (string.Equals(shiftEvent.EventType, "clockin", StringComparison.OrdinalIgnoreCase))
                     {
-                        // Compute Late/Early/OnTime relative to scheduled start with 5-minute grace
-                        var startUtc = scheduleShift.StartDate;
-                        var diffMinutes = (nowUtc - startUtc).TotalMinutes;
+                        // Schedule start is stored as UTC wall-clock; convert to a real UTC instant using company/location timezone.
+                        var companyTimeZone = await _context.Companies
+                            .Where(c => c.CompanyId == shiftEvent.CompanyId)
+                            .Select(c => c.TimeZone)
+                            .FirstOrDefaultAsync();
+                        var effectiveTimeZone = scheduleShift.Location?.TimeZone ?? companyTimeZone ?? "UTC";
+                        var scheduleStartUtcInstant = ConvertUtcWallClockToUtcInstant(scheduleShift.StartDate, effectiveTimeZone);
+                        var diffMinutes = (nowUtc - scheduleStartUtcInstant).TotalMinutes;
                         string timing;
                         if (diffMinutes > 5)
                         {
@@ -222,6 +228,59 @@ namespace ShiftWork.Api.Services
             }
 
             return shiftEvent;
+        }
+
+        private static DateTime ConvertUtcWallClockToUtcInstant(DateTime utcWallClockTime, string? timeZoneId)
+        {
+            var tz = ResolveTimeZoneInfo(timeZoneId);
+            var unspecifiedWallClock = DateTime.SpecifyKind(utcWallClockTime, DateTimeKind.Unspecified);
+            try
+            {
+                return TimeZoneInfo.ConvertTimeToUtc(unspecifiedWallClock, tz);
+            }
+            catch
+            {
+                // Defensive fallback for invalid wall-clock instants (for example, DST spring-forward gaps).
+                return DateTime.SpecifyKind(utcWallClockTime, DateTimeKind.Utc);
+            }
+        }
+
+        private static TimeZoneInfo ResolveTimeZoneInfo(string? timeZoneId)
+        {
+            if (string.IsNullOrWhiteSpace(timeZoneId))
+            {
+                return TimeZoneInfo.Utc;
+            }
+
+            try
+            {
+                return TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            }
+            catch
+            {
+                if (OperatingSystem.IsWindows() && TimeZoneInfo.TryConvertIanaIdToWindowsId(timeZoneId, out var windowsId))
+                {
+                    try
+                    {
+                        return TimeZoneInfo.FindSystemTimeZoneById(windowsId);
+                    }
+                    catch
+                    {
+                    }
+                }
+                else if (!OperatingSystem.IsWindows() && TimeZoneInfo.TryConvertWindowsIdToIanaId(timeZoneId, out var ianaId))
+                {
+                    try
+                    {
+                        return TimeZoneInfo.FindSystemTimeZoneById(ianaId);
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                return TimeZoneInfo.Utc;
+            }
         }
 
         public async Task<ShiftEvent?> GetShiftEventByIdAsync(Guid id)

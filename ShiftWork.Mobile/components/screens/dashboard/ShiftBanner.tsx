@@ -7,10 +7,11 @@ interface ShiftBannerProps {
   shift: ScheduleShiftDto;
   isClockedIn: boolean;
   locationName: string | null;
+  timeZoneId?: string | null;
   onPress: () => void;
 }
 
-export function ShiftBanner({ shift, isClockedIn, locationName, onPress }: ShiftBannerProps) {
+export function ShiftBanner({ shift, isClockedIn, locationName, timeZoneId, onPress }: ShiftBannerProps) {
   return (
     <Pressable
       style={({ pressed }) => [
@@ -31,7 +32,7 @@ export function ShiftBanner({ shift, isClockedIn, locationName, onPress }: Shift
           {isClockedIn ? 'You are on the clock' : 'Shift Pending — Tap to Clock In'}
         </Text>
         <Text style={styles.time}>
-          {formatScheduleTime(shift.startDate)} — {formatScheduleTime(shift.endDate)}
+          {formatScheduleTime(shift.startDate, timeZoneId ?? undefined)} — {formatScheduleTime(shift.endDate, timeZoneId ?? undefined)}
         </Text>
         {!!locationName && (
           <View style={styles.locRow}>

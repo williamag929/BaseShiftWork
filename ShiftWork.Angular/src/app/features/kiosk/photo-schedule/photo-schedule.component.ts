@@ -182,11 +182,13 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
 
           if (this.selectedEmployee.scheduleDetails) {
             const today = new Date();
-            const todayUTCDate = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+            // Kiosk should match schedules by local calendar day for in-store experience.
+            // Schedule dates are stored as UTC wall-clock, so UTC date equals intended calendar date.
+            const todayLocalDate = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
             this.employeeSchedule = this.selectedEmployee.scheduleDetails.find(s => {
               const scheduleDate = new Date(s.startDate);
-              const schedUTCDate = scheduleDate.getUTCFullYear() * 10000 + (scheduleDate.getUTCMonth() + 1) * 100 + scheduleDate.getUTCDate();
-              return s.personId === this.selectedEmployee?.personId && schedUTCDate === todayUTCDate;
+              const schedCalendarDate = scheduleDate.getUTCFullYear() * 10000 + (scheduleDate.getUTCMonth() + 1) * 100 + scheduleDate.getUTCDate();
+              return s.personId === this.selectedEmployee?.personId && schedCalendarDate === todayLocalDate;
             }) || null;
           }
         }
