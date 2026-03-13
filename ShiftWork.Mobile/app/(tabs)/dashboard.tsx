@@ -1,5 +1,6 @@
 import { StyleSheet, ScrollView, RefreshControl, AppState, AppStateStatus } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
+import { Subscription } from 'expo-notifications';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '@/store/authStore';
@@ -24,8 +25,8 @@ export default function DashboardScreen() {
   const { isClockedIn, refresh, todayShift, todayShiftLocationName, recentEvents, error } = data;
 
   const [silentRefreshing, setSilentRefreshing] = useState(false);
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
-  const notificationRef = useRef<Notifications.Subscription | null>(null);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const notificationRef = useRef<Subscription | null>(null);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 
 
@@ -68,7 +69,7 @@ export default function DashboardScreen() {
     notificationRef.current = notificationService.addNotificationReceivedListener((n) => {
       const type = n.request.content.data?.type;
       const triggers = ['schedule_published', 'shift_assigned', 'shift_changed', 'time_off_approved', 'time_off_denied'];
-      if (triggers.includes(type)) { logger.log('[Dashboard] Notification refresh:', type); silentRefresh(); }
+      if (typeof type === 'string' && triggers.includes(type)) { logger.log('[Dashboard] Notification refresh:', type); silentRefresh(); }
     });
     const sub = AppState.addEventListener('change', (next) => {
       if (appStateRef.current.match(/inactive|background/) && next === 'active') { logger.log('[Dashboard] App resumed, refreshing...'); silentRefresh(); }
