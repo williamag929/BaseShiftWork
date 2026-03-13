@@ -342,6 +342,35 @@ namespace ShiftWork.Api.Controllers
             return Ok(new { success = true });
         }
 
+        /// <summary>
+        /// Syncs the API BCrypt password hash for the authenticated user.
+        /// Called by the Angular/Mobile app after a successful Firebase sign-in
+        /// (including after a Firebase password reset) so both auth systems stay in sync.
+        /// The user identity is taken from the validated Firebase JWT — never from the request body.
+        /// </summary>
+        [HttpPost("sync-password")]
+        [Authorize]
+        public async Task<IActionResult> SyncPassword([FromBody] SyncPasswordRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 6)
+                return BadRequest("Password must be at least 6 characters.");
+
+            var email = User.FindFirstValue(ClaimTypes.Email)
+                ?? User.FindFirstValue("email");
+
+            if (string.IsNullOrWhiteSpace(email))
+                return Unauthorized(new { message = "Could not identify user from token." });
+
+            var person = await _context.Persons.FirstOrDefaultAsync(p => p.Email == email);
+            if (person == null)
+                return NotFound(new { message = "No person record found for this account." });
+
+            person.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true });
+        }
+
         // ── Helpers ──────────────────────────────────────────────────────────
 
         /// <summary>
@@ -451,6 +480,7 @@ namespace ShiftWork.Api.Controllers
 
     public record ApiLoginRequest(string Email, string Password);
     public record SetPasswordRequest(int PersonId, string Password);
+    public record SyncPasswordRequest(string Password);
     public record TestEmailRequest(string To, string? Subject);
 
     /// <summary>
