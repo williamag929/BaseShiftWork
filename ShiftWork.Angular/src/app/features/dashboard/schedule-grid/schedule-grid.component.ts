@@ -1133,9 +1133,10 @@ export class ScheduleGridComponent implements OnInit {
           isCompleted
         };
       });
+      const UTC_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       days.push({
         date,
-        dayName: date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }),
+        dayName: `${UTC_DAYS[date.getUTCDay()]} ${date.getUTCDate()}`,
         unavailableCount: 0,
         shifts: shiftBlocks
       });
@@ -1180,11 +1181,24 @@ export class ScheduleGridComponent implements OnInit {
     }).filter(g => g.teamMembers.length > 0); // Only show locations that have scheduled people
   }
 
+  /**
+   * Returns true when two Date objects fall on the same UTC calendar day.
+   * ALWAYS use this instead of toDateString() for day comparisons — toDateString()
+   * converts to local time first, which shifts UTC-midnight dates to the previous
+   * day in negative-offset timezones (e.g. UTC-1 through UTC-12).
+   */
+  private sameUTCDay(a: Date, b: Date): boolean {
+    return a.getUTCFullYear() === b.getUTCFullYear()
+      && a.getUTCMonth() === b.getUTCMonth()
+      && a.getUTCDate() === b.getUTCDate();
+  }
+
   /** Get shifts for a person on a given day within a specific location group */
   getShiftsForPersonDayAndLocation(personId: number, date: Date, locationId: number): ShiftBlock[] {
     const group = this.locationGroups.find(g => g.locationId === locationId);
     if (!group) return [];
-    const day = group.days.find(d => d.date.toDateString() === date.toDateString());
+    // Use sameUTCDay — never toDateString() — to avoid local-timezone day shifts.
+    const day = group.days.find(d => this.sameUTCDay(d.date, date));
     return day?.shifts.filter(s => s.personId === personId) || [];
   }
 
@@ -1571,9 +1585,8 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   getShiftsForPersonAndDay(personId: number, date: Date): ShiftBlock[] {
-    const day = this.gridData.days.find(d => 
-      d.date.toDateString() === date.toDateString()
-    );
+    // Use sameUTCDay — never toDateString() — to avoid local-timezone day shifts.
+    const day = this.gridData.days.find(d => this.sameUTCDay(d.date, date));
     return day?.shifts.filter(s => s.personId === personId) || [];
   }
 
@@ -1883,6 +1896,10 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   private findScheduleConflict(personId: number, start: Date, end: Date, ignoreScheduleId?: number): Schedule | undefined {
+    // Overlap check: start < existingEnd && existingStart < end  (standard interval overlap).
+    // Comparing Date objects via < / > compares their UTC millisecond values — this is
+    // timezone-safe and correct regardless of the browser's local offset.  Do NOT convert
+    // these Date objects with toDateString() / toLocaleDateString() before comparing.
     return this.allSchedules.find(existing => {
       if (existing.personId !== personId) return false;
       if (ignoreScheduleId && existing.scheduleId === ignoreScheduleId) return false;
@@ -1897,13 +1914,21 @@ export class ScheduleGridComponent implements OnInit {
     const locationName = this.locations.find(l => l.locationId === conflicting.locationId)?.name ?? `Location ${conflicting.locationId}`;
     const conflictStart = new Date(conflicting.startDate);
     const conflictEnd = new Date(conflicting.endDate);
-    const fmt = (d: Date) => d.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
-    const fmtTime = (d: Date) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    // Use UTC getters for display — toLocaleString() / toLocaleTimeString() convert to the
+    // browser's local timezone, which would show the wrong date/time for UTC-stored shifts.
+    const fmtUTC = (d: Date) => {
+      const yr = d.getUTCFullYear();
+      const mo = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const dy = String(d.getUTCDate()).padStart(2, '0');
+      const hh = String(d.getUTCHours()).padStart(2, '0');
+      const mm = String(d.getUTCMinutes()).padStart(2, '0');
+      return `${yr}-${mo}-${dy} ${hh}:${mm} UTC`;
+    };
     return [
       `⚠️ Schedule Conflict`,
       `Employee : ${personName}`,
-      `Requested: ${fmt(requestedStart)} – ${fmtTime(requestedEnd)}`,
-      `Conflicts with existing shift: ${fmt(conflictStart)} – ${fmtTime(conflictEnd)}`,
+      `Requested: ${fmtUTC(requestedStart)} – ${fmtUTC(requestedEnd)}`,
+      `Conflicts with existing shift: ${fmtUTC(conflictStart)} – ${fmtUTC(conflictEnd)}`,
       `Location : ${locationName}`
     ].join('\n');
   }
