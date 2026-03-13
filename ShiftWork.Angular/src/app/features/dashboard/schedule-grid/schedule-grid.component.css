@@ -90,6 +90,41 @@
   text-align: center;
 }
 
+/* Horizon range selector */
+.range-selector {
+  display: flex;
+  align-items: center;
+  background-color: #EBEBF0;
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+  margin-left: 8px;
+}
+
+.range-btn {
+  padding: 5px 10px;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.range-btn:hover {
+  background-color: #D8D8E0;
+  color: #333;
+}
+
+.range-btn.active {
+  background-color: #fff;
+  color: #6C5CE7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
 .publish-badge {
   display: flex;
   align-items: center;

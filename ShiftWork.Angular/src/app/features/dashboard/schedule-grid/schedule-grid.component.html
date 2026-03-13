@@ -14,15 +14,21 @@
     </div>
 
     <div class="header-center">
-      <button class="nav-btn" (click)="onPreviousWeek()">
+      <button class="nav-btn" (click)="onPreviousPeriod()">
         <i class="bi bi-chevron-left"></i>
       </button>
       <span class="week-label">
         {{ gridData.weekStart | date:'d MMM' }} – {{ gridData.weekEnd | date:'d MMM' }}
       </span>
-      <button class="nav-btn" (click)="onNextWeek()">
+      <button class="nav-btn" (click)="onNextPeriod()">
         <i class="bi bi-chevron-right"></i>
       </button>
+      <div class="range-selector">
+        <button class="range-btn" [class.active]="horizonRange === 'week'" (click)="onHorizonChange('week')" title="1 week (7 days)">1W</button>
+        <button class="range-btn" [class.active]="horizonRange === '2-weeks'" (click)="onHorizonChange('2-weeks')" title="2 weeks (14 days)">2W</button>
+        <button class="range-btn" [class.active]="horizonRange === '15-day'" (click)="onHorizonChange('15-day')" title="15 days">15D</button>
+        <button class="range-btn" [class.active]="horizonRange === '4-weeks'" (click)="onHorizonChange('4-weeks')" title="4 weeks (28 days)">4W</button>
+      </div>
     </div>
 
     <div class="header-right">
