@@ -22,12 +22,15 @@ export default function DashboardScreen() {
   const { companyId, personId, name } = useAuthStore();
   const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
   const data = useDashboardData(companyId, personId);
-  const { isClockedIn, refresh, todayShift, todayShiftLocationName, recentEvents, error } = data;
+  const { isClockedIn, refresh, todayShift, todayShiftLocationName, recentEvents, error, companyTimeZone } = data;
 
   const [silentRefreshing, setSilentRefreshing] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const notificationRef = useRef<Subscription | null>(null);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+  const silentRefreshInFlightRef = useRef(false);
+  const silentRefreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMountedRef = useRef(true);
 
 
 
@@ -59,9 +62,30 @@ export default function DashboardScreen() {
   // Polling, push-notification triggers, and app-state restore
   useEffect(() => {
     if (!companyId || !personId) return;
+    isMountedRef.current = true;
+    const clearSilentRefreshTimeout = () => {
+      if (silentRefreshTimeoutRef.current) {
+        clearTimeout(silentRefreshTimeoutRef.current);
+        silentRefreshTimeoutRef.current = null;
+      }
+    };
+    const releaseSilentRefreshLock = (updateUi: boolean) => {
+      if (updateUi && isMountedRef.current) setSilentRefreshing(false);
+      silentRefreshInFlightRef.current = false;
+    };
     const silentRefresh = () => {
+      if (silentRefreshInFlightRef.current) return;
+      silentRefreshInFlightRef.current = true;
       setSilentRefreshing(true);
-      refresh().finally(() => setTimeout(() => setSilentRefreshing(false), 1000));
+      Promise.resolve()
+        .then(() => refresh())
+        .finally(() => {
+          clearSilentRefreshTimeout();
+          silentRefreshTimeoutRef.current = setTimeout(() => {
+            releaseSilentRefreshLock(true);
+            silentRefreshTimeoutRef.current = null;
+          }, 1000);
+        });
     };
     pollingRef.current = setInterval(() => {
       if (appStateRef.current === 'active') { logger.log('[Dashboard] Background poll...'); silentRefresh(); }
@@ -76,8 +100,15 @@ export default function DashboardScreen() {
       appStateRef.current = next;
     });
     return () => {
+      isMountedRef.current = false;
       if (pollingRef.current) clearInterval(pollingRef.current);
-      if (notificationRef.current) notificationRef.current.remove();
+      pollingRef.current = null;
+      if (notificationRef.current) {
+        notificationRef.current.remove();
+        notificationRef.current = null;
+      }
+      clearSilentRefreshTimeout();
+      releaseSilentRefreshLock(false);
       sub.remove();
     };
   }, [companyId, personId, refresh]);
@@ -89,7 +120,7 @@ export default function DashboardScreen() {
       <StatusBar style="light" />
       <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={data.refreshing} onRefresh={refresh} />}>
         <DashboardHeader name={name} personId={personId} isOnline={data.isOnline} isClockedIn={isClockedIn} personStatus={data.personStatus} elapsedSeconds={data.elapsedSeconds} lastUpdated={data.lastUpdated} silentRefreshing={silentRefreshing} />
-        {!!todayShift && (<ShiftBanner shift={todayShift} isClockedIn={isClockedIn} locationName={todayShiftLocationName} onPress={() => router.push('/(tabs)/clock' as any)} />)}
+        {!!todayShift && (<ShiftBanner shift={todayShift} isClockedIn={isClockedIn} locationName={todayShiftLocationName} timeZoneId={companyTimeZone} onPress={() => router.push('/(tabs)/clock' as any)} />)}
         <WeekStatsRow loading={data.loading} hoursThisWeek={data.hoursThisWeek} shiftsThisWeek={data.shiftsThisWeek} />
         <QuickActions isClockedIn={isClockedIn} onClock={() => router.push('/(tabs)/clock' as any)} onSchedule={() => router.push('/(tabs)/weekly-schedule' as any)} onTimeOff={() => router.push('/(tabs)/time-off-request' as any)} />
         <UpcomingShiftsSection loading={data.loading} upcoming={data.upcoming} onViewWeekly={() => router.push('/(tabs)/weekly-schedule' as any)} />

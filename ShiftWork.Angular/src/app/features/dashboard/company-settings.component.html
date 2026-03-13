@@ -67,7 +67,10 @@
       
       <div class="form-group">
         <label for="defaultTimeZone">Default Time Zone</label>
-        <input type="text" id="defaultTimeZone" [(ngModel)]="settings.defaultTimeZone" placeholder="UTC">
+        <select id="defaultTimeZone" [(ngModel)]="settings.defaultTimeZone">
+          <option value="" disabled>Select a Timezone</option>
+          <option *ngFor="let tz of timezones" [value]="tz.value">{{ tz.name }}</option>
+        </select>
       </div>
 
       <div class="form-group">

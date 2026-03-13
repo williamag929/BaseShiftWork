@@ -114,31 +114,31 @@ Clock-in events have **real UTC timestamps** (e.g., `2026-03-12T14:00:00.000Z`).
 ```ts
 // Lines 184-190
 const today = new Date();
-const todayUTCDate = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+const todayLocalDate = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
 this.employeeSchedule = this.selectedEmployee.scheduleDetails.find(s => {
   const scheduleDate = new Date(s.startDate);
   const schedUTCDate = scheduleDate.getUTCFullYear() * 10000 + (scheduleDate.getUTCMonth() + 1) * 100 + scheduleDate.getUTCDate();
-  return s.personId === this.selectedEmployee?.personId && schedUTCDate === todayUTCDate;
+  return s.personId === this.selectedEmployee?.personId && schedUTCDate === todayLocalDate;
 }) || null;
 ```
 
-**Bug:** `todayUTCDate` is derived from **local** `getFullYear() / getMonth() / getDate()` despite being named "UTC". `schedUTCDate` correctly uses `getUTCFullYear()` etc. because schedule dates use the UTC-as-wall-clock convention.
+**Risk:** `todayLocalDate` is derived from **local** `getFullYear() / getMonth() / getDate()`, while `schedUTCDate` is derived via UTC getters. This mixed derivation is intentional for kiosk local-day UX with UTC-wall-clock schedules, but without explicit naming/comments it is easy to misread as a bug.
 
 **Scenario:** Kiosk in UTC-5, date is March 12 11:00 PM local (= March 13 04:00 UTC).
-- `todayUTCDate` = 20260312 (local March 12)
+- `todayLocalDate` = 20260312 (local March 12)
 - A schedule for March 13 has `schedUTCDate` = 20260313
 - The March 13 schedule is NOT shown at 11 PM on the previous day ✅ (that's actually correct behavior)
 
 **Scenario:** Kiosk in UTC+6, date is March 12 01:00 AM local (= March 11 19:00 UTC).
-- `todayUTCDate` = 20260312 (local March 12)
+- `todayLocalDate` = 20260312 (local March 12)
 - A schedule stored as `2026-03-12T09:00:00.000Z` (March 12 schedule) has `schedUTCDate` = 20260312
 - Match found ✅
 
 **Scenario:** Kiosk in UTC+6, it is 11:00 PM local March 12 (= 17:00 UTC March 12).
-- `todayUTCDate` = 20260312
+- `todayLocalDate` = 20260312
 - A March 12 schedule: `schedUTCDate` = 20260312 ✅
 
-**Conclusion:** Because the UTC-wall-clock convention means UTC date = intended calendar date, and the kiosk compares local calendar date (`todayUTCDate` which isn't actually UTC) against the UTC calendar date from the schedule, this accidentally works correctly for most timezones. **The naming is misleading but the logic is sound.**
+**Conclusion:** Because the UTC-wall-clock convention means UTC date = intended calendar date, and the kiosk compares local calendar date (`todayLocalDate`) against the UTC calendar date from the schedule, this works correctly for most timezones. **The naming is now aligned with the logic.**
 
 **Status: ⚠️ Works correctly but is unmaintainable and misleading. Should be renamed and documented.**
 
@@ -192,7 +192,7 @@ Since `.toISOString()` in JS always emits UTC strings regardless of local timezo
 | UTC-1 | 🔴 Critical | API `ShiftEventService.cs` | Late/Early/OnTime diff compares real UTC clock-in against UTC-wall-clock schedule time — always shows wrong timing for non-UTC timezones |
 | UTC-2 | 🟡 Medium | Mobile `date.utils.ts` | `getStartOfWeek` / `getEndOfWeek` use local day boundaries — off-by-one risk for UTC+ users |
 | UTC-3 | 🟡 Medium | Mobile `date.utils.ts` | `getStartOfDay` / `getEndOfDay` use local `setHours` — used for SQLite range queries, may miss events near midnight |
-| UTC-4 | 🟢 Low | Kiosk `photo-schedule.component.ts` | Variable `todayUTCDate` is misleadingly named — uses local methods not UTC |
+| UTC-4 | 🟢 Low | Kiosk `photo-schedule.component.ts` | Variable naming mismatch (`todayUTCDate`) should be renamed to `todayLocalDate` for clarity |
 | UTC-5 | 🟢 Low | Mobile `db.ts` | SQLite `datetime()` without `'utc'` modifier — works with `Z` suffix strings but fragile |
 | UTC-6 | 🟢 Low | Mobile `hooks/useDashboardData.ts` | `next7End.setDate(...)` uses local method — should be UTC to match schedule storage |
 
@@ -292,7 +292,7 @@ export const getEndOfDayUTC = (date: Date): Date =>
 
 ```ts
 // Before
-const todayUTCDate = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+const todayLocalDate = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
 // ...
 const schedUTCDate = scheduleDate.getUTCFullYear() * ...
 

@@ -16,6 +16,7 @@ import { scheduleService } from '@/services/schedule.service';
 import { locationService } from '@/services/location.service';
 import { timeOffRequestService } from '@/services/time-off-request.service';
 import { uploadService } from '@/services/upload.service';
+import { companySettingsService } from '@/services/company-settings.service';
 import { getCurrentLocation, saveActiveClockInAt, clearActiveClockInAt } from '@/utils';
 import * as Device from 'expo-device';
 import type { ShiftEventDto, ScheduleShiftDto } from '@/types/api';
@@ -35,6 +36,9 @@ export const timeOffRequestsKey = (companyId: string, personId: number) =>
 
 export const locationNameKey = (companyId: string, locationId: string | number) =>
   ['locationName', companyId, locationId] as const;
+
+export const companyTimeZoneKey = (companyId: string) =>
+  ['company-settings', companyId] as const;
 
 // ---------------------------------------------------------------------------
 // Shift events — supports offline fallback via SQLite
@@ -120,6 +124,19 @@ export function useLocationName(companyId?: string | null, locationId?: string |
     enabled: !!companyId && !!locationId,
     staleTime: 5 * 60_000,
   });
+}
+
+// ---------------------------------------------------------------------------
+// Company timezone (from settings, cached 5 min)
+// ---------------------------------------------------------------------------
+export function useCompanyTimeZone(companyId?: string | null): string | null {
+  const { data } = useQuery({
+    queryKey: companyTimeZoneKey(companyId ?? ''),
+    queryFn: () => companySettingsService.getSettings(companyId!),
+    enabled: !!companyId,
+    staleTime: 5 * 60_000,
+  });
+  return data?.defaultTimeZone ?? null;
 }
 
 // ---------------------------------------------------------------------------
