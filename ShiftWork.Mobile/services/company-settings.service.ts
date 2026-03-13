@@ -93,7 +93,7 @@ class CompanySettingsService {
     }
 
     const settings = await apiClient.get<CompanySettings>(
-      `/companies/${companyId}/settings`
+      `/api/companies/${companyId}/settings`
     );
     
     // Cache the settings
@@ -106,7 +106,7 @@ class CompanySettingsService {
    */
   async updateSettings(companyId: string, settings: CompanySettings): Promise<CompanySettings> {
     const updated = await apiClient.put<CompanySettings>(
-      `/companies/${companyId}/settings`,
+      `/api/companies/${companyId}/settings`,
       settings
     );
     

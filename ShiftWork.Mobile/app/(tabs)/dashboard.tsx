@@ -16,6 +16,8 @@ import { QuickActions } from '@/components/screens/dashboard/QuickActions';
 import { UpcomingShiftsSection } from '@/components/screens/dashboard/UpcomingShiftsSection';
 import { RecentActivitySection } from '@/components/screens/dashboard/RecentActivitySection';
 import { TimeOffSection } from '@/components/screens/dashboard/TimeOffSection';
+import { ShiftDetailModal } from '@/components/screens/schedule/ShiftDetailModal';
+import type { ScheduleShiftDto } from '@/types/api';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -31,6 +33,7 @@ export default function DashboardScreen() {
   const silentRefreshInFlightRef = useRef(false);
   const silentRefreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isMountedRef = useRef(true);
+  const [selectedShift, setSelectedShift] = useState<ScheduleShiftDto | null>(null);
 
 
 
@@ -123,10 +126,16 @@ export default function DashboardScreen() {
         {!!todayShift && (<ShiftBanner shift={todayShift} isClockedIn={isClockedIn} locationName={todayShiftLocationName} timeZoneId={companyTimeZone} onPress={() => router.push('/(tabs)/clock' as any)} />)}
         <WeekStatsRow loading={data.loading} hoursThisWeek={data.hoursThisWeek} shiftsThisWeek={data.shiftsThisWeek} />
         <QuickActions isClockedIn={isClockedIn} onClock={() => router.push('/(tabs)/clock' as any)} onSchedule={() => router.push('/(tabs)/weekly-schedule' as any)} onTimeOff={() => router.push('/(tabs)/time-off-request' as any)} />
-        <UpcomingShiftsSection loading={data.loading} upcoming={data.upcoming} onViewWeekly={() => router.push('/(tabs)/weekly-schedule' as any)} />
+        <UpcomingShiftsSection loading={data.loading} upcoming={data.upcoming} timeZoneId={companyTimeZone} onSelectShift={setSelectedShift} onViewWeekly={() => router.push('/(tabs)/weekly-schedule' as any)} />
         <RecentActivitySection loading={data.loading} recentEvents={recentEvents} error={error} />
         <TimeOffSection loading={data.timeOffLoading} requests={data.timeOffRequests} onRequest={() => router.push('/(tabs)/time-off-request' as any)} />
       </ScrollView>
+      <ShiftDetailModal
+        visible={!!selectedShift}
+        shift={selectedShift}
+        timeZoneId={companyTimeZone}
+        onClose={() => setSelectedShift(null)}
+      />
     </>
   );
 }

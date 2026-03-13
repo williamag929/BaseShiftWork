@@ -3,17 +3,19 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, EmptyState, SectionHeader } from '@/components/ui';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { formatDate, formatTime } from '@/utils/date.utils';
+import { formatDate, formatScheduleTime } from '@/utils/date.utils';
 import { colors, spacing } from '@/styles/tokens';
 import type { ScheduleShiftDto } from '@/types/api';
 
 interface UpcomingShiftsSectionProps {
   loading: boolean;
   upcoming: ScheduleShiftDto[];
+  timeZoneId?: string | null;
+  onSelectShift?: (shift: ScheduleShiftDto) => void;
   onViewWeekly: () => void;
 }
 
-export function UpcomingShiftsSection({ loading, upcoming, onViewWeekly }: UpcomingShiftsSectionProps) {
+export function UpcomingShiftsSection({ loading, upcoming, timeZoneId, onSelectShift, onViewWeekly }: UpcomingShiftsSectionProps) {
   const nextShift = upcoming.length ? upcoming[0] : null;
   return (
     <>
@@ -28,11 +30,13 @@ export function UpcomingShiftsSection({ loading, upcoming, onViewWeekly }: Upcom
           />
         )}
         {!loading && nextShift && (
-          <Card style={styles.card}>
-            <Text style={styles.cardTitle}>{formatDate(nextShift.startDate)}</Text>
-            <Text style={styles.cardSubtitle}>{formatTime(nextShift.startDate)} - {formatTime(nextShift.endDate)}</Text>
-            <Text style={styles.cardLocation}>Shift #{nextShift.scheduleShiftId}</Text>
-          </Card>
+          <Pressable onPress={() => onSelectShift?.(nextShift)}>
+            <Card style={styles.card}>
+              <Text style={styles.cardTitle}>{formatDate(nextShift.startDate)}</Text>
+              <Text style={styles.cardSubtitle}>{formatScheduleTime(nextShift.startDate, timeZoneId ?? undefined)} - {formatScheduleTime(nextShift.endDate, timeZoneId ?? undefined)}</Text>
+              <Text style={styles.cardLocation}>Shift #{nextShift.scheduleShiftId}</Text>
+            </Card>
+          </Pressable>
         )}
       </View>
 
@@ -53,12 +57,14 @@ export function UpcomingShiftsSection({ loading, upcoming, onViewWeekly }: Upcom
           </View>
         )}
         {!loading && upcoming.map((s, i) => (
-          <Animated.View key={s.scheduleShiftId} entering={FadeInDown.delay(i * 60).duration(300)}>
-          <Card style={styles.card}>
-            <Text style={styles.cardTitle}>{formatDate(s.startDate)}</Text>
-            <Text style={styles.cardSubtitle}>{formatTime(s.startDate)} - {formatTime(s.endDate)}</Text>
-            <Text style={styles.cardLocation}>Shift #{s.scheduleShiftId}</Text>
-          </Card>
+          <Animated.View key={`upcoming-${s.scheduleShiftId ?? 'na'}-${s.startDate}-${s.endDate}-${s.locationId ?? 'loc'}-${i}`} entering={FadeInDown.delay(i * 60).duration(300)}>
+          <Pressable onPress={() => onSelectShift?.(s)}>
+            <Card style={styles.card}>
+              <Text style={styles.cardTitle}>{formatDate(s.startDate)}</Text>
+              <Text style={styles.cardSubtitle}>{formatScheduleTime(s.startDate, timeZoneId ?? undefined)} - {formatScheduleTime(s.endDate, timeZoneId ?? undefined)}</Text>
+              <Text style={styles.cardLocation}>Shift #{s.scheduleShiftId}</Text>
+            </Card>
+          </Pressable>
           </Animated.View>
         ))}
       </View>
