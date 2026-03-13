@@ -4,7 +4,7 @@
 export type ViewMode = 'single' | 'grouped' | 'all';
 
 /** Horizon range for the schedule grid – how many days are shown at once */
-export type HorizonRange = 'week' | '2-weeks' | '15-day' | '4-weeks';
+export type HorizonRange = 'week' | '2-weeks' | '3-weeks' | '4-weeks';
 
 export interface TeamMember {
   personId: number;

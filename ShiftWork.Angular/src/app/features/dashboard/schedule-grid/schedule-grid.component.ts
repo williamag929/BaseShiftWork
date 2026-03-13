@@ -803,7 +803,7 @@ export class ScheduleGridComponent implements OnInit {
   get horizonDays(): number {
     switch (this.horizonRange) {
       case '2-weeks': return 14;
-      case '15-day': return 15;
+      case '3-weeks': return 21;
       case '4-weeks': return 28;
       default: return 7;
     }
