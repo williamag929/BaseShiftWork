@@ -38,10 +38,6 @@ export default function ClockScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Clock In/Out</Text>
-        <Text style={styles.headerSubtitle}>Capture time, location, and optional photo.</Text>
-      </View>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
         <View style={styles.statusContainer}>
           <Text style={styles.statusLabel}>Current Status</Text>
@@ -56,15 +52,6 @@ export default function ClockScreen() {
             <Text style={styles.personValue}>{name || 'Not signed in'}</Text>
           </View>
         </View>
-
-        <Card style={styles.stepCard}>
-          {STEP_ITEMS.map((s) => (
-            <View key={s.text} style={styles.stepRow}>
-              <Ionicons name={s.icon} size={18} color={colors.primary} />
-              <Text style={styles.stepText}>{s.text}</Text>
-            </View>
-          ))}
-        </Card>
 
         {!!todayShift && !isClockedIn && (
           <SafetyQuestionnaire shift={todayShift} questions={safetyQuestions} locationName={shiftLocationName} />
@@ -87,6 +74,15 @@ export default function ClockScreen() {
             </Card>
           )}
         </View>
+
+        <Card style={styles.stepCard}>
+          {STEP_ITEMS.map((s) => (
+            <View key={s.text} style={styles.stepRow}>
+              <Ionicons name={s.icon} size={18} color={colors.primary} />
+              <Text style={styles.stepText}>{s.text}</Text>
+            </View>
+          ))}
+        </Card>
 
       </ScrollView>
       <PhotoCapture

@@ -1,13 +1,16 @@
 import { useMemo, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Pressable } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useAuthStore } from '@/store/authStore';
 import { peopleService } from '@/services/people.service';
 import { useScheduleData } from '@/hooks/useScheduleData';
-import { formatDate, formatTime, getEndOfDay, getEndOfMonth, getEndOfWeek, getStartOfDay, getStartOfMonth, getStartOfWeek } from '@/utils/date.utils';
+import { useCompanyTimeZone } from '@/hooks/queries';
+import { formatDate, formatScheduleTime, formatTime, getEndOfDay, getEndOfMonth, getEndOfWeek, getStartOfDay, getStartOfMonth, getStartOfWeek } from '@/utils/date.utils';
 import { colors } from '@/styles/tokens';
 import { Card, EmptyState, SectionHeader } from '@/components/ui';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ShiftDetailModal } from '@/components/screens/schedule/ShiftDetailModal';
+import type { ScheduleShiftDto } from '@/types/api';
 
 type ViewMode = 'day' | 'week' | 'month';
 
@@ -17,6 +20,7 @@ export default function ScheduleScreen() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [mode, setMode] = useState<ViewMode>('week');
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [selectedShift, setSelectedShift] = useState<ScheduleShiftDto | null>(null);
 
   const { from, to } = useMemo(() => {
     if (mode === 'day') return { from: getStartOfDay(selectedDate), to: getEndOfDay(selectedDate) };
@@ -25,6 +29,7 @@ export default function ScheduleScreen() {
   }, [selectedDate, mode]);
 
   const { isOnline, loading, error, shifts, events } = useScheduleData(companyId, personId, from, to);
+  const companyTimeZone = useCompanyTimeZone(companyId);
 
   // Hydrate person name if missing
   useEffect(() => {
@@ -111,11 +116,13 @@ export default function ScheduleScreen() {
         )}
         {!loading && shifts.map((s, i) => (
           <Animated.View key={s.scheduleShiftId} entering={FadeInDown.delay(i * 60).duration(300)}>
-          <Card style={styles.card}>
-            <Text style={styles.cardTitle}>{formatDate(s.startDate)}</Text>
-            <Text style={styles.cardSubtitle}>{formatTime(s.startDate)} - {formatTime(s.endDate)}</Text>
-            <Text style={styles.cardMeta}>Shift #{s.scheduleShiftId} • Status: {s.status}</Text>
-          </Card>
+          <Pressable onPress={() => setSelectedShift(s)}>
+            <Card style={styles.card}>
+              <Text style={styles.cardTitle}>{formatDate(s.startDate)}</Text>
+              <Text style={styles.cardSubtitle}>{formatScheduleTime(s.startDate, companyTimeZone ?? undefined)} - {formatScheduleTime(s.endDate, companyTimeZone ?? undefined)}</Text>
+              <Text style={styles.cardMeta}>Shift #{s.scheduleShiftId} • Status: {s.status}</Text>
+            </Card>
+          </Pressable>
           </Animated.View>
         ))}
       </View>
@@ -137,6 +144,12 @@ export default function ScheduleScreen() {
         {!!error && <Text style={styles.error}>{error}</Text>}
       </View>
       </ScrollView>
+      <ShiftDetailModal
+        visible={!!selectedShift}
+        shift={selectedShift}
+        timeZoneId={companyTimeZone}
+        onClose={() => setSelectedShift(null)}
+      />
     </View>
   );
 }
