@@ -26,7 +26,8 @@ import {
   DaySchedule, 
   ScheduleFilters,
   LocationGroup,
-  ViewMode
+  ViewMode,
+  HorizonRange
 } from 'src/app/core/models/schedule-grid.model';
 import { ScheduleShift } from 'src/app/core/models/schedule-shift.model';
 import { People } from 'src/app/core/models/people.model';
@@ -797,6 +798,17 @@ export class ScheduleGridComponent implements OnInit {
   historyPersonId: number | null = null;
   historyPersonName: string = '';
   firstDayOfWeek: 0 | 1 = 0;
+  horizonRange: HorizonRange = 'week';
+
+  get horizonDays(): number {
+    switch (this.horizonRange) {
+      case '2-weeks': return 14;
+      case '3-weeks': return 21;
+      case '4-weeks': return 28;
+      default: return 7;
+    }
+  }
+
   allSchedules: Schedule[] = [];
   viewMode: ViewMode = 'single';
   locationGroups: LocationGroup[] = [];
@@ -992,7 +1004,7 @@ export class ScheduleGridComponent implements OnInit {
     this.error = null;
 
     const weekEnd = new Date(this.currentWeekStart);
-    weekEnd.setUTCDate(weekEnd.getUTCDate() + 7);
+    weekEnd.setUTCDate(weekEnd.getUTCDate() + this.horizonDays);
 
     this.peopleService.getPeople(this.activeCompany.companyId).subscribe({
       next: (people: People[]) => {
@@ -1054,7 +1066,7 @@ export class ScheduleGridComponent implements OnInit {
 
     this.gridData = {
       weekStart: this.currentWeekStart,
-      weekEnd: new Date(this.currentWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000),
+      weekEnd: new Date(this.currentWeekStart.getTime() + this.horizonDays * 24 * 60 * 60 * 1000),
       locationName: this.viewMode === 'grouped' ? 'All Locations (Grouped)' 
                    : this.viewMode === 'all' ? 'All Employees'
                    : (selectedLocation ? selectedLocation.name : ''),
@@ -1081,10 +1093,10 @@ export class ScheduleGridComponent implements OnInit {
     }
   }
 
-  /** Build DaySchedule[] for 7 days of the week from the given shifts */
+  /** Build DaySchedule[] for the current horizon period from the given shifts */
   private buildDays(shifts: ScheduleShift[], people: People[]): DaySchedule[] {
     const days: DaySchedule[] = [];
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < this.horizonDays; i++) {
       const date = new Date(this.currentWeekStart);
       date.setUTCDate(date.getUTCDate() + i);
       const dayShifts = shifts.filter(s => {
@@ -1216,14 +1228,14 @@ export class ScheduleGridComponent implements OnInit {
     if (this.viewMode === 'grouped') {
       this.locationGroups.forEach(group => {
         group.teamMembers.forEach(member => {
-          for (let i = 0; i < 7; i++) {
+          for (let i = 0; i < this.horizonDays; i++) {
             ids.push(this.getCellDropId(member.personId, i, group.locationId));
           }
         });
       });
     } else {
       this.gridData.teamMembers.forEach(member => {
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < this.horizonDays; i++) {
           ids.push(this.getCellDropId(member.personId, i));
         }
       });
@@ -1290,6 +1302,11 @@ export class ScheduleGridComponent implements OnInit {
     }
 
     return filtered;
+  }
+
+  onHorizonChange(range: HorizonRange): void {
+    this.horizonRange = range;
+    this.loadScheduleData();
   }
 
   onLocationChange(): void {
@@ -1598,16 +1615,16 @@ export class ScheduleGridComponent implements OnInit {
     this.openAddScheduleModal();
   }
 
-  onPreviousWeek(): void {
+  onPreviousPeriod(): void {
     const newDate = new Date(this.currentWeekStart);
-    newDate.setUTCDate(newDate.getUTCDate() - 7);
+    newDate.setUTCDate(newDate.getUTCDate() - this.horizonDays);
     this.currentWeekStart = newDate;
     this.loadScheduleData();
   }
 
-  onNextWeek(): void {
+  onNextPeriod(): void {
     const newDate = new Date(this.currentWeekStart);
-    newDate.setUTCDate(newDate.getUTCDate() + 7);
+    newDate.setUTCDate(newDate.getUTCDate() + this.horizonDays);
     this.currentWeekStart = newDate;
     this.loadScheduleData();
   }
@@ -1657,13 +1674,13 @@ export class ScheduleGridComponent implements OnInit {
 
     this.loading = true;
 
-    // Get all schedules for the current week
+    // Get all schedules for the current period
     this.scheduleService.getSchedules(this.activeCompany.companyId).subscribe({
       next: (schedules: any[]) => {
-        // Filter unpublished schedules within current week
+        // Filter unpublished schedules within the current period
         const weekStart = new Date(this.currentWeekStart);
         const weekEnd = new Date(weekStart);
-        weekEnd.setUTCDate(weekStart.getUTCDate() + 7);
+        weekEnd.setUTCDate(weekStart.getUTCDate() + this.horizonDays);
 
         const unpublishedSchedules = schedules.filter(s => {
           const scheduleDate = new Date(s.startDate);
@@ -1674,7 +1691,7 @@ export class ScheduleGridComponent implements OnInit {
 
         if (unpublishedSchedules.length === 0) {
           this.loading = false;
-          alert('No unpublished schedules found for this week.');
+          alert('No unpublished schedules found for this period.');
           return;
         }
 
