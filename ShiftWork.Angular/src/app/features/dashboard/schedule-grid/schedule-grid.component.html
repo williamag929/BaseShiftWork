@@ -539,6 +539,13 @@
     (close)="closeShiftHistoryModal()"
   ></app-shift-history-modal>
 
+  <!-- Schedule Conflict Modal — replaces all alert() conflict messages -->
+  <app-schedule-conflict-modal
+    *ngIf="conflictModalInfo"
+    [info]="conflictModalInfo"
+    (dismiss)="closeConflictModal()"
+  ></app-schedule-conflict-modal>
+
   <!-- Add Schedule Placeholder -->
   <div class="add-schedule-placeholder" *ngIf="showAddSchedulePlaceholder">
     <div class="add-schedule-backdrop" (click)="closeAddSchedulePlaceholder()"></div>
