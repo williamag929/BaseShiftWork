@@ -100,7 +100,7 @@ namespace ShiftWork.Api.Controllers
         /// <param name="bucketName">The name of the bucket.</param>
         /// <returns>A response indicating the result of the operation.</returns>
         [HttpPost("file/{bucketName}")]
-        [Authorize(Policy = "s3.write")]
+        [Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
