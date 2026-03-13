@@ -99,11 +99,12 @@ export class ScheduleGridComponent implements OnInit {
   handleRepeatTomorrow(payload: { baseDate: Date; personId: number|null; locationId: number; areaId: number; start: string; end: string }): void {
     if (!this.activeCompany?.companyId || !payload.personId) return;
     const tomorrow = new Date(payload.baseDate);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
     const startDate = this.buildDateWithTime(tomorrow, payload.start);
     const endDate = this.buildDateWithTime(tomorrow, payload.end);
-    if (this.hasScheduleConflict(payload.personId, startDate, endDate)) {
-      alert(`Schedule conflict for ${this.getPersonName(payload.personId)} on ${tomorrow.toDateString()}.`);
+    const conflict = this.findScheduleConflict(payload.personId, startDate, endDate);
+    if (conflict) {
+      alert(this.buildConflictMessage(payload.personId, startDate, endDate, conflict));
       return;
     }
     const schedule: Schedule = {
@@ -129,16 +130,17 @@ export class ScheduleGridComponent implements OnInit {
     const base = new Date(payload.baseDate);
     const weekStart = this.getWeekStart(base);
     const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 7);
+    weekEnd.setUTCDate(weekStart.getUTCDate() + 7);
     const promises: Promise<any>[] = [];
     const current = new Date(base);
-    current.setDate(current.getDate() + 1);
+    current.setUTCDate(current.getUTCDate() + 1);
     while (current < weekEnd) {
       const d = new Date(current);
       const startDate = this.buildDateWithTime(d, payload.start);
       const endDate = this.buildDateWithTime(d, payload.end);
-      if (this.hasScheduleConflict(payload.personId, startDate, endDate)) {
-        alert(`Schedule conflict for ${this.getPersonName(payload.personId)} on ${d.toDateString()}.`);
+      const conflict = this.findScheduleConflict(payload.personId, startDate, endDate);
+      if (conflict) {
+        alert(this.buildConflictMessage(payload.personId, startDate, endDate, conflict));
         return;
       }
       const schedule: Schedule = {
@@ -154,7 +156,7 @@ export class ScheduleGridComponent implements OnInit {
         timezone: 'UTC'
       } as Schedule;
       promises.push(this.scheduleService.createSchedule(this.activeCompany.companyId, schedule).toPromise());
-      current.setDate(current.getDate() + 1);
+      current.setUTCDate(current.getUTCDate() + 1);
     }
     Promise.all(promises).then(() => this.loadScheduleData()).catch(err => console.error('Repeat rest of week failed', err));
   }
@@ -162,9 +164,9 @@ export class ScheduleGridComponent implements OnInit {
   private buildDateWithTime(date: Date, time: string): Date {
     const [h,m] = time.split(':').map(Number);
     return new Date(Date.UTC(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate(),
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
       h, m, 0
     ));
   }
@@ -345,8 +347,9 @@ export class ScheduleGridComponent implements OnInit {
     if (!confirm(`Assign this shift to ${this.replacementCandidates.find(c => c.personId === personId)?.name ?? 'person'}?`)) return;
     
     const ctx = this.replacementContext;
-    if (this.hasScheduleConflict(personId, ctx.start, ctx.end)) {
-      alert(`Schedule conflict for ${this.getPersonName(personId)} on ${ctx.start.toDateString()}.`);
+    const conflict = this.findScheduleConflict(personId, ctx.start, ctx.end);
+    if (conflict) {
+      alert(this.buildConflictMessage(personId, ctx.start, ctx.end, conflict));
       return;
     }
     const schedule: Schedule = {
@@ -388,11 +391,12 @@ export class ScheduleGridComponent implements OnInit {
     for (const idx of payload.dayIndices) {
       const offset = (idx - this.firstDayOfWeek + 7) % 7;
       const d = new Date(startOfWeek);
-      d.setDate(startOfWeek.getDate() + offset);
+      d.setUTCDate(startOfWeek.getUTCDate() + offset);
       const startDate = this.buildDateWithTime(d, payload.start);
       const endDate = this.buildDateWithTime(d, payload.end);
-      if (this.hasScheduleConflict(payload.personId!, startDate, endDate)) {
-        alert(`Schedule conflict for ${this.getPersonName(payload.personId!)} on ${d.toDateString()}.`);
+      const conflict = this.findScheduleConflict(payload.personId!, startDate, endDate);
+      if (conflict) {
+        alert(this.buildConflictMessage(payload.personId!, startDate, endDate, conflict));
         return;
       }
       const schedule: Schedule = {
@@ -433,6 +437,22 @@ export class ScheduleGridComponent implements OnInit {
 
   openAddScheduleModal() {
     // Placeholder until the bulk schedule builder is fully implemented.
+
+    // Always sync the clicked cell's date into the bulk form so the date input
+    // reflects the cell that was clicked, not a stale value from a previous open.
+    if (this.selectedDate) {
+      this.bulkStartDate = this.formatDateInput(this.selectedDate);
+      this.bulkEndDate = this.bulkStartDate;
+    } else {
+      // Clear so initBulkFormDefaults falls back to today
+      this.bulkStartDate = '';
+      this.bulkEndDate = '';
+    }
+    // Sync the clicked cell's location into the bulk form
+    if (this.modalLocationId > 0) {
+      this.bulkLocationId = this.modalLocationId;
+    }
+
     this.initBulkFormDefaults();
     // Pre-select the person that was clicked in the grid
     if (this.selectedPersonId != null) {
@@ -458,6 +478,9 @@ export class ScheduleGridComponent implements OnInit {
     this.crewAvailability = {};
     this.showNewCrewForm = false;
     this.newCrewName = '';
+    // Reset dates so the next open always picks up the freshly clicked cell date
+    this.bulkStartDate = '';
+    this.bulkEndDate = '';
   }
   closeAddScheduleModal() {
     this.showAddScheduleModalFlag = false;
@@ -467,10 +490,13 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   openSingleShiftFromPlaceholder() {
+    // Capture values before closeAddSchedulePlaceholder() clears them
+    const savedStart = this.bulkStartDate;
+    const savedLocationId = this.bulkLocationId;
     this.closeAddSchedulePlaceholder();
-    const baseDate = this.bulkStartDate ? new Date(this.bulkStartDate) : new Date();
+    const baseDate = savedStart ? new Date(savedStart) : new Date();
     this.selectedDate = baseDate;
-    const locationId = this.bulkLocationId ?? this.selectedLocationId ?? 0;
+    const locationId = savedLocationId ?? this.selectedLocationId ?? 0;
     if (locationId > 0) {
       this.modalLocationId = locationId;
     }
@@ -563,11 +589,11 @@ export class ScheduleGridComponent implements OnInit {
 
             // Create new dates with target date but keep the same wall-clock time from original (UTC)
             const newStartDate = new Date(Date.UTC(
-              targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(),
+              targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate(),
               originalStartDate.getUTCHours(), originalStartDate.getUTCMinutes(), 0
             ));
             const newEndDate = new Date(Date.UTC(
-              targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(),
+              targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate(),
               originalEndDate.getUTCHours(), originalEndDate.getUTCMinutes(), 0
             ));
 
@@ -952,11 +978,10 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   private getWeekStart(date: Date): Date {
-    const start = new Date(date);
-    const dayOfWeek = start.getDay();
+    const start = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    const dayOfWeek = start.getUTCDay();
     const diff = (dayOfWeek - this.firstDayOfWeek + 7) % 7;
-    start.setDate(start.getDate() - diff);
-    start.setHours(0, 0, 0, 0);
+    start.setUTCDate(start.getUTCDate() - diff);
     return start;
   }
 
@@ -967,7 +992,7 @@ export class ScheduleGridComponent implements OnInit {
     this.error = null;
 
     const weekEnd = new Date(this.currentWeekStart);
-    weekEnd.setDate(weekEnd.getDate() + 7);
+    weekEnd.setUTCDate(weekEnd.getUTCDate() + 7);
 
     this.peopleService.getPeople(this.activeCompany.companyId).subscribe({
       next: (people: People[]) => {
@@ -1061,13 +1086,13 @@ export class ScheduleGridComponent implements OnInit {
     const days: DaySchedule[] = [];
     for (let i = 0; i < 7; i++) {
       const date = new Date(this.currentWeekStart);
-      date.setDate(date.getDate() + i);
+      date.setUTCDate(date.getUTCDate() + i);
       const dayShifts = shifts.filter(s => {
         const shiftDate = new Date(s.startDate);
         // Compare using UTC date components to avoid timezone-shifted day mismatches
-        return shiftDate.getUTCFullYear() === date.getFullYear()
-          && shiftDate.getUTCMonth() === date.getMonth()
-          && shiftDate.getUTCDate() === date.getDate();
+        return shiftDate.getUTCFullYear() === date.getUTCFullYear()
+          && shiftDate.getUTCMonth() === date.getUTCMonth()
+          && shiftDate.getUTCDate() === date.getUTCDate();
       });
       const shiftBlocks: ShiftBlock[] = dayShifts.map(s => {
         const person = people.find(p => p.personId === s.personId);
@@ -1226,16 +1251,17 @@ export class ScheduleGridComponent implements OnInit {
     const origStart = new Date(original.startDate);
     const origEnd = new Date(original.endDate);
     const newStartDate = new Date(Date.UTC(
-      targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(),
+      targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate(),
       origStart.getUTCHours(), origStart.getUTCMinutes(), 0
     ));
     const newEndDate = new Date(Date.UTC(
-      targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(),
+      targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate(),
       origEnd.getUTCHours(), origEnd.getUTCMinutes(), 0
     ));
 
     if (this.hasScheduleConflict(original.personId, newStartDate, newEndDate, original.scheduleId)) {
-      alert(`Schedule conflict for ${this.getPersonName(original.personId)} on ${targetDate.toDateString()}.`);
+      const dropConflict = this.findScheduleConflict(original.personId, newStartDate, newEndDate, original.scheduleId)!;
+      alert(this.buildConflictMessage(original.personId, newStartDate, newEndDate, dropConflict));
       return;
     }
 
@@ -1303,9 +1329,9 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   private formatDateInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
 
@@ -1385,8 +1411,16 @@ export class ScheduleGridComponent implements OnInit {
       const startDate = this.createDateWithTimeUTC(date, this.bulkStartTime);
       const endDate = this.createDateWithTimeUTC(date, this.bulkEndTime);
       for (const personId of this.bulkSelectedPeopleIds) {
-        if (this.hasScheduleConflict(personId, startDate, endDate)) {
+        const conflict = this.findScheduleConflict(personId, startDate, endDate);
+        if (conflict) {
           skippedCount++;
+          console.warn(
+            `Bulk conflict skipped — ${this.getPersonName(personId)}: ` +
+            `requested ${startDate.toISOString()}–${endDate.toISOString()}, ` +
+            `conflicts with scheduleId ${conflict.scheduleId} ` +
+            `(${new Date(conflict.startDate).toISOString()}–${new Date(conflict.endDate).toISOString()}) ` +
+            `at ${this.locations.find(l => l.locationId === conflict.locationId)?.name ?? conflict.locationId}`
+          );
           continue;
         }
 
@@ -1423,13 +1457,13 @@ export class ScheduleGridComponent implements OnInit {
 
   private getBulkDateRange(start: Date, end: Date): Date[] {
     const dates: Date[] = [];
-    const current = new Date(start);
-    current.setHours(0, 0, 0, 0);
-    const endDate = new Date(end);
-    endDate.setHours(0, 0, 0, 0);
-    while (current <= endDate) {
+    // Use UTC methods so date-only strings ("2026-03-12") parsed as UTC midnight
+    // don't shift to the previous local day in negative-offset timezones.
+    const current = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate()));
+    const endMs = Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate());
+    while (current.getTime() <= endMs) {
       dates.push(new Date(current));
-      current.setDate(current.getDate() + 1);
+      current.setUTCDate(current.getUTCDate() + 1);
     }
     return dates;
   }
@@ -1437,8 +1471,9 @@ export class ScheduleGridComponent implements OnInit {
   onSaveSchedule(schedule: Schedule): void {
     if (schedule.personId) {
       const ignoreId = this.editingSchedule?.scheduleId;
-      if (this.hasScheduleConflict(schedule.personId, new Date(schedule.startDate), new Date(schedule.endDate), ignoreId)) {
-        alert(`Schedule conflict for ${this.getPersonName(schedule.personId)} on ${new Date(schedule.startDate).toDateString()}.`);
+      const saveConflict = this.findScheduleConflict(schedule.personId, new Date(schedule.startDate), new Date(schedule.endDate), ignoreId);
+      if (saveConflict) {
+        alert(this.buildConflictMessage(schedule.personId, new Date(schedule.startDate), new Date(schedule.endDate), saveConflict));
         return;
       }
     }
@@ -1565,14 +1600,14 @@ export class ScheduleGridComponent implements OnInit {
 
   onPreviousWeek(): void {
     const newDate = new Date(this.currentWeekStart);
-    newDate.setDate(newDate.getDate() - 7);
+    newDate.setUTCDate(newDate.getUTCDate() - 7);
     this.currentWeekStart = newDate;
     this.loadScheduleData();
   }
 
   onNextWeek(): void {
     const newDate = new Date(this.currentWeekStart);
-    newDate.setDate(newDate.getDate() + 7);
+    newDate.setUTCDate(newDate.getUTCDate() + 7);
     this.currentWeekStart = newDate;
     this.loadScheduleData();
   }
@@ -1628,7 +1663,7 @@ export class ScheduleGridComponent implements OnInit {
         // Filter unpublished schedules within current week
         const weekStart = new Date(this.currentWeekStart);
         const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekStart.getDate() + 7);
+        weekEnd.setUTCDate(weekStart.getUTCDate() + 7);
 
         const unpublishedSchedules = schedules.filter(s => {
           const scheduleDate = new Date(s.startDate);
@@ -1706,8 +1741,9 @@ export class ScheduleGridComponent implements OnInit {
     for (const date of dates) {
       const startDate = this.buildDateWithTime(date, request.startTime);
       const endDate = this.buildDateWithTime(date, request.endTime);
-      if (this.hasScheduleConflict(request.personId, startDate, endDate)) {
-        alert(`Schedule conflict for ${this.getPersonName(request.personId)} on ${date.toDateString()}.`);
+      const patternConflict = this.findScheduleConflict(request.personId, startDate, endDate);
+      if (patternConflict) {
+        alert(this.buildConflictMessage(request.personId, startDate, endDate, patternConflict));
         return;
       }
     }
@@ -1755,7 +1791,8 @@ export class ScheduleGridComponent implements OnInit {
     const dates: Date[] = [];
     const pattern = request.pattern;
     const baseDate = new Date(request.baseDate);
-    baseDate.setHours(0, 0, 0, 0);
+    // Use UTC midnight to avoid local-timezone day shifts
+    baseDate.setUTCHours(0, 0, 0, 0);
 
     // Determine end condition
     let endDate: Date | null = null;
@@ -1763,7 +1800,7 @@ export class ScheduleGridComponent implements OnInit {
 
     if (pattern.endDate) {
       endDate = new Date(pattern.endDate);
-      endDate.setHours(23, 59, 59, 999);
+      endDate.setUTCHours(23, 59, 59, 999);
     }
 
     let currentDate = new Date(baseDate);
@@ -1773,7 +1810,7 @@ export class ScheduleGridComponent implements OnInit {
       case 'daily':
         while (occurrenceCount < maxOccurrences && (!endDate || currentDate <= endDate)) {
           dates.push(new Date(currentDate));
-          currentDate.setDate(currentDate.getDate() + (pattern.repeatEvery || 1));
+          currentDate.setUTCDate(currentDate.getUTCDate() + (pattern.repeatEvery || 1));
           occurrenceCount++;
         }
         break;
@@ -1781,7 +1818,7 @@ export class ScheduleGridComponent implements OnInit {
       case 'weekly':
       case 'biweekly':
         const weekMultiplier = pattern.patternType === 'biweekly' ? 2 : 1;
-        const daysOfWeek = pattern.daysOfWeek || [baseDate.getDay()];
+        const daysOfWeek = pattern.daysOfWeek || [baseDate.getUTCDay()];
         
         // Start from the beginning of the base week based on settings
         const weekStart = this.getWeekStart(baseDate);
@@ -1792,7 +1829,7 @@ export class ScheduleGridComponent implements OnInit {
           daysOfWeek.forEach(dayIndex => {
             const targetDate = new Date(weekStart);
             const offset = (dayIndex - this.firstDayOfWeek + 7) % 7;
-            targetDate.setDate(weekStart.getDate() + offset);
+            targetDate.setUTCDate(weekStart.getUTCDate() + offset);
 
             // Only include if it's not before base date and within end date
             if (targetDate >= baseDate && (!endDate || targetDate <= endDate) && occurrenceCount < maxOccurrences) {
@@ -1801,20 +1838,20 @@ export class ScheduleGridComponent implements OnInit {
             }
           });
 
-          weekStart.setDate(weekStart.getDate() + (7 * weekMultiplier));
+          weekStart.setUTCDate(weekStart.getUTCDate() + (7 * weekMultiplier));
           weekCount++;
         }
         break;
 
       case 'monthly':
-        const dayOfMonth = baseDate.getDate();
+        const dayOfMonth = baseDate.getUTCDate();
         while (occurrenceCount < maxOccurrences && (!endDate || currentDate <= endDate)) {
           dates.push(new Date(currentDate));
-          currentDate.setMonth(currentDate.getMonth() + (pattern.repeatEvery || 1));
+          currentDate.setUTCMonth(currentDate.getUTCMonth() + (pattern.repeatEvery || 1));
           
           // Handle month end edge cases (e.g., Jan 31 -> Feb 28)
-          if (currentDate.getDate() !== dayOfMonth) {
-            currentDate.setDate(0); // Set to last day of previous month
+          if (currentDate.getUTCDate() !== dayOfMonth) {
+            currentDate.setUTCDate(0); // Set to last day of previous month
           }
           occurrenceCount++;
         }
@@ -1825,13 +1862,33 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   private hasScheduleConflict(personId: number, start: Date, end: Date, ignoreScheduleId?: number): boolean {
-    return this.allSchedules.some(existing => {
+    return !!this.findScheduleConflict(personId, start, end, ignoreScheduleId);
+  }
+
+  private findScheduleConflict(personId: number, start: Date, end: Date, ignoreScheduleId?: number): Schedule | undefined {
+    return this.allSchedules.find(existing => {
       if (existing.personId !== personId) return false;
       if (ignoreScheduleId && existing.scheduleId === ignoreScheduleId) return false;
       const existingStart = new Date(existing.startDate);
       const existingEnd = new Date(existing.endDate);
       return start < existingEnd && existingStart < end;
     });
+  }
+
+  private buildConflictMessage(personId: number, requestedStart: Date, requestedEnd: Date, conflicting: Schedule): string {
+    const personName = this.getPersonName(personId);
+    const locationName = this.locations.find(l => l.locationId === conflicting.locationId)?.name ?? `Location ${conflicting.locationId}`;
+    const conflictStart = new Date(conflicting.startDate);
+    const conflictEnd = new Date(conflicting.endDate);
+    const fmt = (d: Date) => d.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    const fmtTime = (d: Date) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return [
+      `⚠️ Schedule Conflict`,
+      `Employee : ${personName}`,
+      `Requested: ${fmt(requestedStart)} – ${fmtTime(requestedEnd)}`,
+      `Conflicts with existing shift: ${fmt(conflictStart)} – ${fmtTime(conflictEnd)}`,
+      `Location : ${locationName}`
+    ].join('\n');
   }
 
   private getPersonName(personId: number): string {
@@ -1841,9 +1898,9 @@ export class ScheduleGridComponent implements OnInit {
   createDateWithTimeUTC(date: Date, time: string): Date {
     const [hours, minutes] = time.split(':').map(Number);
     return new Date(Date.UTC(
-      date.getFullYear(), 
-      date.getMonth(), 
-      date.getDate(), 
+      date.getUTCFullYear(), 
+      date.getUTCMonth(), 
+      date.getUTCDate(), 
       hours, 
       minutes
     ));
