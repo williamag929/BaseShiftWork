@@ -187,6 +187,8 @@ export class AuthService {
       const credential = await this.afAuth.createUserWithEmailAndPassword(email, password);
       if (credential.user) {
         await this.sendVerificationMail();
+        // Seed BCrypt hash in the API so the mobile app can log in immediately
+        this.syncPassword(password).subscribe({ error: (e) => console.warn('sync-password failed (non-blocking):', e) });
         this.toastr.success('Signed up successfully');
       }
     } catch (error) {
@@ -221,6 +223,19 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/auth/accept-invite`, {
       token, companyId, personId, email, password
     }, this.getHttpOptions()).pipe(catchError((err) => this.handleHttpError(err)));
+  }
+
+  /**
+   * Syncs the BCrypt password hash in the API DB with the current Firebase password.
+   * Fire-and-forget — call after any successful Firebase sign-in or registration.
+   * Requires a valid Firebase JWT to already be in sessionStorage.
+   */
+  syncPassword(password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/sync-password`, { password }, this.getHttpOptions())
+      .pipe(catchError((err) => {
+        console.warn('sync-password non-critical error:', err);
+        return of(null);
+      }));
   }
 
   async forgotPassword(passwordResetEmail: string): Promise<void> {

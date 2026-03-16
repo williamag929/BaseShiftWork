@@ -25,6 +25,9 @@ import { AuditHistoryDialogComponent } from '../kiosk/audit-history/audit-histor
 import { AuditHistoryTimelineComponent } from '../kiosk/audit-history/audit-history-timeline.component';
 import { AuditHistoryFiltersComponent } from '../kiosk/audit-history/audit-history-filters.component';
 
+// Guided tour
+import { TourOverlayComponent } from 'src/app/shared/tour/tour-overlay.component';
+
 
 const routes: Routes = [
   {
@@ -70,6 +73,8 @@ const routes: Routes = [
     AuditHistoryDialogComponent,
     AuditHistoryTimelineComponent,
     AuditHistoryFiltersComponent,
+    // Guided tour (standalone)
+    TourOverlayComponent,
     // TODO: ProfilesComponent is standalone, and cannot be declared in an NgModule. Did you mean to import it instead?
   ],
   providers: [

@@ -197,8 +197,8 @@ export class ScheduleGridAddModalComponent implements OnInit {
   repeatSpecificDays(): void {
     // Enter day selection mode inside the menu instead of emitting immediately
     this.specificDaysMode = true;
-    // Pre-select current date's weekday
-    const wd = this.date.getDay();
+    // Pre-select current date's weekday (use UTC to match how day.date is built)
+    const wd = this.date.getUTCDay();
     this.selectedDayIndices = new Set([wd]);
   }
   repeatSetPattern(): void {
@@ -307,10 +307,10 @@ export class ScheduleGridAddModalComponent implements OnInit {
   createDateWithTimeUTC(date: Date, time: string): Date {
     const [hours, minutes] = time.split(':').map(Number);
     return new Date(Date.UTC(
-      date.getFullYear(), 
-      date.getMonth(), 
-      date.getDate(), 
-      hours, 
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      hours,
       minutes
     ));
   }

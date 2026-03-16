@@ -15,6 +15,18 @@
     
     <span class="spacer"></span>
     
+    <!-- Help / Tour trigger -->
+    <button
+      id="tour-help-btn"
+      mat-icon-button
+      class="help-tour-btn"
+      (click)="tourService.startTour()"
+      matTooltip="Help tour"
+      aria-label="Start help tour"
+    >
+      <mat-icon>help_outline</mat-icon>
+    </button>
+
     <!-- User Profile Menu -->
     <div class="user-section">
       <span class="status-badge" *ngIf="personStatus$ | async as status" [ngClass]="{'on': status === 'OnShift', 'off': status === 'OffShift'}">
@@ -55,10 +67,6 @@
         <mat-icon>settings</mat-icon>
         <span>Settings</span>
       </button>
-      <button mat-menu-item routerLink="/general/manage-companies" class="menu-item">
-        <mat-icon>business</mat-icon>
-        <span>Manage Companies</span>
-      </button>
       <mat-divider></mat-divider>
       <button mat-menu-item (click)="logout()" class="menu-item logout-item">
         <mat-icon>exit_to_app</mat-icon>
@@ -89,7 +97,7 @@
         <div class="nav-section-title">Main Menu</div>
         
 
-        <a mat-list-item routerLink="/dashboard/schedule-grid" routerLinkActive="active-link" class="nav-item">
+        <a id="tour-nav-schedule" mat-list-item routerLink="/dashboard/schedule-grid" routerLinkActive="active-link" class="nav-item">
           <div class="nav-item-content">
             <mat-icon matListItemIcon>apps</mat-icon>
             <span matListItemTitle>Schedule Grid</span>
@@ -106,7 +114,7 @@
 
         <div class="nav-section-title">Management</div>
         
-        <a mat-list-item routerLink="/dashboard/people" routerLinkActive="active-link" class="nav-item">
+        <a id="tour-nav-people" mat-list-item routerLink="/dashboard/people" routerLinkActive="active-link" class="nav-item">
           <div class="nav-item-content">
             <mat-icon matListItemIcon>people</mat-icon>
             <span matListItemTitle>People</span>
@@ -120,7 +128,7 @@
           </div>
         </a>
         
-        <a mat-list-item routerLink="/dashboard/locations" routerLinkActive="active-link" class="nav-item">
+        <a id="tour-nav-locations" mat-list-item routerLink="/dashboard/locations" routerLinkActive="active-link" class="nav-item">
           <div class="nav-item-content">
             <mat-icon matListItemIcon>location_on</mat-icon>
             <span matListItemTitle>Locations</span>
@@ -166,7 +174,7 @@
       
         <div class="nav-section-title">Kiosks</div>
         
-        <a mat-list-item routerLink="/kiosk" routerLinkActive="active-link" class="nav-item">
+        <a id="tour-nav-kiosk" mat-list-item routerLink="/kiosk" routerLinkActive="active-link" class="nav-item">
           <div class="nav-item-content">
             <mat-icon matListItemIcon>tablet</mat-icon>
             <span matListItemTitle>Kiosks</span>
@@ -181,14 +189,7 @@
               <span>More Options</span>
             </mat-panel-title>
           </mat-expansion-panel-header>
-          <div class="expansion-content">
-            <a mat-list-item routerLink="/general/manage-companies" routerLinkActive="active-link" class="nav-item sub-item">
-              <div class="nav-item-content">
-                <mat-icon matListItemIcon>business</mat-icon>
-                <span matListItemTitle>Manage Companies</span>
-              </div>
-            </a>
-            
+          <div class="expansion-content">            
             <a mat-list-item routerLink="/dashboard/company-settings" routerLinkActive="active-link" class="nav-item sub-item">
               <div class="nav-item-content">
                 <mat-icon matListItemIcon>settings</mat-icon>
@@ -234,3 +235,6 @@
     </mat-sidenav-content>
   </mat-sidenav-container>
 </div>
+
+<!-- Guided tour overlay — rendered outside main layout so z-index works -->
+<app-tour-overlay></app-tour-overlay>
