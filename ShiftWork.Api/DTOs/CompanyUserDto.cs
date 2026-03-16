@@ -9,6 +9,7 @@ namespace ShiftWork.Api.DTOs
         public string? PhotoURL { get; set; }
         public bool EmailVerified { get; set; }
         public string CompanyId { get; set; }
+        public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

@@ -307,6 +307,34 @@ namespace ShiftWork.Api.Controllers
         }
         */
 
+        [HttpPatch("{companyUserId}/active")]
+        [Authorize(Policy = "company-users.update")]
+        [ProducesResponseType(typeof(CompanyUserDto), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<CompanyUserDto>> SetCompanyUserActive(string companyId, string companyUserId, [FromBody] SetActiveDto dto)
+        {
+            try
+            {
+                var updated = await _companyUserService.SetActiveAsync(companyUserId, dto.IsActive);
+                if (updated == null)
+                {
+                    return NotFound($"CompanyUser with ID {companyUserId} not found.");
+                }
+                if (updated.CompanyId != companyId)
+                {
+                    return BadRequest("CompanyUser does not belong to this company.");
+                }
+                return Ok(_mapper.Map<CompanyUserDto>(updated));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error setting active status for CompanyUser {CompanyUserId}", companyUserId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
         [HttpPost("{uid}/bootstrap-admin")]
         [Authorize]
         [ProducesResponseType(typeof(IEnumerable<RoleDto>), 200)]

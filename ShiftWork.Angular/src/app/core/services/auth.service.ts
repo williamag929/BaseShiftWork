@@ -97,38 +97,37 @@ export class AuthService {
   }
 
   async SignIn(email: string, password: string) {
-    try {
-      const credential = await this.afAuth.signInWithEmailAndPassword(email, password);
-      if (credential.user) {
-        await this.SetUserData(credential.user);
-        this.ngZone.run(() => {
-          this.toastr.success('Signed in successfully');
-          this.router.navigate(['company-switch']);
-        });
-      }
-    } catch (error: any) {
-      this.toastr.error(error.message);
+    const credential = await this.afAuth.signInWithEmailAndPassword(email, password);
+    if (credential.user) {
+      await this.SetUserData(credential.user);
+      this.ngZone.run(() => {
+        this.toastr.success('Signed in successfully');
+        this.router.navigate(['company-switch']);
+      });
     }
   }
 
   async SetUserData(user: any): Promise<void> {
+    // Extract from compat wrapper (_delegate) if needed
+    const u = user._delegate || user;
+    const userData: User = {
+      uid: u.uid,
+      email: u.email,
+      displayName: u.displayName,
+      photoURL: u.photoURL,
+      emailVerified: u.emailVerified,
+    };
+    // Save to localStorage first — this is what isLoggedIn checks
+    localStorage.setItem('user', JSON.stringify(userData));
+
+    // Firestore write is best-effort; don't block login if it fails
     try {
       const userRef: AngularFirestoreDocument<any> = runInInjectionContext(this.injector, () =>
-        this.afs.doc(`users/${user.uid}`)
+        this.afs.doc(`users/${u.uid}`)
       );
-      const userData: User = {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        emailVerified: user.emailVerified,
-      };
-      localStorage.setItem('user', JSON.stringify(userData));
       await userRef.set(userData, { merge: true });
     } catch (error) {
-      // Capture and rethrow to surface the specific error source
-      console.error('SetUserData failed', error);
-      throw error;
+      console.error('Firestore SetUserData failed (non-blocking)', error);
     }
   }
 
@@ -169,15 +168,16 @@ export class AuthService {
   }
 
   async updateUserData(user: any) {
+    const u = user?._delegate || user;
     const userRef: AngularFirestoreDocument<any> = runInInjectionContext(this.injector, () =>
-      this.afs.doc(`users/${user?.uid}`)
+      this.afs.doc(`users/${u?.uid}`)
     );
     const data: User = {
-      uid: user.uid,
-      email: user.email || '',
-      displayName: user.displayName || '',
-      photoURL: user.photoURL || '',
-      emailVerified: user.emailVerified || false
+      uid: u.uid,
+      email: u.email || '',
+      displayName: u.displayName || '',
+      photoURL: u.photoURL || '',
+      emailVerified: u.emailVerified || false
     };
     return userRef.set(data, { merge: true });
   }
@@ -270,6 +270,6 @@ export class AuthService {
 
   get isLoggedIn(): boolean {
     const user = JSON.parse(localStorage.getItem('user')!);
-    return user !== null && user.emailVerified !== false ? true : false;
+    return user !== null;
   }
 }

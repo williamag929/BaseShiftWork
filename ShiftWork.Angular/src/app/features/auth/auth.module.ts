@@ -11,7 +11,7 @@ import { AcceptInviteComponent } from './accept-invite/accept-invite.component';
 
 const routes: Routes = [
   { path: 'sign-in', component: SignInComponent },
-  { path: 'sign-up', component: SignUpComponent },
+  { path: 'sign-up', redirectTo: 'sign-in', pathMatch: 'full' },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'accept-invite', component: AcceptInviteComponent },

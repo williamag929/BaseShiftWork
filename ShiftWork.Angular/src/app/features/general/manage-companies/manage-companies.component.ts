@@ -27,6 +27,7 @@ export class ManageCompaniesComponent implements OnInit {
 
   isLoading = false;
   isLoadingUsers = false;
+  togglingId: string | null = null;
 
   constructor(
     private companyService: CompanyService,
@@ -106,6 +107,7 @@ export class ManageCompaniesComponent implements OnInit {
       displayName: person.name,
       photoURL: '',
       emailVerified: false,
+      isActive: true,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -133,6 +135,24 @@ export class ManageCompaniesComponent implements OnInit {
       error: (err: any) => {
         this.toastr.error('Failed to remove user.');
         console.error(err);
+      }
+    });
+  }
+
+  toggleActive(member: CompanyUser): void {
+    if (!this.selectedCompany) return;
+    this.togglingId = member.companyUserId;
+    const newStatus = !member.isActive;
+    this.companyUsersService.setCompanyUserActive(this.selectedCompany.companyId, member.companyUserId, newStatus).subscribe({
+      next: (updated) => {
+        member.isActive = updated.isActive;
+        this.toastr.success(`${member.displayName || member.email} ${newStatus ? 'activated' : 'deactivated'}`);
+        this.togglingId = null;
+      },
+      error: (err: any) => {
+        this.toastr.error('Failed to update user status.');
+        console.error(err);
+        this.togglingId = null;
       }
     });
   }

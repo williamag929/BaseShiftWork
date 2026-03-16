@@ -9,6 +9,17 @@
       <p class="subtitle">Sign in to continue to your account</p>
     </div>
 
+    <!-- Error Alert -->
+    <div *ngIf="errorMessage" class="sign-in-alert">
+      <div class="sign-in-alert-content">
+        <i class="fa fa-exclamation-triangle"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+      <button type="button" class="sign-in-alert-close" (click)="dismissError()">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+
     <!-- Sign In Form -->
     <form [formGroup]="signInForm" (ngSubmit)="signIn()">
       <div class="form-group">
@@ -77,9 +88,6 @@
       <span>Continue with Google</span>
     </button>
 
-    <!-- Sign Up Link -->
-    <div class="auth-link">
-      <span>Don't have an account? <a routerLink="/register">Sign Up</a></span>
-    </div>
+    <!-- Sign Up disabled: users must be invited by a company admin -->
   </div>
 </div>
