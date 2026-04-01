@@ -1101,6 +1101,26 @@
   border-right: 1px solid #E0E0E0;
 }
 
+/* Empty location row in grouped view (no employees yet) */
+.empty-location-row .team-column {
+  display: flex;
+  align-items: center;
+}
+
+.empty-location-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #999;
+  font-size: 13px;
+  padding: 4px 8px;
+}
+
+.empty-location-hint i {
+  font-size: 14px;
+  color: #ccc;
+}
+
 /* Empty Grouped State */
 .empty-grouped-state {
   display: flex;

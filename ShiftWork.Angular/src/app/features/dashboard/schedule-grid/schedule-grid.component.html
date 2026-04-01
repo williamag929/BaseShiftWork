@@ -275,6 +275,21 @@
           </div>
         </div>
 
+        <!-- Empty location: show a row of "+" buttons when no employees have schedules -->
+        <div class="grid-row empty-location-row" *ngIf="viewMode === 'single' && gridData.teamMembers.length === 0">
+          <div class="team-column">
+            <div class="empty-location-hint">
+              <i class="bi bi-person-plus"></i>
+              <span>Click + to add</span>
+            </div>
+          </div>
+          <div class="day-cell" *ngFor="let day of gridData.days">
+            <button class="add-shift-btn" (click)="onAddShift(null, day.date)">
+              <i class="bi bi-plus"></i>
+            </button>
+          </div>
+        </div>
+
         <!-- Add Employee Row (Single Location mode only) -->
         <div class="grid-row add-employee-row" *ngIf="viewMode === 'single'">
           <div class="team-column">
@@ -385,6 +400,21 @@
                   </div>
                 </div>
               </ng-container>
+            </div>
+          </div>
+
+          <!-- Empty location: show a row of "+" buttons so users can add shifts -->
+          <div class="grid-row empty-location-row" *ngIf="group.teamMembers.length === 0">
+            <div class="team-column">
+              <div class="empty-location-hint">
+                <i class="bi bi-person-plus"></i>
+                <span>Click + to add</span>
+              </div>
+            </div>
+            <div class="day-cell" *ngFor="let day of group.days">
+              <button class="add-shift-btn" (click)="onAddShift(null, day.date, group.locationId)">
+                <i class="bi bi-plus"></i>
+              </button>
             </div>
           </div>
 

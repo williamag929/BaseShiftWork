@@ -1186,7 +1186,7 @@ export class ScheduleGridComponent implements OnInit {
         teamMembers: this.applyFilters(this.buildTeamMembers(locPeople, locShifts)),
         days: this.buildDays(locShifts, locPeople)
       };
-    }).filter(g => g.teamMembers.length > 0); // Only show locations that have scheduled people
+    });
   }
 
   /**
@@ -1641,7 +1641,7 @@ export class ScheduleGridComponent implements OnInit {
     });
   }
 
-  onAddShift(personId: number, date: Date, locationId?: number): void {
+  onAddShift(personId: number | null, date: Date, locationId?: number): void {
     this.editingSchedule = null;
     this.selectedPersonId = personId;
     this.selectedDate = date;
