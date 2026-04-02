@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
 import { Image } from 'expo-image';
 import { useQuery } from '@tanstack/react-query';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+
 import * as Haptics from 'expo-haptics';
 import { kioskService } from '@/services/kiosk.service';
 import { useDeviceStore } from '@/store/deviceStore';
@@ -39,7 +39,7 @@ function EmployeeCard({
   onPress: () => void;
 }) {
   return (
-    <Animated.View entering={FadeInDown.delay(index * 30).duration(250)}>
+    <View>
       <Pressable
         style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
         onPress={onPress}
@@ -66,7 +66,7 @@ function EmployeeCard({
         </Text>
         <View style={[styles.dot, { backgroundColor: statusColor(employee.statusShiftWork) }]} />
       </Pressable>
-    </Animated.View>
+    </View>
   );
 }
 

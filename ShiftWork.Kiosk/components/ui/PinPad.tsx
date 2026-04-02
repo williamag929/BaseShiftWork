@@ -1,17 +1,12 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   View,
   Text,
   Pressable,
   StyleSheet,
+  Animated,
   type ViewStyle,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSequence,
-  withTiming,
-} from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { colors, spacing, radius, typography } from '@/styles/tokens';
 import { Ionicons } from '@expo/vector-icons';
@@ -38,20 +33,16 @@ export function PinPad({
   style,
   error = false,
 }: PinPadProps) {
-  const shakeX = useSharedValue(0);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: shakeX.value }],
-  }));
+  const shakeX = useRef(new Animated.Value(0)).current;
 
   const shake = useCallback(() => {
-    shakeX.value = withSequence(
-      withTiming(-10, { duration: 50 }),
-      withTiming(10, { duration: 50 }),
-      withTiming(-8, { duration: 50 }),
-      withTiming(8, { duration: 50 }),
-      withTiming(0, { duration: 50 })
-    );
+    Animated.sequence([
+      Animated.timing(shakeX, { toValue: -10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeX, { toValue: 10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeX, { toValue: -8, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeX, { toValue: 8, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeX, { toValue: 0, duration: 50, useNativeDriver: true }),
+    ]).start();
   }, [shakeX]);
 
   React.useEffect(() => {
@@ -77,7 +68,7 @@ export function PinPad({
   return (
     <View style={[styles.container, style]}>
       {/* PIN dots */}
-      <Animated.View style={[styles.dotsRow, animatedStyle]}>
+      <Animated.View style={[styles.dotsRow, { transform: [{ translateX: shakeX }] }]}>
         {Array.from({ length: maxLength }).map((_, i) => (
           <View
             key={i}

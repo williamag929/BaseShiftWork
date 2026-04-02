@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Location from 'expo-location';
 import * as Haptics from 'expo-haptics';
-import Animated, { FadeIn } from 'react-native-reanimated';
+
 import { useQuery } from '@tanstack/react-query';
 import { useSessionStore } from '@/store/sessionStore';
 import { useDeviceStore } from '@/store/deviceStore';
@@ -128,7 +128,7 @@ export default function ClockScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
-      <Animated.View style={styles.container} entering={FadeIn.duration(200)}>
+      <View style={styles.container}>
         {/* Clock-type selector */}
         {!clockChoice ? (
           <View style={styles.choiceRow}>
@@ -184,7 +184,7 @@ export default function ClockScreen() {
             </View>
           </View>
         )}
-      </Animated.View>
+      </View>
     </SafeAreaView>
   );
 }

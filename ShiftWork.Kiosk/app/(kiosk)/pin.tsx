@@ -9,7 +9,7 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
-import Animated, { FadeIn } from 'react-native-reanimated';
+
 import * as Haptics from 'expo-haptics';
 import { PinPad } from '@/components/ui/PinPad';
 import { kioskService } from '@/services/kiosk.service';
@@ -91,7 +91,7 @@ export default function PinScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <Animated.View style={styles.container} entering={FadeIn.duration(200)}>
+      <View style={styles.container}>
         {/* Employee info */}
         <View style={styles.profileCard}>
           {employee.photoUrl ? (
@@ -132,7 +132,7 @@ export default function PinScreen() {
         >
           <Text style={styles.cancelText}>Cancel</Text>
         </Pressable>
-      </Animated.View>
+      </View>
     </SafeAreaView>
   );
 }

@@ -48,8 +48,7 @@
         {
           "locationWhenInUsePermission": "Allow ShiftWork Kiosk to verify clock-in location."
         }
-      ],
-      "expo-keep-awake"
+      ]
     ],
     "extra": {
       "router": {

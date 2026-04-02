@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
@@ -96,7 +96,7 @@ export default function AdminScreen() {
 
         {/* ── Step 1: Password gate ── */}
         {step === 'password' && (
-          <Animated.View style={styles.card} entering={FadeInDown.duration(250)}>
+          <View style={styles.card}>
             <Ionicons name="lock-closed-outline" size={48} color={colors.primary} />
             <Text style={styles.cardTitle}>Enter Admin Password</Text>
             <TextInput
@@ -122,12 +122,12 @@ export default function AdminScreen() {
                 <Text style={styles.primaryBtnText}>Verify</Text>
               )}
             </Pressable>
-          </Animated.View>
+          </View>
         )}
 
         {/* ── Step 2: Admin menu ── */}
         {step === 'menu' && (
-          <Animated.View style={styles.menuContainer} entering={FadeInDown.duration(250)}>
+          <View style={styles.menuContainer}>
             <Text style={styles.cardTitle}>What would you like to do?</Text>
             <Text style={styles.subtitle}>Current location: {locationName}</Text>
 
@@ -154,12 +154,12 @@ export default function AdminScreen() {
               </View>
               <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
             </Pressable>
-          </Animated.View>
+          </View>
         )}
 
         {/* ── Step 3: Change Location ── */}
         {step === 'changeLocation' && (
-          <Animated.View style={styles.menuContainer} entering={FadeInDown.duration(250)}>
+          <View style={styles.menuContainer}>
             <Pressable style={styles.backLink} onPress={() => setStep('menu')}>
               <Ionicons name="arrow-back" size={18} color={colors.primary} />
               <Text style={styles.backText}>Back</Text>
@@ -212,7 +212,7 @@ export default function AdminScreen() {
                 </Pressable>
               </>
             )}
-          </Animated.View>
+          </View>
         )}
       </ScrollView>
     </SafeAreaView>

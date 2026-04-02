@@ -1,14 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withDelay,
-  FadeIn,
-} from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { kioskService } from '@/services/kiosk.service';
@@ -42,8 +35,7 @@ export default function SuccessScreen() {
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(AUTO_RETURN_SECONDS);
 
-  const scale = useSharedValue(0);
-  const iconStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const scale = useRef(new Animated.Value(0)).current;
 
   // Determine if the clock call needs to happen here (no-questions path).
   // clock.tsx stores a flag in sessionStore rather than route params to avoid complexity.
@@ -78,7 +70,10 @@ export default function SuccessScreen() {
   // On mount: play haptic, animate icon, optionally submit
   useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    scale.value = withDelay(100, withSpring(1, { damping: 10, stiffness: 180 }));
+    Animated.sequence([
+      Animated.delay(100),
+      Animated.spring(scale, { toValue: 1, tension: 50, friction: 7, useNativeDriver: true }),
+    ]).start();
 
     if (needsSubmit) {
       submit();
@@ -121,8 +116,8 @@ export default function SuccessScreen() {
           <Text style={styles.waitText}>Recording…</Text>
         </View>
       ) : (
-        <Animated.View style={styles.center} entering={FadeIn.duration(300)}>
-          <Animated.View style={[styles.iconWrapper, iconStyle]}>
+        <View style={styles.center}>
+          <Animated.View style={[styles.iconWrapper, { transform: [{ scale }] }]}>
             <Ionicons name="checkmark-circle" size={120} color="#fff" />
           </Animated.View>
 
@@ -136,7 +131,7 @@ export default function SuccessScreen() {
               Returning in {countdown}s…
             </Text>
           )}
-        </Animated.View>
+        </View>
       )}
     </SafeAreaView>
   );

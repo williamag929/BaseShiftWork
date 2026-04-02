@@ -11,7 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+
 import * as Haptics from 'expo-haptics';
 import { kioskService } from '@/services/kiosk.service';
 import { useSessionStore } from '@/store/sessionStore';
@@ -95,10 +95,9 @@ export default function QuestionsScreen() {
         <Text style={styles.heading}>A few quick questions</Text>
 
         {questions.map((q, i) => (
-          <Animated.View
+          <View
             key={q.questionId}
             style={styles.questionCard}
-            entering={FadeInDown.delay(i * 60).duration(250)}
           >
             <Text style={styles.questionText}>
               {q.questionText}
@@ -166,7 +165,7 @@ export default function QuestionsScreen() {
                 numberOfLines={3}
               />
             )}
-          </Animated.View>
+          </View>
         ))}
 
         {error !== '' && <Text style={styles.errorMsg}>{error}</Text>}
