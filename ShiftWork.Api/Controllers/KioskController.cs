@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
 using ShiftWork.Api.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,6 +48,52 @@ namespace ShiftWork.Api.Controllers
             await _kioskService.PostAnswersAsync(answers);
 
             return Ok();
+        }
+
+        /// <summary>
+        /// Returns the active employee list for display on a kiosk device.
+        /// No authentication required — only name, photo and shift status are returned.
+        /// </summary>
+        [HttpGet("{companyId}/employees")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<KioskEmployeeDto>>> GetKioskEmployees(string companyId)
+        {
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest("companyId is required.");
+
+            var employees = await _kioskService.GetKioskEmployeesAsync(companyId);
+            return Ok(employees);
+        }
+
+        /// <summary>
+        /// Creates a clock-in or clock-out shift event from a kiosk device.
+        /// Atomically persists the event and any associated kiosk answers.
+        /// No authentication required — the person must belong to the specified company.
+        /// </summary>
+        [HttpPost("{companyId}/clock")]
+        [AllowAnonymous]
+        public async Task<ActionResult<KioskClockResponse>> ClockFromKiosk(string companyId, [FromBody] KioskClockRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (string.IsNullOrWhiteSpace(request.EventType) ||
+                (request.EventType != "ClockIn" && request.EventType != "ClockOut"))
+                return BadRequest(new { message = "EventType must be 'ClockIn' or 'ClockOut'." });
+
+            try
+            {
+                var result = await _kioskService.ClockFromKioskAsync(companyId, request);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch
+            {
+                return StatusCode(500, "An error occurred while processing the clock event.");
+            }
         }
 
         /// <summary>
