@@ -5,9 +5,18 @@ import type {
   KioskClockRequest,
   KioskClockResponse,
   KioskLocation,
+  KioskUserProfile,
 } from '@/types';
 
 export const kioskService = {
+  /** Look up a user by email to resolve their companyId automatically. */
+  async getUserByEmail(email: string): Promise<KioskUserProfile> {
+    const { data } = await apiClient.get<KioskUserProfile>(
+      `/api/auth/user/${encodeURIComponent(email)}`
+    );
+    return data;
+  },
+
   async getEmployees(companyId: string): Promise<KioskEmployee[]> {
     const { data } = await apiClient.get<KioskEmployee[]>(
       `/api/kiosk/${companyId}/employees`

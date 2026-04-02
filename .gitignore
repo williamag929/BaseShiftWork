@@ -69,3 +69,4 @@ ShiftWork.Angular/yarn.lock
 docker-compose.yml
 ShiftWork.Kiosk/.env
 ShiftWork.Kiosk/node_modules
+ShiftWork.Kiosk/package-lock.json

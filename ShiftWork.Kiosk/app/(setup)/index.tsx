@@ -18,18 +18,49 @@ import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
 import { logger } from '@/utils/logger';
 import type { KioskLocation } from '@/types';
 
-type Step = 'company' | 'location';
+type Step = 'login' | 'company' | 'location';
 
 export default function SetupScreen() {
   const router = useRouter();
   const enroll = useDeviceStore((s) => s.enroll);
 
-  const [step, setStep] = useState<Step>('company');
+  const [step, setStep] = useState<Step>('login');
+  const [email, setEmail] = useState('');
   const [companyId, setCompanyId] = useState('');
   const [locations, setLocations] = useState<KioskLocation[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<KioskLocation | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  /** Look up user by email → resolve companyId and jump to location step */
+  const handleLogin = useCallback(async () => {
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setError('Please enter your email.');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    try {
+      const user = await kioskService.getUserByEmail(trimmed);
+      if (!user.companyId) {
+        setError('This account has no company assigned. Use manual Company ID instead.');
+        return;
+      }
+      setCompanyId(user.companyId);
+      // Fetch locations for the resolved company
+      const locs = await kioskService.getLocations(user.companyId);
+      setLocations(locs.filter((l) => l.isActive));
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setStep('location');
+    } catch (e) {
+      logger.error('[Setup] Login lookup failed', e);
+      setError('User not found. Check your email or enter the Company ID manually.');
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setLoading(false);
+    }
+  }, [email]);
 
   const handleConnectCompany = useCallback(async () => {
     if (!companyId.trim()) {
@@ -82,8 +113,47 @@ export default function SetupScreen() {
         <View style={styles.card}>
           <Text style={styles.logoText}>ShiftWork Kiosk</Text>
           <Text style={styles.subtitle}>
-            {step === 'company' ? 'Connect this device to your company' : 'Select the location for this kiosk'}
+            {step === 'login'
+              ? 'Sign in to set up this kiosk'
+              : step === 'company'
+                ? 'Connect this device to your company'
+                : 'Select the location for this kiosk'}
           </Text>
+
+          {step === 'login' && (
+            <>
+              <TextInput
+                style={styles.input}
+                placeholder="Email address"
+                placeholderTextColor={colors.textMuted}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+                returnKeyType="go"
+                onSubmitEditing={handleLogin}
+              />
+              <Pressable
+                style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+                onPress={handleLogin}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color={colors.textOnPrimary} />
+                ) : (
+                  <Text style={styles.buttonText}>Sign In</Text>
+                )}
+              </Pressable>
+
+              <Pressable
+                style={styles.backLink}
+                onPress={() => { setStep('company'); setError(''); }}
+              >
+                <Text style={styles.backLinkText}>Enter Company ID manually →</Text>
+              </Pressable>
+            </>
+          )}
 
           {step === 'company' && (
             <>
@@ -108,6 +178,13 @@ export default function SetupScreen() {
                 ) : (
                   <Text style={styles.buttonText}>Connect</Text>
                 )}
+              </Pressable>
+
+              <Pressable
+                style={styles.backLink}
+                onPress={() => { setStep('login'); setError(''); }}
+              >
+                <Text style={styles.backLinkText}>← Sign in with email</Text>
               </Pressable>
             </>
           )}
@@ -151,9 +228,9 @@ export default function SetupScreen() {
 
               <Pressable
                 style={styles.backLink}
-                onPress={() => { setStep('company'); setError(''); }}
+                onPress={() => { setStep('login'); setError(''); setSelectedLocation(null); }}
               >
-                <Text style={styles.backLinkText}>← Change Company</Text>
+                <Text style={styles.backLinkText}>← Start over</Text>
               </Pressable>
             </>
           )}

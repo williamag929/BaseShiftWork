@@ -59,6 +59,15 @@ export interface DeviceEnrollment {
   kioskDeviceId: string;
 }
 
+// ─── User profile returned by /api/auth/user/{email} ────────────────────────
+
+export interface KioskUserProfile {
+  personId: number;
+  name: string;
+  email: string;
+  companyId: string;
+}
+
 // ─── Per-transaction kiosk session (reset after success) ─────────────────────
 
 export interface KioskSession {
