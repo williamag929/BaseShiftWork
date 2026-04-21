@@ -118,7 +118,7 @@ export function useLocationName(companyId?: string | null, locationId?: string |
   return useQuery({
     queryKey: locationNameKey(companyId ?? '', locationId ?? ''),
     queryFn: async (): Promise<string | null> => {
-      const loc = await locationService.getLocationById(companyId!, locationId!);
+      const loc = await locationService.getLocationById(companyId!, Number(locationId!));
       return loc?.name ?? null;
     },
     enabled: !!companyId && !!locationId,

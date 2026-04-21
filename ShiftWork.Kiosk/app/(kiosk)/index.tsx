@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
 import { Image } from 'expo-image';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 
 import * as Haptics from 'expo-haptics';
 import { kioskService } from '@/services/kiosk.service';
@@ -23,11 +24,6 @@ import type { KioskEmployee } from '@/types';
 
 const AVATAR_SIZE = 72;
 const CARD_WIDTH = 180;
-
-function statusColor(status?: string) {
-  if (status === 'OnShift') return colors.clockIn;
-  return colors.textMuted;
-}
 
 function EmployeeCard({
   employee,
@@ -47,24 +43,33 @@ function EmployeeCard({
         accessibilityRole="button"
         accessibilityLabel={`Clock in or out for ${employee.name}`}
       >
-        {employee.photoUrl ? (
-          <Image
-            source={{ uri: employee.photoUrl }}
-            style={styles.avatar}
-            contentFit="cover"
-            transition={200}
-          />
-        ) : (
-          <View style={[styles.avatar, styles.avatarPlaceholder]}>
-            <Text style={styles.avatarInitial}>
-              {employee.name.charAt(0).toUpperCase()}
-            </Text>
-          </View>
-        )}
+        <View style={[
+          styles.avatarRing,
+          employee.statusShiftWork === 'OnShift' && styles.avatarRingActive,
+        ]}>
+          {employee.photoUrl ? (
+            <Image
+              source={{ uri: employee.photoUrl }}
+              style={styles.avatar}
+              contentFit="cover"
+              transition={200}
+            />
+          ) : (
+            <View style={[styles.avatar, styles.avatarPlaceholder]}>
+              <Text style={styles.avatarInitial}>
+                {employee.name.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+          )}
+        </View>
         <Text style={styles.name} numberOfLines={2}>
           {employee.name}
         </Text>
-        <View style={[styles.dot, { backgroundColor: statusColor(employee.statusShiftWork) }]} />
+        {employee.statusShiftWork === 'OnShift' && (
+          <View style={styles.onShiftBadge}>
+            <Text style={styles.onShiftText}>On Shift</Text>
+          </View>
+        )}
       </Pressable>
     </View>
   );
@@ -118,14 +123,17 @@ export default function EmployeeListScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
       <View style={styles.searchRow}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search employee…"
-          placeholderTextColor={colors.textMuted}
-          value={search}
-          onChangeText={setSearch}
-          clearButtonMode="while-editing"
-        />
+        <View style={styles.searchInputWrapper}>
+          <Ionicons name="search" size={16} color={colors.textMuted} style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search employee…"
+            placeholderTextColor={colors.textMuted}
+            value={search}
+            onChangeText={setSearch}
+            clearButtonMode="while-editing"
+          />
+        </View>
         <Text style={styles.tap}>Tap your name to clock in or out</Text>
       </View>
 
@@ -138,7 +146,6 @@ export default function EmployeeListScreen() {
           data={filtered}
           keyExtractor={(item) => String(item.personId)}
           numColumns={Math.floor(360 / CARD_WIDTH) || 4}
-          estimatedItemSize={210}
           renderItem={({ item, index }) => (
             <EmployeeCard
               employee={item}
@@ -169,13 +176,19 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     gap: spacing.lg,
   },
-  searchInput: {
+  searchInputWrapper: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+    borderWidth: 0.5,
+    borderColor: colors.glassBorder,
     borderRadius: radius.full,
     paddingHorizontal: spacing.md,
+  },
+  searchIcon: { marginRight: spacing.sm },
+  searchInput: {
+    flex: 1,
     paddingVertical: spacing.sm,
     color: colors.text,
     ...typography.body,
@@ -186,13 +199,24 @@ const styles = StyleSheet.create({
     width: CARD_WIDTH,
     margin: spacing.sm,
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderWidth: 0.5,
+    borderColor: colors.glassBorder,
+    borderRadius: radius.xl,
     alignItems: 'center',
     padding: spacing.md,
     gap: spacing.sm,
     ...shadow.card,
   },
   cardPressed: { backgroundColor: colors.surfaceElevated },
+  avatarRing: {
+    padding: 3,
+    borderRadius: radius.full,
+    borderWidth: 2.5,
+    borderColor: 'transparent',
+  },
+  avatarRingActive: {
+    borderColor: colors.clockIn,
+  },
   avatar: {
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
@@ -203,13 +227,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  avatarInitial: { ...typography.h2, color: colors.textOnPrimary },
+  avatarInitial: { fontSize: 26, fontWeight: '600' as const, color: colors.textOnPrimary },
   name: { ...typography.label, color: colors.text, textAlign: 'center' },
-  dot: {
-    width: 10,
-    height: 10,
+  onShiftBadge: {
+    backgroundColor: colors.clockIn + '22',
     borderRadius: radius.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: colors.clockIn + '55',
   },
+  onShiftText: { fontSize: 10, fontWeight: '600' as const, color: colors.clockIn, letterSpacing: 0.5 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.md },
   errorText: { ...typography.body, color: colors.danger },
   emptyText: { ...typography.body, color: colors.textMuted },

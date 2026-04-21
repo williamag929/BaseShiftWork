@@ -1,6 +1,27 @@
 import { Tabs } from 'expo-router';
+import { Platform, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/styles/tokens';
+
+/** Apple-style active tab icon — filled variant with tinted dot indicator */
+function TabIcon({
+  name,
+  filled,
+  color,
+  size,
+}: {
+  name: keyof typeof Ionicons.glyphMap;
+  filled: keyof typeof Ionicons.glyphMap;
+  color: string;
+  size: number;
+}) {
+  const isActive = color === colors.primary;
+  return (
+    <View style={{ alignItems: 'center', justifyContent: 'center', width: size + 8, height: size + 8 }}>
+      <Ionicons name={isActive ? filled : name} size={size} color={color} />
+    </View>
+  );
+}
 
 export default function TabsLayout() {
   return (
@@ -9,24 +30,46 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: {
-          borderTopWidth: 1,
-          borderTopColor: colors.border,
+          backgroundColor: Platform.OS === 'ios' ? 'rgba(242,242,247,0.92)' : colors.surface,
+          borderTopWidth: 0.5,
+          borderTopColor: colors.borderOpaque,
+          // iOS-style blur tab bar height
+          height: Platform.OS === 'ios' ? 83 : 60,
+          paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+          paddingTop: 8,
+          elevation: 0,
         },
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '500',
+          letterSpacing: 0.2,
+          marginTop: -2,
+        },
+        // iOS large-title navigation header
         headerStyle: {
-          backgroundColor: colors.primary,
+          backgroundColor: colors.surface,
+          borderBottomWidth: 0.5,
+          borderBottomColor: colors.borderOpaque,
+          elevation: 0,
+          shadowOpacity: 0,
         },
-        headerTintColor: '#fff',
+        headerTintColor: colors.primary,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontSize: 17,
+          fontWeight: '600' as const,
+          color: colors.text,
+          letterSpacing: -0.4,
         },
+        headerShadowVisible: false,
       }}
     >
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: 'Dashboard',
+          title: 'Home',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+            <TabIcon name="home-outline" filled="home" color={color} size={size} />
           ),
         }}
       />
@@ -34,24 +77,23 @@ export default function TabsLayout() {
         name="schedule"
         options={{
           title: 'Schedule',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar" size={size} color={color} />
+            <TabIcon name="calendar-outline" filled="calendar" color={color} size={size} />
           ),
         }}
       />
       <Tabs.Screen
         name="schedule-grid"
-        options={{
-          title: 'Grid',
-          href: null, // Hide from tab bar - disabled for now
-        }}
+        options={{ title: 'Grid', href: null }}
       />
       <Tabs.Screen
         name="clock"
         options={{
           title: 'Clock',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="time" size={size} color={color} />
+            <TabIcon name="time-outline" filled="time" color={color} size={size} />
           ),
         }}
       />
@@ -59,45 +101,31 @@ export default function TabsLayout() {
         name="profile"
         options={{
           title: 'Profile',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+            <TabIcon name="person-outline" filled="person" color={color} size={size} />
           ),
         }}
       />
       <Tabs.Screen
         name="ai-chat"
         options={{
-          title: 'AI Chat',
+          title: 'AI',
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubble-ellipses" size={size} color={color} />
+            <TabIcon name="chatbubble-ellipses-outline" filled="chatbubble-ellipses" color={color} size={size} />
           ),
         }}
       />
-      <Tabs.Screen
-        name="time-off-request"
-        options={{
-          title: 'Request Time Off',
-          href: null, // Hide from tab bar
-        }}
-      />
-      <Tabs.Screen
-        name="weekly-schedule"
-        options={{
-          title: 'Weekly Schedule',
-          href: null, // Hide from tab bar
-        }}
-      />
-      {/* Plan upgrade screen - hidden from tab bar, accessible via push navigation */}
+      <Tabs.Screen name="time-off-request" options={{ title: 'Request Time Off', href: null }} />
+      <Tabs.Screen name="weekly-schedule"  options={{ title: 'Weekly Schedule',    href: null }} />
       <Tabs.Screen
         name="upgrade"
         options={{
           title: 'Upgrade to Pro',
-          href: null, // Hide from tab bar
-          headerStyle: {
-            backgroundColor: '#fff',
-          },
-          headerTintColor: '#333',
+          href: null,
+          headerStyle: { backgroundColor: colors.surface },
+          headerTintColor: colors.primary,
         }}
       />
     </Tabs>

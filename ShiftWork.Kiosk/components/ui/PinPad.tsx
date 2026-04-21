@@ -7,8 +7,13 @@ import {
   Animated,
   type ViewStyle,
 } from 'react-native';
+import Reanimated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { colors, spacing, radius, typography } from '@/styles/tokens';
+import { colors, spacing, radius } from '@/styles/tokens';
 import { Ionicons } from '@expo/vector-icons';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -24,6 +29,58 @@ interface PinPadProps {
 // ─── Constants ────────────────────────────────────────────────────────────────
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'] as const;
 
+// iOS-style alphabet sub-labels for digits 2–9
+const SUB_LABELS: Record<string, string> = {
+  '2': 'ABC', '3': 'DEF', '4': 'GHI', '5': 'JKL',
+  '6': 'MNO', '7': 'PQRS', '8': 'TUV', '9': 'WXYZ',
+};
+
+const KEY_SIZE = 82;
+
+// ─── AnimatedKey ──────────────────────────────────────────────────────────────
+function AnimatedKey({ keyValue, onPress }: { keyValue: string; onPress: (k: string) => void }) {
+  const scale = useSharedValue(1);
+  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  const handlePressIn = useCallback(() => {
+    scale.value = withSpring(0.88, { damping: 10, stiffness: 300 });
+  }, [scale]);
+
+  const handlePressOut = useCallback(() => {
+    scale.value = withSpring(1, { damping: 10, stiffness: 300 });
+  }, [scale]);
+
+  const isDel = keyValue === 'del';
+  const subLabel = SUB_LABELS[keyValue];
+
+  return (
+    <Reanimated.View style={[styles.keyOuter, animStyle]}>
+      <Pressable
+        style={({ pressed }) => [
+          styles.key,
+          pressed && styles.keyPressed,
+          isDel && styles.keyDel,
+        ]}
+        onPress={() => onPress(keyValue)}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        accessible
+        accessibilityRole="button"
+        accessibilityLabel={isDel ? 'Delete' : keyValue}
+      >
+        {isDel ? (
+          <Ionicons name="backspace-outline" size={26} color={colors.text} />
+        ) : (
+          <View style={styles.keyInner}>
+            <Text style={styles.keyDigit}>{keyValue}</Text>
+            {subLabel ? <Text style={styles.keySub}>{subLabel}</Text> : null}
+          </View>
+        )}
+      </Pressable>
+    </Reanimated.View>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 export function PinPad({
   value,
@@ -37,8 +94,8 @@ export function PinPad({
 
   const shake = useCallback(() => {
     Animated.sequence([
-      Animated.timing(shakeX, { toValue: -10, duration: 50, useNativeDriver: true }),
-      Animated.timing(shakeX, { toValue: 10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeX, { toValue: -12, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeX, { toValue: 12, duration: 50, useNativeDriver: true }),
       Animated.timing(shakeX, { toValue: -8, duration: 50, useNativeDriver: true }),
       Animated.timing(shakeX, { toValue: 8, duration: 50, useNativeDriver: true }),
       Animated.timing(shakeX, { toValue: 0, duration: 50, useNativeDriver: true }),
@@ -84,27 +141,8 @@ export function PinPad({
       {/* Key grid */}
       <View style={styles.grid}>
         {KEYS.map((key, idx) => {
-          if (key === '') return <View key={idx} style={styles.key} />;
-          return (
-            <Pressable
-              key={idx}
-              style={({ pressed }) => [
-                styles.key,
-                styles.keyButton,
-                pressed && styles.keyPressed,
-              ]}
-              onPress={() => handleKey(key)}
-              accessible
-              accessibilityRole="button"
-              accessibilityLabel={key === 'del' ? 'Delete' : key}
-            >
-              {key === 'del' ? (
-                <Ionicons name="backspace-outline" size={28} color={colors.text} />
-              ) : (
-                <Text style={styles.keyText}>{key}</Text>
-              )}
-            </Pressable>
-          );
+          if (key === '') return <View key={idx} style={styles.keyOuter} />;
+          return <AnimatedKey key={idx} keyValue={key} onPress={handleKey} />;
         })}
       </View>
     </View>
@@ -115,19 +153,19 @@ export function PinPad({
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    gap: spacing.lg,
+    gap: spacing.xl,
   },
   dotsRow: {
     flexDirection: 'row',
-    gap: spacing.md,
+    gap: spacing.xl,
     marginBottom: spacing.sm,
   },
   dot: {
-    width: 20,
-    height: 20,
+    width: 16,
+    height: 16,
     borderRadius: radius.full,
     borderWidth: 2,
-    borderColor: colors.textSecondary,
+    borderColor: 'rgba(235,235,245,0.5)',
     backgroundColor: 'transparent',
   },
   dotFilled: {
@@ -141,28 +179,44 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    width: 300,
-    gap: spacing.sm,
+    gap: spacing.md,
     justifyContent: 'center',
+    width: KEY_SIZE * 3 + spacing.md * 2,
+  },
+  keyOuter: {
+    width: KEY_SIZE,
+    height: KEY_SIZE,
   },
   key: {
-    width: 88,
-    height: 88,
+    width: KEY_SIZE,
+    height: KEY_SIZE,
+    borderRadius: radius.full,
+    backgroundColor: 'rgba(255,255,255,0.13)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  keyButton: {
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-  },
   keyPressed: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primaryDark,
+    backgroundColor: 'rgba(255,255,255,0.25)',
   },
-  keyText: {
-    ...typography.h2,
+  keyDel: {
+    backgroundColor: 'transparent',
+  },
+  keyInner: {
+    alignItems: 'center',
+    gap: 0,
+  },
+  keyDigit: {
+    fontSize: 30,
+    fontWeight: '300' as const,
     color: colors.text,
+    lineHeight: 34,
+  },
+  keySub: {
+    fontSize: 9,
+    fontWeight: '600' as const,
+    color: colors.textSecondary,
+    letterSpacing: 1.2,
+    lineHeight: 12,
   },
 });
+

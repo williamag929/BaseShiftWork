@@ -79,7 +79,7 @@ export default function PhotoCapture({ visible, onClose, onCaptured }: Props) {
         ) : (
           <View style={styles.cameraWrapper}>
             <CameraView
-              ref={(r) => (cameraRef.current = r)}
+              ref={(r: CameraView | null) => { cameraRef.current = r; }}
               style={styles.camera}
               facing="front"
               onCameraReady={() => setIsReady(true)}

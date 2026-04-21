@@ -1,5 +1,7 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { colors } from '@/styles/tokens';
 
 interface DashboardHeaderProps {
@@ -16,70 +18,130 @@ interface DashboardHeaderProps {
 function fmtHM(total: number) {
   const h = Math.floor(total / 3600);
   const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
   const pad = (n: number) => n.toString().padStart(2, '0');
-  return `${pad(h)}:${pad(m)}`;
+  return `${pad(h)}:${pad(m)}:${pad(s)}`;
+}
+
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
 }
 
 export function DashboardHeader({
-  name, personId, isOnline, isClockedIn, personStatus,
+  name, personId, isOnline, isClockedIn,
   elapsedSeconds, lastUpdated, silentRefreshing,
 }: DashboardHeaderProps) {
-  const fmtTime = (d: Date) =>
-    d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const insets = useSafeAreaInsets();
+  const firstName = name ? name.split(' ')[0] : (personId ? `User #${personId}` : 'there');
 
   return (
-    <View style={styles.header}>
-      <Text style={styles.greeting}>{isOnline ? 'Good day!' : 'Offline Mode'}</Text>
-      <Text style={styles.name}>{personId ? name || `User #${personId}` : 'Please sign in'}</Text>
-      <View style={styles.pillRow}>
-        <View style={[styles.pill, isOnline ? styles.pillOnline : styles.pillOffline]}>
-          <Text style={styles.pillText}>{isOnline ? 'Online' : 'Offline'}</Text>
+    <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      {/* Greeting */}
+      <Animated.View entering={FadeIn.duration(400)} style={styles.greetingRow}>
+        <View style={styles.greetingText}>
+          <Text style={styles.greeting}>{greeting()},</Text>
+          <Text style={styles.name} numberOfLines={1}>{firstName} 👋</Text>
         </View>
-        {isClockedIn && (
-          <View style={[styles.pill, styles.pillOnClock]}>
-            <Text style={styles.pillText}>On Clock</Text>
-          </View>
-        )}
-      </View>
-      {!isOnline && <Text style={styles.offlineNote}>You're offline. Showing cached data.</Text>}
-      {!!personStatus && <Text style={styles.offlineNote}>Status: {personStatus}</Text>}
-      {isClockedIn && <Text style={styles.elapsed}>Time on clock: {fmtHM(elapsedSeconds)}</Text>}
-      {lastUpdated && (
-        <View style={styles.updateRow}>
-          <Text style={styles.lastUpdated}>Last updated: {fmtTime(lastUpdated)}</Text>
+        {/* Online/offline dot */}
+        <View style={[styles.statusDot, isOnline ? styles.dotOnline : styles.dotOffline]}>
+          <View style={[styles.dotInner, isOnline ? styles.dotInnerOn : styles.dotInnerOff]} />
+          <Text style={styles.dotLabel}>{isOnline ? 'Live' : 'Offline'}</Text>
+        </View>
+      </Animated.View>
+
+      {/* Clock badge */}
+      {isClockedIn && (
+        <Animated.View entering={FadeIn.delay(100).duration(350)} style={styles.clockBadge}>
+          <Ionicons name="time" size={14} color={colors.success} style={{ marginRight: 6 }} />
+          <Text style={styles.clockLabel}>On clock · </Text>
+          <Text style={styles.clockTimer}>{fmtHM(elapsedSeconds)}</Text>
           {silentRefreshing && (
-            <View style={styles.syncIndicator}>
-              <Ionicons name="sync" size={14} color={colors.primary} />
-              <Text style={styles.syncText}>Syncing...</Text>
+            <View style={styles.syncPill}>
+              <Ionicons name="sync" size={11} color="rgba(255,255,255,0.8)" />
             </View>
           )}
+        </Animated.View>
+      )}
+
+      {!isOnline && (
+        <View style={styles.offlineBanner}>
+          <Ionicons name="cloud-offline-outline" size={13} color={colors.warning} />
+          <Text style={styles.offlineText}>Offline · showing cached data</Text>
         </View>
+      )}
+
+      {lastUpdated && isOnline && (
+        <Text style={styles.lastUpdated}>
+          Updated {lastUpdated.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+        </Text>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { backgroundColor: colors.primary, padding: 20, paddingTop: 0, paddingBottom: 30 },
-  greeting: { fontSize: 16, color: '#fff', opacity: 0.9 },
-  name: { fontSize: 28, fontWeight: 'bold', color: '#fff', marginTop: 4 },
-  offlineNote: { color: '#fff', opacity: 0.8, marginTop: 4 },
-  lastUpdated: { color: '#fff', opacity: 0.7, marginTop: 4, fontSize: 12 },
-  pillRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
-  pill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
-  pillOnline: { backgroundColor: 'rgba(255,255,255,0.2)' },
-  pillOffline: { backgroundColor: 'rgba(231,76,60,0.25)' },
-  pillOnClock: { backgroundColor: 'rgba(39,174,96,0.25)' },
-  pillText: { color: '#fff', fontSize: 12, fontWeight: '600' },
-  elapsed: { color: '#fff', marginTop: 6, fontWeight: '600' },
-  updateRow: {
+  header: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+  },
+  greetingRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  greetingText: { flex: 1 },
+  greeting: {
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.75)',
+    fontWeight: '400',
+    marginBottom: 2,
+  },
+  name: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#fff',
+    letterSpacing: -0.5,
+  },
+
+  // online pill
+  statusDot: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20,
+    marginTop: 4,
+  },
+  dotOnline:  { backgroundColor: 'rgba(52,199,89,0.20)' },
+  dotOffline: { backgroundColor: 'rgba(255,149,0,0.20)' },
+  dotInner: { width: 7, height: 7, borderRadius: 3.5 },
+  dotInnerOn:  { backgroundColor: colors.success },
+  dotInnerOff: { backgroundColor: colors.warning },
+  dotLabel: { fontSize: 12, fontWeight: '600', color: '#fff' },
+
+  // on-clock timer badge
+  clockBadge: {
     flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between', marginTop: 6,
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(52,199,89,0.18)',
+    borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6,
+    marginBottom: 6,
   },
-  syncIndicator: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12,
+  clockLabel: { fontSize: 13, color: 'rgba(255,255,255,0.85)' },
+  clockTimer: { fontSize: 14, fontWeight: '700', color: '#fff', letterSpacing: 0.5 },
+  syncPill: {
+    marginLeft: 6, backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 10, padding: 3,
   },
-  syncText: { fontSize: 11, color: '#fff', fontWeight: '500' },
+
+  offlineBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 7,
+    backgroundColor: 'rgba(255,149,0,0.18)',
+    borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6,
+    alignSelf: 'flex-start', marginBottom: 6,
+  },
+  offlineText: { fontSize: 12, color: 'rgba(255,255,255,0.90)', fontWeight: '500' },
+  lastUpdated: { fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: 4 },
 });

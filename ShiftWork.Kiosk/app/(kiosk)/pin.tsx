@@ -94,20 +94,22 @@ export default function PinScreen() {
       <View style={styles.container}>
         {/* Employee info */}
         <View style={styles.profileCard}>
-          {employee.photoUrl ? (
-            <Image
-              source={{ uri: employee.photoUrl }}
-              style={styles.avatar}
-              contentFit="cover"
-              transition={200}
-            />
-          ) : (
-            <View style={[styles.avatar, styles.avatarFallback]}>
-              <Text style={styles.avatarInitial}>
-                {employee.name.charAt(0).toUpperCase()}
-              </Text>
-            </View>
-          )}
+          <View style={styles.avatarRing}>
+            {employee.photoUrl ? (
+              <Image
+                source={{ uri: employee.photoUrl }}
+                style={styles.avatar}
+                contentFit="cover"
+                transition={200}
+              />
+            ) : (
+              <View style={[styles.avatar, styles.avatarFallback]}>
+                <Text style={styles.avatarInitial}>
+                  {employee.name.charAt(0).toUpperCase()}
+                </Text>
+              </View>
+            )}
+          </View>
           <Text style={styles.name}>{employee.name}</Text>
           <Text style={styles.instruction}>Enter your PIN</Text>
         </View>
@@ -149,11 +151,23 @@ const styles = StyleSheet.create({
   profileCard: {
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.glass,
     borderRadius: radius.xl,
+    borderWidth: 0.5,
+    borderColor: colors.glassBorder,
     padding: spacing.xl,
     minWidth: 260,
     ...shadow.card,
+  },
+  avatarRing: {
+    width: 108,
+    height: 108,
+    borderRadius: radius.full,
+    borderWidth: 3,
+    borderColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 3,
   },
   avatar: {
     width: 96,
@@ -167,10 +181,10 @@ const styles = StyleSheet.create({
   },
   avatarInitial: { ...typography.h1, color: colors.textOnPrimary },
   name: { ...typography.h3, color: colors.text, textAlign: 'center' },
-  instruction: { ...typography.body, color: colors.textSecondary },
+  instruction: { ...typography.footnote, color: colors.textSecondary, letterSpacing: 0.5, textTransform: 'uppercase' },
   padWrapper: { alignItems: 'center', gap: spacing.md },
   loader: { marginTop: spacing.sm },
   errorMsg: { ...typography.caption, color: colors.danger, textAlign: 'center' },
-  cancelBtn: { marginTop: spacing.md },
+  cancelBtn: { marginTop: spacing.md, paddingVertical: spacing.sm, paddingHorizontal: spacing.xl },
   cancelText: { ...typography.label, color: colors.textMuted },
 });
