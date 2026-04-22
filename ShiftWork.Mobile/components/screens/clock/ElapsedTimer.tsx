@@ -1,4 +1,5 @@
-import { Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/styles/tokens';
 
 interface ElapsedTimerProps {
@@ -14,9 +15,26 @@ function fmtHMS(total: number) {
 }
 
 export function ElapsedTimer({ seconds }: ElapsedTimerProps) {
-  return <Text style={styles.elapsed}>Time on clock: {fmtHMS(seconds)}</Text>;
+  return (
+    <View style={styles.wrap}>
+      <View style={styles.pill}>
+        <Ionicons name="pulse" size={14} color={colors.success} />
+        <Text style={styles.label}>On Clock</Text>
+      </View>
+      <Text style={styles.time}>{fmtHMS(seconds)}</Text>
+      <Text style={styles.caption}>hours : minutes : seconds</Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-  elapsed: { marginTop: 8, color: colors.success, fontWeight: '600' },
+  wrap: { alignItems: 'center', paddingVertical: 8 },
+  pill: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    backgroundColor: 'rgba(52,199,89,0.14)',
+    paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, marginBottom: 12,
+  },
+  label: { fontSize: 12, fontWeight: '700', color: colors.success, letterSpacing: 0.5, textTransform: 'uppercase' },
+  time: { fontSize: 46, fontWeight: '700', color: colors.text, letterSpacing: 2, fontVariant: ['tabular-nums'] },
+  caption: { fontSize: 11, color: colors.muted, letterSpacing: 1, textTransform: 'uppercase', marginTop: 4 },
 });

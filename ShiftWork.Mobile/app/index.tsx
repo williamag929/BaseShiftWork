@@ -46,7 +46,7 @@ export default function Index() {
       <View style={styles.content}>
         <Pressable
           style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-          onPress={() => router.push('(auth)/login' as Href<string>)}
+          onPress={() => router.push('/(auth)/login' as Href)}
         >
           <Text style={styles.buttonText}>Get Started</Text>
         </Pressable>

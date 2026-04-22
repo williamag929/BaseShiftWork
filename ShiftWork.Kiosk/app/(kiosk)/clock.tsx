@@ -133,22 +133,24 @@ export default function ClockScreen() {
         {!clockChoice ? (
           <View style={styles.choiceRow}>
             <Text style={styles.choiceLabel}>
-              Hello, {employee.name}. What would you like to do?
+              Hello, {employee.name}.\nWhat would you like to do?
             </Text>
             <View style={styles.buttons}>
               <Pressable
-                style={({ pressed }) => [styles.actionBtn, styles.clockInBtn, pressed && { opacity: 0.85 }]}
+                style={({ pressed }) => [styles.actionBtn, styles.clockInBtn, pressed && { opacity: 0.88 }]}
                 onPress={() => { setClockChoice('ClockIn'); resetIdle(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); }}
               >
-                <Ionicons name="log-in-outline" size={32} color="#fff" />
+                <Ionicons name="log-in-outline" size={40} color="#fff" />
                 <Text style={styles.actionText}>Clock In</Text>
+                <Text style={styles.actionSubText}>Start your shift</Text>
               </Pressable>
               <Pressable
-                style={({ pressed }) => [styles.actionBtn, styles.clockOutBtn, pressed && { opacity: 0.85 }]}
+                style={({ pressed }) => [styles.actionBtn, styles.clockOutBtn, pressed && { opacity: 0.88 }]}
                 onPress={() => { setClockChoice('ClockOut'); resetIdle(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); }}
               >
-                <Ionicons name="log-out-outline" size={32} color="#fff" />
+                <Ionicons name="log-out-outline" size={40} color="#fff" />
                 <Text style={styles.actionText}>Clock Out</Text>
+                <Text style={styles.actionSubText}>End your shift</Text>
               </Pressable>
             </View>
             <Pressable onPress={() => router.replace('/(kiosk)')}>
@@ -163,6 +165,8 @@ export default function ClockScreen() {
               style={styles.camera}
               facing="front"
             />
+            {/* Viewfinder oval guide */}
+            <View style={styles.viewfinder} pointerEvents="none" />
             <View style={styles.cameraOverlay}>
               <Text style={styles.cameraLabel}>
                 {clockChoice === 'ClockIn' ? 'Clock In' : 'Clock Out'} — look at the camera
@@ -197,25 +201,41 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: spacing.xxl,
+    gap: spacing.xxxl,
     padding: spacing.xxl,
   },
-  choiceLabel: { ...typography.h2, color: colors.text, textAlign: 'center' },
+  choiceLabel: {
+    ...typography.h2,
+    color: colors.text,
+    textAlign: 'center',
+    lineHeight: 38,
+  },
   buttons: { flexDirection: 'row', gap: spacing.xl },
   actionBtn: {
-    width: 200,
-    height: 160,
+    width: 220,
+    height: 190,
     borderRadius: radius.xl,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: spacing.md,
+    gap: spacing.sm,
     ...shadow.raised,
   },
   clockInBtn: { backgroundColor: colors.clockIn },
   clockOutBtn: { backgroundColor: colors.clockOut },
   actionText: { ...typography.h3, color: '#fff' },
+  actionSubText: { ...typography.caption, color: 'rgba(255,255,255,0.7)', letterSpacing: 0.3 },
   cameraContainer: { flex: 1, position: 'relative' },
   camera: { flex: 1 },
+  viewfinder: {
+    position: 'absolute',
+    top: '10%',
+    bottom: '28%',
+    left: '20%',
+    right: '20%',
+    borderRadius: 9999,
+    borderWidth: 2.5,
+    borderColor: 'rgba(255,255,255,0.55)',
+  },
   cameraOverlay: {
     position: 'absolute',
     bottom: 0,
@@ -224,7 +244,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxxl,
     alignItems: 'center',
     gap: spacing.lg,
-    backgroundColor: colors.overlay,
+    backgroundColor: 'rgba(0,0,0,0.55)',
     paddingTop: spacing.xl,
   },
   cameraLabel: { ...typography.title, color: '#fff' },
@@ -235,12 +255,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 3,
+    borderColor: 'rgba(255,255,255,0.4)',
     ...shadow.raised,
   },
   permText: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
   btn: {
     backgroundColor: colors.primary,
-    borderRadius: radius.md,
+    borderRadius: radius.xl,
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
   },

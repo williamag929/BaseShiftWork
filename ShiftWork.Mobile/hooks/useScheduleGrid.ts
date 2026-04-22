@@ -42,7 +42,7 @@ export function useScheduleGrid({ companyId, locationId, weekStart }: UseSchedul
       // In production, you'd call a people service to get full team roster
       const uniquePeople = Array.from(
         new Map(
-          weekShifts.map((s) => [
+          shifts.map((s) => [
             s.personId,
             {
               personId: s.personId,
@@ -57,7 +57,7 @@ export function useScheduleGrid({ companyId, locationId, weekStart }: UseSchedul
         ).values()
       );
 
-      setPeople(uniquePeople);
+      setPeople(uniquePeople as PersonDto[]);
     } catch (e: any) {
       // Normalize 404 to empty state instead of noisy error
       if (e?.statusCode === 404) {

@@ -34,6 +34,9 @@ export default function SuccessScreen() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(AUTO_RETURN_SECONDS);
+  const [eventTime] = useState(() =>
+    new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  );
 
   const scale = useRef(new Animated.Value(0)).current;
 
@@ -118,11 +121,12 @@ export default function SuccessScreen() {
       ) : (
         <View style={styles.center}>
           <Animated.View style={[styles.iconWrapper, { transform: [{ scale }] }]}>
-            <Ionicons name="checkmark-circle" size={120} color="#fff" />
+            <Ionicons name="checkmark-circle" size={128} color="#fff" />
           </Animated.View>
 
           <Text style={styles.name}>{employee?.name ?? 'Employee'}</Text>
           <Text style={styles.label}>{label}</Text>
+          <Text style={styles.time}>{eventTime}</Text>
 
           {error !== '' && <Text style={styles.errorMsg}>{error}</Text>}
 
@@ -139,11 +143,12 @@ export default function SuccessScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.lg },
-  iconWrapper: { marginBottom: spacing.md },
-  name: { ...typography.h1, color: '#fff', textAlign: 'center' },
-  label: { ...typography.h2, color: 'rgba(255,255,255,0.85)' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.md },
+  iconWrapper: { marginBottom: spacing.sm },
+  name: { fontSize: 34, fontWeight: '700' as const, color: '#fff', textAlign: 'center', letterSpacing: 0.37 },
+  label: { fontSize: 22, fontWeight: '300' as const, color: 'rgba(255,255,255,0.8)', letterSpacing: -0.2 },
+  time: { fontSize: 48, fontWeight: '200' as const, color: 'rgba(255,255,255,0.9)', letterSpacing: -2, marginTop: spacing.sm },
   waitText: { ...typography.body, color: '#fff', marginTop: spacing.md },
   errorMsg: { ...typography.caption, color: 'rgba(255,255,255,0.75)', textAlign: 'center', maxWidth: 400 },
-  countdown: { ...typography.caption, color: 'rgba(255,255,255,0.65)', marginTop: spacing.xl },
+  countdown: { ...typography.footnote, color: 'rgba(255,255,255,0.5)', marginTop: spacing.xl },
 });

@@ -1,8 +1,10 @@
-import { View, Text, TextInput, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ActivityIndicator } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
-import { Card, SectionHeader } from '@/components/ui';
-import { colors, spacing } from '@/styles/tokens';
+import * as Haptics from 'expo-haptics';
+import { SectionHeader } from '@/components/ui';
+import { PressableScale } from '@/components/ui/PressableScale';
+import { colors, spacing, radius } from '@/styles/tokens';
 import type { UseProfileReturn } from '@/hooks/useProfile';
 
 interface Props {
@@ -18,13 +20,16 @@ export function ProfileInfoSection({ profile }: Props) {
       <SectionHeader
         title="Personal Information"
         rightSlot={!editMode ? (
-          <Pressable onPress={() => setEditMode(true)} style={styles.editBtn}>
-            <Ionicons name="pencil" size={20} color={colors.primary} />
+          <PressableScale
+            onPress={() => { setEditMode(true); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+            style={styles.editBtn}
+          >
+            <Ionicons name="pencil-outline" size={16} color={colors.primary} />
             <Text style={styles.editBtnText}>Edit</Text>
-          </Pressable>
+          </PressableScale>
         ) : null}
       />
-      <Card style={styles.card}>
+      <View style={styles.card}>
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Name</Text>
           <Controller
@@ -62,33 +67,44 @@ export function ProfileInfoSection({ profile }: Props) {
 
         {editMode && (
           <View style={styles.btnRow}>
-            <Pressable onPress={cancelEdit} style={[styles.btn, styles.btnSecondary]} disabled={saving}>
+            <PressableScale onPress={cancelEdit} style={[styles.btn, styles.btnSecondary]} disabled={saving}>
               <Text style={styles.btnSecondaryText}>Cancel</Text>
-            </Pressable>
-            <Pressable onPress={handleSubmit(saveProfile)} style={[styles.btn, styles.btnPrimary]} disabled={saving}>
+            </PressableScale>
+            <PressableScale
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); handleSubmit(saveProfile)(); }}
+              style={[styles.btn, styles.btnPrimary]}
+              disabled={saving}
+            >
               {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.btnPrimaryText}>Save Changes</Text>}
-            </Pressable>
+            </PressableScale>
           </View>
         )}
-      </Card>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  section: { padding: spacing.md },
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: spacing.md, elevation: 1 },
-  fieldGroup: { marginBottom: spacing.md },
-  label: { fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 8 },
-  input: { backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, fontSize: 16, color: colors.text },
-  inputDisabled: { color: colors.muted },
+  section: { paddingHorizontal: spacing.lg, paddingTop: 16, paddingBottom: 4 },
+  card: {
+    backgroundColor: colors.surface, borderRadius: radius.xl, padding: 16,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
+  },
+  fieldGroup: { marginBottom: 16 },
+  label: { fontSize: 12, fontWeight: '600', color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 6 },
+  input: {
+    backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border,
+    borderRadius: radius.lg, paddingHorizontal: 14, paddingVertical: 11,
+    fontSize: 15, color: colors.text,
+  },
+  inputDisabled: { color: colors.muted, backgroundColor: colors.background },
   error: { marginTop: 4, fontSize: 12, color: colors.danger },
   editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   editBtnText: { color: colors.primary, fontSize: 14, fontWeight: '600' },
-  btnRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
-  btn: { flex: 1, padding: 14, borderRadius: 8, alignItems: 'center' },
+  btnRow: { flexDirection: 'row', gap: 12, marginTop: 12 },
+  btn: { flex: 1, paddingVertical: 13, borderRadius: radius.lg, alignItems: 'center' },
   btnPrimary: { backgroundColor: colors.primary },
-  btnPrimaryText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  btnSecondary: { backgroundColor: colors.border },
-  btnSecondaryText: { color: colors.text, fontSize: 16, fontWeight: '600' },
+  btnPrimaryText: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  btnSecondary: { backgroundColor: colors.borderOpaque + '40', borderWidth: 1, borderColor: colors.border },
+  btnSecondaryText: { color: colors.text, fontSize: 15, fontWeight: '600' },
 });

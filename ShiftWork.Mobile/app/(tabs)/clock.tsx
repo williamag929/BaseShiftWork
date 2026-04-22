@@ -1,8 +1,9 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Card } from '@/components/ui';
-import { colors, spacing } from '@/styles/tokens';
+import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
+import { colors, spacing, radius } from '@/styles/tokens';
 import { useClockAction } from '@/hooks/useClockAction';
 import { useAuthStore } from '@/store/authStore';
 import { ClockButton } from '@/components/screens/clock/ClockButton';
@@ -10,7 +11,7 @@ import { ElapsedTimer } from '@/components/screens/clock/ElapsedTimer';
 import { SafetyQuestionnaire } from '@/components/screens/clock/SafetyQuestionnaire';
 import PhotoCapture from '@/components/PhotoCapture';
 
-const STEP_ITEMS = [
+const INFO_ITEMS = [
   { icon: 'location' as const, text: 'Location captured' },
   { icon: 'camera' as const, text: 'Photo optional' },
   { icon: 'phone-portrait' as const, text: 'Device recorded' },
@@ -18,6 +19,7 @@ const STEP_ITEMS = [
 
 export default function ClockScreen() {
   const { name } = useAuthStore();
+  const insets = useSafeAreaInsets();
   const {
     loading,
     initializing,
@@ -34,57 +36,86 @@ export default function ClockScreen() {
     handleClock,
   } = useClockAction();
 
+  const firstName = name ? name.split(' ')[0] : 'there';
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
-        <View style={styles.statusContainer}>
-          <Text style={styles.statusLabel}>Current Status</Text>
-          <View style={[styles.statusBadge, isClockedIn ? styles.badgeIn : styles.badgeOut]}>
-            <Text style={[styles.statusText, isClockedIn ? styles.textIn : styles.textOut]}>
-              {isClockedIn ? 'Clocked In' : 'Clocked Out'}
-            </Text>
-          </View>
-          {isClockedIn && <ElapsedTimer seconds={elapsedSeconds} />}
-          <View style={styles.personRow}>
-            <Text style={styles.personLabel}>Person</Text>
-            <Text style={styles.personValue}>{name || 'Not signed in'}</Text>
-          </View>
-        </View>
 
+      {/* Hero header */}
+      <View style={[styles.hero, { paddingTop: insets.top + 16 }]}>
+        <Animated.View entering={FadeIn.duration(350)}>
+          <Text style={styles.heroGreeting}>{isClockedIn ? 'You are on the clock' : 'Ready to start?'}</Text>
+          <Text style={styles.heroName}>{firstName}</Text>
+        </Animated.View>
+        <Animated.View
+          entering={FadeIn.delay(100).duration(350)}
+          style={[styles.statusPill, isClockedIn ? styles.pillIn : styles.pillOut]}
+        >
+          <View style={[styles.pillDot, { backgroundColor: isClockedIn ? colors.success : colors.muted }]} />
+          <Text style={[styles.pillText, { color: isClockedIn ? colors.success : colors.muted }]}>
+            {isClockedIn ? 'On Clock' : 'Off Clock'}
+          </Text>
+        </Animated.View>
+      </View>
+
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Elapsed timer (when clocked in) */}
+        {isClockedIn && (
+          <Animated.View entering={FadeInDown.duration(350)} style={styles.timerCard}>
+            <ElapsedTimer seconds={elapsedSeconds} />
+          </Animated.View>
+        )}
+
+        {/* Safety questionnaire (when shift scheduled & not clocked in) */}
         {!!todayShift && !isClockedIn && (
           <SafetyQuestionnaire shift={todayShift} questions={safetyQuestions} locationName={shiftLocationName} />
         )}
-        <ClockButton
-          isClockedIn={isClockedIn}
-          loading={loading}
-          onPress={handleClock}
-          photoUri={photoUri}
-          onPhotoPress={() => setCameraOpen(true)}
-          onRemovePhoto={() => setPhotoUri(null)}
-        />
 
-        <View style={styles.infoContainer}>
-          {!!error && <Text style={styles.errorText}>{error}</Text>}
-          {!initializing && !error && (
-            <Card style={{ alignItems: 'center' }}>
-              <Text style={styles.infoTitle}>Ready to {isClockedIn ? 'clock out' : 'clock in'}?</Text>
-              <Text style={styles.infoText}>Your location and device info will be included.</Text>
-            </Card>
-          )}
+        {/* Clock button */}
+        <View style={styles.clockBtnArea}>
+          <ClockButton
+            isClockedIn={isClockedIn}
+            loading={loading}
+            onPress={handleClock}
+            photoUri={photoUri}
+            onPhotoPress={() => setCameraOpen(true)}
+            onRemovePhoto={() => setPhotoUri(null)}
+          />
         </View>
 
-        <Card style={styles.stepCard}>
-          {STEP_ITEMS.map((s) => (
-            <View key={s.text} style={styles.stepRow}>
-              <Ionicons name={s.icon} size={18} color={colors.primary} />
-              <Text style={styles.stepText}>{s.text}</Text>
-            </View>
-          ))}
-        </Card>
+        {/* Error */}
+        {!!error && (
+          <View style={styles.errorBanner}>
+            <Ionicons name="alert-circle-outline" size={16} color={colors.danger} />
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
 
+        {/* Info card */}
+        {!initializing && !error && (
+          <Animated.View entering={FadeInDown.delay(200).duration(350)} style={styles.infoCard}>
+            <Text style={styles.infoTitle}>
+              {isClockedIn ? 'Clock out when done' : `Clock in to start your shift`}
+            </Text>
+            <View style={styles.infoRows}>
+              {INFO_ITEMS.map((item) => (
+                <View key={item.text} style={styles.infoRow}>
+                  <View style={styles.infoIconWrap}>
+                    <Ionicons name={item.icon} size={15} color={colors.primary} />
+                  </View>
+                  <Text style={styles.infoRowText}>{item.text}</Text>
+                </View>
+              ))}
+            </View>
+          </Animated.View>
+        )}
       </ScrollView>
+
       <PhotoCapture
         visible={cameraOpen}
         onClose={() => setCameraOpen(false)}
@@ -96,25 +127,60 @@ export default function ClockScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  header: { backgroundColor: colors.primary, paddingTop: 24, paddingHorizontal: 20, paddingBottom: 16 },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: '#fff' },
-  headerSubtitle: { marginTop: 6, fontSize: 13, color: 'rgba(255,255,255,0.85)' },
-  statusContainer: { backgroundColor: colors.surface, padding: 20, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: colors.border },
-  statusLabel: { fontSize: 14, color: colors.muted, marginBottom: 8 },
-  statusBadge: { backgroundColor: '#f0f0f0', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
-  badgeIn: { backgroundColor: '#E8F5E9' },
-  badgeOut: { backgroundColor: '#FFF3E0' },
-  statusText: { fontSize: 16, fontWeight: '600', color: colors.text },
-  textIn: { color: colors.success },
-  textOut: { color: colors.warning },
-  personRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 16 },
-  personLabel: { fontSize: 14, color: colors.text },
-  personValue: { fontSize: 16, color: colors.text, fontWeight: '600' },
-  stepCard: { marginHorizontal: spacing.lg, marginTop: 12, gap: 8 },
-  stepRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  stepText: { fontSize: 13, color: '#4A4A4A', fontWeight: '600' },
-  infoContainer: { paddingHorizontal: spacing.xl, paddingVertical: 16, alignItems: 'center' },
-  infoTitle: { fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 8 },
-  infoText: { fontSize: 16, color: colors.text, textAlign: 'center', marginBottom: 8 },
-  errorText: { fontSize: 14, color: colors.danger, textAlign: 'center' },
+
+  // Hero
+  hero: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 20, paddingBottom: 28,
+    flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
+  },
+  heroGreeting: { fontSize: 14, color: 'rgba(255,255,255,0.75)', marginBottom: 2 },
+  heroName: { fontSize: 26, fontWeight: '700', color: '#fff', letterSpacing: -0.5 },
+  statusPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20,
+    marginBottom: 4,
+  },
+  pillIn:  { backgroundColor: 'rgba(52,199,89,0.18)' },
+  pillOut: { backgroundColor: 'rgba(255,255,255,0.12)' },
+  pillDot: { width: 7, height: 7, borderRadius: 4 },
+  pillText: { fontSize: 13, fontWeight: '600' },
+
+  // Timer card
+  timerCard: {
+    backgroundColor: colors.surface,
+    marginHorizontal: spacing.lg, marginTop: 16,
+    borderRadius: radius.xl, paddingVertical: 24,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07, shadowRadius: 6, elevation: 2,
+  },
+
+  // Clock button area
+  clockBtnArea: { marginTop: 8 },
+
+  // Error
+  errorBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: 'rgba(255,59,48,0.10)', borderRadius: radius.lg,
+    marginHorizontal: spacing.lg, marginTop: 12, padding: 12,
+  },
+  errorText: { flex: 1, fontSize: 13, color: colors.danger },
+
+  // Info card
+  infoCard: {
+    backgroundColor: colors.surface,
+    marginHorizontal: spacing.lg, marginTop: 16,
+    borderRadius: radius.xl, padding: 16,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
+  },
+  infoTitle: { fontSize: 15, fontWeight: '600', color: colors.text, marginBottom: 12 },
+  infoRows: { gap: 10 },
+  infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  infoIconWrap: {
+    width: 32, height: 32, borderRadius: 10,
+    backgroundColor: colors.primary + '14',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  infoRowText: { fontSize: 13, color: colors.textSecondary, fontWeight: '500' },
 });

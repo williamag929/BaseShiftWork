@@ -1,9 +1,12 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import type { ViewStyle } from 'react-native';
-import { Card, EmptyState, SectionHeader } from '@/components/ui';
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import { EmptyState, SectionHeader } from '@/components/ui';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PressableScale } from '@/components/ui/PressableScale';
 import { formatDate } from '@/utils/date.utils';
-import { colors, spacing } from '@/styles/tokens';
+import { colors, spacing, radius } from '@/styles/tokens';
 import type { TimeOffRequest } from '@/services/time-off-request.service';
 
 interface TimeOffSectionProps {
@@ -30,9 +33,13 @@ export function TimeOffSection({ loading, requests, onRequest }: TimeOffSectionP
       <SectionHeader
         title="Time Off"
         rightSlot={
-          <Pressable style={styles.requestBtn} onPress={onRequest}>
-            <Text style={styles.requestBtnText}>+ Request</Text>
-          </Pressable>
+          <PressableScale
+            style={styles.requestBtn}
+            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onRequest(); }}
+          >
+            <Ionicons name="add" size={14} color="#fff" />
+            <Text style={styles.requestBtnText}>Request</Text>
+          </PressableScale>
         }
       />
       {loading && [0,1,2].map((i) => <Skeleton key={i} width="100%" height={64} borderRadius={12} style={{ marginBottom: 12 }} />)}
@@ -43,43 +50,73 @@ export function TimeOffSection({ loading, requests, onRequest }: TimeOffSectionP
             message="Submit a request to notify your manager."
             icon="airplane-outline"
           />
-          <Pressable style={styles.linkBtn} onPress={onRequest}>
-            <Text style={styles.linkBtnText}>Request Time Off</Text>
-          </Pressable>
+          <PressableScale
+            style={styles.ctaBtn}
+            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onRequest(); }}
+          >
+            <Ionicons name="airplane-outline" size={16} color="#fff" />
+            <Text style={styles.ctaBtnText}>Request Time Off</Text>
+          </PressableScale>
         </View>
       )}
       {!loading && requests.map((req) => (
-        <Card key={req.timeOffRequestId} style={[styles.card, CARD_BORDER[req.status] ?? {}]}>
+        <View key={req.timeOffRequestId} style={[styles.card, CARD_BORDER[req.status] ?? {}]}>
           <View style={styles.reqHeader}>
-            <Text style={styles.cardTitle}>{req.type}</Text>
-            <View style={[styles.badge, { backgroundColor: STATUS_BG[req.status] ?? colors.muted }]}>
-              <Text style={styles.badgeText}>{req.status}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.cardTitle}>{req.type}</Text>
+              <Text style={styles.dates}>{formatDate(req.startDate)} – {formatDate(req.endDate)}</Text>
+            </View>
+            <View style={[styles.badge, {
+              backgroundColor: req.status === 'Approved' ? 'rgba(52,199,89,0.14)'
+                : req.status === 'Denied' ? 'rgba(255,59,48,0.12)'
+                : 'rgba(255,149,0,0.14)',
+            }]}>
+              <Ionicons
+                name={req.status === 'Approved' ? 'checkmark-circle' : req.status === 'Denied' ? 'close-circle' : 'time'}
+                size={12}
+                color={STATUS_BG[req.status] ?? colors.muted}
+              />
+              <Text style={[styles.badgeText, { color: STATUS_BG[req.status] ?? colors.muted }]}>{req.status}</Text>
             </View>
           </View>
-          <Text style={styles.dates}>{formatDate(req.startDate)} - {formatDate(req.endDate)}</Text>
-          {!!req.hoursRequested && <Text style={styles.meta}>{req.hoursRequested} hours</Text>}
-          {!!req.reason && <Text style={styles.reason}>{req.reason}</Text>}
-        </Card>
+          {!!req.hoursRequested && (
+            <Text style={styles.meta}><Text style={{ fontWeight: '600' }}>{req.hoursRequested}h</Text> requested</Text>
+          )}
+          {!!req.reason && <Text style={styles.reason}>"{req.reason}"</Text>}
+        </View>
       ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  section: { padding: spacing.lg, paddingTop: 8 },
+  section: { paddingHorizontal: spacing.lg, paddingTop: 8, paddingBottom: 4 },
   requestBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
     backgroundColor: colors.primary,
-    paddingHorizontal: spacing.lg, paddingVertical: 8, borderRadius: 8,
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20,
   },
-  requestBtnText: { color: '#fff', fontWeight: '600', fontSize: 14 },
-  card: { backgroundColor: colors.surface, padding: spacing.lg, borderRadius: 12, marginBottom: 12 },
-  reqHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  cardTitle: { fontSize: 16, fontWeight: '600', color: colors.text },
-  badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
-  badgeText: { color: '#fff', fontSize: 12, fontWeight: '600' },
-  dates: { fontSize: 14, color: colors.muted, marginBottom: 8 },
-  meta: { fontSize: 13, color: colors.muted, marginTop: 4 },
-  reason: { fontSize: 13, color: colors.muted, marginTop: 6, fontStyle: 'italic' },
-  linkBtn: { marginTop: 12, padding: 12, backgroundColor: colors.primary, borderRadius: 8, alignItems: 'center' },
-  linkBtnText: { color: '#fff', fontWeight: '600', fontSize: 14 },
+  requestBtnText: { color: '#fff', fontWeight: '600', fontSize: 13 },
+  card: {
+    backgroundColor: colors.surface, borderRadius: radius.xl,
+    padding: 14, marginBottom: 10,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
+  },
+  reqHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 },
+  cardTitle: { fontSize: 15, fontWeight: '600', color: colors.text, marginBottom: 2 },
+  badge: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20,
+  },
+  badgeText: { fontSize: 12, fontWeight: '600' },
+  dates: { fontSize: 13, color: colors.muted },
+  meta: { fontSize: 12, color: colors.muted, marginTop: 6 },
+  reason: { fontSize: 12, color: colors.muted, marginTop: 4, fontStyle: 'italic' },
+  ctaBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    marginTop: 12, backgroundColor: colors.primary,
+    paddingVertical: 12, borderRadius: radius.lg,
+  },
+  ctaBtnText: { color: '#fff', fontWeight: '600', fontSize: 15 },
 });
