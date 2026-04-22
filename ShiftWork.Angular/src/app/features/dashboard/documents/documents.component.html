@@ -1,0 +1,139 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-left">
+      <h2><mat-icon>folder_open</mat-icon> Documents</h2>
+    </div>
+    <button mat-raised-button color="primary" (click)="showUpload = !showUpload">
+      <mat-icon>upload_file</mat-icon> Upload
+    </button>
+  </div>
+
+  <!-- Upload Form -->
+  <mat-card class="form-card" *ngIf="showUpload" [formGroup]="uploadForm">
+    <mat-card-header><mat-card-title>Upload Document</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Title</mat-label>
+          <input matInput formControlName="title" />
+        </mat-form-field>
+      </div>
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <input matInput formControlName="description" />
+        </mat-form-field>
+      </div>
+      <div class="form-row form-row-cols">
+        <mat-form-field appearance="outline">
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option *ngFor="let t of docTypes" [value]="t">{{ t }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Version</mat-label>
+          <input matInput formControlName="version" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Access Level</mat-label>
+          <mat-select formControlName="accessLevel">
+            <mat-option *ngFor="let a of accessLevels" [value]="a">{{ a }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="file-pick-row">
+        <button mat-stroked-button type="button" onclick="document.getElementById('fileInput').click()">
+          <mat-icon>attach_file</mat-icon> Choose File
+        </button>
+        <span class="file-name">{{ selectedFile?.name || 'No file selected' }}</span>
+        <input id="fileInput" type="file" hidden (change)="onFileSelected($event)" />
+      </div>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button mat-button (click)="showUpload = false">Cancel</button>
+      <button mat-raised-button color="primary" (click)="startUpload()" [disabled]="uploading || uploadForm.invalid || !selectedFile">
+        <mat-spinner diameter="18" *ngIf="uploading"></mat-spinner>
+        <span *ngIf="!uploading">Upload</span>
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Search & Filter -->
+  <div class="filter-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="searchText" (keyup.enter)="onSearch()" placeholder="Search by title..." />
+      <mat-icon matSuffix (click)="onSearch()" style="cursor:pointer">search</mat-icon>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Type</mat-label>
+      <mat-select [(ngModel)]="typeFilter" (ngModelChange)="onSearch()">
+        <mat-option value="">All Types</mat-option>
+        <mat-option *ngFor="let t of docTypes" [value]="t">{{ t }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="loading-row" *ngIf="loading"><mat-spinner diameter="36"></mat-spinner></div>
+
+  <!-- Documents Table -->
+  <mat-table [dataSource]="documents" class="doc-table" *ngIf="!loading">
+    <ng-container matColumnDef="icon">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let d">
+        <mat-icon class="doc-icon">{{ docIcon(d.type) }}</mat-icon>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="title">
+      <mat-header-cell *matHeaderCellDef>Title</mat-header-cell>
+      <mat-cell *matCellDef="let d">
+        <span class="doc-title">{{ d.title }}</span>
+        <span class="doc-desc" *ngIf="d.description">{{ d.description }}</span>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+      <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+      <mat-cell *matCellDef="let d">{{ d.type }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="version">
+      <mat-header-cell *matHeaderCellDef>Version</mat-header-cell>
+      <mat-cell *matCellDef="let d">v{{ d.version }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="accessLevel">
+      <mat-header-cell *matHeaderCellDef>Access</mat-header-cell>
+      <mat-cell *matCellDef="let d">
+        <mat-chip [color]="d.accessLevel === 'Public' ? 'primary' : 'accent'" selected>{{ d.accessLevel }}</mat-chip>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="uploadedBy">
+      <mat-header-cell *matHeaderCellDef>Uploaded By</mat-header-cell>
+      <mat-cell *matCellDef="let d">{{ d.uploadedByName }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let d">
+        <button mat-icon-button color="primary" matTooltip="Open" (click)="openDocument(d)">
+          <mat-icon>open_in_new</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" matTooltip="Archive" (click)="archive(d, $event)">
+          <mat-icon>archive</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;" class="doc-row" (click)="openDocument(row)"></mat-row>
+  </mat-table>
+
+  <div class="empty-state" *ngIf="!loading && documents.length === 0">
+    <mat-icon>folder_open</mat-icon>
+    <p>No documents found</p>
+  </div>
+</div>

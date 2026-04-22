@@ -1,0 +1,93 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2><mat-icon>today</mat-icon> Daily Reports</h2>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls-row">
+    <mat-form-field appearance="outline">
+      <mat-label>Location</mat-label>
+      <mat-select [(ngModel)]="selectedLocationId" (ngModelChange)="onLocationChange()">
+        <mat-option *ngFor="let loc of locations" [value]="loc.locationId">{{ loc.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="date-nav">
+      <button mat-icon-button (click)="prevDay()" matTooltip="Previous day"><mat-icon>chevron_left</mat-icon></button>
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>Date</mat-label>
+        <input matInput [matDatepicker]="datePicker" [value]="selectedDate" (dateChange)="onDateChange($event)" />
+        <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+        <mat-datepicker #datePicker></mat-datepicker>
+      </mat-form-field>
+      <button mat-icon-button (click)="nextDay()" matTooltip="Next day"><mat-icon>chevron_right</mat-icon></button>
+    </div>
+  </div>
+
+  <div class="loading-row" *ngIf="loading"><mat-spinner diameter="36"></mat-spinner></div>
+
+  <ng-container *ngIf="!loading && report">
+    <!-- Summary Cards -->
+    <div class="stats-row">
+      <mat-card class="stat-card">
+        <mat-icon>people</mat-icon>
+        <div class="stat-value">{{ report.totalEmployees }}</div>
+        <div class="stat-label">Employees</div>
+      </mat-card>
+      <mat-card class="stat-card">
+        <mat-icon>schedule</mat-icon>
+        <div class="stat-value">{{ report.totalHours | number:'1.1-1' }}</div>
+        <div class="stat-label">Total Hours</div>
+      </mat-card>
+      <mat-card class="stat-card weather-card">
+        <mat-icon>wb_sunny</mat-icon>
+        <div class="stat-value">{{ weatherDesc() }}</div>
+        <div class="stat-label">Weather</div>
+      </mat-card>
+      <mat-card class="stat-card">
+        <mat-chip [color]="statusColor(report.status)" selected>{{ report.status }}</mat-chip>
+        <div class="stat-label">Status</div>
+      </mat-card>
+    </div>
+
+    <!-- Notes -->
+    <mat-card class="notes-card">
+      <mat-card-header><mat-card-title>Notes</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="full-width">
+          <textarea matInput [(ngModel)]="notes" rows="5" placeholder="Add notes for this report..."></textarea>
+        </mat-form-field>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-button (click)="saveDraft()" [disabled]="saving || report.status === 'Approved'">Save Draft</button>
+        <button mat-raised-button color="accent" (click)="submitReport()"
+          [disabled]="saving || report.status === 'Submitted' || report.status === 'Approved'">
+          Submit
+        </button>
+        <button mat-raised-button color="primary" (click)="approveReport()"
+          [disabled]="saving || report.status !== 'Submitted'">
+          Approve
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Media -->
+    <mat-card class="media-card" *ngIf="report.media.length > 0">
+      <mat-card-header><mat-card-title>Photos / Media</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="media-grid">
+          <div class="media-item" *ngFor="let m of report.media">
+            <mat-icon *ngIf="m.mediaType !== 'photo'">attach_file</mat-icon>
+            <img *ngIf="m.mediaType === 'photo'" [src]="m.mediaUrl" [alt]="m.caption" />
+            <span class="media-caption">{{ m.caption || m.mediaType }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </ng-container>
+
+  <div class="empty-state" *ngIf="!loading && !report && selectedLocationId">
+    <mat-icon>description</mat-icon>
+    <p>Select a location to view its daily report</p>
+  </div>
+</div>

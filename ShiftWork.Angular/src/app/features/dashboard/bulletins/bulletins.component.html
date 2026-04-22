@@ -1,0 +1,112 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-left">
+      <h2><mat-icon>campaign</mat-icon> Bulletins</h2>
+      <span class="unread-badge" *ngIf="unreadCount() > 0">{{ unreadCount() }} unread</span>
+    </div>
+    <button mat-raised-button color="primary" (click)="showForm = !showForm">
+      <mat-icon>add</mat-icon> New Bulletin
+    </button>
+  </div>
+
+  <!-- Create Form -->
+  <mat-card class="form-card" *ngIf="showForm" [formGroup]="form">
+    <mat-card-header><mat-card-title>New Bulletin</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Title</mat-label>
+          <input matInput formControlName="title" />
+        </mat-form-field>
+      </div>
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Content</mat-label>
+          <textarea matInput formControlName="content" rows="4"></textarea>
+        </mat-form-field>
+      </div>
+      <div class="form-row form-row-cols">
+        <mat-form-field appearance="outline">
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option *ngFor="let t of types" [value]="t">{{ t }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Priority</mat-label>
+          <mat-select formControlName="priority">
+            <mat-option *ngFor="let p of priorities" [value]="p">{{ p }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option *ngFor="let s of statuses" [value]="s">{{ s }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Expires At</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="expiresAt" />
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button mat-button (click)="showForm = false">Cancel</button>
+      <button mat-raised-button color="primary" (click)="submit()" [disabled]="form.invalid">Publish</button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <button mat-stroked-button [color]="activeFilter === 'all' ? 'primary' : ''" (click)="setFilter('all')">All</button>
+    <button mat-stroked-button [color]="activeFilter === 'unread' ? 'primary' : ''" (click)="setFilter('unread')">
+      Unread <span class="filter-count" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
+    </button>
+    <button mat-stroked-button [color]="activeFilter === 'urgent' ? 'warn' : ''" (click)="setFilter('urgent')">Urgent</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-row" *ngIf="loading">
+    <mat-spinner diameter="36"></mat-spinner>
+  </div>
+
+  <!-- Bulletin List -->
+  <div class="bulletin-list" *ngIf="!loading">
+    <mat-card
+      *ngFor="let b of filtered"
+      class="bulletin-card"
+      [class.unread]="!b.isReadByCurrentUser"
+      (click)="markAsRead(b)">
+      <mat-card-header>
+        <div class="bulletin-meta">
+          <span class="priority-dot" [ngClass]="b.priority.toLowerCase()"></span>
+          <span class="bulletin-type">{{ b.type }}</span>
+          <mat-chip [color]="priorityColor(b.priority)" selected>{{ b.priority }}</mat-chip>
+          <span class="reads-count"><mat-icon>visibility</mat-icon> {{ b.totalReads }}</span>
+        </div>
+        <div class="bulletin-actions">
+          <span class="read-indicator" *ngIf="b.isReadByCurrentUser"><mat-icon>check_circle</mat-icon></span>
+          <button mat-icon-button color="warn" matTooltip="Archive" (click)="archive(b, $event)">
+            <mat-icon>archive</mat-icon>
+          </button>
+        </div>
+      </mat-card-header>
+      <mat-card-title>{{ b.title }}</mat-card-title>
+      <mat-card-content>
+        <p class="bulletin-content">{{ b.content }}</p>
+        <div class="bulletin-footer">
+          <span>{{ b.createdByName }}</span>
+          <span>{{ b.publishedAt | date:'mediumDate' }}</span>
+          <span *ngIf="b.expiresAt" class="expires">Expires {{ b.expiresAt | date:'mediumDate' }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <mat-icon>inbox</mat-icon>
+      <p>No bulletins to show</p>
+    </div>
+  </div>
+</div>

@@ -1,7 +1,11 @@
 import { Tabs } from 'expo-router';
 import { Platform, View } from 'react-native';
+import { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/styles/tokens';
+import { useAuthStore } from '@/store/authStore';
+import { bulletinService } from '@/services/bulletin.service';
+import { safetyService } from '@/services/safety.service';
 
 /** Apple-style active tab icon — filled variant with tinted dot indicator */
 function TabIcon({
@@ -24,6 +28,20 @@ function TabIcon({
 }
 
 export default function TabsLayout() {
+  const { companyId } = useAuthStore();
+  const [unreadBulletins, setUnreadBulletins] = useState(0);
+  const [pendingSafety, setPendingSafety]     = useState(0);
+
+  useEffect(() => {
+    if (!companyId) return;
+    bulletinService.getUnread(companyId)
+      .then(data => setUnreadBulletins(data.length))
+      .catch(() => {});
+    safetyService.getPending(companyId)
+      .then(data => setPendingSafety(data.length))
+      .catch(() => {});
+  }, [companyId]);
+
   return (
     <Tabs
       screenOptions={{
@@ -114,6 +132,39 @@ export default function TabsLayout() {
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="chatbubble-ellipses-outline" filled="chatbubble-ellipses" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="bulletins"
+        options={{
+          title: 'Bulletins',
+          headerShown: false,
+          tabBarBadge: unreadBulletins > 0 ? unreadBulletins : undefined,
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="megaphone-outline" filled="megaphone" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="safety"
+        options={{
+          title: 'Safety',
+          headerShown: false,
+          tabBarBadge: pendingSafety > 0 ? pendingSafety : undefined,
+          tabBarBadgeStyle: { backgroundColor: '#FF3B30' },
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="shield-checkmark-outline" filled="shield-checkmark" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="daily-report"
+        options={{
+          title: 'Report',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="clipboard-outline" filled="clipboard" color={color} size={size} />
           ),
         }}
       />

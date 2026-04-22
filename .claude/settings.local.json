@@ -7,7 +7,8 @@
       "PowerShell(Set-Location c:\\\\projects\\\\BaseShiftWork\\\\ShiftWork.Api; dotnet build 2>&1 | Select-String \"CS[0-9]{4}|error\" | Where-Object { $_ -notmatch \"MSB|warning\" } | Select-Object -Last 10)",
       "Bash(dotnet clean *)",
       "Bash(npx ng *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(grep -v \"^$\")"
     ]
   }
 }

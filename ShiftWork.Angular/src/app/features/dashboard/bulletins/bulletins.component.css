@@ -1,0 +1,33 @@
+.page-container { padding: 24px; max-width: 900px; margin: 0 auto; }
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.header-left h2 { display: flex; align-items: center; gap: 8px; margin: 0; }
+.unread-badge { background: #1976d2; color: #fff; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 600; }
+.form-card { margin-bottom: 20px; }
+.full-width { width: 100%; }
+.form-row { margin-bottom: 8px; }
+.form-row-cols { display: flex; gap: 12px; flex-wrap: wrap; }
+.form-row-cols mat-form-field { flex: 1; min-width: 160px; }
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; }
+.filter-count { background: #d32f2f; color: #fff; border-radius: 10px; padding: 1px 7px; font-size: 11px; margin-left: 4px; }
+.loading-row { display: flex; justify-content: center; padding: 40px; }
+.bulletin-list { display: flex; flex-direction: column; gap: 12px; }
+.bulletin-card { cursor: pointer; border-left: 4px solid transparent; transition: box-shadow 0.2s; }
+.bulletin-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+.bulletin-card.unread { border-left-color: #1976d2; background: #f8fbff; }
+mat-card-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px; }
+.bulletin-meta { display: flex; align-items: center; gap: 8px; }
+.priority-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.priority-dot.critical, .priority-dot.high { background: #d32f2f; }
+.priority-dot.normal { background: #1976d2; }
+.priority-dot.low { background: #9e9e9e; }
+.bulletin-type { font-size: 12px; color: #757575; }
+.reads-count { display: flex; align-items: center; gap: 2px; font-size: 12px; color: #9e9e9e; }
+.reads-count mat-icon { font-size: 14px; width: 14px; height: 14px; }
+.bulletin-actions { display: flex; align-items: center; gap: 4px; }
+.read-indicator mat-icon { color: #43a047; font-size: 18px; width: 18px; height: 18px; }
+.bulletin-content { color: #424242; line-height: 1.6; margin: 8px 0; }
+.bulletin-footer { display: flex; gap: 16px; font-size: 12px; color: #9e9e9e; margin-top: 8px; }
+.expires { color: #e65100; }
+.empty-state { display: flex; flex-direction: column; align-items: center; padding: 60px; color: #bdbdbd; }
+.empty-state mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 8px; }

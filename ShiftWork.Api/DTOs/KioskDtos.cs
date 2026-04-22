@@ -49,4 +49,34 @@ namespace ShiftWork.Api.DTOs
         public DateTime EventDate { get; set; }
         public string PersonName { get; set; } = string.Empty;
     }
+
+    /// <summary>
+    /// Payload returned to the kiosk after a clock-out, containing any
+    /// urgent bulletins and pending safety items the employee should see.
+    /// Capped at 3 items each to keep the interstitial flow short.
+    /// </summary>
+    public class PostClockoutDto
+    {
+        public List<KioskBulletinDto> UrgentBulletins { get; set; } = new();
+        public List<KioskSafetyDto> PendingSafety { get; set; } = new();
+    }
+
+    public class KioskBulletinDto
+    {
+        public Guid BulletinId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public string Priority { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+    }
+
+    public class KioskSafetyDto
+    {
+        public Guid SafetyContentId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string? TextContent { get; set; }
+        public string Type { get; set; } = string.Empty;
+        public bool IsAcknowledgmentRequired { get; set; }
+    }
 }
