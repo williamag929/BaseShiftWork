@@ -18,6 +18,7 @@ import { share } from 'rxjs';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ScheduleGridComponent } from './schedule-grid/schedule-grid.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { DashboardOverviewComponent } from './overview/overview.component';
 
 // Import Audit History Components
 import { AuditHistoryButtonComponent } from '../kiosk/audit-history/audit-history-button.component';
@@ -34,6 +35,8 @@ const routes: Routes = [
     path: '',
     component: DashboardComponent,
     children: [
+      { path: '', component: DashboardOverviewComponent },
+      { path: 'overview', component: DashboardOverviewComponent },
       { path: 'profiles', component: ProfilesComponent },
       { path: 'people', component: PeopleComponent },
       { path: 'areas', component: AreasComponent },
@@ -47,7 +50,6 @@ const routes: Routes = [
       { path: 'clock-shift', loadComponent: () => import('./clock-shift/clock-shift.component').then(m => m.ClockShiftComponent) },
       { path: 'shiftsummaries', loadComponent: () => import('./shiftsummaries/shiftsummaries.component').then(m => m.ShiftsummariesComponent) },
       { path: 'company-settings', loadComponent: () => import('./company-settings.component').then(m => m.CompanySettingsComponent) },
-      { path: '', redirectTo: 'schedule-grid', pathMatch: 'full' }
     ]
   }
 ];
@@ -59,7 +61,8 @@ const routes: Routes = [
     PeopleComponent,
     LocationsComponent,
     DashboardComponent,
-    CrewsComponent
+    CrewsComponent,
+    DashboardOverviewComponent
   ],
   imports: [
     CommonModule,

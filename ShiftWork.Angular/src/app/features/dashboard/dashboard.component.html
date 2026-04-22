@@ -95,6 +95,13 @@
       <!-- Main Navigation -->
       <mat-nav-list class="nav-list">
         <div class="nav-section-title">Main Menu</div>
+
+        <a mat-list-item routerLink="/dashboard" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>space_dashboard</mat-icon>
+            <span matListItemTitle>Overview</span>
+          </div>
+        </a>
         
 
         <a id="tour-nav-schedule" mat-list-item routerLink="/dashboard/schedule-grid" routerLinkActive="active-link" class="nav-item">
