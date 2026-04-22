@@ -159,7 +159,33 @@ namespace ShiftWork.Api.Services
                 Create("s3.manage", "S3 - Manage", "Create buckets and manage S3"),
 
                 // Kiosk
-                Create("kiosk.admin", "Kiosk - Admin", "Access kiosk admin-only endpoints")
+                Create("kiosk.admin", "Kiosk - Admin", "Access kiosk admin-only endpoints"),
+
+                // v2 Bulletins
+                Create("bulletins.create",      "Bulletins - Create",      "Create and edit bulletins"),
+                Create("bulletins.read",         "Bulletins - Read",        "View bulletins"),
+                Create("bulletins.delete",       "Bulletins - Delete",      "Archive bulletins"),
+                Create("bulletins.track-reads",  "Bulletins - Track Reads", "View who has read a bulletin"),
+
+                // v2 Daily Reports
+                Create("reports.create",  "Reports - Create",  "Create and submit daily location reports"),
+                Create("reports.view",    "Reports - View",    "View daily location reports"),
+                Create("reports.export",  "Reports - Export",  "Export daily reports to PDF"),
+                Create("reports.approve", "Reports - Approve", "Approve submitted daily reports"),
+
+                // v2 Documents
+                Create("documents.upload",         "Documents - Upload",         "Upload new documents"),
+                Create("documents.read",           "Documents - Read",           "View and download documents"),
+                Create("documents.delete",         "Documents - Delete",         "Archive documents"),
+                Create("documents.view-logs",      "Documents - View Logs",      "View document read compliance logs"),
+                Create("documents.manage-access",  "Documents - Manage Access",  "Set document access level and allowed roles"),
+
+                // v2 Safety
+                Create("safety.create",      "Safety - Create",      "Create safety content"),
+                Create("safety.read",        "Safety - Read",        "View safety content"),
+                Create("safety.delete",      "Safety - Delete",      "Archive safety content"),
+                Create("safety.acknowledge", "Safety - Acknowledge", "Acknowledge safety content as an employee"),
+                Create("safety.track",       "Safety - Track",       "Track employee acknowledgment compliance")
             };
         }
 

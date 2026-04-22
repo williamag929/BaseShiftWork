@@ -128,6 +128,15 @@ builder.Services.AddScoped<IAuditHistoryService, AuditHistoryService>();
 builder.Services.AddScoped<PushNotificationService>();
 builder.Services.AddScoped<IWebhookService, WebhookService>();
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("weather");
+
+// v2 Content & Communication services
+builder.Services.AddScoped<IBulletinService, BulletinService>();
+builder.Services.AddScoped<IWeatherService, WeatherService>();
+builder.Services.AddScoped<IDailyReportService, DailyReportService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<ISafetyService, SafetyService>();
+builder.Services.AddHostedService<SafetyNotificationHostedService>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
 // Registration & Onboarding feature services
