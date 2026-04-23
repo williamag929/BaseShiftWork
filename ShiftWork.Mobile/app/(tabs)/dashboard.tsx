@@ -13,6 +13,7 @@ import { DashboardHeader } from '@/components/screens/dashboard/DashboardHeader'
 import { ShiftBanner } from '@/components/screens/dashboard/ShiftBanner';
 import { WeekStatsRow } from '@/components/screens/dashboard/WeekStatsRow';
 import { QuickActions } from '@/components/screens/dashboard/QuickActions';
+import { ContentInboxSection } from '@/components/screens/dashboard/ContentInboxSection';
 import { UpcomingShiftsSection } from '@/components/screens/dashboard/UpcomingShiftsSection';
 import { RecentActivitySection } from '@/components/screens/dashboard/RecentActivitySection';
 import { TimeOffSection } from '@/components/screens/dashboard/TimeOffSection';
@@ -24,7 +25,7 @@ export default function DashboardScreen() {
   const { companyId, personId, name } = useAuthStore();
   const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
   const data = useDashboardData(companyId, personId);
-  const { isClockedIn, refresh, todayShift, todayShiftLocationName, recentEvents, error, companyTimeZone } = data;
+  const { isClockedIn, refresh, todayShift, todayShiftLocationName, recentEvents, error, companyTimeZone, unreadBulletins, pendingSafety } = data;
 
   const [silentRefreshing, setSilentRefreshing] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -125,6 +126,13 @@ export default function DashboardScreen() {
         <DashboardHeader name={name} personId={personId} isOnline={data.isOnline} isClockedIn={isClockedIn} personStatus={data.personStatus} elapsedSeconds={data.elapsedSeconds} lastUpdated={data.lastUpdated} silentRefreshing={silentRefreshing} />
         {!!todayShift && (<ShiftBanner shift={todayShift} isClockedIn={isClockedIn} locationName={todayShiftLocationName} timeZoneId={companyTimeZone} onPress={() => router.push('/(tabs)/clock' as any)} />)}
         <WeekStatsRow loading={data.loading} hoursThisWeek={data.hoursThisWeek} shiftsThisWeek={data.shiftsThisWeek} />
+        <ContentInboxSection
+          unreadBulletins={unreadBulletins}
+          pendingSafety={pendingSafety}
+          onOpenBulletins={() => router.push('/(tabs)/bulletins' as any)}
+          onOpenSafety={() => router.push('/(tabs)/safety' as any)}
+          onOpenDailyReport={() => router.push('/(tabs)/daily-report' as any)}
+        />
         <QuickActions isClockedIn={isClockedIn} onClock={() => router.push('/(tabs)/clock' as any)} onSchedule={() => router.push('/(tabs)/weekly-schedule' as any)} onTimeOff={() => router.push('/(tabs)/time-off-request' as any)} />
         <UpcomingShiftsSection loading={data.loading} upcoming={data.upcoming} timeZoneId={companyTimeZone} onSelectShift={setSelectedShift} onViewWeekly={() => router.push('/(tabs)/weekly-schedule' as any)} />
         <RecentActivitySection loading={data.loading} recentEvents={recentEvents} error={error} />
