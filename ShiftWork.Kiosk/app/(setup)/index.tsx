@@ -20,13 +20,15 @@ import type { KioskLocation } from '@/types';
 
 type Step = 'login' | 'company' | 'location';
 
+const DEFAULT_COMPANY_ID = process.env.EXPO_PUBLIC_DEFAULT_COMPANY_ID ?? '';
+
 export default function SetupScreen() {
   const router = useRouter();
   const enroll = useDeviceStore((s) => s.enroll);
 
   const [step, setStep] = useState<Step>('login');
   const [email, setEmail] = useState('');
-  const [companyId, setCompanyId] = useState('');
+  const [companyId, setCompanyId] = useState(DEFAULT_COMPANY_ID);
   const [locations, setLocations] = useState<KioskLocation[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<KioskLocation | null>(null);
   const [loading, setLoading] = useState(false);

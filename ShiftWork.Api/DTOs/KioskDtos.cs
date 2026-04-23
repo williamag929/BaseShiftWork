@@ -16,6 +16,18 @@ namespace ShiftWork.Api.DTOs
     }
 
     /// <summary>
+    /// Lightweight location record used during kiosk setup.
+    /// </summary>
+    public class KioskLocationDto
+    {
+        public int LocationId { get; set; }
+        public string CompanyId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string? Address { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    /// <summary>
     /// Request body for the anonymous kiosk clock-in/out endpoint.
     /// </summary>
     public class KioskClockRequest

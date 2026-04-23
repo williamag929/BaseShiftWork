@@ -376,6 +376,16 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<ShiftWork.Api.Data.ShiftWorkContext>();
     try
     {
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠ Database migration failed: {ex.Message}");
+        throw;
+    }
+
+    try
+    {
         db.Database.ExecuteSqlRaw(@"
             IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Schedules') AND name = 'VoidedBy')
                 ALTER TABLE [Schedules] ADD [VoidedBy] nvarchar(max) NULL;

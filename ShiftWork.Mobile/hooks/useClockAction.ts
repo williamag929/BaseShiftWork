@@ -12,6 +12,8 @@ import type { KioskQuestionDto, ScheduleShiftDto } from '@/types/api';
 import type { ShiftEventDto } from '@/types/api';
 import { useLocationName } from './queries';
 
+const EMPTY_EVENTS: ShiftEventDto[] = [];
+
 export interface ClockActionData {
   events: ShiftEventDto[];
   loading: boolean;
@@ -43,7 +45,7 @@ export const useClockAction = (): ClockActionData => {
 
   // ── Shift events via React Query (replaces loadEvents useEffect chain) ──
   const {
-    data: events = [],
+    data: events = EMPTY_EVENTS,
     isLoading: initializing,
     isError,
     error: eventsError,
@@ -97,15 +99,35 @@ export const useClockAction = (): ClockActionData => {
 
   // ── Derive activeClockInAt from events ──
   useEffect(() => {
-    const latest = events?.[0];
+    const latest = events[0];
+    let cancelled = false;
+
     (async () => {
       if (latest?.eventType === 'clockin') {
-        setActiveClockInAt(new Date(latest.eventDate));
+        const nextActiveClockInAt = new Date(latest.eventDate);
+        if (cancelled) return;
+
+        setActiveClockInAt((previous) => {
+          const previousTime = previous?.getTime() ?? null;
+          const nextTime = nextActiveClockInAt.getTime();
+          return previousTime === nextTime ? previous : nextActiveClockInAt;
+        });
       } else {
         const saved = await getActiveClockInAt();
-        setActiveClockInAt(saved ? new Date(saved) : null);
+        if (cancelled) return;
+
+        const nextSavedClockInAt = saved ? new Date(saved) : null;
+        setActiveClockInAt((previous) => {
+          const previousTime = previous?.getTime() ?? null;
+          const nextTime = nextSavedClockInAt?.getTime() ?? null;
+          return previousTime === nextTime ? previous : nextSavedClockInAt;
+        });
       }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [events]);
 
   // ── Elapsed timer ──

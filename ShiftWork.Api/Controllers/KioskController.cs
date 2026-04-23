@@ -21,6 +21,7 @@ namespace ShiftWork.Api.Controllers
         private readonly IKioskService _kioskService;
         private readonly IConfiguration _configuration;
         private readonly ICompanySettingsService _companySettingsService;
+        private readonly ILocationService _locationService;
         private readonly IBulletinService _bulletins;
         private readonly ISafetyService _safety;
 
@@ -28,12 +29,14 @@ namespace ShiftWork.Api.Controllers
             IKioskService kioskService,
             IConfiguration configuration,
             ICompanySettingsService companySettingsService,
+            ILocationService locationService,
             IBulletinService bulletins,
             ISafetyService safety)
         {
             _kioskService = kioskService;
             _configuration = configuration;
             _companySettingsService = companySettingsService;
+            _locationService = locationService;
             _bulletins = bulletins;
             _safety = safety;
         }
@@ -72,6 +75,32 @@ namespace ShiftWork.Api.Controllers
 
             var employees = await _kioskService.GetKioskEmployeesAsync(companyId);
             return Ok(employees);
+        }
+
+        /// <summary>
+        /// Returns active/inactive locations for kiosk setup.
+        /// Anonymous endpoint so a new kiosk can enroll before authentication exists.
+        /// </summary>
+        [HttpGet("{companyId}/locations")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<KioskLocationDto>>> GetKioskLocations(string companyId)
+        {
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest("companyId is required.");
+
+            var locations = await _locationService.GetAll(companyId);
+            var result = locations
+                .Select(l => new KioskLocationDto
+                {
+                    LocationId = l.LocationId,
+                    CompanyId = l.CompanyId,
+                    Name = l.Name,
+                    Address = l.Address,
+                    IsActive = string.Equals(l.Status, "active", StringComparison.OrdinalIgnoreCase)
+                })
+                .ToList();
+
+            return Ok(result);
         }
 
         /// <summary>

@@ -33,7 +33,7 @@ export const kioskService = {
 
   async getLocations(companyId: string): Promise<KioskLocation[]> {
     const { data } = await apiClient.get<KioskLocation[]>(
-      `/api/companies/${companyId}/locations`
+      `/api/kiosk/${companyId}/locations`
     );
     return data;
   },

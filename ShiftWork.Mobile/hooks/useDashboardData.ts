@@ -22,6 +22,9 @@ interface DashboardQueryData {
   isOnline: boolean;
 }
 
+const EMPTY_EVENTS: ShiftEventDto[] = [];
+const EMPTY_SHIFTS: ScheduleShiftDto[] = [];
+
 async function fetchDashboardData(companyId: string, personId: number): Promise<DashboardQueryData> {
   await dbService.initDb().catch(() => {});
 
@@ -123,11 +126,13 @@ export const useDashboardData = (
     personId,
   );
 
-  const recentEvents = data?.recentEvents ?? [];
-  const upcoming = data?.upcoming ?? [];
+  const recentEvents = data?.recentEvents ?? EMPTY_EVENTS;
+  const upcoming = data?.upcoming ?? EMPTY_SHIFTS;
   const isOnline = data?.isOnline ?? true;
   const personStatus = data?.personStatus ?? null;
   const lastUpdated = dataUpdatedAt ? new Date(dataUpdatedAt) : null;
+  const latestEventType = recentEvents[0]?.eventType ?? null;
+  const latestEventDate = recentEvents[0]?.eventDate ?? null;
 
   // ── Today's shift (memoised) ──
   const todayShift = useMemo(() => {
@@ -196,16 +201,37 @@ export const useDashboardData = (
 
   // ── Derive activeClockInAt from recentEvents ──
   useEffect(() => {
-    const latest = recentEvents?.[0];
+    let cancelled = false;
+
     (async () => {
-      if (latest?.eventType === ShiftEventTypes.ClockIn) {
-        setActiveClockInAt(new Date(latest.eventDate));
+      const nextActiveClockInAt = latestEventType === ShiftEventTypes.ClockIn && latestEventDate
+        ? new Date(latestEventDate)
+        : (() => null)();
+
+      if (nextActiveClockInAt) {
+        if (cancelled) return;
+        setActiveClockInAt((previous) => {
+          const previousTime = previous?.getTime() ?? null;
+          const nextTime = nextActiveClockInAt.getTime();
+          return previousTime === nextTime ? previous : nextActiveClockInAt;
+        });
       } else {
         const saved = await getActiveClockInAt();
-        setActiveClockInAt(saved ? new Date(saved) : null);
+        if (cancelled) return;
+
+        const nextSavedClockInAt = saved ? new Date(saved) : null;
+        setActiveClockInAt((previous) => {
+          const previousTime = previous?.getTime() ?? null;
+          const nextTime = nextSavedClockInAt?.getTime() ?? null;
+          return previousTime === nextTime ? previous : nextSavedClockInAt;
+        });
       }
     })();
-  }, [recentEvents]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [latestEventType, latestEventDate]);
 
   // ── Elapsed timer (1-second tick) ──
   useEffect(() => {
