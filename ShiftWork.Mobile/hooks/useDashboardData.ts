@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState, useEffect } from 'react';
 import * as Network from 'expo-network';
 import { scheduleService, shiftEventService } from '@/services';
+import { bulletinService } from '@/services/bulletin.service';
+import { safetyService } from '@/services/safety.service';
 import { apiClient } from '@/services/api-client';
 import { dbService } from '@/services/db';
 import { getStartOfWeekUTC, getEndOfWeekUTC, formatDateForApi } from '@/utils/date.utils';
@@ -93,6 +95,8 @@ export interface DashboardData {
   todayShift: ScheduleShiftDto | null;
   todayShiftLocationName: string | null;
   companyTimeZone: string | null;
+  unreadBulletins: number;
+  pendingSafety: number;
 }
 
 export const useDashboardData = (
@@ -125,6 +129,35 @@ export const useDashboardData = (
     companyId,
     personId,
   );
+
+  // ── Content KPIs ──
+  const { data: unreadBulletins = 0 } = useQuery({
+    queryKey: ['dashboard-unread-bulletins', companyId, personId],
+    enabled: !!companyId && !!personId,
+    staleTime: 60_000,
+    queryFn: async () => {
+      try {
+        const data = await bulletinService.getUnread(companyId!);
+        return data.length;
+      } catch {
+        return 0;
+      }
+    },
+  });
+
+  const { data: pendingSafety = 0 } = useQuery({
+    queryKey: ['dashboard-pending-safety', companyId, personId],
+    enabled: !!companyId && !!personId,
+    staleTime: 60_000,
+    queryFn: async () => {
+      try {
+        const data = await safetyService.getPending(companyId!);
+        return data.length;
+      } catch {
+        return 0;
+      }
+    },
+  });
 
   const recentEvents = data?.recentEvents ?? EMPTY_EVENTS;
   const upcoming = data?.upcoming ?? EMPTY_SHIFTS;
@@ -274,6 +307,8 @@ export const useDashboardData = (
     todayShift,
     todayShiftLocationName,
     companyTimeZone,
+    unreadBulletins,
+    pendingSafety,
   };
 };
 

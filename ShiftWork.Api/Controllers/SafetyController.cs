@@ -239,7 +239,7 @@ namespace ShiftWork.Api.Controllers
 
         private static SafetyContentDto ToDto(SafetyContent c, int requestingPersonId, bool? isAcknowledged = null)
         {
-            var acknowledged = isAcknowledged ?? c.Acknowledgments.Any(a => a.PersonId == requestingPersonId);
+            var acknowledged = isAcknowledged ?? (c.Acknowledgments?.Any(a => a.PersonId == requestingPersonId) == true);
 
             List<string>? tags = null;
             if (!string.IsNullOrEmpty(c.Tags))

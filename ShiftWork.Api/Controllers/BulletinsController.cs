@@ -80,7 +80,7 @@ namespace ShiftWork.Api.Controllers
                 var bulletin = await _bulletins.GetByIdAsync(bulletinId, companyId);
                 if (bulletin == null) return NotFound();
 
-                var isRead = bulletin.Reads.Any(r => r.PersonId == personId);
+                var isRead = bulletin.Reads?.Any(r => r.PersonId == personId) == true;
                 return Ok(ToDto(bulletin, isRead));
             }
             catch (Exception ex)
