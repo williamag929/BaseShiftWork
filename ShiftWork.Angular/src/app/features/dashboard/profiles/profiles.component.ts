@@ -60,6 +60,10 @@ export class ProfilesComponent implements OnInit {
     'Company Settings':     ['company-settings.read', 'company-settings.update'],
     'Audit History':        ['audit-history.read'],
     'Kiosk':                ['kiosk.admin'],
+    'Bulletins':            ['bulletins.read', 'bulletins.create', 'bulletins.delete', 'bulletins.track-reads'],
+    'Daily Reports':        ['reports.view', 'reports.create', 'reports.approve', 'reports.export'],
+    'Documents':            ['documents.read', 'documents.upload', 'documents.delete', 'documents.view-logs', 'documents.manage-access'],
+    'Safety':               ['safety.read', 'safety.create', 'safety.delete', 'safety.acknowledge', 'safety.track'],
   };
   // Helper for iterating over object keys in the template
   objectKeys = Object.keys;

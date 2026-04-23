@@ -11,6 +11,7 @@ namespace ShiftWork.Api.Services
     public interface IRolePermissionService
     {
         Task<List<Permission>?> GetRolePermissionsAsync(string companyId, int roleId);
+        Task<Dictionary<int, List<string>>> GetPermissionKeysByRoleIdsAsync(IEnumerable<int> roleIds);
         Task<List<Permission>?> UpdateRolePermissionsAsync(string companyId, int roleId, IEnumerable<string> permissionKeys, string? userId = null, string? userName = null);
     }
 
@@ -42,6 +43,19 @@ namespace ShiftWork.Api.Services
                 .ToListAsync();
 
             return permissions;
+        }
+
+        public async Task<Dictionary<int, List<string>>> GetPermissionKeysByRoleIdsAsync(IEnumerable<int> roleIds)
+        {
+            var roleIdList = roleIds.ToList();
+            var rows = await _context.RolePermissions
+                .Where(rp => roleIdList.Contains(rp.RoleId))
+                .Select(rp => new { rp.RoleId, rp.Permission.Key })
+                .ToListAsync();
+
+            return rows
+                .GroupBy(r => r.RoleId)
+                .ToDictionary(g => g.Key, g => g.Select(r => r.Key).OrderBy(k => k).ToList());
         }
 
         public async Task<List<Permission>?> UpdateRolePermissionsAsync(string companyId, int roleId, IEnumerable<string> permissionKeys, string? userId = null, string? userName = null)
