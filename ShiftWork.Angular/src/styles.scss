@@ -1,0 +1,143 @@
+@use 'custom-theme';
+
+// ─── Ambient page background ────────────────────────────────────────────────
+// The body gradient is what backdrop-filter blurs on every glass surface.
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI',
+    Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: linear-gradient(
+    135deg,
+    #dfe3f5 0%,
+    #ede4f7 25%,
+    #e4f0fb 55%,
+    #e2f7f0 100%
+  );
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+// ─── Glass design tokens ────────────────────────────────────────────────────
+:root {
+  --glass-toolbar-bg:    rgba(102, 126, 234, 0.55);
+  --glass-sidenav-bg:    rgba(255, 255, 255, 0.74);
+  --glass-card-bg:       rgba(255, 255, 255, 0.80);
+  --glass-blur:          20px;
+  --glass-saturation:    1.8;
+  --glass-border-light:  rgba(255, 255, 255, 0.55);
+  --glass-inset-top:     rgba(255, 255, 255, 0.60);
+  --glass-shadow:        0 8px 32px rgba(102, 126, 234, 0.10);
+}
+
+// ─── Glass surface mixin ────────────────────────────────────────────────────
+// All flat declarations come BEFORE the nested rules (&::before, @media) to
+// avoid the Sass "mixed-declarations" deprecation warning.
+//
+// $blur        — backdrop blur radius (px)
+// $saturation  — backdrop saturation multiplier
+// $bg          — element's own RGBA fill (must be semi-transparent)
+@mixin glass-surface($blur: 20px, $saturation: 1.8, $bg: rgba(255, 255, 255, 0.74)) {
+  background: $bg !important;
+  backdrop-filter: blur($blur) saturate($saturation);
+  -webkit-backdrop-filter: blur($blur) saturate($saturation);
+  // 0.5 px crisp edge — overridden per-component below
+  border: 0.5px solid rgba(255, 255, 255, 0.50);
+  // Outer ambient shadow + inset top-edge highlight
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  position: relative;
+  overflow: hidden;
+
+  // Rim-light: diagonal bright streak across top-left corner
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.32) 0%,
+      rgba(255, 255, 255, 0.08) 38%,
+      transparent 65%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  // Fallback: near-opaque surface for users who prefer reduced transparency
+  @media (prefers-reduced-transparency: reduce) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(248, 249, 252, 0.97) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+
+    &::before {
+      display: none;
+    }
+  }
+}
+
+// ─── mat-toolbar ────────────────────────────────────────────────────────────
+mat-toolbar,
+.mat-toolbar {
+  @include glass-surface(20px, 1.8, rgba(102, 126, 234, 0.58));
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+// Border overrides in a separate block (avoids mixed-declarations SCSS warning)
+mat-toolbar,
+.mat-toolbar {
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.28) !important;
+}
+
+// ─── mat-sidenav ────────────────────────────────────────────────────────────
+mat-sidenav,
+.mat-drawer {
+  @include glass-surface(24px, 1.9, rgba(255, 255, 255, 0.76));
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+mat-sidenav,
+.mat-drawer {
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-right: 0.5px solid rgba(255, 255, 255, 0.42) !important;
+}
+
+// ─── mat-card ───────────────────────────────────────────────────────────────
+mat-card,
+.mat-mdc-card {
+  @include glass-surface(16px, 1.6, rgba(255, 255, 255, 0.82));
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+mat-card,
+.mat-mdc-card {
+  border-radius: 16px !important;
+}
+
+// ─── mat-drawer-container ───────────────────────────────────────────────────
+// Let the body gradient show through
+.mat-drawer-container {
+  background: transparent !important;
+}

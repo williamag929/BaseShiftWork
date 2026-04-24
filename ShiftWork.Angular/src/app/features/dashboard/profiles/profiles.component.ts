@@ -1,30 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
-import { Role } from 'src/app/core/models/role.model';
-import { RoleService } from 'src/app/core/services/role.service';
-import { ToastrService } from 'ngx-toastr';
-import { ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { Observable, forkJoin } from 'rxjs';
 import { Store } from '@ngrx/store';
+import { ToastrService } from 'ngx-toastr';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
-import { Observable } from 'rxjs';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-
+import { Role } from 'src/app/core/models/role.model';
+import { RoleService } from 'src/app/core/services/role.service';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { People } from 'src/app/core/models/people.model';
-import { AssignUsersPanelComponent } from './assign-users-panel.component';
 import { CompanyUserProfileService } from 'src/app/core/services/company-user-profile.service';
 import { AssignRoleToPersonRequest } from 'src/app/core/models/company-user-profile.model';
-import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-profiles',
   templateUrl: './profiles.component.html',
   styleUrls: ['./profiles.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, MatButtonModule, MatIconModule, AssignUsersPanelComponent],
-  standalone: true
+  standalone: false
 })
 
 export class ProfilesComponent implements OnInit {

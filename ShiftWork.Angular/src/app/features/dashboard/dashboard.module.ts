@@ -4,7 +4,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { DashboardComponent } from './dashboard.component';
-import { ProfilesComponent } from './profiles/profiles.component';
 import { PeopleComponent } from './people/people.component';
 import { AreasComponent } from './areas/areas.component';
 import { LocationsComponent } from './locations/locations.component';
@@ -37,7 +36,7 @@ const routes: Routes = [
     children: [
       { path: '', component: DashboardOverviewComponent },
       { path: 'overview', component: DashboardOverviewComponent },
-      { path: 'profiles', component: ProfilesComponent },
+      { path: 'profiles', loadChildren: () => import('./profiles/profiles.module').then(m => m.ProfilesModule) },
       { path: 'people', component: PeopleComponent },
       { path: 'areas', component: AreasComponent },
       { path: 'locations', component: LocationsComponent },
