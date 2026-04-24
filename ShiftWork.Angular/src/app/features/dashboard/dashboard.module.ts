@@ -50,6 +50,10 @@ const routes: Routes = [
       { path: 'clock-shift', loadComponent: () => import('./clock-shift/clock-shift.component').then(m => m.ClockShiftComponent) },
       { path: 'shiftsummaries', loadComponent: () => import('./shiftsummaries/shiftsummaries.component').then(m => m.ShiftsummariesComponent) },
       { path: 'company-settings', loadComponent: () => import('./company-settings.component').then(m => m.CompanySettingsComponent) },
+      { path: 'bulletins', loadChildren: () => import('./bulletins/bulletins.module').then(m => m.BulletinsModule) },
+      { path: 'daily-reports', loadChildren: () => import('./daily-reports/daily-reports.module').then(m => m.DailyReportsModule) },
+      { path: 'documents', loadChildren: () => import('./documents/documents.module').then(m => m.DocumentsModule) },
+      { path: 'safety', loadChildren: () => import('./safety/safety.module').then(m => m.SafetyModule) },
     ]
   }
 ];

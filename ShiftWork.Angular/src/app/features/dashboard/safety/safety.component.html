@@ -1,37 +1,42 @@
 <div class="page-container">
+
+  <!-- Page Header -->
   <div class="page-header">
     <div class="header-left">
-      <h2><mat-icon>health_and_safety</mat-icon> Safety</h2>
-      <span class="unread-badge warn" *ngIf="pendingCount() > 0">{{ pendingCount() }} pending</span>
+      <div class="page-icon">
+        <mat-icon>health_and_safety</mat-icon>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">Safety</h1>
+        <p class="page-subtitle">Trainings, toolbox talks, and mandatory acknowledgments</p>
+      </div>
+      <span class="badge badge-red" *ngIf="pendingCount() > 0">{{ pendingCount() }} pending</span>
     </div>
-    <button mat-raised-button color="primary" (click)="showForm = !showForm">
+    <button mat-flat-button color="primary" class="cta-btn" (click)="showForm = !showForm">
       <mat-icon>add</mat-icon> New Content
     </button>
   </div>
 
   <!-- Create Form -->
-  <mat-card class="form-card" *ngIf="showForm" [formGroup]="form">
-    <mat-card-header><mat-card-title>New Safety Content</mat-card-title></mat-card-header>
-    <mat-card-content>
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Title</mat-label>
-          <input matInput formControlName="title" />
-        </mat-form-field>
-      </div>
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Description</mat-label>
-          <input matInput formControlName="description" />
-        </mat-form-field>
-      </div>
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Content (Text)</mat-label>
-          <textarea matInput formControlName="textContent" rows="5"></textarea>
-        </mat-form-field>
-      </div>
-      <div class="form-row form-row-cols">
+  <div class="form-panel" *ngIf="showForm">
+    <div class="form-panel-header">
+      <h2>New Safety Content</h2>
+      <button mat-icon-button (click)="showForm = false"><mat-icon>close</mat-icon></button>
+    </div>
+    <form [formGroup]="form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title" placeholder="e.g. Ladder Safety Toolbox Talk" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <input matInput formControlName="description" placeholder="Brief summary" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Content Text</mat-label>
+        <textarea matInput formControlName="textContent" rows="5" placeholder="Full safety content text..."></textarea>
+      </mat-form-field>
+      <div class="form-cols">
         <mat-form-field appearance="outline">
           <mat-label>Type</mat-label>
           <mat-select formControlName="type">
@@ -45,99 +50,139 @@
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline">
+          <mat-label>Location Scope</mat-label>
+          <mat-select formControlName="locationId">
+            <mat-option [value]="null">All locations</mat-option>
+            <mat-option *ngFor="let l of locations" [value]="l.locationId">{{ l.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
           <mat-label>Scheduled For</mat-label>
           <input matInput [matDatepicker]="schedPicker" formControlName="scheduledFor" />
           <mat-datepicker-toggle matSuffix [for]="schedPicker"></mat-datepicker-toggle>
           <mat-datepicker #schedPicker></mat-datepicker>
         </mat-form-field>
-        <mat-checkbox formControlName="isAcknowledgmentRequired" class="ack-check">
-          Acknowledgment Required
+      </div>
+      <div class="ack-check-row">
+        <mat-checkbox formControlName="isAcknowledgmentRequired">
+          Require employee acknowledgment
         </mat-checkbox>
       </div>
-    </mat-card-content>
-    <mat-card-actions align="end">
-      <button mat-button (click)="showForm = false">Cancel</button>
-      <button mat-raised-button color="primary" (click)="submit()" [disabled]="form.invalid">Publish</button>
-    </mat-card-actions>
-  </mat-card>
+      <div class="form-actions">
+        <button mat-stroked-button type="button" (click)="showForm = false">Cancel</button>
+        <button mat-flat-button color="primary" type="button" (click)="submit()" [disabled]="form.invalid">
+          <mat-icon>send</mat-icon> Publish
+        </button>
+      </div>
+    </form>
+  </div>
 
-  <!-- Tabs -->
-  <div class="tab-bar">
-    <button mat-stroked-button [color]="activeTab === 'all' ? 'primary' : ''" (click)="activeTab = 'all'">All Content</button>
-    <button mat-stroked-button [color]="activeTab === 'pending' ? 'warn' : ''" (click)="activeTab = 'pending'">
-      Pending
-      <span class="filter-count warn" *ngIf="pendingCount() > 0">{{ pendingCount() }}</span>
+  <!-- Tab Bar -->
+  <div class="filter-bar">
+    <button class="filter-btn" [class.active]="activeTab === 'all'" (click)="activeTab = 'all'">
+      All Content
+    </button>
+    <button class="filter-btn filter-btn-warn" [class.active]="activeTab === 'pending'" (click)="activeTab = 'pending'">
+      <mat-icon>pending_actions</mat-icon> Pending Ack
+      <span class="filter-pill red" *ngIf="pendingCount() > 0">{{ pendingCount() }}</span>
     </button>
   </div>
 
-  <div class="loading-row" *ngIf="loading"><mat-spinner diameter="36"></mat-spinner></div>
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading safety content...</p>
+  </div>
 
   <!-- Content List -->
   <div class="content-list" *ngIf="!loading">
-    <ng-container *ngFor="let c of (activeTab === 'all' ? contents : pending)">
-      <mat-card class="content-card" [class.acknowledged]="c.isAcknowledgedByCurrentUser">
-        <mat-card-header>
-          <div class="content-meta">
-            <mat-chip color="accent" selected>{{ c.type }}</mat-chip>
-            <mat-chip color="warn" selected *ngIf="c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser">
-              Action Required
-            </mat-chip>
-            <mat-chip color="primary" selected *ngIf="c.isAcknowledgedByCurrentUser">
-              <mat-icon>check</mat-icon> Acknowledged
-            </mat-chip>
-          </div>
-          <div class="content-actions">
-            <button mat-icon-button color="warn" matTooltip="Archive" (click)="archive(c, $event)">
-              <mat-icon>archive</mat-icon>
-            </button>
-          </div>
-        </mat-card-header>
-        <mat-card-title>{{ c.title }}</mat-card-title>
-        <mat-card-content>
-          <p class="content-desc">{{ c.description }}</p>
-          <p class="content-text" *ngIf="c.textContent">{{ c.textContent }}</p>
-          <a *ngIf="c.contentUrl" [href]="c.contentUrl" target="_blank" mat-stroked-button>
-            <mat-icon>open_in_new</mat-icon> View Content
-          </a>
-          <div class="content-footer">
-            <span>{{ c.createdByName }}</span>
-            <span>{{ c.createdAt | date:'mediumDate' }}</span>
-            <span *ngIf="c.scheduledFor">Scheduled: {{ c.scheduledFor | date:'medium' }}</span>
-          </div>
+    <article
+      *ngFor="let c of (activeTab === 'all' ? contents : pending)"
+      class="content-card"
+      [class.is-acknowledged]="c.isAcknowledgedByCurrentUser"
+      [class.needs-action]="c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser">
 
-          <!-- Acknowledge Button -->
-          <div class="ack-section" *ngIf="c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser">
-            <button mat-raised-button color="primary" (click)="acknowledge(c)">
-              <mat-icon>how_to_reg</mat-icon> Acknowledge
-            </button>
-          </div>
+      <div class="status-strip" [class.strip-done]="c.isAcknowledgedByCurrentUser" [class.strip-action]="c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser"></div>
 
-          <!-- Compliance Expand -->
+      <div class="content-body">
+        <!-- Top Row: badges + archive -->
+        <div class="content-top">
+          <div class="content-badges">
+            <span class="type-badge">{{ c.type }}</span>
+            <span class="action-badge" *ngIf="c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser">
+              <mat-icon>notification_important</mat-icon> Action Required
+            </span>
+            <span class="done-badge" *ngIf="c.isAcknowledgedByCurrentUser">
+              <mat-icon>check_circle</mat-icon> Acknowledged
+            </span>
+          </div>
+          <button mat-icon-button class="archive-btn" matTooltip="Archive" (click)="archive(c, $event)">
+            <mat-icon>archive</mat-icon>
+          </button>
+        </div>
+
+        <!-- Title + Description -->
+        <h3 class="content-title">{{ c.title }}</h3>
+        <p class="content-desc" *ngIf="c.description">{{ c.description }}</p>
+
+        <!-- Full text -->
+        <div class="content-text" *ngIf="c.textContent">{{ c.textContent }}</div>
+
+        <!-- External link -->
+        <a *ngIf="c.contentUrl" [href]="c.contentUrl" target="_blank" mat-stroked-button class="url-btn" (click)="$event.stopPropagation()">
+          <mat-icon>open_in_new</mat-icon> View Content
+        </a>
+
+        <!-- Acknowledge CTA -->
+        <div class="ack-cta" *ngIf="c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser">
+          <div class="ack-prompt">
+            <mat-icon>info_outline</mat-icon>
+            <span>Please review and acknowledge this safety content before continuing.</span>
+          </div>
+          <button mat-flat-button color="primary" (click)="acknowledge(c)">
+            <mat-icon>how_to_reg</mat-icon> I Acknowledge
+          </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="content-footer">
+          <span class="footer-item"><mat-icon>person_outline</mat-icon> {{ c.createdByName }}</span>
+          <span class="footer-item"><mat-icon>place</mat-icon> {{ locationName(c.locationId) }}</span>
+          <span class="footer-item"><mat-icon>calendar_today</mat-icon> {{ c.createdAt | date:'mediumDate' }}</span>
+          <span class="footer-item sched" *ngIf="c.scheduledFor">
+            <mat-icon>event</mat-icon> Scheduled {{ c.scheduledFor | date:'MMM d, y' }}
+          </span>
+        </div>
+
+        <!-- Compliance Toggle -->
+        <div class="compliance-toggle">
           <button mat-stroked-button class="compliance-btn" (click)="toggleCompliance(c)">
-            <mat-icon>bar_chart</mat-icon>
+            <mat-icon>{{ expandedId === c.safetyContentId ? 'expand_less' : 'bar_chart' }}</mat-icon>
             {{ expandedId === c.safetyContentId ? 'Hide' : 'View' }} Compliance
           </button>
+        </div>
 
-          <div class="compliance-panel" *ngIf="expandedId === c.safetyContentId && compliance(c.safetyContentId) as status">
-            <div class="compliance-summary">
-              <strong>{{ status.totalCompleted }} / {{ status.totalAssigned }}</strong> acknowledged
-              ({{ completionPct(status) }}%)
-            </div>
-            <mat-progress-bar mode="determinate" [value]="completionPct(status)"></mat-progress-bar>
-            <div class="compliance-lists">
-              <div class="pending-list" *ngIf="status.pending.length > 0">
-                <strong>Pending:</strong>
-                <span *ngFor="let p of status.pending" class="person-chip">{{ p.name }}</span>
-              </div>
-            </div>
+        <div class="compliance-panel" *ngIf="expandedId === c.safetyContentId && compliance(c.safetyContentId) as status">
+          <div class="compliance-header">
+            <span class="compliance-fraction">{{ status.totalCompleted }} / {{ status.totalAssigned }} acknowledged</span>
+            <span class="compliance-pct" [class.pct-good]="completionPct(status) >= 80">{{ completionPct(status) }}%</span>
           </div>
-        </mat-card-content>
-      </mat-card>
-    </ng-container>
+          <mat-progress-bar mode="determinate" [value]="completionPct(status)" class="compliance-bar"></mat-progress-bar>
+          <div class="pending-chips" *ngIf="status.pending.length > 0">
+            <span class="pending-label">Still pending:</span>
+            <span *ngFor="let p of status.pending" class="person-chip">{{ p.name }}</span>
+          </div>
+        </div>
+      </div>
+    </article>
 
+    <!-- Empty State -->
     <div class="empty-state" *ngIf="(activeTab === 'all' ? contents : pending).length === 0">
-      <mat-icon>verified_user</mat-icon>
-      <p>{{ activeTab === 'pending' ? 'All caught up!' : 'No safety content yet' }}</p>
+      <div class="empty-icon">
+        <mat-icon>verified_user</mat-icon>
+      </div>
+      <h3>{{ activeTab === 'pending' ? 'All caught up!' : 'No safety content yet' }}</h3>
+      <p>{{ activeTab === 'pending' ? 'No pending acknowledgments — great job.' : 'Create your first toolbox talk or safety training.' }}</p>
     </div>
   </div>
 </div>

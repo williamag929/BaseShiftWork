@@ -8,6 +8,8 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { DocumentService } from 'src/app/core/services/document.service';
 import { Document, UpdateDocumentDto } from 'src/app/core/models/document.model';
+import { LocationService } from 'src/app/core/services/location.service';
+import { Location } from 'src/app/core/models/location.model';
 
 @Component({
   selector: 'app-documents',
@@ -25,19 +27,20 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   uploading = false;
   searchText = '';
   typeFilter = '';
+  locationFilter: number | null = null;
   selectedFile: File | null = null;
+  locations: Location[] = [];
 
   uploadForm!: FormGroup;
 
   readonly docTypes = ['Manual', 'Procedure', 'SafetyDataSheet', 'ProductInfo', 'FloorPlan', 'Policy', 'Other'];
   readonly accessLevels = ['Public', 'LocationOnly', 'Restricted'];
 
-  displayedColumns = ['icon', 'title', 'type', 'version', 'accessLevel', 'uploadedBy', 'actions'];
-
   private destroy$ = new Subject<void>();
 
   constructor(
     private documentService: DocumentService,
+    private locationService: LocationService,
     private fb: FormBuilder,
     private toastr: ToastrService,
     private store: Store<AppState>
@@ -59,17 +62,40 @@ export class DocumentsComponent implements OnInit, OnDestroy {
       filter(c => !!c),
       switchMap(company => {
         this.activeCompany = company;
+        this.loadLocations();
         return this.loadDocs();
       }),
       takeUntil(this.destroy$)
     ).subscribe();
+
+    this.uploadForm.get('accessLevel')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(level => {
+      const locationCtrl = this.uploadForm.get('locationId');
+      if (!locationCtrl) return;
+      if (level === 'LocationOnly') {
+        locationCtrl.setValidators([Validators.required]);
+      } else {
+        locationCtrl.clearValidators();
+      }
+      locationCtrl.updateValueAndValidity();
+    });
+  }
+
+  loadLocations(): void {
+    this.locationService.getLocations(this.activeCompany.companyId).subscribe({
+      next: locations => {
+        this.locations = locations.filter(l => l.status?.toLowerCase() !== 'inactive');
+      },
+      error: () => {
+        this.locations = [];
+      }
+    });
   }
 
   loadDocs(): Observable<Document[]> {
     this.loading = true;
     const obs = this.documentService.getDocuments(
       this.activeCompany.companyId,
-      undefined,
+      this.locationFilter ?? undefined,
       this.typeFilter || undefined,
       this.searchText || undefined
     );
@@ -78,6 +104,11 @@ export class DocumentsComponent implements OnInit, OnDestroy {
       error: () => { this.toastr.error('Failed to load documents'); this.loading = false; }
     });
     return obs;
+  }
+
+  locationName(locationId?: number): string {
+    if (!locationId) return 'All locations';
+    return this.locations.find(l => l.locationId === locationId)?.name ?? `Location #${locationId}`;
   }
 
   onSearch(): void {

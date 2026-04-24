@@ -1,31 +1,38 @@
 <div class="page-container">
+
+  <!-- Page Header -->
   <div class="page-header">
     <div class="header-left">
-      <h2><mat-icon>campaign</mat-icon> Bulletins</h2>
-      <span class="unread-badge" *ngIf="unreadCount() > 0">{{ unreadCount() }} unread</span>
+      <div class="page-icon">
+        <mat-icon>campaign</mat-icon>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">Bulletins</h1>
+        <p class="page-subtitle">Company-wide announcements and updates</p>
+      </div>
+      <span class="badge badge-blue" *ngIf="unreadCount() > 0">{{ unreadCount() }} unread</span>
     </div>
-    <button mat-raised-button color="primary" (click)="showForm = !showForm">
+    <button mat-flat-button color="primary" class="cta-btn" (click)="showForm = !showForm">
       <mat-icon>add</mat-icon> New Bulletin
     </button>
   </div>
 
   <!-- Create Form -->
-  <mat-card class="form-card" *ngIf="showForm" [formGroup]="form">
-    <mat-card-header><mat-card-title>New Bulletin</mat-card-title></mat-card-header>
-    <mat-card-content>
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Title</mat-label>
-          <input matInput formControlName="title" />
-        </mat-form-field>
-      </div>
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Content</mat-label>
-          <textarea matInput formControlName="content" rows="4"></textarea>
-        </mat-form-field>
-      </div>
-      <div class="form-row form-row-cols">
+  <div class="form-panel" *ngIf="showForm">
+    <div class="form-panel-header">
+      <h2>New Bulletin</h2>
+      <button mat-icon-button (click)="showForm = false"><mat-icon>close</mat-icon></button>
+    </div>
+    <form [formGroup]="form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title" placeholder="Enter bulletin title" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Content</mat-label>
+        <textarea matInput formControlName="content" rows="4" placeholder="Write your message..."></textarea>
+      </mat-form-field>
+      <div class="form-cols">
         <mat-form-field appearance="outline">
           <mat-label>Type</mat-label>
           <mat-select formControlName="type">
@@ -36,6 +43,13 @@
           <mat-label>Priority</mat-label>
           <mat-select formControlName="priority">
             <mat-option *ngFor="let p of priorities" [value]="p">{{ p }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Location Scope</mat-label>
+          <mat-select formControlName="locationId">
+            <mat-option [value]="null">All locations</mat-option>
+            <mat-option *ngFor="let l of locations" [value]="l.locationId">{{ l.name }}</mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline">
@@ -51,62 +65,96 @@
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
       </div>
-    </mat-card-content>
-    <mat-card-actions align="end">
-      <button mat-button (click)="showForm = false">Cancel</button>
-      <button mat-raised-button color="primary" (click)="submit()" [disabled]="form.invalid">Publish</button>
-    </mat-card-actions>
-  </mat-card>
+      <div class="form-actions">
+        <button mat-stroked-button type="button" (click)="showForm = false">Cancel</button>
+        <button mat-flat-button color="primary" type="button" (click)="submit()" [disabled]="form.invalid">
+          <mat-icon>send</mat-icon> Publish
+        </button>
+      </div>
+    </form>
+  </div>
 
-  <!-- Filters -->
+  <!-- Filter Bar -->
   <div class="filter-bar">
-    <button mat-stroked-button [color]="activeFilter === 'all' ? 'primary' : ''" (click)="setFilter('all')">All</button>
-    <button mat-stroked-button [color]="activeFilter === 'unread' ? 'primary' : ''" (click)="setFilter('unread')">
-      Unread <span class="filter-count" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
+    <button class="filter-btn" [class.active]="activeFilter === 'all'" (click)="setFilter('all')">
+      All
     </button>
-    <button mat-stroked-button [color]="activeFilter === 'urgent' ? 'warn' : ''" (click)="setFilter('urgent')">Urgent</button>
+    <button class="filter-btn" [class.active]="activeFilter === 'unread'" (click)="setFilter('unread')">
+      Unread
+      <span class="filter-pill blue" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
+    </button>
+    <button class="filter-btn filter-btn-warn" [class.active]="activeFilter === 'urgent'" (click)="setFilter('urgent')">
+      <mat-icon>warning_amber</mat-icon> Urgent
+    </button>
   </div>
 
   <!-- Loading -->
-  <div class="loading-row" *ngIf="loading">
-    <mat-spinner diameter="36"></mat-spinner>
+  <div class="loading-state" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading bulletins...</p>
   </div>
 
   <!-- Bulletin List -->
   <div class="bulletin-list" *ngIf="!loading">
-    <mat-card
+    <article
       *ngFor="let b of filtered"
       class="bulletin-card"
       [class.unread]="!b.isReadByCurrentUser"
       (click)="markAsRead(b)">
-      <mat-card-header>
-        <div class="bulletin-meta">
-          <span class="priority-dot" [ngClass]="b.priority.toLowerCase()"></span>
-          <span class="bulletin-type">{{ b.type }}</span>
-          <mat-chip [color]="priorityColor(b.priority)" selected>{{ b.priority }}</mat-chip>
-          <span class="reads-count"><mat-icon>visibility</mat-icon> {{ b.totalReads }}</span>
-        </div>
-        <div class="bulletin-actions">
-          <span class="read-indicator" *ngIf="b.isReadByCurrentUser"><mat-icon>check_circle</mat-icon></span>
-          <button mat-icon-button color="warn" matTooltip="Archive" (click)="archive(b, $event)">
-            <mat-icon>archive</mat-icon>
-          </button>
-        </div>
-      </mat-card-header>
-      <mat-card-title>{{ b.title }}</mat-card-title>
-      <mat-card-content>
-        <p class="bulletin-content">{{ b.content }}</p>
-        <div class="bulletin-footer">
-          <span>{{ b.createdByName }}</span>
-          <span>{{ b.publishedAt | date:'mediumDate' }}</span>
-          <span *ngIf="b.expiresAt" class="expires">Expires {{ b.expiresAt | date:'mediumDate' }}</span>
-        </div>
-      </mat-card-content>
-    </mat-card>
 
+      <div class="priority-strip" [ngClass]="'strip-' + b.priority.toLowerCase()"></div>
+
+      <div class="bulletin-body">
+        <div class="bulletin-top">
+          <div class="bulletin-badges">
+            <span class="type-badge">{{ b.type }}</span>
+            <span class="priority-badge" [ngClass]="'prio-' + b.priority.toLowerCase()">{{ b.priority }}</span>
+            <span class="unread-dot" *ngIf="!b.isReadByCurrentUser" matTooltip="Unread"></span>
+          </div>
+          <div class="bulletin-controls">
+            <span class="read-check" *ngIf="b.isReadByCurrentUser" matTooltip="Read">
+              <mat-icon>check_circle</mat-icon>
+            </span>
+            <span class="reads-counter" matTooltip="Total reads">
+              <mat-icon>visibility</mat-icon> {{ b.totalReads }}
+            </span>
+            <button mat-icon-button class="archive-btn" matTooltip="Archive" (click)="archive(b, $event)">
+              <mat-icon>archive</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <h3 class="bulletin-title">{{ b.title }}</h3>
+        <p class="bulletin-content">{{ b.content }}</p>
+
+        <div class="bulletin-footer">
+          <span class="footer-item">
+            <mat-icon>person_outline</mat-icon> {{ b.createdByName }}
+          </span>
+          <span class="footer-item">
+            <mat-icon>place</mat-icon> {{ locationName(b.locationId) }}
+          </span>
+          <span class="footer-item">
+            <mat-icon>calendar_today</mat-icon> {{ b.publishedAt | date:'mediumDate' }}
+          </span>
+          <span class="footer-item expires" *ngIf="b.expiresAt">
+            <mat-icon>schedule</mat-icon> Expires {{ b.expiresAt | date:'mediumDate' }}
+          </span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Empty State -->
     <div class="empty-state" *ngIf="filtered.length === 0">
-      <mat-icon>inbox</mat-icon>
-      <p>No bulletins to show</p>
+      <div class="empty-icon">
+        <mat-icon>inbox</mat-icon>
+      </div>
+      <h3>No bulletins</h3>
+      <p>
+        {{ activeFilter === 'unread' ? 'All caught up — no unread bulletins.' :
+           activeFilter === 'urgent' ? 'No urgent bulletins right now.' :
+           'No bulletins yet. Create the first one.' }}
+      </p>
     </div>
   </div>
 </div>

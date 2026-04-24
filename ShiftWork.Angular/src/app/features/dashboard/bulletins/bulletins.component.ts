@@ -8,6 +8,8 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { BulletinService } from 'src/app/core/services/bulletin.service';
 import { Bulletin, CreateBulletinDto } from 'src/app/core/models/bulletin.model';
+import { LocationService } from 'src/app/core/services/location.service';
+import { Location } from 'src/app/core/models/location.model';
 
 @Component({
   selector: 'app-bulletins',
@@ -21,6 +23,7 @@ export class BulletinsComponent implements OnInit, OnDestroy {
 
   bulletins: Bulletin[] = [];
   filtered: Bulletin[] = [];
+  locations: Location[] = [];
   loading = false;
   showForm = false;
   activeFilter: 'all' | 'unread' | 'urgent' = 'all';
@@ -35,6 +38,7 @@ export class BulletinsComponent implements OnInit, OnDestroy {
 
   constructor(
     private bulletinService: BulletinService,
+    private locationService: LocationService,
     private fb: FormBuilder,
     private toastr: ToastrService,
     private store: Store<AppState>
@@ -57,10 +61,22 @@ export class BulletinsComponent implements OnInit, OnDestroy {
       filter(c => !!c),
       switchMap(company => {
         this.activeCompany = company;
+        this.loadLocations();
         return this.load();
       }),
       takeUntil(this.destroy$)
     ).subscribe();
+  }
+
+  loadLocations(): void {
+    this.locationService.getLocations(this.activeCompany.companyId).subscribe({
+      next: locations => {
+        this.locations = locations.filter(l => l.status?.toLowerCase() !== 'inactive');
+      },
+      error: () => {
+        this.locations = [];
+      }
+    });
   }
 
   load(): Observable<Bulletin[]> {
@@ -145,6 +161,11 @@ export class BulletinsComponent implements OnInit, OnDestroy {
 
   unreadCount(): number {
     return this.bulletins.filter(b => !b.isReadByCurrentUser && b.status === 'Published').length;
+  }
+
+  locationName(locationId?: number): string {
+    if (!locationId) return 'All locations';
+    return this.locations.find(l => l.locationId === locationId)?.name ?? `Location #${locationId}`;
   }
 
   ngOnDestroy(): void {

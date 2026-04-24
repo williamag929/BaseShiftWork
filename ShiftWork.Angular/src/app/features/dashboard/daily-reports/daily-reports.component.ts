@@ -177,8 +177,26 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
 
   weatherDesc(): string {
     const w = this.report?.weatherData as any;
-    if (!w) return 'No weather data';
-    return `${w.description ?? ''} ${w.temperature != null ? Math.round(w.temperature) + '°' : ''}`.trim();
+    if (!w) return 'No data';
+    return w.description ?? 'No data';
+  }
+
+  weatherTemp(): string {
+    const w = this.report?.weatherData as any;
+    if (!w || w.temperature == null) return '--';
+    return `${Math.round(w.temperature)}°`;
+  }
+
+  weatherIcon(): string {
+    const w = this.report?.weatherData as any;
+    if (!w) return 'wb_sunny';
+    const desc: string = (w.description ?? '').toLowerCase();
+    if (desc.includes('rain') || desc.includes('drizzle')) return 'umbrella';
+    if (desc.includes('cloud')) return 'cloud';
+    if (desc.includes('snow')) return 'ac_unit';
+    if (desc.includes('thunder') || desc.includes('storm')) return 'thunderstorm';
+    if (desc.includes('fog') || desc.includes('mist')) return 'foggy';
+    return 'wb_sunny';
   }
 
   private todayStr(): string {

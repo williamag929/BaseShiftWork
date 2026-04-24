@@ -8,6 +8,8 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { SafetyService } from 'src/app/core/services/safety.service';
 import { SafetyContent, AcknowledgmentStatus, CreateSafetyContentDto } from 'src/app/core/models/safety.model';
+import { LocationService } from 'src/app/core/services/location.service';
+import { Location } from 'src/app/core/models/location.model';
 
 @Component({
   selector: 'app-safety',
@@ -21,6 +23,7 @@ export class SafetyComponent implements OnInit, OnDestroy {
 
   contents: SafetyContent[] = [];
   pending: SafetyContent[] = [];
+  locations: Location[] = [];
   activeTab: 'all' | 'pending' = 'all';
   loading = false;
   showForm = false;
@@ -37,6 +40,7 @@ export class SafetyComponent implements OnInit, OnDestroy {
 
   constructor(
     private safetyService: SafetyService,
+    private locationService: LocationService,
     private fb: FormBuilder,
     private toastr: ToastrService,
     private store: Store<AppState>
@@ -60,10 +64,22 @@ export class SafetyComponent implements OnInit, OnDestroy {
       filter(c => !!c),
       switchMap(company => {
         this.activeCompany = company;
+        this.loadLocations();
         return this.load();
       }),
       takeUntil(this.destroy$)
     ).subscribe();
+  }
+
+  loadLocations(): void {
+    this.locationService.getLocations(this.activeCompany.companyId).subscribe({
+      next: locations => {
+        this.locations = locations.filter(l => l.status?.toLowerCase() !== 'inactive');
+      },
+      error: () => {
+        this.locations = [];
+      }
+    });
   }
 
   load(): Observable<SafetyContent[]> {
@@ -146,6 +162,11 @@ export class SafetyComponent implements OnInit, OnDestroy {
 
   completionPct(status: AcknowledgmentStatus): number {
     return Math.round(status.completionRate * 100);
+  }
+
+  locationName(locationId?: number): string {
+    if (!locationId) return 'All locations';
+    return this.locations.find(l => l.locationId === locationId)?.name ?? `Location #${locationId}`;
   }
 
   ngOnDestroy(): void {
