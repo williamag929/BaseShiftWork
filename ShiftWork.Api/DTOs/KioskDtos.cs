@@ -1,8 +1,58 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace ShiftWork.Api.DTOs
 {
+    /// <summary>
+    /// Question record returned to both kiosk devices and the mobile app.
+    /// </summary>
+    public class KioskQuestionDto
+    {
+        public int QuestionId { get; set; }
+        public int CompanyId { get; set; }
+        public string QuestionText { get; set; } = string.Empty;
+        /// <summary>"text" | "yes_no" | "multiple_choice"</summary>
+        public string QuestionType { get; set; } = "yes_no";
+        /// <summary>Parsed list of options; populated only for multiple_choice questions.</summary>
+        public List<string>? Options { get; set; }
+        public bool IsRequired { get; set; }
+        public bool IsActive { get; set; }
+        public int DisplayOrder { get; set; }
+    }
+
+    /// <summary>
+    /// Input DTO for creating a new kiosk question (manager-facing).
+    /// </summary>
+    public class CreateKioskQuestionDto
+    {
+        [Required, MaxLength(500)]
+        public string QuestionText { get; set; } = string.Empty;
+        /// <summary>"text" | "yes_no" | "multiple_choice"</summary>
+        [Required]
+        public string QuestionType { get; set; } = "yes_no";
+        /// <summary>Required when QuestionType is "multiple_choice".</summary>
+        public List<string>? Options { get; set; }
+        public bool IsRequired { get; set; } = false;
+        public bool IsActive { get; set; } = true;
+        public int DisplayOrder { get; set; } = 0;
+    }
+
+    /// <summary>
+    /// Input DTO for updating an existing kiosk question (manager-facing).
+    /// </summary>
+    public class UpdateKioskQuestionDto
+    {
+        [Required, MaxLength(500)]
+        public string QuestionText { get; set; } = string.Empty;
+        [Required]
+        public string QuestionType { get; set; } = "yes_no";
+        public List<string>? Options { get; set; }
+        public bool IsRequired { get; set; }
+        public bool IsActive { get; set; }
+        public int DisplayOrder { get; set; }
+    }
+
     /// <summary>
     /// Lightweight employee record returned to a kiosk device (no PII beyond name/photo).
     /// </summary>

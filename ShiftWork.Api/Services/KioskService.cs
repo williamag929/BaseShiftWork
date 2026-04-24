@@ -5,6 +5,7 @@ using ShiftWork.Api.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ShiftWork.Api.Services
@@ -18,11 +19,36 @@ namespace ShiftWork.Api.Services
             _context = context;
         }
 
-        public async Task<List<KioskQuestion>> GetActiveQuestionsAsync(int companyId)
+        // ── Helpers ──────────────────────────────────────────────────────────────
+
+        private static KioskQuestionDto ToDto(KioskQuestion q) => new()
         {
-            return await _context.KioskQuestions
+            QuestionId    = q.KioskQuestionId,
+            CompanyId     = q.CompanyId,
+            QuestionText  = q.QuestionText,
+            QuestionType  = q.QuestionType,
+            Options       = string.IsNullOrWhiteSpace(q.OptionsJson)
+                                ? null
+                                : JsonSerializer.Deserialize<List<string>>(q.OptionsJson),
+            IsRequired    = q.IsRequired,
+            IsActive      = q.IsActive,
+            DisplayOrder  = q.DisplayOrder,
+        };
+
+        private static string? SerializeOptions(List<string>? options) =>
+            (options == null || options.Count == 0)
+                ? null
+                : JsonSerializer.Serialize(options);
+
+        // ── Public endpoints ─────────────────────────────────────────────────────
+
+        public async Task<List<KioskQuestionDto>> GetActiveQuestionsAsync(int companyId)
+        {
+            var questions = await _context.KioskQuestions
                 .Where(q => q.CompanyId == companyId && q.IsActive)
+                .OrderBy(q => q.DisplayOrder)
                 .ToListAsync();
+            return questions.Select(ToDto).ToList();
         }
 
         public async Task PostAnswersAsync(List<KioskAnswer> answers)
@@ -48,7 +74,6 @@ namespace ShiftWork.Api.Services
 
         public async Task<KioskClockResponse> ClockFromKioskAsync(string companyId, KioskClockRequest request)
         {
-            // Validate person belongs to this company
             var person = await _context.Persons
                 .FirstOrDefaultAsync(p => p.PersonId == request.PersonId && p.CompanyId == companyId);
             if (person == null)
@@ -91,6 +116,69 @@ namespace ShiftWork.Api.Services
                 EventDate = eventDate,
                 PersonName = person.Name,
             };
+        }
+
+        // ── Management CRUD ───────────────────────────────────────────────────────
+
+        public async Task<List<KioskQuestionDto>> GetAllQuestionsAsync(int companyId)
+        {
+            var questions = await _context.KioskQuestions
+                .Where(q => q.CompanyId == companyId)
+                .OrderBy(q => q.DisplayOrder)
+                .ToListAsync();
+            return questions.Select(ToDto).ToList();
+        }
+
+        public async Task<KioskQuestionDto> GetQuestionAsync(int companyId, int questionId)
+        {
+            var q = await _context.KioskQuestions
+                .FirstOrDefaultAsync(q => q.KioskQuestionId == questionId && q.CompanyId == companyId)
+                ?? throw new KeyNotFoundException($"Question {questionId} not found.");
+            return ToDto(q);
+        }
+
+        public async Task<KioskQuestionDto> CreateQuestionAsync(int companyId, CreateKioskQuestionDto dto)
+        {
+            var question = new KioskQuestion
+            {
+                CompanyId    = companyId,
+                QuestionText = dto.QuestionText,
+                QuestionType = dto.QuestionType,
+                OptionsJson  = SerializeOptions(dto.Options),
+                IsRequired   = dto.IsRequired,
+                IsActive     = dto.IsActive,
+                DisplayOrder = dto.DisplayOrder,
+            };
+            _context.KioskQuestions.Add(question);
+            await _context.SaveChangesAsync();
+            return ToDto(question);
+        }
+
+        public async Task<KioskQuestionDto> UpdateQuestionAsync(int companyId, int questionId, UpdateKioskQuestionDto dto)
+        {
+            var question = await _context.KioskQuestions
+                .FirstOrDefaultAsync(q => q.KioskQuestionId == questionId && q.CompanyId == companyId)
+                ?? throw new KeyNotFoundException($"Question {questionId} not found.");
+
+            question.QuestionText = dto.QuestionText;
+            question.QuestionType = dto.QuestionType;
+            question.OptionsJson  = SerializeOptions(dto.Options);
+            question.IsRequired   = dto.IsRequired;
+            question.IsActive     = dto.IsActive;
+            question.DisplayOrder = dto.DisplayOrder;
+
+            await _context.SaveChangesAsync();
+            return ToDto(question);
+        }
+
+        public async Task DeleteQuestionAsync(int companyId, int questionId)
+        {
+            var question = await _context.KioskQuestions
+                .FirstOrDefaultAsync(q => q.KioskQuestionId == questionId && q.CompanyId == companyId)
+                ?? throw new KeyNotFoundException($"Question {questionId} not found.");
+
+            _context.KioskQuestions.Remove(question);
+            await _context.SaveChangesAsync();
         }
     }
 }

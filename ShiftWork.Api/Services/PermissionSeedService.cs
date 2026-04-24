@@ -160,6 +160,7 @@ namespace ShiftWork.Api.Services
 
                 // Kiosk
                 Create("kiosk.admin", "Kiosk - Admin", "Access kiosk admin-only endpoints"),
+                Create("kiosk.questions.manage", "Kiosk - Questions Manage", "Create, edit and delete kiosk survey questions"),
 
                 // v2 Bulletins
                 Create("bulletins.create",      "Bulletins - Create",      "Create and edit bulletins"),
