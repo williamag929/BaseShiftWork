@@ -26,13 +26,17 @@ export default function BulletinsScreen() {
   const [bulletins, setBulletins] = useState<Bulletin[]>([]);
   const [loading, setLoading]     = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError]         = useState<string | null>(null);
   const [filter, setFilter]       = useState<'all' | 'unread' | 'urgent'>('all');
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
+    setError(null);
     try {
       const data = await bulletinService.getBulletins(companyId);
       setBulletins(data.filter(b => b.status !== 'Archived'));
+    } catch {
+      setError('Could not load bulletins. Check your connection and try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -116,10 +120,21 @@ export default function BulletinsScreen() {
         ))}
       </View>
 
+      {/* Error */}
+      {error && !loading && (
+        <View style={styles.errorCard}>
+          <Ionicons name="wifi-outline" size={28} color="#FF3B30" />
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryBtn} onPress={() => load()}>
+            <Text style={styles.retryText}>Try Again</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* List */}
       {loading ? (
         <View style={styles.centered}><ActivityIndicator color={colors.primary} /></View>
-      ) : (
+      ) : !error && (
         <FlatList
           data={filtered}
           keyExtractor={b => b.bulletinId}
@@ -134,6 +149,7 @@ export default function BulletinsScreen() {
   );
 }
 
+
 const styles = StyleSheet.create({
   container:       { flex: 1, backgroundColor: colors.background },
   header:          { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.md, paddingBottom: 8, gap: 8 },
@@ -146,6 +162,10 @@ const styles = StyleSheet.create({
   pillText:        { fontSize: 13, color: colors.text, fontWeight: '500' },
   pillTextActive:  { color: '#fff' },
   centered:        { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  errorCard:       { margin: spacing.md, padding: spacing.lg, backgroundColor: '#FFF1F0', borderRadius: 12, alignItems: 'center', gap: 10 },
+  errorText:       { fontSize: 14, color: '#FF3B30', textAlign: 'center', lineHeight: 20 },
+  retryBtn:        { marginTop: 4, paddingHorizontal: 20, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: '#FF3B30' },
+  retryText:       { fontSize: 14, color: '#FF3B30', fontWeight: '600' },
   card:            { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: radius.lg ?? 12, overflow: 'hidden', minHeight: 80 },
   cardUnread:      { backgroundColor: '#EBF3FF' },
   cardLeft:        { width: 4 },

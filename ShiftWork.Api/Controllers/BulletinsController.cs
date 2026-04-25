@@ -29,20 +29,31 @@ namespace ShiftWork.Api.Controllers
 
         [HttpGet]
         [Authorize(Policy = "bulletins.read")]
-        public async Task<ActionResult<IEnumerable<BulletinDto>>> GetBulletins(
+        public async Task<ActionResult<PagedResultDto<BulletinDto>>> GetBulletins(
             string companyId,
             [FromQuery] int? locationId = null,
             [FromQuery] string? type = null,
-            [FromQuery] string? status = null)
+            [FromQuery] string? status = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 25)
         {
             try
             {
+                pageSize = Math.Clamp(pageSize, 1, 100);
                 var personId = GetPersonId();
                 var bulletins = await _bulletins.GetBulletinsAsync(companyId, personId, locationId, type, status);
+                var totalCount = bulletins.Count;
                 var readIds = await _bulletins.GetUnreadAsync(companyId, personId);
                 var unreadSet = readIds.Select(b => b.BulletinId).ToHashSet();
+                var paged = bulletins.Skip((page - 1) * pageSize).Take(pageSize);
 
-                return Ok(bulletins.Select(b => ToDto(b, !unreadSet.Contains(b.BulletinId))));
+                return Ok(new PagedResultDto<BulletinDto>
+                {
+                    Items = paged.Select(b => ToDto(b, !unreadSet.Contains(b.BulletinId))),
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {

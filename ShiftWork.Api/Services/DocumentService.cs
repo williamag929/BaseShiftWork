@@ -97,6 +97,7 @@ namespace ShiftWork.Api.Services
                     ReadAt = DateTime.UtcNow
                 });
                 await _context.SaveChangesAsync();
+                _logger.LogInformation("Document {DocumentId} opened by Person {PersonId} at Company {CompanyId}", documentId, requestingPersonId, companyId);
             }
 
             return (doc, presignedUrl);
@@ -115,6 +116,8 @@ namespace ShiftWork.Api.Services
             _context.Documents.Add(document);
             await _context.SaveChangesAsync();
 
+            _logger.LogInformation("Document upload initiated: '{Title}' ({DocumentId}) type={Type} at Company {CompanyId}", document.Title, document.DocumentId, document.Type, companyId);
+
             var presignedUrl = GeneratePresignedPutUrl(s3Key, document.MimeType);
 
             return new InitiateUploadResult(document.DocumentId, presignedUrl, s3Key);
@@ -130,6 +133,8 @@ namespace ShiftWork.Api.Services
             doc.Status = "Active";
             doc.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Document {DocumentId} confirmed active at Company {CompanyId}", documentId, companyId);
             return doc;
         }
 
@@ -164,6 +169,8 @@ namespace ShiftWork.Api.Services
             doc.Status = "Archived";
             doc.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Document {DocumentId} archived at Company {CompanyId}", documentId, companyId);
             return true;
         }
 

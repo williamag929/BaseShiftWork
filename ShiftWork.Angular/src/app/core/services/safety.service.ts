@@ -10,6 +10,7 @@ import {
   UpdateSafetyContentDto,
   AcknowledgeDto
 } from '../models/safety.model';
+import { PagedResult } from '../models/paged-result.model';
 
 @Injectable({
   providedIn: 'root'
@@ -32,15 +33,19 @@ export class SafetyService {
     companyId: string,
     locationId?: number,
     type?: string,
-    status?: string
-  ): Observable<SafetyContent[]> {
-    let params = new HttpParams();
+    status?: string,
+    page = 1,
+    pageSize = 25
+  ): Observable<PagedResult<SafetyContent>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
     if (locationId != null) params = params.set('locationId', locationId.toString());
     if (type)               params = params.set('type', type);
     if (status)             params = params.set('status', status);
 
     return this.http
-      .get<SafetyContent[]>(this.base(companyId), { params })
+      .get<PagedResult<SafetyContent>>(this.base(companyId), { params })
       .pipe(catchError(this.handleError));
   }
 

@@ -8,8 +8,10 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { DocumentService } from 'src/app/core/services/document.service';
 import { Document, UpdateDocumentDto } from 'src/app/core/models/document.model';
+import { PagedResult } from 'src/app/core/models/paged-result.model';
 import { LocationService } from 'src/app/core/services/location.service';
 import { Location } from 'src/app/core/models/location.model';
+import { PermissionService } from 'src/app/core/services/permission.service';
 
 @Component({
   selector: 'app-documents',
@@ -23,6 +25,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 
   documents: Document[] = [];
   loading = false;
+  errorMessage: string | null = null;
   showUpload = false;
   uploading = false;
   searchText = '';
@@ -31,6 +34,10 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   selectedFile: File | null = null;
   locations: Location[] = [];
 
+  totalCount = 0;
+  page = 1;
+  pageSize = 25;
+
   uploadForm!: FormGroup;
 
   readonly docTypes = ['Manual', 'Procedure', 'SafetyDataSheet', 'ProductInfo', 'FloorPlan', 'Policy', 'Other'];
@@ -38,12 +45,16 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  get canUpload(): boolean { return this.permissionService.hasPermission('documents.upload'); }
+  get canArchive(): boolean { return this.permissionService.hasPermission('documents.archive'); }
+
   constructor(
     private documentService: DocumentService,
     private locationService: LocationService,
     private fb: FormBuilder,
     private toastr: ToastrService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private permissionService: PermissionService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
@@ -91,19 +102,32 @@ export class DocumentsComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadDocs(): Observable<Document[]> {
+  loadDocs(): Observable<PagedResult<Document>> {
     this.loading = true;
+    this.errorMessage = null;
     const obs = this.documentService.getDocuments(
       this.activeCompany.companyId,
       this.locationFilter ?? undefined,
       this.typeFilter || undefined,
-      this.searchText || undefined
+      this.searchText || undefined,
+      this.page,
+      this.pageSize
     );
     obs.subscribe({
-      next: docs => { this.documents = docs; this.loading = false; },
-      error: () => { this.toastr.error('Failed to load documents'); this.loading = false; }
+      next: result => { this.documents = result.items; this.totalCount = result.totalCount; this.loading = false; },
+      error: () => { this.errorMessage = 'Failed to load documents. Check your connection and try again.'; this.loading = false; }
     });
     return obs;
+  }
+
+  onPageChange(event: { pageIndex: number; pageSize: number }): void {
+    this.page = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.loadDocs();
+  }
+
+  retry(): void {
+    this.loadDocs();
   }
 
   locationName(locationId?: number): string {
@@ -112,6 +136,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   }
 
   onSearch(): void {
+    this.page = 1;
     this.loadDocs();
   }
 

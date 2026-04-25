@@ -98,6 +98,8 @@ namespace ShiftWork.Api.Services
             _context.Bulletins.Add(bulletin);
             await _context.SaveChangesAsync();
 
+            _logger.LogInformation("Bulletin {BulletinId} ({Type}/{Priority}) created at Company {CompanyId}", bulletin.BulletinId, bulletin.Type, bulletin.Priority, companyId);
+
             if (bulletin.Status == "Published")
                 await SendBulletinPushAsync(bulletin);
 
@@ -141,6 +143,8 @@ namespace ShiftWork.Api.Services
             bulletin.Status = "Archived";
             bulletin.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Bulletin {BulletinId} archived at Company {CompanyId}", bulletinId, companyId);
             return true;
         }
 
@@ -159,6 +163,7 @@ namespace ShiftWork.Api.Services
             });
 
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Bulletin {BulletinId} marked read by Person {PersonId}", bulletinId, personId);
         }
 
         public async Task<List<BulletinRead>> GetReadsAsync(Guid bulletinId, string companyId)

@@ -9,6 +9,7 @@ import { DailyReportService } from 'src/app/core/services/daily-report.service';
 import { LocationService } from 'src/app/core/services/location.service';
 import { DailyReport } from 'src/app/core/models/daily-report.model';
 import { Location } from 'src/app/core/models/location.model';
+import { PermissionService } from 'src/app/core/services/permission.service';
 
 @Component({
   selector: 'app-daily-reports',
@@ -28,14 +29,18 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
   notes: string = '';
   loading = false;
   saving = false;
+  errorMessage: string | null = null;
 
   private destroy$ = new Subject<void>();
+
+  get canApprove(): boolean { return this.permissionService.hasPermission('reports.approve'); }
 
   constructor(
     private reportService: DailyReportService,
     private locationService: LocationService,
     private toastr: ToastrService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private permissionService: PermissionService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
@@ -63,6 +68,7 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
   loadReport(): void {
     if (!this.selectedLocationId) return;
     this.loading = true;
+    this.errorMessage = null;
     this.reportService.getReport(this.activeCompany.companyId, this.selectedLocationId, this.selectedDate).subscribe({
       next: report => {
         this.report = report;
@@ -70,10 +76,14 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
         this.loading = false;
       },
       error: () => {
-        this.toastr.error('Failed to load report');
+        this.errorMessage = 'Failed to load report. Check your connection and try again.';
         this.loading = false;
       }
     });
+  }
+
+  retry(): void {
+    this.loadReport();
   }
 
   onLocationChange(): void {

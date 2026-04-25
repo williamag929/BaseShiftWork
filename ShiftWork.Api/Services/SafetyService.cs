@@ -83,6 +83,8 @@ namespace ShiftWork.Api.Services
             _context.SafetyContents.Add(content);
             await _context.SaveChangesAsync();
 
+            _logger.LogInformation("SafetyContent {SafetyContentId} ({Type}) created at Company {CompanyId} requiresAck={RequiresAck}", content.SafetyContentId, content.Type, companyId, content.IsAcknowledgmentRequired);
+
             // Send immediately if Published and no scheduled time
             if (content.Status == "Published" && content.ScheduledFor == null)
                 await SendSafetyPushAsync(content);
@@ -131,6 +133,8 @@ namespace ShiftWork.Api.Services
             content.Status = "Archived";
             content.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation("SafetyContent {SafetyContentId} archived at Company {CompanyId}", safetyContentId, companyId);
             return true;
         }
 
@@ -155,6 +159,7 @@ namespace ShiftWork.Api.Services
             });
 
             await _context.SaveChangesAsync();
+            _logger.LogInformation("SafetyContent {SafetyContentId} acknowledged by Person {PersonId} at Company {CompanyId}", safetyContentId, personId, companyId);
             return true;
         }
 

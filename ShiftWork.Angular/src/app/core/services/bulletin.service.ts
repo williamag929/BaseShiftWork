@@ -4,7 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Bulletin, BulletinRead, CreateBulletinDto, UpdateBulletinDto } from '../models/bulletin.model';
-
+import { PagedResult } from '../models/paged-result.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -22,15 +22,19 @@ export class BulletinService {
     companyId: string,
     locationId?: number,
     type?: string,
-    status?: string
-  ): Observable<Bulletin[]> {
-    let params = new HttpParams();
+    status?: string,
+    page = 1,
+    pageSize = 25
+  ): Observable<PagedResult<Bulletin>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
     if (locationId != null) params = params.set('locationId', locationId.toString());
     if (type)               params = params.set('type', type);
     if (status)             params = params.set('status', status);
 
     return this.http
-      .get<Bulletin[]>(`${this.apiUrl}/companies/${companyId}/bulletins`, { params })
+      .get<PagedResult<Bulletin>>(`${this.apiUrl}/companies/${companyId}/bulletins`, { params })
       .pipe(catchError(this.handleError));
   }
 

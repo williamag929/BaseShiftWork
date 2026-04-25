@@ -1,5 +1,21 @@
 :host { display: block; }
 
+/* ── Error Banner ────────────────────────────────────── */
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  color: #dc2626;
+  font-size: 0.9rem;
+}
+.error-banner mat-icon { flex-shrink: 0; }
+.error-banner span { flex: 1; }
+
 /* ── Layout ─────────────────────────────────────────── */
 .page-container {
   padding: 2rem;

@@ -11,13 +11,13 @@
         <p class="page-subtitle">Manuals, procedures, SDS sheets, and policies</p>
       </div>
     </div>
-    <button mat-flat-button color="primary" class="cta-btn" (click)="showUpload = !showUpload">
+    <button mat-flat-button color="primary" class="cta-btn" *ngIf="canUpload" (click)="showUpload = !showUpload">
       <mat-icon>upload_file</mat-icon> Upload
     </button>
   </div>
 
   <!-- Upload Form -->
-  <div class="form-panel" *ngIf="showUpload">
+  <div class="form-panel" *ngIf="showUpload && canUpload">
     <div class="form-panel-header">
       <h2>Upload Document</h2>
       <button mat-icon-button (click)="showUpload = false"><mat-icon>close</mat-icon></button>
@@ -105,6 +105,13 @@
     </mat-form-field>
   </div>
 
+  <!-- Error Banner -->
+  <div class="error-banner" *ngIf="errorMessage && !loading">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+    <button mat-stroked-button (click)="retry()">Retry</button>
+  </div>
+
   <!-- Loading -->
   <div class="loading-state" *ngIf="loading">
     <mat-spinner diameter="40"></mat-spinner>
@@ -147,7 +154,7 @@
         <button mat-icon-button matTooltip="Open document" (click)="openDocument(d)">
           <mat-icon>open_in_new</mat-icon>
         </button>
-        <button mat-icon-button color="warn" matTooltip="Archive" (click)="archive(d, $event)">
+        <button mat-icon-button color="warn" *ngIf="canArchive" matTooltip="Archive" (click)="archive(d, $event)">
           <mat-icon>archive</mat-icon>
         </button>
       </div>
@@ -162,4 +169,15 @@
     <h3>No documents found</h3>
     <p>{{ searchText || typeFilter ? 'Try adjusting your search filters.' : 'Upload the first document to get started.' }}</p>
   </div>
+
+  <!-- Paginator -->
+  <mat-paginator
+    *ngIf="!loading && totalCount > pageSize"
+    [length]="totalCount"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[10, 25, 50]"
+    [pageIndex]="page - 1"
+    (page)="onPageChange($event)"
+    showFirstLastButtons>
+  </mat-paginator>
 </div>

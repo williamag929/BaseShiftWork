@@ -32,6 +32,7 @@ export default function DailyReportScreen() {
   const [notes, setNotes]               = useState('');
   const [uploading, setUploading]       = useState(false);
   const [noAccess, setNoAccess]         = useState(false);
+  const [loadError, setLoadError]       = useState<string | null>(null);
 
   // Note attachment modal
   const [noteModalOpen, setNoteModalOpen] = useState(false);
@@ -53,12 +54,14 @@ export default function DailyReportScreen() {
     if (!locationId) return;
     setLoading(true);
     setNoAccess(false);
+    setLoadError(null);
     try {
       const r = await dailyReportService.getReport(companyId, locationId, today);
       setReport(r);
       setNotes(r.notes ?? '');
     } catch (err: any) {
       if (err?.statusCode === 403) setNoAccess(true);
+      else setLoadError('Could not load the daily report. Check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -202,6 +205,14 @@ export default function DailyReportScreen() {
         <View style={styles.centered}>
           <Ionicons name="lock-closed-outline" size={48} color={colors.muted} />
           <Text style={styles.emptyText}>You don't have access to daily reports.</Text>
+        </View>
+      ) : loadError ? (
+        <View style={styles.errorCard}>
+          <Ionicons name="wifi-outline" size={28} color="#FF3B30" />
+          <Text style={styles.errorText}>{loadError}</Text>
+          <TouchableOpacity style={styles.retryBtn} onPress={loadReport}>
+            <Text style={styles.retryText}>Try Again</Text>
+          </TouchableOpacity>
         </View>
       ) : !report ? (
         <View style={styles.centered}>
@@ -377,6 +388,10 @@ export default function DailyReportScreen() {
 const styles = StyleSheet.create({
   container:              { flex: 1, backgroundColor: colors.background },
   centered:               { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
+  errorCard:              { margin: spacing.md, padding: spacing.lg, backgroundColor: '#FFF1F0', borderRadius: 12, alignItems: 'center', gap: 10 },
+  errorText:              { fontSize: 14, color: '#FF3B30', textAlign: 'center', lineHeight: 20 },
+  retryBtn:               { marginTop: 4, paddingHorizontal: 20, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: '#FF3B30' },
+  retryText:              { fontSize: 14, color: '#FF3B30', fontWeight: '600' },
   header:                 { paddingHorizontal: spacing.md, paddingBottom: 8 },
   headerTitle:            { fontSize: 28, fontWeight: '700', color: colors.text, letterSpacing: -0.5 },
   headerDate:             { fontSize: 14, color: colors.muted, marginTop: 2 },

@@ -118,6 +118,16 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="documents"
+        options={{
+          title: 'Docs',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="folder-outline" filled="folder" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="bulletins"
         options={{
           title: 'Bulletins',

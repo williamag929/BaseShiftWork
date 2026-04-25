@@ -12,13 +12,13 @@
       </div>
       <span class="badge badge-blue" *ngIf="unreadCount() > 0">{{ unreadCount() }} unread</span>
     </div>
-    <button mat-flat-button color="primary" class="cta-btn" (click)="showForm = !showForm">
+    <button mat-flat-button color="primary" class="cta-btn" *ngIf="canCreate" (click)="showForm = !showForm">
       <mat-icon>add</mat-icon> New Bulletin
     </button>
   </div>
 
   <!-- Create Form -->
-  <div class="form-panel" *ngIf="showForm">
+  <div class="form-panel" *ngIf="showForm && canCreate">
     <div class="form-panel-header">
       <h2>New Bulletin</h2>
       <button mat-icon-button (click)="showForm = false"><mat-icon>close</mat-icon></button>
@@ -88,6 +88,13 @@
     </button>
   </div>
 
+  <!-- Error Banner -->
+  <div class="error-banner" *ngIf="errorMessage && !loading">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+    <button mat-stroked-button (click)="retry()">Retry</button>
+  </div>
+
   <!-- Loading -->
   <div class="loading-state" *ngIf="loading">
     <mat-spinner diameter="40"></mat-spinner>
@@ -118,7 +125,7 @@
             <span class="reads-counter" matTooltip="Total reads">
               <mat-icon>visibility</mat-icon> {{ b.totalReads }}
             </span>
-            <button mat-icon-button class="archive-btn" matTooltip="Archive" (click)="archive(b, $event)">
+            <button mat-icon-button class="archive-btn" *ngIf="canArchive" matTooltip="Archive" (click)="archive(b, $event)">
               <mat-icon>archive</mat-icon>
             </button>
           </div>
@@ -157,4 +164,15 @@
       </p>
     </div>
   </div>
+
+  <!-- Paginator -->
+  <mat-paginator
+    *ngIf="!loading && totalCount > pageSize"
+    [length]="totalCount"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[10, 25, 50]"
+    [pageIndex]="page - 1"
+    (page)="onPageChange($event)"
+    showFirstLastButtons>
+  </mat-paginator>
 </div>

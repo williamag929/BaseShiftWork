@@ -86,6 +86,8 @@ namespace ShiftWork.Api.Services
 
             _context.LocationDailyReports.Add(report);
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Daily report created for Location {LocationId} on {Date} at Company {CompanyId}", locationId, date, companyId);
             return report;
         }
 
@@ -119,6 +121,8 @@ namespace ShiftWork.Api.Services
             }
 
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Report {ReportId} status changed to {Status} by Person {PersonId} at Company {CompanyId}", reportId, status, submittedByPersonId, companyId);
             return report;
         }
 

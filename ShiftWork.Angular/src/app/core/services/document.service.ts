@@ -11,6 +11,7 @@ import {
   InitiateUploadResponse,
   UpdateDocumentDto
 } from '../models/document.model';
+import { PagedResult } from '../models/paged-result.model';
 
 @Injectable({
   providedIn: 'root'
@@ -33,15 +34,19 @@ export class DocumentService {
     companyId: string,
     locationId?: number,
     type?: string,
-    search?: string
-  ): Observable<Document[]> {
-    let params = new HttpParams();
+    search?: string,
+    page = 1,
+    pageSize = 25
+  ): Observable<PagedResult<Document>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
     if (locationId != null) params = params.set('locationId', locationId.toString());
     if (type)               params = params.set('type', type);
     if (search)             params = params.set('search', search);
 
     return this.http
-      .get<Document[]>(this.base(companyId), { params })
+      .get<PagedResult<Document>>(this.base(companyId), { params })
       .pipe(catchError(this.handleError));
   }
 

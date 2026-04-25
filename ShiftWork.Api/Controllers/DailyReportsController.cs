@@ -30,19 +30,31 @@ namespace ShiftWork.Api.Controllers
 
         [HttpGet]
         [Authorize(Policy = "reports.read")]
-        public async Task<ActionResult<IEnumerable<DailyReportDto>>> GetReports(
+        public async Task<ActionResult<PagedResultDto<DailyReportDto>>> GetReports(
             string companyId,
             int locationId,
             [FromQuery] string? startDate = null,
             [FromQuery] string? endDate = null,
-            [FromQuery] string? status = null)
+            [FromQuery] string? status = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 25)
         {
             try
             {
+                pageSize = Math.Clamp(pageSize, 1, 100);
                 var start = ParseDate(startDate);
                 var end   = ParseDate(endDate);
                 var reports = await _reports.GetReportsAsync(companyId, locationId, start, end, status);
-                return Ok(reports.Select(ToDto));
+                var totalCount = reports.Count;
+                var paged = reports.Skip((page - 1) * pageSize).Take(pageSize);
+
+                return Ok(new PagedResultDto<DailyReportDto>
+                {
+                    Items = paged.Select(ToDto),
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {

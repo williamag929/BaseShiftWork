@@ -35,13 +35,17 @@ export default function DocumentsScreen() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading]     = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError]         = useState<string | null>(null);
   const [search, setSearch]       = useState('');
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
+    setError(null);
     try {
       const data = await documentService.getDocuments(companyId, undefined, undefined, search || undefined);
       setDocuments(data);
+    } catch {
+      setError('Could not load documents. Check your connection and try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -109,10 +113,21 @@ export default function DocumentsScreen() {
         )}
       </View>
 
+      {/* Error */}
+      {error && !loading && (
+        <View style={styles.errorCard}>
+          <Ionicons name="wifi-outline" size={28} color="#FF3B30" />
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryBtn} onPress={() => load()}>
+            <Text style={styles.retryText}>Try Again</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* List */}
       {loading ? (
         <View style={styles.centered}><ActivityIndicator color={colors.primary} /></View>
-      ) : (
+      ) : !error && (
         <FlatList
           data={documents}
           keyExtractor={d => d.documentId}
@@ -135,6 +150,10 @@ const styles = StyleSheet.create({
   searchIcon:   { marginRight: 8 },
   searchInput:  { flex: 1, fontSize: 15, color: colors.text },
   centered:     { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  errorCard:    { margin: spacing.md, padding: spacing.lg, backgroundColor: '#FFF1F0', borderRadius: 12, alignItems: 'center', gap: 10 },
+  errorText:    { fontSize: 14, color: '#FF3B30', textAlign: 'center', lineHeight: 20 },
+  retryBtn:     { marginTop: 4, paddingHorizontal: 20, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: '#FF3B30' },
+  retryText:    { fontSize: 14, color: '#FF3B30', fontWeight: '600' },
   card:         { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: radius.lg ?? 12, padding: 14 },
   iconWrap:     { width: 44, height: 44, borderRadius: 10, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
   cardBody:     { flex: 1, gap: 4 },

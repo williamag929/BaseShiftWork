@@ -8,8 +8,10 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { SafetyService } from 'src/app/core/services/safety.service';
 import { SafetyContent, AcknowledgmentStatus, CreateSafetyContentDto } from 'src/app/core/models/safety.model';
+import { PagedResult } from 'src/app/core/models/paged-result.model';
 import { LocationService } from 'src/app/core/services/location.service';
 import { Location } from 'src/app/core/models/location.model';
+import { PermissionService } from 'src/app/core/services/permission.service';
 
 @Component({
   selector: 'app-safety',
@@ -26,7 +28,12 @@ export class SafetyComponent implements OnInit, OnDestroy {
   locations: Location[] = [];
   activeTab: 'all' | 'pending' = 'all';
   loading = false;
+  errorMessage: string | null = null;
   showForm = false;
+
+  totalCount = 0;
+  page = 1;
+  pageSize = 25;
 
   complianceMap = new Map<string, AcknowledgmentStatus>();
   expandedId: string | null = null;
@@ -38,12 +45,16 @@ export class SafetyComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  get canCreate(): boolean { return this.permissionService.hasPermission('safety.create'); }
+  get canArchive(): boolean { return this.permissionService.hasPermission('safety.delete'); }
+
   constructor(
     private safetyService: SafetyService,
     private locationService: LocationService,
     private fb: FormBuilder,
     private toastr: ToastrService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private permissionService: PermissionService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
@@ -82,21 +93,37 @@ export class SafetyComponent implements OnInit, OnDestroy {
     });
   }
 
-  load(): Observable<SafetyContent[]> {
+  load(): Observable<PagedResult<SafetyContent>> {
     this.loading = true;
-    const obs = this.safetyService.getContents(this.activeCompany.companyId);
+    this.errorMessage = null;
+    const obs = this.safetyService.getContents(
+      this.activeCompany.companyId,
+      undefined, undefined, undefined,
+      this.page, this.pageSize
+    );
     obs.subscribe({
-      next: contents => {
-        this.contents = contents;
-        this.pending = contents.filter(c => c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser && c.status === 'Published');
+      next: result => {
+        this.contents = result.items;
+        this.totalCount = result.totalCount;
+        this.pending = result.items.filter(c => c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser && c.status === 'Published');
         this.loading = false;
       },
       error: () => {
-        this.toastr.error('Failed to load safety content');
+        this.errorMessage = 'Failed to load safety content. Check your connection and try again.';
         this.loading = false;
       }
     });
     return obs;
+  }
+
+  onPageChange(event: { pageIndex: number; pageSize: number }): void {
+    this.page = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.load();
+  }
+
+  retry(): void {
+    this.load();
   }
 
   acknowledge(content: SafetyContent): void {

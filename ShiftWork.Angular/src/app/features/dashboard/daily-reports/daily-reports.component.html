@@ -48,6 +48,13 @@
     <p>Choose a location above to view its daily report.</p>
   </div>
 
+  <!-- Error Banner -->
+  <div class="error-banner" *ngIf="errorMessage && !loading">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+    <button mat-stroked-button (click)="retry()">Retry</button>
+  </div>
+
   <!-- Loading -->
   <div class="loading-state" *ngIf="loading">
     <mat-spinner diameter="40"></mat-spinner>
@@ -74,7 +81,7 @@
           [disabled]="saving || report.status === 'Submitted' || report.status === 'Approved'">
           Submit
         </button>
-        <button mat-flat-button color="primary" (click)="approveReport()"
+        <button mat-flat-button color="primary" *ngIf="canApprove" (click)="approveReport()"
           [disabled]="saving || report.status !== 'Submitted'">
           <mat-icon>check_circle</mat-icon> Approve
         </button>

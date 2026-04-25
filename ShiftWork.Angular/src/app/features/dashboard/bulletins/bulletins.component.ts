@@ -8,8 +8,10 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { BulletinService } from 'src/app/core/services/bulletin.service';
 import { Bulletin, CreateBulletinDto } from 'src/app/core/models/bulletin.model';
+import { PagedResult } from 'src/app/core/models/paged-result.model';
 import { LocationService } from 'src/app/core/services/location.service';
 import { Location } from 'src/app/core/models/location.model';
+import { PermissionService } from 'src/app/core/services/permission.service';
 
 @Component({
   selector: 'app-bulletins',
@@ -25,8 +27,13 @@ export class BulletinsComponent implements OnInit, OnDestroy {
   filtered: Bulletin[] = [];
   locations: Location[] = [];
   loading = false;
+  errorMessage: string | null = null;
   showForm = false;
   activeFilter: 'all' | 'unread' | 'urgent' = 'all';
+
+  totalCount = 0;
+  page = 1;
+  pageSize = 25;
 
   form!: FormGroup;
 
@@ -36,12 +43,16 @@ export class BulletinsComponent implements OnInit, OnDestroy {
   readonly priorities = ['Low', 'Normal', 'High', 'Critical'];
   readonly statuses = ['Draft', 'Published'];
 
+  get canCreate(): boolean { return this.permissionService.hasPermission('bulletins.create'); }
+  get canArchive(): boolean { return this.permissionService.hasPermission('bulletins.delete'); }
+
   constructor(
     private bulletinService: BulletinService,
     private locationService: LocationService,
     private fb: FormBuilder,
     private toastr: ToastrService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private permissionService: PermissionService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
@@ -79,21 +90,37 @@ export class BulletinsComponent implements OnInit, OnDestroy {
     });
   }
 
-  load(): Observable<Bulletin[]> {
+  load(): Observable<PagedResult<Bulletin>> {
     this.loading = true;
-    const obs = this.bulletinService.getBulletins(this.activeCompany.companyId);
+    this.errorMessage = null;
+    const obs = this.bulletinService.getBulletins(
+      this.activeCompany.companyId,
+      undefined, undefined, undefined,
+      this.page, this.pageSize
+    );
     obs.subscribe({
-      next: bulletins => {
-        this.bulletins = bulletins;
+      next: result => {
+        this.bulletins = result.items;
+        this.totalCount = result.totalCount;
         this.applyFilter();
         this.loading = false;
       },
       error: () => {
-        this.toastr.error('Failed to load bulletins');
+        this.errorMessage = 'Failed to load bulletins. Check your connection and try again.';
         this.loading = false;
       }
     });
     return obs;
+  }
+
+  onPageChange(event: { pageIndex: number; pageSize: number }): void {
+    this.page = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.load();
+  }
+
+  retry(): void {
+    this.load();
   }
 
   setFilter(f: 'all' | 'unread' | 'urgent'): void {

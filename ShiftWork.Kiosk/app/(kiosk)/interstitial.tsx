@@ -29,6 +29,7 @@ export default function InterstitialScreen() {
   const [items, setItems]     = useState<InterstitialItem[]>([]);
   const [index, setIndex]     = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [acting, setActing]   = useState(false);
 
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -60,7 +61,8 @@ export default function InterstitialScreen() {
           scheduleAuto();
         }
       } catch {
-        goHome();
+        setLoadError(true);
+        autoRef.current = setTimeout(goHome, 5_000);
       } finally {
         setLoading(false);
       }
@@ -112,6 +114,21 @@ export default function InterstitialScreen() {
       <SafeAreaView style={styles.safe}>
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.center}>
+          <Ionicons name="checkmark-circle-outline" size={72} color={colors.primary} />
+          <Text style={styles.fallbackTitle}>No messages</Text>
+          <Text style={styles.fallbackBody}>You're all set. Have a great shift!</Text>
+          <Pressable style={[styles.primaryBtn, { backgroundColor: colors.primary, marginTop: 32 }]} onPress={goHome}>
+            <Text style={styles.primaryBtnText}>Done</Text>
+          </Pressable>
         </View>
       </SafeAreaView>
     );
@@ -271,4 +288,6 @@ const styles = StyleSheet.create({
   primaryBtnText:  { color: '#fff', fontSize: 20, fontWeight: '700' },
   skipBtn:         { alignSelf: 'center', paddingVertical: spacing.lg, paddingBottom: spacing.xxl },
   skipText:        { fontSize: 16, color: colors.textMuted, letterSpacing: 0.2 },
+  fallbackTitle:   { fontSize: 28, fontWeight: '700', color: colors.text, marginTop: 20, textAlign: 'center' },
+  fallbackBody:    { fontSize: 17, color: colors.textSecondary, marginTop: 8, textAlign: 'center' },
 });

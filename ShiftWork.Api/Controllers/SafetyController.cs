@@ -29,17 +29,29 @@ namespace ShiftWork.Api.Controllers
 
         [HttpGet]
         [Authorize(Policy = "safety.read")]
-        public async Task<ActionResult<IEnumerable<SafetyContentDto>>> GetContents(
+        public async Task<ActionResult<PagedResultDto<SafetyContentDto>>> GetContents(
             string companyId,
             [FromQuery] int? locationId = null,
             [FromQuery] string? type = null,
-            [FromQuery] string? status = null)
+            [FromQuery] string? status = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 25)
         {
             try
             {
+                pageSize = Math.Clamp(pageSize, 1, 100);
                 var personId = GetPersonId();
                 var contents = await _safety.GetContentsAsync(companyId, locationId, type, status);
-                return Ok(contents.Select(c => ToDto(c, personId)));
+                var totalCount = contents.Count;
+                var paged = contents.Skip((page - 1) * pageSize).Take(pageSize);
+
+                return Ok(new PagedResultDto<SafetyContentDto>
+                {
+                    Items = paged.Select(c => ToDto(c, personId)),
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {

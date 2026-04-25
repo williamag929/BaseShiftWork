@@ -29,11 +29,13 @@ export default function SafetyScreen() {
   const [pending, setPending]     = useState<SafetyContent[]>([]);
   const [loading, setLoading]     = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError]         = useState<string | null>(null);
   const [tab, setTab]             = useState<'all' | 'pending'>('pending');
   const [acking, setAcking]       = useState<string | null>(null);
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
+    setError(null);
     try {
       const [all, pend] = await Promise.all([
         safetyService.getContents(companyId),
@@ -41,6 +43,8 @@ export default function SafetyScreen() {
       ]);
       setContents(all);
       setPending(pend);
+    } catch {
+      setError('Could not load safety content. Check your connection and try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -164,10 +168,21 @@ export default function SafetyScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Error */}
+      {error && !loading && (
+        <View style={styles.errorCard}>
+          <Ionicons name="wifi-outline" size={28} color="#FF3B30" />
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryBtn} onPress={() => load()}>
+            <Text style={styles.retryText}>Try Again</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* List */}
       {loading ? (
         <View style={styles.centered}><ActivityIndicator color={colors.primary} /></View>
-      ) : (
+      ) : !error && (
         <FlatList
           data={display}
           keyExtractor={c => c.safetyContentId}
@@ -200,6 +215,10 @@ const styles = StyleSheet.create({
   tabText:          { fontSize: 14, fontWeight: '500', color: colors.text },
   tabTextActive:    { color: '#fff' },
   centered:         { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  errorCard:        { margin: spacing.md, padding: spacing.lg, backgroundColor: '#FFF1F0', borderRadius: 12, alignItems: 'center', gap: 10 },
+  errorText:        { fontSize: 14, color: '#FF3B30', textAlign: 'center', lineHeight: 20 },
+  retryBtn:         { marginTop: 4, paddingHorizontal: 20, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: '#FF3B30' },
+  retryText:        { fontSize: 14, color: '#FF3B30', fontWeight: '600' },
   card:             { backgroundColor: colors.surface, borderRadius: radius.lg ?? 12, padding: 16, borderLeftWidth: 3, borderLeftColor: colors.border ?? '#E5E5EA' },
   cardAcked:        { borderLeftColor: '#34C759' },
   cardHeader:       { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 8 },
