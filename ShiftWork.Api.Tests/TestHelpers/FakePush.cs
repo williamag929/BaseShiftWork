@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.Services;
@@ -15,7 +16,9 @@ internal static class FakePush
     {
         var handler = new NullHttpMessageHandler();
         var factory = new SingletonHttpClientFactory(handler);
-        return new PushNotificationService(factory, context, NullLogger<PushNotificationService>.Instance);
+        var config = new ConfigurationBuilder().Build();
+        var notificationService = new NotificationService(config, NullLogger<NotificationService>.Instance);
+        return new PushNotificationService(factory, context, NullLogger<PushNotificationService>.Instance, notificationService);
     }
 
     private sealed class NullHttpMessageHandler : HttpMessageHandler
