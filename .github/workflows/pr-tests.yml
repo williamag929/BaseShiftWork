@@ -66,3 +66,47 @@ jobs:
           "(bulletins|documents|safety|daily-reports|bulletin\.service|document\.service|safety\.service|daily-report\.service)"
           && echo "v2 modules: no type errors" || true
         working-directory: ShiftWork.Angular
+
+  mobile-tests:
+    name: Mobile Jest Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ShiftWork.Mobile/package-lock.json
+
+      - name: Install
+        run: npm ci
+        working-directory: ShiftWork.Mobile
+
+      - name: Test
+        run: npm test -- --forceExit --passWithNoTests
+        working-directory: ShiftWork.Mobile
+
+  kiosk-tests:
+    name: Kiosk Jest Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ShiftWork.Kiosk/package-lock.json
+
+      - name: Install
+        run: npm ci
+        working-directory: ShiftWork.Kiosk
+
+      - name: Test
+        run: npm test -- --forceExit --passWithNoTests
+        working-directory: ShiftWork.Kiosk
