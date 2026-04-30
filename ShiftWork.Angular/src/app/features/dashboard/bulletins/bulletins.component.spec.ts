@@ -11,9 +11,13 @@ import { PermissionService } from 'src/app/core/services/permission.service';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { PagedResult } from 'src/app/core/models/paged-result.model';
 import { Bulletin } from 'src/app/core/models/bulletin.model';
+import { Company } from 'src/app/core/models/company.model';
 import { SharedModule } from 'src/app/shared/shared.module';
 
-const MOCK_COMPANY = { companyId: 'co-test', name: 'Test Co' };
+const MOCK_COMPANY: Company = {
+  companyId: 'co-test', name: 'Test Co', address: '1 Main St',
+  phoneNumber: '555-0000', email: 'test@test.com', website: 'https://test.com', timeZone: 'UTC'
+};
 
 function pagedResult(items: Bulletin[]): PagedResult<Bulletin> {
   return { items, totalCount: items.length, page: 1, pageSize: 25 };
@@ -58,7 +62,7 @@ describe('BulletinsComponent', () => {
 
   it('sets loading=false and populates bulletins after successful load', () => {
     const mockBulletins: Bulletin[] = [
-      { bulletinId: 'b1', title: 'Test', content: 'Body', type: 'General', priority: 'Normal', status: 'Published', isReadByCurrentUser: false, totalReads: 0, createdAt: new Date(), createdByName: '' }
+      { bulletinId: 'b1', companyId: 'co-test', title: 'Test', content: 'Body', type: 'General', priority: 'Normal', status: 'Published', isReadByCurrentUser: false, totalReads: 0, publishedAt: '2026-01-01T00:00:00Z', createdAt: '2026-01-01T00:00:00Z', createdByName: '' }
     ];
     bulletinSvc.getBulletins.and.returnValue(of(pagedResult(mockBulletins)));
 
@@ -97,8 +101,8 @@ describe('BulletinsComponent', () => {
 
   it('unreadCount returns count of unread published bulletins', () => {
     component.bulletins = [
-      { bulletinId: 'b1', title: 'A', content: '', type: 'General', priority: 'Normal', status: 'Published', isReadByCurrentUser: false, totalReads: 0, createdAt: new Date(), createdByName: '' },
-      { bulletinId: 'b2', title: 'B', content: '', type: 'General', priority: 'Normal', status: 'Published', isReadByCurrentUser: true, totalReads: 1, createdAt: new Date(), createdByName: '' }
+      { bulletinId: 'b1', companyId: 'co-test', title: 'A', content: '', type: 'General', priority: 'Normal', status: 'Published', isReadByCurrentUser: false, totalReads: 0, publishedAt: '2026-01-01T00:00:00Z', createdAt: '2026-01-01T00:00:00Z', createdByName: '' },
+      { bulletinId: 'b2', companyId: 'co-test', title: 'B', content: '', type: 'General', priority: 'Normal', status: 'Published', isReadByCurrentUser: true, totalReads: 1, publishedAt: '2026-01-01T00:00:00Z', createdAt: '2026-01-01T00:00:00Z', createdByName: '' }
     ];
 
     expect(component.unreadCount()).toBe(1);

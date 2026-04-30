@@ -11,9 +11,13 @@ import { PermissionService } from 'src/app/core/services/permission.service';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { PagedResult } from 'src/app/core/models/paged-result.model';
 import { SafetyContent } from 'src/app/core/models/safety.model';
+import { Company } from 'src/app/core/models/company.model';
 import { SharedModule } from 'src/app/shared/shared.module';
 
-const MOCK_COMPANY = { companyId: 'co-test', name: 'Test Co' };
+const MOCK_COMPANY: Company = {
+  companyId: 'co-test', name: 'Test Co', address: '1 Main St',
+  phoneNumber: '555-0000', email: 'test@test.com', website: 'https://test.com', timeZone: 'UTC'
+};
 
 function pagedResult(items: SafetyContent[]): PagedResult<SafetyContent> {
   return { items, totalCount: items.length, page: 1, pageSize: 25 };
@@ -58,9 +62,10 @@ describe('SafetyComponent', () => {
 
   it('populates contents and pending after load', () => {
     const pending: SafetyContent = {
-      safetyContentId: 's1', title: 'Toolbox Talk', type: 'ToolboxTalk', status: 'Published',
+      safetyContentId: 's1', companyId: 'co-test', title: 'Toolbox Talk', description: 'Weekly talk',
+      type: 'ToolboxTalk', status: 'Published',
       isAcknowledgmentRequired: true, isAcknowledgedByCurrentUser: false,
-      createdAt: new Date(), createdByName: ''
+      createdAt: '2026-01-01T00:00:00Z', createdByName: ''
     };
     safetySvc.getContents.and.returnValue(of(pagedResult([pending])));
 
@@ -73,9 +78,10 @@ describe('SafetyComponent', () => {
 
   it('acknowledged content does not appear in pending', () => {
     const acked: SafetyContent = {
-      safetyContentId: 's2', title: 'Done', type: 'Orientation', status: 'Published',
+      safetyContentId: 's2', companyId: 'co-test', title: 'Done', description: 'Orientation session',
+      type: 'Orientation', status: 'Published',
       isAcknowledgmentRequired: true, isAcknowledgedByCurrentUser: true,
-      createdAt: new Date(), createdByName: ''
+      createdAt: '2026-01-01T00:00:00Z', createdByName: ''
     };
     safetySvc.getContents.and.returnValue(of(pagedResult([acked])));
 
