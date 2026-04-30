@@ -109,28 +109,46 @@ Done when:
 
 ## Sequenced Execution Plan (6 Weeks)
 
-### Week 1 - Baseline and Gap Lock
-- Finalize gap checklist for each module.
-- Confirm prioritized backlog and owners.
-- Define release metrics and test matrix.
+### Week 1 - Baseline and Gap Lock ✅ COMPLETE
+Branch: `feature/professional-w1-baseline`
+- `Docs/W1_GAP_CHECKLIST.md` — 8 prioritized gaps (G1–G8)
+- `Docs/W1_PRIORITIZED_BACKLOG.md` — 14 backlog items B-01–B-14
+- `Docs/W1_TEST_MATRIX.md` — release metrics, smoke tests, CI gate definitions
 
-### Week 2 - Product Parity Sprint
-- Complete WS1 API/Angular/Mobile/Kiosk parity items.
-- Demo end-to-end flows.
+### Week 2 - Product Parity Sprint ✅ COMPLETE
+Branch: `feature/professional-w2-parity` (commit `acae1f9`)
+- API pagination on all 4 list endpoints (`PagedResultDto<T>`)
+- Angular error banners + retry() on all 4 v2 components
+- Angular `mat-paginator` server-side pagination on bulletins, documents, safety
+- Angular permission gating (`canCreate`/`canArchive` via `PermissionService`)
+- Mobile error states on all 4 v2 screens; documents tab added to bottom nav
+- Kiosk interstitial error fallback (5s auto-advance on load failure)
+- API structured logging on all 4 v2 services
 
-### Week 3 - Core Test Sprint
-- Implement WS2 critical API + client tests.
-- Enable CI blocking for critical suites.
+### Week 3 - Core Test Sprint ✅ COMPLETE
+Branch: `feature/professional-w3-tests` (commits `7d02952`–`89a8a57`)
+- API tests: 71 passing across BulletinService, SafetyService, DailyReportService, DocumentService
+- Angular specs: bulletin, safety, documents, daily-reports components + service specs
+- Mobile Jest: 31 tests across bulletin, safety, document, daily-report services
+- Kiosk Jest: 8 tests for interstitial service (getPostClockout, markBulletinRead, acknowledgeSafety)
+- CI gate: `pr-tests.yml` with 4 jobs — api-tests, angular-typecheck, mobile-tests, kiosk-tests
+- `TestHelpers/FakePush` no-op wrapper for push in all API tests
+- **Also completed (alongside W3):** push + email notifications wired to schedule/shift publish; mobile device token lifecycle (register → store → remove on sign-out); EAS project linked (`531adbf1-53a0-48ca-9fc8-f65ae312365a`)
 
-### Week 4 - Security Hardening Sprint
-- Execute WS3 checklist and remediation.
-- Verify tenancy and auth boundary tests.
+### Week 4 - Security Hardening Sprint ⬜ NOT STARTED
+Branch: `feature/professional-w4-security` (to be created from W3)
+- Company scoping audit — cross-tenant rejection tests on all v2 endpoints
+- Auth middleware validation — Firebase JWT (web) vs. API JWT (mobile) applied correctly
+- S3 presigned URL audit — expiry (15 min), verb enforcement, bucket policy
+- Audit history review — confirm `AuditInterceptor` covers all v2 writes
+- `Docs/W4_SECURITY_CHECKLIST.md` — per-endpoint findings + signoff
 
-### Week 5 - Observability and Runbooks
-- Implement WS4 dashboards, alerts, runbooks.
-- Perform failure simulation drills.
+### Week 5 - Observability and Runbooks ⬜ NOT STARTED
+- Dashboards and alerts: API error rate, p95 latency, auth failures, push failures, kiosk failures
+- Runbooks: degraded API, S3 outage, push provider outage, emergency rollback
+- Failure simulation drills
 
-### Week 6 - Stabilization and Release Readiness
+### Week 6 - Stabilization and Release Readiness ⬜ NOT STARTED
 - Bug bash across all modules.
 - Performance smoke tests.
 - Final go/no-go with measurable acceptance checklist.

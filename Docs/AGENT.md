@@ -393,10 +393,11 @@ After both API and Angular are running:
 - Angular PTO service and balance display in approvals UI
 
 ### Notification Service (Complete)
-- Multi-channel support: Email (SMTP), SMS (Twilio), Push (simulated)
+- Multi-channel support: Email (SMTP/Zoho), SMS (Twilio), Push (Expo Push API — real)
 - Configurable per notification via channel parameter
 - Integrated into replacement request notifications
 - Time-off decision notifications (approve/deny) sent to requester
+- **Schedule/shift publish notifications:** push + email sent to all assigned employees on first publish transition; `SchedulesController` and `ScheduleShiftsController` fire-and-forget on status change
 - Graceful fallback when providers not configured (simulation mode)
 
 ### Sick Event Reporting (MVP Complete)
@@ -423,21 +424,24 @@ After both API and Angular are running:
 
 ## Notification Service
 
-The backend includes a Notification Service used to contact replacement candidates via push (simulated), SMS, or email. If third-party providers aren’t configured, notifications are simulated via logs so the workflow remains testable.
+The backend includes a Notification Service used to contact replacement candidates and employees via push (Expo Push API), SMS (Twilio), or email (SMTP).
 
 Channels and configuration (appsettings or environment variables):
-- Email (SMTP)
-  - Smtp:Host
-  - Smtp:Port
-  - Smtp:Username
-  - Smtp:Password
-  - Smtp:From
+- Email (SMTP/Zoho)
+  - `Smtp:Host` / `Smtp__Host`
+  - `Smtp:Port` / `Smtp__Port`
+  - `Smtp:Username` / `Smtp__Username`
+  - `Smtp:Password` / `Smtp__Password`
+  - `Smtp:From` / `Smtp__From`
 - SMS (Twilio)
-  - Twilio:AccountSid
-  - Twilio:AuthToken
-  - Twilio:From
-- Push
-  - Currently simulated; future integration could target Firebase Cloud Messaging or a mobile backend.
+  - `Twilio:AccountSid`
+  - `Twilio:AuthToken`
+  - `Twilio:From`
+- Push (Expo Push API — live)
+  - `EXPO_PUSH_API_URL` (default: `https://exp.host/--/api/v2/push/send`)
+  - Device tokens stored in `PersonDeviceToken` table; registered from mobile via `POST /api/companies/{cid}/people/{pid}/device-tokens`
+  - Tokens auto-removed on `DeviceNotRegistered` response from Expo
+  - Mobile EAS project ID: `531adbf1-53a0-48ca-9fc8-f65ae312365a` (owner: `williamaguirre82`)
 
 Endpoints:
 - POST /api/companies/{companyId}/replacement-requests → Create a replacement request for a shift
@@ -603,7 +607,7 @@ Safety
 - **Person PTO Configuration UI** - Interface to set accrual rate, starting balance, and start date per employee
 
 ### 🔔 Notifications & Communication
-- ✅ **Real Notification Service** - Email (SMTP), SMS (Twilio), and push (simulated) implemented with configurable channels
+- ✅ **Real Notification Service** - Email (SMTP/Zoho), SMS (Twilio), and push (Expo Push API) implemented with configurable channels
 - ✅ **Replacement Request Alerts** - Notify candidates via push/SMS/email when selected for replacement
 - ✅ **Approval Notifications** - Alert employees via push notification when time-off approved/denied
 - **Shift Reminder Notifications** - Remind employees of upcoming shifts
