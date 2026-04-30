@@ -54,6 +54,7 @@ TestResult.xml
 nunit-*.xml
 /ShiftWork.Angular/.angular
 ShiftWork.Angular/.env
+ShiftWork.Api/.env
 /ShiftWork.Angular/node_modules
 /node_modules
 python_client/.env
