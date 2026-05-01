@@ -47,12 +47,24 @@
             <div class="col-md-6">
               <h5>In Company ({{ companyMembers.length }})</h5>
               <ul class="list-group">
-                <li *ngFor="let member of companyMembers" class="list-group-item d-flex justify-content-between align-items-center">
+                <li *ngFor="let member of companyMembers" class="list-group-item d-flex justify-content-between align-items-center"
+                    [style.opacity]="member.isActive ? 1 : 0.5">
                   <span>
                     <strong>{{ member.displayName || member.email }}</strong>
                     <small *ngIf="member.displayName" class="text-muted ms-1">{{ member.email }}</small>
+                    <span class="badge ms-2" [class.bg-success]="member.isActive" [class.bg-danger]="!member.isActive">
+                      {{ member.isActive ? 'Active' : 'Inactive' }}
+                    </span>
                   </span>
-                  <button class="btn btn-danger btn-sm" (click)="removeUserFromCompany(member)">Remove</button>
+                  <div>
+                    <button class="btn btn-sm me-1"
+                            [class.btn-warning]="member.isActive" [class.btn-success]="!member.isActive"
+                            (click)="toggleActive(member)"
+                            [disabled]="togglingId === member.companyUserId">
+                      {{ member.isActive ? 'Deactivate' : 'Activate' }}
+                    </button>
+                    <button class="btn btn-danger btn-sm" (click)="removeUserFromCompany(member)">Remove</button>
+                  </div>
                 </li>
                 <li *ngIf="companyMembers.length === 0" class="list-group-item text-muted">No users in this company.</li>
               </ul>

@@ -1,223 +1,171 @@
-<div class="profiles-container">
+<div class="page-container">
+
   <!-- Page Header -->
   <div class="page-header">
-    <div class="header-content">
-      <div class="header-icon">
-        <i class="fas fa-shield-alt"></i>
+    <div class="header-left">
+      <div class="page-icon">
+        <mat-icon>admin_panel_settings</mat-icon>
       </div>
       <div class="header-text">
-        <h1 class="page-title">Roles & Permissions</h1>
+        <h1 class="page-title">Roles &amp; Permissions</h1>
         <p class="page-subtitle">Manage user roles and configure access permissions</p>
       </div>
+      <span class="badge badge-blue" *ngIf="!loading && roles.length > 0">
+        {{ roles.length }} role(s)
+      </span>
     </div>
+    <button mat-flat-button color="primary" class="cta-btn" (click)="cancelEdit()">
+      <mat-icon>add</mat-icon> New Role
+    </button>
   </div>
 
-  <!-- Content Wrapper -->
-  <div class="content-wrapper">
-    <div class="layout-grid">
-      <!-- Roles List Section -->
-      <div class="roles-section">
-        <div class="roles-card">
-          <div class="card-header">
-            <h3 class="card-title">
-              <i class="fas fa-list"></i>
-              Roles
-            </h3>
-            <div class="role-count" *ngIf="!loading">
-              <i class="fas fa-shield-alt"></i>
-              {{ roles.length }} role(s)
-            </div>
-          </div>
+  <!-- Two-column layout: form first (left/top), list second (right/bottom) -->
+  <div class="layout-grid">
 
-          <!-- Loading State -->
-          <div *ngIf="loading" class="loading-state">
-            <div class="spinner"></div>
-            <p class="loading-text">Loading roles...</p>
-          </div>
-
-          <!-- Error State -->
-          <div *ngIf="!loading && error" class="error-state">
-            <i class="fas fa-exclamation-circle error-icon"></i>
-            <p class="error-text">Error loading roles</p>
-            <p class="error-subtext">Please try again later</p>
-          </div>
-
-            <!-- Roles List -->
-            <div *ngIf="!loading && !error" class="roles-list">
-              <div 
-                *ngFor="let role of roles; let i = index" 
-                class="role-item"
-                [class.active]="selectedRole?.roleId === role.roleId"
-                [style.animation-delay]="(i * 0.05) + 's'"
-                (click)="editRole(role)"
-              >
-                <div class="role-avatar">
-                  {{ getInitials(role.name) }}
-                </div>
-                <div class="role-info">
-                  <h4 class="role-name">{{ role.name }}</h4>
-                  <p class="role-description">{{ role.description }}</p>
-                  <div class="role-meta">
-                    <span class="status-badge" [class.active]="role.status === 'Active'" [class.inactive]="role.status === 'Inactive'">
-                      <i class="fas fa-circle"></i>
-                      {{ role.status }}
-                    </span>
-                    <span class="permission-count" *ngIf="role.permissions">
-                      <i class="fas fa-key"></i>
-                      {{ role.permissions.length }} permission(s)
-                    </span>
-                  </div>
-                </div>
-                <button mat-raised-button class="btn-edit" (click)="editRole(role); $event.stopPropagation()">
-                  <mat-icon>edit</mat-icon>
-                  Edit
-                </button>
-                <button mat-raised-button color="accent" class="btn-assign" (click)="openAssignPanel(role); $event.stopPropagation()">
-                  <mat-icon>person_add</mat-icon>
-                  Assign Users
-                </button>
-              </div>
-
-              <div *ngIf="roles.length === 0" class="empty-roles">
-                <i class="fas fa-shield-alt empty-icon"></i>
-                <p class="empty-text">No roles created yet</p>
-                <p class="empty-subtext">Create your first role using the form</p>
-              </div>
-            </div>
-        </div>
+    <!-- Role Form -->
+    <div class="form-panel">
+      <div class="form-panel-header">
+        <h2>{{ selectedRole ? 'Edit Role' : 'New Role' }}</h2>
+        <button mat-icon-button *ngIf="selectedRole" (click)="cancelEdit()">
+          <mat-icon>close</mat-icon>
+        </button>
       </div>
 
-      <!-- Assign Users Side Panel (outside roles-section for proper positioning) -->
-      <app-assign-users-panel
-        [open]="assignPanelOpen"
-        [people]="people"
-        [assignedUserIds]="assignedUserIds"
-        [roleName]="assignPanelRole?.name || ''"
-        (closePanel)="closeAssignPanel()"
-        (saveAssignments)="saveAssignments($event)">
-      </app-assign-users-panel>
+      <form [formGroup]="roleForm" (ngSubmit)="saveRole()">
 
-      <!-- Role Form Section -->
-      <div class="form-section">
-        <div class="form-card">
-          <div class="card-header">
-            <h3 class="card-title">
-              <i class="fas" [class.fa-plus-circle]="!selectedRole" [class.fa-edit]="selectedRole"></i>
-              {{ selectedRole ? 'Edit Role' : 'Create New Role' }}
-            </h3>
-            <button *ngIf="selectedRole" class="btn-cancel-header" (click)="cancelEdit()">
-              <i class="fas fa-times"></i>
-              Cancel
-            </button>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Role Name</mat-label>
+          <input matInput formControlName="name" placeholder="e.g., Manager, Employee, Admin">
+          <mat-error *ngIf="roleForm.get('name')?.invalid">Role name is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <input matInput formControlName="description" placeholder="Describe the role's purpose">
+          <mat-error *ngIf="roleForm.get('description')?.invalid">Description is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="Active">Active</mat-option>
+            <mat-option value="Inactive">Inactive</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Permissions -->
+        <div class="perms-section">
+          <h4 class="perms-title">
+            <mat-icon>key</mat-icon>
+            Permissions
+          </h4>
+          <div formGroupName="permissions" class="perms-list">
+            <div *ngFor="let group of objectKeys(availablePermissions)" class="perm-group">
+              <div class="perm-group-label">
+                <mat-icon>category</mat-icon>
+                {{ group }}
+              </div>
+              <div class="perm-checkboxes">
+                <mat-checkbox
+                  *ngFor="let action of availablePermissions[group]"
+                  [formControlName]="action"
+                  class="perm-check"
+                >
+                  {{ getPermissionLabel(action) }}
+                </mat-checkbox>
+              </div>
+            </div>
           </div>
+        </div>
 
-          <div class="card-body">
-            <form [formGroup]="roleForm" (ngSubmit)="saveRole()">
-              <!-- Basic Info Section -->
-              <div class="form-section-group">
-                <h4 class="section-title">
-                  <i class="fas fa-info-circle"></i>
-                  Basic Information
-                </h4>
+        <!-- Actions -->
+        <div class="form-actions">
+          <button mat-stroked-button type="button" *ngIf="selectedRole" (click)="cancelEdit()">
+            Cancel
+          </button>
+          <button mat-flat-button color="primary" type="submit" [disabled]="!roleForm.valid">
+            <mat-icon>{{ selectedRole ? 'save' : 'add' }}</mat-icon>
+            {{ selectedRole ? 'Update Role' : 'Create Role' }}
+          </button>
+        </div>
 
-                <div class="form-group">
-                  <label class="form-label">
-                    <i class="fas fa-tag"></i>
-                    Role Name
-                  </label>
-                  <input 
-                    type="text" 
-                    id="name" 
-                    class="form-input" 
-                    formControlName="name"
-                    placeholder="e.g., Manager, Employee, Admin"
-                  >
-                  <div *ngIf="roleForm.get('name')?.invalid && roleForm.get('name')?.touched" class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    Role name is required
-                  </div>
-                </div>
+      </form>
+    </div>
 
-                <div class="form-group">
-                  <label class="form-label">
-                    <i class="fas fa-align-left"></i>
-                    Description
-                  </label>
-                  <input 
-                    type="text" 
-                    id="description" 
-                    class="form-input" 
-                    formControlName="description"
-                    placeholder="Describe the role's purpose"
-                  >
-                  <div *ngIf="roleForm.get('description')?.invalid && roleForm.get('description')?.touched" class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    Description is required
-                  </div>
-                </div>
+    <!-- Assign Users Overlay (standalone component) -->
+    <app-assign-users-panel
+      [open]="assignPanelOpen"
+      [people]="people"
+      [assignedUserIds]="assignedUserIds"
+      [roleName]="assignPanelRole?.name || ''"
+      (closePanel)="closeAssignPanel()"
+      (saveAssignments)="saveAssignments($event)">
+    </app-assign-users-panel>
 
-                <div class="form-group">
-                  <label class="form-label">
-                    <i class="fas fa-toggle-on"></i>
-                    Status
-                  </label>
-                  <select id="status" class="form-select" formControlName="status">
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
-                </div>
-              </div>
+    <!-- Roles List -->
+    <div class="list-panel">
+      <div class="list-panel-header">
+        <span class="panel-title">Roles</span>
+      </div>
 
-              <!-- Permissions Section -->
-              <div class="form-section-group">
-                <h4 class="section-title">
-                  <i class="fas fa-key"></i>
-                  Permissions
-                </h4>
+      <!-- Loading -->
+      <div class="loading-state" *ngIf="loading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading roles...</p>
+      </div>
 
-                <div formGroupName="permissions" class="permissions-container">
-                  <div *ngFor="let component of objectKeys(availablePermissions)" class="permission-group">
-                    <div class="permission-header">
-                      <i class="fas fa-cube"></i>
-                      <h5>{{ component }}</h5>
-                    </div>
-                    <div class="permission-actions">
-                      <label 
-                        *ngFor="let action of availablePermissions[component]" 
-                        class="permission-checkbox"
-                        [for]="action"
-                      >
-                        <input 
-                          class="checkbox-input" 
-                          type="checkbox" 
-                          [formControlName]="action" 
-                          [id]="action"
-                        >
-                        <span class="checkbox-label">
-                          <i class="fas" [class]="getPermissionIcon(action)"></i>
-                          {{ getPermissionLabel(action) }}
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
+      <!-- Error -->
+      <div class="empty-state" *ngIf="!loading && error">
+        <div class="empty-icon error-icon">
+          <mat-icon>error_outline</mat-icon>
+        </div>
+        <h3>Error loading roles</h3>
+        <p>Please try again later</p>
+      </div>
 
-              <!-- Action Buttons -->
-              <div class="form-actions">
-                <button type="submit" class="btn-submit" [disabled]="!roleForm.valid">
-                  <i class="fas" [class.fa-save]="selectedRole" [class.fa-plus]="!selectedRole"></i>
-                  {{ selectedRole ? 'Update Role' : 'Create Role' }}
-                </button>
-                <button type="button" class="btn-cancel" *ngIf="selectedRole" (click)="cancelEdit()">
-                  <i class="fas fa-times"></i>
-                  Cancel
-                </button>
-              </div>
-            </form>
+      <!-- Roles list -->
+      <div class="roles-list" *ngIf="!loading && !error">
+        <div
+          *ngFor="let role of roles; let i = index"
+          class="role-item"
+          [class.selected]="selectedRole?.roleId === role.roleId"
+          [style.animation-delay]="(i * 0.05) + 's'"
+          (click)="editRole(role)"
+        >
+          <div class="role-avatar">{{ getInitials(role.name) }}</div>
+          <div class="role-info">
+            <h4 class="role-name">{{ role.name }}</h4>
+            <p class="role-description">{{ role.description }}</p>
+            <div class="role-meta">
+              <span class="status-chip" [class.active]="role.status === 'Active'" [class.inactive]="role.status === 'Inactive'">
+                {{ role.status }}
+              </span>
+              <span class="perm-count" *ngIf="role.permissions">
+                <mat-icon>key</mat-icon>
+                {{ role.permissions.length }}
+              </span>
+            </div>
           </div>
+          <button
+            mat-icon-button
+            class="assign-btn"
+            matTooltip="Assign users"
+            (click)="openAssignPanel(role); $event.stopPropagation()"
+          >
+            <mat-icon>person_add</mat-icon>
+          </button>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" *ngIf="roles.length === 0">
+          <div class="empty-icon">
+            <mat-icon>shield</mat-icon>
+          </div>
+          <h3>No roles yet</h3>
+          <p>Create your first role using the form.</p>
         </div>
       </div>
     </div>
+
   </div>
 </div>

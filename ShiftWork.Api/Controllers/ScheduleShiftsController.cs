@@ -23,6 +23,7 @@ namespace ShiftWork.Api.Controllers
         private readonly IScheduleShiftService _scheduleShiftService;
         private readonly ICompanySettingsService _settingsService;
         private readonly IScheduleValidationService _validationService;
+        private readonly PushNotificationService _pushService;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<ScheduleShiftsController> _logger;
@@ -30,11 +31,12 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="ScheduleShiftsController"/> class.
         /// </summary>
-        public ScheduleShiftsController(IScheduleShiftService scheduleShiftService, ICompanySettingsService settingsService, IScheduleValidationService validationService, IMapper mapper, IMemoryCache memoryCache, ILogger<ScheduleShiftsController> logger)
+        public ScheduleShiftsController(IScheduleShiftService scheduleShiftService, ICompanySettingsService settingsService, IScheduleValidationService validationService, PushNotificationService pushService, IMapper mapper, IMemoryCache memoryCache, ILogger<ScheduleShiftsController> logger)
         {
             _scheduleShiftService = scheduleShiftService ?? throw new ArgumentNullException(nameof(scheduleShiftService));
             _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
             _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
+            _pushService = pushService ?? throw new ArgumentNullException(nameof(pushService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -223,6 +225,12 @@ namespace ShiftWork.Api.Controllers
                     return BadRequest("Failed to create schedule shift.");
                 }
 
+                if (createdScheduleShift.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    _ = _pushService.NotifyShiftAssignedAsync(
+                        companyId, createdScheduleShift.PersonId, createdScheduleShift.ScheduleShiftId, createdScheduleShift.StartDate);
+                }
+
                 _memoryCache.Remove($"schedule_shifts_{companyId}");
                 var createdScheduleShiftDto = _mapper.Map<ScheduleShiftDto>(createdScheduleShift);
 
@@ -267,6 +275,9 @@ namespace ShiftWork.Api.Controllers
                     return BadRequest(new { errors = validation.Errors, warnings = validation.Warnings });
                 }
 
+                var existingShift = await _scheduleShiftService.Get(companyId, shiftId);
+                bool wasPublished = existingShift?.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) ?? false;
+
                 if (settings.AutoApproveShifts)
                 {
                     if (string.IsNullOrWhiteSpace(scheduleShift.Status) || scheduleShift.Status.Equals("unpublished", StringComparison.OrdinalIgnoreCase))
@@ -280,6 +291,14 @@ namespace ShiftWork.Api.Controllers
                 {
                     return NotFound($"Schedule shift with ID {shiftId} not found.");
                 }
+
+                bool justPublished = !wasPublished && (updatedScheduleShift.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) ?? false);
+                if (justPublished)
+                {
+                    _ = _pushService.NotifyShiftAssignedAsync(
+                        companyId, updatedScheduleShift.PersonId, updatedScheduleShift.ScheduleShiftId, updatedScheduleShift.StartDate);
+                }
+
                 _mapper.Map(scheduleShiftDto, updatedScheduleShift);
                 _memoryCache.Remove($"schedule_shifts_{companyId}");
                 _memoryCache.Remove($"schedule_shift_{companyId}_{shiftId}");

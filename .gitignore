@@ -54,6 +54,7 @@ TestResult.xml
 nunit-*.xml
 /ShiftWork.Angular/.angular
 ShiftWork.Angular/.env
+ShiftWork.Api/.env
 /ShiftWork.Angular/node_modules
 /node_modules
 python_client/.env
@@ -67,4 +68,6 @@ ShiftWork.Angular/package-lock.json
 ShiftWork.Angular/yarn.lock
 /ShiftWork.Angular/dist
 docker-compose.yml
-ShiftWork.Mobile/temp-expo
+ShiftWork.Kiosk/.env
+ShiftWork.Kiosk/node_modules
+ShiftWork.Kiosk/package-lock.json

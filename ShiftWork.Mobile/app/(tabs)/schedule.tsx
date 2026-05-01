@@ -1,22 +1,40 @@
 import { useMemo, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { View, Text, StyleSheet, ScrollView, Modal } from 'react-native';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useAuthStore } from '@/store/authStore';
 import { peopleService } from '@/services/people.service';
 import { useScheduleData } from '@/hooks/useScheduleData';
-import { formatDate, formatTime, getEndOfDay, getEndOfMonth, getEndOfWeek, getStartOfDay, getStartOfMonth, getStartOfWeek } from '@/utils/date.utils';
-import { colors } from '@/styles/tokens';
-import { Card, EmptyState, SectionHeader } from '@/components/ui';
+import { useCompanyTimeZone } from '@/hooks/queries';
+import {
+  formatDate, formatScheduleTime, formatTime,
+  getEndOfDay, getEndOfMonth, getEndOfWeek,
+  getStartOfDay, getStartOfMonth, getStartOfWeek,
+} from '@/utils/date.utils';
+import { colors, spacing, radius } from '@/styles/tokens';
+import { EmptyState, SectionHeader } from '@/components/ui';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PressableScale } from '@/components/ui/PressableScale';
+import { ShiftDetailModal } from '@/components/screens/schedule/ShiftDetailModal';
+import type { ScheduleShiftDto } from '@/types/api';
 
 type ViewMode = 'day' | 'week' | 'month';
 
+const MODE_LABELS: Record<ViewMode, string> = { day: 'Day', week: 'Week', month: 'Month' };
+const MODE_ICONS: Record<ViewMode, React.ComponentPropsWithRef<typeof Ionicons>['name']> = {
+  day: 'today-outline', week: 'calendar-outline', month: 'calendar-number-outline',
+};
+
 export default function ScheduleScreen() {
-  const { companyId, personId, personFirstName, personLastName } = useAuthStore();
+  const { companyId, personId, name: personName } = useAuthStore();
   const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
+  const insets = useSafeAreaInsets();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [mode, setMode] = useState<ViewMode>('week');
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [selectedShift, setSelectedShift] = useState<ScheduleShiftDto | null>(null);
 
   const { from, to } = useMemo(() => {
     if (mode === 'day') return { from: getStartOfDay(selectedDate), to: getEndOfDay(selectedDate) };
@@ -25,20 +43,14 @@ export default function ScheduleScreen() {
   }, [selectedDate, mode]);
 
   const { isOnline, loading, error, shifts, events } = useScheduleData(companyId, personId, from, to);
+  const companyTimeZone = useCompanyTimeZone(companyId);
 
-  // Hydrate person name if missing
   useEffect(() => {
     (async () => {
       try {
-        if (companyId && personId && (!personFirstName || !personLastName)) {
+        if (companyId && personId && !personName) {
           const person = await peopleService.getPersonById(companyId, personId);
-          if (person) {
-            setPersonProfile({
-              firstName: person.firstName ?? null,
-              lastName: person.lastName ?? null,
-              email: person.email ?? null,
-            });
-          }
+          if (person) setPersonProfile({ name: person.name ?? null, email: person.email ?? null });
         }
       } catch {}
     })();
@@ -50,131 +62,260 @@ export default function ScheduleScreen() {
     else if (mode === 'week') d.setDate(d.getDate() + 7 * delta);
     else d.setMonth(d.getMonth() + delta);
     setSelectedDate(d);
+    Haptics.selectionAsync();
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      {/* Popup selection instead of inline calendar */}
-      <View style={styles.rangeBar}>
-        <Text style={styles.rangeText}>{formatDate(from)} - {formatDate(to)}</Text>
-        <TouchableOpacity style={styles.rangeBtn} onPress={() => setPickerOpen(true)}>
-          <Text style={styles.rangeBtnText}>Change Range</Text>
-        </TouchableOpacity>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* Hero header */}
+      <View style={[styles.hero, { paddingTop: insets.top + 16 }]}>
+        <Animated.View entering={FadeIn.duration(350)}>
+          <Text style={styles.heroTitle}>Schedule</Text>
+          {!isOnline && (
+            <View style={styles.offlinePill}>
+              <Ionicons name="cloud-offline-outline" size={12} color={colors.warning} />
+              <Text style={styles.offlineText}>Offline · cached data</Text>
+            </View>
+          )}
+        </Animated.View>
+        <PressableScale
+          style={styles.rangeBtn}
+          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setPickerOpen(true); }}
+        >
+          <Ionicons name="options-outline" size={16} color={colors.primary} />
+          <Text style={styles.rangeBtnText}>{formatDate(from)}</Text>
+          <Ionicons name="chevron-down" size={14} color={colors.primary} />
+        </PressableScale>
       </View>
 
-      <Modal visible={pickerOpen} transparent animationType="fade" onRequestClose={() => setPickerOpen(false)}>
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Select Range</Text>
-            <View style={styles.modalRow}>
-              {(['day','week','month'] as ViewMode[]).map((m) => (
-                <TouchableOpacity key={m} style={[styles.modalChip, mode===m && styles.modalChipActive]} onPress={() => setMode(m)}>
-                  <Text style={[styles.modalChipText, mode===m && styles.modalChipTextActive]}>{m.toUpperCase()}</Text>
-                </TouchableOpacity>
+      {/* Mode switcher pill row */}
+      <View style={styles.modeSwitcher}>
+        {(['day', 'week', 'month'] as ViewMode[]).map((m) => (
+          <PressableScale
+            key={m}
+            style={[styles.modeBtn, mode === m && styles.modeBtnActive]}
+            onPress={() => { setMode(m); Haptics.selectionAsync(); }}
+          >
+            <Ionicons name={MODE_ICONS[m]} size={14} color={mode === m ? '#fff' : colors.muted} />
+            <Text style={[styles.modeText, mode === m && styles.modeTextActive]}>{MODE_LABELS[m]}</Text>
+          </PressableScale>
+        ))}
+      </View>
+
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Shifts */}
+        <View style={styles.section}>
+          <SectionHeader
+            title={`Shifts · ${mode === 'day' ? formatDate(from) : `${formatDate(from)} – ${formatDate(to)}`}`}
+          />
+          {loading && [0, 1, 2].map((i) => (
+            <Skeleton key={i} width="100%" height={76} borderRadius={13} style={{ marginBottom: 10 }} />
+          ))}
+          {!loading && shifts.length === 0 && (
+            <EmptyState title="No shifts" message="No shifts scheduled for this period." icon="calendar-clear-outline" />
+          )}
+          {!loading && shifts.map((s, i) => (
+            <Animated.View key={s.scheduleShiftId} entering={FadeInDown.delay(i * 60).duration(300)}>
+              <PressableScale style={styles.card} onPress={() => setSelectedShift(s)}>
+                <View style={styles.cardDateCol}>
+                  <Text style={styles.cardDateNum}>{new Date(s.startDate).getDate()}</Text>
+                  <Text style={styles.cardDateMon}>
+                    {new Date(s.startDate).toLocaleString('en-US', { month: 'short' }).toUpperCase()}
+                  </Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cardTime}>
+                    {formatScheduleTime(s.startDate, companyTimeZone ?? undefined)} – {formatScheduleTime(s.endDate, companyTimeZone ?? undefined)}
+                  </Text>
+                  <Text style={styles.cardMeta}>Shift #{s.scheduleShiftId} · {s.status}</Text>
+                </View>
+                <View style={[styles.statusDot, s.status === 'Confirmed' ? styles.dotGreen : styles.dotBlue]} />
+              </PressableScale>
+            </Animated.View>
+          ))}
+        </View>
+
+        {/* Events */}
+        <View style={styles.section}>
+          <SectionHeader title="Clocked Events" />
+          {loading && [0, 1].map((i) => (
+            <Skeleton key={i} width="100%" height={60} borderRadius={13} style={{ marginBottom: 10 }} />
+          ))}
+          {!loading && events.length === 0 && (
+            <EmptyState title="No events" message="No events recorded for this period." icon="pulse-outline" />
+          )}
+          {!loading && events.map((e, i) => (
+            <Animated.View key={e.eventLogId} entering={FadeInDown.delay(i * 50).duration(280)}>
+              <View style={styles.eventRow}>
+                <View style={styles.eventDot} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.eventType}>{e.eventType.replace(/_/g, ' ')}</Text>
+                  <Text style={styles.eventMeta}>{formatDate(e.eventDate)} · {formatTime(e.eventDate)}</Text>
+                </View>
+              </View>
+            </Animated.View>
+          ))}
+          {!!error && (
+            <View style={styles.errorRow}>
+              <Ionicons name="alert-circle-outline" size={14} color={colors.danger} />
+              <Text style={styles.error}>{error}</Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+
+      {/* Range/mode picker modal */}
+      <Modal visible={pickerOpen} transparent animationType="slide" onRequestClose={() => setPickerOpen(false)}>
+        <View style={styles.backdrop}>
+          <View style={styles.sheet}>
+            <View style={styles.handle} />
+            <Text style={styles.sheetTitle}>Schedule View</Text>
+
+            {/* Mode chips */}
+            <Text style={styles.sheetLabel}>View By</Text>
+            <View style={styles.chipRow}>
+              {(['day', 'week', 'month'] as ViewMode[]).map((m) => (
+                <PressableScale
+                  key={m}
+                  style={[styles.chip, mode === m && styles.chipActive]}
+                  onPress={() => { setMode(m); Haptics.selectionAsync(); }}
+                >
+                  <Ionicons name={MODE_ICONS[m]} size={15} color={mode === m ? '#fff' : colors.text} />
+                  <Text style={[styles.chipText, mode === m && styles.chipTextActive]}>{MODE_LABELS[m]}</Text>
+                </PressableScale>
               ))}
             </View>
-            <View style={styles.modalRowJustify}>
-              <TouchableOpacity style={styles.navBtn} onPress={() => shiftDate(-1)}>
-                <Text style={styles.navBtnText}>◀ Prev</Text>
-              </TouchableOpacity>
+
+            {/* Navigate */}
+            <Text style={styles.sheetLabel}>Navigate</Text>
+            <View style={styles.navRow}>
+              <PressableScale style={styles.navBtn} onPress={() => shiftDate(-1)}>
+                <Ionicons name="chevron-back" size={18} color={colors.primary} />
+                <Text style={styles.navBtnText}>Prev</Text>
+              </PressableScale>
               <Text style={styles.selDate}>{formatDate(selectedDate)}</Text>
-              <TouchableOpacity style={styles.navBtn} onPress={() => shiftDate(1)}>
-                <Text style={styles.navBtnText}>Next ▶</Text>
-              </TouchableOpacity>
+              <PressableScale style={styles.navBtn} onPress={() => shiftDate(1)}>
+                <Text style={styles.navBtnText}>Next</Text>
+                <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+              </PressableScale>
             </View>
-            <TouchableOpacity style={styles.modalClose} onPress={() => setPickerOpen(false)}>
-              <Text style={styles.modalCloseText}>Done</Text>
-            </TouchableOpacity>
+
+            <PressableScale
+              style={styles.doneBtn}
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setPickerOpen(false); }}
+            >
+              <Text style={styles.doneBtnText}>Done</Text>
+            </PressableScale>
           </View>
         </View>
       </Modal>
 
-      <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Schedule</Text>
-        {!isOnline && <Text style={styles.offline}>Offline mode • showing cached data</Text>}
-      </View>
-
-      <View style={styles.modeSwitcher}>
-        {(['day', 'week', 'month'] as ViewMode[]).map((m) => (
-          <TouchableOpacity key={m} style={[styles.modeBtn, mode === m && styles.modeBtnActive]} onPress={() => setMode(m)}>
-            <Text style={[styles.modeText, mode === m && styles.modeTextActive]}>{m.toUpperCase()}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <View style={styles.section}>
-        <SectionHeader title={`Shifts (${formatDate(from)} - ${formatDate(to)})`} />
-        {loading && [0,1,2].map((i) => <Skeleton key={i} width="100%" height={70} borderRadius={12} style={{ marginBottom: 12 }} />)}
-        {!loading && shifts.length === 0 && (
-          <EmptyState title="No shifts" message="No shifts in this range." icon="calendar-clear-outline" />
-        )}
-        {!loading && shifts.map((s, i) => (
-          <Animated.View key={s.scheduleShiftId} entering={FadeInDown.delay(i * 60).duration(300)}>
-          <Card style={styles.card}>
-            <Text style={styles.cardTitle}>{formatDate(s.startDate)}</Text>
-            <Text style={styles.cardSubtitle}>{formatTime(s.startDate)} - {formatTime(s.endDate)}</Text>
-            <Text style={styles.cardMeta}>Shift #{s.scheduleShiftId} • Status: {s.status}</Text>
-          </Card>
-          </Animated.View>
-        ))}
-      </View>
-
-      <View style={styles.section}>
-        <SectionHeader title="Clocked Events" />
-        {loading && [0,1,2].map((i) => <Skeleton key={i} width="100%" height={60} borderRadius={12} style={{ marginBottom: 12 }} />)}
-        {!loading && events.length === 0 && (
-          <EmptyState title="No events" message="No events in this range." icon="pulse-outline" />
-        )}
-        {!loading && events.map((e, i) => (
-          <Animated.View key={e.eventLogId} entering={FadeInDown.delay(i * 60).duration(300)}>
-          <Card style={styles.card}>
-            <Text style={styles.cardText}>{e.eventType.replace('_', ' ')}</Text>
-            <Text style={styles.cardMeta}>{formatDate(e.eventDate)} {formatTime(e.eventDate)}</Text>
-          </Card>
-          </Animated.View>
-        ))}
-        {!!error && <Text style={styles.error}>{error}</Text>}
-      </View>
-      </ScrollView>
+      <ShiftDetailModal
+        visible={!!selectedShift}
+        shift={selectedShift}
+        timeZoneId={companyTimeZone}
+        onClose={() => setSelectedShift(null)}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: { padding: 16, backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.border },
-  title: { fontSize: 20, fontWeight: '700', color: colors.text },
-  offline: { color: colors.warning, marginTop: 4 },
-  modeSwitcher: { flexDirection: 'row', gap: 8, padding: 12, backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.border },
-  modeBtn: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  modeBtnActive: { borderColor: colors.primary, backgroundColor: '#E8F1FB' },
-  modeText: { color: colors.text, fontWeight: '600' },
-  modeTextActive: { color: colors.primary },
-  section: { padding: 16, paddingTop: 8 },
-  sectionTitle: { fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: 12 },
-  card: { backgroundColor: colors.surface, padding: 14, borderRadius: 12, marginBottom: 10, borderWidth: 1, borderColor: colors.border },
-  cardTitle: { fontSize: 16, fontWeight: '600', color: colors.text },
-  cardSubtitle: { fontSize: 14, color: colors.muted, marginTop: 4 },
-  cardMeta: { fontSize: 12, color: colors.muted, marginTop: 6 },
-  cardText: { fontSize: 14, color: colors.text },
-  error: { color: colors.danger, marginTop: 8 },
-  rangeBar: { backgroundColor: colors.surface, borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.border, padding: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  rangeText: { color: colors.text, fontWeight: '600' },
-  rangeBtn: { paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: colors.primary, borderRadius: 8 },
-  rangeBtnText: { color: colors.primary, fontWeight: '600' },
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
-  modalCard: { backgroundColor: colors.surface, width: '85%', borderRadius: 12, padding: 16 },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 },
-  modalRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
-  modalRowJustify: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: 8 },
-  modalChip: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 20, borderWidth: 1, borderColor: colors.border },
-  modalChipActive: { borderColor: colors.primary, backgroundColor: '#E8F1FB' },
-  modalChipText: { color: colors.text, fontWeight: '600' },
-  modalChipTextActive: { color: colors.primary },
-  navBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, backgroundColor: colors.background },
-  navBtnText: { color: colors.text, fontWeight: '600' },
-  selDate: { color: colors.text, fontWeight: '700' },
-  modalClose: { marginTop: 8, alignSelf: 'flex-end' },
-  modalCloseText: { color: colors.primary, fontWeight: '700' },
+  // Hero
+  hero: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 20, paddingBottom: 20,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end',
+  },
+  heroTitle: { fontSize: 28, fontWeight: '700', color: '#fff', letterSpacing: -0.5 },
+  offlinePill: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 4 },
+  offlineText: { fontSize: 12, color: 'rgba(255,255,255,0.80)' },
+  rangeBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    paddingHorizontal: 10, paddingVertical: 7, borderRadius: 20, marginBottom: 2,
+  },
+  rangeBtnText: { fontSize: 12, fontWeight: '600', color: colors.primary },
+
+  // Mode switcher
+  modeSwitcher: {
+    flexDirection: 'row', gap: 8, paddingHorizontal: spacing.lg,
+    paddingVertical: 10, backgroundColor: colors.surface,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border,
+  },
+  modeBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
+    paddingVertical: 8, borderRadius: radius.lg,
+    backgroundColor: colors.background,
+  },
+  modeBtnActive: { backgroundColor: colors.primary },
+  modeText: { fontSize: 13, fontWeight: '600', color: colors.muted },
+  modeTextActive: { color: '#fff' },
+
+  // Shifts
+  section: { paddingHorizontal: spacing.lg, paddingTop: 16, paddingBottom: 4 },
+  card: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: colors.surface, borderRadius: radius.xl, padding: 14, marginBottom: 10,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
+  },
+  cardDateCol: {
+    width: 42, height: 42, borderRadius: 12,
+    backgroundColor: colors.primary + '14', alignItems: 'center', justifyContent: 'center',
+  },
+  cardDateNum: { fontSize: 16, fontWeight: '700', color: colors.primary, lineHeight: 18 },
+  cardDateMon: { fontSize: 10, fontWeight: '600', color: colors.primary, opacity: 0.75 },
+  cardTime: { fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 2 },
+  cardMeta: { fontSize: 12, color: colors.muted },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  dotGreen: { backgroundColor: colors.success },
+  dotBlue:  { backgroundColor: colors.primary },
+
+  // Events
+  eventRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: colors.surface, borderRadius: radius.lg, padding: 12, marginBottom: 8,
+  },
+  eventDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary },
+  eventType: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 2 },
+  eventMeta: { fontSize: 12, color: colors.muted },
+  errorRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
+  error: { fontSize: 13, color: colors.danger },
+
+  // Bottom sheet
+  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  sheet: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    paddingHorizontal: spacing.lg, paddingBottom: 36,
+  },
+  handle: { width: 36, height: 4, borderRadius: 2, backgroundColor: colors.borderOpaque, alignSelf: 'center', marginTop: 10, marginBottom: 8 },
+  sheetTitle: { fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 20 },
+  sheetLabel: { fontSize: 12, fontWeight: '600', color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 },
+  chipRow: { flexDirection: 'row', gap: 10, marginBottom: 20 },
+  chip: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    paddingVertical: 10, borderRadius: radius.lg,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface,
+  },
+  chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  chipText: { fontSize: 13, fontWeight: '600', color: colors.text },
+  chipTextActive: { color: '#fff' },
+  navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
+  navBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.lg,
+    backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
+  },
+  navBtnText: { fontSize: 14, fontWeight: '600', color: colors.primary },
+  selDate: { fontSize: 15, fontWeight: '700', color: colors.text },
+  doneBtn: {
+    backgroundColor: colors.primary, borderRadius: radius.lg,
+    paddingVertical: 14, alignItems: 'center',
+  },
+  doneBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
 });

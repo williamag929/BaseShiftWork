@@ -1,11 +1,12 @@
-import { View, Text, StyleSheet, Pressable, Modal, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Modal, ScrollView } from 'react-native';
 import { useState, useMemo } from 'react';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
-import { Card } from '@/components/ui';
+import * as Haptics from 'expo-haptics';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PressableScale } from '@/components/ui/PressableScale';
 import { formatDate, formatTime } from '@/utils/date.utils';
-import { colors, spacing } from '@/styles/tokens';
+import { colors, spacing, radius } from '@/styles/tokens';
 import type { ShiftEventDto } from '@/types/api';
 
 interface RecentActivitySectionProps {
@@ -35,9 +36,9 @@ export function RecentActivitySection({ loading, recentEvents, error }: RecentAc
       <View style={styles.headerRow}>
         <Text style={styles.sectionTitle}>Recent Activity</Text>
         {recentEvents.length > 4 && (
-          <Pressable onPress={() => { setPage(1); setModalVisible(true); }}>
-            <Text style={styles.link}>View more</Text>
-          </Pressable>
+          <PressableScale onPress={() => { setPage(1); setModalVisible(true); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}>
+            <Text style={styles.link}>View all</Text>
+          </PressableScale>
         )}
       </View>
 
@@ -50,10 +51,13 @@ export function RecentActivitySection({ loading, recentEvents, error }: RecentAc
       )}
       {!loading && preview.map((e, i) => (
         <Animated.View key={e.eventLogId} entering={FadeInDown.delay(i * 60).duration(300)}>
-        <Card style={styles.card}>
-          <Text style={styles.cardText}>{e.eventType.replace('_', ' ')}</Text>
-          <Text style={styles.cardDate}>{formatDate(e.eventDate)} {formatTime(e.eventDate)}</Text>
-        </Card>
+          <View style={styles.card}>
+            <View style={styles.cardDot} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.cardText}>{e.eventType.replace(/_/g, ' ')}</Text>
+              <Text style={styles.cardDate}>{formatDate(e.eventDate)} · {formatTime(e.eventDate)}</Text>
+            </View>
+          </View>
         </Animated.View>
       ))}
       {!!error && <Text style={styles.error}>{error}</Text>}
@@ -66,37 +70,43 @@ export function RecentActivitySection({ loading, recentEvents, error }: RecentAc
       >
         <View style={styles.backdrop}>
           <View style={styles.modalBox}>
-            <View style={styles.modalHeader}>
+            <View style={styles.handleBar} />
+          <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Recent Activity</Text>
-              <Pressable onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={22} color={colors.text} />
-              </Pressable>
+              <PressableScale onPress={() => setModalVisible(false)}>
+                <Ionicons name="close-circle" size={24} color={colors.muted} />
+              </PressableScale>
             </View>
             <ScrollView contentContainerStyle={{ padding: spacing.lg }}>
               {paged.map((e) => (
-                <Card key={e.eventLogId} style={styles.card}>
-                  <Text style={styles.cardText}>{e.eventType.replace('_', ' ')}</Text>
-                  <Text style={styles.cardDate}>{formatDate(e.eventDate)} {formatTime(e.eventDate)}</Text>
-                </Card>
+                <View key={e.eventLogId} style={styles.card}>
+                  <View style={styles.cardDot} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.cardText}>{e.eventType.replace(/_/g, ' ')}</Text>
+                    <Text style={styles.cardDate}>{formatDate(e.eventDate)} · {formatTime(e.eventDate)}</Text>
+                  </View>
+                </View>
               ))}
             </ScrollView>
             {recentEvents.length > PAGE_SIZE && (
               <View style={styles.pagination}>
-                <Pressable
+                <PressableScale
                   style={[styles.pageBtn, page === 1 && styles.pageBtnDisabled]}
                   disabled={page === 1}
                   onPress={() => setPage((p) => Math.max(1, p - 1))}
                 >
-                  <Text style={styles.pageBtnText}>Previous</Text>
-                </Pressable>
+                  <Ionicons name="chevron-back" size={14} color="#fff" />
+                  <Text style={styles.pageBtnText}>Prev</Text>
+                </PressableScale>
                 <Text style={styles.pageIndicator}>{page} / {totalPages}</Text>
-                <Pressable
+                <PressableScale
                   style={[styles.pageBtn, page === totalPages && styles.pageBtnDisabled]}
                   disabled={page === totalPages}
                   onPress={() => setPage((p) => Math.min(totalPages, p + 1))}
                 >
                   <Text style={styles.pageBtnText}>Next</Text>
-                </Pressable>
+                  <Ionicons name="chevron-forward" size={14} color="#fff" />
+                </PressableScale>
               </View>
             )}
           </View>
@@ -107,37 +117,47 @@ export function RecentActivitySection({ loading, recentEvents, error }: RecentAc
 }
 
 const styles = StyleSheet.create({
-  section: { padding: spacing.lg, paddingTop: 8 },
-  headerRow: {
-    flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between', marginBottom: 12,
-  },
-  sectionTitle: { fontSize: 18, fontWeight: '600', color: colors.text },
+  section: { paddingHorizontal: spacing.lg, paddingTop: 8, paddingBottom: 4 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  sectionTitle: { fontSize: 17, fontWeight: '600', color: colors.text },
   link: { color: colors.primary, fontSize: 13, fontWeight: '600' },
-  card: { backgroundColor: colors.surface, padding: spacing.lg, borderRadius: 12, marginBottom: 12 },
-  cardText: { fontSize: 14, color: colors.text, marginBottom: 4 },
+  card: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: colors.surface, borderRadius: radius.lg,
+    padding: 14, marginBottom: 8,
+  },
+  cardDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary },
+  cardText: { fontSize: 14, fontWeight: '500', color: colors.text, marginBottom: 2 },
   cardDate: { fontSize: 12, color: colors.muted },
-  emptyRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6, paddingHorizontal: 4 },
+  emptyRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
   emptyText: { color: colors.muted, fontSize: 13 },
-  error: { color: colors.danger, marginTop: 8 },
+  error: { color: colors.danger, marginTop: 8, fontSize: 13 },
+  // Modal
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   modalBox: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: 16, borderTopRightRadius: 16,
-    maxHeight: '80%', paddingBottom: spacing.lg,
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    maxHeight: '80%', paddingBottom: spacing.xl,
+  },
+  handleBar: {
+    width: 36, height: 4, borderRadius: 2,
+    backgroundColor: colors.borderOpaque, alignSelf: 'center', marginTop: 10, marginBottom: 4,
   },
   modalHeader: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: spacing.lg, paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border,
   },
-  modalTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
+  modalTitle: { fontSize: 17, fontWeight: '700', color: colors.text },
   pagination: {
     flexDirection: 'row', alignItems: 'center',
     justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingTop: 8,
   },
-  pageBtn: { backgroundColor: colors.primary, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 },
-  pageBtnDisabled: { opacity: 0.5 },
+  pageBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: colors.primary, paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.lg,
+  },
+  pageBtnDisabled: { opacity: 0.4 },
   pageBtnText: { color: '#fff', fontSize: 12, fontWeight: '600' },
-  pageIndicator: { fontSize: 12, color: colors.muted },
+  pageIndicator: { fontSize: 13, color: colors.muted, fontWeight: '500' },
 });

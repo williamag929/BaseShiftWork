@@ -31,7 +31,7 @@ interface DaySchedule {
 }
 
 export default function WeeklyScheduleScreen() {
-  const { companyId, personId, personFirstName, personLastName } = useAuthStore();
+  const { companyId, personId, name: personName } = useAuthStore();
   const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
   
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(getWeekStart(new Date()));
@@ -43,7 +43,7 @@ export default function WeeklyScheduleScreen() {
   const [silentRefreshing, setSilentRefreshing] = useState(false);
   const [selectedShift, setSelectedShift] = useState<ScheduleShiftDto | null>(null);
   
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const notificationListenerRef = useRef<Notifications.Subscription | null>(null);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 
@@ -55,12 +55,11 @@ export default function WeeklyScheduleScreen() {
   useEffect(() => {
     (async () => {
       try {
-        if (companyId && personId && (!personFirstName || !personLastName)) {
+        if (companyId && personId && !personName) {
           const person = await peopleService.getPersonById(companyId, personId);
           if (person) {
             setPersonProfile({
-              firstName: person.firstName ?? null,
-              lastName: person.lastName ?? null,
+              name: person.name ?? null,
               email: person.email ?? null,
             });
           }
@@ -125,7 +124,7 @@ export default function WeeklyScheduleScreen() {
         clearInterval(pollingIntervalRef.current);
       }
       if (notificationListenerRef.current) {
-        Notifications.removeNotificationSubscription(notificationListenerRef.current);
+        notificationListenerRef.current.remove();
       }
       subscription.remove();
     };
@@ -331,7 +330,7 @@ export default function WeeklyScheduleScreen() {
       {!loading && error && (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity onPress={loadWeekSchedule} style={styles.retryButton}>
+          <TouchableOpacity onPress={() => loadWeekSchedule()} style={styles.retryButton}>
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
         </View>

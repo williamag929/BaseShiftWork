@@ -1,0 +1,69 @@
+<ng-container *ngIf="active && step">
+
+  <!-- ── Semi-transparent backdrop ── -->
+  <div class="tour-backdrop" role="presentation"></div>
+
+  <!-- ── Tooltip card ── -->
+  <div
+    class="tour-tooltip"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="step.title"
+    [style.top.px]="tooltipTop"
+    [style.left.px]="tooltipLeft"
+  >
+    <!-- Header row: progress counter + close -->
+    <div class="tour-header">
+      <div class="tour-dots">
+        <span
+          *ngFor="let s of tour.steps; let i = index"
+          class="tour-dot"
+          [class.active]="i === stepIndex"
+        ></span>
+      </div>
+      <button
+        class="tour-close-btn"
+        (click)="endTour()"
+        aria-label="Close tour"
+        title="Close tour"
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <h4 class="tour-title">{{ step.title }}</h4>
+    <p class="tour-text">{{ step.content }}</p>
+
+    <!-- Progress bar -->
+    <div class="tour-progress-bar">
+      <div
+        class="tour-progress-fill"
+        [style.width.%]="((stepIndex + 1) / totalSteps) * 100"
+      ></div>
+    </div>
+
+    <!-- Action row -->
+    <div class="tour-actions">
+      <button class="btn-tour-skip" (click)="endTour()">Skip</button>
+      <div class="tour-nav-btns">
+        <button
+          *ngIf="stepIndex > 0"
+          class="btn-tour-back"
+          (click)="prev()"
+        >
+          ← Back
+        </button>
+        <button class="btn-tour-next" (click)="next()">
+          {{ stepIndex === totalSteps - 1 ? 'Finish 🎉' : 'Next →' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Step counter label -->
+    <div class="tour-step-label">{{ stepIndex + 1 }} of {{ totalSteps }}</div>
+  </div>
+
+</ng-container>

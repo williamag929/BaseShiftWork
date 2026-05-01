@@ -97,38 +97,37 @@ export class AuthService {
   }
 
   async SignIn(email: string, password: string) {
-    try {
-      const credential = await this.afAuth.signInWithEmailAndPassword(email, password);
-      if (credential.user) {
-        await this.SetUserData(credential.user);
-        this.ngZone.run(() => {
-          this.toastr.success('Signed in successfully');
-          this.router.navigate(['company-switch']);
-        });
-      }
-    } catch (error: any) {
-      this.toastr.error(error.message);
+    const credential = await this.afAuth.signInWithEmailAndPassword(email, password);
+    if (credential.user) {
+      await this.SetUserData(credential.user);
+      this.ngZone.run(() => {
+        this.toastr.success('Signed in successfully');
+        this.router.navigate(['company-switch']);
+      });
     }
   }
 
   async SetUserData(user: any): Promise<void> {
+    // Extract from compat wrapper (_delegate) if needed
+    const u = user._delegate || user;
+    const userData: User = {
+      uid: u.uid,
+      email: u.email,
+      displayName: u.displayName,
+      photoURL: u.photoURL,
+      emailVerified: u.emailVerified,
+    };
+    // Save to localStorage first — this is what isLoggedIn checks
+    localStorage.setItem('user', JSON.stringify(userData));
+
+    // Firestore write is best-effort; don't block login if it fails
     try {
       const userRef: AngularFirestoreDocument<any> = runInInjectionContext(this.injector, () =>
-        this.afs.doc(`users/${user.uid}`)
+        this.afs.doc(`users/${u.uid}`)
       );
-      const userData: User = {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        emailVerified: user.emailVerified,
-      };
-      localStorage.setItem('user', JSON.stringify(userData));
       await userRef.set(userData, { merge: true });
     } catch (error) {
-      // Capture and rethrow to surface the specific error source
-      console.error('SetUserData failed', error);
-      throw error;
+      console.error('Firestore SetUserData failed (non-blocking)', error);
     }
   }
 
@@ -169,15 +168,16 @@ export class AuthService {
   }
 
   async updateUserData(user: any) {
+    const u = user?._delegate || user;
     const userRef: AngularFirestoreDocument<any> = runInInjectionContext(this.injector, () =>
-      this.afs.doc(`users/${user?.uid}`)
+      this.afs.doc(`users/${u?.uid}`)
     );
     const data: User = {
-      uid: user.uid,
-      email: user.email || '',
-      displayName: user.displayName || '',
-      photoURL: user.photoURL || '',
-      emailVerified: user.emailVerified || false
+      uid: u.uid,
+      email: u.email || '',
+      displayName: u.displayName || '',
+      photoURL: u.photoURL || '',
+      emailVerified: u.emailVerified || false
     };
     return userRef.set(data, { merge: true });
   }
@@ -187,6 +187,8 @@ export class AuthService {
       const credential = await this.afAuth.createUserWithEmailAndPassword(email, password);
       if (credential.user) {
         await this.sendVerificationMail();
+        // Seed BCrypt hash in the API so the mobile app can log in immediately
+        this.syncPassword(password).subscribe({ error: (e) => console.warn('sync-password failed (non-blocking):', e) });
         this.toastr.success('Signed up successfully');
       }
     } catch (error) {
@@ -221,6 +223,19 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/auth/accept-invite`, {
       token, companyId, personId, email, password
     }, this.getHttpOptions()).pipe(catchError((err) => this.handleHttpError(err)));
+  }
+
+  /**
+   * Syncs the BCrypt password hash in the API DB with the current Firebase password.
+   * Fire-and-forget — call after any successful Firebase sign-in or registration.
+   * Requires a valid Firebase JWT to already be in sessionStorage.
+   */
+  syncPassword(password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/sync-password`, { password }, this.getHttpOptions())
+      .pipe(catchError((err) => {
+        console.warn('sync-password non-critical error:', err);
+        return of(null);
+      }));
   }
 
   async forgotPassword(passwordResetEmail: string): Promise<void> {
@@ -270,6 +285,6 @@ export class AuthService {
 
   get isLoggedIn(): boolean {
     const user = JSON.parse(localStorage.getItem('user')!);
-    return user !== null && user.emailVerified !== false ? true : false;
+    return user !== null;
   }
 }

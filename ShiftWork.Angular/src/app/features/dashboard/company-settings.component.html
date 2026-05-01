@@ -67,7 +67,10 @@
       
       <div class="form-group">
         <label for="defaultTimeZone">Default Time Zone</label>
-        <input type="text" id="defaultTimeZone" [(ngModel)]="settings.defaultTimeZone" placeholder="UTC">
+        <select id="defaultTimeZone" [(ngModel)]="settings.defaultTimeZone">
+          <option value="" disabled>Select a Timezone</option>
+          <option *ngFor="let tz of timezones" [value]="tz.value">{{ tz.name }}</option>
+        </select>
       </div>
 
       <div class="form-group">
@@ -445,6 +448,86 @@
           Leave blank to keep the current password unchanged.
         </small>
       </div>
+
+      <!-- ── Clock-Out Survey Questions ──────────────────────────────────────── -->
+      <div class="settings-subsection">
+        <div class="subsection-header">
+          <h3>Clock-Out Survey Questions</h3>
+          <button class="btn-add" (click)="openNewQuestionForm()" type="button">+ Add Question</button>
+        </div>
+
+        <div *ngIf="kioskQuestionsLoading" class="loading-inline">Loading questions…</div>
+
+        <div *ngIf="!kioskQuestionsLoading && kioskQuestions.length === 0 && !showQuestionForm" class="empty-hint">
+          No questions yet. Add one to collect employee responses at clock-out.
+        </div>
+
+        <!-- Question list -->
+        <div *ngIf="kioskQuestions.length > 0" class="question-list">
+          <div *ngFor="let q of kioskQuestions" class="question-row">
+            <div class="question-info">
+              <span class="question-text">{{ q.questionText }}</span>
+              <span class="question-meta">
+                {{ q.questionType | titlecase }}
+                <span *ngIf="q.isRequired" class="badge-required">Required</span>
+                <span *ngIf="!q.isActive" class="badge-inactive">Inactive</span>
+              </span>
+            </div>
+            <div class="question-actions">
+              <button class="btn-icon" (click)="openEditQuestionForm(q)" title="Edit" type="button">✏️</button>
+              <button class="btn-icon btn-danger" (click)="deleteQuestion(q)" title="Delete" type="button">🗑️</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inline add/edit form -->
+        <div *ngIf="showQuestionForm" class="question-form">
+          <h4>{{ editingQuestion ? 'Edit Question' : 'New Question' }}</h4>
+
+          <div class="form-group">
+            <label>Question Text</label>
+            <input type="text" [(ngModel)]="questionForm.questionText" placeholder="Enter question…" maxlength="500">
+          </div>
+
+          <div class="form-group">
+            <label>Question Type</label>
+            <select [(ngModel)]="questionForm.questionType">
+              <option value="yes_no">Yes / No</option>
+              <option value="multiple_choice">Multiple Choice</option>
+              <option value="text">Free Text</option>
+            </select>
+          </div>
+
+          <div class="form-group" *ngIf="questionForm.questionType === 'multiple_choice'">
+            <label>Options <small>(one per line)</small></label>
+            <textarea [(ngModel)]="questionOptionsText" rows="4" placeholder="Option A&#10;Option B&#10;Option C"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group checkbox">
+              <input type="checkbox" id="qIsRequired" [(ngModel)]="questionForm.isRequired">
+              <label for="qIsRequired">Required</label>
+            </div>
+            <div class="form-group checkbox">
+              <input type="checkbox" id="qIsActive" [(ngModel)]="questionForm.isActive">
+              <label for="qIsActive">Active</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Display Order</label>
+            <input type="number" [(ngModel)]="questionForm.displayOrder" min="0" step="1" style="width:80px">
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-save" (click)="saveQuestion()" [disabled]="savingQuestion || !questionForm.questionText.trim()" type="button">
+              {{ savingQuestion ? 'Saving…' : (editingQuestion ? 'Update' : 'Create') }}
+            </button>
+            <button class="btn-cancel" (click)="cancelQuestionForm()" type="button">Cancel</button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </div>

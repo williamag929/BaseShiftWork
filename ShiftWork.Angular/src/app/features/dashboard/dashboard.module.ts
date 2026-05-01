@@ -4,7 +4,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { DashboardComponent } from './dashboard.component';
-import { ProfilesComponent } from './profiles/profiles.component';
 import { PeopleComponent } from './people/people.component';
 import { AreasComponent } from './areas/areas.component';
 import { LocationsComponent } from './locations/locations.component';
@@ -18,6 +17,7 @@ import { share } from 'rxjs';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ScheduleGridComponent } from './schedule-grid/schedule-grid.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { DashboardOverviewComponent } from './overview/overview.component';
 
 // Import Audit History Components
 import { AuditHistoryButtonComponent } from '../kiosk/audit-history/audit-history-button.component';
@@ -25,13 +25,18 @@ import { AuditHistoryDialogComponent } from '../kiosk/audit-history/audit-histor
 import { AuditHistoryTimelineComponent } from '../kiosk/audit-history/audit-history-timeline.component';
 import { AuditHistoryFiltersComponent } from '../kiosk/audit-history/audit-history-filters.component';
 
+// Guided tour
+import { TourOverlayComponent } from 'src/app/shared/tour/tour-overlay.component';
+
 
 const routes: Routes = [
   {
     path: '',
     component: DashboardComponent,
     children: [
-      { path: 'profiles', component: ProfilesComponent },
+      { path: '', component: DashboardOverviewComponent },
+      { path: 'overview', component: DashboardOverviewComponent },
+      { path: 'profiles', loadChildren: () => import('./profiles/profiles.module').then(m => m.ProfilesModule) },
       { path: 'people', component: PeopleComponent },
       { path: 'areas', component: AreasComponent },
       { path: 'locations', component: LocationsComponent },
@@ -44,7 +49,10 @@ const routes: Routes = [
       { path: 'clock-shift', loadComponent: () => import('./clock-shift/clock-shift.component').then(m => m.ClockShiftComponent) },
       { path: 'shiftsummaries', loadComponent: () => import('./shiftsummaries/shiftsummaries.component').then(m => m.ShiftsummariesComponent) },
       { path: 'company-settings', loadComponent: () => import('./company-settings.component').then(m => m.CompanySettingsComponent) },
-      { path: '', redirectTo: 'schedule-grid', pathMatch: 'full' }
+      { path: 'bulletins', loadChildren: () => import('./bulletins/bulletins.module').then(m => m.BulletinsModule) },
+      { path: 'daily-reports', loadChildren: () => import('./daily-reports/daily-reports.module').then(m => m.DailyReportsModule) },
+      { path: 'documents', loadChildren: () => import('./documents/documents.module').then(m => m.DocumentsModule) },
+      { path: 'safety', loadChildren: () => import('./safety/safety.module').then(m => m.SafetyModule) },
     ]
   }
 ];
@@ -56,7 +64,8 @@ const routes: Routes = [
     PeopleComponent,
     LocationsComponent,
     DashboardComponent,
-    CrewsComponent
+    CrewsComponent,
+    DashboardOverviewComponent
   ],
   imports: [
     CommonModule,
@@ -70,6 +79,8 @@ const routes: Routes = [
     AuditHistoryDialogComponent,
     AuditHistoryTimelineComponent,
     AuditHistoryFiltersComponent,
+    // Guided tour (standalone)
+    TourOverlayComponent,
     // TODO: ProfilesComponent is standalone, and cannot be declared in an NgModule. Did you mean to import it instead?
   ],
   providers: [

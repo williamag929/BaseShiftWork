@@ -393,10 +393,11 @@ After both API and Angular are running:
 - Angular PTO service and balance display in approvals UI
 
 ### Notification Service (Complete)
-- Multi-channel support: Email (SMTP), SMS (Twilio), Push (simulated)
+- Multi-channel support: Email (SMTP/Zoho), SMS (Twilio), Push (Expo Push API — real)
 - Configurable per notification via channel parameter
 - Integrated into replacement request notifications
 - Time-off decision notifications (approve/deny) sent to requester
+- **Schedule/shift publish notifications:** push + email sent to all assigned employees on first publish transition; `SchedulesController` and `ScheduleShiftsController` fire-and-forget on status change
 - Graceful fallback when providers not configured (simulation mode)
 
 ### Sick Event Reporting (MVP Complete)
@@ -423,21 +424,24 @@ After both API and Angular are running:
 
 ## Notification Service
 
-The backend includes a Notification Service used to contact replacement candidates via push (simulated), SMS, or email. If third-party providers aren’t configured, notifications are simulated via logs so the workflow remains testable.
+The backend includes a Notification Service used to contact replacement candidates and employees via push (Expo Push API), SMS (Twilio), or email (SMTP).
 
 Channels and configuration (appsettings or environment variables):
-- Email (SMTP)
-  - Smtp:Host
-  - Smtp:Port
-  - Smtp:Username
-  - Smtp:Password
-  - Smtp:From
+- Email (SMTP/Zoho)
+  - `Smtp:Host` / `Smtp__Host`
+  - `Smtp:Port` / `Smtp__Port`
+  - `Smtp:Username` / `Smtp__Username`
+  - `Smtp:Password` / `Smtp__Password`
+  - `Smtp:From` / `Smtp__From`
 - SMS (Twilio)
-  - Twilio:AccountSid
-  - Twilio:AuthToken
-  - Twilio:From
-- Push
-  - Currently simulated; future integration could target Firebase Cloud Messaging or a mobile backend.
+  - `Twilio:AccountSid`
+  - `Twilio:AuthToken`
+  - `Twilio:From`
+- Push (Expo Push API — live)
+  - `EXPO_PUSH_API_URL` (default: `https://exp.host/--/api/v2/push/send`)
+  - Device tokens stored in `PersonDeviceToken` table; registered from mobile via `POST /api/companies/{cid}/people/{pid}/device-tokens`
+  - Tokens auto-removed on `DeviceNotRegistered` response from Expo
+  - Mobile EAS project ID: `531adbf1-53a0-48ca-9fc8-f65ae312365a` (owner: `williamaguirre82`)
 
 Endpoints:
 - POST /api/companies/{companyId}/replacement-requests → Create a replacement request for a shift
@@ -497,6 +501,96 @@ These settings are validated and enforced in existing code:
 
 ---
 
+---
+
+## V2 Content & Communication Subsystem (Branch: `feature/v2-content-communication`)
+
+Full spec: `Docs/V2_CONTENT_COMMUNICATION_SPEC.md`
+Implementation tasks: `Docs/V2_IMPLEMENTATION_GUIDE.md`
+Agent definition: `.github/agents/content-specialist.yml`
+
+### New Models (8)
+`Bulletin`, `BulletinRead`, `LocationDailyReport`, `ReportMedia`, `Document`, `DocumentReadLog`, `SafetyContent`, `SafetyAcknowledgment`
+
+### New API Endpoints
+
+Bulletins
+- `GET /api/companies/{cid}/bulletins` → list (query: locationId, type, status, page)
+- `GET /api/companies/{cid}/bulletins/unread` → unread for authenticated employee
+- `GET /api/companies/{cid}/bulletins/{id}` → detail + isReadByCurrentUser
+- `POST /api/companies/{cid}/bulletins` → create; triggers push notification
+- `PUT /api/companies/{cid}/bulletins/{id}` → update
+- `DELETE /api/companies/{cid}/bulletins/{id}` → archive
+- `POST /api/companies/{cid}/bulletins/{id}/read` → mark as read (idempotent)
+- `GET /api/companies/{cid}/bulletins/{id}/reads` → who has read (manager)
+
+Daily Reports
+- `GET /api/companies/{cid}/locations/{lid}/daily-reports` → list for location
+- `GET /api/companies/{cid}/locations/{lid}/daily-reports/{date}` → get or auto-create (date: yyyy-MM-dd). Auto-fetches weather for today.
+- `PUT /api/companies/{cid}/locations/{lid}/daily-reports/{id}` → update notes / submit
+- `POST /api/companies/{cid}/locations/{lid}/daily-reports/{id}/media` → upload photo (multipart)
+- `DELETE /api/companies/{cid}/locations/{lid}/daily-reports/{id}/media/{mediaId}` → remove photo
+- `GET /api/companies/{cid}/locations/{lid}/daily-reports/{id}/export` → PDF (returns 501 in v2)
+
+Documents
+- `GET /api/companies/{cid}/documents` → list filtered by caller's access level
+- `GET /api/companies/{cid}/documents/{id}` → detail + 15-min presigned S3 URL; logs read event
+- `POST /api/companies/{cid}/documents` → initiate upload; returns presigned PUT URL + documentId
+- `PATCH /api/companies/{cid}/documents/{id}/confirm` → activate after S3 upload
+- `PUT /api/companies/{cid}/documents/{id}` → update metadata
+- `DELETE /api/companies/{cid}/documents/{id}` → archive
+- `GET /api/companies/{cid}/documents/{id}/read-logs` → compliance log (manager)
+
+Safety
+- `GET /api/companies/{cid}/safety` → list (query: type, locationId, status)
+- `GET /api/companies/{cid}/safety/{id}` → detail + caller's acknowledgment status
+- `POST /api/companies/{cid}/safety` → create; schedules push if ScheduledFor is set
+- `PUT /api/companies/{cid}/safety/{id}` → update
+- `DELETE /api/companies/{cid}/safety/{id}` → archive
+- `POST /api/companies/{cid}/safety/{id}/acknowledge` → employee sign-off (idempotent)
+- `GET /api/companies/{cid}/safety/{id}/acknowledgments` → { completed[], pending[], completionRate }
+- `GET /api/companies/{cid}/people/{pid}/safety/pending` → pending required items for employee
+
+### New Environment Variable
+`OPENWEATHER_API_KEY` — free tier key from openweathermap.org; used in `WeatherService` for daily reports.
+
+### New Permissions (17)
+`bulletins.create`, `bulletins.read`, `bulletins.delete`, `bulletins.track-reads`,
+`reports.create`, `reports.view`, `reports.export`, `reports.approve`,
+`documents.upload`, `documents.read`, `documents.delete`, `documents.view-logs`, `documents.manage-access`,
+`safety.create`, `safety.read`, `safety.delete`, `safety.acknowledge`, `safety.track`
+
+### Agent Task Recipe: Check Bulletin Compliance
+
+```
+1. GET /api/companies/{cid}/bulletins?status=Published
+2. For each bulletin: GET /api/companies/{cid}/bulletins/{id}/reads
+3. Compare reads list against active employees at bulletin's locationId
+4. Employees not in reads list → pending acknowledgment
+```
+
+### Agent Task Recipe: Check Safety Compliance for a Location
+
+```
+1. GET /api/companies/{cid}/safety?locationId={lid}&status=Published
+2. For each required item (isAcknowledgmentRequired=true):
+   GET /api/companies/{cid}/safety/{id}/acknowledgments
+3. Response.pending[] → employees still needing to acknowledge
+```
+
+### Agent Task Recipe: Submit Daily Report
+
+```
+1. GET /api/companies/{cid}/locations/{lid}/daily-reports/{today}
+   → auto-creates draft with weather + ShiftEvent aggregates
+2. POST /api/companies/{cid}/locations/{lid}/daily-reports/{id}/media
+   → upload photos (multipart)
+3. PUT /api/companies/{cid}/locations/{lid}/daily-reports/{id}
+   Body: { "notes": "...", "status": "Submitted" }
+```
+
+---
+
 ## Potential Future Enhancements (Backlog)
 
 ### 🔄 Shift Management
@@ -513,7 +607,7 @@ These settings are validated and enforced in existing code:
 - **Person PTO Configuration UI** - Interface to set accrual rate, starting balance, and start date per employee
 
 ### 🔔 Notifications & Communication
-- ✅ **Real Notification Service** - Email (SMTP), SMS (Twilio), and push (simulated) implemented with configurable channels
+- ✅ **Real Notification Service** - Email (SMTP/Zoho), SMS (Twilio), and push (Expo Push API) implemented with configurable channels
 - ✅ **Replacement Request Alerts** - Notify candidates via push/SMS/email when selected for replacement
 - ✅ **Approval Notifications** - Alert employees via push notification when time-off approved/denied
 - **Shift Reminder Notifications** - Remind employees of upcoming shifts

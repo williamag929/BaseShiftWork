@@ -14,17 +14,21 @@ ShiftWork Mobile is a cross-platform mobile application (iOS & Android) built wi
 ## Technology Stack
 
 - **Framework**: React Native 0.81.5 + Expo SDK 54
-- **Routing**: Expo Router (file-based routing)
+- **Routing**: Expo Router 6 (file-based routing)
 - **Language**: TypeScript (strict mode)
-- **State Management**: Zustand
+- **State Management**: Zustand 4 + TanStack React Query 5
 - **API Client**: Axios with Firebase JWT auth
-- **Data Fetching**: TanStack Query (React Query)
-- **Authentication**: Firebase Auth (currently mocked/disabled in config/firebase.ts)
-- **Secure Storage**: expo-secure-store
-- **Camera**: expo-camera
-- **Location**: expo-location
-- **Biometrics**: expo-local-authentication
-- **Calendar**: react-native-calendars
+- **Animation**: `react-native-reanimated` 4.1 — used on all screens (FadeIn, springs, shared values)
+- **Gestures**: `react-native-gesture-handler` 2.28 — `GestureHandlerRootView` at root, `PressableScale` throughout
+- **Forms**: `react-hook-form` 7 + `zod` 4 — all auth and profile forms
+- **Design Language**: Apple iOS 17 HIG — `#007AFF` systemBlue, `#F2F2F7` grouped background, `borderRadius: 13` cards
+- **Authentication**: Firebase Auth (currently mocked/disabled in `config/firebase.ts`)
+- **Secure Storage**: `expo-secure-store`
+- **Camera**: `expo-camera`
+- **Location**: `expo-location`
+- **Biometrics**: `expo-local-authentication`
+- **Haptics**: `expo-haptics` — required on every action outcome (Light impact, Selection, Notification)
+- **Icons**: `@expo/vector-icons` Ionicons — always use filled/outline pairs for tab/active states
 
 ## Project Structure
 

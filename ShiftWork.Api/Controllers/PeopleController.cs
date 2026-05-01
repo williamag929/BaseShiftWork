@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
@@ -601,6 +602,7 @@ namespace ShiftWork.Api.Controllers
                         Uid = inviteToken,
                         Email = person.Email,
                         DisplayName = person.Name,
+                        PhotoURL = person.PhotoUrl ?? string.Empty,
                         CompanyId = companyId,
                         EmailVerified = false
                     };
@@ -609,7 +611,7 @@ namespace ShiftWork.Api.Controllers
 
                 // Assign roles (only for new invites; keep existing roles on resend/reset)
                 var assignedBy = User?.Identity?.Name ?? "Admin";
-                if (!isResend && !isPasswordReset)
+                if (!isResend && !isPasswordReset && request.RoleIds != null)
                 {
                     foreach (var roleId in request.RoleIds)
                     {
@@ -753,6 +755,37 @@ namespace ShiftWork.Api.Controllers
                 pendingUser.EmailVerified = true;
                 pendingUser.UpdatedAt = DateTime.UtcNow;
                 var updatedUser = await _companyUserService.UpdateAsync(request.InviteToken, pendingUser);
+
+                // Sync roles from CompanyUserProfiles → UserRoles so permissions work immediately
+                var profileRoles = await _context.CompanyUserProfiles
+                    .Where(p => p.CompanyUserId == updatedUser.CompanyUserId
+                             && p.CompanyId == companyId
+                             && p.IsActive)
+                    .Select(p => p.RoleId)
+                    .ToListAsync();
+
+                if (profileRoles.Count > 0)
+                {
+                    var existingRoles = await _context.UserRoles
+                        .Where(ur => ur.CompanyUserId == updatedUser.CompanyUserId && ur.CompanyId == companyId)
+                        .ToListAsync();
+                    if (existingRoles.Count > 0)
+                        _context.UserRoles.RemoveRange(existingRoles);
+
+                    foreach (var roleId in profileRoles)
+                    {
+                        _context.UserRoles.Add(new UserRole
+                        {
+                            CompanyUserId = updatedUser.CompanyUserId,
+                            RoleId = roleId,
+                            CompanyId = companyId
+                        });
+                    }
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogInformation("Synced {Count} role(s) to UserRoles for CompanyUser {CUId} in company {CompanyId}",
+                        profileRoles.Count, updatedUser.CompanyUserId, companyId);
+                }
 
                 // Get all profiles for this user
                 var profiles = await _profileService.GetProfiles(companyId, updatedUser.CompanyUserId);

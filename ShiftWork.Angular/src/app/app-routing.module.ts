@@ -6,10 +6,9 @@ import { authGuard } from './core/guards/auth.guard';
 const routes: Routes = [
   // --- Public routes (no auth guard) ---
   { path: 'auth', loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule) },
-  // New customer self-registration wizard (public — no auth guard)
-  { path: 'register', loadChildren: () => import('./features/registration/registration.module').then(m => m.RegistrationModule) },
-  // Onboarding sandbox management after registration (public — no auth guard at this stage)
-  { path: 'onboarding', loadChildren: () => import('./features/onboarding/onboarding.module').then(m => m.OnboardingModule) },
+  // Self-registration disabled: users must be invited by a company admin
+  { path: 'register', redirectTo: '/auth/sign-in', pathMatch: 'prefix' },
+  { path: 'onboarding', redirectTo: '/auth/sign-in', pathMatch: 'prefix' },
 
   // --- Authenticated routes ---
   { path: 'dashboard', loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule), canActivate: [authGuard] },
@@ -23,7 +22,7 @@ const routes: Routes = [
   // Back-compat redirects for older links
   { path: 'accept-invite', redirectTo: '/auth/accept-invite', pathMatch: 'full' },
   { path: 'forgot-password', redirectTo: '/auth/forgot-password', pathMatch: 'full' },
-  { path: 'register-user', redirectTo: '/auth/sign-up', pathMatch: 'full' },
+  { path: 'register-user', redirectTo: '/auth/sign-in', pathMatch: 'full' },
   { path: '', redirectTo: '/auth/sign-in', pathMatch: 'full' },
   { path: '**', redirectTo: '/auth/sign-in' }
 ];

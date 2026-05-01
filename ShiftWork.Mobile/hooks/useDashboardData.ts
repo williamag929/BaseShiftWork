@@ -2,15 +2,17 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState, useEffect } from 'react';
 import * as Network from 'expo-network';
 import { scheduleService, shiftEventService } from '@/services';
+import { bulletinService } from '@/services/bulletin.service';
+import { safetyService } from '@/services/safety.service';
 import { apiClient } from '@/services/api-client';
 import { dbService } from '@/services/db';
-import { getStartOfWeek, getEndOfWeek, formatDateForApi } from '@/utils/date.utils';
+import { getStartOfWeekUTC, getEndOfWeekUTC, formatDateForApi } from '@/utils/date.utils';
 import { ShiftEventTypes } from '@/types/api';
 import type { ScheduleShiftDto, ShiftEventDto } from '@/types/api';
 import type { TimeOffRequest } from '@/services/time-off-request.service';
 import { getActiveClockInAt } from '@/utils';
 import { logger } from '@/utils/logger';
-import { useTimeOffRequests, useLocationName } from './queries';
+import { useCompanyTimeZone, useTimeOffRequests, useLocationName } from './queries';
 
 // ---------------------------------------------------------------------------
 // Pure async function — orchestrates all dashboard fetches with offline fallback
@@ -22,6 +24,9 @@ interface DashboardQueryData {
   isOnline: boolean;
 }
 
+const EMPTY_EVENTS: ShiftEventDto[] = [];
+const EMPTY_SHIFTS: ScheduleShiftDto[] = [];
+
 async function fetchDashboardData(companyId: string, personId: number): Promise<DashboardQueryData> {
   await dbService.initDb().catch(() => {});
 
@@ -29,10 +34,9 @@ async function fetchDashboardData(companyId: string, personId: number): Promise<
   const online = !!state.isConnected && !!state.isInternetReachable;
 
   const now = new Date();
-  const weekStart = getStartOfWeek(now);
-  const weekEnd = getEndOfWeek(now);
-  const next7End = new Date(now);
-  next7End.setDate(now.getDate() + 7);
+  const weekStart = getStartOfWeekUTC(now);
+  const weekEnd = getEndOfWeekUTC(now);
+  const next7End = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 7));
 
   if (online) {
     const [events, shiftsWeek, shiftsNext7, status] = await Promise.all([
@@ -90,6 +94,9 @@ export interface DashboardData {
   isClockedIn: boolean;
   todayShift: ScheduleShiftDto | null;
   todayShiftLocationName: string | null;
+  companyTimeZone: string | null;
+  unreadBulletins: number;
+  pendingSafety: number;
 }
 
 export const useDashboardData = (
@@ -123,11 +130,42 @@ export const useDashboardData = (
     personId,
   );
 
-  const recentEvents = data?.recentEvents ?? [];
-  const upcoming = data?.upcoming ?? [];
+  // ── Content KPIs ──
+  const { data: unreadBulletins = 0 } = useQuery({
+    queryKey: ['dashboard-unread-bulletins', companyId, personId],
+    enabled: !!companyId && !!personId,
+    staleTime: 60_000,
+    queryFn: async () => {
+      try {
+        const data = await bulletinService.getUnread(companyId!);
+        return data.length;
+      } catch {
+        return 0;
+      }
+    },
+  });
+
+  const { data: pendingSafety = 0 } = useQuery({
+    queryKey: ['dashboard-pending-safety', companyId, personId],
+    enabled: !!companyId && !!personId,
+    staleTime: 60_000,
+    queryFn: async () => {
+      try {
+        const data = await safetyService.getPending(companyId!);
+        return data.length;
+      } catch {
+        return 0;
+      }
+    },
+  });
+
+  const recentEvents = data?.recentEvents ?? EMPTY_EVENTS;
+  const upcoming = data?.upcoming ?? EMPTY_SHIFTS;
   const isOnline = data?.isOnline ?? true;
   const personStatus = data?.personStatus ?? null;
   const lastUpdated = dataUpdatedAt ? new Date(dataUpdatedAt) : null;
+  const latestEventType = recentEvents[0]?.eventType ?? null;
+  const latestEventDate = recentEvents[0]?.eventDate ?? null;
 
   // ── Today's shift (memoised) ──
   const todayShift = useMemo(() => {
@@ -150,6 +188,9 @@ export const useDashboardData = (
     todayShift?.locationId,
   );
 
+  // ── Company timezone for shift time display ──
+  const companyTimeZone = useCompanyTimeZone(companyId);
+
   // ── Derived clock state ──
   const isClockedIn = useMemo(() => {
     const latest = recentEvents?.[0];
@@ -160,8 +201,8 @@ export const useDashboardData = (
   // ── Weekly stats ──
   const hoursThisWeek = useMemo(() => {
     const now = new Date();
-    const start = getStartOfWeek(now);
-    const end = getEndOfWeek(now);
+    const start = getStartOfWeekUTC(now);
+    const end = getEndOfWeekUTC(now);
     const events = recentEvents
       .filter((e) => new Date(e.eventDate) >= start && new Date(e.eventDate) <= end)
       .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
@@ -183,8 +224,8 @@ export const useDashboardData = (
 
   const shiftsThisWeek = useMemo(() => {
     const now = new Date();
-    const start = getStartOfWeek(now);
-    const end = getEndOfWeek(now);
+    const start = getStartOfWeekUTC(now);
+    const end = getEndOfWeekUTC(now);
     return upcoming.filter((s) => {
       const startDate = new Date(s.startDate);
       return startDate >= start && startDate <= end;
@@ -193,16 +234,37 @@ export const useDashboardData = (
 
   // ── Derive activeClockInAt from recentEvents ──
   useEffect(() => {
-    const latest = recentEvents?.[0];
+    let cancelled = false;
+
     (async () => {
-      if (latest?.eventType === ShiftEventTypes.ClockIn) {
-        setActiveClockInAt(new Date(latest.eventDate));
+      const nextActiveClockInAt = latestEventType === ShiftEventTypes.ClockIn && latestEventDate
+        ? new Date(latestEventDate)
+        : (() => null)();
+
+      if (nextActiveClockInAt) {
+        if (cancelled) return;
+        setActiveClockInAt((previous) => {
+          const previousTime = previous?.getTime() ?? null;
+          const nextTime = nextActiveClockInAt.getTime();
+          return previousTime === nextTime ? previous : nextActiveClockInAt;
+        });
       } else {
         const saved = await getActiveClockInAt();
-        setActiveClockInAt(saved ? new Date(saved) : null);
+        if (cancelled) return;
+
+        const nextSavedClockInAt = saved ? new Date(saved) : null;
+        setActiveClockInAt((previous) => {
+          const previousTime = previous?.getTime() ?? null;
+          const nextTime = nextSavedClockInAt?.getTime() ?? null;
+          return previousTime === nextTime ? previous : nextSavedClockInAt;
+        });
       }
     })();
-  }, [recentEvents]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [latestEventType, latestEventDate]);
 
   // ── Elapsed timer (1-second tick) ──
   useEffect(() => {
@@ -244,6 +306,9 @@ export const useDashboardData = (
     isClockedIn,
     todayShift,
     todayShiftLocationName,
+    companyTimeZone,
+    unreadBulletins,
+    pendingSafety,
   };
 };
 

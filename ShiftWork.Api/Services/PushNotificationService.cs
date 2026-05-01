@@ -12,6 +12,7 @@ public class PushNotificationService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ShiftWorkContext _context;
     private readonly ILogger<PushNotificationService> _logger;
+    private readonly INotificationService _notificationService;
     private const string ExpoApiUrl = "https://exp.host/--/api/v2/push/send";
     private static readonly Regex ExpoTokenRegex = new(@"^(Expo|Exponent)PushToken\[.+\]$", RegexOptions.Compiled);
     private const int ExpoChunkSize = 100;
@@ -19,11 +20,13 @@ public class PushNotificationService
     public PushNotificationService(
         IHttpClientFactory httpClientFactory,
         ShiftWorkContext context,
-        ILogger<PushNotificationService> logger)
+        ILogger<PushNotificationService> logger,
+        INotificationService notificationService)
     {
         _httpClientFactory = httpClientFactory;
         _context = context;
         _logger = logger;
+        _notificationService = notificationService;
     }
 
     /// <summary>
@@ -202,39 +205,51 @@ public class PushNotificationService
     }
 
     /// <summary>
-    /// Notify when a schedule is published
+    /// Notify when a schedule is published — sends push notification and email to all assigned employees.
     /// </summary>
     public async Task NotifySchedulePublishedAsync(string companyId, int scheduleId, DateTime startDate, DateTime endDate)
     {
-        // Get all people assigned to shifts in this schedule
         var personIds = await _context.ScheduleShifts
             .Where(ss => ss.ScheduleId == scheduleId)
             .Select(ss => ss.PersonId)
             .Distinct()
             .ToListAsync();
 
-        if (personIds.Any())
-        {
-            var data = new Dictionary<string, object>
-            {
-                { "type", "schedule_published" },
-                { "scheduleId", scheduleId },
-                { "startDate", startDate.ToString("o") },
-                { "endDate", endDate.ToString("o") }
-            };
+        if (!personIds.Any()) return;
 
-            await SendNotificationToMultiplePeopleAsync(
-                companyId,
-                personIds,
-                "Schedule Published",
-                $"New schedule available for {startDate:MMM dd} - {endDate:MMM dd}",
-                data
-            );
+        var data = new Dictionary<string, object>
+        {
+            { "type", "schedule_published" },
+            { "scheduleId", scheduleId },
+            { "startDate", startDate.ToString("o") },
+            { "endDate", endDate.ToString("o") }
+        };
+
+        await SendNotificationToMultiplePeopleAsync(
+            companyId,
+            personIds,
+            "Schedule Published",
+            $"New schedule available for {startDate:MMM dd} - {endDate:MMM dd}",
+            data);
+
+        var persons = await _context.Persons
+            .Where(p => p.CompanyId == companyId && personIds.Contains(p.PersonId))
+            .Select(p => new { p.Email, p.Name })
+            .ToListAsync();
+
+        foreach (var person in persons)
+        {
+            var subject = "Your Schedule Has Been Published";
+            var body = $"Hi {person.Name},<br/><br/>"
+                + $"Your schedule from <strong>{startDate:MMMM dd, yyyy}</strong> to <strong>{endDate:MMMM dd, yyyy}</strong> "
+                + $"is now published and available for viewing.<br/><br/>"
+                + "Please log in to the ShiftWork app to view your shifts.";
+            await _notificationService.SendEmailAsync(person.Email, subject, body);
         }
     }
 
     /// <summary>
-    /// Notify when a shift is assigned to a person
+    /// Notify when a shift is assigned to a person — sends push notification and email.
     /// </summary>
     public async Task NotifyShiftAssignedAsync(string companyId, int personId, int shiftId, DateTime startDate)
     {
@@ -250,8 +265,21 @@ public class PushNotificationService
             personId,
             "New Shift Assigned",
             $"You have a new shift on {startDate:MMM dd 'at' h:mm tt}",
-            data
-        );
+            data);
+
+        var person = await _context.Persons
+            .Where(p => p.CompanyId == companyId && p.PersonId == personId)
+            .Select(p => new { p.Email, p.Name })
+            .FirstOrDefaultAsync();
+
+        if (person != null)
+        {
+            var subject = "New Shift Assigned";
+            var body = $"Hi {person.Name},<br/><br/>"
+                + $"You have been assigned a new shift on <strong>{startDate:MMMM dd, yyyy 'at' h:mm tt}</strong>.<br/><br/>"
+                + "Please log in to the ShiftWork app to view your schedule.";
+            await _notificationService.SendEmailAsync(person.Email, subject, body);
+        }
     }
 
     /// <summary>

@@ -6,25 +6,29 @@
 >
 > **Branch:** `feature/mobile-ui-enhancements`  
 > **Audit date:** March 2026 — Expo SDK 54, RN 0.81, React 19
+>
+> **UI Overhaul Status — April 2026:** Phases 1–3 (Foundation, Decomposition, Animation & Polish)
+> are **complete**. All screens have been redesigned to Apple iOS Human Interface Guidelines
+> standards. See [FEATURES_COMPLETE.md](FEATURES_COMPLETE.md) for the full inventory.
 
 ---
 
 ## Diagnosis: What We Are Fixing
 
-| Issue | Evidence | Impact |
-|---|---|---|
-| God-component screens | `dashboard.tsx` 892 lines, `clock.tsx` 558 lines | Untestable, unmaintainable |
-| Raw `useState` forms | `clock.tsx`, `time-off-request.tsx`, `register.tsx` | No validation, inconsistent errors |
-| `TouchableOpacity` everywhere | All screens | No press feedback control, deprecated |
-| Zero animations | No Reanimated usage despite being installed | Feels unfinished, cheap |
-| `ActivityIndicator` as only loading state | All screens | Poor perceived performance |
-| Direct service calls in `useEffect` | `dashboard.tsx`, `clock.tsx` | Bypasses React Query cache |
-| `FlatList` for all lists | Schedule, events, people | Jank on Android, frame drops |
-| No error boundary | Root layout | Crashes show white screen |
-| `console.log` in production paths | `api-client.ts`, `_layout.tsx` | Log leakage, noise |
-| No tests | Zero test files | No regression safety net |
-| `theme.ts` partially followed | Hardcoded hex values in several screens | Design inconsistency |
-| Firebase Auth disabled (mock) | `config/firebase.ts` | Not production-ready |
+| Issue | Evidence | Impact | Status |
+|---|---|---|---|
+| God-component screens | `dashboard.tsx` 892 lines, `clock.tsx` 558 lines | Untestable, unmaintainable | ✅ Decomposed |
+| Raw `useState` forms | `clock.tsx`, `time-off-request.tsx`, `register.tsx` | No validation, inconsistent errors | ✅ RHF + zod |
+| `TouchableOpacity` everywhere | All screens | No press feedback control, deprecated | ✅ `PressableScale` |
+| Zero animations | No Reanimated usage despite being installed | Feels unfinished, cheap | ✅ `FadeIn/Down/Up`, springs |
+| `ActivityIndicator` as only loading state | All screens | Poor perceived performance | ✅ `Skeleton` components |
+| Direct service calls in `useEffect` | `dashboard.tsx`, `clock.tsx` | Bypasses React Query cache | ✅ React Query hooks |
+| `FlatList` for all lists | Schedule, events, people | Jank on Android, frame drops | ⏳ Phase 4 |
+| No error boundary | Root layout | Crashes show white screen | ✅ `ErrorBoundary` |
+| `console.log` in production paths | `api-client.ts`, `_layout.tsx` | Log leakage, noise | ✅ `logger.ts` utility |
+| No tests | Zero test files | No regression safety net | ⏳ Phase 5 |
+| `theme.ts` partially followed | Hardcoded hex values in several screens | Design inconsistency | ✅ iOS HIG tokens |
+| Firebase Auth disabled (mock) | `config/firebase.ts` | Not production-ready | ⏳ Phase 6 |
 
 ---
 

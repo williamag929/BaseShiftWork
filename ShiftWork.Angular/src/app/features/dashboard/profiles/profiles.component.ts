@@ -1,30 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
-import { Role } from 'src/app/core/models/role.model';
-import { RoleService } from 'src/app/core/services/role.service';
-import { ToastrService } from 'ngx-toastr';
-import { ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { Observable, forkJoin } from 'rxjs';
 import { Store } from '@ngrx/store';
+import { ToastrService } from 'ngx-toastr';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
-import { Observable } from 'rxjs';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-
+import { Role } from 'src/app/core/models/role.model';
+import { RoleService } from 'src/app/core/services/role.service';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { People } from 'src/app/core/models/people.model';
-import { AssignUsersPanelComponent } from './assign-users-panel.component';
 import { CompanyUserProfileService } from 'src/app/core/services/company-user-profile.service';
 import { AssignRoleToPersonRequest } from 'src/app/core/models/company-user-profile.model';
-import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-profiles',
   templateUrl: './profiles.component.html',
   styleUrls: ['./profiles.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, MatButtonModule, MatIconModule, AssignUsersPanelComponent],
-  standalone: true
+  standalone: false
 })
 
 export class ProfilesComponent implements OnInit {
@@ -60,6 +52,10 @@ export class ProfilesComponent implements OnInit {
     'Company Settings':     ['company-settings.read', 'company-settings.update'],
     'Audit History':        ['audit-history.read'],
     'Kiosk':                ['kiosk.admin'],
+    'Bulletins':            ['bulletins.read', 'bulletins.create', 'bulletins.delete', 'bulletins.track-reads'],
+    'Daily Reports':        ['reports.read', 'reports.submit', 'reports.approve', 'reports.export'],
+    'Documents':            ['documents.read', 'documents.upload', 'documents.delete', 'documents.manage'],
+    'Safety':               ['safety.read', 'safety.create', 'safety.delete', 'safety.acknowledge', 'safety.track'],
   };
   // Helper for iterating over object keys in the template
   objectKeys = Object.keys;
@@ -78,44 +74,25 @@ export class ProfilesComponent implements OnInit {
 
 
   openAssignPanel(role: Role) {
-    console.log('openAssignPanel called for role:', role);
+    if (!this.activeCompany?.companyId) return;
+
     this.assignPanelRole = role;
     this.assignedUserIds = [];
-    if (!this.activeCompany?.companyId) {
-      console.warn('No active company found, opening panel anyway');
-      this.assignPanelOpen = true;
-      return;
-    }
+    this.people = [];
 
-    // Load all people
-    this.peopleService.getPeople(this.activeCompany.companyId, 1, 1000, '').subscribe(
-      (people: People[]) => {
-        console.log('People loaded:', people.length);
+    forkJoin({
+      people: this.peopleService.getPeople(this.activeCompany.companyId, 1, 1000, ''),
+      profiles: this.profileService.getRoleProfiles(this.activeCompany.companyId, role.roleId)
+    }).subscribe({
+      next: ({ people, profiles }) => {
         this.people = people;
-
-        // Load profiles for this role to determine who is already assigned
-        this.profileService.getRoleProfiles(this.activeCompany.companyId, role.roleId).subscribe(
-          (profiles) => {
-            console.log('Role profiles loaded:', profiles.length);
-            // Extract personIds from active profiles
-            this.assignedUserIds = profiles
-              .filter(p => p.isActive && p.personId)
-              .map(p => p.personId!);
-            console.log('Assigned user IDs from profiles:', this.assignedUserIds);
-          },
-          (error) => {
-            console.error('Error loading role profiles:', error);
-            // Continue anyway - panel will show with empty assignments
-          }
-        );
+        this.assignedUserIds = profiles
+          .filter(p => p.isActive && p.personId)
+          .map(p => p.personId!);
+        this.assignPanelOpen = true;
       },
-      (error) => {
-        console.error('Error loading people:', error);
-      }
-    );
-    
-    this.assignPanelOpen = true;
-    console.log('assignPanelOpen set to:', this.assignPanelOpen);
+      error: () => this.toastr.error('Failed to load assignment data')
+    });
   }
 
   closeAssignPanel() {

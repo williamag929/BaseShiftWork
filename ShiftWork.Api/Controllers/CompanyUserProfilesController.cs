@@ -1,7 +1,9 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
@@ -23,17 +25,20 @@ namespace ShiftWork.Api.Controllers
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<CompanyUserProfilesController> _logger;
+        private readonly ShiftWorkContext _context;
 
         public CompanyUserProfilesController(
             ICompanyUserProfileService profileService,
             IMapper mapper,
             IMemoryCache memoryCache,
-            ILogger<CompanyUserProfilesController> logger)
+            ILogger<CompanyUserProfilesController> logger,
+            ShiftWorkContext context)
         {
             _profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         /// <summary>
@@ -147,17 +152,42 @@ namespace ShiftWork.Api.Controllers
                     return BadRequest("Invalid request data.");
                 }
 
-                // For now, we'll create a CompanyUserId based on PersonId
-                // In a real system, this should come from the Person->CompanyUser mapping
-var companyUserId = $"person_{request.PersonId}";
+                var person = await _context.Persons
+                    .FirstOrDefaultAsync(p => p.PersonId == request.PersonId && p.CompanyId == companyId);
+
+                if (person == null)
+                    return BadRequest("Person not found in this company.");
+
+                var companyUser = await _context.CompanyUsers
+                    .FirstOrDefaultAsync(cu => cu.CompanyId == companyId && cu.Email == person.Email);
+
+                if (companyUser == null)
+                    return BadRequest("This person has not accepted their invitation yet. They must log in before a role can be assigned.");
+
                 var assignedBy = User?.Identity?.Name ?? "System";
-                
+
                 var profile = await _profileService.AssignRoleToUser(
                     companyId,
-                    companyUserId,
+                    companyUser.CompanyUserId,
                     request.RoleId,
                     request.PersonId,
                     assignedBy);
+
+                // Upsert UserRole so the permission system recognizes this assignment
+                var existingUserRole = await _context.UserRoles
+                    .FirstOrDefaultAsync(ur => ur.CompanyUserId == companyUser.CompanyUserId && ur.RoleId == request.RoleId && ur.CompanyId == companyId);
+
+                if (existingUserRole == null)
+                {
+                    _context.UserRoles.Add(new UserRole
+                    {
+                        CompanyUserId = companyUser.CompanyUserId,
+                        RoleId = request.RoleId,
+                        CompanyId = companyId,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                    await _context.SaveChangesAsync();
+                }
 
                 var profileDto = _mapper.Map<CompanyUserProfileDto>(profile);
                 return CreatedAtAction(nameof(GetProfile), new { companyId, profileId = profile.ProfileId }, profileDto);

@@ -1,6 +1,17 @@
 @ShiftWork.Api_HostAddress = http://localhost:5182
 @token = REPLACE_WITH_JWT
 
+# ── V2 Content & Communication variables ───────────────────────────────────────
+# Fill these in after running the corresponding Create requests below.
+@companyId       = acme-123
+@locationId      = 1
+@personId        = 1
+@bulletinId      = 00000000-0000-0000-0000-000000000000
+@reportId        = 00000000-0000-0000-0000-000000000000
+@documentId      = 00000000-0000-0000-0000-000000000000
+@safetyId        = 00000000-0000-0000-0000-000000000000
+@today           = 2026-04-22
+
 ### Auth: test SMTP (requires valid JWT in @token)
 POST {{ShiftWork.Api_HostAddress}}/api/auth/test-email
 Content-Type: application/json
@@ -72,3 +83,255 @@ GET {{ShiftWork.Api_HostAddress}}/api/companies/acme-123/audit-history/summary?e
 Authorization: Bearer {{token}}
 Accept: application/json
 
+
+# ══════════════════════════════════════════════════════════════════════════════
+# V2 SMOKE TESTS — Content & Communication Subsystem
+# Run in order. Copy returned IDs into the @variables at the top of this file.
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── BULLETINS ────────────────────────────────────────────────────────────────
+
+### Bulletins: create
+POST {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/bulletins
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Smoke-test Bulletin",
+  "content": "This is a test bulletin created by the smoke-test suite.",
+  "priority": "Critical",
+  "type": "Urgent",
+  "locationId": {{locationId}},
+  "expiresAt": "2027-01-01T00:00:00Z"
+}
+
+### Bulletins: list (all)
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/bulletins
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Bulletins: list (unread for person)
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/bulletins?personId={{personId}}&unreadOnly=true
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Bulletins: get by id
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/bulletins/{{bulletinId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Bulletins: mark as read (idempotent — call twice)
+POST {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/bulletins/{{bulletinId}}/mark-read?personId={{personId}}
+Authorization: Bearer {{token}}
+
+### Bulletins: read roster
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/bulletins/{{bulletinId}}/reads
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Bulletins: update
+PUT {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/bulletins/{{bulletinId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Smoke-test Bulletin (updated)",
+  "content": "Updated content from smoke test.",
+  "priority": "High",
+  "type": "General"
+}
+
+### Bulletins: archive
+DELETE {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/bulletins/{{bulletinId}}
+Authorization: Bearer {{token}}
+
+# ── DAILY REPORTS ────────────────────────────────────────────────────────────
+
+### Daily Reports: get or auto-create for today
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/locations/{{locationId}}/daily-reports/{{today}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Daily Reports: update (save draft)
+PUT {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/locations/{{locationId}}/daily-reports/{{reportId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "Draft",
+  "notes": "Smoke-test notes. Crew arrived on time.",
+  "totalHoursWorked": 8.5,
+  "incidentCount": 0
+}
+
+### Daily Reports: submit
+PUT {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/locations/{{locationId}}/daily-reports/{{reportId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "Submitted",
+  "notes": "Smoke-test notes. Crew arrived on time.",
+  "totalHoursWorked": 8.5,
+  "incidentCount": 0
+}
+
+### Daily Reports: approve
+PUT {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/locations/{{locationId}}/daily-reports/{{reportId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "Approved",
+  "notes": "Approved by smoke-test runner.",
+  "totalHoursWorked": 8.5,
+  "incidentCount": 0
+}
+
+### Daily Reports: list for location
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/locations/{{locationId}}/daily-reports
+Authorization: Bearer {{token}}
+Accept: application/json
+
+# ── DOCUMENTS ────────────────────────────────────────────────────────────────
+
+### Documents: initiate upload
+# Copy presignedUrl from response and PUT file to it. Copy documentId into @documentId.
+POST {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/documents/initiate-upload
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Smoke-test Safety Manual",
+  "description": "Test document for smoke-test suite.",
+  "type": "Manual",
+  "version": "1.0",
+  "accessLevel": "Public",
+  "tags": ["smoke-test", "safety"]
+}
+
+### Documents: confirm upload (call after PUT to presigned URL)
+POST {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/documents/{{documentId}}/confirm-upload
+Authorization: Bearer {{token}}
+
+### Documents: list
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/documents
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Documents: list (filter by type)
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/documents?type=Manual
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Documents: get by id (includes presigned URL)
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/documents/{{documentId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Documents: update metadata
+PUT {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/documents/{{documentId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Smoke-test Safety Manual (v1.1)",
+  "description": "Updated description.",
+  "version": "1.1",
+  "accessLevel": "LocationOnly",
+  "tags": ["smoke-test", "safety", "updated"]
+}
+
+### Documents: read log
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/documents/{{documentId}}/reads
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Documents: archive
+DELETE {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/documents/{{documentId}}
+Authorization: Bearer {{token}}
+
+# ── SAFETY ───────────────────────────────────────────────────────────────────
+
+### Safety: create
+# Copy safetyContentId from response into @safetyId.
+POST {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/safety
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Smoke-test Safety Briefing",
+  "description": "Required acknowledgment for smoke-test suite.",
+  "textContent": "All employees must wear PPE on site at all times.",
+  "type": "Briefing",
+  "locationId": {{locationId}},
+  "isAcknowledgmentRequired": true
+}
+
+### Safety: list all
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/safety
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Safety: get pending for person
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/safety/pending?personId={{personId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Safety: get by id
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/safety/{{safetyId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Safety: acknowledge (idempotent — call twice to verify)
+POST {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/safety/{{safetyId}}/acknowledge
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "personId": {{personId}}
+}
+
+### Safety: compliance roster
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/safety/{{safetyId}}/acknowledgments
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Safety: pending should now be empty for person
+GET {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/safety/pending?personId={{personId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Safety: update
+PUT {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/safety/{{safetyId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Smoke-test Safety Briefing (revised)",
+  "description": "Updated description.",
+  "textContent": "All employees must wear PPE and sign the log sheet.",
+  "type": "Briefing",
+  "isAcknowledgmentRequired": true
+}
+
+### Safety: archive
+DELETE {{ShiftWork.Api_HostAddress}}/api/companies/{{companyId}}/safety/{{safetyId}}
+Authorization: Bearer {{token}}
+
+# ── KIOSK ANONYMOUS ENDPOINTS ────────────────────────────────────────────────
+# No Authorization header — these must work without JWT.
+
+### Kiosk: post-clockout payload (expect urgentBulletins + pendingSafety arrays)
+GET {{ShiftWork.Api_HostAddress}}/api/kiosk/{{companyId}}/post-clockout?personId={{personId}}&locationId={{locationId}}
+Accept: application/json
+
+### Kiosk: mark bulletin read (anonymous)
+POST {{ShiftWork.Api_HostAddress}}/api/kiosk/{{companyId}}/bulletins/{{bulletinId}}/mark-read?personId={{personId}}
+
+### Kiosk: acknowledge safety (anonymous)
+POST {{ShiftWork.Api_HostAddress}}/api/kiosk/{{companyId}}/safety/{{safetyId}}/acknowledge?personId={{personId}}
+
+### Kiosk: post-clockout after acks (urgentBulletins + pendingSafety should both be empty)
+GET {{ShiftWork.Api_HostAddress}}/api/kiosk/{{companyId}}/post-clockout?personId={{personId}}&locationId={{locationId}}
+Accept: application/json

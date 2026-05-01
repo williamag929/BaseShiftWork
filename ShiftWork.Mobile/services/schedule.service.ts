@@ -82,6 +82,19 @@ export const scheduleService = {
   },
 
   /**
+   * Update a schedule shift
+   */
+  async updateScheduleShift(
+    companyId: string,
+    shift: ScheduleShiftDto
+  ): Promise<ScheduleShiftDto> {
+    return apiClient.put<ScheduleShiftDto>(
+      `/api/companies/${companyId}/scheduleshifts/${shift.scheduleShiftId}`,
+      shift
+    );
+  },
+
+  /**
    * Get shifts for a specific person in a date range
    */
   async getPersonShifts(

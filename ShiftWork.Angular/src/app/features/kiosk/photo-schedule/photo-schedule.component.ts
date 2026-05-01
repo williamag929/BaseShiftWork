@@ -1,7 +1,7 @@
 // photo-schedule.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { WebcamModule, WebcamImage, WebcamInitError } from 'ngx-webcam';
-import { Subject, takeUntil, Observable } from 'rxjs';
+import { Subject, takeUntil, Observable, of, catchError } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { People } from 'src/app/core/models/people.model';
 import { Router } from '@angular/router';
@@ -182,11 +182,13 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
 
           if (this.selectedEmployee.scheduleDetails) {
             const today = new Date();
-            const todayUTCDate = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+            // Kiosk should match schedules by local calendar day for in-store experience.
+            // Schedule dates are stored as UTC wall-clock, so UTC date equals intended calendar date.
+            const todayLocalDate = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
             this.employeeSchedule = this.selectedEmployee.scheduleDetails.find(s => {
               const scheduleDate = new Date(s.startDate);
-              const schedUTCDate = scheduleDate.getUTCFullYear() * 10000 + (scheduleDate.getUTCMonth() + 1) * 100 + scheduleDate.getUTCDate();
-              return s.personId === this.selectedEmployee?.personId && schedUTCDate === todayUTCDate;
+              const schedCalendarDate = scheduleDate.getUTCFullYear() * 10000 + (scheduleDate.getUTCMonth() + 1) * 100 + scheduleDate.getUTCDate();
+              return s.personId === this.selectedEmployee?.personId && schedCalendarDate === todayLocalDate;
             }) || null;
           }
         }
@@ -296,9 +298,17 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     const blob = this.dataURItoBlob(this.flippedImage);
     const file = new File([blob], `${this.selectedEmployee.personId}_${now.getTime()}.jpg`, { type: 'image/jpeg' });
 
-    this.getCurrentPosition().subscribe({
-      next: (coords: GeolocationCoordinates) => {
-        const geoLocation = `{${coords.latitude},${coords.longitude}}`;
+    this.getCurrentPosition().pipe(
+      catchError(err => {
+        console.warn('Geolocation unavailable, proceeding without GPS coordinates:', err);
+        return of(null);
+      })
+    ).subscribe({
+      next: (coords: GeolocationCoordinates | null) => {
+        if (!coords) {
+          this.toastr.warning('Location unavailable — clocking in without GPS coordinates.');
+        }
+        const geoLocation = coords ? `{${coords.latitude},${coords.longitude}}` : '';
 
         console.log('Uploading photo to S3 bucket: shiftwork-photos');
         this.awsS3Service.uploadFile('shiftwork-photos', file).subscribe({
@@ -384,9 +394,10 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
         });
       },
       error: (err: any) => {
-        console.error('Error getting geolocation', err);
-        const msg = err?.message || 'Error getting geolocation';
-        this.toastr.error(msg);
+        // This branch is only reached if catchError itself re-throws, which it does not.
+        // Handled defensively in case of unexpected Observable error propagation.
+        console.error('Unexpected error in clock-in flow', err);
+        this.toastr.error('An unexpected error occurred. Please try again.');
       }
     });
   }
@@ -437,21 +448,26 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     return kioskId;
   }
 
-  private getCurrentPosition(): Observable<GeolocationCoordinates> {
+  private getCurrentPosition(): Observable<GeolocationCoordinates | null> {
     return new Observable(observer => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position: GeolocationPosition) => {
-            observer.next(position.coords);
-            observer.complete();
-          },
-          (error: GeolocationPositionError) => {
-            observer.error(error);
-          }
-        );
-      } else {
-        observer.error('Geolocation is not supported by this browser.');
+      if (!navigator.geolocation) {
+        observer.next(null);
+        observer.complete();
+        return;
       }
+      const options: PositionOptions = { timeout: 5000, maximumAge: 60000 };
+      navigator.geolocation.getCurrentPosition(
+        (position: GeolocationPosition) => {
+          observer.next(position.coords);
+          observer.complete();
+        },
+        (error: GeolocationPositionError) => {
+          // Emit null so callers can decide to proceed without coordinates
+          observer.next(null);
+          observer.complete();
+        },
+        options
+      );
     });
   }
 

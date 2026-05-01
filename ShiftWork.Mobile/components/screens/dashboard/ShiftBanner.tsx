@@ -1,64 +1,75 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { PressableScale } from '@/components/ui/PressableScale';
 import { formatScheduleTime } from '@/utils/date.utils';
+import { colors, radius } from '@/styles/tokens';
 import type { ScheduleShiftDto } from '@/types/api';
 
 interface ShiftBannerProps {
   shift: ScheduleShiftDto;
   isClockedIn: boolean;
   locationName: string | null;
+  timeZoneId?: string | null;
   onPress: () => void;
 }
 
-export function ShiftBanner({ shift, isClockedIn, locationName, onPress }: ShiftBannerProps) {
+export function ShiftBanner({ shift, isClockedIn, locationName, timeZoneId, onPress }: ShiftBannerProps) {
+  const isIn = isClockedIn;
   return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.banner,
-        isClockedIn ? styles.bannerOut : styles.bannerIn,
-        pressed && { opacity: 0.85 },
-      ]}
-      onPress={onPress}
-    >
-      <Ionicons
-        name={isClockedIn ? 'log-out-outline' : 'log-in-outline'}
-        size={24}
-        color="#fff"
-        style={styles.icon}
-      />
-      <View style={styles.content}>
-        <Text style={styles.title}>
-          {isClockedIn ? 'You are on the clock' : 'Shift Pending — Tap to Clock In'}
-        </Text>
-        <Text style={styles.time}>
-          {formatScheduleTime(shift.startDate)} — {formatScheduleTime(shift.endDate)}
-        </Text>
-        {!!locationName && (
-          <View style={styles.locRow}>
-            <Ionicons name="location-outline" size={13} color="rgba(255,255,255,0.85)" />
-            <Text style={styles.loc}>{locationName}</Text>
-          </View>
-        )}
-      </View>
-      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.7)" />
-    </Pressable>
+    <Animated.View entering={FadeInDown.duration(350)} style={styles.wrapper}>
+      <PressableScale
+        style={[styles.banner, isIn ? styles.bannerIn : styles.bannerOut]}
+        onPress={onPress}
+        accessible
+        accessibilityRole="button"
+        accessibilityLabel={isIn ? 'You are on the clock' : 'Tap to clock in'}
+      >
+        {/* Left icon circle */}
+        <View style={[styles.iconCircle, { backgroundColor: isIn ? 'rgba(52,199,89,0.22)' : 'rgba(255,59,48,0.22)' }]}>
+          <Ionicons
+            name={isIn ? 'checkmark-circle' : 'log-in-outline'}
+            size={26}
+            color={isIn ? colors.success : colors.danger}
+          />
+        </View>
+
+        <View style={styles.info}>
+          <Text style={styles.title}>
+            {isIn ? 'On the clock' : 'Tap to clock in'}
+          </Text>
+          <Text style={styles.time}>
+            {formatScheduleTime(shift.startDate, timeZoneId ?? undefined)} – {formatScheduleTime(shift.endDate, timeZoneId ?? undefined)}
+          </Text>
+          {!!locationName && (
+            <View style={styles.locRow}>
+              <Ionicons name="location-outline" size={12} color={colors.muted} />
+              <Text style={styles.loc}>{locationName}</Text>
+            </View>
+          )}
+        </View>
+
+        <Ionicons name="chevron-forward" size={18} color={colors.muted} />
+      </PressableScale>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: { paddingHorizontal: 16, marginBottom: 6 },
   banner: {
     flexDirection: 'row', alignItems: 'center',
-    marginHorizontal: 16, marginTop: -16, marginBottom: 8,
-    paddingHorizontal: 16, paddingVertical: 14, borderRadius: 14,
-    elevation: 4, shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 6,
+    backgroundColor: colors.surface, borderRadius: radius.xl,
+    paddingHorizontal: 16, paddingVertical: 14, gap: 12,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07, shadowRadius: 6, elevation: 2,
   },
-  bannerIn: { backgroundColor: '#27AE60' },
-  bannerOut: { backgroundColor: '#E74C3C' },
-  icon: { marginRight: 14 },
-  content: { flex: 1 },
-  title: { fontSize: 15, fontWeight: '700', color: '#fff' },
-  time: { fontSize: 13, color: 'rgba(255,255,255,0.9)', marginTop: 2 },
-  locRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
-  loc: { fontSize: 12, color: 'rgba(255,255,255,0.85)' },
+  bannerIn:  { borderLeftWidth: 3, borderLeftColor: colors.success },
+  bannerOut: { borderLeftWidth: 3, borderLeftColor: colors.danger },
+  iconCircle: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  info: { flex: 1 },
+  title: { fontSize: 15, fontWeight: '600', color: colors.text, marginBottom: 2 },
+  time:  { fontSize: 13, color: colors.muted },
+  locRow: { flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 3 },
+  loc:   { fontSize: 12, color: colors.muted },
 });

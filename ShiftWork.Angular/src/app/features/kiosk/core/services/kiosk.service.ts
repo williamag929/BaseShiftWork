@@ -6,7 +6,7 @@ import { ScheduleEmployee } from '../models/schedule-employee.model';
 import { Location } from '../../../../core/models/location.model';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { KioskQuestion } from '../models/kiosk-question.model';
+import { KioskQuestion, CreateKioskQuestionDto, UpdateKioskQuestionDto } from '../models/kiosk-question.model';
 import { KioskAnswer } from '../models/kiosk-answer.model';
 import { catchError } from 'rxjs/operators';
 
@@ -90,16 +90,34 @@ export class KioskService {
 
   getKioskQuestions(companyId: string): Observable<KioskQuestion[]> {
     return this.http.get<KioskQuestion[]>(`${this.apiUrl}/kiosk/${companyId}/questions`)
-      .pipe(
-        catchError(this.handleError)
-      );
+      .pipe(catchError(this.handleError));
   }
 
   postKioskAnswers(answers: KioskAnswer[]): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/kiosk/answers`, answers)
-      .pipe(
-        catchError(this.handleError)
-      );
+      .pipe(catchError(this.handleError));
+  }
+
+  // ── Management CRUD (requires kiosk.questions.manage permission) ─────────────
+
+  getManagementQuestions(companyId: string): Observable<KioskQuestion[]> {
+    return this.http.get<KioskQuestion[]>(`${this.apiUrl}/companies/${companyId}/kiosk-questions`)
+      .pipe(catchError(this.handleError));
+  }
+
+  createQuestion(companyId: string, dto: CreateKioskQuestionDto): Observable<KioskQuestion> {
+    return this.http.post<KioskQuestion>(`${this.apiUrl}/companies/${companyId}/kiosk-questions`, dto)
+      .pipe(catchError(this.handleError));
+  }
+
+  updateQuestion(companyId: string, questionId: number, dto: UpdateKioskQuestionDto): Observable<KioskQuestion> {
+    return this.http.put<KioskQuestion>(`${this.apiUrl}/companies/${companyId}/kiosk-questions/${questionId}`, dto)
+      .pipe(catchError(this.handleError));
+  }
+
+  deleteQuestion(companyId: string, questionId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/companies/${companyId}/kiosk-questions/${questionId}`)
+      .pipe(catchError(this.handleError));
   }
 
   private handleError(error: HttpErrorResponse) {

@@ -1,0 +1,101 @@
+<div class="company-users-admin">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Company Users Management</mat-card-title>
+      <mat-card-subtitle>Manage user access across companies. Deactivate users to prevent login to a specific company.</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Company Selector -->
+      <div class="company-selector">
+        <mat-form-field appearance="outline" class="company-select">
+          <mat-label>Select Company</mat-label>
+          <mat-select [(value)]="selectedCompanyId" (selectionChange)="onCompanyChange()">
+            <mat-option *ngFor="let company of companies" [value]="company.companyId">
+              {{ company.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-raised-button color="primary" (click)="loadUsers()" [disabled]="loading || !selectedCompanyId">
+          <mat-icon>refresh</mat-icon> Refresh
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading users...</p>
+      </div>
+
+      <!-- Users Table -->
+      <div *ngIf="!loading && companyUsers.length > 0" class="table-container">
+        <table mat-table [dataSource]="companyUsers" class="users-table">
+
+          <!-- Email Column -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+          </ng-container>
+
+          <!-- Display Name Column -->
+          <ng-container matColumnDef="displayName">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let user">{{ user.displayName || '—' }}</td>
+          </ng-container>
+
+          <!-- UID Type Column -->
+          <ng-container matColumnDef="uidType">
+            <th mat-header-cell *matHeaderCellDef>Auth Type</th>
+            <td mat-cell *matCellDef="let user">
+              <span class="badge" [ngClass]="{
+                'badge-firebase': getUidType(user.uid) === 'Firebase',
+                'badge-api': getUidType(user.uid) === 'API',
+                'badge-invite': getUidType(user.uid) === 'Invite'
+              }">{{ getUidType(user.uid) }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="isActive">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let user">
+              <span class="status-chip" [ngClass]="user.isActive ? 'active' : 'inactive'">
+                {{ user.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Created At Column -->
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef>Created</th>
+            <td mat-cell *matCellDef="let user">{{ user.createdAt | date:'shortDate' }}</td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let user">
+              <button mat-icon-button
+                      [color]="user.isActive ? 'warn' : 'primary'"
+                      (click)="toggleActive(user)"
+                      [disabled]="togglingId === user.companyUserId"
+                      [matTooltip]="user.isActive ? 'Deactivate user' : 'Activate user'">
+                <mat-icon>{{ user.isActive ? 'person_off' : 'person' }}</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['email', 'displayName', 'uidType', 'isActive', 'createdAt', 'actions']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['email', 'displayName', 'uidType', 'isActive', 'createdAt', 'actions'];"
+              [ngClass]="{'inactive-row': !row.isActive}"></tr>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && companyUsers.length === 0 && selectedCompanyId" class="empty-state">
+        <mat-icon class="empty-icon">people_outline</mat-icon>
+        <p>No users found for this company.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

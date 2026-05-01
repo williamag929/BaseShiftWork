@@ -315,3 +315,101 @@
     padding: 1rem 1.5rem;
   }
 }
+
+/* ==================== SUCCESS ACTIONS ==================== */
+.success-actions {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.btn-signin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.85rem 2rem;
+  border-radius: 12px;
+  transition: opacity 0.2s, transform 0.15s;
+  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
+}
+
+.btn-signin:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  color: #fff;
+  text-decoration: none;
+}
+
+.btn-signin i {
+  font-size: 1.1rem;
+}
+
+/* App download */
+.app-download-section {
+  width: 100%;
+  text-align: center;
+}
+
+.app-download-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
+
+.app-badges {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.app-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  background: #f9fafb;
+  min-width: 150px;
+  transition: border-color 0.2s;
+}
+
+.app-badge i {
+  font-size: 1.6rem;
+  color: #374151;
+}
+
+.badge-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  line-height: 1.2;
+}
+
+.badge-sub {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ca3af;
+}
+
+.badge-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.app-badge.coming-soon {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+

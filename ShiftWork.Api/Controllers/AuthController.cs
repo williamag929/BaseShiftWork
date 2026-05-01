@@ -158,6 +158,8 @@ namespace ShiftWork.Api.Controllers
         /// Caller MUST send a valid Firebase ID token as Authorization: Bearer {token}.
         /// The FirebaseUid in the body MUST match the JWT sub claim.
         /// Rate-limited: max 5 attempts per IP per hour.
+        /// 
+        /// DISABLED: Self-registration is no longer allowed. Users must be invited by a company admin.
         /// </summary>
         [HttpPost("register")]
         [Authorize]
@@ -165,19 +167,17 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(typeof(CompanyRegistrationResponse), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
+        [ProducesResponseType(403)]
         [ProducesResponseType(409)]
         [ProducesResponseType(429)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<CompanyRegistrationResponse>> Register(
             [FromBody] CompanyRegistrationRequest request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            // Self-registration is disabled. Users must be invited by a company admin.
+            return StatusCode(403, new { message = "Self-registration is disabled. Please contact a company administrator to receive an invitation." });
 
-            // Require a valid Firebase Bearer token whose sub claim matches FirebaseUid.
-            // This proves the caller owns the Firebase account they are registering.
-            var tokenUid = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
-                ?? User.FindFirst("sub")?.Value;
+            /* Original registration logic preserved for reference:
             if (string.IsNullOrEmpty(tokenUid))
                 return Unauthorized("A valid Firebase Bearer token is required.");
             if (tokenUid != request.FirebaseUid)
@@ -230,7 +230,7 @@ namespace ShiftWork.Api.Controllers
                 _context.CompanyUsers.Add(companyUser);
                 await _context.SaveChangesAsync();
 
-                // 3. Assign Owner role — find the Owner/Admin role for this company or use role id 1
+                // 3. Assign Owner role
                 var ownerRole = await _context.Roles
                     .Where(r => r.CompanyId == companyId ||
                                 r.Name == "Owner" || r.Name == "Admin")
@@ -253,7 +253,7 @@ namespace ShiftWork.Api.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-                // 4. Seed sandbox data (inside transaction — rolls back if it fails)
+                // 4. Seed sandbox data
                 await _sandboxService.SeedSandboxDataAsync(companyId);
 
                 await transaction.CommitAsync();
@@ -276,6 +276,7 @@ namespace ShiftWork.Api.Controllers
                 _logger.LogError(ex, "Registration failed for {Email}", request.UserEmail);
                 return StatusCode(500, "Registration failed. Please try again.");
             }
+            */
         }
 
         // ── API-based authentication (Firebase auth disabled for mobile) ──────────
@@ -304,8 +305,40 @@ namespace ShiftWork.Api.Controllers
             // Look up CompanyUser.Uid so the JWT subject matches what PermissionAuthorizationHandler
             // and UserRoleService use for role/permission lookups.
             var companyUser = await _context.CompanyUsers
-                .AsNoTracking()
                 .FirstOrDefaultAsync(cu => cu.Email == person.Email && cu.CompanyId == person.CompanyId);
+
+            // Auto-sync: if CompanyUserProfiles has roles but UserRoles doesn't, populate UserRoles
+            if (companyUser != null)
+            {
+                var hasUserRoles = await _context.UserRoles
+                    .AnyAsync(ur => ur.CompanyUserId == companyUser.CompanyUserId && ur.CompanyId == person.CompanyId);
+
+                if (!hasUserRoles)
+                {
+                    var profileRoles = await _context.CompanyUserProfiles
+                        .Where(p => p.CompanyUserId == companyUser.CompanyUserId
+                                 && p.CompanyId == person.CompanyId
+                                 && p.IsActive)
+                        .Select(p => p.RoleId)
+                        .ToListAsync();
+
+                    if (profileRoles.Count > 0)
+                    {
+                        foreach (var roleId in profileRoles)
+                        {
+                            _context.UserRoles.Add(new UserRole
+                            {
+                                CompanyUserId = companyUser.CompanyUserId,
+                                RoleId = roleId,
+                                CompanyId = person.CompanyId
+                            });
+                        }
+                        await _context.SaveChangesAsync();
+                        _logger.LogInformation("Auto-synced {Count} role(s) to UserRoles for {Email} on login",
+                            profileRoles.Count, person.Email);
+                    }
+                }
+            }
 
             var token = GenerateApiJwt(person, companyUser?.Uid);
             _logger.LogInformation("API login successful for {Email}", person.Email);
@@ -335,6 +368,35 @@ namespace ShiftWork.Api.Controllers
             var person = await _context.Persons.FindAsync(request.PersonId);
             if (person == null)
                 return NotFound("Person not found.");
+
+            person.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true });
+        }
+
+        /// <summary>
+        /// Syncs the API BCrypt password hash for the authenticated user.
+        /// Called by the Angular/Mobile app after a successful Firebase sign-in
+        /// (including after a Firebase password reset) so both auth systems stay in sync.
+        /// The user identity is taken from the validated Firebase JWT — never from the request body.
+        /// </summary>
+        [HttpPost("sync-password")]
+        [Authorize]
+        public async Task<IActionResult> SyncPassword([FromBody] SyncPasswordRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 6)
+                return BadRequest("Password must be at least 6 characters.");
+
+            var email = User.FindFirstValue(ClaimTypes.Email)
+                ?? User.FindFirstValue("email");
+
+            if (string.IsNullOrWhiteSpace(email))
+                return Unauthorized(new { message = "Could not identify user from token." });
+
+            var person = await _context.Persons.FirstOrDefaultAsync(p => p.Email == email);
+            if (person == null)
+                return NotFound(new { message = "No person record found for this account." });
 
             person.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
             await _context.SaveChangesAsync();
@@ -386,12 +448,41 @@ namespace ShiftWork.Api.Controllers
             companyUser.EmailVerified = true;
             companyUser.UpdatedAt = DateTime.UtcNow;
 
+            // Sync roles from CompanyUserProfiles → UserRoles so permissions work immediately
+            var profileRoles = await _context.CompanyUserProfiles
+                .Where(p => p.CompanyUserId == companyUser.CompanyUserId
+                         && p.CompanyId == request.CompanyId
+                         && p.IsActive)
+                .Select(p => p.RoleId)
+                .ToListAsync();
+
+            if (profileRoles.Count > 0)
+            {
+                // Remove any stale UserRoles for this CompanyUser
+                var existingRoles = await _context.UserRoles
+                    .Where(ur => ur.CompanyUserId == companyUser.CompanyUserId && ur.CompanyId == request.CompanyId)
+                    .ToListAsync();
+                if (existingRoles.Count > 0)
+                    _context.UserRoles.RemoveRange(existingRoles);
+
+                foreach (var roleId in profileRoles)
+                {
+                    _context.UserRoles.Add(new UserRole
+                    {
+                        CompanyUserId = companyUser.CompanyUserId,
+                        RoleId = roleId,
+                        CompanyId = request.CompanyId
+                    });
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             // Issue a JWT so the user is immediately logged in after accepting.
             // Pass the new CompanyUser.Uid as subject so all Uid-based auth lookups work.
             var token = GenerateApiJwt(person, companyUser.Uid);
-            _logger.LogInformation("Invite accepted: PersonId={PersonId}, CompanyId={CompanyId}", person.PersonId, person.CompanyId);
+            _logger.LogInformation("Invite accepted: PersonId={PersonId}, CompanyId={CompanyId}, Roles={Roles}",
+                person.PersonId, person.CompanyId, string.Join(",", profileRoles));
 
             return Ok(new
             {
@@ -451,6 +542,7 @@ namespace ShiftWork.Api.Controllers
 
     public record ApiLoginRequest(string Email, string Password);
     public record SetPasswordRequest(int PersonId, string Password);
+    public record SyncPasswordRequest(string Password);
     public record TestEmailRequest(string To, string? Subject);
 
     /// <summary>

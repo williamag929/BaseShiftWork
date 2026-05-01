@@ -27,6 +27,10 @@ const routes: Routes = [
       //{ path: 'privacy', loadChildren: () => import('./privacy/privacy.module').then(m => m.PrivacyModule) },
       //{ path: 'terms', loadChildren: () => import('./terms/terms.module').then(m => m.TermsModule) }, 
 
+      { path: 'bulletins', loadChildren: () => import('./bulletins/bulletins.module').then(m => m.BulletinsModule) },
+      { path: 'daily-reports', loadChildren: () => import('./daily-reports/daily-reports.module').then(m => m.DailyReportsModule) },
+      { path: 'documents', loadChildren: () => import('./documents/documents.module').then(m => m.DocumentsModule) },
+      { path: 'safety', loadChildren: () => import('./safety/safety.module').then(m => m.SafetyModule) },
       { path: 'kiosk', loadChildren: () => import('../kiosk/kiosk.module').then(m => m.KioskModule) },
       { path: 'kiosks/employee-list', redirectTo: 'kiosks/employee-list', pathMatch: 'full' },
     ]

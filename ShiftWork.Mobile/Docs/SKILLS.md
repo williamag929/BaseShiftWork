@@ -15,12 +15,12 @@
 | Language | TypeScript 5.3 (strict) | ✅ Active |
 | State | Zustand 4 | ✅ Active |
 | Data Fetching | TanStack React Query 5 | ✅ Active |
-| Styling | StyleSheet (inline) | ⚠️ Needs system |
-| Animation | `react-native-reanimated` 4.1 | ✅ Installed |
-| Gestures | `react-native-gesture-handler` 2.28 | ✅ Installed |
-| Forms | `react-hook-form` 7 + `zod` 4 | ✅ Installed |
-| List Performance | `@shopify/flash-list` 2.0 | ✅ Installed |
-| UI Components | Custom primitives in `components/ui/` | ⚠️ Expanding |
+| Styling | `styles/tokens.ts` (iOS HIG) | ✅ System in place |
+| Animation | `react-native-reanimated` 4.1 | ✅ Used across all screens |
+| Gestures | `react-native-gesture-handler` 2.28 | ✅ Active |
+| Forms | `react-hook-form` 7 + `zod` 4 | ✅ All auth + profile forms |
+| List Performance | `@shopify/flash-list` 2.0 | ⏳ Migration in progress |
+| UI Components | `components/ui/` — Button, Card, Badge, EmptyState, PressableScale, Skeleton, SectionHeader | ✅ Apple-quality primitives |
 
 ---
 
@@ -39,8 +39,8 @@
 
 ---
 
-### 2. Animations — `react-native-reanimated` *(to be added)*
-The project currently has **zero animation**. All new UI work must anticipate and use Reanimated 3.
+### 2. Animations — `react-native-reanimated` ✅ Implemented
+All screens use Reanimated 4.1 for entrances, press feedback, and state transitions.
 
 **Expected competencies:**
 ```tsx
@@ -62,12 +62,12 @@ const headerStyle = useAnimatedStyle(() => ({
 }));
 ```
 
-**When to use:** Every list item mount, screen transition, status badge change, modal open/close, loading skeleton pulse.
+**When to use:** Every list item mount, screen transition, status badge change, modal open/close, loading skeleton pulse. **These are already wired in all current screens.**
 
 ---
 
-### 3. Gesture Handling — `react-native-gesture-handler` *(to be added)*
-Required for swipe-to-action on shift cards, drag-to-reorder, pull interactions.
+### 3. Gesture Handling — `react-native-gesture-handler` ✅ Implemented
+`GestureHandlerRootView` wraps root layout. `PressableScale` uses Reanimated-powered spring for all press interactions.
 
 **Expected competencies:**
 ```tsx
@@ -91,8 +91,8 @@ const renderRightActions = () => (
 
 ---
 
-### 4. Form Management — `react-hook-form` + `zod` *(to be added)*
-All forms in this app (clock-in, PIN entry, time-off requests, profile edits, registration) **must** use RHF + Zod. No raw `useState` for form fields.
+### 4. Form Management — `react-hook-form` + `zod` ✅ Implemented
+All auth screens (login, register, pin-verify) and profile forms (edit info, change PIN) use RHF + Zod. No raw `useState` for form fields.
 
 **Expected competencies:**
 ```tsx

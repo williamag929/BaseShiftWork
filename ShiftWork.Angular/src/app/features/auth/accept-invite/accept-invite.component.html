@@ -23,8 +23,39 @@
       <div class="header-icon success-icon">
         <i class="fas fa-check-circle"></i>
       </div>
-      <h1 class="card-title">Password Set!</h1>
-      <p class="card-subtitle">Your account is ready. Open the <strong>JobLogSmart</strong> mobile app and log in with <strong>{{ employeeEmail }}</strong>.</p>
+      <h1 class="card-title">You're All Set!</h1>
+      <p class="card-subtitle">
+        Your account is ready. Log in with <strong>{{ employeeEmail }}</strong>.
+      </p>
+    </div>
+
+    <div class="success-actions">
+      <!-- Web login button -->
+      <a routerLink="/auth/sign-in" class="btn-signin">
+        <i class="fas fa-sign-in-alt"></i>
+        Go to Sign In
+      </a>
+
+      <!-- App download section -->
+      <div class="app-download-section">
+        <p class="app-download-label">Or download the mobile app</p>
+        <div class="app-badges">
+          <div class="app-badge coming-soon">
+            <i class="fab fa-google-play"></i>
+            <div class="badge-text">
+              <span class="badge-sub">Coming Soon</span>
+              <span class="badge-name">Google Play</span>
+            </div>
+          </div>
+          <div class="app-badge coming-soon">
+            <i class="fab fa-apple"></i>
+            <div class="badge-text">
+              <span class="badge-sub">Coming Soon</span>
+              <span class="badge-name">App Store</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

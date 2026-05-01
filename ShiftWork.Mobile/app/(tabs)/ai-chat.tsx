@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   Keyboard,
 } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
+import { FlashList, FlashListRef } from '@shopify/flash-list';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius } from '@/styles/theme';
 import { useAuthStore } from '@/store/authStore';
@@ -60,7 +60,7 @@ export default function AiChatScreen() {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
-  const flatListRef = useRef<FlashList<ChatMessage>>(null);
+  const flatListRef = useRef<FlashListRef<ChatMessage>>(null);
 
   // ---------- Boot: health check + welcome message -------------------------
   useEffect(() => {
@@ -282,7 +282,6 @@ export default function AiChatScreen() {
         data={messages}
         keyExtractor={(m) => m.id}
         renderItem={renderItem}
-        estimatedItemSize={88}
         contentContainerStyle={styles.messagesList}
         showsVerticalScrollIndicator={false}
       />

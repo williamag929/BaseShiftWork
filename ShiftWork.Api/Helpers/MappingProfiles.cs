@@ -31,10 +31,12 @@ namespace ShiftWork.Api.Helpers
                     src.GeoCoordinates != null ? JsonSerializer.Serialize(src.GeoCoordinates, (JsonSerializerOptions)null) : null));
             CreateMap<Person, PersonDto>();
              CreateMap<PersonDto, Person>();
-            // RoleDto mapping: Permissions property is now deprecated and removed from DTO.
-            // Use /api/companies/{companyId}/roles/{roleId}/permissions endpoint instead.
-            CreateMap<Role, RoleDto>();
-             CreateMap<RoleDto, Role>();
+            // Role.Permissions is an obsolete string field; RoleDto.Permissions is List<string>.
+            // Ignore on both sides — permissions are loaded from RolePermission join table.
+            CreateMap<Role, RoleDto>()
+                .ForMember(dest => dest.Permissions, opt => opt.Ignore());
+            CreateMap<RoleDto, Role>()
+                .ForMember(dest => dest.Permissions, opt => opt.Ignore());
             CreateMap<Schedule, ScheduleDto>()
                 .ForMember(dest => dest.PersonId, opt => opt.MapFrom(src =>
                     src.PersonId == null ? 0 : int.Parse(src.PersonId)));

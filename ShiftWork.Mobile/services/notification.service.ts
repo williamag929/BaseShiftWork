@@ -11,6 +11,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -108,7 +110,7 @@ class NotificationService {
    * Remove device token from backend (e.g., on logout)
    */
   async removeDeviceToken(
-    companyId: number,
+    companyId: string,
     personId: number,
     deviceToken: string
   ): Promise<void> {

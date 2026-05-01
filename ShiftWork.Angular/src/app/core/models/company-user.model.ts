@@ -6,6 +6,7 @@ export interface CompanyUser {
     photoURL: string;
     emailVerified: boolean;
     companyId: string;
+    isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
  }

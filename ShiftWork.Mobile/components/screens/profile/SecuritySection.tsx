@@ -1,10 +1,11 @@
-import { View, Text, TextInput, StyleSheet, ActivityIndicator, Pressable, Switch } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ActivityIndicator, Switch } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { Card, SectionHeader } from '@/components/ui';
-import { colors, spacing } from '@/styles/tokens';
+import { SectionHeader } from '@/components/ui';
+import { PressableScale } from '@/components/ui/PressableScale';
+import { colors, spacing, radius } from '@/styles/tokens';
 import { pinChangeSchema, PinChangeFormData } from '@/utils/schemas/profile';
 import type { UseProfileReturn } from '@/hooks/useProfile';
 
@@ -27,7 +28,7 @@ export function SecuritySection({ profile }: Props) {
   return (
     <View style={styles.section}>
       <SectionHeader title="Security" />
-      <Card style={styles.card}>
+      <View style={styles.card}>
         {biometricAvailable && (
           <View style={styles.optionRow}>
             <View style={styles.optionLeft}>
@@ -42,14 +43,17 @@ export function SecuritySection({ profile }: Props) {
         )}
 
         {!changingPin ? (
-          <Pressable onPress={() => setChangingPin(true)} style={[styles.optionRow, biometricAvailable && styles.optionBordered]}>
+          <PressableScale
+            onPress={() => { setChangingPin(true); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+            style={[styles.optionRow, biometricAvailable && styles.optionBordered]}
+          >
             <Ionicons name="lock-closed" size={24} color={colors.primary} />
             <View style={styles.optionText}>
               <Text style={styles.optionTitle}>Change PIN</Text>
               <Text style={styles.optionSubtitle}>Update your 4-digit PIN for kiosk access</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={colors.muted} />
-          </Pressable>
+          </PressableScale>
         ) : (
           <View style={[biometricAvailable && styles.optionBordered]}>
             {(['currentPin', 'newPin', 'confirmPin'] as const).map((field, i) => (
@@ -66,37 +70,48 @@ export function SecuritySection({ profile }: Props) {
               </View>
             ))}
             <View style={styles.btnRow}>
-              <Pressable onPress={cancelPin} style={[styles.btn, styles.btnSecondary]} disabled={saving}>
+              <PressableScale onPress={cancelPin} style={[styles.btn, styles.btnSecondary]} disabled={saving}>
                 <Text style={styles.btnSecondaryText}>Cancel</Text>
-              </Pressable>
-              <Pressable onPress={handleSubmit(onSubmit)} style={[styles.btn, styles.btnPrimary]} disabled={saving}>
+              </PressableScale>
+              <PressableScale
+                onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); handleSubmit(onSubmit)(); }}
+                style={[styles.btn, styles.btnPrimary]}
+                disabled={saving}
+              >
                 {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.btnPrimaryText}>Update PIN</Text>}
-              </Pressable>
+              </PressableScale>
             </View>
           </View>
         )}
-      </Card>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  section: { padding: spacing.md },
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: spacing.md, elevation: 1 },
-  optionRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 4 },
-  optionBordered: { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 16, marginTop: 12 },
+  section: { paddingHorizontal: spacing.lg, paddingTop: 16, paddingBottom: 4 },
+  card: {
+    backgroundColor: colors.surface, borderRadius: radius.xl, padding: 16,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
+  },
+  optionRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 4 },
+  optionBordered: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, paddingTop: 14, marginTop: 12 },
   optionLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
   optionText: { flex: 1 },
-  optionTitle: { fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: 4 },
-  optionSubtitle: { fontSize: 14, color: colors.muted },
-  fieldGroup: { marginBottom: spacing.md },
-  label: { fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 8 },
-  input: { backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, fontSize: 16, color: colors.text },
+  optionTitle: { fontSize: 15, fontWeight: '600', color: colors.text, marginBottom: 3 },
+  optionSubtitle: { fontSize: 13, color: colors.muted },
+  fieldGroup: { marginBottom: 14 },
+  label: { fontSize: 12, fontWeight: '600', color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 6 },
+  input: {
+    backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border,
+    borderRadius: radius.lg, paddingHorizontal: 14, paddingVertical: 11,
+    fontSize: 15, color: colors.text,
+  },
   error: { marginTop: 4, fontSize: 12, color: colors.danger },
-  btnRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
-  btn: { flex: 1, padding: 14, borderRadius: 8, alignItems: 'center' },
+  btnRow: { flexDirection: 'row', gap: 12, marginTop: 12 },
+  btn: { flex: 1, paddingVertical: 13, borderRadius: radius.lg, alignItems: 'center' },
   btnPrimary: { backgroundColor: colors.primary },
-  btnPrimaryText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  btnSecondary: { backgroundColor: colors.border },
-  btnSecondaryText: { color: colors.text, fontSize: 16, fontWeight: '600' },
+  btnPrimaryText: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  btnSecondary: { borderWidth: 1, borderColor: colors.border },
+  btnSecondaryText: { color: colors.text, fontSize: 15, fontWeight: '600' },
 });

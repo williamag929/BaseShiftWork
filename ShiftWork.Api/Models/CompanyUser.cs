@@ -8,10 +8,11 @@ namespace ShiftWork.Api.Models
         public string Uid { get; set; }
         public string Email { get; set; }
         public string DisplayName { get; set; }
-        public string PhotoURL { get; set; }
+        public string? PhotoURL { get; set; }
         public bool EmailVerified { get; set; }
         public string CompanyId { get; set; }
         public Company Company { get; set; }
+        public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }

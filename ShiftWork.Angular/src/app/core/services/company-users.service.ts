@@ -24,38 +24,48 @@ export class CompanyUsersService {
   }
 
   getCompanyUsers(companyId: string): Observable<CompanyUser[]> {
-    return this.http.get<CompanyUser[]>(`${this.apiUrl}/companies/${companyId}/usercompanies`)
+    return this.http.get<CompanyUser[]>(`${this.apiUrl}/companies/${companyId}/users`)
       .pipe(
         catchError(this.handleError)
       );
   }
 
   getCompanyUser(companyId: string, companyUserId: string): Observable<CompanyUser> {
-    return this.http.get<CompanyUser>(`${this.apiUrl}/companies/${companyId}/usercompanies/${companyUserId}`)
+    return this.http.get<CompanyUser>(`${this.apiUrl}/companies/${companyId}/users/${companyUserId}`)
       .pipe(
         catchError(this.handleError)
       );
   }
 
   createCompanyUser(companyId: string, companyUser: CompanyUser): Observable<CompanyUser> {
-    return this.http.post<CompanyUser>(`${this.apiUrl}/companies/${companyId}/usercompanies`, companyUser, this.getHttpOptions())
+    return this.http.post<CompanyUser>(`${this.apiUrl}/companies/${companyId}/users`, companyUser, this.getHttpOptions())
       .pipe(
         catchError(this.handleError)
       );
   }
 
   updateCompanyUser(companyId: string, companyUserId: string, companyUser: CompanyUser): Observable<CompanyUser> {
-    return this.http.put<CompanyUser>(`${this.apiUrl}/companies/${companyId}/usercompanies/${companyUserId}`, companyUser, this.getHttpOptions())
+    return this.http.put<CompanyUser>(`${this.apiUrl}/companies/${companyId}/users/${companyUserId}`, companyUser, this.getHttpOptions())
       .pipe(
         catchError(this.handleError)
       );
   }
 
   deleteCompanyUser(companyId: string, companyUserId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/companies/${companyId}/usercompanies/${companyUserId}`, this.getHttpOptions())
+    return this.http.delete<void>(`${this.apiUrl}/companies/${companyId}/users/${companyUserId}`, this.getHttpOptions())
       .pipe(
         catchError(this.handleError)
       );
+  }
+
+  setCompanyUserActive(companyId: string, companyUserId: string, isActive: boolean): Observable<CompanyUser> {
+    return this.http.patch<CompanyUser>(
+      `${this.apiUrl}/companies/${companyId}/users/${companyUserId}/active`,
+      { isActive },
+      this.getHttpOptions()
+    ).pipe(
+      catchError(this.handleError)
+    );
   }
 
   private handleError(error: HttpErrorResponse) {
