@@ -434,16 +434,17 @@ class ShiftWorkServer:
 
         # Configure CORS per configured allowed origins
         cors = aiohttp_cors.setup(app)
+        cors_options = {
+            origin: aiohttp_cors.ResourceOptions(
+                allow_credentials=bool(AUTH_TOKEN),  # Only allow credentials if auth is enabled
+                expose_headers="*",
+                allow_headers="*",
+                allow_methods="*"
+            )
+            for origin in ALLOWED_ORIGINS
+        }
         for route in list(app.router.routes()):
-            for origin in ALLOWED_ORIGINS:
-                cors.add(route, {
-                    origin: aiohttp_cors.ResourceOptions(
-                        allow_credentials=bool(AUTH_TOKEN),  # Only allow credentials if auth is enabled
-                        expose_headers="*",
-                        allow_headers="*",
-                        allow_methods="*"
-                    )
-                })
+            cors.add(route, cors_options)
         return app
 
     async def run_http_server(self):
