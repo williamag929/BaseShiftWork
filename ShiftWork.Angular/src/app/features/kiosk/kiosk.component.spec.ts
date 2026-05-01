@@ -23,7 +23,10 @@ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 // Test data
 // ─────────────────────────────────────────────────────────────────────────────
 
-const mockCompany = { companyId: 'company-1', name: 'Test Company' };
+const mockCompany = {
+  companyId: 'company-1', name: 'Test Company', address: '1 Main St',
+  phoneNumber: '555-0000', email: 'test@test.com', website: 'https://test.com', timeZone: 'UTC'
+};
 
 const mockLocation: Location = {
   locationId: 1,

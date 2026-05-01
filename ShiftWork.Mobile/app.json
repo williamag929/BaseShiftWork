@@ -35,7 +35,8 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT",
-        "android.permission.DETECT_SCREEN_CAPTURE"
+        "android.permission.DETECT_SCREEN_CAPTURE",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -62,7 +63,15 @@
           "faceIDPermission": "Allow Job Log Smart to use Face ID for secure authentication"
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#ffffff",
+          "sounds": []
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -72,8 +81,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "joblogsmart-mobile-5b2c1"
+        "projectId": "531adbf1-53a0-48ca-9fc8-f65ae312365a"
       }
-    }
+    },
+    "owner": "williamaguirre82"
   }
 }

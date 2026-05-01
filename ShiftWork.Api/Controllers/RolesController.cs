@@ -52,25 +52,33 @@ namespace ShiftWork.Api.Controllers
             try
             {
                 var cacheKey = $"roles_{companyId}";
-                if (!_memoryCache.TryGetValue(cacheKey, out IEnumerable<Role> roles))
+                if (!_memoryCache.TryGetValue(cacheKey, out List<RoleDto> roleDtos))
                 {
                     _logger.LogInformation("Cache miss for roles in company {CompanyId}", companyId);
-                    roles = await _roleService.GetAll(companyId);
+                    var roles = await _roleService.GetAll(companyId);
 
                     if (roles == null || !roles.Any())
                     {
                         return NotFound($"No roles found for company {companyId}.");
                     }
 
+                    roleDtos = _mapper.Map<List<RoleDto>>(roles);
+                    var permMap = await _rolePermissionService.GetPermissionKeysByRoleIdsAsync(roleDtos.Select(r => r.RoleId));
+                    foreach (var dto in roleDtos)
+                    {
+                        if (permMap.TryGetValue(dto.RoleId, out var keys))
+                            dto.Permissions = keys;
+                    }
+
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-                    _memoryCache.Set(cacheKey, roles, cacheEntryOptions);
+                    _memoryCache.Set(cacheKey, roleDtos, cacheEntryOptions);
                 }
                 else
                 {
                     _logger.LogInformation("Cache hit for roles in company {CompanyId}", companyId);
                 }
 
-                return Ok(_mapper.Map<IEnumerable<RoleDto>>(roles));
+                return Ok(roleDtos);
             }
             catch (Exception ex)
             {
@@ -92,25 +100,30 @@ namespace ShiftWork.Api.Controllers
             try
             {
                 var cacheKey = $"role_{companyId}_{roleId}";
-                if (!_memoryCache.TryGetValue(cacheKey, out Role role))
+                if (!_memoryCache.TryGetValue(cacheKey, out RoleDto roleDto))
                 {
                     _logger.LogInformation("Cache miss for role {RoleId} in company {CompanyId}", roleId, companyId);
-                    role = await _roleService.Get(companyId, roleId);
+                    var role = await _roleService.Get(companyId, roleId);
 
                     if (role == null)
                     {
                         return NotFound($"Role with ID {roleId} not found.");
                     }
 
+                    roleDto = _mapper.Map<RoleDto>(role);
+                    var permMap = await _rolePermissionService.GetPermissionKeysByRoleIdsAsync(new[] { roleId });
+                    if (permMap.TryGetValue(roleId, out var keys))
+                        roleDto.Permissions = keys;
+
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-                    _memoryCache.Set(cacheKey, role, cacheEntryOptions);
+                    _memoryCache.Set(cacheKey, roleDto, cacheEntryOptions);
                 }
                 else
                 {
                     _logger.LogInformation("Cache hit for role {RoleId} in company {CompanyId}", roleId, companyId);
                 }
 
-                return Ok(_mapper.Map<RoleDto>(role));
+                return Ok(roleDto);
             }
             catch (Exception ex)
             {
@@ -177,6 +190,15 @@ namespace ShiftWork.Api.Controllers
                 return BadRequest(ModelState);
             }
 
+            var requesterUid = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? User.FindFirstValue("user_id")
+                ?? User.FindFirstValue("uid")
+                ?? User.FindFirstValue("sub");
+
+            var requesterName = User.FindFirstValue(ClaimTypes.GivenName)
+                ?? User.FindFirstValue(ClaimTypes.Name)
+                ?? User.FindFirstValue("name");
+
             try
             {
                 var role = _mapper.Map<Role>(roleDto);
@@ -186,11 +208,20 @@ namespace ShiftWork.Api.Controllers
                 {
                     return NotFound($"Role with ID {roleId} not found.");
                 }
-                _mapper.Map(roleDto, updatedRole);
+
+                var permissionKeys = roleDto.Permissions ?? new List<string>();
+                await _rolePermissionService.UpdateRolePermissionsAsync(companyId, roleId, permissionKeys, requesterUid, requesterName);
+
                 _memoryCache.Remove($"roles_{companyId}");
                 _memoryCache.Remove($"role_{companyId}_{roleId}");
 
-                return Ok(_mapper.Map<RoleDto>(updatedRole));
+                var responseDto = _mapper.Map<RoleDto>(updatedRole);
+                responseDto.Permissions = permissionKeys.OrderBy(k => k).ToList();
+                return Ok(responseDto);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {

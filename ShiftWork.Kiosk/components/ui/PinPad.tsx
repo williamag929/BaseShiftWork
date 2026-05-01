@@ -7,11 +7,6 @@ import {
   Animated,
   type ViewStyle,
 } from 'react-native';
-import Reanimated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { colors, spacing, radius } from '@/styles/tokens';
 import { Ionicons } from '@expo/vector-icons';
@@ -39,22 +34,31 @@ const KEY_SIZE = 82;
 
 // ─── AnimatedKey ──────────────────────────────────────────────────────────────
 function AnimatedKey({ keyValue, onPress }: { keyValue: string; onPress: (k: string) => void }) {
-  const scale = useSharedValue(1);
-  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const scale = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = useCallback(() => {
-    scale.value = withSpring(0.88, { damping: 10, stiffness: 300 });
+    Animated.spring(scale, {
+      toValue: 0.88,
+      friction: 6,
+      tension: 220,
+      useNativeDriver: true,
+    }).start();
   }, [scale]);
 
   const handlePressOut = useCallback(() => {
-    scale.value = withSpring(1, { damping: 10, stiffness: 300 });
+    Animated.spring(scale, {
+      toValue: 1,
+      friction: 6,
+      tension: 220,
+      useNativeDriver: true,
+    }).start();
   }, [scale]);
 
   const isDel = keyValue === 'del';
   const subLabel = SUB_LABELS[keyValue];
 
   return (
-    <Reanimated.View style={[styles.keyOuter, animStyle]}>
+    <Animated.View style={[styles.keyOuter, { transform: [{ scale }] }]}>
       <Pressable
         style={({ pressed }) => [
           styles.key,
@@ -77,7 +81,7 @@ function AnimatedKey({ keyValue, onPress }: { keyValue: string; onPress: (k: str
           </View>
         )}
       </Pressable>
-    </Reanimated.View>
+    </Animated.View>
   );
 }
 

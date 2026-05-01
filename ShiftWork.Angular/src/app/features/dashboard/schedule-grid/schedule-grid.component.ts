@@ -4,6 +4,9 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Observable, lastValueFrom } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
@@ -52,7 +55,7 @@ import {
 @Component({
   selector: 'app-schedule-grid',
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule, ScheduleGridAddModalComponent, ReplacementPanelComponent, TimeOffRequestModalComponent, SickReportModalComponent, RepeatPatternModalComponent, ShiftHistoryModalComponent, ScheduleConflictModalComponent],
+  imports: [CommonModule, FormsModule, DragDropModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule, ScheduleGridAddModalComponent, ReplacementPanelComponent, TimeOffRequestModalComponent, SickReportModalComponent, RepeatPatternModalComponent, ShiftHistoryModalComponent, ScheduleConflictModalComponent],
   templateUrl: './schedule-grid.component.html',
   styleUrl: './schedule-grid.component.css',
   providers: [ScheduleService, PeopleService, LocationService, AreaService, CrewService]
@@ -67,6 +70,7 @@ export class ScheduleGridComponent implements OnInit {
     const checked = (event.target instanceof HTMLInputElement) ? event.target.checked : false;
     this.toggleBulkPersonSelection(personId, checked);
   }
+  showAllStats = false;
   showAddScheduleModalFlag: boolean = false;
   showAddSchedulePlaceholder: boolean = false;
   selectedPersonId: number | null = null;

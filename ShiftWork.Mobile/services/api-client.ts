@@ -1,9 +1,11 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import Constants from 'expo-constants';
+import { router } from 'expo-router';
 // Firebase auth is DISABLED — token is now read from SecureStore.
 // import { auth } from '@/config/firebase';
 import { getToken } from '@/utils/storage.utils';
 import { logger } from '@/utils/logger';
+import { useAuthStore } from '@/store/authStore';
 
 // Resolve API base URL, rewriting localhost/0.0.0.0 to the Expo host when running on device
 const resolveApiBaseUrl = () => {
@@ -34,10 +36,12 @@ const resolveApiBaseUrl = () => {
 
 const API_BASE_URL = resolveApiBaseUrl();
 const API_TIMEOUT = 30000;
+const AUTH_EXEMPT_PATHS = new Set(['/api/auth/login', '/api/auth/accept-invite']);
 
 class ApiClient {
   private client: AxiosInstance;
   private inflight: Map<string, Promise<any>> = new Map();
+  private unauthorizedRecovery: Promise<void> | null = null;
 
   constructor() {
     this.client = axios.create({
@@ -94,8 +98,12 @@ class ApiClient {
     // Response interceptor for error handling
     this.client.interceptors.response.use(
       (response) => response,
-      (error) => {
+      async (error) => {
         if (error.response) {
+          if (await this.shouldRecoverFromUnauthorized(error)) {
+            await this.recoverFromUnauthorized();
+          }
+
           // Server responded with error status
           logger.error('[API] Error Response:', {
             status: error.response.status,
@@ -104,8 +112,11 @@ class ApiClient {
             url: error.config?.url,
             method: error.config?.method
           });
+          const isUnauthorized = error.response.status === 401;
           return Promise.reject({
-            message: error.response.data.message || 'An error occurred',
+            message: isUnauthorized
+              ? 'Your session expired. Please sign in again.'
+              : error.response.data.message || 'An error occurred',
             statusCode: error.response.status,
             errors: error.response.data.errors,
           });
@@ -182,6 +193,36 @@ class ApiClient {
   // Get the current base URL
   async getBaseURL(): Promise<string> {
     return this.client.defaults.baseURL || API_BASE_URL;
+  }
+
+  private async shouldRecoverFromUnauthorized(error: any): Promise<boolean> {
+    if (error?.response?.status !== 401) {
+      return false;
+    }
+
+    const requestUrl = error?.config?.url as string | undefined;
+    if (!requestUrl || AUTH_EXEMPT_PATHS.has(requestUrl)) {
+      return false;
+    }
+
+    const token = await getToken();
+    return !!token;
+  }
+
+  private async recoverFromUnauthorized(): Promise<void> {
+    if (this.unauthorizedRecovery) {
+      return this.unauthorizedRecovery;
+    }
+
+    this.unauthorizedRecovery = (async () => {
+      logger.warn('[API] Received 401 for authenticated request. Clearing stored session.');
+      await useAuthStore.getState().signOut();
+      router.replace('/(auth)/login' as any);
+    })().finally(() => {
+      this.unauthorizedRecovery = null;
+    });
+
+    return this.unauthorizedRecovery;
   }
 }
 

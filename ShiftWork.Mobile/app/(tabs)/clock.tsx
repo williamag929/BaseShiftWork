@@ -31,8 +31,10 @@ export default function ClockScreen() {
     safetyQuestions,
     shiftLocationName,
     isClockedIn,
+    answers,
     setPhotoUri,
     setCameraOpen,
+    setAnswers,
     handleClock,
   } = useClockAction();
 
@@ -73,7 +75,13 @@ export default function ClockScreen() {
 
         {/* Safety questionnaire (when shift scheduled & not clocked in) */}
         {!!todayShift && !isClockedIn && (
-          <SafetyQuestionnaire shift={todayShift} questions={safetyQuestions} locationName={shiftLocationName} />
+          <SafetyQuestionnaire
+            shift={todayShift}
+            questions={safetyQuestions}
+            locationName={shiftLocationName}
+            answers={answers}
+            onAnswersChange={setAnswers}
+          />
         )}
 
         {/* Clock button */}

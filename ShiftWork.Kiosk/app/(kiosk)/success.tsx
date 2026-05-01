@@ -86,10 +86,19 @@ export default function SuccessScreen() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Countdown and auto-return after submission
+  // After submission: clock-outs go to the interstitial (bulletins/safety);
+  // clock-ins just count down and return home.
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   useEffect(() => {
     if (!submitted) return;
+
+    if (clockType === 'ClockOut' && employee) {
+      // Brief pause so the success checkmark is visible before transitioning
+      const t = setTimeout(() => {
+        router.replace(`/(kiosk)/interstitial?personId=${employee.personId}` as any);
+      }, 1800);
+      return () => clearTimeout(t);
+    }
 
     countdownRef.current = setInterval(() => {
       setCountdown((c) => {
@@ -106,7 +115,7 @@ export default function SuccessScreen() {
     return () => {
       if (countdownRef.current) clearInterval(countdownRef.current);
     };
-  }, [submitted, resetSession, router]);
+  }, [submitted, resetSession, router, clockType, employee]);
 
   const label = clockType === 'ClockIn' ? 'Clocked In' : 'Clocked Out';
   const bgColor = clockType === 'ClockIn' ? colors.clockIn : colors.clockOut;

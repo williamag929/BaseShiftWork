@@ -37,6 +37,16 @@ namespace ShiftWork.Api.Data
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
 
+        // v2 Content & Communication
+        public DbSet<Bulletin> Bulletins { get; set; }
+        public DbSet<BulletinRead> BulletinReads { get; set; }
+        public DbSet<LocationDailyReport> LocationDailyReports { get; set; }
+        public DbSet<ReportMedia> ReportMedia { get; set; }
+        public DbSet<Document> Documents { get; set; }
+        public DbSet<DocumentReadLog> DocumentReadLogs { get; set; }
+        public DbSet<SafetyContent> SafetyContents { get; set; }
+        public DbSet<SafetyAcknowledgment> SafetyAcknowledgments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ShiftEvent>().ToTable("ShiftEvents");
@@ -285,6 +295,139 @@ namespace ShiftWork.Api.Data
                 .HasOne(cup => cup.Person)
                 .WithMany()
                 .HasForeignKey(cup => cup.PersonId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // ── v2 Content & Communication ────────────────────────────────────────
+
+            // Bulletin
+            modelBuilder.Entity<Bulletin>()
+                .ToTable("Bulletins")
+                .HasOne(b => b.CreatedBy)
+                .WithMany()
+                .HasForeignKey(b => b.CreatedByPersonId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Bulletin>()
+                .HasOne(b => b.Location)
+                .WithMany()
+                .HasForeignKey(b => b.LocationId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Bulletin>()
+                .HasIndex(b => new { b.CompanyId, b.Status });
+
+            // BulletinRead — unique per person per bulletin
+            modelBuilder.Entity<BulletinRead>()
+                .ToTable("BulletinReads")
+                .HasIndex(r => new { r.BulletinId, r.PersonId })
+                .IsUnique();
+
+            modelBuilder.Entity<BulletinRead>()
+                .HasOne(r => r.Bulletin)
+                .WithMany(b => b.Reads)
+                .HasForeignKey(r => r.BulletinId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<BulletinRead>()
+                .HasOne(r => r.Person)
+                .WithMany()
+                .HasForeignKey(r => r.PersonId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // LocationDailyReport — one per location per day
+            modelBuilder.Entity<LocationDailyReport>()
+                .ToTable("LocationDailyReports")
+                .HasIndex(r => new { r.CompanyId, r.LocationId, r.ReportDate })
+                .IsUnique();
+
+            modelBuilder.Entity<LocationDailyReport>()
+                .Property(r => r.TotalHours)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<LocationDailyReport>()
+                .HasOne(r => r.Location)
+                .WithMany()
+                .HasForeignKey(r => r.LocationId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // ReportMedia
+            modelBuilder.Entity<ReportMedia>()
+                .ToTable("ReportMedia")
+                .HasOne(m => m.Report)
+                .WithMany(r => r.Media)
+                .HasForeignKey(m => m.ReportId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ReportMedia>()
+                .HasOne(m => m.Person)
+                .WithMany()
+                .HasForeignKey(m => m.PersonId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Document
+            modelBuilder.Entity<Document>()
+                .ToTable("Documents")
+                .HasOne(d => d.UploadedBy)
+                .WithMany()
+                .HasForeignKey(d => d.UploadedByPersonId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Document>()
+                .HasOne(d => d.Location)
+                .WithMany()
+                .HasForeignKey(d => d.LocationId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Document>()
+                .HasIndex(d => new { d.CompanyId, d.Status, d.Type });
+
+            // DocumentReadLog
+            modelBuilder.Entity<DocumentReadLog>()
+                .ToTable("DocumentReadLogs")
+                .HasOne(l => l.Document)
+                .WithMany(d => d.ReadLogs)
+                .HasForeignKey(l => l.DocumentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DocumentReadLog>()
+                .HasOne(l => l.Person)
+                .WithMany()
+                .HasForeignKey(l => l.PersonId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // SafetyContent
+            modelBuilder.Entity<SafetyContent>()
+                .ToTable("SafetyContents")
+                .HasOne(s => s.CreatedBy)
+                .WithMany()
+                .HasForeignKey(s => s.CreatedByPersonId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<SafetyContent>()
+                .HasOne(s => s.Location)
+                .WithMany()
+                .HasForeignKey(s => s.LocationId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<SafetyContent>()
+                .HasIndex(s => new { s.CompanyId, s.Status, s.ScheduledFor });
+
+            // SafetyAcknowledgment — unique per person per content
+            modelBuilder.Entity<SafetyAcknowledgment>()
+                .ToTable("SafetyAcknowledgments")
+                .HasIndex(a => new { a.SafetyContentId, a.PersonId })
+                .IsUnique();
+
+            modelBuilder.Entity<SafetyAcknowledgment>()
+                .HasOne(a => a.SafetyContent)
+                .WithMany(s => s.Acknowledgments)
+                .HasForeignKey(a => a.SafetyContentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SafetyAcknowledgment>()
+                .HasOne(a => a.Person)
+                .WithMany()
+                .HasForeignKey(a => a.PersonId)
                 .OnDelete(DeleteBehavior.NoAction);
 
         }

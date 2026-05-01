@@ -30,6 +30,7 @@ namespace ShiftWork.Api.Controllers
         private readonly ILocationService _locationService;
         private readonly ICompanySettingsService _settingsService;
         private readonly IScheduleValidationService _validationService;
+        private readonly PushNotificationService _pushService;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<SchedulesController> _logger;
@@ -37,12 +38,13 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="SchedulesController"/> class.
         /// </summary>
-        public SchedulesController(IScheduleService scheduleService, ILocationService locationService, ICompanySettingsService settingsService, IScheduleValidationService validationService, IMapper mapper, IMemoryCache memoryCache, ILogger<SchedulesController> logger)
+        public SchedulesController(IScheduleService scheduleService, ILocationService locationService, ICompanySettingsService settingsService, IScheduleValidationService validationService, PushNotificationService pushService, IMapper mapper, IMemoryCache memoryCache, ILogger<SchedulesController> logger)
         {
             _scheduleService = scheduleService ?? throw new ArgumentNullException(nameof(scheduleService));
             _locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
             _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
             _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
+            _pushService = pushService ?? throw new ArgumentNullException(nameof(pushService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -242,6 +244,12 @@ namespace ShiftWork.Api.Controllers
                     return BadRequest("Failed to create schedule.");
                 }
 
+                if (createdSchedule.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    _ = _pushService.NotifySchedulePublishedAsync(
+                        companyId, createdSchedule.ScheduleId, createdSchedule.StartDate, createdSchedule.EndDate);
+                }
+
                 _memoryCache.Remove($"schedules_{companyId}");
                 var createdScheduleDto = _mapper.Map<ScheduleDto>(createdSchedule);
 
@@ -286,6 +294,9 @@ namespace ShiftWork.Api.Controllers
                     return BadRequest(new { errors = validation.Errors, warnings = validation.Warnings });
                 }
 
+                var existingSchedule = await _scheduleService.Get(companyId, scheduleId);
+                bool wasPublished = existingSchedule?.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) ?? false;
+
                 if (settings.AutoApproveShifts)
                 {
                     if (string.IsNullOrWhiteSpace(schedule.Status) || schedule.Status.Equals("unpublished", StringComparison.OrdinalIgnoreCase))
@@ -298,6 +309,13 @@ namespace ShiftWork.Api.Controllers
                 if (updatedSchedule == null)
                 {
                     return NotFound($"Schedule with ID {scheduleId} not found.");
+                }
+
+                bool justPublished = !wasPublished && (updatedSchedule.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) ?? false);
+                if (justPublished)
+                {
+                    _ = _pushService.NotifySchedulePublishedAsync(
+                        companyId, updatedSchedule.ScheduleId, updatedSchedule.StartDate, updatedSchedule.EndDate);
                 }
 
                 _mapper.Map(scheduleDto, updatedSchedule);

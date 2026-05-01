@@ -53,8 +53,7 @@ describe('CompanySwitchComponent', () => {
     spyOn(store, 'dispatch');
     const company: Company = {
       companyId: '1', name: 'Test Company', email: 'test@test.com', phoneNumber: '1234567890', website: 'test.com',
-      address: '',
-      timezone: 'America/New_York',
+      address: '', timeZone: 'America/New_York',
     };
     component.switchCompany(company);
     expect(store.dispatch).toHaveBeenCalledWith(setActiveCompany({ company }));

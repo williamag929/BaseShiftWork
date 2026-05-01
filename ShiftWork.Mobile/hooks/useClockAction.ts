@@ -11,6 +11,9 @@ import { useShiftEvents, useClockMutation } from './queries';
 import type { KioskQuestionDto, ScheduleShiftDto } from '@/types/api';
 import type { ShiftEventDto } from '@/types/api';
 import { useLocationName } from './queries';
+import type { QuestionAnswers } from '@/components/screens/clock/SafetyQuestionnaire';
+
+const EMPTY_EVENTS: ShiftEventDto[] = [];
 
 export interface ClockActionData {
   events: ShiftEventDto[];
@@ -25,8 +28,10 @@ export interface ClockActionData {
   safetyQuestions: KioskQuestionDto[];
   shiftLocationName: string | null;
   isClockedIn: boolean;
+  answers: QuestionAnswers;
   setPhotoUri: (uri: string | null) => void;
   setCameraOpen: (open: boolean) => void;
+  setAnswers: (answers: QuestionAnswers) => void;
   handleClock: () => Promise<void>;
   fmtHMS: (totalSeconds: number) => string;
 }
@@ -40,10 +45,11 @@ export const useClockAction = (): ClockActionData => {
   const [cameraOpen, setCameraOpen] = useState(false);
   const [activeClockInAt, setActiveClockInAt] = useState<Date | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [answers, setAnswers] = useState<QuestionAnswers>({});
 
   // ── Shift events via React Query (replaces loadEvents useEffect chain) ──
   const {
-    data: events = [],
+    data: events = EMPTY_EVENTS,
     isLoading: initializing,
     isError,
     error: eventsError,
@@ -97,15 +103,35 @@ export const useClockAction = (): ClockActionData => {
 
   // ── Derive activeClockInAt from events ──
   useEffect(() => {
-    const latest = events?.[0];
+    const latest = events[0];
+    let cancelled = false;
+
     (async () => {
       if (latest?.eventType === 'clockin') {
-        setActiveClockInAt(new Date(latest.eventDate));
+        const nextActiveClockInAt = new Date(latest.eventDate);
+        if (cancelled) return;
+
+        setActiveClockInAt((previous) => {
+          const previousTime = previous?.getTime() ?? null;
+          const nextTime = nextActiveClockInAt.getTime();
+          return previousTime === nextTime ? previous : nextActiveClockInAt;
+        });
       } else {
         const saved = await getActiveClockInAt();
-        setActiveClockInAt(saved ? new Date(saved) : null);
+        if (cancelled) return;
+
+        const nextSavedClockInAt = saved ? new Date(saved) : null;
+        setActiveClockInAt((previous) => {
+          const previousTime = previous?.getTime() ?? null;
+          const nextTime = nextSavedClockInAt?.getTime() ?? null;
+          return previousTime === nextTime ? previous : nextSavedClockInAt;
+        });
       }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [events]);
 
   // ── Elapsed timer ──
@@ -126,7 +152,24 @@ export const useClockAction = (): ClockActionData => {
     if (!companyId) { toast.error('Company ID is not set.'); return; }
     if (!personId) { toast.error('Please sign in to clock in/out.'); return; }
     try {
-      await clockMutation.mutateAsync({ companyId, personId, isClockedIn, photoUri });
+      const result = await clockMutation.mutateAsync({ companyId, personId, isClockedIn, photoUri });
+
+      // Submit captured question answers (best-effort; non-blocking on the UI)
+      const answerEntries = Object.entries(answers);
+      if (answerEntries.length > 0 && result?.eventLogId) {
+        const payload = answerEntries.map(([questionId, answerText]) => ({
+          shiftEventId: result.eventLogId,
+          kioskQuestionId: Number(questionId),
+          answerText,
+        }));
+        kioskService.submitKioskAnswers(payload).catch((e) =>
+          logger.error('[useClockAction] answer submission failed:', e?.message)
+        );
+      }
+
+      // Reset answers after clock action
+      setAnswers({});
+
       toast.success(isClockedIn ? 'Clocked out successfully' : 'Clocked in successfully');
     } catch (e: any) {
       const msg = e?.message || 'Clock action failed';
@@ -156,8 +199,10 @@ export const useClockAction = (): ClockActionData => {
     safetyQuestions,
     shiftLocationName,
     isClockedIn,
+    answers,
     setPhotoUri,
     setCameraOpen,
+    setAnswers,
     handleClock,
     fmtHMS,
   };

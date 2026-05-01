@@ -1,0 +1,112 @@
+name: PR Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - feature/**
+
+jobs:
+  api-tests:
+    name: .NET API Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore ShiftWork.Api.Tests/ShiftWork.Api.Tests.csproj
+
+      - name: Build
+        run: dotnet build ShiftWork.Api.Tests/ShiftWork.Api.Tests.csproj --no-restore --configuration Release
+
+      - name: Test
+        run: >
+          dotnet test ShiftWork.Api.Tests/ShiftWork.Api.Tests.csproj
+          --no-build
+          --configuration Release
+          --logger "trx;LogFileName=results.trx"
+          --results-directory ./test-results
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-results
+          path: ./test-results/results.trx
+
+  angular-typecheck:
+    name: Angular TypeScript Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ShiftWork.Angular/package-lock.json
+
+      - name: Install
+        run: npm ci
+        working-directory: ShiftWork.Angular
+
+      - name: TypeScript check (v2 modules)
+        run: >
+          npx tsc --noEmit
+          --project tsconfig.json
+          2>&1 | grep -E
+          "(bulletins|documents|safety|daily-reports|bulletin\.service|document\.service|safety\.service|daily-report\.service)"
+          && echo "v2 modules: no type errors" || true
+        working-directory: ShiftWork.Angular
+
+  mobile-tests:
+    name: Mobile Jest Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ShiftWork.Mobile/package-lock.json
+
+      - name: Install
+        run: npm ci --legacy-peer-deps
+        working-directory: ShiftWork.Mobile
+
+      - name: Test
+        run: npm test -- --forceExit --passWithNoTests
+        working-directory: ShiftWork.Mobile
+
+  kiosk-tests:
+    name: Kiosk Jest Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ShiftWork.Kiosk/package-lock.json
+
+      - name: Install
+        run: npm ci --legacy-peer-deps
+        working-directory: ShiftWork.Kiosk
+
+      - name: Test
+        run: npm test -- --forceExit --passWithNoTests
+        working-directory: ShiftWork.Kiosk

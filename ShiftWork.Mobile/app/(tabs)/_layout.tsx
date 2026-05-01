@@ -74,12 +74,12 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="schedule"
+        name="clock"
         options={{
-          title: 'Schedule',
+          title: 'Clock',
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <TabIcon name="calendar-outline" filled="calendar" color={color} size={size} />
+            <TabIcon name="time-outline" filled="time" color={color} size={size} />
           ),
         }}
       />
@@ -88,12 +88,12 @@ export default function TabsLayout() {
         options={{ title: 'Grid', href: null }}
       />
       <Tabs.Screen
-        name="clock"
+        name="schedule"
         options={{
-          title: 'Clock',
+          title: 'Schedule',
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <TabIcon name="time-outline" filled="time" color={color} size={size} />
+            <TabIcon name="calendar-outline" filled="calendar" color={color} size={size} />
           ),
         }}
       />
@@ -114,6 +114,49 @@ export default function TabsLayout() {
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="chatbubble-ellipses-outline" filled="chatbubble-ellipses" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="documents"
+        options={{
+          title: 'Docs',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="folder-outline" filled="folder" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="bulletins"
+        options={{
+          title: 'Bulletins',
+          href: null,
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="megaphone-outline" filled="megaphone" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="safety"
+        options={{
+          title: 'Safety',
+          href: null,
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="shield-checkmark-outline" filled="shield-checkmark" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="daily-report"
+        options={{
+          title: 'Report',
+          href: null,
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="clipboard-outline" filled="clipboard" color={color} size={size} />
           ),
         }}
       />

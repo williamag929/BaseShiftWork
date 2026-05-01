@@ -24,7 +24,7 @@ export function useNotifications(): UseNotificationsReturn {
   const notificationListener = useRef<Notifications.Subscription | undefined>(undefined);
   const responseListener = useRef<Notifications.Subscription | undefined>(undefined);
 
-  const { companyId, personId } = useAuthStore();
+  const { companyId, personId, setDeviceToken } = useAuthStore();
 
   useEffect(() => {
     if (!companyId || !personId) {
@@ -38,7 +38,8 @@ export function useNotifications(): UseNotificationsReturn {
         
         if (token) {
           setExpoPushToken(token);
-          
+          setDeviceToken(token);
+
           // Save token to backend
           await notificationService.saveDeviceToken(String(companyId), personId, token);
           setIsRegistered(true);
