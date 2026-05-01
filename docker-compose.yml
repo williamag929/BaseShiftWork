@@ -64,6 +64,7 @@ services:
     container_name: shiftwork-mcp
     environment:
       API_BASE_URL: "http://api:80"
+      API_AUTH_TOKEN: "${API_AUTH_TOKEN}"
     ports:
       - "8080:8080"
     depends_on:

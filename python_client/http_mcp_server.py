@@ -57,6 +57,9 @@ LISTEN_PORT = int(os.environ.get("LISTEN_PORT", "8080"))
 # Optional auth token: if set, require incoming requests to provide Authorization: Bearer <token>
 AUTH_TOKEN = os.environ.get("MCP_AUTH_TOKEN")
 
+# Token used by the MCP server when calling the ShiftWork API
+API_AUTH_TOKEN = os.environ.get("API_AUTH_TOKEN")
+
 # CORS allowed origins (comma-separated). Default to localhost MCP server + production.
 _allowed = os.environ.get("ALLOWED_ORIGINS", "http://localhost:8080,https://mcp.joblogsmart.com")
 ALLOWED_ORIGINS = [o.strip() for o in _allowed.split(",") if o.strip()]
@@ -100,10 +103,13 @@ class ShiftWorkServer:
     async def _get_http_client(self) -> httpx.AsyncClient:
         if self.http_client is None:
             # Create a single shared AsyncClient instance with connection limits
+            headers = {"Accept": "application/json"}
+            if API_AUTH_TOKEN:
+                headers["Authorization"] = f"Bearer {API_AUTH_TOKEN}"
             self.http_client = httpx.AsyncClient(
                 base_url=self.api_base_url,
                 timeout=HTTPX_TIMEOUT,
-                headers={"Accept": "application/json"},
+                headers=headers,
                 limits=httpx.Limits(max_connections=100, max_keepalive_connections=20)
             )
         return self.http_client
