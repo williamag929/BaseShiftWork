@@ -82,7 +82,7 @@ jobs:
           cache-dependency-path: ShiftWork.Mobile/package-lock.json
 
       - name: Install
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         working-directory: ShiftWork.Mobile
 
       - name: Test
@@ -104,7 +104,7 @@ jobs:
           cache-dependency-path: ShiftWork.Kiosk/package-lock.json
 
       - name: Install
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         working-directory: ShiftWork.Kiosk
 
       - name: Test
