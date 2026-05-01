@@ -103,24 +103,27 @@ class ShiftWorkServer:
     async def _get_http_client(self) -> httpx.AsyncClient:
         if self.http_client is None:
             # Create a single shared AsyncClient instance with connection limits
-            headers = {"Accept": "application/json"}
-            if API_AUTH_TOKEN:
-                headers["Authorization"] = f"Bearer {API_AUTH_TOKEN}"
+            # Default headers (no Authorization — injected per-request)
             self.http_client = httpx.AsyncClient(
                 base_url=self.api_base_url,
                 timeout=HTTPX_TIMEOUT,
-                headers=headers,
+                headers={"Accept": "application/json"},
                 limits=httpx.Limits(max_connections=100, max_keepalive_connections=20)
             )
         return self.http_client
 
-    async def _http_get(self, path: str, params: dict | None = None) -> httpx.Response:
-        """Simple retrying GET wrapper with exponential backoff."""
+    async def _http_get(self, path: str, params: dict | None = None, auth_token: str | None = None) -> httpx.Response:
+        """Simple retrying GET wrapper with exponential backoff.
+        
+        auth_token: per-request Bearer token. Falls back to API_AUTH_TOKEN env var.
+        """
         client = await self._get_http_client()
+        token = auth_token or API_AUTH_TOKEN
+        headers = {"Authorization": f"Bearer {token}"} if token else {}
         last_exc = None
         for attempt in range(1, HTTPX_RETRIES + 1):
             try:
-                resp = await client.get(path, params=params)
+                resp = await client.get(path, params=params, headers=headers)
                 # Raise for 5xx server errors so we can retry
                 if 500 <= resp.status_code < 600 and attempt < HTTPX_RETRIES:
                     logger.warning(f"Server error {resp.status_code} on GET {path}, attempt {attempt}/{HTTPX_RETRIES}")
@@ -205,7 +208,7 @@ class ShiftWorkServer:
                 logger.error(f"Tool error for {name}: {e}", exc_info=True)
                 return [TextContent(type="text", text="Server error")]
 
-    async def _get_employee_schedules_impl(self, arguments: dict) -> dict:
+    async def _get_employee_schedules_impl(self, arguments: dict, auth_token: str | None = None) -> dict:
         """Implementation for getting employee schedules"""
         company_id = arguments.get("company_id")
         person_id = arguments.get("person_id")
@@ -217,7 +220,7 @@ class ShiftWorkServer:
             # Normalize types to string when filtering
             person_id_str = str(person_id)
 
-            response = await self._http_get(f"/api/companies/{company_id}/schedules")
+            response = await self._http_get(f"/api/companies/{company_id}/schedules", auth_token=auth_token)
 
             if response.status_code == 404:
                 return {
@@ -252,7 +255,7 @@ class ShiftWorkServer:
             logger.error("API error while getting schedules", exc_info=True)
             raise RuntimeError("API error")
 
-    async def _get_people_with_unpublished_schedules_impl(self, arguments: dict) -> dict:
+    async def _get_people_with_unpublished_schedules_impl(self, arguments: dict, auth_token: str | None = None) -> dict:
         """Implementation for listing people with unpublished schedules"""
         company_id = arguments.get("company_id")
         start_date = arguments.get("start_date")
@@ -268,7 +271,7 @@ class ShiftWorkServer:
             if end_date:
                 params["endDate"] = end_date
 
-            response = await self._http_get(f"/api/companies/{company_id}/people/unpublished-schedules", params=params)
+            response = await self._http_get(f"/api/companies/{company_id}/people/unpublished-schedules", params=params, auth_token=auth_token)
 
             if response.status_code == 404:
                 return {"company_id": company_id, "total_people": 0, "people": [], "message": "No people with unpublished schedules found"}
@@ -336,13 +339,23 @@ class ShiftWorkServer:
         async def ping_endpoint(request):
             return web.json_response({"message": "pong - server is running", "timestamp": datetime.now().isoformat()})
 
+        # Helper to extract the Bearer token from an incoming request
+        def _extract_token(req) -> str | None:
+            auth = req.headers.get('Authorization', '')
+            if auth.startswith('Bearer '):
+                return auth.split(' ', 1)[1].strip()
+            return None
+
         # Get employee schedules endpoint
         @self.routes.get('/api/employees/{company_id}/{person_id}/schedules')
         async def get_schedules_endpoint(request):
             company_id = request.match_info['company_id']
             person_id = request.match_info['person_id']
             try:
-                result = await self._get_employee_schedules_impl({"company_id": company_id, "person_id": person_id})
+                result = await self._get_employee_schedules_impl(
+                    {"company_id": company_id, "person_id": person_id},
+                    auth_token=_extract_token(request),
+                )
                 return web.json_response(result)
             except ValueError as e:
                 return _http_error_response(str(e), status=400)
@@ -355,7 +368,7 @@ class ShiftWorkServer:
         async def post_schedules_endpoint(request):
             try:
                 data = await request.json()
-                result = await self._get_employee_schedules_impl(data)
+                result = await self._get_employee_schedules_impl(data, auth_token=_extract_token(request))
                 return web.json_response(result)
             except json.JSONDecodeError:
                 return _http_error_response("Invalid JSON in request body", status=400)
@@ -373,7 +386,10 @@ class ShiftWorkServer:
             end_date = request.query.get('endDate')
 
             try:
-                result = await self._get_people_with_unpublished_schedules_impl({"company_id": company_id, "start_date": start_date, "end_date": end_date})
+                result = await self._get_people_with_unpublished_schedules_impl(
+                    {"company_id": company_id, "start_date": start_date, "end_date": end_date},
+                    auth_token=_extract_token(request),
+                )
                 return web.json_response(result)
             except ValueError as e:
                 return _http_error_response(str(e), status=400)
@@ -412,9 +428,9 @@ class ShiftWorkServer:
                 if tool_name == "ping":
                     result = {"message": "pong - server is running"}
                 elif tool_name == "get_employee_schedules":
-                    result = await self._get_employee_schedules_impl(arguments)
+                    result = await self._get_employee_schedules_impl(arguments, auth_token=_extract_token(request))
                 elif tool_name == "get_people_with_unpublished_schedules":
-                    result = await self._get_people_with_unpublished_schedules_impl(arguments)
+                    result = await self._get_people_with_unpublished_schedules_impl(arguments, auth_token=_extract_token(request))
                 else:
                     return _http_error_response(f"Unknown tool: {tool_name}", status=404)
 

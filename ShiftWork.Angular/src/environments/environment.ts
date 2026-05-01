@@ -2,6 +2,7 @@ export const environment = {
   production: false,
   googleAnalyticsId: 'G-7X3Z5F6Y7Z',
   apiUrl : process.env.API_URL,
+  mcpUrl: process.env.MCP_URL || 'http://localhost:8080',
   // Kiosk auto-refresh interval for employee status (milliseconds)
   kioskStatusRefreshMs: 45000,
   firebase: {
