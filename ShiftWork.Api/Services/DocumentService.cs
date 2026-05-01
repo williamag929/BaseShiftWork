@@ -49,12 +49,14 @@ namespace ShiftWork.Api.Services
             var callerRoleIds = await GetPersonRoleIdsAsync(companyId, requestingPersonId);
             var callerLocationIds = await GetPersonLocationIdsAsync(companyId, requestingPersonId);
 
+            // IsRoleAllowed deserializes JSON and cannot be translated to SQL.
+            // Include all Restricted rows in the SQL query, then filter by role in memory.
             var query = _context.Documents
                 .Where(d => d.CompanyId == companyId && d.Status == "Active")
                 .Where(d =>
                     d.AccessLevel == "Public"
                     || (d.AccessLevel == "LocationOnly" && (d.LocationId == null || callerLocationIds.Contains(d.LocationId.Value)))
-                    || (d.AccessLevel == "Restricted" && IsRoleAllowed(d.AllowedRoleIds, callerRoleIds)));
+                    || d.AccessLevel == "Restricted");
 
             if (locationId.HasValue)
                 query = query.Where(d => d.LocationId == null || d.LocationId == locationId.Value);
@@ -65,7 +67,11 @@ namespace ShiftWork.Api.Services
             if (!string.IsNullOrEmpty(search))
                 query = query.Where(d => d.Title.Contains(search) || (d.Description != null && d.Description.Contains(search)));
 
-            return await query.OrderByDescending(d => d.UpdatedAt).ToListAsync();
+            var docs = await query.OrderByDescending(d => d.UpdatedAt).ToListAsync();
+
+            return docs
+                .Where(d => d.AccessLevel != "Restricted" || IsRoleAllowed(d.AllowedRoleIds, callerRoleIds))
+                .ToList();
         }
 
         public async Task<(Document doc, string presignedUrl)?> GetByIdAsync(Guid documentId, string companyId, int requestingPersonId)

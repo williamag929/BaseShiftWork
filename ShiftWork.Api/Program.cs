@@ -261,6 +261,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
+        // camelCase for all API responses so Angular/Mobile clients can use their
+        // native camelCase models without manual mapping.
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
         // Ensure all DateTime values round-trip as UTC with Z suffix.
         // This prevents timezone drift when clients parse and re-serialize dates.
         options.JsonSerializerOptions.Converters.Add(new UtcDateTimeJsonConverter());
@@ -366,6 +369,25 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("s3.write", policy => policy.Requirements.Add(new PermissionRequirement("s3.write")));
     options.AddPolicy("s3.delete", policy => policy.Requirements.Add(new PermissionRequirement("s3.delete")));
     options.AddPolicy("s3.manage", policy => policy.Requirements.Add(new PermissionRequirement("s3.manage")));
+
+    // V2 Content & Communication
+    options.AddPolicy("bulletins.read", policy => policy.Requirements.Add(new PermissionRequirement("bulletins.read")));
+    options.AddPolicy("bulletins.create", policy => policy.Requirements.Add(new PermissionRequirement("bulletins.create")));
+    options.AddPolicy("bulletins.delete", policy => policy.Requirements.Add(new PermissionRequirement("bulletins.delete")));
+    options.AddPolicy("bulletins.track-reads", policy => policy.Requirements.Add(new PermissionRequirement("bulletins.track-reads")));
+
+    options.AddPolicy("documents.read", policy => policy.Requirements.Add(new PermissionRequirement("documents.read")));
+    options.AddPolicy("documents.upload", policy => policy.Requirements.Add(new PermissionRequirement("documents.upload")));
+    options.AddPolicy("documents.delete", policy => policy.Requirements.Add(new PermissionRequirement("documents.delete")));
+    options.AddPolicy("documents.manage", policy => policy.Requirements.Add(new PermissionRequirement("documents.manage")));
+
+    options.AddPolicy("reports.read", policy => policy.Requirements.Add(new PermissionRequirement("reports.read")));
+    options.AddPolicy("reports.submit", policy => policy.Requirements.Add(new PermissionRequirement("reports.submit")));
+
+    options.AddPolicy("safety.read", policy => policy.Requirements.Add(new PermissionRequirement("safety.read")));
+    options.AddPolicy("safety.create", policy => policy.Requirements.Add(new PermissionRequirement("safety.create")));
+    options.AddPolicy("safety.delete", policy => policy.Requirements.Add(new PermissionRequirement("safety.delete")));
+    options.AddPolicy("safety.track", policy => policy.Requirements.Add(new PermissionRequirement("safety.track")));
 });
 
 var app = builder.Build();

@@ -169,17 +169,16 @@ namespace ShiftWork.Api.Services
                 Create("bulletins.track-reads",  "Bulletins - Track Reads", "View who has read a bulletin"),
 
                 // v2 Daily Reports
-                Create("reports.create",  "Reports - Create",  "Create and submit daily location reports"),
-                Create("reports.view",    "Reports - View",    "View daily location reports"),
+                Create("reports.read",    "Reports - Read",    "View daily location reports"),
+                Create("reports.submit",  "Reports - Submit",  "Create and submit daily location reports"),
                 Create("reports.export",  "Reports - Export",  "Export daily reports to PDF"),
                 Create("reports.approve", "Reports - Approve", "Approve submitted daily reports"),
 
                 // v2 Documents
-                Create("documents.upload",         "Documents - Upload",         "Upload new documents"),
-                Create("documents.read",           "Documents - Read",           "View and download documents"),
-                Create("documents.delete",         "Documents - Delete",         "Archive documents"),
-                Create("documents.view-logs",      "Documents - View Logs",      "View document read compliance logs"),
-                Create("documents.manage-access",  "Documents - Manage Access",  "Set document access level and allowed roles"),
+                Create("documents.upload",   "Documents - Upload",    "Upload new documents"),
+                Create("documents.read",     "Documents - Read",      "View and download documents"),
+                Create("documents.delete",   "Documents - Delete",    "Archive documents"),
+                Create("documents.manage",   "Documents - Manage",    "View read compliance logs and manage access"),
 
                 // v2 Safety
                 Create("safety.create",      "Safety - Create",      "Create safety content"),

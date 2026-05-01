@@ -30,6 +30,7 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
   loading = false;
   saving = false;
   errorMessage: string | null = null;
+  accessDenied = false;
 
   private destroy$ = new Subject<void>();
 
@@ -69,14 +70,19 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
     if (!this.selectedLocationId) return;
     this.loading = true;
     this.errorMessage = null;
+    this.accessDenied = false;
     this.reportService.getReport(this.activeCompany.companyId, this.selectedLocationId, this.selectedDate).subscribe({
       next: report => {
         this.report = report;
         this.notes = report.notes ?? '';
         this.loading = false;
       },
-      error: () => {
-        this.errorMessage = 'Failed to load report. Check your connection and try again.';
+      error: (err) => {
+        if (err?.status === 403) {
+          this.accessDenied = true;
+        } else {
+          this.errorMessage = 'Failed to load report. Check your connection and try again.';
+        }
         this.loading = false;
       }
     });
@@ -88,6 +94,8 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
 
   onLocationChange(): void {
     this.report = null;
+    this.errorMessage = null;
+    this.accessDenied = false;
     this.loadReport();
   }
 
@@ -95,6 +103,8 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
     const d: Date = event.value;
     this.selectedDate = this.formatDate(d);
     this.report = null;
+    this.errorMessage = null;
+    this.accessDenied = false;
     this.loadReport();
   }
 

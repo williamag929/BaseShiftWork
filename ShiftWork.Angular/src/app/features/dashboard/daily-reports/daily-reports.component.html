@@ -48,6 +48,15 @@
     <p>Choose a location above to view its daily report.</p>
   </div>
 
+  <!-- Access Denied -->
+  <div class="empty-state" *ngIf="accessDenied && !loading">
+    <div class="empty-icon empty-icon-red">
+      <mat-icon>lock</mat-icon>
+    </div>
+    <h3>Access denied</h3>
+    <p>You don't have permission to view daily reports. Contact your administrator.</p>
+  </div>
+
   <!-- Error Banner -->
   <div class="error-banner" *ngIf="errorMessage && !loading">
     <mat-icon>error_outline</mat-icon>

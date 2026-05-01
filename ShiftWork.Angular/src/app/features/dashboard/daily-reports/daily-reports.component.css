@@ -327,6 +327,9 @@
 .empty-icon-gray { background: #f1f5f9; }
 .empty-icon-gray mat-icon { color: #94a3b8; }
 
+.empty-icon-red { background: #fee2e2; }
+.empty-icon-red mat-icon { color: #dc2626; }
+
 .empty-state h3 {
   margin: 0 0 6px;
   font-size: 1rem;
