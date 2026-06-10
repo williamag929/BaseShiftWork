@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Leads — ShiftWork</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230f1b2d'/><path d='M30 52l14 14 26-30' stroke='%23ffb648' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+</head>
+<body class="leads-page">
+
+  <header class="navbar" id="navbar">
+    <div class="container nav-inner">
+      <a href="index.html" class="brand" aria-label="ShiftWork home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 100 100" width="30" height="30"><rect width="100" height="100" rx="22" fill="#0f1b2d"/><path d="M30 52l14 14 26-30" stroke="#ffb648" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Shift<span class="brand-accent">Work</span>
+      </a>
+      <div class="nav-cta">
+        <a href="index.html" class="btn btn-ghost">← Back to site</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="leads-main">
+    <div class="container">
+      <div class="leads-head">
+        <div>
+          <h1>Customer Leads</h1>
+          <p>Demo requests captured from the marketing site. Update each lead's status as you follow up.</p>
+        </div>
+        <div class="leads-actions">
+          <button class="btn btn-outline" id="exportBtn" type="button">⬇ Export CSV</button>
+          <button class="btn btn-outline" id="clearBtn" type="button">Clear all</button>
+        </div>
+      </div>
+
+      <div class="leads-summary">
+        <div class="summary-card"><strong id="countTotal">0</strong><span>Total leads</span></div>
+        <div class="summary-card"><strong id="countNew">0</strong><span>New — awaiting contact</span></div>
+        <div class="summary-card"><strong id="countContacted">0</strong><span>Contacted</span></div>
+        <div class="summary-card"><strong id="countCustomer">0</strong><span>Converted to customer</span></div>
+      </div>
+
+      <div class="leads-table-wrap">
+        <table class="leads-table" id="leadsTable">
+          <thead>
+            <tr>
+              <th>Received</th>
+              <th>Name</th>
+              <th>Company</th>
+              <th>Contact</th>
+              <th>Industry</th>
+              <th>Team</th>
+              <th>Notes</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="leadsBody"></tbody>
+        </table>
+        <div class="leads-empty" id="leadsEmpty" hidden>
+          <strong>No leads yet</strong>
+          When visitors submit the demo request form, they'll show up here.<br />
+          <a href="index.html#demo">Open the demo form →</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/leads.js"></script>
+</body>
+</html>
