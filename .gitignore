@@ -64,10 +64,8 @@ python_client/.env
 __pycache__/
 *.py[cod]
 *$py.class
-ShiftWork.Angular/package-lock.json
 ShiftWork.Angular/yarn.lock
 /ShiftWork.Angular/dist
 docker-compose.yml
 ShiftWork.Kiosk/.env
 ShiftWork.Kiosk/node_modules
-ShiftWork.Kiosk/package-lock.json
