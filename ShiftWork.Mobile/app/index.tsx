@@ -1,27 +1,55 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { colors } from '@/styles/theme';
+import { getToken } from '@/utils/storage.utils';
 
 export default function Index() {
   const router = useRouter();
+  // Check stored API token to decide where to navigate
+  const [authState, setAuthState] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking');
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = await getToken();
+        if (!cancelled) setAuthState(token ? 'authenticated' : 'unauthenticated');
+      } catch {
+        if (!cancelled) setAuthState('unauthenticated');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // While Firebase resolves persisted auth (<200ms), show subtle loading
+  if (authState === 'checking' || authState === 'authenticated') {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <StatusBar style="light" />
+        <ActivityIndicator color="#fff" size="large" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <StatusBar style="auto" />
-      
+      <StatusBar style="light" />
+
       <View style={styles.header}>
         <Text style={styles.title}>ShiftWork Mobile</Text>
         <Text style={styles.subtitle}>Workforce Management</Text>
       </View>
 
       <View style={styles.content}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('(auth)/login' as Href<string>)}
+        <Pressable
+          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+          onPress={() => router.push('/(auth)/login' as Href)}
         >
           <Text style={styles.buttonText}>Get Started</Text>
-        </TouchableOpacity>
+        </Pressable>
 
         <Text style={styles.infoText}>
           Clock in/out • View Schedules • Track Hours
@@ -38,7 +66,11 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#4A90E2',
+    backgroundColor: colors.primary,
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flex: 1,
@@ -64,7 +96,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   button: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     paddingHorizontal: 48,
     paddingVertical: 16,
     borderRadius: 30,
@@ -75,10 +107,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
+  buttonPressed: {
+    opacity: 0.8,
+    transform: [{ scale: 0.97 }],
+  },
   buttonText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#4A90E2',
+    color: colors.primary,
   },
   infoText: {
     fontSize: 14,

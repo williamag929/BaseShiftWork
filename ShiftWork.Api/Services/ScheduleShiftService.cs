@@ -16,6 +16,7 @@ namespace ShiftWork.Api.Services
     {
         Task<IEnumerable<ScheduleShift>> GetAll(string companyId);
         Task<ScheduleShift> Get(string companyId, int shiftId);
+        Task<(IEnumerable<ScheduleShift> Items, int TotalCount)> GetPaged(string companyId, int? personId, int? locationId, int? areaId, DateTime? startDate, DateTime? endDate, int page, int pageSize);
         Task<ScheduleShift> Add(ScheduleShift scheduleShift);
         Task<ScheduleShift> Update(ScheduleShift scheduleShift);
         Task<bool> Delete(int shiftId);
@@ -48,6 +49,45 @@ namespace ShiftWork.Api.Services
         public async Task<ScheduleShift> Get(string companyId, int shiftId)
         {
             return await _context.ScheduleShifts.FirstOrDefaultAsync(s => s.CompanyId == companyId && s.ScheduleShiftId == shiftId);
+        }
+
+        public async Task<(IEnumerable<ScheduleShift> Items, int TotalCount)> GetPaged(string companyId, int? personId, int? locationId, int? areaId, DateTime? startDate, DateTime? endDate, int page, int pageSize)
+        {
+            var query = _context.ScheduleShifts.Where(s => s.CompanyId == companyId);
+
+            if (personId.HasValue)
+            {
+                query = query.Where(s => s.PersonId == personId.Value);
+            }
+
+            if (locationId.HasValue)
+            {
+                query = query.Where(s => s.LocationId == locationId.Value);
+            }
+
+            if (areaId.HasValue)
+            {
+                query = query.Where(s => s.AreaId == areaId.Value);
+            }
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(s => s.StartDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(s => s.EndDate <= endDate.Value);
+            }
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderBy(s => s.StartDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<ScheduleShift> Add(ScheduleShift scheduleShift)

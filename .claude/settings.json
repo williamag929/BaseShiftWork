@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d['projects']['ShiftWorkFrontend']['architect']['build']['options']['styles'], indent=2\\)\\)\")"
+    ]
+  }
+}

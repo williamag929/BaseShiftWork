@@ -11,6 +11,7 @@ export interface ScheduleDataResult {
   error: string | null;
   shifts: ScheduleShiftDto[];
   events: ShiftEventDto[];
+  refresh: () => void;
 }
 
 export const useScheduleData = (
@@ -24,6 +25,7 @@ export const useScheduleData = (
   const [error, setError] = useState<string | null>(null);
   const [shifts, setShifts] = useState<ScheduleShiftDto[]>([]);
   const [events, setEvents] = useState<ShiftEventDto[]>([]);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   useEffect(() => {
     if (!companyId || !personId || !from || !to) return;
@@ -75,7 +77,14 @@ export const useScheduleData = (
     return () => {
       canceled = true;
     };
-  }, [companyId, personId, from?.toISOString(), to?.toISOString()]);
+  }, [companyId, personId, from?.toISOString(), to?.toISOString(), refreshTick]);
 
-  return { isOnline, loading, error, shifts, events };
+  return {
+    isOnline,
+    loading,
+    error,
+    shifts,
+    events,
+    refresh: () => setRefreshTick((v) => v + 1),
+  };
 };

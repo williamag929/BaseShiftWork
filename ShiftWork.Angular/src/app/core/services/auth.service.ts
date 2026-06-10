@@ -1,8 +1,8 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, Injector, runInInjectionContext } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, firstValueFrom } from 'rxjs';
 import { switchMap, map, catchError, filter, withLatestFrom } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import firebase from 'firebase/compat/app';
@@ -12,6 +12,7 @@ import { environment } from '../../../environments/environment';
 import { User } from '../models/user.model';
 import { People } from '../models/people.model';
 import { PeopleService } from './people.service';
+import { PermissionService } from './permission.service';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +30,9 @@ export class AuthService {
     private ngZone: NgZone,
     private toastr: ToastrService,
     private http: HttpClient,
-    private peopleService: PeopleService
+    private peopleService: PeopleService,
+    private permissionService: PermissionService,
+    private injector: Injector
   ) {
     this.afAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
 
@@ -94,42 +97,53 @@ export class AuthService {
   }
 
   async SignIn(email: string, password: string) {
-    try {
-      await this.afAuth.signInWithEmailAndPassword(email, password);
-      this.afAuth.authState.subscribe((user) => {
-        if (user) {
-          this.router.navigate(['company-switch']);
-        }
+    const credential = await this.afAuth.signInWithEmailAndPassword(email, password);
+    if (credential.user) {
+      await this.SetUserData(credential.user);
+      this.ngZone.run(() => {
+        this.toastr.success('Signed in successfully');
+        this.router.navigate(['company-switch']);
       });
-    } catch (error: any) {
-      window.alert(error.message);
     }
   }
 
-  SetUserData(user: any) {
-    const userRef: AngularFirestoreDocument<any> = this.afs.doc(
-      `users/${user.uid}`
-    );
+  async SetUserData(user: any): Promise<void> {
+    // Extract from compat wrapper (_delegate) if needed
+    const u = user._delegate || user;
     const userData: User = {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      emailVerified: user.emailVerified,
+      uid: u.uid,
+      email: u.email,
+      displayName: u.displayName,
+      photoURL: u.photoURL,
+      emailVerified: u.emailVerified,
     };
-    return userRef.set(userData, {
-      merge: true,
-    });
+    // Save to localStorage first — this is what isLoggedIn checks
+    localStorage.setItem('user', JSON.stringify(userData));
+
+    // Firestore write is best-effort; don't block login if it fails
+    try {
+      const userRef: AngularFirestoreDocument<any> = runInInjectionContext(this.injector, () =>
+        this.afs.doc(`users/${u.uid}`)
+      );
+      await userRef.set(userData, { merge: true });
+    } catch (error) {
+      console.error('Firestore SetUserData failed (non-blocking)', error);
+    }
   }
 
   async googleSignIn() {
     try {
-      const credential = await this.afAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-      if (credential.user) {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      const result = await this.afAuth.signInWithPopup(provider);
+      const user = result?.user;
+      if (user) {
+        await this.SetUserData(user);
         this.ngZone.run(() => {
           this.toastr.success('Google sign-in successful');
           this.router.navigate(['company-switch']);
         });
+      } else {
+        throw new Error('Google sign-in returned no user. Result credential may be null.');
       }
     } catch (error) {
       this.handleError(error);
@@ -138,18 +152,32 @@ export class AuthService {
 
   async signOut() {
     await this.afAuth.signOut();
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('authToken');
+    this.permissionService.clearClaims();
     this.toastr.success('Signed out successfully');
     return this.router.navigate(['/']);
   }
 
+  /**
+   * Load user permissions from the API
+   * Call this after user logs in or switches company
+   */
+  loadUserPermissions(companyId: string): Observable<any> {
+    return this.permissionService.loadUserClaims(companyId);
+  }
+
   async updateUserData(user: any) {
-    const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user?.uid}`);
+    const u = user?._delegate || user;
+    const userRef: AngularFirestoreDocument<any> = runInInjectionContext(this.injector, () =>
+      this.afs.doc(`users/${u?.uid}`)
+    );
     const data: User = {
-      uid: user.uid,
-      email: user.email || '',
-      displayName: user.displayName || '',
-      photoURL: user.photoURL || '',
-      emailVerified: user.emailVerified || false
+      uid: u.uid,
+      email: u.email || '',
+      displayName: u.displayName || '',
+      photoURL: u.photoURL || '',
+      emailVerified: u.emailVerified || false
     };
     return userRef.set(data, { merge: true });
   }
@@ -159,6 +187,8 @@ export class AuthService {
       const credential = await this.afAuth.createUserWithEmailAndPassword(email, password);
       if (credential.user) {
         await this.sendVerificationMail();
+        // Seed BCrypt hash in the API so the mobile app can log in immediately
+        this.syncPassword(password).subscribe({ error: (e) => console.warn('sync-password failed (non-blocking):', e) });
         this.toastr.success('Signed up successfully');
       }
     } catch (error) {
@@ -185,6 +215,27 @@ export class AuthService {
       .pipe(
         catchError((err) => this.handleHttpError(err))
       );
+  }
+
+  acceptInvite(token: string, companyId: string, personId: number, email: string, password: string): Observable<{
+    token: string; personId: number; companyId: string; email: string; name: string; photoUrl: string;
+  }> {
+    return this.http.post<any>(`${this.apiUrl}/auth/accept-invite`, {
+      token, companyId, personId, email, password
+    }, this.getHttpOptions()).pipe(catchError((err) => this.handleHttpError(err)));
+  }
+
+  /**
+   * Syncs the BCrypt password hash in the API DB with the current Firebase password.
+   * Fire-and-forget — call after any successful Firebase sign-in or registration.
+   * Requires a valid Firebase JWT to already be in sessionStorage.
+   */
+  syncPassword(password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/sync-password`, { password }, this.getHttpOptions())
+      .pipe(catchError((err) => {
+        console.warn('sync-password non-critical error:', err);
+        return of(null);
+      }));
   }
 
   async forgotPassword(passwordResetEmail: string): Promise<void> {
@@ -219,15 +270,13 @@ export class AuthService {
   }
 
   async getToken(): Promise<string | null> {
-    const user = await this.afAuth.currentUser;
+    const user = await firstValueFrom(this.afAuth.authState);
     if (user) {
-      return user.getIdToken().then(token => {
-        sessionStorage.setItem('authToken', token);
-        return token;
-      });
-    } else {
-      return this.getTokenFromSessionStorage();
+      const token = await user.getIdToken(true);
+      sessionStorage.setItem('authToken', token);
+      return token;
     }
+    return this.getTokenFromSessionStorage();
   }
 
   getTokenFromSessionStorage(): string | null {
@@ -236,6 +285,6 @@ export class AuthService {
 
   get isLoggedIn(): boolean {
     const user = JSON.parse(localStorage.getItem('user')!);
-    return user !== null && user.emailVerified !== false ? true : false;
+    return user !== null;
   }
 }

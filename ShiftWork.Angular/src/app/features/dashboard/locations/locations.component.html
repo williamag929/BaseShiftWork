@@ -79,9 +79,19 @@
             <i class="fa" [class.fa-plus]="!selectedLocation" [class.fa-edit]="selectedLocation"></i>
             {{ selectedLocation ? 'Edit Location' : 'Create New Location' }}
           </h3>
-          <button *ngIf="selectedLocation" class="clear-btn" (click)="cancelEdit()">
-            <i class="fa fa-times"></i>
-          </button>
+          <div class="header-actions">
+            <app-audit-history-button
+              *ngIf="selectedLocation"
+              [entity]="selectedLocation"
+              entityType="Location"
+              [entityId]="selectedLocation.locationId"
+              [entityDisplayName]="selectedLocation.name"
+              [companyId]="activeCompany?.companyId || ''"
+            ></app-audit-history-button>
+            <button *ngIf="selectedLocation" class="clear-btn" (click)="cancelEdit()">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
         </div>
 
         <div class="card-body">

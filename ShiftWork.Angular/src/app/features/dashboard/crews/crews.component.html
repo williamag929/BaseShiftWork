@@ -1,0 +1,180 @@
+<div class="crews-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="fa fa-users"></i>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">Crew Management</h1>
+        <p class="page-subtitle">Organise employees into crews for bulk scheduling</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <!-- ── Left panel: crew list ─────────────────────────────── -->
+    <div class="list-panel">
+      <div class="panel-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fa fa-list"></i>
+            Crews
+          </h3>
+          <span class="badge">{{ crews.length }}</span>
+          <button class="btn-icon-round" (click)="toggleCreateForm()" [title]="showCreateForm ? 'Cancel' : 'New crew'">
+            <i class="fa" [class.fa-plus]="!showCreateForm" [class.fa-times]="showCreateForm"></i>
+          </button>
+        </div>
+
+        <!-- New crew form -->
+        <div class="create-form" *ngIf="showCreateForm">
+          <input
+            type="text"
+            class="form-input"
+            placeholder="Crew name"
+            [(ngModel)]="newCrewName"
+            (keyup.enter)="createCrew()"
+            maxlength="100"
+            autofocus
+          />
+          <button class="btn btn-primary btn-sm" [disabled]="!newCrewName.trim() || creating" (click)="createCrew()">
+            {{ creating ? 'Creating...' : 'Create' }}
+          </button>
+        </div>
+
+        <div class="card-body">
+          <div *ngIf="loadingCrews" class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading crews...</p>
+          </div>
+
+          <div *ngIf="!loadingCrews">
+            <div
+              *ngFor="let crew of crews"
+              class="crew-item"
+              [class.selected]="selectedCrew?.crewId === crew.crewId"
+              (click)="selectCrew(crew)"
+            >
+              <div class="crew-icon"><i class="fa fa-users"></i></div>
+              <div class="crew-info">
+                <span class="crew-name">{{ crew.name }}</span>
+              </div>
+              <button
+                class="delete-btn"
+                title="Delete crew"
+                [disabled]="deletingCrewId === crew.crewId"
+                (click)="deleteCrew(crew); $event.stopPropagation()"
+              >
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+
+            <div *ngIf="crews.length === 0" class="empty-state">
+              <i class="fa fa-users empty-icon"></i>
+              <p>No crews yet</p>
+              <p class="empty-subtext">Click <strong>+</strong> to create your first crew</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Right panel: crew detail ──────────────────────────── -->
+    <div class="form-panel">
+      <div class="panel-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fa" [class.fa-edit]="selectedCrew" [class.fa-info-circle]="!selectedCrew"></i>
+            {{ selectedCrew ? selectedCrew.name : 'Select a crew' }}
+          </h3>
+          <button *ngIf="selectedCrew" class="clear-btn" (click)="cancelEdit()" title="Close">
+            <i class="fa fa-times"></i>
+          </button>
+        </div>
+
+        <div class="card-body">
+          <!-- placeholder when nothing selected -->
+          <div *ngIf="!selectedCrew" class="no-selection">
+            <i class="fa fa-arrow-left no-selection-icon"></i>
+            <p>Select a crew from the list to manage it, or create a new one.</p>
+          </div>
+
+          <div *ngIf="selectedCrew">
+            <!-- Error banner -->
+            <div class="error-banner" *ngIf="error">
+              <i class="fa fa-exclamation-triangle"></i> {{ error }}
+            </div>
+
+            <!-- ── Name edit ── -->
+            <section class="section">
+              <h4 class="section-title">Crew Name</h4>
+              <div class="inline-edit">
+                <input
+                  type="text"
+                  class="form-input"
+                  [(ngModel)]="editName"
+                  maxlength="100"
+                  (keyup.enter)="saveCrew()"
+                />
+                <button
+                  class="btn btn-primary btn-sm"
+                  [disabled]="!editName.trim() || saving || editName === selectedCrew.name"
+                  (click)="saveCrew()"
+                >{{ saving ? 'Saving...' : 'Save' }}</button>
+              </div>
+            </section>
+
+            <!-- ── Members ── -->
+            <section class="section">
+              <h4 class="section-title">Members <span class="badge">{{ crewMembers.length }}</span></h4>
+
+              <div *ngIf="loadingMembers" class="loading-state small">
+                <div class="spinner sm"></div> Loading...
+              </div>
+
+              <div *ngIf="!loadingMembers">
+                <!-- Add member row -->
+                <div class="add-member-row">
+                  <select class="form-select" [(ngModel)]="addPersonId">
+                    <option [ngValue]="null">— Add a person —</option>
+                    <option *ngFor="let p of availablePeople" [ngValue]="p.personId">{{ p.name }}</option>
+                  </select>
+                  <button
+                    class="btn btn-secondary btn-sm"
+                    [disabled]="!addPersonId || addingMember"
+                    (click)="addMember()"
+                  >{{ addingMember ? '...' : 'Add' }}</button>
+                </div>
+
+                <!-- Members list -->
+                <div class="members-list">
+                  <div *ngFor="let member of crewMembers" class="member-item">
+                    <img
+                      class="member-avatar"
+                      [src]="member.photoUrl || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJDMTQuMjEgMTIgMTYgMTAuMjEgMTYgOEMxNiA1Ljc5IDE0LjIxIDQgMTIgNFM4IDUuNzkgOCA4QzggMTAuMjEgOS43OSAxMiAxMiAxMlpNMTIgMTRDNi40OCAxNCAyIDE2LjQ4IDIgMjJWMjRIMjJWMjJDMTggMTYuNDggMTUuNTIgMTQgMTIgMTRaIiBmaWxsPSIjY2NjY2NjIi8+PC9zdmc+'"
+                      alt="{{ member.name }}"
+                    />
+                    <span class="member-name">{{ member.name }}</span>
+                    <button
+                      class="remove-btn"
+                      title="Remove from crew"
+                      [disabled]="removingMemberId === member.personId"
+                      (click)="removeMember(member.personId)"
+                    >
+                      <i class="fa fa-times"></i>
+                    </button>
+                  </div>
+
+                  <div *ngIf="crewMembers.length === 0" class="empty-state small">
+                    <p>No members yet. Add people above.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

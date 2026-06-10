@@ -19,6 +19,7 @@ import { CompanySettings } from 'src/app/core/models/company-settings.model';
 import { environment } from 'src/environments/environment';
 import { ActivatedRoute } from '@angular/router';
 import { WakeLockService } from '../core/services/wake-lock.service';
+import { ShiftEventService } from 'src/app/core/services/shift-event.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -42,6 +43,8 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   lastUpdated: Date | null = null;
   private refreshIntervalMs = environment.kioskStatusRefreshMs || 45000;
   showLegend = true;
+  completedScheduleCounts: Record<number, number> = {};
+  inProgressCounts: Record<number, number> = {};
 
   constructor(
     private peopleService: PeopleService,
@@ -53,7 +56,8 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private settingsHelper: SettingsHelperService,
     private route: ActivatedRoute,
-    public wakeLock: WakeLockService
+    public wakeLock: WakeLockService,
+    private shiftEventService: ShiftEventService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
@@ -189,16 +193,19 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
     }
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayY = today.getFullYear();
+    const todayM = today.getMonth();
+    const todayD = today.getDate();
 
     // Load all schedules for today
     this.scheduleService.getSchedules(this.activeCompany.companyId).subscribe(
       (schedules: any[]) => {
-        // Filter for today's published schedules
+        // Filter for today's published schedules (compare using UTC date to match wall-clock storage)
         const todayPublishedSchedules = schedules.filter((s: any) => {
           const scheduleDate = new Date(s.startDate);
-          scheduleDate.setHours(0, 0, 0, 0);
-          return scheduleDate.getTime() === today.getTime() &&
+          return scheduleDate.getUTCFullYear() === todayY &&
+                 scheduleDate.getUTCMonth() === todayM &&
+                 scheduleDate.getUTCDate() === todayD &&
                  s.status && s.status.toLowerCase() === 'published';
         });
 
@@ -208,11 +215,49 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
             s.personId === employee.personId
           );
         });
+
+        this.updateCompletedCountsForToday();
       },
       (error: any) => {
         console.error('Error loading published schedules', error);
       }
     );
+  }
+
+  private updateCompletedCountsForToday(): void {
+    if (!this.activeCompany) return;
+    const companyId = this.activeCompany.companyId;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(today);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    const target = this.employees.filter(e => (e.scheduleDetails?.length || 0) > 0).slice(0, 50);
+    from(target)
+      .pipe(
+        mergeMap(
+          (emp: Person) =>
+            this.shiftEventService.getShiftEventsByPersonId(companyId, emp.personId).pipe(
+              map(events => {
+                const todays = (events || []).filter(ev => {
+                  const dt = new Date(ev.eventDate);
+                  return dt >= today && dt < endOfDay;
+                });
+                const clockIns = todays.filter(ev => (ev.eventType || '').toLowerCase() === 'clockin').length;
+                const clockOuts = todays.filter(ev => (ev.eventType || '').toLowerCase() === 'clockout').length;
+                const completed = Math.min(clockIns, clockOuts);
+                const inProgress = clockIns > clockOuts ? 1 : 0;
+                return { personId: emp.personId, completed, inProgress };
+              }),
+              catchError(() => of({ personId: emp.personId, completed: 0, inProgress: 0 }))
+            ),
+          5
+        )
+      )
+      .subscribe(({ personId, completed, inProgress }) => {
+        this.completedScheduleCounts[personId] = completed;
+        this.inProgressCounts[personId] = inProgress;
+      });
   }
 
   private _filter(value: string): Person[] {
@@ -266,16 +311,19 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
     this.scheduleService.search(this.activeCompany.companyId, '', '', '', employee.personId).subscribe(
       (schedules: any) => {
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const todayY = today.getFullYear();
+        const todayM = today.getMonth();
+        const todayD = today.getDate();
         employee.scheduleDetails = schedules || [];
 
         if (schedules && schedules.length > 0) {
-          // Filter for today's published schedules only
+          // Filter for today's published schedules only (UTC date = wall-clock date)
           employee.scheduleDetails = schedules.filter((s: any) => {
             const scheduleDate = new Date(s.startDate);
-            scheduleDate.setHours(0, 0, 0, 0);
             return s.personId === employee.personId && 
-                   scheduleDate.getTime() === today.getTime() &&
+                   scheduleDate.getUTCFullYear() === todayY &&
+                   scheduleDate.getUTCMonth() === todayM &&
+                   scheduleDate.getUTCDate() === todayD &&
                    s.status && s.status.toLowerCase() === 'published';
           }) || [];
         }
@@ -300,11 +348,19 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
 
   // Quick actions: Start/End shift directly from the list
   canStartShift(employee: Person): boolean {
-    return !this.isOnShift(employee.statusShiftWork) && this.hasPublishedScheduleToday(employee);
+    // Can start if not on shift (API status OR local event data) and has a pending schedule
+    if (this.isOnShift(employee.statusShiftWork) || this.isInProgress(employee)) return false;
+    return this.hasPublishedScheduleToday(employee) && this.getPendingScheduleCount(employee) > 0;
   }
 
   canEndShift(employee: Person): boolean {
-    return this.isOnShift(employee.statusShiftWork);
+    // Can end if on shift via API status OR local event data shows in-progress
+    return this.isOnShift(employee.statusShiftWork) || this.isInProgress(employee);
+  }
+
+  /** Returns true if local event data shows the person is currently clocked in */
+  isInProgress(employee: Person): boolean {
+    return (this.inProgressCounts[employee.personId] || 0) > 0;
   }
 
   startShift(employee: Person): void {
@@ -346,5 +402,16 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
 
     // Check if employee has scheduleDetails populated with published schedules
     return !!(employee.scheduleDetails && employee.scheduleDetails.length > 0);
+  }
+
+  getPendingScheduleCount(employee: Person): number {
+    const scheduled = employee.scheduleDetails?.length || 0;
+    const completed = this.completedScheduleCounts[employee.personId] || 0;
+    const inProgress = this.inProgressCounts[employee.personId] || 0;
+    return Math.max(0, scheduled - completed - inProgress);
+  }
+
+  hasPendingScheduleToday(employee: Person): boolean {
+    return this.getPendingScheduleCount(employee) > 0;
   }
 }

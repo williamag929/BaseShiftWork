@@ -29,6 +29,12 @@ namespace ShiftWork.Api.Services
             return await _context.CompanyUsers.FindAsync(uid);
         }
 
+        public async Task<CompanyUser> GetByCompanyUserIdAsync(string companyUserId)
+        {
+            return await _context.CompanyUsers
+                .FirstOrDefaultAsync(cu => cu.CompanyUserId == companyUserId);
+        }
+
         public async Task<CompanyUser> CreateAsync(CompanyUser companyUser)
         {
             if (companyUser == null)
@@ -82,6 +88,18 @@ namespace ShiftWork.Api.Services
             _context.CompanyUsers.Remove(companyUser);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<CompanyUser> SetActiveAsync(string companyUserId, bool isActive)
+        {
+            var companyUser = await _context.CompanyUsers
+                .FirstOrDefaultAsync(cu => cu.CompanyUserId == companyUserId);
+            if (companyUser == null) return null;
+
+            companyUser.IsActive = isActive;
+            companyUser.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return companyUser;
         }
     }
 }

@@ -1,0 +1,95 @@
+# Copilot Instructions — ShiftWork
+
+> **Quick Reference:** For comprehensive documentation, see [WIKI_CONTENT_GUIDE.md](../Docs/WIKI_CONTENT_GUIDE.md)
+>
+> **Mobile work?** Read [ShiftWork.Mobile/Docs/SKILLS.md](../ShiftWork.Mobile/Docs/SKILLS.md) and [ShiftWork.Mobile/Docs/PRODUCTION_PLAN.md](../ShiftWork.Mobile/Docs/PRODUCTION_PLAN.md) **before writing any mobile code.**
+
+## Big picture architecture
+- **Monorepo Structure:** Three primary apps in one repository
+  - **ShiftWork.Api** - ASP.NET Core (.NET 8) REST API backend
+  - **ShiftWork.Angular** - Angular web app with kiosk mode
+  - **ShiftWork.Mobile** - React Native/Expo mobile app
+  - **python_client** - Python MCP server for agent utilities
+- **Core workflow:** Clock in/out and kiosk answers flow through the API. Kiosk UI calls `GET /api/kiosk/{companyId}/questions` and `POST /api/kiosk/answers`, then creates ShiftEvent records via `POST /api/companies/{companyId}/shiftevents` (see [AGENT.md](../AGENT.md)).
+- **Data Layer:** API uses Entity Framework Core with SQL Server, DTOs for API contracts, and AutoMapper for object mapping; controllers in ShiftWork.Api/Controllers call services in ShiftWork.Api/Services (see [README.md](../README.md)).
+- **Storage & Auth:** Photo uploads use AWS S3; authentication via Firebase JWT (API validates Firebase tokens; see [AGENT.md](../AGENT.md)).
+
+## Developer workflows (Windows/macOS/Linux)
+- **API:** Set environment variables (`DB_CONNECTION_STRING`, Firebase vars), then run `dotnet restore`, `dotnet build`, `dotnet run` in ShiftWork.Api directory (see [AGENT.md](../AGENT.md)).
+  - Required env vars: `DB_CONNECTION_STRING`, `FIREBASE_PROJECT_ID`, `FIREBASE_AUTH_DOMAIN`, `FIREBASE_API_KEY`
+  - Optional: `WEBHOOK_URL`, `WEBHOOK_SECRET_KEY` for webhook integration
+- **Angular:** Run `npm install`, then `npm run start` in ShiftWork.Angular; camera + Wake Lock require HTTPS with a local cert (see [ShiftWork.Angular/README.md](../ShiftWork.Angular/README.md)).
+  - For HTTPS: `ng serve --ssl true --ssl-key "./ssl/localhost.key" --ssl-cert "./ssl/localhost.crt"`
+  - Required env vars: `API_URL`, Firebase config vars
+- **Mobile:** Run `npm install --legacy-peer-deps`, copy `.env.example` to `.env`, configure, then `npx expo start --clear` in ShiftWork.Mobile directory (see [ShiftWork.Mobile/README.md](../ShiftWork.Mobile/README.md)).
+  - Use `npm run ios` or `npm run android` for platform-specific builds
+  - Requires `EXPO_PUBLIC_` prefixed env vars
+  - **Metro cache must be cleared after any Babel/package change:** `npx expo start --clear`
+- **Python MCP server:** From python_client directory, create venv, install requirements, and run `python http_mcp_server.py --mode http --port 8080` (see [AGENT.md](../AGENT.md)).
+
+## Project-specific conventions and patterns
+- **API Routes:** Company-scoped APIs consistently use `/api/companies/{companyId}/...` routes; maintain this pattern for new endpoints and client code.
+- **Authentication Flow:** Kiosk flow uses optional PIN verification via `POST /api/auth/verify-pin` before writing ShiftEvents; PINs stored with BCrypt hashing (see [AGENT.md](../AGENT.md)).
+- **DTO Mapping:** DTOs may map between model string IDs and int DTO IDs via AutoMapper profiles in Helpers/MappingProfiles.cs (see "ScheduleDto.PersonId" note in [AGENT.md](../AGENT.md)).
+- **Kiosk Requirements:** Angular kiosk uses Wake Lock API and camera; requires HTTPS in local dev; avoid caching POST requests in PWA service worker (see [ShiftWork.Angular/README.md](../ShiftWork.Angular/README.md)).
+- **Mobile Naming:** Mobile uses `EXPO_PUBLIC_` prefix for all environment variables; Firebase Auth currently disabled with mock in config/firebase.ts.
+- **Code Organization:** Follow separation of concerns: Controllers handle HTTP, Services contain business logic, Repositories handle data access.
+
+## Mobile UI — Mandatory Rules for Agents
+
+> These rules apply to ALL work inside `ShiftWork.Mobile/`. Read [SKILLS.md](../ShiftWork.Mobile/Docs/SKILLS.md) for full code patterns.
+
+- **Screen size limit:** No screen file in `app/(tabs)/` or `app/(auth)/` may exceed 200 lines. Extract to `components/screens/` and `hooks/` if needed.
+- **No raw useState for forms:** All forms (login, register, PIN, time-off, profile edit) must use `react-hook-form` + `zod`. See `utils/schemas/` for shared schemas.
+- **No TouchableOpacity:** Use `Pressable` or the `PressableScale` component from `components/ui/`.
+- **No FlatList:** Use `@shopify/flash-list` `FlashList` with `estimatedItemSize` for all lists.
+- **No hardcoded colors or sizes:** Import from `styles/tokens.ts` — never use hex values or raw pixel numbers inline.
+- **No unguarded console.log:** Use `utils/logger.ts` wrapper or guard with `if (__DEV__)`.
+- **No Alert.alert() in screens:** Use the `useToast()` hook from `hooks/useToast.ts`.
+- **Animations required:** Every list item mount, modal open/close, and button press must use `react-native-reanimated`. Haptics on every action outcome.
+- **Haptics required:** Call `expo-haptics` on every successful action and every error.
+- **Three states always:** Every data-dependent UI must handle: loading skeleton → populated → empty state (`EmptyState` component).
+- **Active branch:** Mobile production work happens on `feature/mobile-ui-enhancements`.
+- **Execution order:** Follow the 6-phase plan in [PRODUCTION_PLAN.md](../ShiftWork.Mobile/Docs/PRODUCTION_PLAN.md) — do not skip phases.
+
+## Integrations and cross-component details
+- **Authentication:** API validates Firebase JWT tokens using Google's public keys with audience/issuer checks; Angular and Mobile read API/Firebase config from environment variables (see [AGENT.md](../AGENT.md)).
+- **Mobile Auth State:** Mobile app currently has Firebase Auth disabled with a mock implementation in `config/firebase.ts`; uses direct API calls with static tokens for development (see Known Issues in [ShiftWork.Mobile/README.md](../ShiftWork.Mobile/README.md)).
+- **Notifications:** Multi-channel notification service supports SMTP (email), Twilio (SMS), and push notifications; configured via appsettings or environment variables; gracefully falls back to simulation mode when providers not configured (see Notification Service section in [AGENT.md](../AGENT.md)).
+- **Webhooks:** Automatic webhook notifications for employee and location changes; uses HMAC SHA256 signatures for verification; configured via `WEBHOOK_URL` and `WEBHOOK_SECRET_KEY` environment variables (see [WEBHOOK_INTEGRATION.md](../WEBHOOK_INTEGRATION.md)).
+- **File Storage:** S3 integration for photos; mobile app uploads via signed URLs with Firebase auth headers; kiosk captures photos using browser camera API.
+
+## Reference files and entry points
+- **API Entry:** ShiftWork.Api/Program.cs (startup configuration); REST examples in ShiftWork.Api/ShiftWork.Api.http for manual testing.
+- **Angular Entry:** ShiftWork.Angular/src/main.ts (bootstrap); routing in ShiftWork.Angular/src/app/app-routing.module.ts.
+- **Mobile Entry:** ShiftWork.Mobile/app (Expo Router file-based routing); API services in ShiftWork.Mobile/services; state management in ShiftWork.Mobile/stores.
+- **MCP Utilities:** python_client/http_mcp_server.py (MCP server); documentation in python_client/README.txt and python_client/MCP_SERVER.md.
+
+## Key documentation files
+
+### Solution-wide (in `Docs/`)
+- **[Docs/AGENT.md](../Docs/AGENT.md)** - Complete agent guide with API reference, workflows, and local development setup
+- **[README.md](../README.md)** - Project overview and architecture
+- **[Docs/QUICK_START.md](../Docs/QUICK_START.md)** - 5-minute quick start guide for MCP and issues
+- **[Docs/CONTRIBUTING.md](../Docs/CONTRIBUTING.md)** - Contribution guidelines and development workflow
+- **[Docs/WIKI_CONTENT_GUIDE.md](../Docs/WIKI_CONTENT_GUIDE.md)** - Complete wiki structure and content mapping
+- **[Docs/WEBHOOK_INTEGRATION.md](../Docs/WEBHOOK_INTEGRATION.md)** - Webhook integration guide
+
+### API (`ShiftWork.Api/Docs/`)
+- **[ShiftWork.Api/Docs/AUDIT_API_REFERENCE.md](../ShiftWork.Api/Docs/AUDIT_API_REFERENCE.md)** - Audit API endpoints
+- **[ShiftWork.Api/Docs/WEBHOOK_INTEGRATION.md](../ShiftWork.Api/Docs/WEBHOOK_INTEGRATION.md)** - API webhook details
+- **[ShiftWork.Api/Docs/ROLE_PERMISSION_REFACTOR.md](../ShiftWork.Api/Docs/ROLE_PERMISSION_REFACTOR.md)** - Auth/roles architecture
+
+### Mobile (`ShiftWork.Mobile/Docs/`)
+- **[ShiftWork.Mobile/Docs/SKILLS.md](../ShiftWork.Mobile/Docs/SKILLS.md)** - ⚠️ READ FIRST — UI skill requirements, code patterns, package usage
+- **[ShiftWork.Mobile/Docs/PRODUCTION_PLAN.md](../ShiftWork.Mobile/Docs/PRODUCTION_PLAN.md)** - ⚠️ READ FIRST — 6-phase refactor plan with acceptance criteria
+- **[ShiftWork.Mobile/Docs/MOBILE_AGENT.md](../ShiftWork.Mobile/Docs/MOBILE_AGENT.md)** - Mobile-specific agent guide
+- **[ShiftWork.Mobile/README.md](../ShiftWork.Mobile/README.md)** - Mobile project overview
+
+### Angular (`ShiftWork.Angular/Docs/`)
+- **[ShiftWork.Angular/Docs/PERMISSION_GATING_GUIDE.md](../ShiftWork.Angular/Docs/PERMISSION_GATING_GUIDE.md)** - Angular permission system
+- **[ShiftWork.Angular/README.md](../ShiftWork.Angular/README.md)** - Angular project overview
+
+### Python MCP (`python_client/Docs/`)
+- **[python_client/Docs/MCP_SERVER.md](../python_client/Docs/MCP_SERVER.md)** - MCP server reference
+- **[python_client/Docs/MCP_TOOLS_BUILD_GUIDE.md](../python_client/Docs/MCP_TOOLS_BUILD_GUIDE.md)** - Building MCP tools

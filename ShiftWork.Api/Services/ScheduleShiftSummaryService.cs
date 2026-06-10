@@ -43,19 +43,37 @@ namespace ShiftWork.Api.Services
 
                 if (clockInEvent != null && clockOutEvent != null)
                 {
-                    var options = new JsonSerializerOptions
+                    // Try to extract location from EventObject; it may be null or a non-location JSON
+                    int parsedLocationId = 0;
+                    if (!string.IsNullOrWhiteSpace(clockInEvent.EventObject))
                     {
-                        PropertyNameCaseInsensitive = true
-                    };
-                    var locationInfo = JsonSerializer.Deserialize<LocationDto>(clockInEvent.EventObject, options);
+                        try
+                        {
+                            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                            var locationInfo = JsonSerializer.Deserialize<LocationDto>(clockInEvent.EventObject, options);
+                            if (locationInfo != null)
+                            {
+                                parsedLocationId = locationInfo.LocationId;
+                            }
+                        }
+                        catch (JsonException)
+                        {
+                            // EventObject is not a LocationDto (e.g. manual clock-in flags, photo data)
+                        }
+                    }
 
-                    if (locationId.HasValue && locationInfo.LocationId != locationId.Value)
+                    if (locationId.HasValue && parsedLocationId != locationId.Value)
                     {
                         continue;
                     }
 
-                    var location = await _context.Locations.Include(l => l.Areas).FirstOrDefaultAsync(l => l.LocationId == locationInfo.LocationId);
-                    var area = location?.Areas.FirstOrDefault();
+                    Models.Location? location = null;
+                    Models.Area? area = null;
+                    if (parsedLocationId > 0)
+                    {
+                        location = await _context.Locations.Include(l => l.Areas).FirstOrDefaultAsync(l => l.LocationId == parsedLocationId);
+                        area = location?.Areas?.FirstOrDefault();
+                    }
 
                     // Get approval if exists for this person/day
                     var approval = await _context.ShiftSummaryApprovals
@@ -68,11 +86,11 @@ namespace ShiftWork.Api.Services
                     {
                         Day = group.Key.Date,
                         PersonId = group.Key.PersonId,
-                        PersonName = clockInEvent.Person.Name,
-                        LocationId = location.LocationId,
-                        LocationName = location.Name,
-                        AreaId = area.AreaId,
-                        AreaName = area.Name,
+                        PersonName = clockInEvent.Person?.Name ?? $"Person {group.Key.PersonId}",
+                        LocationId = location?.LocationId ?? 0,
+                        LocationName = location?.Name ?? "Unknown",
+                        AreaId = area?.AreaId ?? 0,
+                        AreaName = area?.Name ?? "Unknown",
                         MinStartTime = clockInEvent.EventDate,
                         MaxEndTime = clockOutEvent.EventDate,
                         BreakTime = 30, // Default break time

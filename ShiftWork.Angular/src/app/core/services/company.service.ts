@@ -29,6 +29,13 @@ export class CompanyService {
       );
   }
 
+  getMyCompanies(): Observable<Company[]> {
+    return this.http.get<Company[]>(`${this.apiUrl}/companies/my`)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
   getCompany(id: string): Observable<Company> {
     return this.http.get<Company>(`${this.apiUrl}/companies/${id}`)
       .pipe(

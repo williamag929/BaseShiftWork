@@ -15,6 +15,13 @@ namespace ShiftWork.Api.Models
         public string? Currency { get; set; }
         public string? LogoUrl { get; set; }
         public string? Settings { get; set; }
+
+        // Onboarding & plan fields (added for registration/onboarding feature)
+        public string? Plan { get; set; }                  // "Free" | "Pro" | "Trial"
+        public DateTime? PlanExpiresAt { get; set; }       // null = no expiry
+        public string? OnboardingStatus { get; set; }      // "Pending" | "Verified" | "Complete"
+        public string? StripeCustomerId { get; set; }      // Stripe customer reference
+        public string? StripeSubscriptionId { get; set; }  // Stripe subscription reference
         public ICollection<Location> Locations { get; set; }
         public ICollection<Person> People { get; set; }
         public ICollection<Role> Roles { get; set; }

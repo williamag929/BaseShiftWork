@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { scheduleService } from '@/services';
 import type { ScheduleGridData, ScheduleFilters, TeamMember, ShiftBlock, DaySchedule } from '@/types/schedule-grid';
 import type { PersonDto, ScheduleShiftDto } from '@/types/api';
-import { formatTime, getStartOfWeek, getEndOfWeek } from '@/utils/date.utils';
+import { formatTime, getStartOfWeek, getEndOfWeek, formatDateForApi } from '@/utils/date.utils';
 
 interface UseScheduleGridOptions {
   companyId: string;
@@ -28,20 +28,21 @@ export function useScheduleGrid({ companyId, locationId, weekStart }: UseSchedul
     setLoading(true);
     setError(null);
     try {
-      // Get all shifts for company (treat 404 as empty) and filter by date range
-      const allShifts = await scheduleService.getScheduleShifts(companyId);
-      const weekShifts = allShifts.filter((s) => {
-        const start = new Date(s.startDate);
-        return start >= currentWeekStart && start <= currentWeekEnd;
+      const paged = await scheduleService.getScheduleShiftsPaged(companyId, {
+        startDate: formatDateForApi(currentWeekStart),
+        endDate: formatDateForApi(currentWeekEnd),
+        page: 1,
+        pageSize: 500,
+        locationId,
       });
 
-      setShifts(weekShifts);
+      setShifts(paged.items || []);
 
       // TODO: Fetch people/team members - for now, derive from shifts
       // In production, you'd call a people service to get full team roster
       const uniquePeople = Array.from(
         new Map(
-          weekShifts.map((s) => [
+          shifts.map((s) => [
             s.personId,
             {
               personId: s.personId,
@@ -56,7 +57,7 @@ export function useScheduleGrid({ companyId, locationId, weekStart }: UseSchedul
         ).values()
       );
 
-      setPeople(uniquePeople);
+      setPeople(uniquePeople as PersonDto[]);
     } catch (e: any) {
       // Normalize 404 to empty state instead of noisy error
       if (e?.statusCode === 404) {

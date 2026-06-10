@@ -1,237 +1,128 @@
-import { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, TextInput, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import * as Device from 'expo-device';
-import { shiftEventService, dbService } from '@/services';
-import { getCurrentLocation } from '@/utils';
+import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
+import { colors, spacing, radius } from '@/styles/tokens';
+import { useClockAction } from '@/hooks/useClockAction';
 import { useAuthStore } from '@/store/authStore';
-import type { ShiftEventDto } from '@/types/api';
+import { ClockButton } from '@/components/screens/clock/ClockButton';
+import { ElapsedTimer } from '@/components/screens/clock/ElapsedTimer';
+import { SafetyQuestionnaire } from '@/components/screens/clock/SafetyQuestionnaire';
 import PhotoCapture from '@/components/PhotoCapture';
-import { peopleService } from '@/services/people.service';
-import { uploadService } from '@/services/upload.service';
-import { getActiveClockInAt, saveActiveClockInAt, clearActiveClockInAt } from '@/utils';
+
+const INFO_ITEMS = [
+  { icon: 'location' as const, text: 'Location captured' },
+  { icon: 'camera' as const, text: 'Photo optional' },
+  { icon: 'phone-portrait' as const, text: 'Device recorded' },
+];
 
 export default function ClockScreen() {
-  const { companyId, personId, name } = useAuthStore();
-  const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
-  const [events, setEvents] = useState<ShiftEventDto[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [initializing, setInitializing] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const [activeClockInAt, setActiveClockInAt] = useState<Date | null>(null);
-  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const { name } = useAuthStore();
+  const insets = useSafeAreaInsets();
+  const {
+    loading,
+    initializing,
+    error,
+    photoUri,
+    cameraOpen,
+    elapsedSeconds,
+    todayShift,
+    safetyQuestions,
+    shiftLocationName,
+    isClockedIn,
+    answers,
+    setPhotoUri,
+    setCameraOpen,
+    setAnswers,
+    handleClock,
+  } = useClockAction();
 
-  const lastEvent = useMemo(() => (events.length ? events[0] : null), [events]);
-  const isClockedIn = lastEvent?.eventType === 'clockin' || !!activeClockInAt;
-
-  const loadEvents = async () => {
-    if (!companyId || !personId) return;
-    try {
-      const data = await shiftEventService.getPersonShiftEvents(companyId, personId);
-      // Assuming API returns events ordered desc; if not, sort by date desc
-      const sorted = [...data].sort(
-        (a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
-      );
-      setEvents(sorted);
-      // derive active clock-in from latest event
-      const latest = sorted[0];
-      if (latest?.eventType === 'clockin') {
-        setActiveClockInAt(new Date(latest.eventDate));
-        await saveActiveClockInAt(new Date(latest.eventDate).toISOString());
-      } else {
-        setActiveClockInAt(null);
-        await clearActiveClockInAt();
-      }
-    } catch (e: any) {
-      // Fallback to cached events from SQLite when offline
-      try {
-        const cached = await dbService.getRecentEvents(personId, 10);
-        const sorted = [...cached].sort(
-          (a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
-        );
-        setEvents(sorted);
-        const latest = sorted[0];
-        if (latest?.eventType === 'clockin') {
-          setActiveClockInAt(new Date(latest.eventDate));
-        } else {
-          // If no cached event, try persisted clock-in timestamp
-          const saved = await getActiveClockInAt();
-          setActiveClockInAt(saved ? new Date(saved) : null);
-        }
-      } catch (e2: any) {
-        setError(e?.message || 'Failed to load events');
-        // also try persisted timestamp as last resort
-        const saved = await getActiveClockInAt();
-        setActiveClockInAt(saved ? new Date(saved) : null);
-      }
-    } finally {
-      setInitializing(false);
-    }
-  };
-
-  useEffect(() => {
-    loadEvents();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId, personId]);
-
-  // Hydrate person name if missing
-  useEffect(() => {
-    (async () => {
-      try {
-        if (companyId && personId && !name) {
-          const person = await peopleService.getPersonById(companyId, personId);
-          if (person) {
-            setPersonProfile({
-              name: person.name ?? null,
-              email: person.email ?? null,
-            });
-          }
-        }
-      } catch {}
-    })();
-  }, [companyId, personId, name, setPersonProfile]);
-
-  // Update elapsed time every second when clocked in
-  useEffect(() => {
-    const start = activeClockInAt || (lastEvent?.eventType === 'clockin' ? new Date(lastEvent.eventDate) : null);
-    if (!isClockedIn || !start) {
-      setElapsedSeconds(0);
-      return;
-    }
-    const update = () => {
-      const ms = Date.now() - start.getTime();
-      setElapsedSeconds(Math.max(0, Math.floor(ms / 1000)));
-    };
-    update();
-    const id = setInterval(update, 1000);
-    return () => clearInterval(id);
-  }, [isClockedIn, activeClockInAt, lastEvent?.eventDate]);
-
-  const fmtHMS = (totalSeconds: number) => {
-    const h = Math.floor(totalSeconds / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
-    const s = totalSeconds % 60;
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    return `${pad(h)}:${pad(m)}:${pad(s)}`;
-  };
-
-  const handleClock = async () => {
-    if (!companyId) {
-      Alert.alert('Missing Company', 'Company ID is not set.');
-      return;
-    }
-    if (!personId) {
-      Alert.alert('Not Signed In', 'Please sign in to clock in/out.');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    try {
-      const geoLocation = await getCurrentLocation();
-      const kioskDevice = Device.modelName || 'mobile-device';
-      let uploadedUrl: string | undefined = undefined;
-      if (photoUri) {
-        uploadedUrl = await uploadService.uploadPhoto(photoUri);
-      }
-
-      const result = isClockedIn
-        ? await shiftEventService.clockOut(
-            companyId,
-            personId,
-            geoLocation || undefined,
-            uploadedUrl,
-            kioskDevice
-          )
-        : await shiftEventService.clockIn(
-            companyId,
-            personId,
-            geoLocation || undefined,
-            uploadedUrl,
-            kioskDevice
-          );
-
-      // Prepend to events
-      setEvents((prev) => [result, ...prev]);
-      // Update active clock-in persistence
-      if (result.eventType === 'clockin') {
-        setActiveClockInAt(new Date(result.eventDate));
-        await saveActiveClockInAt(new Date(result.eventDate).toISOString());
-      } else if (result.eventType === 'clockout') {
-        setActiveClockInAt(null);
-        await clearActiveClockInAt();
-      }
-      Alert.alert('Success', isClockedIn ? 'Clocked out successfully' : 'Clocked in successfully');
-    } catch (e: any) {
-      const msg = e?.message || 'Clock action failed';
-      setError(msg);
-      Alert.alert('Error', msg);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const firstName = name ? name.split(' ')[0] : 'there';
 
   return (
     <View style={styles.container}>
-      <View style={styles.statusContainer}>
-        <Text style={styles.statusLabel}>Current Status</Text>
-        <View style={[styles.statusBadge, isClockedIn ? styles.badgeIn : styles.badgeOut]}>
-          <Text style={[styles.statusText, isClockedIn ? styles.textIn : styles.textOut]}>
-            {isClockedIn ? 'Clocked In' : 'Clocked Out'}
+      <StatusBar style="light" />
+
+      {/* Hero header */}
+      <View style={[styles.hero, { paddingTop: insets.top + 16 }]}>
+        <Animated.View entering={FadeIn.duration(350)}>
+          <Text style={styles.heroGreeting}>{isClockedIn ? 'You are on the clock' : 'Ready to start?'}</Text>
+          <Text style={styles.heroName}>{firstName}</Text>
+        </Animated.View>
+        <Animated.View
+          entering={FadeIn.delay(100).duration(350)}
+          style={[styles.statusPill, isClockedIn ? styles.pillIn : styles.pillOut]}
+        >
+          <View style={[styles.pillDot, { backgroundColor: isClockedIn ? colors.success : colors.muted }]} />
+          <Text style={[styles.pillText, { color: isClockedIn ? colors.success : colors.muted }]}>
+            {isClockedIn ? 'On Clock' : 'Off Clock'}
           </Text>
-        </View>
-        {isClockedIn && (
-          <Text style={styles.elapsedText}>Time on clock: {fmtHMS(elapsedSeconds)}</Text>
-        )}
-        {/* Person is sourced from previous auth; no manual input */}
-        <View style={styles.personRow}>
-          <Text style={styles.personLabel}>Person</Text>
-          <Text style={styles.personValue}>{name || 'Not signed in'}</Text>
-        </View>
+        </Animated.View>
       </View>
 
-      <View style={styles.clockContainer}>
-        {!!photoUri && (
-          <View style={styles.previewRow}>
-            <Image source={{ uri: photoUri }} style={styles.preview} />
-            <TouchableOpacity onPress={() => setPhotoUri(null)}>
-              <Text style={styles.removePhoto}>Remove photo</Text>
-            </TouchableOpacity>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Elapsed timer (when clocked in) */}
+        {isClockedIn && (
+          <Animated.View entering={FadeInDown.duration(350)} style={styles.timerCard}>
+            <ElapsedTimer seconds={elapsedSeconds} />
+          </Animated.View>
+        )}
+
+        {/* Safety questionnaire (when shift scheduled & not clocked in) */}
+        {!!todayShift && !isClockedIn && (
+          <SafetyQuestionnaire
+            shift={todayShift}
+            questions={safetyQuestions}
+            locationName={shiftLocationName}
+            answers={answers}
+            onAnswersChange={setAnswers}
+          />
+        )}
+
+        {/* Clock button */}
+        <View style={styles.clockBtnArea}>
+          <ClockButton
+            isClockedIn={isClockedIn}
+            loading={loading}
+            onPress={handleClock}
+            photoUri={photoUri}
+            onPhotoPress={() => setCameraOpen(true)}
+            onRemovePhoto={() => setPhotoUri(null)}
+          />
+        </View>
+
+        {/* Error */}
+        {!!error && (
+          <View style={styles.errorBanner}>
+            <Ionicons name="alert-circle-outline" size={16} color={colors.danger} />
+            <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
-        <TouchableOpacity style={styles.photoBtn} onPress={() => setCameraOpen(true)} disabled={loading}>
-          <Ionicons name="camera" size={20} color="#4A90E2" />
-          <Text style={styles.photoBtnText}>{photoUri ? 'Retake Photo' : 'Add Photo (optional)'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.clockButton, isClockedIn ? styles.clockOutBtn : styles.clockInBtn]}
-          onPress={handleClock}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" size="large" />
-          ) : (
-            <>
-              <View style={styles.iconContainer}>
-                <Ionicons name={isClockedIn ? 'log-out' : 'log-in'} size={64} color="#fff" />
-              </View>
-              <Text style={styles.clockButtonText}>{isClockedIn ? 'Clock Out' : 'Clock In'}</Text>
-            </>
-          )}
-        </TouchableOpacity>
-      </View>
 
-      <View style={styles.infoContainer}>
-        {initializing && <ActivityIndicator />}
-        {!!error && <Text style={styles.errorText}>{error}</Text>}
+        {/* Info card */}
         {!initializing && !error && (
-          <Text style={styles.infoText}>
-            Tap the button to {isClockedIn ? 'clock out' : 'clock in'}. Your location and device info will be included.
-          </Text>
+          <Animated.View entering={FadeInDown.delay(200).duration(350)} style={styles.infoCard}>
+            <Text style={styles.infoTitle}>
+              {isClockedIn ? 'Clock out when done' : `Clock in to start your shift`}
+            </Text>
+            <View style={styles.infoRows}>
+              {INFO_ITEMS.map((item) => (
+                <View key={item.text} style={styles.infoRow}>
+                  <View style={styles.infoIconWrap}>
+                    <Ionicons name={item.icon} size={15} color={colors.primary} />
+                  </View>
+                  <Text style={styles.infoRowText}>{item.text}</Text>
+                </View>
+              ))}
+            </View>
+          </Animated.View>
         )}
-      </View>
+      </ScrollView>
 
       <PhotoCapture
         visible={cameraOpen}
@@ -243,112 +134,61 @@ export default function ClockScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
+  container: { flex: 1, backgroundColor: colors.background },
+
+  // Hero
+  hero: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 20, paddingBottom: 28,
+    flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
   },
-  statusContainer: {
-    backgroundColor: '#fff',
-    padding: 20,
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+  heroGreeting: { fontSize: 14, color: 'rgba(255,255,255,0.75)', marginBottom: 2 },
+  heroName: { fontSize: 26, fontWeight: '700', color: '#fff', letterSpacing: -0.5 },
+  statusPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20,
+    marginBottom: 4,
   },
-  statusLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
+  pillIn:  { backgroundColor: 'rgba(52,199,89,0.18)' },
+  pillOut: { backgroundColor: 'rgba(255,255,255,0.12)' },
+  pillDot: { width: 7, height: 7, borderRadius: 4 },
+  pillText: { fontSize: 13, fontWeight: '600' },
+
+  // Timer card
+  timerCard: {
+    backgroundColor: colors.surface,
+    marginHorizontal: spacing.lg, marginTop: 16,
+    borderRadius: radius.xl, paddingVertical: 24,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07, shadowRadius: 6, elevation: 2,
   },
-  statusBadge: {
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+
+  // Clock button area
+  clockBtnArea: { marginTop: 8 },
+
+  // Error
+  errorBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: 'rgba(255,59,48,0.10)', borderRadius: radius.lg,
+    marginHorizontal: spacing.lg, marginTop: 12, padding: 12,
   },
-  badgeIn: { backgroundColor: '#E8F5E9' },
-  badgeOut: { backgroundColor: '#FFF3E0' },
-  statusText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+  errorText: { flex: 1, fontSize: 13, color: colors.danger },
+
+  // Info card
+  infoCard: {
+    backgroundColor: colors.surface,
+    marginHorizontal: spacing.lg, marginTop: 16,
+    borderRadius: radius.xl, padding: 16,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
   },
-  textIn: { color: '#2E7D32' },
-  textOut: { color: '#EF6C00' },
-  personRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginTop: 16,
+  infoTitle: { fontSize: 15, fontWeight: '600', color: colors.text, marginBottom: 12 },
+  infoRows: { gap: 10 },
+  infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  infoIconWrap: {
+    width: 32, height: 32, borderRadius: 10,
+    backgroundColor: colors.primary + '14',
+    alignItems: 'center', justifyContent: 'center',
   },
-  personLabel: {
-    fontSize: 14,
-    color: '#333',
-  },
-  personValue: { fontSize: 16, color: '#333', fontWeight: '600' },
-  clockContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  photoBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#4A90E2',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  photoBtnText: { color: '#4A90E2', fontWeight: '600' },
-  previewRow: { alignItems: 'center', marginBottom: 12 },
-  preview: { width: 120, height: 120, borderRadius: 8, marginBottom: 6 },
-  removePhoto: { color: '#E74C3C', textDecorationLine: 'underline' },
-  clockButton: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: '#4A90E2',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  },
-  clockInBtn: { backgroundColor: '#4A90E2' },
-  clockOutBtn: { backgroundColor: '#E74C3C' },
-  iconContainer: {
-    marginBottom: 8,
-  },
-  clockButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  infoContainer: {
-    padding: 32,
-    alignItems: 'center',
-  },
-  elapsedText: { marginTop: 8, color: '#2E7D32', fontWeight: '600' },
-  infoText: {
-    fontSize: 16,
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  infoSubtext: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-  },
-  errorText: {
-    fontSize: 14,
-    color: '#E74C3C',
-    textAlign: 'center',
-  },
+  infoRowText: { fontSize: 13, color: colors.textSecondary, fontWeight: '500' },
 });

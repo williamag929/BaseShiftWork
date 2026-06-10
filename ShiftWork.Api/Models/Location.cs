@@ -27,5 +27,11 @@ namespace ShiftWork.Api.Models
         public string Status { get; set; }
         public Company Company { get; set; }
         public ICollection<Area> Areas { get; set; }
+
+        /// <summary>
+        /// Marks this record as sandbox/demo data seeded during onboarding.
+        /// Default false — all existing records are unaffected.
+        /// </summary>
+        public bool IsSandbox { get; set; } = false;
     }
 }

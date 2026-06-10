@@ -1,0 +1,62 @@
+{
+  "expo": {
+    "name": "ShiftWork Kiosk",
+    "slug": "shiftwork-kiosk",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "scheme": "shiftwork-kiosk",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0F2237"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shiftwork.kiosk",
+      "requireFullScreen": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Camera is required to capture employee clock-in photos.",
+        "NSLocationWhenInUseUsageDescription": "Location is used to verify clock-in at the correct site."
+      }
+    },
+    "android": {
+      "package": "com.shiftwork.kiosk",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0F2237"
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.WAKE_LOCK"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow ShiftWork Kiosk to access the camera for clock-in photos."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow ShiftWork Kiosk to verify clock-in location."
+        }
+      ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "shiftwork-kiosk"
+      }
+    }
+  }
+}

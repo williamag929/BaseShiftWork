@@ -1,0 +1,60 @@
+<!-- EXAMPLE: Updated employee-list.component.html with History button -->
+<!-- Add this to your employee card's action buttons section -->
+
+<!-- In your employee card (around line with action-buttons): -->
+<!-- 
+  <div class="action-buttons mt-2">
+    <div class="btn btn-sm btn-outline-success me-2" *ngIf="canStartShift(employee)" title="Start Shift">
+      <i class="bi bi-play-circle"></i> Start
+    </div>
+    <div class="btn btn-sm btn-outline-danger me-2" *ngIf="canEndShift(employee)" title="End Shift">
+      <i class="bi bi-stop-circle"></i> End
+    </div>
+    <!-- ADD THIS: -->
+    <app-audit-history-button
+      [entity]="employee"
+      entityType="Person"
+      [entityId]="employee.personId"
+      [entityDisplayName]="employee.name"
+      [companyId]="activeCompany?.companyId || ''"
+    ></app-audit-history-button>
+  </div>
+-->
+
+<!-- COMPLETE EXAMPLE: Full employee card with History button -->
+<div class="employee-card" 
+     [class.has-published-schedule]="hasPublishedScheduleToday(employee)"
+     (click)="selectEmployee(employee)">
+  <div class="initials-circle" 
+       [class.on-shift]="isOnShift(employee.statusShiftWork) || isInProgress(employee)"
+       [class.scheduled]="hasPublishedScheduleToday(employee)">
+    <span class="initials">{{ getInitials(employee.name) }}</span>
+    <div *ngIf="isOnShift(employee.statusShiftWork) || isInProgress(employee)" class="status-indicator">
+      <i class="fas fa-check-circle"></i>
+    </div>
+  </div>
+  
+  <div class="employee-name">
+    {{ employee.name }}
+    <span *ngIf="getTiming(employee.statusShiftWork) as timing" class="badge ms-2" [ngClass]="getTimingBadgeClass(timing)">
+      {{ timing }}
+    </span>
+  </div>
+  
+  <div class="action-buttons mt-2">
+    <div class="btn btn-sm btn-outline-success me-2" *ngIf="canStartShift(employee)" title="Start Shift">
+      <i class="bi bi-play-circle"></i> Start
+    </div>
+    <div class="btn btn-sm btn-outline-danger me-2" *ngIf="canEndShift(employee)" title="End Shift">
+      <i class="bi bi-stop-circle"></i> End
+    </div>
+    <!-- NEW: History Button -->
+    <app-audit-history-button
+      [entity]="employee"
+      entityType="Person"
+      [entityId]="employee.personId"
+      [entityDisplayName]="employee.name"
+      [companyId]="activeCompany?.companyId || ''"
+    ></app-audit-history-button>
+  </div>
+</div>

@@ -17,6 +17,10 @@ namespace ShiftWork.Api.Helpers
             CreateMap<CompanyDto, Company>();
             CreateMap<CompanyUser, CompanyUserDto>();
             CreateMap<CompanyUserDto, CompanyUser>();
+            CreateMap<Permission, PermissionDto>();
+            CreateMap<PermissionDto, Permission>();
+            CreateMap<CompanyUserProfile, CompanyUserProfileDto>();
+            CreateMap<CompanyUserProfileDto, CompanyUserProfile>();
             CreateMap<Location, LocationDto>()
                 .ForMember(dest => dest.GeoCoordinates, opt => opt.MapFrom(src =>
                     !string.IsNullOrEmpty(src.GeoCoordinates)
@@ -27,15 +31,12 @@ namespace ShiftWork.Api.Helpers
                     src.GeoCoordinates != null ? JsonSerializer.Serialize(src.GeoCoordinates, (JsonSerializerOptions)null) : null));
             CreateMap<Person, PersonDto>();
              CreateMap<PersonDto, Person>();
+            // Role.Permissions is an obsolete string field; RoleDto.Permissions is List<string>.
+            // Ignore on both sides — permissions are loaded from RolePermission join table.
             CreateMap<Role, RoleDto>()
-                .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src =>
-                    !string.IsNullOrEmpty(src.Permissions) && src.Permissions.TrimStart().StartsWith("[")
-                        ? JsonSerializer.Deserialize<List<string>>(src.Permissions, (JsonSerializerOptions)null)
-                        : new List<string>()));
-             CreateMap<RoleDto, Role>()
-                .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src =>
-                    src.Permissions != null && src.Permissions.Any() 
-                        ? JsonSerializer.Serialize(src.Permissions, (JsonSerializerOptions)null) : null));
+                .ForMember(dest => dest.Permissions, opt => opt.Ignore());
+            CreateMap<RoleDto, Role>()
+                .ForMember(dest => dest.Permissions, opt => opt.Ignore());
             CreateMap<Schedule, ScheduleDto>()
                 .ForMember(dest => dest.PersonId, opt => opt.MapFrom(src =>
                     src.PersonId == null ? 0 : int.Parse(src.PersonId)));
@@ -52,6 +53,8 @@ namespace ShiftWork.Api.Helpers
             CreateMap<Schedule, ScheduleDetailDto>();
             CreateMap<CompanySettings, CompanySettingsDto>();
             CreateMap<CompanySettingsDto, CompanySettings>();
+            CreateMap<CompanyUserProfile, CompanyUserProfileDto>();
+            CreateMap<CompanyUserProfileDto, CompanyUserProfile>();
         }
     }
 }

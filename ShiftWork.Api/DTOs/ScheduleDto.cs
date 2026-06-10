@@ -23,6 +23,8 @@ namespace ShiftWork.Api.DTOs
         public string? TimeZone { get; set; }
         public string? Color { get; set; }
         public string? Type { get; set; }
+        public string? VoidedBy { get; set; }
+        public DateTime? VoidedAt { get; set; }
 
         // You might exclude navigation properties like Company, Location, Area, ScheduleShifts
     }

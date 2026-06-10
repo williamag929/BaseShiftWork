@@ -22,6 +22,8 @@ namespace ShiftWork.Api.Services
             string subject,
             string message,
             string? actionUrl = null);
+        
+        Task SendEmailAsync(string? toEmail, string subject, string htmlBody);
     }
 
     public class NotificationBatchResult
@@ -106,7 +108,7 @@ namespace ShiftWork.Api.Services
             return $"{message}\n{actionUrl}";
         }
 
-        private async Task SendEmailAsync(string? toEmail, string subject, string htmlBody)
+        public async Task SendEmailAsync(string? toEmail, string subject, string htmlBody)
         {
             var from = _config["Smtp:From"] ?? _config["Email:From"];
             var host = _config["Smtp:Host"];

@@ -79,4 +79,9 @@ public class CompanySettingsDto
     public bool ShowEmployeePhotosOnKiosk { get; set; }
     public int KioskTimeout { get; set; }
     public bool AllowQuestionResponsesOnClockIn { get; set; }
+    
+    /// <summary>
+    /// Plain text password - only used for setting, never returned in GET requests
+    /// </summary>
+    public string? KioskAdminPassword { get; set; }
 }

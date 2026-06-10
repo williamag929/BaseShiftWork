@@ -1,0 +1,91 @@
+.company-users-admin {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.company-selector {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.company-select {
+  flex: 1;
+  max-width: 400px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 0;
+  color: #666;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-firebase {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge-api {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.badge-invite {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.status-chip {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-chip.active {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-chip.inactive {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.inactive-row {
+  opacity: 0.6;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 0;
+  color: #999;
+}
+
+.empty-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+}

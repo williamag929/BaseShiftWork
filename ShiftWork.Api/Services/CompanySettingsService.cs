@@ -40,6 +40,15 @@ public class CompanySettingsService : ICompanySettingsService
         settings.LastUpdatedAt = DateTime.UtcNow;
         settings.LastUpdatedBy = settings.LastUpdatedBy ?? "System";
         _context.CompanySettings.Update(settings);
+
+        // Keep Company.TimeZone in sync so ShiftEventService always has the current value.
+        if (!string.IsNullOrWhiteSpace(settings.DefaultTimeZone))
+        {
+            var company = await _context.Companies.FindAsync(settings.CompanyId);
+            if (company != null)
+                company.TimeZone = settings.DefaultTimeZone;
+        }
+
         await _context.SaveChangesAsync();
 
         return settings;

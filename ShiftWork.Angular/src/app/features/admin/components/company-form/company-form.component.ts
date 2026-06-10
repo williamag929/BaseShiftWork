@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Company } from 'src/app/core/models/company.model';
 import { CompanyService } from 'src/app/core/services/company.service';
+import { TIMEZONES } from 'src/app/core/data/timezones';
+import { Timezone } from 'src/app/core/models/timezone.model';
 
 @Component({
   selector: 'app-company-form',
@@ -15,6 +17,7 @@ export class CompanyFormComponent implements OnInit {
   companyForm: FormGroup;
   isEditMode = false;
   companyId: string | null = null;
+  timezones: Timezone[] = TIMEZONES;
 
   constructor(
     private fb: FormBuilder,
@@ -29,7 +32,7 @@ export class CompanyFormComponent implements OnInit {
       phoneNumber: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       website: [''],
-      timezone: ['', Validators.required],
+      timeZone: ['', Validators.required],
       externalCode: [''],
       currency: [''],
       logoUrl: ['']
@@ -43,6 +46,12 @@ export class CompanyFormComponent implements OnInit {
       this.companyService.getCompany(this.companyId).subscribe(company => {
         this.companyForm.patchValue(company);
       });
+    } else {
+      // Pre-select the browser's detected timezone when creating a new company
+      const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (this.timezones.some(tz => tz.value === detected)) {
+        this.companyForm.get('timeZone')?.setValue(detected);
+      }
     }
   }
 

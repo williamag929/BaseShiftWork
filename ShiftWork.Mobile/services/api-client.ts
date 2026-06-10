@@ -1,10 +1,15 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import Constants from 'expo-constants';
-import { auth } from '@/config/firebase';
+import { router } from 'expo-router';
+// Firebase auth is DISABLED — token is now read from SecureStore.
+// import { auth } from '@/config/firebase';
+import { getToken } from '@/utils/storage.utils';
+import { logger } from '@/utils/logger';
+import { useAuthStore } from '@/store/authStore';
 
 // Resolve API base URL, rewriting localhost/0.0.0.0 to the Expo host when running on device
 const resolveApiBaseUrl = () => {
-  let base = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5001';
+  let base = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5182';
   // If base points to localhost/0.0.0.0, try to replace with Expo dev host IP
   const isLocalHost = /^(https?:\/\/)?(0\.0\.0\.0|localhost)(:\d+)?/i.test(base);
   if (isLocalHost) {
@@ -31,10 +36,12 @@ const resolveApiBaseUrl = () => {
 
 const API_BASE_URL = resolveApiBaseUrl();
 const API_TIMEOUT = 30000;
+const AUTH_EXEMPT_PATHS = new Set(['/api/auth/login', '/api/auth/accept-invite']);
 
 class ApiClient {
   private client: AxiosInstance;
   private inflight: Map<string, Promise<any>> = new Map();
+  private unauthorizedRecovery: Promise<void> | null = null;
 
   constructor() {
     this.client = axios.create({
@@ -46,20 +53,23 @@ class ApiClient {
     });
 
     // Helpful during dev to verify the resolved API base
-    if (__DEV__) {
-      // Avoid noisy logs in production
-      // eslint-disable-next-line no-console
-      console.log('[API] Base URL:', this.client.defaults.baseURL);
-    }
+    logger.log('[API] Base URL:', this.client.defaults.baseURL);
 
     // Request interceptor to add auth token
     this.client.interceptors.request.use(
       async (config) => {
-        const user = auth.currentUser;
-        
-        if (user) {
-          const token = await user.getIdToken();
+        // Firebase auth is DISABLED. Read the stored API JWT from SecureStore.
+        // When Firebase was active the token came from auth.currentUser.getIdToken().
+        const token = await getToken();
+        if (token) {
           config.headers.Authorization = `Bearer ${token}`;
+          logger.log('[API] Using stored API JWT');
+        } else if (__DEV__ && process.env.EXPO_PUBLIC_DEV_TOKEN) {
+          // DEV-ONLY fallback — strip EXPO_PUBLIC_DEV_TOKEN before any production build.
+          config.headers.Authorization = `Bearer ${process.env.EXPO_PUBLIC_DEV_TOKEN}`;
+          logger.log('[API] Using EXPO_PUBLIC_DEV_TOKEN (dev only — no stored token)');
+        } else {
+          logger.warn('[API] No auth token available. Request may fail with 401.');
         }
 
         // Workaround Android RN cache rename bug: avoid shared cache entries
@@ -88,25 +98,43 @@ class ApiClient {
     // Response interceptor for error handling
     this.client.interceptors.response.use(
       (response) => response,
-      (error) => {
+      async (error) => {
         if (error.response) {
+          if (await this.shouldRecoverFromUnauthorized(error)) {
+            await this.recoverFromUnauthorized();
+          }
+
           // Server responded with error status
-          console.error('API Error:', error.response.data);
+          logger.error('[API] Error Response:', {
+            status: error.response.status,
+            statusText: error.response.statusText,
+            data: error.response.data,
+            url: error.config?.url,
+            method: error.config?.method
+          });
+          const isUnauthorized = error.response.status === 401;
           return Promise.reject({
-            message: error.response.data.message || 'An error occurred',
+            message: isUnauthorized
+              ? 'Your session expired. Please sign in again.'
+              : error.response.data.message || 'An error occurred',
             statusCode: error.response.status,
             errors: error.response.data.errors,
           });
         } else if (error.request) {
           // Request made but no response
-          console.error('Network Error:', error.request);
+          logger.error('[API] Network Error - No Response:', {
+            url: error.config?.url,
+            method: error.config?.method,
+            baseURL: error.config?.baseURL,
+            message: error.message
+          });
           return Promise.reject({
-            message: 'Network error. Please check your connection.',
+            message: 'Network error. Please check your connection and API URL.',
             statusCode: 0,
           });
         } else {
           // Something else happened
-          console.error('Error:', error.message);
+          logger.error('[API] Request Setup Error:', error.message);
           return Promise.reject({
             message: error.message,
             statusCode: -1,
@@ -165,6 +193,36 @@ class ApiClient {
   // Get the current base URL
   async getBaseURL(): Promise<string> {
     return this.client.defaults.baseURL || API_BASE_URL;
+  }
+
+  private async shouldRecoverFromUnauthorized(error: any): Promise<boolean> {
+    if (error?.response?.status !== 401) {
+      return false;
+    }
+
+    const requestUrl = error?.config?.url as string | undefined;
+    if (!requestUrl || AUTH_EXEMPT_PATHS.has(requestUrl)) {
+      return false;
+    }
+
+    const token = await getToken();
+    return !!token;
+  }
+
+  private async recoverFromUnauthorized(): Promise<void> {
+    if (this.unauthorizedRecovery) {
+      return this.unauthorizedRecovery;
+    }
+
+    this.unauthorizedRecovery = (async () => {
+      logger.warn('[API] Received 401 for authenticated request. Clearing stored session.');
+      await useAuthStore.getState().signOut();
+      router.replace('/(auth)/login' as any);
+    })().finally(() => {
+      this.unauthorizedRecovery = null;
+    });
+
+    return this.unauthorizedRecovery;
   }
 }
 

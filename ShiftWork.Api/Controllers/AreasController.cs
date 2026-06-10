@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -41,6 +42,7 @@ namespace ShiftWork.Api.Controllers
         /// <param name="companyId">The unique identifier of the company.</param>
         /// <returns>A list of areas.</returns>
         [HttpGet]
+        [Authorize(Policy = "areas.read")]
         [ProducesResponseType(typeof(IEnumerable<AreaDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -87,6 +89,7 @@ namespace ShiftWork.Api.Controllers
         [HttpGet("{areaId}")]
         [ProducesResponseType(typeof(AreaDto), 200)]
         [ProducesResponseType(404)]
+        [Authorize(Policy = "areas.read")]
         [ProducesResponseType(500)]
         public async Task<ActionResult<AreaDto>> GetArea(string companyId, int areaId)
         {
@@ -129,6 +132,7 @@ namespace ShiftWork.Api.Controllers
         /// <param name="areaDto">The area data to create.</param>
         /// <returns>The newly created area.</returns>
         [HttpPost]
+        [Authorize(Policy = "areas.create")]
         [ProducesResponseType(typeof(AreaDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -169,6 +173,7 @@ namespace ShiftWork.Api.Controllers
         /// <param name="areaDto">The updated area data.</param>
         /// <returns>The updated area.</returns>
         [HttpPut("{areaId}")]
+        [Authorize(Policy = "areas.update")]
         [ProducesResponseType(typeof(AreaDto), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -218,6 +223,7 @@ namespace ShiftWork.Api.Controllers
         /// <param name="areaId">The ID of the area to delete.</param>
         /// <returns>An action result indicating success or failure.</returns>
         [HttpDelete("{areaId}")]
+        [Authorize(Policy = "areas.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

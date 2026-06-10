@@ -1,0 +1,134 @@
+<div class="conflict-backdrop" (click)="onDismiss()"></div>
+
+<div class="conflict-modal" role="alertdialog" aria-modal="true" aria-labelledby="conflict-title">
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <div class="conflict-header"
+       [class.header-error]="!isBulk && hasErrors"
+       [class.header-warning]="!isBulk && !hasErrors"
+       [class.header-bulk]="isBulk">
+    <span class="header-icon">{{ isBulk ? '📋' : (hasErrors ? '🚫' : '⚠️') }}</span>
+    <div class="header-text">
+      <h2 id="conflict-title" class="conflict-title">
+        <ng-container *ngIf="isBulk">Bulk Schedule — Partial Completion</ng-container>
+        <ng-container *ngIf="!isBulk">{{ hasErrors ? 'Schedule Conflict' : 'Schedule Warning' }}</ng-container>
+      </h2>
+      <p class="conflict-subtitle">
+        <ng-container *ngIf="isBulk">Some shifts were skipped — see details below</ng-container>
+        <ng-container *ngIf="!isBulk">Review the issues below before saving</ng-container>
+      </p>
+    </div>
+    <button class="close-btn" (click)="onDismiss()" aria-label="Close">&times;</button>
+  </div>
+
+  <div class="conflict-body">
+
+    <!-- ═══ BULK SUMMARY MODE ═══════════════════════════════ -->
+    <ng-container *ngIf="isBulk && info.bulkSummary as bulk">
+
+      <!-- Created / Skipped counter row -->
+      <div class="bulk-counts-row">
+        <div class="bulk-stat bulk-stat-ok">
+          <span class="bulk-stat-num">{{ bulk.createdCount }}</span>
+          <span class="bulk-stat-label">created</span>
+        </div>
+        <div class="bulk-stat bulk-stat-skip">
+          <span class="bulk-stat-num">{{ bulk.skippedCount }}</span>
+          <span class="bulk-stat-label">skipped</span>
+        </div>
+      </div>
+
+      <!-- Skipped entries list -->
+      <div class="info-section" *ngIf="bulk.skipped.length > 0">
+        <div class="section-label">
+          Skipped shifts
+          <span class="tally">{{ bulk.skipped.length }}</span>
+        </div>
+        <div class="violations-list">
+          <div class="violation-item violation-error"
+               *ngFor="let entry of bulk.skipped">
+            <span class="v-icon">🚫</span>
+            <div class="v-body">
+              <span class="v-rule">{{ entry.personName }}</span>
+              <span class="v-detail">{{ fmtUTC(entry.date) }} — {{ entry.reason }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <!-- ═══ SINGLE-SHIFT MODE ════════════════════════════════ -->
+    <ng-container *ngIf="!isBulk">
+
+      <!-- Requested shift summary -->
+      <div class="info-section">
+        <div class="section-label">Requested shift</div>
+        <div class="requested-row">
+          <i class="bi bi-person-fill"></i>
+          <span class="person-name">{{ info.personName }}</span>
+          <span class="time-range">{{ fmtUTC(info.requestedStart) }} – {{ fmtUTC(info.requestedEnd) }}</span>
+        </div>
+      </div>
+
+      <!-- Existing conflicting shift -->
+      <div class="info-section" *ngIf="info.conflictingShift">
+        <div class="section-label">Conflicts with existing shift</div>
+        <div class="existing-shift-card">
+          <div class="existing-row">
+            <i class="bi bi-clock"></i>
+            <span>{{ fmtUTC(info.conflictingShift.start) }} – {{ fmtUTC(info.conflictingShift.end) }}</span>
+          </div>
+          <div class="existing-row">
+            <i class="bi bi-geo-alt"></i>
+            <span>{{ info.conflictingShift.locationName }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Policy violations list -->
+      <div class="info-section" *ngIf="info.violations.length > 0">
+        <div class="section-label">
+          Policy violations
+          <span class="tally" *ngIf="errorCount > 0">{{ errorCount }} error{{ errorCount > 1 ? 's' : '' }}</span>
+          <span class="tally tally-warn" *ngIf="warningCount > 0">{{ warningCount }} warning{{ warningCount > 1 ? 's' : '' }}</span>
+        </div>
+        <div class="violations-list">
+          <div class="violation-item"
+               *ngFor="let v of info.violations"
+               [class.violation-error]="v.severity === 'error'"
+               [class.violation-warning]="v.severity === 'warning'">
+            <span class="v-icon">{{ v.severity === 'error' ? '🚫' : '⚠️' }}</span>
+            <div class="v-body">
+              <span class="v-rule">{{ v.rule }}</span>
+              <span class="v-detail">{{ v.detail }}</span>
+            </div>
+            <span class="v-badge" [class.badge-error]="v.severity === 'error'" [class.badge-warning]="v.severity === 'warning'">
+              {{ v.severity === 'error' ? 'Error' : 'Warning' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+  </div>
+
+  <!-- ── Footer ─────────────────────────────────────────────── -->
+  <div class="conflict-footer">
+    <p class="footer-hint" *ngIf="isBulk">
+      <i class="bi bi-info-circle"></i>
+      Skipped shifts were not created. Fix the conflicts in the grid and retry.
+    </p>
+    <p class="footer-hint" *ngIf="!isBulk && hasErrors">
+      <i class="bi bi-info-circle"></i>
+      Adjust the shift times or resolve conflicts before saving.
+    </p>
+    <p class="footer-hint footer-hint-warn" *ngIf="!isBulk && !hasErrors">
+      <i class="bi bi-exclamation-circle"></i>
+      This shift exceeds policy thresholds. Saving it will create a warning record.
+    </p>
+    <button class="btn btn-primary dismiss-btn" (click)="onDismiss()">Got it</button>
+  </div>
+
+</div>

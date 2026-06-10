@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discussions
+    url: https://github.com/williamag929/BaseShiftWork/discussions
+    about: For questions, ideas, and general discussion
+  - name: 🔒 Security Issue
+    url: https://github.com/williamag929/BaseShiftWork/security/advisories/new
+    about: Report a security vulnerability privately (do not create a public issue)
+  - name: 📖 Documentation
+    url: https://github.com/williamag929/BaseShiftWork#-documentation
+    about: Check our documentation for guides and best practices

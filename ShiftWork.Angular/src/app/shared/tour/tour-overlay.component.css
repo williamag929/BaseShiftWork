@@ -1,0 +1,214 @@
+/* ─────────────────────────────────────────────
+   Tour overlay — ViewEncapsulation.None
+   Styles here are intentionally global so that
+   .tour-highlighted can be applied to any element
+   in the DOM tree.
+───────────────────────────────────────────── */
+
+/* ── Backdrop ── */
+.tour-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.58);
+  z-index: 9000;
+  pointer-events: none; /* clicks still reach highlighted elements */
+  animation: tour-fade-in 0.25s ease;
+}
+
+@keyframes tour-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Tooltip card ── */
+.tour-tooltip {
+  position: fixed;
+  z-index: 9002;
+  width: 340px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.30),
+    0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 18px 20px 14px;
+  pointer-events: all;
+  animation: tour-card-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes tour-card-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+
+/* ── Header row ── */
+.tour-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+/* Progress dots */
+.tour-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.tour-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d1d5db;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.tour-dot.active {
+  background: #4f46e5;
+  transform: scale(1.25);
+}
+
+/* Close button */
+.tour-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: #f3f4f6;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #6b7280;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.tour-close-btn:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+/* ── Content ── */
+.tour-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px;
+  line-height: 1.3;
+}
+
+.tour-text {
+  font-size: 13.5px;
+  color: #4b5563;
+  line-height: 1.55;
+  margin: 0 0 14px;
+}
+
+/* ── Progress bar ── */
+.tour-progress-bar {
+  height: 3px;
+  background: #e5e7eb;
+  border-radius: 99px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.tour-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #4f46e5);
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+/* ── Actions row ── */
+.tour-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tour-nav-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-tour-skip {
+  font-size: 12px;
+  color: #9ca3af;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s;
+}
+
+.btn-tour-skip:hover {
+  color: #6b7280;
+}
+
+.btn-tour-back {
+  font-size: 13px;
+  color: #374151;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.btn-tour-back:hover {
+  background: #e5e7eb;
+}
+
+.btn-tour-next {
+  font-size: 13px;
+  color: #ffffff;
+  background: #4f46e5;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-tour-next:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+
+.btn-tour-next:active {
+  transform: translateY(0);
+}
+
+/* ── Step counter label ── */
+.tour-step-label {
+  text-align: right;
+  font-size: 11px;
+  color: #d1d5db;
+  margin-top: 10px;
+}
+
+/* ── Highlighted element ── */
+/*
+  Applied to the target DOM element while the tour step is active.
+  z-index must be above the backdrop (9000) so the element "pops out".
+*/
+.tour-highlighted {
+  position: relative !important;
+  z-index: 9001 !important;
+  outline: 3px solid #6366f1 !important;
+  outline-offset: 4px !important;
+  border-radius: 8px !important;
+  box-shadow:
+    0 0 0 6px rgba(99, 102, 241, 0.18),
+    0 4px 20px rgba(79, 70, 229, 0.25) !important;
+  transition:
+    outline 0.2s,
+    box-shadow 0.2s;
+  pointer-events: none;
+}

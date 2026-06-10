@@ -1,0 +1,215 @@
+<section class="overview-page">
+  <header class="overview-hero">
+    <div>
+      <p class="eyebrow">Operations Command</p>
+      <h1>Workforce Intelligence Dashboard</h1>
+      <p class="hero-subtitle">
+        {{ activeCompanyName }}: real-time visibility of attendance, GPS compliance, labor health, and location-level exceptions.
+      </p>
+    </div>
+
+    <div class="hero-actions">
+      <button mat-stroked-button class="refresh-button" (click)="refreshCurrentData()" [disabled]="!activeCompanyId || loading">
+        <mat-icon>autorenew</mat-icon>
+        Live Sync
+      </button>
+
+      <div class="time-pill">
+        <mat-icon>schedule</mat-icon>
+        <span>{{ now | date:'EEE, MMM d • h:mm a' }}</span>
+      </div>
+
+      <span class="loading-chip" *ngIf="loading">
+        <mat-icon>hourglass_top</mat-icon>
+        Refreshing data...
+      </span>
+
+      <div class="range-switcher" role="tablist" aria-label="Data range selector">
+        <button
+          type="button"
+          [class.active]="activeRange === '24h'"
+          (click)="setRange('24h')"
+        >
+          24h
+        </button>
+        <button
+          type="button"
+          [class.active]="activeRange === '7d'"
+          (click)="setRange('7d')"
+        >
+          7d
+        </button>
+        <button
+          type="button"
+          [class.active]="activeRange === '30d'"
+          (click)="setRange('30d')"
+        >
+          30d
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="kpi-grid" aria-label="Key metrics">
+    <article class="kpi-card" *ngFor="let metric of kpis">
+      <div class="kpi-header">
+        <div class="kpi-icon">
+          <mat-icon>{{ metric.icon }}</mat-icon>
+        </div>
+        <span class="kpi-trend" [class.up]="metric.trendUp" [class.down]="!metric.trendUp">{{ metric.trend }}</span>
+      </div>
+      <h3>{{ metric.value }}</h3>
+      <p class="kpi-label">{{ metric.label }}</p>
+      <p class="kpi-description">{{ metric.description }}</p>
+    </article>
+  </section>
+
+  <section class="insight-layout">
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <p class="panel-eyebrow">Shift Pulse</p>
+          <h2>Clock-in Activity</h2>
+        </div>
+        <button mat-stroked-button color="primary" routerLink="/dashboard/shiftsummaries">
+          Open Shift Summaries
+        </button>
+      </div>
+
+      <div class="activity-chart" role="img" aria-label="Hourly clock-in activity chart">
+        <div class="activity-bar-wrap" *ngFor="let point of hourlyActivity">
+          <div
+            class="activity-bar"
+            [style.height.%]="getActivityHeight(point)"
+            [attr.aria-label]="point.hour + ': ' + point.count + ' check-ins'"
+          ></div>
+          <span class="activity-count">{{ point.count }}</span>
+          <span class="activity-hour">{{ point.hour }}</span>
+        </div>
+      </div>
+
+      <div class="activity-footer">
+        <span><strong>Peak:</strong> {{ maxActivityCount }} check-ins/hour</span>
+        <span><strong>Trend:</strong> Late arrivals dropped 9% compared to last week</span>
+      </div>
+    </article>
+
+    <article class="panel notifications-panel">
+      <div class="panel-header">
+        <div>
+          <p class="panel-eyebrow">Action Queue</p>
+          <h2>Operational Alerts</h2>
+        </div>
+        <span class="notification-count">{{ notifications.length }} open</span>
+      </div>
+
+      <div class="notification-list">
+        <article class="notification-item" *ngFor="let item of notifications" [ngClass]="getLevelClass(item.level)">
+          <div class="notification-icon">
+            <mat-icon>{{ item.icon }}</mat-icon>
+          </div>
+          <div class="notification-content">
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.description }}</p>
+            <span>{{ item.ago }}</span>
+          </div>
+        </article>
+      </div>
+
+      <button mat-flat-button color="primary" routerLink="/dashboard/people-management">
+        Review Team Impact
+      </button>
+    </article>
+  </section>
+
+  <section class="location-layout" aria-label="Location health and GPS compliance">
+    <article class="panel location-panel">
+      <div class="panel-header">
+        <div>
+          <p class="panel-eyebrow">By Location</p>
+          <h2>GPS and Attendance Compliance</h2>
+        </div>
+        <button mat-stroked-button color="primary" routerLink="/dashboard/locations">
+          Manage Locations
+        </button>
+      </div>
+
+      <div class="location-list">
+        <article class="location-row" *ngFor="let location of locations" [ngClass]="getGpsRiskClass(location)">
+          <div class="location-main">
+            <h3>{{ location.name }}</h3>
+            <div class="location-stats">
+              <span><mat-icon>badge</mat-icon> {{ location.onShift }} on shift</span>
+              <span><mat-icon>alarm</mat-icon> {{ location.late }} late</span>
+              <span><mat-icon>report_problem</mat-icon> {{ location.geofenceBreaches }} breaches</span>
+            </div>
+          </div>
+
+          <div class="gps-ring" [style.background]="getComplianceBackground(location.gpsCompliance)">
+            <span>{{ location.gpsCompliance }}%</span>
+            <small>GPS</small>
+          </div>
+        </article>
+      </div>
+    </article>
+
+    <article class="panel quick-actions-panel">
+      <div class="panel-header">
+        <div>
+          <p class="panel-eyebrow">Next Moves</p>
+          <h2>Recommended Actions</h2>
+        </div>
+      </div>
+
+      <div class="actions-list">
+        <a class="action-link" routerLink="/dashboard/schedule-grid">
+          <mat-icon>view_comfy</mat-icon>
+          <div>
+            <h3>Balance schedules for overtime hotspots</h3>
+            <p>Auto-reassign 5 shifts with one-click optimization.</p>
+          </div>
+        </a>
+
+        <a class="action-link" routerLink="/dashboard/time-off-approvals">
+          <mat-icon>event_available</mat-icon>
+          <div>
+            <h3>Resolve pending PTO approvals</h3>
+            <p>3 requests are impacting coverage for tomorrow morning.</p>
+          </div>
+        </a>
+
+        <a class="action-link" routerLink="/dashboard/people">
+          <mat-icon>supervisor_account</mat-icon>
+          <div>
+            <h3>Coach frequent late arrivals</h3>
+            <p>4 employees exceeded lateness threshold this week.</p>
+          </div>
+        </a>
+      </div>
+    </article>
+  </section>
+
+  <section class="next-version-panel panel" aria-label="Recommended features for next dashboard version">
+    <div class="panel-header">
+      <div>
+        <p class="panel-eyebrow">Roadmap</p>
+        <h2>Recommended Features For Next Version</h2>
+      </div>
+    </div>
+
+    <div class="next-version-grid">
+      <article class="next-feature-card" *ngFor="let feature of upcomingFeatures">
+        <div class="next-feature-head">
+          <div class="next-feature-icon">
+            <mat-icon>{{ feature.icon }}</mat-icon>
+          </div>
+          <span class="next-feature-eta">{{ feature.eta }}</span>
+        </div>
+
+        <h3>{{ feature.title }}</h3>
+        <p class="next-feature-summary">{{ feature.summary }}</p>
+        <p class="next-feature-impact"><strong>Expected impact:</strong> {{ feature.impact }}</p>
+      </article>
+    </div>
+  </section>
+</section>

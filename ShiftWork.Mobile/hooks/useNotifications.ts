@@ -21,10 +21,10 @@ export function useNotifications(): UseNotificationsReturn {
   const [error, setError] = useState<string | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
 
-  const notificationListener = useRef<Notifications.Subscription>();
-  const responseListener = useRef<Notifications.Subscription>();
+  const notificationListener = useRef<Notifications.Subscription | undefined>(undefined);
+  const responseListener = useRef<Notifications.Subscription | undefined>(undefined);
 
-  const { companyId, personId } = useAuthStore();
+  const { companyId, personId, setDeviceToken } = useAuthStore();
 
   useEffect(() => {
     if (!companyId || !personId) {
@@ -38,7 +38,8 @@ export function useNotifications(): UseNotificationsReturn {
         
         if (token) {
           setExpoPushToken(token);
-          
+          setDeviceToken(token);
+
           // Save token to backend
           await notificationService.saveDeviceToken(String(companyId), personId, token);
           setIsRegistered(true);
@@ -83,10 +84,10 @@ export function useNotifications(): UseNotificationsReturn {
     // Cleanup listeners on unmount
     return () => {
       if (notificationListener.current) {
-        Notifications.removeNotificationSubscription(notificationListener.current);
+        notificationListener.current.remove();
       }
       if (responseListener.current) {
-        Notifications.removeNotificationSubscription(responseListener.current);
+        responseListener.current.remove();
       }
     };
   }, [companyId, personId]);

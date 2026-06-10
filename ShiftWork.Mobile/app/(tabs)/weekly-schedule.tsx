@@ -8,16 +8,21 @@ import {
   RefreshControl,
   AppState,
   AppStateStatus,
+  Modal,
 } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from '@/store/authStore';
 import { scheduleService } from '@/services';
 import { peopleService } from '@/services/people.service';
-import { formatDate, formatTime } from '@/utils/date.utils';
+import { formatDate, formatTime, formatScheduleTime } from '@/utils/date.utils';
+import { logger } from '@/utils/logger';
 import type { ScheduleShiftDto } from '@/types/api';
 import * as Notifications from 'expo-notifications';
 import { notificationService } from '@/services/notification.service';
+import { Ionicons } from '@expo/vector-icons';
+import { Badge, EmptyState } from '@/components/ui';
+import { colors } from '@/styles/theme';
 
 interface DaySchedule {
   date: Date;
@@ -26,7 +31,7 @@ interface DaySchedule {
 }
 
 export default function WeeklyScheduleScreen() {
-  const { companyId, personId, personFirstName, personLastName } = useAuthStore();
+  const { companyId, personId, name: personName } = useAuthStore();
   const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
   
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(getWeekStart(new Date()));
@@ -36,8 +41,9 @@ export default function WeeklyScheduleScreen() {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [silentRefreshing, setSilentRefreshing] = useState(false);
+  const [selectedShift, setSelectedShift] = useState<ScheduleShiftDto | null>(null);
   
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const notificationListenerRef = useRef<Notifications.Subscription | null>(null);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 
@@ -49,12 +55,11 @@ export default function WeeklyScheduleScreen() {
   useEffect(() => {
     (async () => {
       try {
-        if (companyId && personId && (!personFirstName || !personLastName)) {
+        if (companyId && personId && !personName) {
           const person = await peopleService.getPersonById(companyId, personId);
           if (person) {
             setPersonProfile({
-              firstName: person.firstName ?? null,
-              lastName: person.lastName ?? null,
+              name: person.name ?? null,
               email: person.email ?? null,
             });
           }
@@ -74,7 +79,7 @@ export default function WeeklyScheduleScreen() {
       }
       pollingIntervalRef.current = setInterval(() => {
         if (appStateRef.current === 'active') {
-          console.log('Background polling: refreshing schedule...');
+          logger.log('[Schedule] Background polling: refreshing...');
           setSilentRefreshing(true);
           loadWeekSchedule(true).finally(() => {
             setTimeout(() => setSilentRefreshing(false), 1000);
@@ -92,7 +97,7 @@ export default function WeeklyScheduleScreen() {
         if (data?.type === 'schedule_published' || 
             data?.type === 'shift_assigned' || 
             data?.type === 'shift_changed') {
-          console.log('Schedule update notification received, refreshing...');
+          logger.log('[Schedule] Update notification received, refreshing...');
           setSilentRefreshing(true);
           loadWeekSchedule(true).finally(() => {
             setTimeout(() => setSilentRefreshing(false), 1000);
@@ -105,7 +110,7 @@ export default function WeeklyScheduleScreen() {
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (appStateRef.current.match(/inactive|background/) && nextAppState === 'active') {
         // App came to foreground, refresh schedule
-        console.log('App resumed, refreshing schedule...');
+        logger.log('App resumed, refreshing schedule...');
         setSilentRefreshing(true);
         loadWeekSchedule(true).finally(() => {
           setTimeout(() => setSilentRefreshing(false), 1000);
@@ -119,7 +124,7 @@ export default function WeeklyScheduleScreen() {
         clearInterval(pollingIntervalRef.current);
       }
       if (notificationListenerRef.current) {
-        Notifications.removeNotificationSubscription(notificationListenerRef.current);
+        notificationListenerRef.current.remove();
       }
       subscription.remove();
     };
@@ -188,12 +193,13 @@ export default function WeeklyScheduleScreen() {
       
       publishedShifts.forEach((shift: ScheduleShiftDto) => {
         const shiftDate = new Date(shift.startDate as Date);
-        shiftDate.setHours(0, 0, 0, 0);
         
         const dayIndex = days.findIndex(day => {
           const d = new Date(day.date);
-          d.setHours(0, 0, 0, 0);
-          return d.getTime() === shiftDate.getTime();
+          // Compare using UTC date components since schedule times are stored as wall-clock UTC
+          return d.getFullYear() === shiftDate.getUTCFullYear()
+            && d.getMonth() === shiftDate.getUTCMonth()
+            && d.getDate() === shiftDate.getUTCDate();
         });
         
         if (dayIndex >= 0) {
@@ -204,7 +210,7 @@ export default function WeeklyScheduleScreen() {
       setWeekSchedule(days);
       setLastUpdate(new Date());
     } catch (err: any) {
-      console.error('Error loading week schedule:', err);
+      logger.error('Error loading week schedule:', err);
       if (!silent) {
         setError(err.message || 'Failed to load schedule');
       }
@@ -263,7 +269,7 @@ export default function WeeklyScheduleScreen() {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          tintColor="#4A90E2"
+          tintColor={colors.primary}
           title="Pull to refresh"
         />
       }
@@ -316,7 +322,7 @@ export default function WeeklyScheduleScreen() {
 
       {loading && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4A90E2" />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>Loading schedule...</Text>
         </View>
       )}
@@ -324,7 +330,7 @@ export default function WeeklyScheduleScreen() {
       {!loading && error && (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity onPress={loadWeekSchedule} style={styles.retryButton}>
+          <TouchableOpacity onPress={() => loadWeekSchedule()} style={styles.retryButton}>
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -357,15 +363,21 @@ export default function WeeklyScheduleScreen() {
 
               {day.shifts.length === 0 ? (
                 <View style={styles.noShifts}>
+                  <Ionicons name="calendar-outline" size={18} color="#9AA6B2" />
                   <Text style={styles.noShiftsText}>No shifts</Text>
                 </View>
               ) : (
                 <View style={styles.shifts}>
                   {day.shifts.map((shift) => (
-                    <View key={shift.scheduleShiftId} style={styles.shiftCard}>
+                    <TouchableOpacity
+                      key={shift.scheduleShiftId}
+                      style={styles.shiftCard}
+                      onPress={() => setSelectedShift(shift)}
+                      activeOpacity={0.9}
+                    >
                       <View style={styles.shiftTime}>
                         <Text style={styles.shiftTimeText}>
-                          {formatTime(shift.startDate)} - {formatTime(shift.endDate)}
+                          {formatScheduleTime(shift.startDate)} - {formatScheduleTime(shift.endDate)}
                         </Text>
                         <Text style={styles.shiftHours}>
                           {calculateShiftHours(shift)}h
@@ -377,9 +389,10 @@ export default function WeeklyScheduleScreen() {
                         </Text>
                       )}
                       <View style={styles.shiftFooter}>
-                        <Text style={styles.shiftStatus}>{shift.status}</Text>
+                        <Badge label={shift.status} tone="success" />
+                        <Ionicons name="chevron-forward" size={16} color="#9AA6B2" />
                       </View>
-                    </View>
+                    </TouchableOpacity>
                   ))}
                 </View>
               )}
@@ -387,6 +400,62 @@ export default function WeeklyScheduleScreen() {
           ))}
         </View>
       )}
+      {!loading && !error && weekSchedule.length === 0 && (
+        <EmptyState
+          title="No shifts scheduled"
+          message="Check back later or contact your manager."
+          icon="calendar-clear-outline"
+        />
+      )}
+
+      <Modal
+        visible={!!selectedShift}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSelectedShift(null)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Shift Details</Text>
+              <TouchableOpacity onPress={() => setSelectedShift(null)}>
+                <Ionicons name="close" size={20} color="#4A4A4A" />
+              </TouchableOpacity>
+            </View>
+
+            {selectedShift && (
+              <View style={styles.modalBody}>
+                <View style={styles.modalRow}>
+                  <Text style={styles.modalLabel}>Date</Text>
+                  <Text style={styles.modalValue}>{formatDate(selectedShift.startDate)}</Text>
+                </View>
+                <View style={styles.modalRow}>
+                  <Text style={styles.modalLabel}>Time</Text>
+                  <Text style={styles.modalValue}>{formatScheduleTime(selectedShift.startDate)} - {formatScheduleTime(selectedShift.endDate)}</Text>
+                </View>
+                <View style={styles.modalRow}>
+                  <Text style={styles.modalLabel}>Duration</Text>
+                  <Text style={styles.modalValue}>{calculateShiftHours(selectedShift)}h</Text>
+                </View>
+                <View style={styles.modalRow}>
+                  <Text style={styles.modalLabel}>Status</Text>
+                  <Text style={styles.modalValue}>{selectedShift.status}</Text>
+                </View>
+                {selectedShift.notes && (
+                  <View style={styles.modalRowColumn}>
+                    <Text style={styles.modalLabel}>Notes</Text>
+                    <Text style={styles.modalValue}>{selectedShift.notes}</Text>
+                  </View>
+                )}
+              </View>
+            )}
+
+            <TouchableOpacity style={styles.modalClose} onPress={() => setSelectedShift(null)}>
+              <Text style={styles.modalCloseText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -394,10 +463,10 @@ export default function WeeklyScheduleScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: colors.primary,
     padding: 20,
     paddingTop: 60,
     paddingBottom: 24,
@@ -472,24 +541,24 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    color: '#666',
+    color: colors.muted,
     fontSize: 16,
   },
   errorContainer: {
     padding: 20,
     margin: 16,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderRadius: 12,
     alignItems: 'center',
   },
   errorText: {
-    color: '#E74C3C',
+    color: colors.danger,
     fontSize: 16,
     marginBottom: 16,
     textAlign: 'center',
   },
   retryButton: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -504,7 +573,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   dayCard: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderRadius: 12,
     overflow: 'hidden',
     elevation: 2,
@@ -515,39 +584,40 @@ const styles = StyleSheet.create({
   },
   dayCardToday: {
     borderWidth: 2,
-    borderColor: '#4A90E2',
+    borderColor: colors.primary,
   },
   dayHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    borderBottomColor: colors.border,
   },
   dayName: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
   },
   dayNameToday: {
-    color: '#4A90E2',
+    color: colors.primary,
   },
   dayDate: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#666',
+    color: colors.muted,
   },
   dayDateToday: {
-    color: '#4A90E2',
+    color: colors.primary,
   },
   noShifts: {
     padding: 24,
     alignItems: 'center',
+    gap: 6,
   },
   noShiftsText: {
-    color: '#999',
+    color: colors.muted,
     fontSize: 14,
     fontStyle: 'italic',
   },
@@ -556,11 +626,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   shiftCard: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
     padding: 12,
     borderRadius: 8,
     borderLeftWidth: 4,
-    borderLeftColor: '#27AE60',
+    borderLeftColor: colors.success,
   },
   shiftTime: {
     flexDirection: 'row',
@@ -571,16 +641,16 @@ const styles = StyleSheet.create({
   shiftTimeText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
   },
   shiftHours: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#4A90E2',
+    color: colors.primary,
   },
   shiftNotes: {
     fontSize: 14,
-    color: '#666',
+    color: colors.muted,
     marginTop: 4,
     marginBottom: 8,
   },
@@ -589,11 +659,60 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  shiftStatus: {
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 16,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  modalBody: {
+    gap: 10,
+  },
+  modalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  modalRowColumn: {
+    gap: 6,
+  },
+  modalLabel: {
     fontSize: 12,
-    color: '#27AE60',
+    color: '#7A8796',
     fontWeight: '600',
     textTransform: 'uppercase',
+  },
+  modalValue: {
+    fontSize: 14,
+    color: colors.text,
+    fontWeight: '600',
+  },
+  modalClose: {
+    marginTop: 16,
+    backgroundColor: colors.primary,
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalCloseText: {
+    color: '#fff',
+    fontWeight: '600',
   },
   updateRow: {
     flexDirection: 'row',
@@ -612,7 +731,7 @@ const styles = StyleSheet.create({
   },
   syncText: {
     fontSize: 12,
-    color: '#4A90E2',
+    color: colors.primary,
     fontWeight: '500',
   },
 });

@@ -10,6 +10,7 @@ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { environment } from 'src/environments/environment';
+import { TourService } from 'src/app/shared/tour/tour.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -42,7 +43,8 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
     private authService: AuthService,
     private store: Store<AppState>,
     private router: Router,
-    private peopleService: PeopleService
+    private peopleService: PeopleService,
+    public tourService: TourService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
     this.user$ = this.authService.user$;
@@ -87,6 +89,11 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
         this.sidenav.close();
       }
     });
+
+    // Auto-start tour for first-time users
+    if (this.tourService.shouldAutoStart()) {
+      setTimeout(() => this.tourService.startTour(), 800);
+    }
   }
 
   refreshStatus(): void {

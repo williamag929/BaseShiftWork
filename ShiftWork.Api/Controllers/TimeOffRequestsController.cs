@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -38,6 +39,7 @@ namespace ShiftWork.Api.Controllers
         /// Get all time off requests for a company with optional filters
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "timeoff-requests.read")]
         [ProducesResponseType(typeof(IEnumerable<TimeOffRequestDto>), 200)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<IEnumerable<TimeOffRequestDto>>> GetTimeOffRequests(
@@ -113,6 +115,7 @@ namespace ShiftWork.Api.Controllers
         /// Get a specific time off request by ID
         /// </summary>
         [HttpGet("{requestId}")]
+        [Authorize(Policy = "timeoff-requests.read")]
         [ProducesResponseType(typeof(TimeOffRequestDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -167,6 +170,7 @@ namespace ShiftWork.Api.Controllers
         /// Create a new time off request
         /// </summary>
         [HttpPost]
+        [Authorize(Policy = "timeoff-requests.create")]
         [ProducesResponseType(typeof(TimeOffRequestDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -256,6 +260,7 @@ namespace ShiftWork.Api.Controllers
         /// Approve or deny a time off request
         /// </summary>
         [HttpPatch("{requestId}/approve")]
+        [Authorize(Policy = "timeoff-requests.approve")]
         [ProducesResponseType(typeof(TimeOffRequestDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
@@ -398,6 +403,7 @@ namespace ShiftWork.Api.Controllers
         /// Cancel a time off request (only if pending or by the requester)
         /// </summary>
         [HttpDelete("{requestId}")]
+        [Authorize(Policy = "timeoff-requests.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]

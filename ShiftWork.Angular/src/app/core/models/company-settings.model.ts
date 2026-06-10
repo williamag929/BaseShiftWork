@@ -76,4 +76,5 @@ export interface CompanySettings {
   showEmployeePhotosOnKiosk: boolean;
   kioskTimeout: number;
   allowQuestionResponsesOnClockIn: boolean;
+  kioskAdminPassword?: string; // Only used when updating, never returned from GET
 }

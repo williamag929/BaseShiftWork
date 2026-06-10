@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -20,6 +21,9 @@ namespace ShiftWork.Api.Controllers
     public class ScheduleShiftsController : ControllerBase
     {
         private readonly IScheduleShiftService _scheduleShiftService;
+        private readonly ICompanySettingsService _settingsService;
+        private readonly IScheduleValidationService _validationService;
+        private readonly PushNotificationService _pushService;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<ScheduleShiftsController> _logger;
@@ -27,9 +31,12 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="ScheduleShiftsController"/> class.
         /// </summary>
-        public ScheduleShiftsController(IScheduleShiftService scheduleShiftService, IMapper mapper, IMemoryCache memoryCache, ILogger<ScheduleShiftsController> logger)
+        public ScheduleShiftsController(IScheduleShiftService scheduleShiftService, ICompanySettingsService settingsService, IScheduleValidationService validationService, PushNotificationService pushService, IMapper mapper, IMemoryCache memoryCache, ILogger<ScheduleShiftsController> logger)
         {
             _scheduleShiftService = scheduleShiftService ?? throw new ArgumentNullException(nameof(scheduleShiftService));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
+            _pushService = pushService ?? throw new ArgumentNullException(nameof(pushService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -39,6 +46,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves all schedule shifts for a company.
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "schedule-shifts.read")]
         [ProducesResponseType(typeof(IEnumerable<ScheduleShiftDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -76,9 +84,72 @@ namespace ShiftWork.Api.Controllers
         }
 
         /// <summary>
+        /// Retrieves schedule shifts for a company with pagination and optional filters.
+        /// </summary>
+        [HttpGet("paged")]
+        [Authorize(Policy = "schedule-shifts.read")]
+        [ProducesResponseType(typeof(PagedResultDto<ScheduleShiftDto>), 200)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<PagedResultDto<ScheduleShiftDto>>> GetScheduleShiftsPaged(
+            string companyId,
+            [FromQuery] int? personId,
+            [FromQuery] int? locationId,
+            [FromQuery] int? areaId,
+            [FromQuery] string? startDate,
+            [FromQuery] string? endDate,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 200)
+        {
+            try
+            {
+                if (page < 1) page = 1;
+                if (pageSize < 1) pageSize = 200;
+                if (pageSize > 1000) pageSize = 1000;
+
+                DateTime? startDateTime = null;
+                if (!string.IsNullOrEmpty(startDate) && DateTime.TryParse(startDate, out var parsedStartDate))
+                {
+                    startDateTime = parsedStartDate;
+                }
+
+                DateTime? endDateTime = null;
+                if (!string.IsNullOrEmpty(endDate) && DateTime.TryParse(endDate, out var parsedEndDate))
+                {
+                    endDateTime = parsedEndDate;
+                }
+
+                var (items, totalCount) = await _scheduleShiftService.GetPaged(
+                    companyId,
+                    personId,
+                    locationId,
+                    areaId,
+                    startDateTime,
+                    endDateTime,
+                    page,
+                    pageSize);
+
+                var result = new PagedResultDto<ScheduleShiftDto>
+                {
+                    Items = _mapper.Map<IEnumerable<ScheduleShiftDto>>(items),
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving paged schedule shifts for company {CompanyId}.", companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
         /// Retrieves a specific schedule shift by its ID.
         /// </summary>
         [HttpGet("{shiftId}")]
+        [Authorize(Policy = "schedule-shifts.read")]
         [ProducesResponseType(typeof(ScheduleShiftDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -118,6 +189,7 @@ namespace ShiftWork.Api.Controllers
         /// Creates a new schedule shift.
         /// </summary>
         [HttpPost]
+        [Authorize(Policy = "schedule-shifts.create")]
         [ProducesResponseType(typeof(ScheduleShiftDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -130,12 +202,33 @@ namespace ShiftWork.Api.Controllers
 
             try
             {
+                var settings = await _settingsService.GetOrCreateSettings(companyId);
                 var scheduleShift = _mapper.Map<ScheduleShift>(scheduleShiftDto);
+
+                var validation = await _validationService.ValidateScheduleShift(companyId, scheduleShift, scheduleShiftDto.PersonId);
+                if (validation.Errors.Any() || validation.Warnings.Any())
+                {
+                    return BadRequest(new { errors = validation.Errors, warnings = validation.Warnings });
+                }
+
+                if (settings.AutoApproveShifts)
+                {
+                    if (string.IsNullOrWhiteSpace(scheduleShift.Status) || scheduleShift.Status.Equals("unpublished", StringComparison.OrdinalIgnoreCase))
+                    {
+                        scheduleShift.Status = "Published";
+                    }
+                }
                 var createdScheduleShift = await _scheduleShiftService.Add(scheduleShift);
 
                 if (createdScheduleShift == null)
                 {
                     return BadRequest("Failed to create schedule shift.");
+                }
+
+                if (createdScheduleShift.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    _ = _pushService.NotifyShiftAssignedAsync(
+                        companyId, createdScheduleShift.PersonId, createdScheduleShift.ScheduleShiftId, createdScheduleShift.StartDate);
                 }
 
                 _memoryCache.Remove($"schedule_shifts_{companyId}");
@@ -154,6 +247,7 @@ namespace ShiftWork.Api.Controllers
         /// Updates an existing schedule shift.
         /// </summary>
         [HttpPut("{shiftId}")]
+        [Authorize(Policy = "schedule-shifts.update")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -172,13 +266,39 @@ namespace ShiftWork.Api.Controllers
 
             try
             {
+                var settings = await _settingsService.GetOrCreateSettings(companyId);
                 var scheduleShift = _mapper.Map<ScheduleShift>(scheduleShiftDto);
+
+                var validation = await _validationService.ValidateScheduleShift(companyId, scheduleShift, scheduleShiftDto.PersonId, shiftId);
+                if (validation.Errors.Any() || validation.Warnings.Any())
+                {
+                    return BadRequest(new { errors = validation.Errors, warnings = validation.Warnings });
+                }
+
+                var existingShift = await _scheduleShiftService.Get(companyId, shiftId);
+                bool wasPublished = existingShift?.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) ?? false;
+
+                if (settings.AutoApproveShifts)
+                {
+                    if (string.IsNullOrWhiteSpace(scheduleShift.Status) || scheduleShift.Status.Equals("unpublished", StringComparison.OrdinalIgnoreCase))
+                    {
+                        scheduleShift.Status = "Published";
+                    }
+                }
                 var updatedScheduleShift = await _scheduleShiftService.Update(scheduleShift);
 
                 if (updatedScheduleShift == null)
                 {
                     return NotFound($"Schedule shift with ID {shiftId} not found.");
                 }
+
+                bool justPublished = !wasPublished && (updatedScheduleShift.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) ?? false);
+                if (justPublished)
+                {
+                    _ = _pushService.NotifyShiftAssignedAsync(
+                        companyId, updatedScheduleShift.PersonId, updatedScheduleShift.ScheduleShiftId, updatedScheduleShift.StartDate);
+                }
+
                 _mapper.Map(scheduleShiftDto, updatedScheduleShift);
                 _memoryCache.Remove($"schedule_shifts_{companyId}");
                 _memoryCache.Remove($"schedule_shift_{companyId}_{shiftId}");
@@ -196,6 +316,7 @@ namespace ShiftWork.Api.Controllers
         /// Deletes a schedule shift by its ID.
         /// </summary>
         [HttpDelete("{shiftId}")]
+        [Authorize(Policy = "schedule-shifts.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

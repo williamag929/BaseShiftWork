@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -23,22 +24,25 @@ namespace ShiftWork.Api.Controllers
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<LocationsController> _logger;
+        private readonly IWebhookService _webhookService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LocationsController"/> class.
         /// </summary>
-        public LocationsController(ILocationService locationService, IMapper mapper, IMemoryCache memoryCache, ILogger<LocationsController> logger)
+        public LocationsController(ILocationService locationService, IMapper mapper, IMemoryCache memoryCache, ILogger<LocationsController> logger, IWebhookService webhookService)
         {
             _locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _webhookService = webhookService ?? throw new ArgumentNullException(nameof(webhookService));
         }
 
         /// <summary>
         /// Retrieves all locations for a company.
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "locations.read")]
         [ProducesResponseType(typeof(IEnumerable<LocationDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -78,6 +82,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves a specific location by its ID.
         /// </summary>
         [HttpGet("{locationId}")]
+        [Authorize(Policy = "locations.read")]
         [ProducesResponseType(typeof(LocationDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -117,6 +122,7 @@ namespace ShiftWork.Api.Controllers
         /// Creates a new location.
         /// </summary>
         [HttpPost]
+        [Authorize(Policy = "locations.create")]
         [ProducesResponseType(typeof(LocationDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -140,6 +146,16 @@ namespace ShiftWork.Api.Controllers
                 _memoryCache.Remove($"locations_{companyId}");
                 var createdLocationDto = _mapper.Map<LocationDto>(createdLocation);
 
+                // Trigger webhook for location.created event (non-blocking with timeout)
+                try
+                {
+                    await _webhookService.SendWebhookAsync(WebhookEventType.LocationCreated, createdLocationDto);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send webhook for location.created event. LocationId: {LocationId}", createdLocation.LocationId);
+                }
+
                 return CreatedAtAction(nameof(GetLocation), new { companyId, locationId = createdLocation.LocationId }, createdLocationDto);
             }
             catch (Exception ex)
@@ -153,6 +169,7 @@ namespace ShiftWork.Api.Controllers
         /// Updates an existing location.
         /// </summary>
         [HttpPut("{locationId}")]
+        [Authorize(Policy = "locations.update")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -184,7 +201,19 @@ namespace ShiftWork.Api.Controllers
                 _memoryCache.Remove($"locations_{companyId}");
                 _memoryCache.Remove($"location_{companyId}_{locationId}");
 
-                return Ok(_mapper.Map<LocationDto>(updatedLocation));
+                var updatedLocationDto = _mapper.Map<LocationDto>(updatedLocation);
+
+                // Trigger webhook for location.updated event (non-blocking with timeout)
+                try
+                {
+                    await _webhookService.SendWebhookAsync(WebhookEventType.LocationUpdated, updatedLocationDto);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send webhook for location.updated event. LocationId: {LocationId}", locationId);
+                }
+
+                return Ok(updatedLocationDto);
             }
             catch (Exception ex)
             {
@@ -197,6 +226,7 @@ namespace ShiftWork.Api.Controllers
         /// Deletes a location by its ID.
         /// </summary>
         [HttpDelete("{locationId}")]
+        [Authorize(Policy = "locations.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

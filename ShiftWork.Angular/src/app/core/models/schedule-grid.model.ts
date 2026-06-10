@@ -1,5 +1,11 @@
 // Schedule Grid specific interfaces
 
+/** View mode for the schedule grid location dropdown */
+export type ViewMode = 'single' | 'grouped' | 'all';
+
+/** Horizon range for the schedule grid – how many days are shown at once */
+export type HorizonRange = 'week' | '2-weeks' | '3-weeks' | '4-weeks';
+
 export interface TeamMember {
   personId: number;
   initials: string;
@@ -16,10 +22,13 @@ export interface ShiftBlock {
   endTime: string; // e.g., "3:30pm"
   startDate: Date;
   endDate: Date;
+  locationId?: number;
   locationName?: string;
   areaName?: string;
-  status: 'published' | 'unpublished' | 'locked' | 'open';
+  status: 'published' | 'unpublished' | 'locked' | 'open' | 'void';
   isLocked?: boolean;
+  voidedBy?: string;
+  voidedAt?: Date;
   // UI helpers
   isOnShiftNow?: boolean; // true when person is currently OnShift and within this block's time window
   isCompleted?: boolean;  // true when the shift's end time is in the past (completed)
@@ -30,6 +39,14 @@ export interface DaySchedule {
   dayName: string; // e.g., "Wed 5"
   unavailableCount: number;
   shifts: ShiftBlock[];
+}
+
+/** A location section for grouped view mode */
+export interface LocationGroup {
+  locationId: number;
+  locationName: string;
+  teamMembers: TeamMember[];
+  days: DaySchedule[];
 }
 
 export interface ScheduleGridData {

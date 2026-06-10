@@ -19,6 +19,12 @@
         </div>
         <app-analog-clock class="analog-clock"></app-analog-clock>
       </div>
+      
+      <!-- Settings icon for location change -->
+      <button mat-icon-button class="settings-btn" (click)="openLocationSettings()" *ngIf="selectedLocation" 
+              title="Change Location" aria-label="Change device location">
+        <i class="fa fa-cog"></i>
+      </button>
     </div>
   </header>
 

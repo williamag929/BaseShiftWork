@@ -7,6 +7,11 @@ namespace ShiftWork.Api.DTOs
         public string Email { get; set; }
         public string CompanyId { get; set; }
         public string? Pin { get; set; }
+        /// <summary>
+        /// Write-only: plain-text password to set for mobile app login.
+        /// Never included in API responses — only accepted on create/update.
+        /// </summary>
+        public string? Password { get; set; }
         public string? Address { get; set; }
         public string? City { get; set; }
         public string? State { get; set; }

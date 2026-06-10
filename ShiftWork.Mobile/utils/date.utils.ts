@@ -18,7 +18,7 @@ export const formatDate = (date: Date | string): string => {
 };
 
 /**
- * Format time for display
+ * Format time for display (local timezone — use for real UTC instants like clock-in/out)
  */
 export const formatTime = (date: Date | string): string => {
   const d = typeof date === 'string' ? new Date(date) : date;
@@ -27,6 +27,43 @@ export const formatTime = (date: Date | string): string => {
     minute: '2-digit',
     hour12: true,
   });
+};
+
+/**
+ * Returns the short timezone abbreviation for an IANA ID (e.g. "EST", "JST").
+ * Returns '' for unknown or invalid IDs.
+ */
+export const getTimeZoneLabel = (ianaId: string): string => {
+  try {
+    const parts = Intl.DateTimeFormat('en-US', {
+      timeZone: ianaId,
+      timeZoneName: 'short',
+    }).formatToParts(new Date());
+    return parts.find(p => p.type === 'timeZoneName')?.value ?? '';
+  } catch {
+    return '';
+  }
+};
+
+/**
+ * Format schedule time for display (reads UTC hours as wall-clock time).
+ * Schedule times are stored as UTC where the UTC value IS the intended local time.
+ * Use this for ScheduleShift.startDate / endDate.
+ * Optionally pass the company's IANA timezone ID to append the timezone abbreviation (e.g. "9:00 AM EST").
+ */
+export const formatScheduleTime = (date: Date | string, timeZoneId?: string): string => {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const hours = d.getUTCHours();
+  const minutes = d.getUTCMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHours = hours % 12 || 12;
+  const displayMinutes = minutes.toString().padStart(2, '0');
+  const formatted = `${displayHours}:${displayMinutes} ${ampm}`;
+  if (timeZoneId) {
+    const label = getTimeZoneLabel(timeZoneId);
+    return label ? `${formatted} ${label}` : formatted;
+  }
+  return formatted;
 };
 
 /**
@@ -72,6 +109,44 @@ export const getEndOfWeek = (date: Date): Date => {
   const endOfWeek = new Date(startOfWeek);
   endOfWeek.setDate(startOfWeek.getDate() + 6);
   return getEndOfDay(endOfWeek);
+};
+
+/**
+ * Get start of day in UTC
+ */
+export const getStartOfDayUTC = (date: Date): Date => {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+};
+
+/**
+ * Get end of day in UTC
+ */
+export const getEndOfDayUTC = (date: Date): Date => {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 23, 59, 59, 999));
+};
+
+/**
+ * Get start of week (Sunday) in UTC
+ */
+export const getStartOfWeekUTC = (date: Date): Date => {
+  const day = date.getUTCDay();
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() - day));
+};
+
+/**
+ * Get end of week (Saturday) in UTC
+ */
+export const getEndOfWeekUTC = (date: Date): Date => {
+  const startOfWeekUtc = getStartOfWeekUTC(date);
+  return new Date(Date.UTC(
+    startOfWeekUtc.getUTCFullYear(),
+    startOfWeekUtc.getUTCMonth(),
+    startOfWeekUtc.getUTCDate() + 6,
+    23,
+    59,
+    59,
+    999
+  ));
 };
 
 /**

@@ -1,22 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
-import { Role } from 'src/app/core/models/role.model';
-import { RoleService } from 'src/app/core/services/role.service';
-import { ToastrService } from 'ngx-toastr';
-import { ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { Observable, forkJoin } from 'rxjs';
 import { Store } from '@ngrx/store';
+import { ToastrService } from 'ngx-toastr';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
-import { Observable } from 'rxjs';
+import { Role } from 'src/app/core/models/role.model';
+import { RoleService } from 'src/app/core/services/role.service';
+import { PeopleService } from 'src/app/core/services/people.service';
+import { People } from 'src/app/core/models/people.model';
+import { CompanyUserProfileService } from 'src/app/core/services/company-user-profile.service';
+import { AssignRoleToPersonRequest } from 'src/app/core/models/company-user-profile.model';
 
 @Component({
   selector: 'app-profiles',
   templateUrl: './profiles.component.html',
   styleUrls: ['./profiles.component.css'],
-  imports: [ReactiveFormsModule,CommonModule],
-  standalone: true
+  standalone: false
 })
+
 export class ProfilesComponent implements OnInit {
   roles: Role[] = [];
   roleForm!: FormGroup;
@@ -26,19 +28,42 @@ export class ProfilesComponent implements OnInit {
   loading = false;
   error: any = null;
 
+  assignPanelOpen = false;
+  assignPanelRole: Role | null = null;
+  people: People[] = [];
+  assignedUserIds: number[] = [];
+
   availablePermissions: { [key: string]: string[] } = {
-    Profiles: ['List', 'Edit', 'Delete'],
-    People: ['List', 'Edit', 'Delete'],
-    Areas: ['List', 'Edit', 'Delete'],
-    Locations: ['List', 'Edit', 'Delete'],
-    Schedule: ['List', 'Edit', 'Delete'],
-    Tasks: ['List', 'Edit', 'Delete'],
+    'People':               ['people.read', 'people.create', 'people.update', 'people.delete'],
+    'Schedules':            ['schedules.read', 'schedules.create', 'schedules.update', 'schedules.delete'],
+    'Schedule Shifts':      ['schedule-shifts.read', 'schedule-shifts.create', 'schedule-shifts.update', 'schedule-shifts.delete'],
+    'Shift Events':         ['shift-events.read', 'shift-events.create', 'shift-events.update', 'shift-events.delete'],
+    'Crews':                ['crews.read', 'crews.create', 'crews.update', 'crews.delete', 'crews.assign'],
+    'Locations':            ['locations.read', 'locations.create', 'locations.update', 'locations.delete'],
+    'Areas':                ['areas.read', 'areas.create', 'areas.update', 'areas.delete'],
+    'Tasks':                ['tasks.read', 'tasks.create', 'tasks.update', 'tasks.delete'],
+    'Roles':                ['roles.read', 'roles.create', 'roles.update', 'roles.delete', 'roles.permissions.update'],
+    'Permissions':          ['permissions.read'],
+    'Company Users':        ['company-users.read', 'company-users.update', 'company-users.roles.update', 'company-users.profile.update'],
+    'Time Off':             ['timeoff-requests.read', 'timeoff-requests.create', 'timeoff-requests.approve', 'timeoff-requests.delete'],
+    'PTO':                  ['pto.read', 'pto.update'],
+    'Replacement Requests': ['replacement-requests.read', 'replacement-requests.create', 'replacement-requests.update', 'replacement-requests.delete'],
+    'Shift Summaries':      ['schedule-shift-summaries.read', 'shift-summary-approvals.update'],
+    'Company Settings':     ['company-settings.read', 'company-settings.update'],
+    'Audit History':        ['audit-history.read'],
+    'Kiosk':                ['kiosk.admin'],
+    'Bulletins':            ['bulletins.read', 'bulletins.create', 'bulletins.delete', 'bulletins.track-reads'],
+    'Daily Reports':        ['reports.read', 'reports.submit', 'reports.approve', 'reports.export'],
+    'Documents':            ['documents.read', 'documents.upload', 'documents.delete', 'documents.manage'],
+    'Safety':               ['safety.read', 'safety.create', 'safety.delete', 'safety.acknowledge', 'safety.track'],
   };
   // Helper for iterating over object keys in the template
   objectKeys = Object.keys;
 
   constructor(
     private roleService: RoleService,
+    private peopleService: PeopleService,
+    private profileService: CompanyUserProfileService,
     private fb: FormBuilder,
     private toastr: ToastrService,
     private store: Store<AppState>
@@ -46,39 +71,147 @@ export class ProfilesComponent implements OnInit {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
 
-  ngOnInit(): void {
-    this.activeCompany$.subscribe((company: any) => {
-      if (company) {
-        this.activeCompany = company;
-        this.loading = true;
-        this.roleService.getRoles(company.companyId).subscribe(          
-          (roles: Role[]) => {
-            this.roles = roles;
-            this.loading = false;
-            console.log('Roles fetched:', this.roles);
-          },
-          (error: any) => {
-            this.error = error;
-            this.loading = false;
-          }
-        );
-      }
-    });
 
-    const permissionsGroup = this.fb.group({});
-    for (const component of this.objectKeys(this.availablePermissions)) {
-      for (const action of this.availablePermissions[component]) {
-        permissionsGroup.addControl(`${component}.${action}`, new FormControl(false));
-      }
-    }
 
-    this.roleForm = this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required],
-      status: ['Active', Validators.required],
-      permissions: permissionsGroup,
+  openAssignPanel(role: Role) {
+    if (!this.activeCompany?.companyId) return;
+
+    this.assignPanelRole = role;
+    this.assignedUserIds = [];
+    this.people = [];
+
+    forkJoin({
+      people: this.peopleService.getPeople(this.activeCompany.companyId, 1, 1000, ''),
+      profiles: this.profileService.getRoleProfiles(this.activeCompany.companyId, role.roleId)
+    }).subscribe({
+      next: ({ people, profiles }) => {
+        this.people = people;
+        this.assignedUserIds = profiles
+          .filter(p => p.isActive && p.personId)
+          .map(p => p.personId!);
+        this.assignPanelOpen = true;
+      },
+      error: () => this.toastr.error('Failed to load assignment data')
     });
   }
+
+  closeAssignPanel() {
+    this.assignPanelOpen = false;
+    this.assignPanelRole = null;
+    this.assignedUserIds = [];
+  }
+
+
+  saveAssignments(userIds: number[]) {
+    if (!this.assignPanelRole || !this.activeCompany?.companyId) {
+      this.toastr.error('Unable to save assignments');
+      return;
+    }
+
+    const roleId = this.assignPanelRole.roleId;
+    const companyId = this.activeCompany.companyId;
+
+    // Determine which users to add and which to remove
+    const usersToAdd = userIds.filter(id => !this.assignedUserIds.includes(id));
+    const usersToRemove = this.assignedUserIds.filter(id => !userIds.includes(id));
+
+    const requests: Observable<any>[] = [];
+
+    // Create assignment requests for new users
+    usersToAdd.forEach(personId => {
+      const request: AssignRoleToPersonRequest = {
+        personId,
+        roleId
+      };
+      requests.push(this.profileService.assignRoleToPerson(companyId, request));
+    });
+
+    // For users to remove, we need to get their profile IDs first
+    if (usersToRemove.length > 0) {
+      this.profileService.getRoleProfiles(companyId, roleId).subscribe(
+        (profiles) => {
+          profiles
+            .filter(p => p.personId && usersToRemove.includes(p.personId))
+            .forEach(profile => {
+              requests.push(this.profileService.removeRoleAssignment(companyId, profile.profileId));
+            });
+
+          // Execute all requests
+          this.executeAssignmentRequests(requests);
+        },
+        (error) => {
+          console.error('Error loading profiles for removal:', error);
+          this.toastr.error('Error removing role assignments');
+        }
+      );
+    } else {
+      // No removals, just execute additions
+      this.executeAssignmentRequests(requests);
+    }
+  }
+
+  private executeAssignmentRequests(requests: Observable<any>[]) {
+    if (requests.length === 0) {
+      this.toastr.info('No changes to save');
+      this.closeAssignPanel();
+      return;
+    }
+
+    forkJoin(requests).subscribe(
+      () => {
+        this.toastr.success('Role assignments updated successfully');
+        this.closeAssignPanel();
+      },
+      (error) => {
+        console.error('Error saving assignments:', error);
+        this.toastr.error('Error updating role assignments');
+        this.closeAssignPanel();
+      }
+    );
+  }
+
+    ngOnInit(): void {
+      this.activeCompany$.subscribe((company: any) => {
+        if (company) {
+          this.activeCompany = company;
+          this.loading = true;
+          this.roleService.getRoles(company.companyId).subscribe(          
+            (roles: Role[]) => {
+              this.roles = roles;
+              this.loading = false;
+              console.log('Roles fetched:', this.roles);
+            },
+            (error: any) => {
+              this.error = error;
+              this.loading = false;
+            }
+          );
+          // Fetch people for assignment panel
+          this.peopleService.getPeople(company.companyId, 1, 1000, '').subscribe(
+            (people: People[]) => {
+              this.people = people;
+            },
+            (error: any) => {
+              // Optionally handle error
+            }
+          );
+        }
+      });
+
+      const permissionsGroup = this.fb.group({});
+      for (const component of this.objectKeys(this.availablePermissions)) {
+        for (const permKey of this.availablePermissions[component]) {
+          permissionsGroup.addControl(permKey, new FormControl(false));
+        }
+      }
+
+      this.roleForm = this.fb.group({
+        name: ['', Validators.required],
+        description: ['', Validators.required],
+        status: ['Active', Validators.required],
+        permissions: permissionsGroup,
+      });
+    }
 
   editRole(role: Role): void {
     this.selectedRole = role;
@@ -163,5 +296,21 @@ export class ProfilesComponent implements OnInit {
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
+  }
+
+  /** Convert an API permission key like 'crews.assign' → 'Assign' */
+  getPermissionLabel(key: string): string {
+    const action = key.split('.').pop() ?? key;
+    return action.charAt(0).toUpperCase() + action.slice(1);
+  }
+
+  /** Semantic icon class for a permission action */
+  getPermissionIcon(key: string): string {
+    const action = key.split('.').pop() ?? '';
+    const map: { [k: string]: string } = {
+      read: 'fa-eye', create: 'fa-plus', update: 'fa-edit', delete: 'fa-trash',
+      approve: 'fa-check', assign: 'fa-link', admin: 'fa-shield-alt',
+    };
+    return map[action] ?? 'fa-circle';
   }
 }

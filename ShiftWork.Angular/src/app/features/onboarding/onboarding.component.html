@@ -1,0 +1,91 @@
+<div class="onboarding-bg">
+  <div class="onboarding-card">
+
+    <!-- ── Header ── -->
+    <div class="ob-header">
+      <div class="check-circle">
+        <i class="fa fa-check"></i>
+      </div>
+      <h1>Welcome to ShiftWork!</h1>
+      <p class="sub">Your account is set up and ready to go.</p>
+    </div>
+
+    <!-- ── Alerts ── -->
+    <div *ngIf="successMessage" class="alert alert-success">
+      <i class="fa fa-check-circle"></i> {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      <i class="fa fa-exclamation-triangle"></i> {{ errorMessage }}
+    </div>
+
+    <!-- ── Loading state ── -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading your workspace…</p>
+    </div>
+
+    <!-- ── Sandbox banner ── -->
+    <div class="sandbox-banner" *ngIf="!isLoading && sandboxStatus?.hasSandboxData">
+      <div class="sandbox-banner-header">
+        <span class="badge-info">Demo Data</span>
+        <h3>Your account includes sample data</h3>
+      </div>
+      <p>
+        We've added demo employees, a location, and an area so you can explore how ShiftWork works.
+        This data is clearly marked as <em>sandbox</em> — it won't affect your payroll or reports.
+      </p>
+
+      <div class="sandbox-counts" *ngIf="sandboxStatus">
+        <div class="count-item">
+          <strong>{{ sandboxStatus.sandboxPersonCount }}</strong>
+          <span>Employees</span>
+        </div>
+        <div class="count-item">
+          <strong>{{ sandboxStatus.sandboxLocationCount }}</strong>
+          <span>Locations</span>
+        </div>
+        <div class="count-item">
+          <strong>{{ sandboxStatus.sandboxAreaCount }}</strong>
+          <span>Areas</span>
+        </div>
+      </div>
+
+      <div class="sandbox-actions">
+        <button class="btn btn-outline-secondary" (click)="hideSandboxData()" [disabled]="!!actionInProgress">
+          <i class="fa fa-eye-slash"></i>
+          {{ actionInProgress === 'hide' ? 'Hiding…' : 'Hide demo data' }}
+        </button>
+        <button class="btn btn-outline-warning" (click)="resetSandboxData()" [disabled]="!!actionInProgress">
+          <i class="fa fa-refresh"></i>
+          {{ actionInProgress === 'reset' ? 'Resetting…' : 'Reset to defaults' }}
+        </button>
+        <button class="btn btn-outline-danger" (click)="deleteSandboxData()" [disabled]="!!actionInProgress">
+          <i class="fa fa-trash"></i>
+          {{ actionInProgress === 'delete' ? 'Removing…' : 'Remove demo data permanently' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Clean workspace notice ── -->
+    <div class="sandbox-clean" *ngIf="!isLoading && sandboxStatus && !sandboxStatus.hasSandboxData">
+      <i class="fa fa-check-circle"></i> Your workspace is clean and ready for real data.
+    </div>
+
+    <!-- ── Plan banner ── -->
+    <div class="plan-banner" *ngIf="!isLoading">
+      <h3>You're on the <strong>Free plan</strong></h3>
+      <p>Upgrade to Pro to unlock advanced scheduling, analytics, multi-location support, and more.</p>
+      <a routerLink="/upgrade" class="btn btn-primary">
+        Explore Pro <i class="fa fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <!-- ── CTA ── -->
+    <div class="ob-footer" *ngIf="!isLoading">
+      <button class="btn-cta" (click)="goToDashboard()">
+        Go to Dashboard <i class="fa fa-arrow-right"></i>
+      </button>
+    </div>
+
+  </div>
+</div>

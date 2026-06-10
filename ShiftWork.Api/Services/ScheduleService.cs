@@ -17,9 +17,11 @@ namespace ShiftWork.Api.Services
         Task<IEnumerable<Schedule>> GetAll(string companyId);
         Task<Schedule> Get(string companyId, int scheduleId);
         Task<IEnumerable<Schedule>> GetSchedules(string companyId, int? personId, int? locationId, DateTime? startDate, DateTime? endDate, string searchQuery);
+        Task<(IEnumerable<Schedule> Items, int TotalCount)> GetSchedulesPaged(string companyId, int? personId, int? locationId, DateTime? startDate, DateTime? endDate, string searchQuery, int page, int pageSize, bool includeVoided = false);
         Task<Schedule> Add(Schedule schedule);
         Task<Schedule> Update(Schedule schedule);
         Task<bool> Delete(int scheduleId);
+        Task<Schedule> VoidSchedule(int scheduleId, string voidedBy);
     }
 
     /// <summary>
@@ -41,7 +43,7 @@ namespace ShiftWork.Api.Services
 
         public async Task<IEnumerable<Schedule>> GetAll(string companyId)
         {
-            return await _context.Schedules.Where(s => s.CompanyId == companyId).ToListAsync();
+            return await _context.Schedules.Where(s => s.CompanyId == companyId && s.Status != "void").ToListAsync();
         }
 
         public async Task<Schedule> Get(string companyId, int scheduleId)
@@ -54,7 +56,7 @@ namespace ShiftWork.Api.Services
             var query = _context.Schedules
                 .Include(s => s.Location)
                 .Include(s => s.Area)
-                .Where(s => s.CompanyId == companyId);
+                .Where(s => s.CompanyId == companyId && s.Status != "void");
 
             if (personId.HasValue)
             {
@@ -85,6 +87,53 @@ namespace ShiftWork.Api.Services
             return (IEnumerable<Schedule>)result;
         }
 
+        public async Task<(IEnumerable<Schedule> Items, int TotalCount)> GetSchedulesPaged(string companyId, int? personId, int? locationId, DateTime? startDate, DateTime? endDate, string searchQuery, int page, int pageSize, bool includeVoided = false)
+        {
+            var query = _context.Schedules
+                .Include(s => s.Location)
+                .Include(s => s.Area)
+                .Where(s => s.CompanyId == companyId);
+
+            if (!includeVoided)
+            {
+                query = query.Where(s => s.Status != "void");
+            }
+
+            if (personId.HasValue)
+            {
+                query = query.Where(s => s.PersonId == personId.ToString());
+            }
+
+            if (locationId.HasValue)
+            {
+                query = query.Where(s => s.LocationId == locationId.Value);
+            }
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(s => s.StartDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(s => s.EndDate <= endDate.Value);
+            }
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                query = query.Where(s => s.Name.Contains(searchQuery) || s.Description.Contains(searchQuery));
+            }
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderBy(s => s.StartDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public async Task<Schedule> Add(Schedule schedule)
         {
             _context.Schedules.Add(schedule);
@@ -113,6 +162,25 @@ namespace ShiftWork.Api.Services
             await _context.SaveChangesAsync();
             _logger.LogInformation("Schedule with ID {ScheduleId} deleted.", scheduleId);
             return true;
+        }
+
+        public async Task<Schedule> VoidSchedule(int scheduleId, string voidedBy)
+        {
+            var schedule = await _context.Schedules.FindAsync(scheduleId);
+            if (schedule == null)
+            {
+                return null;
+            }
+
+            schedule.Status = "void";
+            schedule.VoidedBy = voidedBy;
+            schedule.VoidedAt = DateTime.UtcNow;
+            schedule.UpdatedAt = DateTime.UtcNow;
+            schedule.UpdatedBy = voidedBy;
+
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("Schedule with ID {ScheduleId} voided by {VoidedBy}.", scheduleId, voidedBy);
+            return schedule;
         }
     }
 }

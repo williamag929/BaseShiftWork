@@ -8,12 +8,10 @@ namespace ShiftWork.Api.Services
     {
         Task<IEnumerable<CompanyUser>> GetAllByCompanyIdAsync(string companyId);
         Task<CompanyUser> GetByUidAsync(string uid);
+        Task<CompanyUser> GetByCompanyUserIdAsync(string companyUserId);
         Task<CompanyUser> CreateAsync(CompanyUser companyUser);
         Task<CompanyUser> UpdateAsync(string uid, CompanyUser companyUser);
         Task<bool> DeleteAsync(string uid);
-
-        // Optional: Methods for handling users across companies if needed
-        // Task<IEnumerable<CompanyUser>> GetAllUsersAsync();
-        // Task<CompanyUser> GetUserByIdAsync(string uid);
+        Task<CompanyUser> SetActiveAsync(string companyUserId, bool isActive);
     }
 }

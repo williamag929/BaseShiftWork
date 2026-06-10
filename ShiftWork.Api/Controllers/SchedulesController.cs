@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -27,6 +28,9 @@ namespace ShiftWork.Api.Controllers
     {
         private readonly IScheduleService _scheduleService;
         private readonly ILocationService _locationService;
+        private readonly ICompanySettingsService _settingsService;
+        private readonly IScheduleValidationService _validationService;
+        private readonly PushNotificationService _pushService;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<SchedulesController> _logger;
@@ -34,10 +38,13 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="SchedulesController"/> class.
         /// </summary>
-        public SchedulesController(IScheduleService scheduleService, ILocationService locationService, IMapper mapper, IMemoryCache memoryCache, ILogger<SchedulesController> logger)
+        public SchedulesController(IScheduleService scheduleService, ILocationService locationService, ICompanySettingsService settingsService, IScheduleValidationService validationService, PushNotificationService pushService, IMapper mapper, IMemoryCache memoryCache, ILogger<SchedulesController> logger)
         {
             _scheduleService = scheduleService ?? throw new ArgumentNullException(nameof(scheduleService));
             _locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
+            _pushService = pushService ?? throw new ArgumentNullException(nameof(pushService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -47,6 +54,7 @@ namespace ShiftWork.Api.Controllers
         /// Retrieves all schedules for a company.
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "schedules.read")]
         [ProducesResponseType(typeof(IEnumerable<ScheduleDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -83,9 +91,74 @@ namespace ShiftWork.Api.Controllers
         }
 
         /// <summary>
+        /// Retrieves schedules for a company with pagination and optional filters.
+        /// </summary>
+        [HttpGet("paged")]
+        [Authorize(Policy = "schedules.read")]
+        [ProducesResponseType(typeof(PagedResultDto<ScheduleDto>), 200)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<PagedResultDto<ScheduleDto>>> GetSchedulesPaged(
+            string companyId,
+            [FromQuery] int? personId,
+            [FromQuery] int? locationId,
+            [FromQuery] string? startDate,
+            [FromQuery] string? endDate,
+            [FromQuery] string? searchQuery,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 200,
+            [FromQuery] bool includeVoided = false)
+        {
+            try
+            {
+                if (page < 1) page = 1;
+                if (pageSize < 1) pageSize = 200;
+                if (pageSize > 1000) pageSize = 1000;
+
+                DateTime? startDateTime = null;
+                if (!string.IsNullOrEmpty(startDate) && DateTime.TryParse(startDate, out var parsedStartDate))
+                {
+                    startDateTime = parsedStartDate;
+                }
+
+                DateTime? endDateTime = null;
+                if (!string.IsNullOrEmpty(endDate) && DateTime.TryParse(endDate, out var parsedEndDate))
+                {
+                    endDateTime = parsedEndDate;
+                }
+
+                var (items, totalCount) = await _scheduleService.GetSchedulesPaged(
+                    companyId,
+                    personId,
+                    locationId,
+                    startDateTime,
+                    endDateTime,
+                    searchQuery,
+                    page,
+                    pageSize,
+                    includeVoided);
+
+                var result = new PagedResultDto<ScheduleDto>
+                {
+                    Items = _mapper.Map<IEnumerable<ScheduleDto>>(items),
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving paged schedules for company {CompanyId}.", companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
         /// Retrieves a specific schedule by its ID.
         /// </summary>
         [HttpGet("{scheduleId}")]
+        [Authorize(Policy = "schedules.read")]
         [ProducesResponseType(typeof(ScheduleDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -125,6 +198,7 @@ namespace ShiftWork.Api.Controllers
         /// Creates a new schedule.
         /// </summary>
         [HttpPost]
+        [Authorize(Policy = "schedules.create")]
         [ProducesResponseType(typeof(ScheduleDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -143,14 +217,37 @@ namespace ShiftWork.Api.Controllers
                     return BadRequest($"Location with ID {scheduleDto.LocationId} not found.");
                 }
 
+                var settings = await _settingsService.GetOrCreateSettings(companyId);
+
                 var schedule = _mapper.Map<Schedule>(scheduleDto);
+                schedule.CompanyId = companyId;
                 schedule.TimeZone = location.TimeZone;
                 schedule.Type = "Shift"; // Default type, can be customized later
+
+                var validation = await _validationService.ValidateSchedule(companyId, schedule, scheduleDto.PersonId);
+                if (validation.Errors.Any() || validation.Warnings.Any())
+                {
+                    return BadRequest(new { errors = validation.Errors, warnings = validation.Warnings });
+                }
+
+                if (settings.AutoApproveShifts)
+                {
+                    if (string.IsNullOrWhiteSpace(schedule.Status) || schedule.Status.Equals("unpublished", StringComparison.OrdinalIgnoreCase))
+                    {
+                        schedule.Status = "Published";
+                    }
+                }
                 var createdSchedule = await _scheduleService.Add(schedule);
 
                 if (createdSchedule == null)
                 {
                     return BadRequest("Failed to create schedule.");
+                }
+
+                if (createdSchedule.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    _ = _pushService.NotifySchedulePublishedAsync(
+                        companyId, createdSchedule.ScheduleId, createdSchedule.StartDate, createdSchedule.EndDate);
                 }
 
                 _memoryCache.Remove($"schedules_{companyId}");
@@ -169,6 +266,7 @@ namespace ShiftWork.Api.Controllers
         /// Updates an existing schedule.
         /// </summary>
         [HttpPut("{scheduleId}")]
+        [Authorize(Policy = "schedules.update")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -187,12 +285,37 @@ namespace ShiftWork.Api.Controllers
 
             try
             {
+                var settings = await _settingsService.GetOrCreateSettings(companyId);
                 var schedule = _mapper.Map<Schedule>(scheduleDto);
+
+                var validation = await _validationService.ValidateSchedule(companyId, schedule, scheduleDto.PersonId, scheduleId);
+                if (validation.Errors.Any() || validation.Warnings.Any())
+                {
+                    return BadRequest(new { errors = validation.Errors, warnings = validation.Warnings });
+                }
+
+                var existingSchedule = await _scheduleService.Get(companyId, scheduleId);
+                bool wasPublished = existingSchedule?.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) ?? false;
+
+                if (settings.AutoApproveShifts)
+                {
+                    if (string.IsNullOrWhiteSpace(schedule.Status) || schedule.Status.Equals("unpublished", StringComparison.OrdinalIgnoreCase))
+                    {
+                        schedule.Status = "Published";
+                    }
+                }
                 var updatedSchedule = await _scheduleService.Update(schedule);
 
                 if (updatedSchedule == null)
                 {
                     return NotFound($"Schedule with ID {scheduleId} not found.");
+                }
+
+                bool justPublished = !wasPublished && (updatedSchedule.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) ?? false);
+                if (justPublished)
+                {
+                    _ = _pushService.NotifySchedulePublishedAsync(
+                        companyId, updatedSchedule.ScheduleId, updatedSchedule.StartDate, updatedSchedule.EndDate);
                 }
 
                 _mapper.Map(scheduleDto, updatedSchedule);
@@ -212,6 +335,7 @@ namespace ShiftWork.Api.Controllers
         /// Deletes a schedule by its ID.
         /// </summary>
         [HttpDelete("{scheduleId}")]
+        [Authorize(Policy = "schedules.delete")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -233,6 +357,39 @@ namespace ShiftWork.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting schedule {ScheduleId} for company {CompanyId}.", scheduleId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Voids a schedule (soft delete). The schedule is kept for audit but hidden from normal queries.
+        /// </summary>
+        [HttpPost("{scheduleId}/void")]
+        [Authorize(Policy = "schedules.update")]
+        [ProducesResponseType(typeof(ScheduleDto), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<ScheduleDto>> VoidSchedule(string companyId, int scheduleId, [FromQuery] string? voidedBy)
+        {
+            try
+            {
+                var userIdentifier = voidedBy ?? "system";
+                var schedule = await _scheduleService.VoidSchedule(scheduleId, userIdentifier);
+                if (schedule == null)
+                {
+                    return NotFound($"Schedule with ID {scheduleId} not found.");
+                }
+
+                _memoryCache.Remove($"schedules_{companyId}");
+                _memoryCache.Remove($"schedule_{companyId}_{scheduleId}");
+
+                _logger.LogInformation("Schedule {ScheduleId} voided by {VoidedBy} for company {CompanyId}.", scheduleId, userIdentifier, companyId);
+
+                return Ok(_mapper.Map<ScheduleDto>(schedule));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error voiding schedule {ScheduleId} for company {CompanyId}.", scheduleId, companyId);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
@@ -271,6 +428,7 @@ namespace ShiftWork.Api.Controllers
         /// Searches for schedules based on various criteria.
         /// </summary>
         [HttpGet("search")]
+        [Authorize(Policy = "schedules.read")]
         [ProducesResponseType(typeof(IEnumerable<ScheduleDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

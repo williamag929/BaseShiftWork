@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { map, Observable, switchMap, catchError, from, of, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,12 +10,10 @@ import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export abstract class CoreApiService<T> {
-  http = inject(HttpClient);
-  dataService = inject(DataService);
+  protected http: HttpClient;
+  protected dataService: DataService;
 
   activeCompany$: Observable<any>;
   activeCompany: any;
@@ -27,9 +25,13 @@ export abstract class CoreApiService<T> {
   private readonly token: string;
   private httpOptions: any;
 
-  constructor(
-        private store: Store<AppState>
-  ) {
+    constructor(
+          protected store: Store<AppState>,
+          http: HttpClient,
+          dataService: DataService,
+    ) {
+      this.http = http;
+      this.dataService = dataService;
 
     this.activeCompany$ = this.store.select(selectActiveCompany);
 

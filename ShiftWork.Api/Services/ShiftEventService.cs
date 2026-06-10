@@ -16,19 +16,21 @@ namespace ShiftWork.Api.Services
         private readonly ShiftWorkContext _context;
         private readonly IMapper _mapper;
         private readonly IPeopleService _peopleService;
+        private readonly ICompanySettingsService _settingsService;
 
-        public ShiftEventService(ShiftWorkContext context, IMapper mapper, IPeopleService peopleService)
+        public ShiftEventService(ShiftWorkContext context, IMapper mapper, IPeopleService peopleService, ICompanySettingsService settingsService)
         {
             _context = context;
             _mapper = mapper;
             _peopleService = peopleService;
+            _settingsService = settingsService;
         }
 
         public async Task<ShiftEvent> CreateShiftEventAsync(ShiftEventDto shiftEventDto)
         {
             var shiftEvent = _mapper.Map<ShiftEvent>(shiftEventDto);
             shiftEvent.CreatedAt = DateTime.UtcNow;
-            shiftEvent.EventDate = DateTime.UtcNow;
+            shiftEvent.EventDate = shiftEventDto.EventDate == default ? DateTime.UtcNow : shiftEventDto.EventDate;
             // Ensure PhotoUrl from DTO is preserved even if mapper configuration changes
             shiftEvent.PhotoUrl = shiftEventDto.PhotoUrl;
 
@@ -38,19 +40,71 @@ namespace ShiftWork.Api.Services
                 var currentStatus = await _peopleService.GetPersonStatusShiftWork(shiftEvent.PersonId);
                 var isOnShift = !string.IsNullOrEmpty(currentStatus) && currentStatus.StartsWith("OnShift", StringComparison.OrdinalIgnoreCase);
                 var isOffShift = string.IsNullOrEmpty(currentStatus) || currentStatus.StartsWith("OffShift", StringComparison.OrdinalIgnoreCase);
+                var allowManualClockOut = false;
+                if (!string.IsNullOrWhiteSpace(shiftEvent.EventObject))
+                {
+                    try
+                    {
+                        using var doc = JsonDocument.Parse(shiftEvent.EventObject);
+                        if (doc.RootElement.TryGetProperty("manualClockOut", out var manualFlag) && manualFlag.ValueKind == JsonValueKind.True)
+                        {
+                            allowManualClockOut = true;
+                        }
+                    }
+                    catch
+                    {
+                        // ignore malformed JSON
+                    }
+                }
 
                 if (string.Equals(shiftEvent.EventType, "clockin", StringComparison.OrdinalIgnoreCase))
                 {
                     if (isOnShift)
                     {
-                        throw new InvalidOperationException("Person is already OnShift. Duplicate clock-in prevented.");
+                        var allowManualClockIn = false;
+                        if (!string.IsNullOrWhiteSpace(shiftEvent.EventObject))
+                        {
+                            try
+                            {
+                                using var doc = JsonDocument.Parse(shiftEvent.EventObject);
+                                if (doc.RootElement.TryGetProperty("manualClockIn", out var manualFlag) && manualFlag.ValueKind == JsonValueKind.True)
+                                {
+                                    allowManualClockIn = true;
+                                }
+                            }
+                            catch
+                            {
+                                // ignore malformed JSON
+                            }
+                        }
+
+                        if (!allowManualClockIn)
+                        {
+                            throw new InvalidOperationException("Person is already OnShift. Duplicate clock-in prevented.");
+                        }
                     }
                 }
                 else if (string.Equals(shiftEvent.EventType, "clockout", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (isOffShift)
+                    if (isOffShift && !allowManualClockOut)
                     {
-                        throw new InvalidOperationException("Person is not currently OnShift. Duplicate clock-out or invalid transition prevented.");
+                        // StatusShiftWork may be stale (e.g. auto-clockout race). Check actual events as fallback.
+                        var lastClockIn = await _context.ShiftEvents
+                            .Where(e => e.PersonId == shiftEvent.PersonId && e.EventType == "clockin")
+                            .OrderByDescending(e => e.EventDate)
+                            .FirstOrDefaultAsync();
+                        var hasOpenClockIn = false;
+                        if (lastClockIn != null)
+                        {
+                            var clockOutAfter = await _context.ShiftEvents
+                                .Where(e => e.PersonId == shiftEvent.PersonId && e.EventType == "clockout" && e.EventDate >= lastClockIn.EventDate)
+                                .FirstOrDefaultAsync();
+                            hasOpenClockIn = clockOutAfter == null;
+                        }
+                        if (!hasOpenClockIn)
+                        {
+                            throw new InvalidOperationException("Person is not currently OnShift. Duplicate clock-out or invalid transition prevented.");
+                        }
                     }
                 }
             }
@@ -67,6 +121,7 @@ namespace ShiftWork.Api.Services
                 var endOfDayUtc = startOfDayUtc.AddDays(1);
 
                 var scheduleShift = await _context.ScheduleShifts
+                    .Include(ss => ss.Location)
                     .Where(ss => ss.PersonId == shiftEvent.PersonId &&
                                  ss.StartDate < endOfDayUtc &&
                                  ss.EndDate > startOfDayUtc)
@@ -79,9 +134,14 @@ namespace ShiftWork.Api.Services
                 {
                     if (string.Equals(shiftEvent.EventType, "clockin", StringComparison.OrdinalIgnoreCase))
                     {
-                        // Compute Late/Early/OnTime relative to scheduled start with 5-minute grace
-                        var startUtc = scheduleShift.StartDate;
-                        var diffMinutes = (nowUtc - startUtc).TotalMinutes;
+                        // Schedule start is stored as UTC wall-clock; convert to a real UTC instant using company/location timezone.
+                        var companyTimeZone = await _context.Companies
+                            .Where(c => c.CompanyId == shiftEvent.CompanyId)
+                            .Select(c => c.TimeZone)
+                            .FirstOrDefaultAsync();
+                        var effectiveTimeZone = scheduleShift.Location?.TimeZone ?? companyTimeZone ?? "UTC";
+                        var scheduleStartUtcInstant = ConvertUtcWallClockToUtcInstant(scheduleShift.StartDate, effectiveTimeZone);
+                        var diffMinutes = (nowUtc - scheduleStartUtcInstant).TotalMinutes;
                         string timing;
                         if (diffMinutes > 5)
                         {
@@ -170,6 +230,59 @@ namespace ShiftWork.Api.Services
             return shiftEvent;
         }
 
+        private static DateTime ConvertUtcWallClockToUtcInstant(DateTime utcWallClockTime, string? timeZoneId)
+        {
+            var tz = ResolveTimeZoneInfo(timeZoneId);
+            var unspecifiedWallClock = DateTime.SpecifyKind(utcWallClockTime, DateTimeKind.Unspecified);
+            try
+            {
+                return TimeZoneInfo.ConvertTimeToUtc(unspecifiedWallClock, tz);
+            }
+            catch
+            {
+                // Defensive fallback for invalid wall-clock instants (for example, DST spring-forward gaps).
+                return DateTime.SpecifyKind(utcWallClockTime, DateTimeKind.Utc);
+            }
+        }
+
+        private static TimeZoneInfo ResolveTimeZoneInfo(string? timeZoneId)
+        {
+            if (string.IsNullOrWhiteSpace(timeZoneId))
+            {
+                return TimeZoneInfo.Utc;
+            }
+
+            try
+            {
+                return TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            }
+            catch
+            {
+                if (OperatingSystem.IsWindows() && TimeZoneInfo.TryConvertIanaIdToWindowsId(timeZoneId, out var windowsId))
+                {
+                    try
+                    {
+                        return TimeZoneInfo.FindSystemTimeZoneById(windowsId);
+                    }
+                    catch
+                    {
+                    }
+                }
+                else if (!OperatingSystem.IsWindows() && TimeZoneInfo.TryConvertWindowsIdToIanaId(timeZoneId, out var ianaId))
+                {
+                    try
+                    {
+                        return TimeZoneInfo.FindSystemTimeZoneById(ianaId);
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                return TimeZoneInfo.Utc;
+            }
+        }
+
         public async Task<ShiftEvent?> GetShiftEventByIdAsync(Guid id)
         {
             return await _context.ShiftEvents.FindAsync(id);
@@ -221,6 +334,61 @@ namespace ShiftWork.Api.Services
 
             _context.ShiftEvents.Remove(existing);
             await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> EnsureAutoClockOutForPersonAsync(string companyId, int personId, DateTime? nowUtc = null)
+        {
+            var settings = await _settingsService.GetOrCreateSettings(companyId);
+            if (settings.AutoClockOutAfter <= 0)
+            {
+                return false;
+            }
+
+            var now = nowUtc ?? DateTime.UtcNow;
+
+            var lastClockIn = await _context.ShiftEvents
+                .Where(e => e.CompanyId == companyId && e.PersonId == personId && e.EventType == "clockin")
+                .OrderByDescending(e => e.EventDate)
+                .FirstOrDefaultAsync();
+
+            if (lastClockIn == null)
+            {
+                return false;
+            }
+
+            var lastClockOutAfter = await _context.ShiftEvents
+                .Where(e => e.CompanyId == companyId && e.PersonId == personId && e.EventType == "clockout" && e.EventDate >= lastClockIn.EventDate)
+                .OrderByDescending(e => e.EventDate)
+                .FirstOrDefaultAsync();
+
+            if (lastClockOutAfter != null)
+            {
+                return false;
+            }
+
+            var autoClockOutAt = lastClockIn.EventDate.AddHours(settings.AutoClockOutAfter);
+            if (autoClockOutAt > now)
+            {
+                return false;
+            }
+
+            var autoEvent = new ShiftEvent
+            {
+                EventLogId = Guid.NewGuid(),
+                CompanyId = companyId,
+                PersonId = personId,
+                EventType = "clockout",
+                EventDate = autoClockOutAt,
+                CreatedAt = now,
+                Description = "Auto clock-out",
+                EventObject = "{\"autoClockOut\":true}"
+            };
+
+            _context.ShiftEvents.Add(autoEvent);
+            await _context.SaveChangesAsync();
+
+            await _peopleService.UpdatePersonStatusShiftWork(personId, "OffShift");
             return true;
         }
     }

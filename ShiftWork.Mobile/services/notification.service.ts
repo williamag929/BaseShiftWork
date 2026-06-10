@@ -1,7 +1,9 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { apiClient } from './api-client';
+import { logger } from '@/utils/logger';
 
 // Configure how notifications are handled when app is in foreground
 Notifications.setNotificationHandler({
@@ -9,6 +11,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -32,11 +36,21 @@ class NotificationService {
    */
   async registerForPushNotifications(): Promise<string | null> {
     if (!Device.isDevice) {
-      console.warn('Push notifications only work on physical devices');
+      logger.warn('[Notifications] Push notifications only work on physical devices');
       return null;
     }
 
     try {
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: 'Default',
+          importance: Notifications.AndroidImportance.MAX,
+          sound: 'default',
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
+      }
+
       // Check existing permissions
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
@@ -48,18 +62,24 @@ class NotificationService {
       }
 
       if (finalStatus !== 'granted') {
-        console.warn('Permission not granted for push notifications');
+        logger.warn('[Notifications] Permission not granted for push notifications');
         return null;
       }
 
       // Get the push notification token
+      const projectId = Constants.expoConfig?.extra?.eas?.projectId as string | undefined;
+      if (!projectId) {
+        logger.warn('[Notifications] Expo project ID is missing (app.json -> extra.eas.projectId)');
+        return null;
+      }
+
       const tokenData = await Notifications.getExpoPushTokenAsync({
-        projectId: 'your-project-id', // Replace with your Expo project ID
+        projectId,
       });
 
       return tokenData.data;
     } catch (error) {
-      console.error('Error registering for push notifications:', error);
+      logger.error('[Notifications] Error registering for push notifications:', error);
       return null;
     }
   }
@@ -90,7 +110,7 @@ class NotificationService {
    * Remove device token from backend (e.g., on logout)
    */
   async removeDeviceToken(
-    companyId: number,
+    companyId: string,
     personId: number,
     deviceToken: string
   ): Promise<void> {

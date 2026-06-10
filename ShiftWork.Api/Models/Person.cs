@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ShiftWork.Api.Data;
 using AuditInterceptor = ShiftWork.Api.Data.AuditInterceptor;
@@ -26,6 +27,11 @@ namespace ShiftWork.Api.Models
         public string? ExternalCode { get; set; }
         public DateTime? LastUpdatedAt { get; set; } = DateTime.UtcNow; // Default to current time
         public string? LastUpdatedBy { get; set; } = "User";// Default to 'User' or any other default value you prefer
+        
+        /// <summary>
+        /// DEPRECATED: Use UserRole table instead. This field is maintained for backward compatibility only.
+        /// </summary>
+        [Obsolete("Use UserRole table instead. Single role assignment via Person.RoleId is deprecated.", false)]
         public int? RoleId { get; set; } // Optional, if this person has a specific role
         public Company Company { get; set; }
         public ICollection<PersonCrew> PersonCrews { get; set; }
@@ -35,5 +41,17 @@ namespace ShiftWork.Api.Models
         public decimal? PtoStartingBalance { get; set; } // initial hours
         public DateTime? PtoStartDate { get; set; } // accrual start date
         public DateTime? PtoLastAccruedAt { get; set; } // last time accrual entries were generated
+
+        /// <summary>
+        /// Marks this record as sandbox/demo data seeded during onboarding.
+        /// Default false — all existing records are unaffected.
+        /// </summary>
+        public bool IsSandbox { get; set; } = false;
+
+        /// <summary>
+        /// BCrypt-hashed password for direct API authentication (Firebase auth disabled).
+        /// Null when the person has no API password set.
+        /// </summary>
+        public string? PasswordHash { get; set; }
     }
 }

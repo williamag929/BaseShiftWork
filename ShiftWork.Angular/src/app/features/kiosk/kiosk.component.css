@@ -103,6 +103,31 @@
 .header-right {
   position: relative;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Settings button */
+.settings-btn {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.settings-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.settings-btn i {
+  font-size: 1.25rem;
 }
 
 /* ==================== CLOCK WRAPPER ==================== */

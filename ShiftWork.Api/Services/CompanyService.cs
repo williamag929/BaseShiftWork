@@ -14,6 +14,7 @@ namespace ShiftWork.Api.Services
     public interface ICompanyService
     {
         Task<IEnumerable<Company>> GetAllCompanies();
+        Task<IEnumerable<Company>> GetCompaniesByUidAsync(string uid, string? email = null);
         Task<Company> GetCompanyByIdAsync(string id);
         Task CreateCompanyAsync(Company company);
         Task<bool> UpdateCompanyAsync(Company company);
@@ -40,6 +41,37 @@ namespace ShiftWork.Api.Services
         public async Task<IEnumerable<Company>> GetAllCompanies()
         {
             return await _context.Companies.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Company>> GetCompaniesByUidAsync(string uid, string? email = null)
+        {
+            // Match by Uid (Firebase UID or api_{guid})
+            var byUid = await _context.CompanyUsers
+                .Where(cu => cu.Uid == uid && cu.IsActive)
+                .Select(cu => cu.Company)
+                .Distinct()
+                .ToListAsync();
+
+            // Also match by email so users who belong to multiple companies
+            // (e.g. self-registered + invited) see all of them regardless of UID type.
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                var byEmail = await _context.CompanyUsers
+                    .Where(cu => cu.Email.ToLower() == email.ToLower() && cu.IsActive)
+                    .Select(cu => cu.Company)
+                    .Distinct()
+                    .ToListAsync();
+
+                // Merge both sets, deduplicate by CompanyId
+                var existingIds = new HashSet<string>(byUid.Select(c => c.CompanyId));
+                foreach (var company in byEmail)
+                {
+                    if (existingIds.Add(company.CompanyId))
+                        byUid.Add(company);
+                }
+            }
+
+            return byUid;
         }
 
         public async Task<Company> GetCompanyByIdAsync(string id)

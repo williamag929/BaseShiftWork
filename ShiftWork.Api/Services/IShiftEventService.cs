@@ -15,5 +15,6 @@ namespace ShiftWork.Api.Services
         Task<IEnumerable<ShiftEvent>> GetShiftEventsByEventTypeAsync(string companyId, string eventType);
         Task<ShiftEvent?> UpdateShiftEventAsync(Guid id, ShiftEventDto shiftEventDto);
         Task<bool> DeleteShiftEventAsync(Guid id);
+        Task<bool> EnsureAutoClockOutForPersonAsync(string companyId, int personId, DateTime? nowUtc = null);
     }
 }

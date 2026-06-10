@@ -1,281 +1,247 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useState, useEffect } from 'react';
+import {
+  View, Text, TextInput, Pressable, StyleSheet,
+  KeyboardAvoidingView, Platform, ScrollView,
+} from 'react-native';
+import { Controller } from 'react-hook-form';
 import { useRouter } from 'expo-router';
-import type { Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { authService, biometricAuthService } from '@/services';
-import { useAuthStore } from '@/store/authStore';
-import { saveUserData, saveCompanyId } from '@/utils/storage.utils';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { Button } from '@/components/ui';
+import { colors, spacing, radius } from '@/styles/tokens';
+import { useLogin } from '@/hooks/useLogin';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showBiometric, setShowBiometric] = useState(false);
-  const [biometricType, setBiometricType] = useState('Biometric');
-  const setCompanyId = useAuthStore((s) => s.setCompanyId);
-  const setPersonId = useAuthStore((s) => s.setPersonId);
-  const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
-
-  useEffect(() => {
-    checkBiometricAndAttemptLogin();
-  }, []);
-
-  const checkBiometricAndAttemptLogin = async () => {
-    try {
-      const shouldOffer = await biometricAuthService.shouldOfferBiometric();
-      if (shouldOffer) {
-        const types = await biometricAuthService.getSupportedTypes();
-        const typeName = biometricAuthService.getAuthTypeName(types);
-        setBiometricType(typeName);
-        setShowBiometric(true);
-        
-        // Auto-attempt biometric login on mount
-        setTimeout(() => handleBiometricLogin(), 500);
-      }
-    } catch (error) {
-      console.error('Error checking biometric:', error);
-    }
-  };
-
-  const handleBiometricLogin = async () => {
-    try {
-      const credentials = await biometricAuthService.biometricLogin();
-      if (credentials) {
-        // Successfully authenticated with biometrics
-        setPersonId(credentials.personId);
-        setCompanyId(credentials.companyId);
-        setPersonProfile({
-          email: credentials.email,
-          name: credentials.name,
-        });
-        await saveUserData({
-          personId: credentials.personId,
-          email: credentials.email,
-          name: credentials.name,
-        });
-        await saveCompanyId(credentials.companyId);
-        
-        router.replace('/(tabs)/dashboard' as Href<string>);
-      }
-    } catch (error) {
-      console.error('Biometric login error:', error);
-      Alert.alert('Error', 'Biometric authentication failed');
-    }
-  };
-
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // TODO: Replace with real Firebase authentication and token handling
-      // For personal app: look up the person by email and persist local state
-      const person = await authService.getUserByEmail(email);
-      if (!person?.personId || !person?.companyId) {
-        throw new Error('User not found or invalid');
-      }
-
-      // Persist in store and secure storage
-  setPersonId(Number(person.personId));
-  setCompanyId(person.companyId);
-  setPersonProfile({ email: person.email, name: person.name });
-  await saveUserData({ personId: person.personId, email: person.email, name: person.name });
-      await saveCompanyId(person.companyId);
-
-      setLoading(false);
-      router.replace('/(tabs)/dashboard' as Href<string>);
-    } catch (error) {
-      setLoading(false);
-      Alert.alert('Login Failed', 'Invalid email or password');
-    }
-  };
+  const insets = useSafeAreaInsets();
+  const { form, loading, showBiometric, biometricType, handleLogin, handleBiometricLogin } = useLogin();
+  const { control, handleSubmit, formState: { errors } } = form;
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.root}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <StatusBar style="light" />
-      
-      <View style={styles.header}>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to continue</Text>
-      </View>
 
-      <View style={styles.form}>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your email"
-            placeholderTextColor="#999"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            autoComplete="email"
-          />
+      {/* Hero banner */}
+      <Animated.View entering={FadeInDown.duration(500)} style={[styles.hero, { paddingTop: insets.top + 32 }]}>
+        <View style={styles.logoMark}>
+          <Ionicons name="time" size={36} color="#fff" />
         </View>
+        <Text style={styles.heroTitle}>ShiftWork</Text>
+        <Text style={styles.heroSub}>Sign in to your account</Text>
+      </Animated.View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your password"
-            placeholderTextColor="#999"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoComplete="password"
-          />
-        </View>
-
-        <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={handleLogin}
-          disabled={loading}
+      {/* Form sheet */}
+      <Animated.View entering={FadeInUp.delay(120).duration(500)} style={styles.sheet}>
+        <ScrollView
+          contentContainerStyle={[styles.formScroll, { paddingBottom: insets.bottom + 32 }]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.buttonText}>
-            {loading ? 'Signing in...' : 'Sign In'}
-          </Text>
-        </TouchableOpacity>
+          {/* Email */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Email</Text>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { value, onChange } }) => (
+                <View style={[styles.inputWrap, !!errors.email && styles.inputError]}>
+                  <Ionicons name="mail-outline" size={18} color={colors.muted} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="you@email.com"
+                    placeholderTextColor={colors.muted}
+                    value={value}
+                    onChangeText={onChange}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    autoComplete="email"
+                    returnKeyType="next"
+                  />
+                </View>
+              )}
+            />
+            {errors.email && (
+              <Text style={styles.errorMsg}>{errors.email.message}</Text>
+            )}
+          </View>
 
-        {showBiometric && (
-          <>
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OR</Text>
-              <View style={styles.dividerLine} />
-            </View>
+          {/* Password */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Password</Text>
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { value, onChange } }) => (
+                <View style={[styles.inputWrap, !!errors.password && styles.inputError]}>
+                  <Ionicons name="lock-closed-outline" size={18} color={colors.muted} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="••••••••"
+                    placeholderTextColor={colors.muted}
+                    value={value}
+                    onChangeText={onChange}
+                    secureTextEntry
+                    autoComplete="password"
+                    returnKeyType="done"
+                    onSubmitEditing={handleSubmit(handleLogin)}
+                  />
+                </View>
+              )}
+            />
+            {errors.password && (
+              <Text style={styles.errorMsg}>{errors.password.message}</Text>
+            )}
+          </View>
 
-            <TouchableOpacity
-              style={styles.biometricButton}
-              onPress={handleBiometricLogin}
-            >
-              <Ionicons name="finger-print" size={24} color="#4A90E2" />
-              <Text style={styles.biometricButtonText}>
-                Sign in with {biometricType}
-              </Text>
-            </TouchableOpacity>
-          </>
-        )}
+          <View style={styles.ctaBlock}>
+            <Button
+              label={loading ? 'Signing in…' : 'Sign In'}
+              onPress={handleSubmit(handleLogin)}
+              loading={loading}
+            />
+          </View>
 
-        <TouchableOpacity style={styles.linkButton}>
-          <Text style={styles.linkText}>Forgot Password?</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+          {showBiometric && (
+            <>
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerLabel}>or continue with</Text>
+                <View style={styles.dividerLine} />
+              </View>
+              <Pressable
+                style={({ pressed }) => [styles.biometricBtn, pressed && { opacity: 0.75 }]}
+                onPress={handleBiometricLogin}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={`Sign in with ${biometricType}`}
+              >
+                <Ionicons name="finger-print" size={22} color={colors.primary} />
+                <Text style={styles.biometricLabel}>Sign in with {biometricType}</Text>
+              </Pressable>
+            </>
+          )}
+
+          <Pressable
+            style={({ pressed }) => [styles.linkRow, pressed && { opacity: 0.65 }]}
+            onPress={() => router.push('/(auth)/register' as any)}
+          >
+            <Text style={styles.linkText}>
+              Don't have an account?{' '}
+              <Text style={styles.linkAccent}>Create one</Text>
+            </Text>
+          </Pressable>
+        </ScrollView>
+      </Animated.View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#4A90E2',
+  root: { flex: 1, backgroundColor: colors.primary },
+
+  // Hero
+  hero: {
+    alignItems: 'center',
+    paddingBottom: 36,
+    paddingHorizontal: spacing.xxxl,
   },
-  header: {
-    paddingTop: 80,
-    paddingHorizontal: 32,
-    paddingBottom: 40,
+  logoMark: {
+    width: 72,
+    height: 72,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.3)',
   },
-  title: {
+  heroTitle: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#fff',
-    marginBottom: 8,
+    letterSpacing: -0.5,
+    marginBottom: 6,
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#fff',
-    opacity: 0.9,
-  },
-  form: {
+  heroSub: { fontSize: 16, color: 'rgba(255,255,255,0.82)', letterSpacing: -0.2 },
+
+  // Form sheet (floats on top of hero)
+  sheet: {
     flex: 1,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    paddingHorizontal: 32,
-    paddingTop: 40,
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    overflow: 'hidden',
   },
-  inputContainer: {
-    marginBottom: 24,
-  },
+  formScroll: { paddingHorizontal: 28, paddingTop: 32 },
+
+  // Field
+  fieldGroup: { marginBottom: 20 },
   label: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
-    color: '#333',
+    color: colors.textSecondary,
     marginBottom: 8,
+    letterSpacing: 0.1,
   },
-  input: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#333',
-  },
-  button: {
-    backgroundColor: '#4A90E2',
-    paddingVertical: 16,
-    borderRadius: 12,
-    marginTop: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  divider: {
+  inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 24,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 14,
+    height: 52,
   },
-  dividerLine: {
+  inputError: { borderColor: colors.danger },
+  inputIcon: { marginRight: 10 },
+  input: {
     flex: 1,
-    height: 1,
-    backgroundColor: '#e0e0e0',
+    fontSize: 16,
+    color: colors.text,
+    height: '100%',
   },
-  dividerText: {
-    marginHorizontal: 16,
-    color: '#999',
-    fontSize: 14,
+  errorMsg: { marginTop: 6, fontSize: 12, color: colors.danger, letterSpacing: 0.1 },
+
+  ctaBlock: { marginTop: 8, marginBottom: 16 },
+
+  // Divider
+  divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 20 },
+  dividerLine: { flex: 1, height: 0.5, backgroundColor: colors.borderOpaque },
+  dividerLabel: {
+    marginHorizontal: 14,
+    fontSize: 13,
+    color: colors.muted,
     fontWeight: '500',
   },
-  biometricButton: {
+
+  // Biometric
+  biometricBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 16,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#4A90E2',
-    gap: 8,
+    gap: 10,
+    paddingVertical: 15,
+    borderRadius: radius.lg,
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+    backgroundColor: colors.surface,
+    marginBottom: 16,
   },
-  biometricButtonText: {
-    color: '#4A90E2',
+  biometricLabel: {
     fontSize: 16,
     fontWeight: '600',
+    color: colors.primary,
+    letterSpacing: -0.3,
   },
-  linkButton: {
-    marginTop: 16,
-    alignItems: 'center',
-  },
-  linkText: {
-    color: '#4A90E2',
-    fontSize: 14,
-    fontWeight: '500',
-  },
+
+  // Footer link
+  linkRow: { alignItems: 'center', paddingVertical: 12 },
+  linkText: { fontSize: 15, color: colors.muted },
+  linkAccent: { color: colors.primary, fontWeight: '600' },
 });
