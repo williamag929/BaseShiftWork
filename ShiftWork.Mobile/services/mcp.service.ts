@@ -10,6 +10,7 @@
 import axios, { AxiosInstance } from 'axios';
 import Constants from 'expo-constants';
 import { logger } from '@/utils/logger';
+import { getToken } from '@/utils/storage.utils';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -85,6 +86,18 @@ class McpService {
       baseURL: this.baseUrl,
       timeout: 30_000,
       headers: { 'Content-Type': 'application/json' },
+    });
+
+    // Forward the current session token on every request so the MCP server
+    // can proxy it through to the ShiftWork API on behalf of the user.
+    this.client.interceptors.request.use(async (config) => {
+      const token = await getToken();
+      if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+      } else if (__DEV__ && process.env.EXPO_PUBLIC_DEV_TOKEN) {
+        config.headers['Authorization'] = `Bearer ${process.env.EXPO_PUBLIC_DEV_TOKEN}`;
+      }
+      return config;
     });
 
     if (__DEV__) {
