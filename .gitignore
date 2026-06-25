@@ -70,3 +70,4 @@ docker-compose.yml
 ShiftWork.Kiosk/.env
 ShiftWork.Kiosk/node_modules
 .env
+.claude/settings.local.json
