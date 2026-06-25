@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Job Log Smart",
-    "slug": "shiftwork-mobile",
+    "name": "Loqzen",
+    "slug": "loqzen-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,11 +16,11 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.joblogsmart.mobile",
+      "bundleIdentifier": "com.loqzen.mobile",
       "infoPlist": {
-        "NSCameraUsageDescription": "ShiftWork needs camera access to capture photos during clock in/out",
-        "NSLocationWhenInUseUsageDescription": "ShiftWork needs your location to record where you clock in/out",
-        "NSFaceIDUsageDescription": "ShiftWork uses Face ID for quick and secure login"
+        "NSCameraUsageDescription": "Loqzen needs camera access to capture photos during clock in/out",
+        "NSLocationWhenInUseUsageDescription": "Loqzen needs your location to record where you clock in/out",
+        "NSFaceIDUsageDescription": "Loqzen uses Face ID for quick and secure login"
       }
     },
     "android": {
@@ -28,7 +28,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.joblogsmart.mobile",
+      "package": "com.loqzen.mobile",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.ACCESS_FINE_LOCATION",
@@ -42,25 +42,25 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "joblogsmart",
+    "scheme": "loqzen",
     "plugins": [
       "expo-router",
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Job Log Smart to access your camera for clock in/out photos"
+          "cameraPermission": "Allow Loqzen to access your camera for clock in/out photos"
         }
       ],
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow Job Log Smart to use your location for clock in/out tracking"
+          "locationAlwaysAndWhenInUsePermission": "Allow Loqzen to use your location for clock in/out tracking"
         }
       ],
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Allow Job Log Smart to use Face ID for secure authentication"
+          "faceIDPermission": "Allow Loqzen to use Face ID for secure authentication"
         }
       ],
       "expo-font",

@@ -186,7 +186,7 @@ builder.Services.AddAuthentication(options =>
                 if (jwtHandler.CanReadToken(token))
                 {
                     var jwtToken = jwtHandler.ReadJwtToken(token);
-                    if (jwtToken.Issuer == "shiftwork-api")
+                    if (jwtToken.Issuer == "loqzen-api")
                         return "ApiJwt";
                 }
             }
@@ -215,9 +215,9 @@ builder.Services.AddAuthentication(options =>
     apiJwtOptions.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
-        ValidIssuer = "shiftwork-api",
+        ValidIssuer = "loqzen-api",
         ValidateAudience = true,
-        ValidAudience = "shiftwork-mobile",
+        ValidAudience = "loqzen-mobile",
         ValidateLifetime = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
     };
@@ -244,8 +244,8 @@ builder.Services.AddCors(options =>
                                   "http://localhost:8081",                                  
                                   // Docker Desktop for Windows
                                   "http://host.docker.internal:4200",
-                                  "https://mcp.joblogsmart.com",
-                                  "https://app.joblogsmart.com",
+                                  "https://mcp.loqzen.com",
+                                  "https://app.loqzen.com",
                                   "https://endpoint.shift-clock.com",                                  
                                   "https://mcp.shift-clock.com",                                  
                                   "https://app.shift-clock.com")// Expo dev server for iOS

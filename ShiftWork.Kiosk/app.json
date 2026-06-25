@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "ShiftWork Kiosk",
-    "slug": "shiftwork-kiosk",
+    "name": "Loqzen Kiosk",
+    "slug": "loqzen-kiosk",
     "version": "1.0.0",
     "orientation": "landscape",
-    "scheme": "shiftwork-kiosk",
+    "scheme": "loqzen-kiosk",
     "newArchEnabled": true,
     "icon": "./assets/icon.png",
     "splash": {
@@ -15,7 +15,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.shiftwork.kiosk",
+      "bundleIdentifier": "com.loqzen.kiosk",
       "requireFullScreen": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Camera is required to capture employee clock-in photos.",
@@ -23,7 +23,7 @@
       }
     },
     "android": {
-      "package": "com.shiftwork.kiosk",
+      "package": "com.loqzen.kiosk",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0F2237"
@@ -40,13 +40,13 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow ShiftWork Kiosk to access the camera for clock-in photos."
+          "cameraPermission": "Allow Loqzen Kiosk to access the camera for clock-in photos."
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Allow ShiftWork Kiosk to verify clock-in location."
+          "locationWhenInUsePermission": "Allow Loqzen Kiosk to verify clock-in location."
         }
       ]
     ],
@@ -55,7 +55,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "shiftwork-kiosk"
+        "projectId": "loqzen-kiosk"
       }
     }
   }

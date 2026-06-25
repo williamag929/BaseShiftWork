@@ -562,7 +562,7 @@ namespace ShiftWork.Api.Controllers
 
                 // Generate new invite token
                 var inviteToken = $"invite_{Guid.NewGuid():N}";
-                var inviteUrl = request.InviteUrl ?? "https://app.joblogsmart.com/accept-invite";
+                var inviteUrl = request.InviteUrl ?? "https://app.loqzen.com/accept-invite";
 
                 var encodedEmail = System.Web.HttpUtility.UrlEncode(person.Email);
                 var encodedName = System.Web.HttpUtility.UrlEncode(person.Name);
