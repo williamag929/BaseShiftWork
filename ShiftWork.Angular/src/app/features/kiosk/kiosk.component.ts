@@ -12,7 +12,6 @@ import { Location } from 'src/app/core/models/location.model';
 import { RouterOutlet } from "@angular/router";
 import { DatePipe, CommonModule } from '@angular/common';
 import { AnalogClockComponent } from "./analog-clock/analog-clock.component";
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
@@ -24,7 +23,7 @@ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
   templateUrl: './kiosk.component.html',
   styleUrls: ['./kiosk.component.css'],
   standalone: true,
-  imports: [RouterOutlet, DatePipe, AnalogClockComponent, MatDialogModule, MatButtonModule, CommonModule]
+  imports: [RouterOutlet, DatePipe, AnalogClockComponent, MatButtonModule, CommonModule]
 })
 export class KioskComponent implements OnInit, OnDestroy {
   timeSubscription!: Subscription;

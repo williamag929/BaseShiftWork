@@ -4,7 +4,7 @@ import {
   fakeAsync,
   tick,
 } from '@angular/core/testing';
-import { CommonModule } from '@angular/common';
+import { RouterTestingModule } from '@angular/router/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { BehaviorSubject, of } from 'rxjs';
@@ -96,7 +96,7 @@ describe('KioskComponent', () => {
     dialogSpy.open.and.returnValue(createDialogRef(null));
 
     await TestBed.configureTestingModule({
-      imports: [KioskComponent],
+      imports: [KioskComponent, RouterTestingModule],
       providers: [
         provideMockStore({ initialState }),
         { provide: AuthService, useValue: jasmine.createSpyObj('AuthService', ['signOut']) },
@@ -104,13 +104,7 @@ describe('KioskComponent', () => {
         { provide: LocationService, useValue: locationServiceSpy },
         { provide: MatDialog, useValue: dialogSpy },
       ],
-    })
-      .overrideComponent(KioskComponent, {
-        // Replace the real template/imports to isolate class logic from
-        // RouterOutlet / AnalogClockComponent rendering concerns.
-        set: { imports: [CommonModule], template: `<div></div>` },
-      })
-      .compileComponents();
+    }).compileComponents();
 
     store = TestBed.inject(MockStore);
     store.overrideSelector(selectActiveCompany, mockCompany);
