@@ -22,6 +22,16 @@ namespace ShiftWork.Api.Data
             "Pin", "Password", "PasswordHash", "Token", "RefreshToken", "ApiKey", "Secret"
         };
 
+        // Child/log entities that have no CompanyId of their own. CompanyId is resolved by
+        // looking up the parent entity via the given foreign-key property.
+        private static readonly Dictionary<Type, (string ForeignKeyProperty, Type ParentType)> ChildEntityParentLookup = new()
+        {
+            [typeof(BulletinRead)] = ("BulletinId", typeof(Bulletin)),
+            [typeof(SafetyAcknowledgment)] = ("SafetyContentId", typeof(SafetyContent)),
+            [typeof(DocumentReadLog)] = ("DocumentId", typeof(Document)),
+            [typeof(ReportMedia)] = ("ReportId", typeof(LocationDailyReport)),
+        };
+
         public AuditInterceptor(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -78,12 +88,23 @@ namespace ShiftWork.Api.Data
             var entityType = entry.Entity.GetType();
             var entityName = entityType.Name;
             
-            // Get CompanyId from the entity
+            // Get CompanyId from the entity, or resolve it via the parent for known child/log entities
             var companyIdProperty = entityType.GetProperty("CompanyId");
-            if (companyIdProperty == null)
-                return; // Skip entities without CompanyId (not multi-tenant)
+            string? companyId;
 
-            var companyId = companyIdProperty.GetValue(entry.Entity)?.ToString();
+            if (companyIdProperty != null)
+            {
+                companyId = companyIdProperty.GetValue(entry.Entity)?.ToString();
+            }
+            else if (ChildEntityParentLookup.TryGetValue(entityType, out var lookup))
+            {
+                companyId = ResolveCompanyIdFromParent(context, entry, lookup.ForeignKeyProperty, lookup.ParentType);
+            }
+            else
+            {
+                return; // Skip entities without CompanyId (not multi-tenant)
+            }
+
             if (string.IsNullOrEmpty(companyId))
                 return;
 
@@ -190,6 +211,20 @@ namespace ShiftWork.Api.Data
 
                 context.Add(auditEntry);
             }
+        }
+
+        private string? ResolveCompanyIdFromParent(DbContext context, EntityEntry entry, string foreignKeyProperty, Type parentType)
+        {
+            var fkProperty = entry.Entity.GetType().GetProperty(foreignKeyProperty);
+            var fkValue = fkProperty?.GetValue(entry.Entity);
+            if (fkValue == null)
+                return null;
+
+            var parent = context.Find(parentType, fkValue);
+            if (parent == null)
+                return null;
+
+            return parentType.GetProperty("CompanyId")?.GetValue(parent)?.ToString();
         }
 
         private string GetEntityId(EntityEntry entry)

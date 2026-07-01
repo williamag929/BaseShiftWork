@@ -102,9 +102,64 @@ public class DailyReportServiceTests : IDisposable
 
         var media = await _sut.AddMediaAsync(report.ReportId, CompanyA, 3, "Photo", "reports/test/photo.jpg", null);
 
-        Assert.NotEqual(Guid.Empty, media.MediaId);
+        Assert.NotNull(media);
+        Assert.NotEqual(Guid.Empty, media!.MediaId);
         Assert.Equal(report.ReportId, media.ReportId);
         Assert.Equal("Photo", media.MediaType);
+    }
+
+    [Fact]
+    public async Task AddMediaAsync_ReturnsNull_ForWrongCompany()
+    {
+        var date = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-6));
+        var report = await _sut.GetOrCreateAsync(CompanyA, LocationId, date);
+
+        var media = await _sut.AddMediaAsync(report.ReportId, CompanyB, 3, "Photo", "reports/test/photo.jpg", null);
+
+        Assert.Null(media);
+        var count = await _context.ReportMedia.CountAsync(m => m.ReportId == report.ReportId);
+        Assert.Equal(0, count);
+    }
+
+    [Fact]
+    public async Task RemoveMediaAsync_ReturnsFalse_ForWrongCompany()
+    {
+        var date = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-7));
+        var report = await _sut.GetOrCreateAsync(CompanyA, LocationId, date);
+        var media = await _sut.AddMediaAsync(report.ReportId, CompanyA, 3, "Photo", "reports/test/photo.jpg", null);
+
+        var removed = await _sut.RemoveMediaAsync(media!.MediaId, report.ReportId, CompanyB);
+
+        Assert.False(removed);
+        var stillExists = await _context.ReportMedia.AnyAsync(m => m.MediaId == media.MediaId);
+        Assert.True(stillExists);
+    }
+
+    [Fact]
+    public async Task RemoveMediaAsync_RemovesMedia_ForCorrectCompany()
+    {
+        var date = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-8));
+        var report = await _sut.GetOrCreateAsync(CompanyA, LocationId, date);
+        var media = await _sut.AddMediaAsync(report.ReportId, CompanyA, 3, "Photo", "reports/test/photo.jpg", null);
+
+        var removed = await _sut.RemoveMediaAsync(media!.MediaId, report.ReportId, CompanyA);
+
+        Assert.True(removed);
+        var stillExists = await _context.ReportMedia.AnyAsync(m => m.MediaId == media.MediaId);
+        Assert.False(stillExists);
+    }
+
+    [Fact]
+    public async Task GetReportsAsync_IsScopedToCompany()
+    {
+        var date = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-9));
+        await _sut.GetOrCreateAsync(CompanyA, LocationId, date);
+        await _sut.GetOrCreateAsync(CompanyB, LocationId, date);
+
+        var results = await _sut.GetReportsAsync(CompanyA, LocationId);
+
+        Assert.Single(results);
+        Assert.Equal(CompanyA, results[0].CompanyId);
     }
 
     public void Dispose() => _context.Dispose();

@@ -18,7 +18,7 @@ namespace ShiftWork.Api.Services
         Task<Bulletin> CreateAsync(string companyId, Bulletin bulletin);
         Task<Bulletin?> UpdateAsync(Guid bulletinId, string companyId, Bulletin updates);
         Task<bool> ArchiveAsync(Guid bulletinId, string companyId);
-        Task MarkAsReadAsync(Guid bulletinId, string companyId, int personId);
+        Task<bool> MarkAsReadAsync(Guid bulletinId, string companyId, int personId);
         Task<List<BulletinRead>> GetReadsAsync(Guid bulletinId, string companyId);
     }
 
@@ -148,12 +148,17 @@ namespace ShiftWork.Api.Services
             return true;
         }
 
-        public async Task MarkAsReadAsync(Guid bulletinId, string companyId, int personId)
+        public async Task<bool> MarkAsReadAsync(Guid bulletinId, string companyId, int personId)
         {
+            var belongsToCompany = await _context.Bulletins
+                .AnyAsync(b => b.BulletinId == bulletinId && b.CompanyId == companyId);
+
+            if (!belongsToCompany) return false;
+
             var exists = await _context.BulletinReads
                 .AnyAsync(r => r.BulletinId == bulletinId && r.PersonId == personId);
 
-            if (exists) return;
+            if (exists) return true;
 
             _context.BulletinReads.Add(new BulletinRead
             {
@@ -164,6 +169,7 @@ namespace ShiftWork.Api.Services
 
             await _context.SaveChangesAsync();
             _logger.LogInformation("Bulletin {BulletinId} marked read by Person {PersonId}", bulletinId, personId);
+            return true;
         }
 
         public async Task<List<BulletinRead>> GetReadsAsync(Guid bulletinId, string companyId)

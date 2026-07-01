@@ -129,6 +129,7 @@ namespace ShiftWork.Api.Controllers
                 var mediaUrl = $"reports/{companyId}/{reportId}/{Guid.NewGuid()}_{file.FileName}";
 
                 var media = await _reports.AddMediaAsync(reportId, companyId, personId, mediaType, mediaUrl, caption, shiftEventId);
+                if (media == null) return NotFound();
                 return Ok(ToMediaDto(media));
             }
             catch (Exception ex)
