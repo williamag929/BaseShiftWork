@@ -1,0 +1,1003 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en-US" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="common.cancel" datatype="html">
+        <source>Cancel</source>
+      </trans-unit>
+      <trans-unit id="common.save" datatype="html">
+        <source>Save</source>
+      </trans-unit>
+      <trans-unit id="common.ok" datatype="html">
+        <source>OK</source>
+      </trans-unit>
+      <trans-unit id="common.back" datatype="html">
+        <source>Back</source>
+      </trans-unit>
+      <trans-unit id="common.continue" datatype="html">
+        <source>Continue</source>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Loading…</source>
+      </trans-unit>
+      <trans-unit id="common.error" datatype="html">
+        <source>Error</source>
+      </trans-unit>
+      <trans-unit id="common.try_again" datatype="html">
+        <source>Try again</source>
+      </trans-unit>
+      <trans-unit id="common.or" datatype="html">
+        <source>Or</source>
+      </trans-unit>
+      <trans-unit id="common.done" datatype="html">
+        <source>Done</source>
+      </trans-unit>
+      <trans-unit id="common.edit" datatype="html">
+        <source>Edit</source>
+      </trans-unit>
+      <trans-unit id="common.delete" datatype="html">
+        <source>Delete</source>
+      </trans-unit>
+      <trans-unit id="common.confirm" datatype="html">
+        <source>Confirm</source>
+      </trans-unit>
+      <trans-unit id="common.yes" datatype="html">
+        <source>Yes</source>
+      </trans-unit>
+      <trans-unit id="common.no" datatype="html">
+        <source>No</source>
+      </trans-unit>
+      <trans-unit id="common.retry" datatype="html">
+        <source>Retry</source>
+      </trans-unit>
+      <trans-unit id="common.archive" datatype="html">
+        <source>Archive</source>
+      </trans-unit>
+      <trans-unit id="auth.login.title" datatype="html">
+        <source>Sign In</source>
+      </trans-unit>
+      <trans-unit id="auth.login.subtitle" datatype="html">
+        <source>Sign in to your account</source>
+      </trans-unit>
+      <trans-unit id="auth.login.email_label" datatype="html">
+        <source>Email address</source>
+      </trans-unit>
+      <trans-unit id="auth.login.email_required" datatype="html">
+        <source>Email is required.</source>
+      </trans-unit>
+      <trans-unit id="auth.login.email_invalid" datatype="html">
+        <source>Please enter a valid email address.</source>
+      </trans-unit>
+      <trans-unit id="auth.login.password_label" datatype="html">
+        <source>Password</source>
+      </trans-unit>
+      <trans-unit id="auth.login.password_required" datatype="html">
+        <source>Password is required.</source>
+      </trans-unit>
+      <trans-unit id="auth.login.submit" datatype="html">
+        <source>Log in</source>
+      </trans-unit>
+      <trans-unit id="auth.login.submitting" datatype="html">
+        <source>Signing in…</source>
+      </trans-unit>
+      <trans-unit id="auth.login.google" datatype="html">
+        <source>Log in with Google</source>
+      </trans-unit>
+      <trans-unit id="auth.login.biometric" datatype="html">
+        <source>Sign in with {{biometricType}}</source>
+      </trans-unit>
+      <trans-unit id="auth.login.or_continue" datatype="html">
+        <source>or continue with</source>
+      </trans-unit>
+      <trans-unit id="auth.login.forgot_password" datatype="html">
+        <source>Forgot Password?</source>
+      </trans-unit>
+      <trans-unit id="auth.login.no_account" datatype="html">
+        <source>Don&apos;t have an account?</source>
+      </trans-unit>
+      <trans-unit id="auth.login.sign_up_link" datatype="html">
+        <source>Sign Up</source>
+      </trans-unit>
+      <trans-unit id="auth.login.create_one" datatype="html">
+        <source>Create one</source>
+      </trans-unit>
+      <trans-unit id="auth.login.welcome" datatype="html">
+        <source>Welcome Back</source>
+      </trans-unit>
+      <trans-unit id="auth.login.welcome_subtitle" datatype="html">
+        <source>Sign in to continue to your account</source>
+      </trans-unit>
+      <trans-unit id="auth.login.email_placeholder" datatype="html">
+        <source>Enter your email</source>
+      </trans-unit>
+      <trans-unit id="auth.login.password_placeholder" datatype="html">
+        <source>Enter your password</source>
+      </trans-unit>
+      <trans-unit id="auth.login.or_divider" datatype="html">
+        <source>OR</source>
+      </trans-unit>
+      <trans-unit id="auth.login.signing_in" datatype="html">
+        <source>Signing in...</source>
+      </trans-unit>
+      <trans-unit id="auth.register.title" datatype="html">
+        <source>Create Account</source>
+      </trans-unit>
+      <trans-unit id="auth.register.subtitle" datatype="html">
+        <source>Join ShiftWork in 3 easy steps</source>
+      </trans-unit>
+      <trans-unit id="auth.register.step_account" datatype="html">
+        <source>Your Account</source>
+      </trans-unit>
+      <trans-unit id="auth.register.step_company" datatype="html">
+        <source>Your Company</source>
+      </trans-unit>
+      <trans-unit id="auth.register.step_review" datatype="html">
+        <source>Review &amp; Create</source>
+      </trans-unit>
+      <trans-unit id="auth.register.full_name" datatype="html">
+        <source>Full Name</source>
+      </trans-unit>
+      <trans-unit id="auth.register.email" datatype="html">
+        <source>Email</source>
+      </trans-unit>
+      <trans-unit id="auth.register.password" datatype="html">
+        <source>Password</source>
+      </trans-unit>
+      <trans-unit id="auth.register.password_hint" datatype="html">
+        <source>Min 8 characters</source>
+      </trans-unit>
+      <trans-unit id="auth.register.password_short" datatype="html">
+        <source>Password must be at least 8 characters long.</source>
+      </trans-unit>
+      <trans-unit id="auth.register.password_short_6" datatype="html">
+        <source>Password must be at least 6 characters long.</source>
+      </trans-unit>
+      <trans-unit id="auth.register.company_name" datatype="html">
+        <source>Company Name</source>
+      </trans-unit>
+      <trans-unit id="auth.register.company_email" datatype="html">
+        <source>Company Email</source>
+      </trans-unit>
+      <trans-unit id="auth.register.company_phone" datatype="html">
+        <source>Company Phone (optional)</source>
+      </trans-unit>
+      <trans-unit id="auth.register.submit" datatype="html">
+        <source>Create Account</source>
+      </trans-unit>
+      <trans-unit id="auth.register.creating" datatype="html">
+        <source>Creating…</source>
+      </trans-unit>
+      <trans-unit id="auth.register.free_plan_note" datatype="html">
+        <source>You&apos;ll start on the Free plan with sample data to explore.</source>
+      </trans-unit>
+      <trans-unit id="auth.register.already_account" datatype="html">
+        <source>Already have an account? Sign in</source>
+      </trans-unit>
+      <trans-unit id="auth.register.sign_up" datatype="html">
+        <source>Sign Up</source>
+      </trans-unit>
+      <trans-unit id="auth.register.google" datatype="html">
+        <source>Continue with Google</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.title" datatype="html">
+        <source>Welcome to {{appName}}!</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.subtitle" datatype="html">
+        <source>Your account is ready. Let&apos;s get you started.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.account_setup" datatype="html">
+        <source>Your account is set up and ready to go.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.loading" datatype="html">
+        <source>Loading your workspace…</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_badge" datatype="html">
+        <source>Demo Data</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_title" datatype="html">
+        <source>Your account includes sample data</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_description" datatype="html">
+        <source>We&apos;ve added demo employees, a location, and an area so you can explore {{appName}}.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.employees" datatype="html">
+        <source>Employees</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.locations" datatype="html">
+        <source>Locations</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.areas" datatype="html">
+        <source>Areas</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.hide_demo" datatype="html">
+        <source>Hide demo data</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.hiding" datatype="html">
+        <source>Hiding…</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.reset_demo" datatype="html">
+        <source>Reset to defaults</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.resetting" datatype="html">
+        <source>Resetting…</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.remove_demo" datatype="html">
+        <source>Remove permanently</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.removing" datatype="html">
+        <source>Removing…</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.workspace_clean" datatype="html">
+        <source>Your workspace is clean and ready for real data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_hidden_ok" datatype="html">
+        <source>Demo data hidden. Restore from Settings anytime.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_hidden_fail" datatype="html">
+        <source>Failed to hide demo data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_reset_ok" datatype="html">
+        <source>Demo data reset to defaults.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_reset_fail" datatype="html">
+        <source>Failed to reset demo data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_removed_ok" datatype="html">
+        <source>Demo data removed. Workspace is clean.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_removed_fail" datatype="html">
+        <source>Failed to delete demo data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_hidden_ok" datatype="html">
+        <source>Sandbox data has been hidden. You can restore it at any time from Settings.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_hidden_fail" datatype="html">
+        <source>Failed to hide sandbox data. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_reset_ok" datatype="html">
+        <source>Sandbox data has been reset to defaults.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_reset_fail" datatype="html">
+        <source>Failed to reset sandbox data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_removed_ok" datatype="html">
+        <source>Sandbox data removed. Your workspace is now clean for real data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_removed_fail" datatype="html">
+        <source>Failed to delete sandbox data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.free_plan" datatype="html">
+        <source>Free Plan</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.free_plan_heading" datatype="html">
+        <source>You&apos;re on the Free plan</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.upgrade_description" datatype="html">
+        <source>Upgrade to Pro to unlock advanced scheduling, analytics, multi-location support, and more.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.explore_pro" datatype="html">
+        <source>Explore Pro</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.go_dashboard" datatype="html">
+        <source>Go to Dashboard</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.title" datatype="html">
+        <source>Forgot Password</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.reset_title" datatype="html">
+        <source>Reset Password</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.subtitle" datatype="html">
+        <source>Enter your email to reset your password.</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.instruction" datatype="html">
+        <source>Please enter your email address to request a password reset.</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.email_label" datatype="html">
+        <source>Email address</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.submit" datatype="html">
+        <source>Send reset link</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.reset_submit" datatype="html">
+        <source>Reset Password</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.back_to_login" datatype="html">
+        <source>Back to Sign In</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.go_back_to" datatype="html">
+        <source>Go back to</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.sent" datatype="html">
+        <source>Reset link sent. Check your inbox.</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.invalid_title" datatype="html">
+        <source>Invalid Invite Link</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.invalid_description" datatype="html">
+        <source>This invite link is missing required information or has already been used.</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.ask_admin" datatype="html">
+        <source>Ask your administrator to send a new invite.</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.go_sign_in" datatype="html">
+        <source>Go to Sign In</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.success_title" datatype="html">
+        <source>You&apos;re All Set!</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.success_subtitle" datatype="html">
+        <source>Your account is ready. Log in with {{email}}.</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.or_download" datatype="html">
+        <source>Or download the mobile app</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.coming_soon" datatype="html">
+        <source>Coming Soon</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.title" datatype="html">
+        <source>Accept Invitation</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.subtitle" datatype="html">
+        <source>Set a password to access the mobile app</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.create_password" datatype="html">
+        <source>Create Your Password</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.create_password_desc" datatype="html">
+        <source>Set up a secure password to access your account</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.password_placeholder" datatype="html">
+        <source>Enter your password (min 6 chars)</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.confirm_password" datatype="html">
+        <source>Confirm Password</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.confirm_placeholder" datatype="html">
+        <source>Confirm your password</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.password_min" datatype="html">
+        <source>Password must be at least 6 characters</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.password_mismatch" datatype="html">
+        <source>Passwords do not match</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.setting" datatype="html">
+        <source>Setting Password...</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.submit" datatype="html">
+        <source>Set Password &amp; Activate Account</source>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.title" datatype="html">
+        <source>Thank You for Registering</source>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.sent" datatype="html">
+        <source>We have sent a confirmation email to {{email}}.</source>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.instruction" datatype="html">
+        <source>Please check your email and click on the link to verify your email address.</source>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.resend" datatype="html">
+        <source>Resend Verification Email</source>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.back" datatype="html">
+        <source>Go back to Sign in</source>
+      </trans-unit>
+      <trans-unit id="registration.title" datatype="html">
+        <source>Create your {{appName}} account</source>
+      </trans-unit>
+      <trans-unit id="registration.subtitle" datatype="html">
+        <source>Get started in just a few steps — it&apos;s free</source>
+      </trans-unit>
+      <trans-unit id="registration.step_account" datatype="html">
+        <source>Account</source>
+      </trans-unit>
+      <trans-unit id="registration.step_company" datatype="html">
+        <source>Company</source>
+      </trans-unit>
+      <trans-unit id="registration.step_confirm" datatype="html">
+        <source>Confirm</source>
+      </trans-unit>
+      <trans-unit id="registration.step1_section" datatype="html">
+        <source>Your Account Details</source>
+      </trans-unit>
+      <trans-unit id="registration.full_name_required" datatype="html">
+        <source>Name is required (min 2 characters).</source>
+      </trans-unit>
+      <trans-unit id="registration.email_required" datatype="html">
+        <source>A valid email is required.</source>
+      </trans-unit>
+      <trans-unit id="registration.password_min_8" datatype="html">
+        <source>Password must be at least 8 characters.</source>
+      </trans-unit>
+      <trans-unit id="registration.next_company" datatype="html">
+        <source>Next: Company Info</source>
+      </trans-unit>
+      <trans-unit id="registration.step2_section" datatype="html">
+        <source>Your Company Details</source>
+      </trans-unit>
+      <trans-unit id="registration.company_name_req" datatype="html">
+        <source>Company name is required.</source>
+      </trans-unit>
+      <trans-unit id="registration.company_email_req" datatype="html">
+        <source>A valid company email is required.</source>
+      </trans-unit>
+      <trans-unit id="registration.phone_label" datatype="html">
+        <source>Phone Number (optional)</source>
+      </trans-unit>
+      <trans-unit id="registration.time_zone" datatype="html">
+        <source>Time Zone</source>
+      </trans-unit>
+      <trans-unit id="registration.next_confirm" datatype="html">
+        <source>Next: Confirm</source>
+      </trans-unit>
+      <trans-unit id="registration.step3_section" datatype="html">
+        <source>Review &amp; Create Account</source>
+      </trans-unit>
+      <trans-unit id="registration.summary_company" datatype="html">
+        <source>Company</source>
+      </trans-unit>
+      <trans-unit id="registration.summary_timezone" datatype="html">
+        <source>Time Zone</source>
+      </trans-unit>
+      <trans-unit id="registration.notice" datatype="html">
+        <source>A verification email will be sent to your inbox. Your company will start on the Free plan with sandbox demo data so you can explore the app right away.</source>
+      </trans-unit>
+      <trans-unit id="registration.creating" datatype="html">
+        <source>Creating account…</source>
+      </trans-unit>
+      <trans-unit id="registration.sign_in_link" datatype="html">
+        <source>Already have an account? Sign in</source>
+      </trans-unit>
+      <trans-unit id="bulletins.page_subtitle" datatype="html">
+        <source>Company-wide announcements and updates</source>
+      </trans-unit>
+      <trans-unit id="bulletins.new_btn" datatype="html">
+        <source>New Bulletin</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_heading" datatype="html">
+        <source>New Bulletin</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_title" datatype="html">
+        <source>Title</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_title_ph" datatype="html">
+        <source>Enter bulletin title</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_content" datatype="html">
+        <source>Content</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_content_ph" datatype="html">
+        <source>Write your message...</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_type" datatype="html">
+        <source>Type</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_priority" datatype="html">
+        <source>Priority</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_location" datatype="html">
+        <source>Location Scope</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_all_locations" datatype="html">
+        <source>All locations</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_status" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_expires" datatype="html">
+        <source>Expires At</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_publish" datatype="html">
+        <source>Publish</source>
+      </trans-unit>
+      <trans-unit id="bulletins.filter_all" datatype="html">
+        <source>All</source>
+      </trans-unit>
+      <trans-unit id="bulletins.filter_unread" datatype="html">
+        <source>Unread</source>
+      </trans-unit>
+      <trans-unit id="bulletins.filter_urgent" datatype="html">
+        <source>Urgent</source>
+      </trans-unit>
+      <trans-unit id="bulletins.loading" datatype="html">
+        <source>Loading bulletins...</source>
+      </trans-unit>
+      <trans-unit id="bulletins.empty_all" datatype="html">
+        <source>No bulletins yet. Create the first one.</source>
+      </trans-unit>
+      <trans-unit id="bulletins.empty_unread" datatype="html">
+        <source>All caught up — no unread bulletins.</source>
+      </trans-unit>
+      <trans-unit id="bulletins.empty_urgent" datatype="html">
+        <source>No urgent bulletins right now.</source>
+      </trans-unit>
+      <trans-unit id="bulletins.no_bulletins" datatype="html">
+        <source>No bulletins</source>
+      </trans-unit>
+      <trans-unit id="bulletins.retry" datatype="html">
+        <source>Retry</source>
+      </trans-unit>
+      <trans-unit id="bulletins.unread_badge" datatype="html">
+        <source>unread</source>
+      </trans-unit>
+      <trans-unit id="bulletins.expires_card" datatype="html">
+        <source>Expires</source>
+      </trans-unit>
+      <trans-unit id="bulletins.unread_tooltip" datatype="html">
+        <source>Unread</source>
+      </trans-unit>
+      <trans-unit id="bulletins.read_tooltip" datatype="html">
+        <source>Read</source>
+      </trans-unit>
+      <trans-unit id="bulletins.reads_tooltip" datatype="html">
+        <source>Total reads</source>
+      </trans-unit>
+      <trans-unit id="documents.page_subtitle" datatype="html">
+        <source>Manuals, procedures, SDS sheets, and policies</source>
+      </trans-unit>
+      <trans-unit id="documents.upload_btn" datatype="html">
+        <source>Upload</source>
+      </trans-unit>
+      <trans-unit id="documents.form_heading" datatype="html">
+        <source>Upload Document</source>
+      </trans-unit>
+      <trans-unit id="documents.form_title" datatype="html">
+        <source>Title</source>
+      </trans-unit>
+      <trans-unit id="documents.form_title_ph" datatype="html">
+        <source>Document title</source>
+      </trans-unit>
+      <trans-unit id="documents.form_description" datatype="html">
+        <source>Description</source>
+      </trans-unit>
+      <trans-unit id="documents.form_description_ph" datatype="html">
+        <source>Optional description</source>
+      </trans-unit>
+      <trans-unit id="documents.form_type" datatype="html">
+        <source>Type</source>
+      </trans-unit>
+      <trans-unit id="documents.form_version" datatype="html">
+        <source>Version</source>
+      </trans-unit>
+      <trans-unit id="documents.form_access" datatype="html">
+        <source>Access Level</source>
+      </trans-unit>
+      <trans-unit id="documents.form_location" datatype="html">
+        <source>Location Scope</source>
+      </trans-unit>
+      <trans-unit id="documents.form_all_locations" datatype="html">
+        <source>All locations</source>
+      </trans-unit>
+      <trans-unit id="documents.choose_file" datatype="html">
+        <source>Choose File</source>
+      </trans-unit>
+      <trans-unit id="documents.no_file" datatype="html">
+        <source>No file selected</source>
+      </trans-unit>
+      <trans-unit id="documents.uploading" datatype="html">
+        <source>Uploading...</source>
+      </trans-unit>
+      <trans-unit id="documents.search_ph" datatype="html">
+        <source>Search by title...</source>
+      </trans-unit>
+      <trans-unit id="documents.filter_type" datatype="html">
+        <source>Type</source>
+      </trans-unit>
+      <trans-unit id="documents.filter_all_types" datatype="html">
+        <source>All Types</source>
+      </trans-unit>
+      <trans-unit id="documents.filter_location" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="documents.filter_all_locations" datatype="html">
+        <source>All Locations</source>
+      </trans-unit>
+      <trans-unit id="documents.loading" datatype="html">
+        <source>Loading document…</source>
+      </trans-unit>
+      <trans-unit id="documents.empty_no_docs" datatype="html">
+        <source>No documents found</source>
+      </trans-unit>
+      <trans-unit id="documents.empty_filter" datatype="html">
+        <source>Try adjusting your search filters.</source>
+      </trans-unit>
+      <trans-unit id="documents.empty_first" datatype="html">
+        <source>Upload the first document to get started.</source>
+      </trans-unit>
+      <trans-unit id="documents.retry" datatype="html">
+        <source>Retry</source>
+      </trans-unit>
+      <trans-unit id="documents.search_label" datatype="html">
+        <source>Search documents</source>
+      </trans-unit>
+      <trans-unit id="documents.location_hint" datatype="html">
+        <source>Required for LocationOnly access</source>
+      </trans-unit>
+      <trans-unit id="safety.page_subtitle" datatype="html">
+        <source>Trainings, toolbox talks, and mandatory acknowledgments</source>
+      </trans-unit>
+      <trans-unit id="safety.new_btn" datatype="html">
+        <source>New Content</source>
+      </trans-unit>
+      <trans-unit id="safety.form_heading" datatype="html">
+        <source>New Safety Content</source>
+      </trans-unit>
+      <trans-unit id="safety.form_title" datatype="html">
+        <source>Title</source>
+      </trans-unit>
+      <trans-unit id="safety.form_description" datatype="html">
+        <source>Description</source>
+      </trans-unit>
+      <trans-unit id="safety.form_text_content" datatype="html">
+        <source>Content Text</source>
+      </trans-unit>
+      <trans-unit id="safety.form_type" datatype="html">
+        <source>Type</source>
+      </trans-unit>
+      <trans-unit id="safety.form_status" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="safety.form_location" datatype="html">
+        <source>Location Scope</source>
+      </trans-unit>
+      <trans-unit id="safety.form_all_locations" datatype="html">
+        <source>All locations</source>
+      </trans-unit>
+      <trans-unit id="safety.form_scheduled" datatype="html">
+        <source>Scheduled For</source>
+      </trans-unit>
+      <trans-unit id="safety.form_require_ack" datatype="html">
+        <source>Require employee acknowledgment</source>
+      </trans-unit>
+      <trans-unit id="safety.form_publish" datatype="html">
+        <source>Publish</source>
+      </trans-unit>
+      <trans-unit id="safety.tab_all" datatype="html">
+        <source>All Content</source>
+      </trans-unit>
+      <trans-unit id="safety.tab_pending" datatype="html">
+        <source>Pending Ack</source>
+      </trans-unit>
+      <trans-unit id="safety.loading" datatype="html">
+        <source>Loading safety content...</source>
+      </trans-unit>
+      <trans-unit id="safety.action_required" datatype="html">
+        <source>Action Required</source>
+      </trans-unit>
+      <trans-unit id="safety.ack_prompt" datatype="html">
+        <source>Please review and acknowledge this safety content before continuing.</source>
+      </trans-unit>
+      <trans-unit id="safety.i_acknowledge" datatype="html">
+        <source>I Acknowledge</source>
+      </trans-unit>
+      <trans-unit id="safety.view_content" datatype="html">
+        <source>View Content</source>
+      </trans-unit>
+      <trans-unit id="safety.hide_compliance" datatype="html">
+        <source>Hide Compliance</source>
+      </trans-unit>
+      <trans-unit id="safety.view_compliance" datatype="html">
+        <source>View Compliance</source>
+      </trans-unit>
+      <trans-unit id="safety.acknowledged_badge" datatype="html">
+        <source>Acknowledged</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_pending" datatype="html">
+        <source>All caught up!</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_pending_desc" datatype="html">
+        <source>No pending acknowledgments — great job.</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_all" datatype="html">
+        <source>No safety content yet</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_all_desc" datatype="html">
+        <source>Create your first toolbox talk or safety training.</source>
+      </trans-unit>
+      <trans-unit id="safety.retry" datatype="html">
+        <source>Retry</source>
+      </trans-unit>
+      <trans-unit id="safety.pending_badge" datatype="html">
+        <source>pending</source>
+      </trans-unit>
+      <trans-unit id="safety.scheduled_on" datatype="html">
+        <source>Scheduled</source>
+      </trans-unit>
+      <trans-unit id="safety.still_pending" datatype="html">
+        <source>Still pending:</source>
+      </trans-unit>
+      <trans-unit id="safety.compliance_acknowledged" datatype="html">
+        <source>acknowledged</source>
+      </trans-unit>
+      <trans-unit id="upgrade.title" datatype="html">
+        <source>Upgrade to Pro</source>
+      </trans-unit>
+      <trans-unit id="upgrade.subtitle" datatype="html">
+        <source>Unlock the full power of {{appName}} for your team.</source>
+      </trans-unit>
+      <trans-unit id="upgrade.col_feature" datatype="html">
+        <source>Feature</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_kiosk" datatype="html">
+        <source>Kiosk Clock-In / Out</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_basic_schedule" datatype="html">
+        <source>Basic Scheduling</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_sandbox" datatype="html">
+        <source>Sandbox Demo Data</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_remove_sandbox" datatype="html">
+        <source>Remove Sandbox Data</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_advanced" datatype="html">
+        <source>Advanced Scheduling</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_analytics" datatype="html">
+        <source>Analytics &amp; Reports</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_multilocation" datatype="html">
+        <source>Multi-Location Support</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_export" datatype="html">
+        <source>Data Export</source>
+      </trans-unit>
+      <trans-unit id="upgrade.price_info" datatype="html">
+        <source>Pro plan — contact sales for pricing</source>
+      </trans-unit>
+      <trans-unit id="upgrade.submit" datatype="html">
+        <source>Upgrade to Pro Now</source>
+      </trans-unit>
+      <trans-unit id="upgrade.processing" datatype="html">
+        <source>Processing…</source>
+      </trans-unit>
+      <trans-unit id="upgrade.back_dashboard" datatype="html">
+        <source>← Back to Dashboard</source>
+      </trans-unit>
+      <trans-unit id="upgrade.plan_free" datatype="html">
+        <source>Free</source>
+      </trans-unit>
+      <trans-unit id="upgrade.plan_pro" datatype="html">
+        <source>Pro ⭐</source>
+      </trans-unit>
+      <trans-unit id="upgrade.subtitle_web" datatype="html">
+        <source>Unlock the full power of Loqzen for your team.</source>
+      </trans-unit>
+      <trans-unit id="nav.home" datatype="html">
+        <source>Home</source>
+      </trans-unit>
+      <trans-unit id="nav.clock" datatype="html">
+        <source>Clock</source>
+      </trans-unit>
+      <trans-unit id="nav.schedule" datatype="html">
+        <source>Schedule</source>
+      </trans-unit>
+      <trans-unit id="nav.grid" datatype="html">
+        <source>Grid</source>
+      </trans-unit>
+      <trans-unit id="nav.profile" datatype="html">
+        <source>Profile</source>
+      </trans-unit>
+      <trans-unit id="nav.ai" datatype="html">
+        <source>AI</source>
+      </trans-unit>
+      <trans-unit id="nav.documents" datatype="html">
+        <source>Docs</source>
+      </trans-unit>
+      <trans-unit id="nav.bulletins" datatype="html">
+        <source>Bulletins</source>
+      </trans-unit>
+      <trans-unit id="nav.safety" datatype="html">
+        <source>Safety</source>
+      </trans-unit>
+      <trans-unit id="nav.report" datatype="html">
+        <source>Report</source>
+      </trans-unit>
+      <trans-unit id="nav.time_off" datatype="html">
+        <source>Time Off</source>
+      </trans-unit>
+      <trans-unit id="nav.weekly_schedule" datatype="html">
+        <source>Weekly Schedule</source>
+      </trans-unit>
+      <trans-unit id="nav.upgrade" datatype="html">
+        <source>Upgrade to Pro</source>
+      </trans-unit>
+      <trans-unit id="clock.title" datatype="html">
+        <source>Clock</source>
+      </trans-unit>
+      <trans-unit id="clock.status_on" datatype="html">
+        <source>You are on the clock</source>
+      </trans-unit>
+      <trans-unit id="clock.status_off" datatype="html">
+        <source>Ready to start?</source>
+      </trans-unit>
+      <trans-unit id="clock.badge_on" datatype="html">
+        <source>On Clock</source>
+      </trans-unit>
+      <trans-unit id="clock.badge_off" datatype="html">
+        <source>Off Clock</source>
+      </trans-unit>
+      <trans-unit id="clock.location_captured" datatype="html">
+        <source>Location captured</source>
+      </trans-unit>
+      <trans-unit id="clock.photo_optional" datatype="html">
+        <source>Photo optional</source>
+      </trans-unit>
+      <trans-unit id="clock.device_recorded" datatype="html">
+        <source>Device recorded</source>
+      </trans-unit>
+      <trans-unit id="clock.clock_in" datatype="html">
+        <source>Clock In</source>
+      </trans-unit>
+      <trans-unit id="clock.clock_out" datatype="html">
+        <source>Clock Out</source>
+      </trans-unit>
+      <trans-unit id="clock.add_photo" datatype="html">
+        <source>Add Photo (optional)</source>
+      </trans-unit>
+      <trans-unit id="clock.retake_photo" datatype="html">
+        <source>Retake Photo</source>
+      </trans-unit>
+      <trans-unit id="clock.remove_photo" datatype="html">
+        <source>Remove photo</source>
+      </trans-unit>
+      <trans-unit id="clock.offline_warning" datatype="html">
+        <source>Offline · showing cached data</source>
+      </trans-unit>
+      <trans-unit id="dashboard.greeting_morning" datatype="html">
+        <source>Good morning</source>
+      </trans-unit>
+      <trans-unit id="dashboard.greeting_afternoon" datatype="html">
+        <source>Good afternoon</source>
+      </trans-unit>
+      <trans-unit id="dashboard.greeting_evening" datatype="html">
+        <source>Good evening</source>
+      </trans-unit>
+      <trans-unit id="dashboard.status_live" datatype="html">
+        <source>Live</source>
+      </trans-unit>
+      <trans-unit id="dashboard.status_offline" datatype="html">
+        <source>Offline</source>
+      </trans-unit>
+      <trans-unit id="dashboard.on_clock" datatype="html">
+        <source>On clock</source>
+      </trans-unit>
+      <trans-unit id="dashboard.updated_at" datatype="html">
+        <source>Updated {{time}}</source>
+      </trans-unit>
+      <trans-unit id="dashboard.quick_clock_in" datatype="html">
+        <source>Clock In</source>
+      </trans-unit>
+      <trans-unit id="dashboard.quick_clock_out" datatype="html">
+        <source>Clock Out</source>
+      </trans-unit>
+      <trans-unit id="dashboard.quick_schedule" datatype="html">
+        <source>Schedule</source>
+      </trans-unit>
+      <trans-unit id="dashboard.quick_time_off" datatype="html">
+        <source>Time Off</source>
+      </trans-unit>
+      <trans-unit id="profile.title" datatype="html">
+        <source>Profile</source>
+      </trans-unit>
+      <trans-unit id="profile.security_section" datatype="html">
+        <source>Security</source>
+      </trans-unit>
+      <trans-unit id="profile.biometric_label" datatype="html">
+        <source>{{biometricType}} Login</source>
+      </trans-unit>
+      <trans-unit id="profile.biometric_desc" datatype="html">
+        <source>Use {{biometricType}} to sign in quickly</source>
+      </trans-unit>
+      <trans-unit id="profile.change_pin" datatype="html">
+        <source>Change PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.change_pin_desc" datatype="html">
+        <source>Update your 4-digit PIN for kiosk access</source>
+      </trans-unit>
+      <trans-unit id="profile.current_pin" datatype="html">
+        <source>Current PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.new_pin" datatype="html">
+        <source>New PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.confirm_pin" datatype="html">
+        <source>Confirm New PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.current_pin_placeholder" datatype="html">
+        <source>Enter current PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.new_pin_placeholder" datatype="html">
+        <source>Enter new 4-digit PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.confirm_pin_placeholder" datatype="html">
+        <source>Re-enter new PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.update_pin" datatype="html">
+        <source>Update PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.sign_out" datatype="html">
+        <source>Sign Out</source>
+      </trans-unit>
+      <trans-unit id="profile.language" datatype="html">
+        <source>Language</source>
+      </trans-unit>
+      <trans-unit id="profile.language_en" datatype="html">
+        <source>English</source>
+      </trans-unit>
+      <trans-unit id="profile.language_es" datatype="html">
+        <source>Spanish</source>
+      </trans-unit>
+      <trans-unit id="bulletins.title" datatype="html">
+        <source>Bulletins</source>
+      </trans-unit>
+      <trans-unit id="bulletins.empty" datatype="html">
+        <source>No bulletins yet.</source>
+      </trans-unit>
+      <trans-unit id="bulletins.unread_one" datatype="html">
+        <source>{{count}} unread bulletin</source>
+      </trans-unit>
+      <trans-unit id="bulletins.unread_other" datatype="html">
+        <source>{{count}} unread bulletins</source>
+      </trans-unit>
+      <trans-unit id="bulletins.mark_read" datatype="html">
+        <source>Mark as read</source>
+      </trans-unit>
+      <trans-unit id="bulletins.acknowledge" datatype="html">
+        <source>Acknowledge</source>
+      </trans-unit>
+      <trans-unit id="documents.title" datatype="html">
+        <source>Documents</source>
+      </trans-unit>
+      <trans-unit id="documents.empty" datatype="html">
+        <source>No documents available.</source>
+      </trans-unit>
+      <trans-unit id="documents.download" datatype="html">
+        <source>Download</source>
+      </trans-unit>
+      <trans-unit id="documents.open" datatype="html">
+        <source>Open</source>
+      </trans-unit>
+      <trans-unit id="safety.title" datatype="html">
+        <source>Safety</source>
+      </trans-unit>
+      <trans-unit id="safety.empty" datatype="html">
+        <source>No safety content.</source>
+      </trans-unit>
+      <trans-unit id="safety.acknowledge" datatype="html">
+        <source>I Acknowledge</source>
+      </trans-unit>
+      <trans-unit id="safety.required" datatype="html">
+        <source>Required</source>
+      </trans-unit>
+      <trans-unit id="safety.acknowledged" datatype="html">
+        <source>Acknowledged</source>
+      </trans-unit>
+      <trans-unit id="errors.something_wrong" datatype="html">
+        <source>Something went wrong</source>
+      </trans-unit>
+      <trans-unit id="errors.unexpected" datatype="html">
+        <source>An unexpected error occurred.</source>
+      </trans-unit>
+      <trans-unit id="errors.network" datatype="html">
+        <source>Network error. Please check your connection.</source>
+      </trans-unit>
+      <trans-unit id="errors.not_found" datatype="html">
+        <source>Not found.</source>
+      </trans-unit>
+      <trans-unit id="errors.unauthorized" datatype="html">
+        <source>You are not authorized to perform this action.</source>
+      </trans-unit>
+      <trans-unit id="errors.load_failed" datatype="html">
+        <source>Could not load data.</source>
+      </trans-unit>
+      <trans-unit id="errors.save_failed" datatype="html">
+        <source>Could not save changes.</source>
+      </trans-unit>
+      <trans-unit id="errors.sandbox_load" datatype="html">
+        <source>Could not load sandbox status.</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

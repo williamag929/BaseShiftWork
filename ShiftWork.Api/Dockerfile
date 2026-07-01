@@ -1,26 +1,29 @@
-# Stage 1: Build the application using the .NET SDK for Windows Server
-#FROM mcr.microsoft.com/dotnet/sdk:9.0-windowsservercore-ltsc2022 AS build
+# ── Build ────────────────────────────────────────────────────────────────────
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-# SET the working directory
 WORKDIR /app
-# copy the project files
 COPY . .
-# Restore and build the project
 RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
-# Final stage: run the application using ASP.NET Core runtime
+# ── Runtime ──────────────────────────────────────────────────────────────────
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 COPY --from=build /app/out .
 
-# Copy .NET .env file for runtime
-COPY .env ./
+# Install curl for health check (slim Debian base)
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Expose port 80 for the application
+# Run as non-root
+RUN adduser --disabled-password --home /app --shell /bin/sh appuser \
+    && chown -R appuser /app
+USER appuser
+
 EXPOSE 80
-# Set the application to listen on IPv4 only
 ENV ASPNETCORE_URLS=http://0.0.0.0:80
-# Run the application
+
+# All secrets/config must be injected via environment variables — never COPY .env
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -sf http://localhost/api/health || exit 1
 
 ENTRYPOINT ["dotnet", "ShiftWork.Api.dll"]

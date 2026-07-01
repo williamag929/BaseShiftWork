@@ -1,0 +1,12 @@
+{
+  "name": "translations-source",
+  "version": "1.0.0",
+  "description": "Single source of truth for ShiftWork i18n strings (Angular + React Native).",
+  "private": true,
+  "scripts": {
+    "validate":       "node scripts/validate-strings.js",
+    "generate:rn":    "node scripts/generate-rn-translations.js",
+    "generate:angular": "node scripts/generate-angular-xliff.js",
+    "generate:all":   "npm run validate && npm run generate:rn && npm run generate:angular"
+  }
+}

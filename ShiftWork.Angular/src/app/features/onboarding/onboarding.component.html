@@ -6,8 +6,8 @@
       <div class="check-circle">
         <i class="fa fa-check"></i>
       </div>
-      <h1>Welcome to Loqzen!</h1>
-      <p class="sub">Your account is set up and ready to go.</p>
+      <h1 i18n="@@auth.onboarding.account_setup">Your account is set up and ready to go.</h1>
+      <p class="sub" i18n="@@auth.onboarding.subtitle">Your account is ready. Let's get you started.</p>
     </div>
 
     <!-- ── Alerts ── -->
@@ -21,16 +21,16 @@
     <!-- ── Loading state ── -->
     <div *ngIf="isLoading" class="loading-state">
       <div class="spinner"></div>
-      <p>Loading your workspace…</p>
+      <p i18n="@@auth.onboarding.loading">Loading your workspace…</p>
     </div>
 
     <!-- ── Sandbox banner ── -->
     <div class="sandbox-banner" *ngIf="!isLoading && sandboxStatus?.hasSandboxData">
       <div class="sandbox-banner-header">
-        <span class="badge-info">Demo Data</span>
-        <h3>Your account includes sample data</h3>
+        <span class="badge-info" i18n="@@auth.onboarding.demo_badge">Demo Data</span>
+        <h3 i18n="@@auth.onboarding.demo_title">Your account includes sample data</h3>
       </div>
-      <p>
+      <p i18n="@@auth.onboarding.demo_description">
         We've added demo employees, a location, and an area so you can explore how Loqzen works.
         This data is clearly marked as <em>sandbox</em> — it won't affect your payroll or reports.
       </p>
@@ -38,52 +38,53 @@
       <div class="sandbox-counts" *ngIf="sandboxStatus">
         <div class="count-item">
           <strong>{{ sandboxStatus.sandboxPersonCount }}</strong>
-          <span>Employees</span>
+          <span i18n="@@auth.onboarding.employees">Employees</span>
         </div>
         <div class="count-item">
           <strong>{{ sandboxStatus.sandboxLocationCount }}</strong>
-          <span>Locations</span>
+          <span i18n="@@auth.onboarding.locations">Locations</span>
         </div>
         <div class="count-item">
           <strong>{{ sandboxStatus.sandboxAreaCount }}</strong>
-          <span>Areas</span>
+          <span i18n="@@auth.onboarding.areas">Areas</span>
         </div>
       </div>
 
       <div class="sandbox-actions">
         <button class="btn btn-outline-secondary" (click)="hideSandboxData()" [disabled]="!!actionInProgress">
           <i class="fa fa-eye-slash"></i>
-          {{ actionInProgress === 'hide' ? 'Hiding…' : 'Hide demo data' }}
+          {{ actionInProgress === 'hide' ? hidingLabel : hideDemoLabel }}
         </button>
         <button class="btn btn-outline-warning" (click)="resetSandboxData()" [disabled]="!!actionInProgress">
           <i class="fa fa-refresh"></i>
-          {{ actionInProgress === 'reset' ? 'Resetting…' : 'Reset to defaults' }}
+          {{ actionInProgress === 'reset' ? resettingLabel : resetDemoLabel }}
         </button>
         <button class="btn btn-outline-danger" (click)="deleteSandboxData()" [disabled]="!!actionInProgress">
           <i class="fa fa-trash"></i>
-          {{ actionInProgress === 'delete' ? 'Removing…' : 'Remove demo data permanently' }}
+          {{ actionInProgress === 'delete' ? removingLabel : removeDemoLabel }}
         </button>
       </div>
     </div>
 
     <!-- ── Clean workspace notice ── -->
     <div class="sandbox-clean" *ngIf="!isLoading && sandboxStatus && !sandboxStatus.hasSandboxData">
-      <i class="fa fa-check-circle"></i> Your workspace is clean and ready for real data.
+      <i class="fa fa-check-circle"></i>
+      <ng-container i18n="@@auth.onboarding.workspace_clean">Your workspace is clean and ready for real data.</ng-container>
     </div>
 
     <!-- ── Plan banner ── -->
     <div class="plan-banner" *ngIf="!isLoading">
-      <h3>You're on the <strong>Free plan</strong></h3>
-      <p>Upgrade to Pro to unlock advanced scheduling, analytics, multi-location support, and more.</p>
+      <h3 i18n="@@auth.onboarding.free_plan_heading">You're on the <strong>Free plan</strong></h3>
+      <p i18n="@@auth.onboarding.upgrade_description">Upgrade to Pro to unlock advanced scheduling, analytics, multi-location support, and more.</p>
       <a routerLink="/upgrade" class="btn btn-primary">
-        Explore Pro <i class="fa fa-arrow-right"></i>
+        <ng-container i18n="@@auth.onboarding.explore_pro">Explore Pro</ng-container> <i class="fa fa-arrow-right"></i>
       </a>
     </div>
 
     <!-- ── CTA ── -->
     <div class="ob-footer" *ngIf="!isLoading">
       <button class="btn-cta" (click)="goToDashboard()">
-        Go to Dashboard <i class="fa fa-arrow-right"></i>
+        <ng-container i18n="@@auth.onboarding.go_dashboard">Go to Dashboard</ng-container> <i class="fa fa-arrow-right"></i>
       </button>
     </div>
 

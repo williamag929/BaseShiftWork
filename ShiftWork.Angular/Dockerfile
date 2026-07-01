@@ -1,31 +1,25 @@
-# Stage 1: Build the Angular application
-FROM node:20.18.0 AS build
-
-# Install Angular CLI globally
-RUN npm install -g @angular/cli@19.0.0
-
+# ── Build ────────────────────────────────────────────────────────────────────
+FROM node:20-alpine AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-
-RUN npm install
+RUN npm ci
 
 COPY . .
 
-# Expose port 80
-EXPOSE 4200
+# Production English build.
+# Angular outputs to dist/shift-workfrontend/en-US/ when localize is set.
+RUN npx ng build --configuration=production
 
-#CMD ["npm", "start"]
-CMD ["ng", "serve", "--host", "0.0.0.0", "--disable-host-check"]
+# ── Runtime ──────────────────────────────────────────────────────────────────
+FROM nginx:alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy English locale output; adjust path if your angular.json outputPath differs
+COPY --from=build /app/dist/shift-workfrontend/en-US /usr/share/nginx/html
 
+EXPOSE 80
 
-#RUN npm run build -- --configuration production
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
 
-# Stage 2: Serve the application from a lightweight web server
-#FROM nginx:alpine
-
-#COPY --from=build /app/dist/shift-workfrontend /usr/share/nginx/html
-
-#EXPOSE 80
-
-#CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]

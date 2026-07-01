@@ -1,10 +1,10 @@
 <div class="container">
   <div class="card">
     <div class="card-body">
-      <h3 class="card-title text-center">Sign In</h3>
+      <h3 class="card-title text-center" i18n="@@auth.login.title">Sign In</h3>
       <form [formGroup]="signInForm" (ngSubmit)="signIn()">
         <div class="form-group">
-          <label for="email">Email address</label>
+          <label for="email" i18n="@@auth.login.email_label">Email address</label>
           <input
             type="email"
             class="form-control"
@@ -13,12 +13,12 @@
             [ngClass]="{ 'is-invalid': signInForm.get('email')?.touched && signInForm.get('email')?.invalid }"
           />
           <div *ngIf="signInForm.get('email')?.touched && signInForm.get('email')?.invalid" class="invalid-feedback">
-            <div *ngIf="signInForm.get('email')?.errors?.['required']">Email is required.</div>
-            <div *ngIf="signInForm.get('email')?.errors?.['email']">Please enter a valid email address.</div>
+            <div *ngIf="signInForm.get('email')?.errors?.['required']" i18n="@@auth.login.email_required">Email is required.</div>
+            <div *ngIf="signInForm.get('email')?.errors?.['email']" i18n="@@auth.login.email_invalid">Please enter a valid email address.</div>
           </div>
         </div>
         <div class="form-group">
-          <label for="password">Password</label>
+          <label for="password" i18n="@@auth.login.password_label">Password</label>
           <input
             type="password"
             class="form-control"
@@ -27,23 +27,24 @@
             [ngClass]="{ 'is-invalid': signInForm.get('password')?.touched && signInForm.get('password')?.invalid }"
           />
           <div *ngIf="signInForm.get('password')?.touched && signInForm.get('password')?.invalid" class="invalid-feedback">
-            <div *ngIf="signInForm.get('password')?.errors?.['required']">Password is required.</div>
+            <div *ngIf="signInForm.get('password')?.errors?.['required']" i18n="@@auth.login.password_required">Password is required.</div>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-block" [disabled]="!signInForm.valid">Log in</button>
+        <button type="submit" class="btn btn-primary btn-block" [disabled]="!signInForm.valid" i18n="@@auth.login.submit">Log in</button>
       </form>
       <div class="or-separator">
-        <span class="or-text">Or</span>
+        <span class="or-text" i18n="@@common.or">Or</span>
       </div>
       <button type="button" class="btn btn-google btn-block" (click)="googleSignIn()">
         <i class="fa fa-google-plus-g"></i>
-        Log in with Google
+        <ng-container i18n="@@auth.login.google">Log in with Google</ng-container>
       </button>
       <div class="text-center mt-3">
-        <a routerLink="/auth/forgot-password">Forgot Password?</a>
+        <a routerLink="/auth/forgot-password" i18n="@@auth.login.forgot_password">Forgot Password?</a>
       </div>
       <div class="text-center mt-2">
-        <span>Don't have an account? <a routerLink="/auth/sign-up">Sign Up</a></span>
+        <span i18n="@@auth.login.no_account">Don't have an account?</span>
+        <a routerLink="/auth/sign-up" i18n="@@auth.login.sign_up_link">Sign Up</a>
       </div>
     </div>
   </div>

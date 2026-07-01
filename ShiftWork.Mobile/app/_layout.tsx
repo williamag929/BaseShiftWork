@@ -9,6 +9,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastContainer } from '@/components/ui';
 import { logger } from '@/utils/logger';
 import { getToken, getUserData, getCompanyId } from '@/utils/storage.utils';
+import { LocaleProvider } from '@/i18n';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -78,15 +79,17 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <Stack screenOptions={{ animation: 'slide_from_right' }}>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
-          <ToastContainer />
-          <StatusBar style="auto" />
-        </QueryClientProvider>
+        <LocaleProvider>
+          <QueryClientProvider client={queryClient}>
+            <Stack screenOptions={{ animation: 'slide_from_right' }}>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            </Stack>
+            <ToastContainer />
+            <StatusBar style="auto" />
+          </QueryClientProvider>
+        </LocaleProvider>
       </ErrorBoundary>
     </GestureHandlerRootView>
   );

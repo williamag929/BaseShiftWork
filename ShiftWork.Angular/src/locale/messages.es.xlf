@@ -1,0 +1,1335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en-US" target-language="es-SP" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="common.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Cancelar</target>
+      </trans-unit>
+      <trans-unit id="common.save" datatype="html">
+        <source>Save</source>
+        <target state="translated">Guardar</target>
+      </trans-unit>
+      <trans-unit id="common.ok" datatype="html">
+        <source>OK</source>
+        <target state="translated">Aceptar</target>
+      </trans-unit>
+      <trans-unit id="common.back" datatype="html">
+        <source>Back</source>
+        <target state="translated">Atrás</target>
+      </trans-unit>
+      <trans-unit id="common.continue" datatype="html">
+        <source>Continue</source>
+        <target state="translated">Continuar</target>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Loading…</source>
+        <target state="translated">Cargando…</target>
+      </trans-unit>
+      <trans-unit id="common.error" datatype="html">
+        <source>Error</source>
+        <target state="translated">Error</target>
+      </trans-unit>
+      <trans-unit id="common.try_again" datatype="html">
+        <source>Try again</source>
+        <target state="translated">Intentar de nuevo</target>
+      </trans-unit>
+      <trans-unit id="common.or" datatype="html">
+        <source>Or</source>
+        <target state="translated">O</target>
+      </trans-unit>
+      <trans-unit id="common.done" datatype="html">
+        <source>Done</source>
+        <target state="translated">Listo</target>
+      </trans-unit>
+      <trans-unit id="common.edit" datatype="html">
+        <source>Edit</source>
+        <target state="translated">Editar</target>
+      </trans-unit>
+      <trans-unit id="common.delete" datatype="html">
+        <source>Delete</source>
+        <target state="translated">Eliminar</target>
+      </trans-unit>
+      <trans-unit id="common.confirm" datatype="html">
+        <source>Confirm</source>
+        <target state="translated">Confirmar</target>
+      </trans-unit>
+      <trans-unit id="common.yes" datatype="html">
+        <source>Yes</source>
+        <target state="translated">Sí</target>
+      </trans-unit>
+      <trans-unit id="common.no" datatype="html">
+        <source>No</source>
+        <target state="translated">No</target>
+      </trans-unit>
+      <trans-unit id="common.retry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">Reintentar</target>
+      </trans-unit>
+      <trans-unit id="common.archive" datatype="html">
+        <source>Archive</source>
+        <target state="translated">Archivar</target>
+      </trans-unit>
+      <trans-unit id="auth.login.title" datatype="html">
+        <source>Sign In</source>
+        <target state="translated">Iniciar sesión</target>
+      </trans-unit>
+      <trans-unit id="auth.login.subtitle" datatype="html">
+        <source>Sign in to your account</source>
+        <target state="translated">Inicia sesión en tu cuenta</target>
+      </trans-unit>
+      <trans-unit id="auth.login.email_label" datatype="html">
+        <source>Email address</source>
+        <target state="translated">Correo electrónico</target>
+      </trans-unit>
+      <trans-unit id="auth.login.email_required" datatype="html">
+        <source>Email is required.</source>
+        <target state="translated">El correo electrónico es requerido.</target>
+      </trans-unit>
+      <trans-unit id="auth.login.email_invalid" datatype="html">
+        <source>Please enter a valid email address.</source>
+        <target state="translated">Ingresa un correo electrónico válido.</target>
+      </trans-unit>
+      <trans-unit id="auth.login.password_label" datatype="html">
+        <source>Password</source>
+        <target state="translated">Contraseña</target>
+      </trans-unit>
+      <trans-unit id="auth.login.password_required" datatype="html">
+        <source>Password is required.</source>
+        <target state="translated">La contraseña es requerida.</target>
+      </trans-unit>
+      <trans-unit id="auth.login.submit" datatype="html">
+        <source>Log in</source>
+        <target state="translated">Iniciar sesión</target>
+      </trans-unit>
+      <trans-unit id="auth.login.submitting" datatype="html">
+        <source>Signing in…</source>
+        <target state="translated">Iniciando sesión…</target>
+      </trans-unit>
+      <trans-unit id="auth.login.google" datatype="html">
+        <source>Log in with Google</source>
+        <target state="translated">Iniciar sesión con Google</target>
+      </trans-unit>
+      <trans-unit id="auth.login.biometric" datatype="html">
+        <source>Sign in with {{biometricType}}</source>
+        <target state="translated">Iniciar sesión con {{biometricType}}</target>
+      </trans-unit>
+      <trans-unit id="auth.login.or_continue" datatype="html">
+        <source>or continue with</source>
+        <target state="translated">o continuar con</target>
+      </trans-unit>
+      <trans-unit id="auth.login.forgot_password" datatype="html">
+        <source>Forgot Password?</source>
+        <target state="translated">¿Olvidaste tu contraseña?</target>
+      </trans-unit>
+      <trans-unit id="auth.login.no_account" datatype="html">
+        <source>Don&apos;t have an account?</source>
+        <target state="translated">¿No tienes cuenta?</target>
+      </trans-unit>
+      <trans-unit id="auth.login.sign_up_link" datatype="html">
+        <source>Sign Up</source>
+        <target state="translated">Registrarse</target>
+      </trans-unit>
+      <trans-unit id="auth.login.create_one" datatype="html">
+        <source>Create one</source>
+        <target state="translated">Crea una</target>
+      </trans-unit>
+      <trans-unit id="auth.login.welcome" datatype="html">
+        <source>Welcome Back</source>
+        <target state="translated">Bienvenido de nuevo</target>
+      </trans-unit>
+      <trans-unit id="auth.login.welcome_subtitle" datatype="html">
+        <source>Sign in to continue to your account</source>
+        <target state="translated">Inicia sesión para continuar</target>
+      </trans-unit>
+      <trans-unit id="auth.login.email_placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">Ingresa tu correo</target>
+      </trans-unit>
+      <trans-unit id="auth.login.password_placeholder" datatype="html">
+        <source>Enter your password</source>
+        <target state="translated">Ingresa tu contraseña</target>
+      </trans-unit>
+      <trans-unit id="auth.login.or_divider" datatype="html">
+        <source>OR</source>
+        <target state="translated">O</target>
+      </trans-unit>
+      <trans-unit id="auth.login.signing_in" datatype="html">
+        <source>Signing in...</source>
+        <target state="translated">Iniciando sesión...</target>
+      </trans-unit>
+      <trans-unit id="auth.register.title" datatype="html">
+        <source>Create Account</source>
+        <target state="translated">Crear cuenta</target>
+      </trans-unit>
+      <trans-unit id="auth.register.subtitle" datatype="html">
+        <source>Join ShiftWork in 3 easy steps</source>
+        <target state="translated">Únete en 3 sencillos pasos</target>
+      </trans-unit>
+      <trans-unit id="auth.register.step_account" datatype="html">
+        <source>Your Account</source>
+        <target state="translated">Tu cuenta</target>
+      </trans-unit>
+      <trans-unit id="auth.register.step_company" datatype="html">
+        <source>Your Company</source>
+        <target state="translated">Tu empresa</target>
+      </trans-unit>
+      <trans-unit id="auth.register.step_review" datatype="html">
+        <source>Review &amp; Create</source>
+        <target state="translated">Revisar y crear</target>
+      </trans-unit>
+      <trans-unit id="auth.register.full_name" datatype="html">
+        <source>Full Name</source>
+        <target state="translated">Nombre completo</target>
+      </trans-unit>
+      <trans-unit id="auth.register.email" datatype="html">
+        <source>Email</source>
+        <target state="translated">Correo electrónico</target>
+      </trans-unit>
+      <trans-unit id="auth.register.password" datatype="html">
+        <source>Password</source>
+        <target state="translated">Contraseña</target>
+      </trans-unit>
+      <trans-unit id="auth.register.password_hint" datatype="html">
+        <source>Min 8 characters</source>
+        <target state="translated">Mín. 8 caracteres</target>
+      </trans-unit>
+      <trans-unit id="auth.register.password_short" datatype="html">
+        <source>Password must be at least 8 characters long.</source>
+        <target state="translated">La contraseña debe tener al menos 8 caracteres.</target>
+      </trans-unit>
+      <trans-unit id="auth.register.password_short_6" datatype="html">
+        <source>Password must be at least 6 characters long.</source>
+        <target state="translated">La contraseña debe tener al menos 6 caracteres.</target>
+      </trans-unit>
+      <trans-unit id="auth.register.company_name" datatype="html">
+        <source>Company Name</source>
+        <target state="translated">Nombre de la empresa</target>
+      </trans-unit>
+      <trans-unit id="auth.register.company_email" datatype="html">
+        <source>Company Email</source>
+        <target state="translated">Correo de la empresa</target>
+      </trans-unit>
+      <trans-unit id="auth.register.company_phone" datatype="html">
+        <source>Company Phone (optional)</source>
+        <target state="translated">Teléfono de la empresa (opcional)</target>
+      </trans-unit>
+      <trans-unit id="auth.register.submit" datatype="html">
+        <source>Create Account</source>
+        <target state="translated">Crear cuenta</target>
+      </trans-unit>
+      <trans-unit id="auth.register.creating" datatype="html">
+        <source>Creating…</source>
+        <target state="translated">Creando…</target>
+      </trans-unit>
+      <trans-unit id="auth.register.free_plan_note" datatype="html">
+        <source>You&apos;ll start on the Free plan with sample data to explore.</source>
+        <target state="translated">Comenzarás en el plan gratuito con datos de muestra.</target>
+      </trans-unit>
+      <trans-unit id="auth.register.already_account" datatype="html">
+        <source>Already have an account? Sign in</source>
+        <target state="translated">¿Ya tienes cuenta? Inicia sesión</target>
+      </trans-unit>
+      <trans-unit id="auth.register.sign_up" datatype="html">
+        <source>Sign Up</source>
+        <target state="translated">Registrarse</target>
+      </trans-unit>
+      <trans-unit id="auth.register.google" datatype="html">
+        <source>Continue with Google</source>
+        <target state="translated">Continuar con Google</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.title" datatype="html">
+        <source>Welcome to {{appName}}!</source>
+        <target state="translated">¡Bienvenido a {{appName}}!</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.subtitle" datatype="html">
+        <source>Your account is ready. Let&apos;s get you started.</source>
+        <target state="translated">Tu cuenta está lista. Comencemos.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.account_setup" datatype="html">
+        <source>Your account is set up and ready to go.</source>
+        <target state="translated">Tu cuenta está lista para comenzar.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.loading" datatype="html">
+        <source>Loading your workspace…</source>
+        <target state="translated">Cargando tu espacio de trabajo…</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_badge" datatype="html">
+        <source>Demo Data</source>
+        <target state="translated">Datos de demostración</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_title" datatype="html">
+        <source>Your account includes sample data</source>
+        <target state="translated">Tu cuenta incluye datos de muestra</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_description" datatype="html">
+        <source>We&apos;ve added demo employees, a location, and an area so you can explore {{appName}}.</source>
+        <target state="translated">Hemos añadido empleados, una ubicación y un área para que puedas explorar {{appName}}.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.employees" datatype="html">
+        <source>Employees</source>
+        <target state="translated">Empleados</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.locations" datatype="html">
+        <source>Locations</source>
+        <target state="translated">Ubicaciones</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.areas" datatype="html">
+        <source>Areas</source>
+        <target state="translated">Áreas</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.hide_demo" datatype="html">
+        <source>Hide demo data</source>
+        <target state="translated">Ocultar datos de demostración</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.hiding" datatype="html">
+        <source>Hiding…</source>
+        <target state="translated">Ocultando…</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.reset_demo" datatype="html">
+        <source>Reset to defaults</source>
+        <target state="translated">Restaurar predeterminados</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.resetting" datatype="html">
+        <source>Resetting…</source>
+        <target state="translated">Restaurando…</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.remove_demo" datatype="html">
+        <source>Remove permanently</source>
+        <target state="translated">Eliminar permanentemente</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.removing" datatype="html">
+        <source>Removing…</source>
+        <target state="translated">Eliminando…</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.workspace_clean" datatype="html">
+        <source>Your workspace is clean and ready for real data.</source>
+        <target state="translated">Tu espacio de trabajo está listo para datos reales.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_hidden_ok" datatype="html">
+        <source>Demo data hidden. Restore from Settings anytime.</source>
+        <target state="translated">Datos ocultos. Puedes restaurarlos desde Configuración.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_hidden_fail" datatype="html">
+        <source>Failed to hide demo data.</source>
+        <target state="translated">No se pudieron ocultar los datos de demostración.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_reset_ok" datatype="html">
+        <source>Demo data reset to defaults.</source>
+        <target state="translated">Datos de demostración restaurados.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_reset_fail" datatype="html">
+        <source>Failed to reset demo data.</source>
+        <target state="translated">No se pudieron restaurar los datos de demostración.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_removed_ok" datatype="html">
+        <source>Demo data removed. Workspace is clean.</source>
+        <target state="translated">Datos eliminados. Tu espacio de trabajo está limpio.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_removed_fail" datatype="html">
+        <source>Failed to delete demo data.</source>
+        <target state="translated">No se pudieron eliminar los datos de demostración.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_hidden_ok" datatype="html">
+        <source>Sandbox data has been hidden. You can restore it at any time from Settings.</source>
+        <target state="translated">Los datos de demostración han sido ocultados. Puedes restaurarlos desde Configuración.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_hidden_fail" datatype="html">
+        <source>Failed to hide sandbox data. Please try again.</source>
+        <target state="translated">No se pudieron ocultar los datos. Inténtalo de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_reset_ok" datatype="html">
+        <source>Sandbox data has been reset to defaults.</source>
+        <target state="translated">Los datos de demostración han sido restaurados.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_reset_fail" datatype="html">
+        <source>Failed to reset sandbox data.</source>
+        <target state="translated">No se pudieron restaurar los datos de demostración.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_removed_ok" datatype="html">
+        <source>Sandbox data removed. Your workspace is now clean for real data.</source>
+        <target state="translated">Datos eliminados. Tu espacio de trabajo está listo para datos reales.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_removed_fail" datatype="html">
+        <source>Failed to delete sandbox data.</source>
+        <target state="translated">No se pudieron eliminar los datos de demostración.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.free_plan" datatype="html">
+        <source>Free Plan</source>
+        <target state="translated">Plan gratuito</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.free_plan_heading" datatype="html">
+        <source>You&apos;re on the Free plan</source>
+        <target state="translated">Estás en el plan gratuito</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.upgrade_description" datatype="html">
+        <source>Upgrade to Pro to unlock advanced scheduling, analytics, multi-location support, and more.</source>
+        <target state="translated">Mejora a Pro para desbloquear programación avanzada, análisis, soporte multi-ubicación y más.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.explore_pro" datatype="html">
+        <source>Explore Pro</source>
+        <target state="translated">Explorar Pro</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.go_dashboard" datatype="html">
+        <source>Go to Dashboard</source>
+        <target state="translated">Ir al panel</target>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.title" datatype="html">
+        <source>Forgot Password</source>
+        <target state="translated">Recuperar contraseña</target>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.reset_title" datatype="html">
+        <source>Reset Password</source>
+        <target state="translated">Restablecer contraseña</target>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.subtitle" datatype="html">
+        <source>Enter your email to reset your password.</source>
+        <target state="translated">Ingresa tu correo para restablecer tu contraseña.</target>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.instruction" datatype="html">
+        <source>Please enter your email address to request a password reset.</source>
+        <target state="translated">Ingresa tu correo electrónico para solicitar un restablecimiento de contraseña.</target>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.email_label" datatype="html">
+        <source>Email address</source>
+        <target state="translated">Correo electrónico</target>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.submit" datatype="html">
+        <source>Send reset link</source>
+        <target state="translated">Enviar enlace</target>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.reset_submit" datatype="html">
+        <source>Reset Password</source>
+        <target state="translated">Restablecer contraseña</target>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.back_to_login" datatype="html">
+        <source>Back to Sign In</source>
+        <target state="translated">Volver a iniciar sesión</target>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.go_back_to" datatype="html">
+        <source>Go back to</source>
+        <target state="translated">Volver a</target>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.sent" datatype="html">
+        <source>Reset link sent. Check your inbox.</source>
+        <target state="translated">Enlace enviado. Revisa tu correo.</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.invalid_title" datatype="html">
+        <source>Invalid Invite Link</source>
+        <target state="translated">Enlace de invitación inválido</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.invalid_description" datatype="html">
+        <source>This invite link is missing required information or has already been used.</source>
+        <target state="translated">Este enlace no tiene la información requerida o ya fue utilizado.</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.ask_admin" datatype="html">
+        <source>Ask your administrator to send a new invite.</source>
+        <target state="translated">Pide a tu administrador que envíe una nueva invitación.</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.go_sign_in" datatype="html">
+        <source>Go to Sign In</source>
+        <target state="translated">Ir a iniciar sesión</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.success_title" datatype="html">
+        <source>You&apos;re All Set!</source>
+        <target state="translated">¡Todo listo!</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.success_subtitle" datatype="html">
+        <source>Your account is ready. Log in with {{email}}.</source>
+        <target state="translated">Tu cuenta está lista. Inicia sesión con {{email}}.</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.or_download" datatype="html">
+        <source>Or download the mobile app</source>
+        <target state="translated">O descarga la aplicación móvil</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.coming_soon" datatype="html">
+        <source>Coming Soon</source>
+        <target state="translated">Próximamente</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.title" datatype="html">
+        <source>Accept Invitation</source>
+        <target state="translated">Aceptar invitación</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.subtitle" datatype="html">
+        <source>Set a password to access the mobile app</source>
+        <target state="translated">Establece una contraseña para acceder a la aplicación móvil</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.create_password" datatype="html">
+        <source>Create Your Password</source>
+        <target state="translated">Crea tu contraseña</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.create_password_desc" datatype="html">
+        <source>Set up a secure password to access your account</source>
+        <target state="translated">Configura una contraseña segura para acceder a tu cuenta</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.password_placeholder" datatype="html">
+        <source>Enter your password (min 6 chars)</source>
+        <target state="translated">Ingresa tu contraseña (mín. 6 caracteres)</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.confirm_password" datatype="html">
+        <source>Confirm Password</source>
+        <target state="translated">Confirmar contraseña</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.confirm_placeholder" datatype="html">
+        <source>Confirm your password</source>
+        <target state="translated">Confirma tu contraseña</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.password_min" datatype="html">
+        <source>Password must be at least 6 characters</source>
+        <target state="translated">La contraseña debe tener al menos 6 caracteres</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.password_mismatch" datatype="html">
+        <source>Passwords do not match</source>
+        <target state="translated">Las contraseñas no coinciden</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.setting" datatype="html">
+        <source>Setting Password...</source>
+        <target state="translated">Configurando contraseña...</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.submit" datatype="html">
+        <source>Set Password &amp; Activate Account</source>
+        <target state="translated">Establecer contraseña y activar cuenta</target>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.title" datatype="html">
+        <source>Thank You for Registering</source>
+        <target state="translated">Gracias por registrarte</target>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.sent" datatype="html">
+        <source>We have sent a confirmation email to {{email}}.</source>
+        <target state="translated">Hemos enviado un correo de confirmación a {{email}}.</target>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.instruction" datatype="html">
+        <source>Please check your email and click on the link to verify your email address.</source>
+        <target state="translated">Revisa tu correo y haz clic en el enlace para verificar tu dirección.</target>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.resend" datatype="html">
+        <source>Resend Verification Email</source>
+        <target state="translated">Reenviar correo de verificación</target>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.back" datatype="html">
+        <source>Go back to Sign in</source>
+        <target state="translated">Volver a iniciar sesión</target>
+      </trans-unit>
+      <trans-unit id="registration.title" datatype="html">
+        <source>Create your {{appName}} account</source>
+        <target state="translated">Crea tu cuenta de {{appName}}</target>
+      </trans-unit>
+      <trans-unit id="registration.subtitle" datatype="html">
+        <source>Get started in just a few steps — it&apos;s free</source>
+        <target state="translated">Comienza en pocos pasos — es gratis</target>
+      </trans-unit>
+      <trans-unit id="registration.step_account" datatype="html">
+        <source>Account</source>
+        <target state="translated">Cuenta</target>
+      </trans-unit>
+      <trans-unit id="registration.step_company" datatype="html">
+        <source>Company</source>
+        <target state="translated">Empresa</target>
+      </trans-unit>
+      <trans-unit id="registration.step_confirm" datatype="html">
+        <source>Confirm</source>
+        <target state="translated">Confirmar</target>
+      </trans-unit>
+      <trans-unit id="registration.step1_section" datatype="html">
+        <source>Your Account Details</source>
+        <target state="translated">Detalles de tu cuenta</target>
+      </trans-unit>
+      <trans-unit id="registration.full_name_required" datatype="html">
+        <source>Name is required (min 2 characters).</source>
+        <target state="translated">El nombre es requerido (mín. 2 caracteres).</target>
+      </trans-unit>
+      <trans-unit id="registration.email_required" datatype="html">
+        <source>A valid email is required.</source>
+        <target state="translated">Se requiere un correo electrónico válido.</target>
+      </trans-unit>
+      <trans-unit id="registration.password_min_8" datatype="html">
+        <source>Password must be at least 8 characters.</source>
+        <target state="translated">La contraseña debe tener al menos 8 caracteres.</target>
+      </trans-unit>
+      <trans-unit id="registration.next_company" datatype="html">
+        <source>Next: Company Info</source>
+        <target state="translated">Siguiente: Info de empresa</target>
+      </trans-unit>
+      <trans-unit id="registration.step2_section" datatype="html">
+        <source>Your Company Details</source>
+        <target state="translated">Detalles de tu empresa</target>
+      </trans-unit>
+      <trans-unit id="registration.company_name_req" datatype="html">
+        <source>Company name is required.</source>
+        <target state="translated">El nombre de la empresa es requerido.</target>
+      </trans-unit>
+      <trans-unit id="registration.company_email_req" datatype="html">
+        <source>A valid company email is required.</source>
+        <target state="translated">Se requiere un correo de empresa válido.</target>
+      </trans-unit>
+      <trans-unit id="registration.phone_label" datatype="html">
+        <source>Phone Number (optional)</source>
+        <target state="translated">Número de teléfono (opcional)</target>
+      </trans-unit>
+      <trans-unit id="registration.time_zone" datatype="html">
+        <source>Time Zone</source>
+        <target state="translated">Zona horaria</target>
+      </trans-unit>
+      <trans-unit id="registration.next_confirm" datatype="html">
+        <source>Next: Confirm</source>
+        <target state="translated">Siguiente: Confirmar</target>
+      </trans-unit>
+      <trans-unit id="registration.step3_section" datatype="html">
+        <source>Review &amp; Create Account</source>
+        <target state="translated">Revisar y crear cuenta</target>
+      </trans-unit>
+      <trans-unit id="registration.summary_company" datatype="html">
+        <source>Company</source>
+        <target state="translated">Empresa</target>
+      </trans-unit>
+      <trans-unit id="registration.summary_timezone" datatype="html">
+        <source>Time Zone</source>
+        <target state="translated">Zona horaria</target>
+      </trans-unit>
+      <trans-unit id="registration.notice" datatype="html">
+        <source>A verification email will be sent to your inbox. Your company will start on the Free plan with sandbox demo data so you can explore the app right away.</source>
+        <target state="translated">Se enviará un correo de verificación. Tu empresa comenzará en el plan gratuito con datos de demostración para explorar la aplicación.</target>
+      </trans-unit>
+      <trans-unit id="registration.creating" datatype="html">
+        <source>Creating account…</source>
+        <target state="translated">Creando cuenta…</target>
+      </trans-unit>
+      <trans-unit id="registration.sign_in_link" datatype="html">
+        <source>Already have an account? Sign in</source>
+        <target state="translated">¿Ya tienes cuenta? Inicia sesión</target>
+      </trans-unit>
+      <trans-unit id="bulletins.page_subtitle" datatype="html">
+        <source>Company-wide announcements and updates</source>
+        <target state="translated">Anuncios y actualizaciones de la empresa</target>
+      </trans-unit>
+      <trans-unit id="bulletins.new_btn" datatype="html">
+        <source>New Bulletin</source>
+        <target state="translated">Nuevo boletín</target>
+      </trans-unit>
+      <trans-unit id="bulletins.form_heading" datatype="html">
+        <source>New Bulletin</source>
+        <target state="translated">Nuevo boletín</target>
+      </trans-unit>
+      <trans-unit id="bulletins.form_title" datatype="html">
+        <source>Title</source>
+        <target state="translated">Título</target>
+      </trans-unit>
+      <trans-unit id="bulletins.form_title_ph" datatype="html">
+        <source>Enter bulletin title</source>
+        <target state="translated">Ingresa el título del boletín</target>
+      </trans-unit>
+      <trans-unit id="bulletins.form_content" datatype="html">
+        <source>Content</source>
+        <target state="translated">Contenido</target>
+      </trans-unit>
+      <trans-unit id="bulletins.form_content_ph" datatype="html">
+        <source>Write your message...</source>
+        <target state="translated">Escribe tu mensaje...</target>
+      </trans-unit>
+      <trans-unit id="bulletins.form_type" datatype="html">
+        <source>Type</source>
+        <target state="translated">Tipo</target>
+      </trans-unit>
+      <trans-unit id="bulletins.form_priority" datatype="html">
+        <source>Priority</source>
+        <target state="translated">Prioridad</target>
+      </trans-unit>
+      <trans-unit id="bulletins.form_location" datatype="html">
+        <source>Location Scope</source>
+        <target state="translated">Alcance de ubicación</target>
+      </trans-unit>
+      <trans-unit id="bulletins.form_all_locations" datatype="html">
+        <source>All locations</source>
+        <target state="translated">Todas las ubicaciones</target>
+      </trans-unit>
+      <trans-unit id="bulletins.form_status" datatype="html">
+        <source>Status</source>
+        <target state="translated">Estado</target>
+      </trans-unit>
+      <trans-unit id="bulletins.form_expires" datatype="html">
+        <source>Expires At</source>
+        <target state="translated">Fecha de vencimiento</target>
+      </trans-unit>
+      <trans-unit id="bulletins.form_publish" datatype="html">
+        <source>Publish</source>
+        <target state="translated">Publicar</target>
+      </trans-unit>
+      <trans-unit id="bulletins.filter_all" datatype="html">
+        <source>All</source>
+        <target state="translated">Todos</target>
+      </trans-unit>
+      <trans-unit id="bulletins.filter_unread" datatype="html">
+        <source>Unread</source>
+        <target state="translated">No leídos</target>
+      </trans-unit>
+      <trans-unit id="bulletins.filter_urgent" datatype="html">
+        <source>Urgent</source>
+        <target state="translated">Urgente</target>
+      </trans-unit>
+      <trans-unit id="bulletins.loading" datatype="html">
+        <source>Loading bulletins...</source>
+        <target state="translated">Cargando boletines...</target>
+      </trans-unit>
+      <trans-unit id="bulletins.empty_all" datatype="html">
+        <source>No bulletins yet. Create the first one.</source>
+        <target state="translated">Aún no hay boletines. Crea el primero.</target>
+      </trans-unit>
+      <trans-unit id="bulletins.empty_unread" datatype="html">
+        <source>All caught up — no unread bulletins.</source>
+        <target state="translated">Todo al día — sin boletines sin leer.</target>
+      </trans-unit>
+      <trans-unit id="bulletins.empty_urgent" datatype="html">
+        <source>No urgent bulletins right now.</source>
+        <target state="translated">No hay boletines urgentes por ahora.</target>
+      </trans-unit>
+      <trans-unit id="bulletins.no_bulletins" datatype="html">
+        <source>No bulletins</source>
+        <target state="translated">Sin boletines</target>
+      </trans-unit>
+      <trans-unit id="bulletins.retry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">Reintentar</target>
+      </trans-unit>
+      <trans-unit id="bulletins.unread_badge" datatype="html">
+        <source>unread</source>
+        <target state="translated">sin leer</target>
+      </trans-unit>
+      <trans-unit id="bulletins.expires_card" datatype="html">
+        <source>Expires</source>
+        <target state="translated">Vence</target>
+      </trans-unit>
+      <trans-unit id="bulletins.unread_tooltip" datatype="html">
+        <source>Unread</source>
+        <target state="translated">No leído</target>
+      </trans-unit>
+      <trans-unit id="bulletins.read_tooltip" datatype="html">
+        <source>Read</source>
+        <target state="translated">Leído</target>
+      </trans-unit>
+      <trans-unit id="bulletins.reads_tooltip" datatype="html">
+        <source>Total reads</source>
+        <target state="translated">Total de lecturas</target>
+      </trans-unit>
+      <trans-unit id="documents.page_subtitle" datatype="html">
+        <source>Manuals, procedures, SDS sheets, and policies</source>
+        <target state="translated">Manuales, procedimientos, fichas SDS y políticas</target>
+      </trans-unit>
+      <trans-unit id="documents.upload_btn" datatype="html">
+        <source>Upload</source>
+        <target state="translated">Subir</target>
+      </trans-unit>
+      <trans-unit id="documents.form_heading" datatype="html">
+        <source>Upload Document</source>
+        <target state="translated">Subir documento</target>
+      </trans-unit>
+      <trans-unit id="documents.form_title" datatype="html">
+        <source>Title</source>
+        <target state="translated">Título</target>
+      </trans-unit>
+      <trans-unit id="documents.form_title_ph" datatype="html">
+        <source>Document title</source>
+        <target state="translated">Título del documento</target>
+      </trans-unit>
+      <trans-unit id="documents.form_description" datatype="html">
+        <source>Description</source>
+        <target state="translated">Descripción</target>
+      </trans-unit>
+      <trans-unit id="documents.form_description_ph" datatype="html">
+        <source>Optional description</source>
+        <target state="translated">Descripción opcional</target>
+      </trans-unit>
+      <trans-unit id="documents.form_type" datatype="html">
+        <source>Type</source>
+        <target state="translated">Tipo</target>
+      </trans-unit>
+      <trans-unit id="documents.form_version" datatype="html">
+        <source>Version</source>
+        <target state="translated">Versión</target>
+      </trans-unit>
+      <trans-unit id="documents.form_access" datatype="html">
+        <source>Access Level</source>
+        <target state="translated">Nivel de acceso</target>
+      </trans-unit>
+      <trans-unit id="documents.form_location" datatype="html">
+        <source>Location Scope</source>
+        <target state="translated">Alcance de ubicación</target>
+      </trans-unit>
+      <trans-unit id="documents.form_all_locations" datatype="html">
+        <source>All locations</source>
+        <target state="translated">Todas las ubicaciones</target>
+      </trans-unit>
+      <trans-unit id="documents.choose_file" datatype="html">
+        <source>Choose File</source>
+        <target state="translated">Elegir archivo</target>
+      </trans-unit>
+      <trans-unit id="documents.no_file" datatype="html">
+        <source>No file selected</source>
+        <target state="translated">Ningún archivo seleccionado</target>
+      </trans-unit>
+      <trans-unit id="documents.uploading" datatype="html">
+        <source>Uploading...</source>
+        <target state="translated">Subiendo...</target>
+      </trans-unit>
+      <trans-unit id="documents.search_ph" datatype="html">
+        <source>Search by title...</source>
+        <target state="translated">Buscar por título...</target>
+      </trans-unit>
+      <trans-unit id="documents.filter_type" datatype="html">
+        <source>Type</source>
+        <target state="translated">Tipo</target>
+      </trans-unit>
+      <trans-unit id="documents.filter_all_types" datatype="html">
+        <source>All Types</source>
+        <target state="translated">Todos los tipos</target>
+      </trans-unit>
+      <trans-unit id="documents.filter_location" datatype="html">
+        <source>Location</source>
+        <target state="translated">Ubicación</target>
+      </trans-unit>
+      <trans-unit id="documents.filter_all_locations" datatype="html">
+        <source>All Locations</source>
+        <target state="translated">Todas las ubicaciones</target>
+      </trans-unit>
+      <trans-unit id="documents.loading" datatype="html">
+        <source>Loading document…</source>
+        <target state="translated">Cargando documento…</target>
+      </trans-unit>
+      <trans-unit id="documents.empty_no_docs" datatype="html">
+        <source>No documents found</source>
+        <target state="translated">No se encontraron documentos</target>
+      </trans-unit>
+      <trans-unit id="documents.empty_filter" datatype="html">
+        <source>Try adjusting your search filters.</source>
+        <target state="translated">Intenta ajustar los filtros de búsqueda.</target>
+      </trans-unit>
+      <trans-unit id="documents.empty_first" datatype="html">
+        <source>Upload the first document to get started.</source>
+        <target state="translated">Sube el primer documento para comenzar.</target>
+      </trans-unit>
+      <trans-unit id="documents.retry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">Reintentar</target>
+      </trans-unit>
+      <trans-unit id="documents.search_label" datatype="html">
+        <source>Search documents</source>
+        <target state="translated">Buscar documentos</target>
+      </trans-unit>
+      <trans-unit id="documents.location_hint" datatype="html">
+        <source>Required for LocationOnly access</source>
+        <target state="translated">Requerido para acceso solo de ubicación</target>
+      </trans-unit>
+      <trans-unit id="safety.page_subtitle" datatype="html">
+        <source>Trainings, toolbox talks, and mandatory acknowledgments</source>
+        <target state="translated">Capacitaciones, charlas de seguridad y reconocimientos obligatorios</target>
+      </trans-unit>
+      <trans-unit id="safety.new_btn" datatype="html">
+        <source>New Content</source>
+        <target state="translated">Nuevo contenido</target>
+      </trans-unit>
+      <trans-unit id="safety.form_heading" datatype="html">
+        <source>New Safety Content</source>
+        <target state="translated">Nuevo contenido de seguridad</target>
+      </trans-unit>
+      <trans-unit id="safety.form_title" datatype="html">
+        <source>Title</source>
+        <target state="translated">Título</target>
+      </trans-unit>
+      <trans-unit id="safety.form_description" datatype="html">
+        <source>Description</source>
+        <target state="translated">Descripción</target>
+      </trans-unit>
+      <trans-unit id="safety.form_text_content" datatype="html">
+        <source>Content Text</source>
+        <target state="translated">Texto del contenido</target>
+      </trans-unit>
+      <trans-unit id="safety.form_type" datatype="html">
+        <source>Type</source>
+        <target state="translated">Tipo</target>
+      </trans-unit>
+      <trans-unit id="safety.form_status" datatype="html">
+        <source>Status</source>
+        <target state="translated">Estado</target>
+      </trans-unit>
+      <trans-unit id="safety.form_location" datatype="html">
+        <source>Location Scope</source>
+        <target state="translated">Alcance de ubicación</target>
+      </trans-unit>
+      <trans-unit id="safety.form_all_locations" datatype="html">
+        <source>All locations</source>
+        <target state="translated">Todas las ubicaciones</target>
+      </trans-unit>
+      <trans-unit id="safety.form_scheduled" datatype="html">
+        <source>Scheduled For</source>
+        <target state="translated">Programado para</target>
+      </trans-unit>
+      <trans-unit id="safety.form_require_ack" datatype="html">
+        <source>Require employee acknowledgment</source>
+        <target state="translated">Requerir reconocimiento del empleado</target>
+      </trans-unit>
+      <trans-unit id="safety.form_publish" datatype="html">
+        <source>Publish</source>
+        <target state="translated">Publicar</target>
+      </trans-unit>
+      <trans-unit id="safety.tab_all" datatype="html">
+        <source>All Content</source>
+        <target state="translated">Todo el contenido</target>
+      </trans-unit>
+      <trans-unit id="safety.tab_pending" datatype="html">
+        <source>Pending Ack</source>
+        <target state="translated">Pendiente de reconocimiento</target>
+      </trans-unit>
+      <trans-unit id="safety.loading" datatype="html">
+        <source>Loading safety content...</source>
+        <target state="translated">Cargando contenido de seguridad...</target>
+      </trans-unit>
+      <trans-unit id="safety.action_required" datatype="html">
+        <source>Action Required</source>
+        <target state="translated">Acción requerida</target>
+      </trans-unit>
+      <trans-unit id="safety.ack_prompt" datatype="html">
+        <source>Please review and acknowledge this safety content before continuing.</source>
+        <target state="translated">Revisa y reconoce este contenido de seguridad antes de continuar.</target>
+      </trans-unit>
+      <trans-unit id="safety.i_acknowledge" datatype="html">
+        <source>I Acknowledge</source>
+        <target state="translated">Reconozco</target>
+      </trans-unit>
+      <trans-unit id="safety.view_content" datatype="html">
+        <source>View Content</source>
+        <target state="translated">Ver contenido</target>
+      </trans-unit>
+      <trans-unit id="safety.hide_compliance" datatype="html">
+        <source>Hide Compliance</source>
+        <target state="translated">Ocultar cumplimiento</target>
+      </trans-unit>
+      <trans-unit id="safety.view_compliance" datatype="html">
+        <source>View Compliance</source>
+        <target state="translated">Ver cumplimiento</target>
+      </trans-unit>
+      <trans-unit id="safety.acknowledged_badge" datatype="html">
+        <source>Acknowledged</source>
+        <target state="translated">Reconocido</target>
+      </trans-unit>
+      <trans-unit id="safety.empty_pending" datatype="html">
+        <source>All caught up!</source>
+        <target state="translated">¡Todo al día!</target>
+      </trans-unit>
+      <trans-unit id="safety.empty_pending_desc" datatype="html">
+        <source>No pending acknowledgments — great job.</source>
+        <target state="translated">Sin reconocimientos pendientes — ¡buen trabajo!</target>
+      </trans-unit>
+      <trans-unit id="safety.empty_all" datatype="html">
+        <source>No safety content yet</source>
+        <target state="translated">Aún no hay contenido de seguridad</target>
+      </trans-unit>
+      <trans-unit id="safety.empty_all_desc" datatype="html">
+        <source>Create your first toolbox talk or safety training.</source>
+        <target state="translated">Crea tu primera charla de seguridad o capacitación.</target>
+      </trans-unit>
+      <trans-unit id="safety.retry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">Reintentar</target>
+      </trans-unit>
+      <trans-unit id="safety.pending_badge" datatype="html">
+        <source>pending</source>
+        <target state="translated">pendiente</target>
+      </trans-unit>
+      <trans-unit id="safety.scheduled_on" datatype="html">
+        <source>Scheduled</source>
+        <target state="translated">Programado</target>
+      </trans-unit>
+      <trans-unit id="safety.still_pending" datatype="html">
+        <source>Still pending:</source>
+        <target state="translated">Aún pendiente:</target>
+      </trans-unit>
+      <trans-unit id="safety.compliance_acknowledged" datatype="html">
+        <source>acknowledged</source>
+        <target state="translated">reconocidos</target>
+      </trans-unit>
+      <trans-unit id="upgrade.title" datatype="html">
+        <source>Upgrade to Pro</source>
+        <target state="translated">Mejorar a Pro</target>
+      </trans-unit>
+      <trans-unit id="upgrade.subtitle" datatype="html">
+        <source>Unlock the full power of {{appName}} for your team.</source>
+        <target state="translated">Desbloquea todo el poder de {{appName}} para tu equipo.</target>
+      </trans-unit>
+      <trans-unit id="upgrade.col_feature" datatype="html">
+        <source>Feature</source>
+        <target state="translated">Función</target>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_kiosk" datatype="html">
+        <source>Kiosk Clock-In / Out</source>
+        <target state="translated">Reloj de entrada/salida en kiosco</target>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_basic_schedule" datatype="html">
+        <source>Basic Scheduling</source>
+        <target state="translated">Programación básica</target>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_sandbox" datatype="html">
+        <source>Sandbox Demo Data</source>
+        <target state="translated">Datos de demostración</target>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_remove_sandbox" datatype="html">
+        <source>Remove Sandbox Data</source>
+        <target state="translated">Eliminar datos de demostración</target>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_advanced" datatype="html">
+        <source>Advanced Scheduling</source>
+        <target state="translated">Programación avanzada</target>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_analytics" datatype="html">
+        <source>Analytics &amp; Reports</source>
+        <target state="translated">Análisis y reportes</target>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_multilocation" datatype="html">
+        <source>Multi-Location Support</source>
+        <target state="translated">Soporte multi-ubicación</target>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_export" datatype="html">
+        <source>Data Export</source>
+        <target state="translated">Exportación de datos</target>
+      </trans-unit>
+      <trans-unit id="upgrade.price_info" datatype="html">
+        <source>Pro plan — contact sales for pricing</source>
+        <target state="translated">Plan Pro — contacta ventas para precio</target>
+      </trans-unit>
+      <trans-unit id="upgrade.submit" datatype="html">
+        <source>Upgrade to Pro Now</source>
+        <target state="translated">Mejorar a Pro ahora</target>
+      </trans-unit>
+      <trans-unit id="upgrade.processing" datatype="html">
+        <source>Processing…</source>
+        <target state="translated">Procesando…</target>
+      </trans-unit>
+      <trans-unit id="upgrade.back_dashboard" datatype="html">
+        <source>← Back to Dashboard</source>
+        <target state="translated">← Volver al panel</target>
+      </trans-unit>
+      <trans-unit id="upgrade.plan_free" datatype="html">
+        <source>Free</source>
+        <target state="translated">Gratis</target>
+      </trans-unit>
+      <trans-unit id="upgrade.plan_pro" datatype="html">
+        <source>Pro ⭐</source>
+        <target state="translated">Pro ⭐</target>
+      </trans-unit>
+      <trans-unit id="upgrade.subtitle_web" datatype="html">
+        <source>Unlock the full power of Loqzen for your team.</source>
+        <target state="translated">Desbloquea todo el poder de Loqzen para tu equipo.</target>
+      </trans-unit>
+      <trans-unit id="nav.home" datatype="html">
+        <source>Home</source>
+        <target state="translated">Inicio</target>
+      </trans-unit>
+      <trans-unit id="nav.clock" datatype="html">
+        <source>Clock</source>
+        <target state="translated">Reloj</target>
+      </trans-unit>
+      <trans-unit id="nav.schedule" datatype="html">
+        <source>Schedule</source>
+        <target state="translated">Horario</target>
+      </trans-unit>
+      <trans-unit id="nav.grid" datatype="html">
+        <source>Grid</source>
+        <target state="translated">Cuadrícula</target>
+      </trans-unit>
+      <trans-unit id="nav.profile" datatype="html">
+        <source>Profile</source>
+        <target state="translated">Perfil</target>
+      </trans-unit>
+      <trans-unit id="nav.ai" datatype="html">
+        <source>AI</source>
+        <target state="translated">IA</target>
+      </trans-unit>
+      <trans-unit id="nav.documents" datatype="html">
+        <source>Docs</source>
+        <target state="translated">Documentos</target>
+      </trans-unit>
+      <trans-unit id="nav.bulletins" datatype="html">
+        <source>Bulletins</source>
+        <target state="translated">Boletines</target>
+      </trans-unit>
+      <trans-unit id="nav.safety" datatype="html">
+        <source>Safety</source>
+        <target state="translated">Seguridad</target>
+      </trans-unit>
+      <trans-unit id="nav.report" datatype="html">
+        <source>Report</source>
+        <target state="translated">Reporte</target>
+      </trans-unit>
+      <trans-unit id="nav.time_off" datatype="html">
+        <source>Time Off</source>
+        <target state="translated">Tiempo libre</target>
+      </trans-unit>
+      <trans-unit id="nav.weekly_schedule" datatype="html">
+        <source>Weekly Schedule</source>
+        <target state="translated">Horario semanal</target>
+      </trans-unit>
+      <trans-unit id="nav.upgrade" datatype="html">
+        <source>Upgrade to Pro</source>
+        <target state="translated">Mejorar a Pro</target>
+      </trans-unit>
+      <trans-unit id="clock.title" datatype="html">
+        <source>Clock</source>
+        <target state="translated">Reloj</target>
+      </trans-unit>
+      <trans-unit id="clock.status_on" datatype="html">
+        <source>You are on the clock</source>
+        <target state="translated">Estás marcado en turno</target>
+      </trans-unit>
+      <trans-unit id="clock.status_off" datatype="html">
+        <source>Ready to start?</source>
+        <target state="translated">¿Listo para comenzar?</target>
+      </trans-unit>
+      <trans-unit id="clock.badge_on" datatype="html">
+        <source>On Clock</source>
+        <target state="translated">En turno</target>
+      </trans-unit>
+      <trans-unit id="clock.badge_off" datatype="html">
+        <source>Off Clock</source>
+        <target state="translated">Fuera de turno</target>
+      </trans-unit>
+      <trans-unit id="clock.location_captured" datatype="html">
+        <source>Location captured</source>
+        <target state="translated">Ubicación capturada</target>
+      </trans-unit>
+      <trans-unit id="clock.photo_optional" datatype="html">
+        <source>Photo optional</source>
+        <target state="translated">Foto opcional</target>
+      </trans-unit>
+      <trans-unit id="clock.device_recorded" datatype="html">
+        <source>Device recorded</source>
+        <target state="translated">Dispositivo registrado</target>
+      </trans-unit>
+      <trans-unit id="clock.clock_in" datatype="html">
+        <source>Clock In</source>
+        <target state="translated">Marcar entrada</target>
+      </trans-unit>
+      <trans-unit id="clock.clock_out" datatype="html">
+        <source>Clock Out</source>
+        <target state="translated">Marcar salida</target>
+      </trans-unit>
+      <trans-unit id="clock.add_photo" datatype="html">
+        <source>Add Photo (optional)</source>
+        <target state="translated">Añadir foto (opcional)</target>
+      </trans-unit>
+      <trans-unit id="clock.retake_photo" datatype="html">
+        <source>Retake Photo</source>
+        <target state="translated">Tomar otra foto</target>
+      </trans-unit>
+      <trans-unit id="clock.remove_photo" datatype="html">
+        <source>Remove photo</source>
+        <target state="translated">Eliminar foto</target>
+      </trans-unit>
+      <trans-unit id="clock.offline_warning" datatype="html">
+        <source>Offline · showing cached data</source>
+        <target state="translated">Sin conexión · mostrando datos en caché</target>
+      </trans-unit>
+      <trans-unit id="dashboard.greeting_morning" datatype="html">
+        <source>Good morning</source>
+        <target state="translated">Buenos días</target>
+      </trans-unit>
+      <trans-unit id="dashboard.greeting_afternoon" datatype="html">
+        <source>Good afternoon</source>
+        <target state="translated">Buenas tardes</target>
+      </trans-unit>
+      <trans-unit id="dashboard.greeting_evening" datatype="html">
+        <source>Good evening</source>
+        <target state="translated">Buenas noches</target>
+      </trans-unit>
+      <trans-unit id="dashboard.status_live" datatype="html">
+        <source>Live</source>
+        <target state="translated">En vivo</target>
+      </trans-unit>
+      <trans-unit id="dashboard.status_offline" datatype="html">
+        <source>Offline</source>
+        <target state="translated">Sin conexión</target>
+      </trans-unit>
+      <trans-unit id="dashboard.on_clock" datatype="html">
+        <source>On clock</source>
+        <target state="translated">En turno</target>
+      </trans-unit>
+      <trans-unit id="dashboard.updated_at" datatype="html">
+        <source>Updated {{time}}</source>
+        <target state="translated">Actualizado {{time}}</target>
+      </trans-unit>
+      <trans-unit id="dashboard.quick_clock_in" datatype="html">
+        <source>Clock In</source>
+        <target state="translated">Marcar entrada</target>
+      </trans-unit>
+      <trans-unit id="dashboard.quick_clock_out" datatype="html">
+        <source>Clock Out</source>
+        <target state="translated">Marcar salida</target>
+      </trans-unit>
+      <trans-unit id="dashboard.quick_schedule" datatype="html">
+        <source>Schedule</source>
+        <target state="translated">Horario</target>
+      </trans-unit>
+      <trans-unit id="dashboard.quick_time_off" datatype="html">
+        <source>Time Off</source>
+        <target state="translated">Tiempo libre</target>
+      </trans-unit>
+      <trans-unit id="profile.title" datatype="html">
+        <source>Profile</source>
+        <target state="translated">Perfil</target>
+      </trans-unit>
+      <trans-unit id="profile.security_section" datatype="html">
+        <source>Security</source>
+        <target state="translated">Seguridad</target>
+      </trans-unit>
+      <trans-unit id="profile.biometric_label" datatype="html">
+        <source>{{biometricType}} Login</source>
+        <target state="translated">Inicio con {{biometricType}}</target>
+      </trans-unit>
+      <trans-unit id="profile.biometric_desc" datatype="html">
+        <source>Use {{biometricType}} to sign in quickly</source>
+        <target state="translated">Usa {{biometricType}} para iniciar sesión rápidamente</target>
+      </trans-unit>
+      <trans-unit id="profile.change_pin" datatype="html">
+        <source>Change PIN</source>
+        <target state="translated">Cambiar PIN</target>
+      </trans-unit>
+      <trans-unit id="profile.change_pin_desc" datatype="html">
+        <source>Update your 4-digit PIN for kiosk access</source>
+        <target state="translated">Actualiza tu PIN de 4 dígitos para el kiosco</target>
+      </trans-unit>
+      <trans-unit id="profile.current_pin" datatype="html">
+        <source>Current PIN</source>
+        <target state="translated">PIN actual</target>
+      </trans-unit>
+      <trans-unit id="profile.new_pin" datatype="html">
+        <source>New PIN</source>
+        <target state="translated">Nuevo PIN</target>
+      </trans-unit>
+      <trans-unit id="profile.confirm_pin" datatype="html">
+        <source>Confirm New PIN</source>
+        <target state="translated">Confirmar nuevo PIN</target>
+      </trans-unit>
+      <trans-unit id="profile.current_pin_placeholder" datatype="html">
+        <source>Enter current PIN</source>
+        <target state="translated">Ingresa tu PIN actual</target>
+      </trans-unit>
+      <trans-unit id="profile.new_pin_placeholder" datatype="html">
+        <source>Enter new 4-digit PIN</source>
+        <target state="translated">Ingresa nuevo PIN de 4 dígitos</target>
+      </trans-unit>
+      <trans-unit id="profile.confirm_pin_placeholder" datatype="html">
+        <source>Re-enter new PIN</source>
+        <target state="translated">Repite el nuevo PIN</target>
+      </trans-unit>
+      <trans-unit id="profile.update_pin" datatype="html">
+        <source>Update PIN</source>
+        <target state="translated">Actualizar PIN</target>
+      </trans-unit>
+      <trans-unit id="profile.sign_out" datatype="html">
+        <source>Sign Out</source>
+        <target state="translated">Cerrar sesión</target>
+      </trans-unit>
+      <trans-unit id="profile.language" datatype="html">
+        <source>Language</source>
+        <target state="translated">Idioma</target>
+      </trans-unit>
+      <trans-unit id="profile.language_en" datatype="html">
+        <source>English</source>
+        <target state="translated">Inglés</target>
+      </trans-unit>
+      <trans-unit id="profile.language_es" datatype="html">
+        <source>Spanish</source>
+        <target state="translated">Español</target>
+      </trans-unit>
+      <trans-unit id="bulletins.title" datatype="html">
+        <source>Bulletins</source>
+        <target state="translated">Boletines</target>
+      </trans-unit>
+      <trans-unit id="bulletins.empty" datatype="html">
+        <source>No bulletins yet.</source>
+        <target state="translated">Aún no hay boletines.</target>
+      </trans-unit>
+      <trans-unit id="bulletins.unread_one" datatype="html">
+        <source>{{count}} unread bulletin</source>
+        <target state="translated">{{count}} boletín sin leer</target>
+      </trans-unit>
+      <trans-unit id="bulletins.unread_other" datatype="html">
+        <source>{{count}} unread bulletins</source>
+        <target state="translated">{{count}} boletines sin leer</target>
+      </trans-unit>
+      <trans-unit id="bulletins.mark_read" datatype="html">
+        <source>Mark as read</source>
+        <target state="translated">Marcar como leído</target>
+      </trans-unit>
+      <trans-unit id="bulletins.acknowledge" datatype="html">
+        <source>Acknowledge</source>
+        <target state="translated">Reconocer</target>
+      </trans-unit>
+      <trans-unit id="documents.title" datatype="html">
+        <source>Documents</source>
+        <target state="translated">Documentos</target>
+      </trans-unit>
+      <trans-unit id="documents.empty" datatype="html">
+        <source>No documents available.</source>
+        <target state="translated">No hay documentos disponibles.</target>
+      </trans-unit>
+      <trans-unit id="documents.download" datatype="html">
+        <source>Download</source>
+        <target state="translated">Descargar</target>
+      </trans-unit>
+      <trans-unit id="documents.open" datatype="html">
+        <source>Open</source>
+        <target state="translated">Abrir</target>
+      </trans-unit>
+      <trans-unit id="safety.title" datatype="html">
+        <source>Safety</source>
+        <target state="translated">Seguridad</target>
+      </trans-unit>
+      <trans-unit id="safety.empty" datatype="html">
+        <source>No safety content.</source>
+        <target state="translated">Sin contenido de seguridad.</target>
+      </trans-unit>
+      <trans-unit id="safety.acknowledge" datatype="html">
+        <source>I Acknowledge</source>
+        <target state="translated">Reconozco</target>
+      </trans-unit>
+      <trans-unit id="safety.required" datatype="html">
+        <source>Required</source>
+        <target state="translated">Requerido</target>
+      </trans-unit>
+      <trans-unit id="safety.acknowledged" datatype="html">
+        <source>Acknowledged</source>
+        <target state="translated">Reconocido</target>
+      </trans-unit>
+      <trans-unit id="errors.something_wrong" datatype="html">
+        <source>Something went wrong</source>
+        <target state="translated">Algo salió mal</target>
+      </trans-unit>
+      <trans-unit id="errors.unexpected" datatype="html">
+        <source>An unexpected error occurred.</source>
+        <target state="translated">Ocurrió un error inesperado.</target>
+      </trans-unit>
+      <trans-unit id="errors.network" datatype="html">
+        <source>Network error. Please check your connection.</source>
+        <target state="translated">Error de red. Verifica tu conexión.</target>
+      </trans-unit>
+      <trans-unit id="errors.not_found" datatype="html">
+        <source>Not found.</source>
+        <target state="translated">No encontrado.</target>
+      </trans-unit>
+      <trans-unit id="errors.unauthorized" datatype="html">
+        <source>You are not authorized to perform this action.</source>
+        <target state="translated">No estás autorizado para realizar esta acción.</target>
+      </trans-unit>
+      <trans-unit id="errors.load_failed" datatype="html">
+        <source>Could not load data.</source>
+        <target state="translated">No se pudieron cargar los datos.</target>
+      </trans-unit>
+      <trans-unit id="errors.save_failed" datatype="html">
+        <source>Could not save changes.</source>
+        <target state="translated">No se pudieron guardar los cambios.</target>
+      </trans-unit>
+      <trans-unit id="errors.sandbox_load" datatype="html">
+        <source>Could not load sandbox status.</source>
+        <target state="translated">No se pudo cargar el estado de los datos de demostración.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

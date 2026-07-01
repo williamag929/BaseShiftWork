@@ -5,8 +5,8 @@
       <div class="logo-circle">
         <i class="fa fa-lock"></i>
       </div>
-      <h2>Welcome Back</h2>
-      <p class="subtitle">Sign in to continue to your account</p>
+      <h2 i18n="@@auth.login.welcome">Welcome Back</h2>
+      <p class="subtitle" i18n="@@auth.login.welcome_subtitle">Sign in to continue to your account</p>
     </div>
 
     <!-- Error Alert -->
@@ -23,7 +23,7 @@
     <!-- Sign In Form -->
     <form [formGroup]="signInForm" (ngSubmit)="signIn()">
       <div class="form-group">
-        <label for="email">Email address</label>
+        <label for="email" i18n="@@auth.login.email_label">Email address</label>
         <div class="input-wrapper">
           <i class="fa fa-envelope input-icon"></i>
           <input
@@ -32,18 +32,19 @@
             id="email"
             formControlName="email"
             placeholder="Enter your email"
+            i18n-placeholder="@@auth.login.email_placeholder"
             [ngClass]="{ 'is-invalid': signInForm.get('email')?.touched && signInForm.get('email')?.invalid }"
           />
         </div>
         <div *ngIf="signInForm.get('email')?.touched && signInForm.get('email')?.invalid" class="error-message">
           <i class="fa fa-exclamation-circle"></i>
-          <span *ngIf="signInForm.get('email')?.errors?.['required']">Email is required</span>
-          <span *ngIf="signInForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+          <span *ngIf="signInForm.get('email')?.errors?.['required']" i18n="@@auth.login.email_required">Email is required</span>
+          <span *ngIf="signInForm.get('email')?.errors?.['email']" i18n="@@auth.login.email_invalid">Please enter a valid email</span>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password" i18n="@@auth.login.password_label">Password</label>
         <div class="input-wrapper">
           <i class="fa fa-lock input-icon"></i>
           <input
@@ -52,29 +53,30 @@
             id="password"
             formControlName="password"
             placeholder="Enter your password"
+            i18n-placeholder="@@auth.login.password_placeholder"
             [ngClass]="{ 'is-invalid': signInForm.get('password')?.touched && signInForm.get('password')?.invalid }"
           />
         </div>
         <div *ngIf="signInForm.get('password')?.touched && signInForm.get('password')?.invalid" class="error-message">
           <i class="fa fa-exclamation-circle"></i>
-          <span *ngIf="signInForm.get('password')?.errors?.['required']">Password is required</span>
+          <span *ngIf="signInForm.get('password')?.errors?.['required']" i18n="@@auth.login.password_required">Password is required</span>
         </div>
       </div>
 
       <div class="forgot-password-link">
-        <a routerLink="/auth/forgot-password">Forgot Password?</a>
+        <a routerLink="/auth/forgot-password" i18n="@@auth.login.forgot_password">Forgot Password?</a>
       </div>
 
       <button type="submit" class="btn-primary" [disabled]="!signInForm.valid || loading">
         <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        <span *ngIf="!loading">Sign In</span>
-        <span *ngIf="loading">Signing in...</span>
+        <ng-container *ngIf="!loading" i18n="@@auth.login.title">Sign In</ng-container>
+        <ng-container *ngIf="loading" i18n="@@auth.login.signing_in">Signing in...</ng-container>
       </button>
     </form>
 
     <!-- Divider -->
     <div class="or-separator">
-      <span class="or-text">OR</span>
+      <span class="or-text" i18n="@@auth.login.or_divider">OR</span>
     </div>
 
     <!-- Google Sign In -->
@@ -85,7 +87,7 @@
         <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
         <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
       </svg>
-      <span>Continue with Google</span>
+      <span i18n="@@auth.login.google">Log in with Google</span>
     </button>
 
     <!-- Sign Up disabled: users must be invited by a company admin -->
