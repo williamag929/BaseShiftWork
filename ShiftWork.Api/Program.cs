@@ -16,6 +16,8 @@ using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 // Load environment variables from .env file
 Env.TraversePath().Load();
@@ -59,6 +61,9 @@ builder.Services.AddDbContext<ShiftWorkContext>((sp, options) =>
     options.UseSqlServer(connectionString);
     options.AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
 });
+
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "ready" });
 
 // Add In-Memory Caching service, used by several controllers.
 builder.Services.AddMemoryCache();
@@ -462,5 +467,17 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Liveness: process is up, no dependency checks.
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    Predicate = _ => false
+});
+
+// Readiness: dependency checks (DB connectivity) tagged "ready".
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
 
 app.Run();

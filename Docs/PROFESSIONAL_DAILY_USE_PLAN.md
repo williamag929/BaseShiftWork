@@ -150,10 +150,12 @@ Branch: `feature/professional-w5-stabilization`
 - Performance smoke tests — not run this sprint; flagged as a pre-release follow-up.
 - `Docs/W5_STABILIZATION_CHECKLIST.md` — full results + conditional go/no-go recommendation
 
-### Week 6 - Observability and Runbooks ⬜ NOT STARTED
-- Dashboards and alerts: API error rate, p95 latency, auth failures, push failures, kiosk failures
-- Runbooks: degraded API, S3 outage, push provider outage, emergency rollback
-- Failure simulation drills
+### Week 6 - Observability and Runbooks ✅ COMPLETE
+Branch: `feature/professional-w6-observability`
+- Added `/health` (liveness) and `/health/ready` (DB connectivity) endpoints to the API — there were no health checks at all before this sprint.
+- `Docs/W6_DASHBOARDS_AND_ALERTS.md` — metric definitions and alert thresholds for API error rate, p95 latency, auth failures, push failures, and kiosk interstitial failures, grounded in this codebase's actual logging. No dashboards were actually provisioned (Datadog/Grafana access requires an interactive OAuth grant not available this session) — this is the spec for whoever wires up the chosen backend.
+- `Docs/W6_RUNBOOKS.md` — degraded API, S3 outage, push provider outage, and emergency rollback, all grounded in the real `docker compose` deploy topology (`.github/workflows/deploy.yml`).
+- `Docs/W6_FAILURE_DRILLS.md` — 5 concrete drills to validate the runbooks/alerts actually work; none executed yet (staging-only, not run this sprint).
 
 ## Prioritization Rules
 1. Protect clocking and payroll-adjacent workflows first.
