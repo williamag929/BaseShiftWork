@@ -143,15 +143,15 @@ Branch: `feature/professional-w4-security` (to be created from W3)
 - Audit history review — confirm `AuditInterceptor` covers all v2 writes
 - `Docs/W4_SECURITY_CHECKLIST.md` — per-endpoint findings + signoff
 
-### Week 5 - Observability and Runbooks ⬜ NOT STARTED
-- Dashboards and alerts: API error rate, p95 latency, auth failures, push failures, kiosk failures
-- Runbooks: degraded API, S3 outage, push provider outage, emergency rollback
-- Failure simulation drills
-
-### Week 6 - Stabilization and Release Readiness ⬜ NOT STARTED
+### Week 5 - Stabilization and Release Readiness ⬜ NOT STARTED
 - Bug bash across all modules.
 - Performance smoke tests.
 - Final go/no-go with measurable acceptance checklist.
+
+### Week 6 - Observability and Runbooks ⬜ NOT STARTED
+- Dashboards and alerts: API error rate, p95 latency, auth failures, push failures, kiosk failures
+- Runbooks: degraded API, S3 outage, push provider outage, emergency rollback
+- Failure simulation drills
 
 ## Prioritization Rules
 1. Protect clocking and payroll-adjacent workflows first.
