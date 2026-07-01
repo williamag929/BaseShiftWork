@@ -143,15 +143,17 @@ Branch: `feature/professional-w4-security` (to be created from W3)
 - Audit history review — confirm `AuditInterceptor` covers all v2 writes
 - `Docs/W4_SECURITY_CHECKLIST.md` — per-endpoint findings + signoff
 
-### Week 5 - Observability and Runbooks ⬜ NOT STARTED
+### Week 5 - Stabilization and Release Readiness ✅ COMPLETE
+Branch: `feature/professional-w5-stabilization`
+- Bug bash across all modules — found Angular's entire test suite was non-functional (0 tests ran; fixed karma builder + 6 components' unreachable NgModule scope), Mobile/Kiosk `node_modules` stale (`jest-expo` missing), Angular build missing packages. All fixed: API 87/87, Angular 99/99 (was 0), Mobile 57/57, Kiosk 8/8.
+- Also fixed real bugs surfaced once tests could run: `KioskComponent`'s stray `MatDialogModule` import shadowing the TestBed `MatDialog` mock, and several spec-only bugs (wrong `MAT_DIALOG_DATA` token, wrong tooltip attribute, missing mock fields).
+- Performance smoke tests — not run this sprint; flagged as a pre-release follow-up.
+- `Docs/W5_STABILIZATION_CHECKLIST.md` — full results + conditional go/no-go recommendation
+
+### Week 6 - Observability and Runbooks ⬜ NOT STARTED
 - Dashboards and alerts: API error rate, p95 latency, auth failures, push failures, kiosk failures
 - Runbooks: degraded API, S3 outage, push provider outage, emergency rollback
 - Failure simulation drills
-
-### Week 6 - Stabilization and Release Readiness ⬜ NOT STARTED
-- Bug bash across all modules.
-- Performance smoke tests.
-- Final go/no-go with measurable acceptance checklist.
 
 ## Prioritization Rules
 1. Protect clocking and payroll-adjacent workflows first.

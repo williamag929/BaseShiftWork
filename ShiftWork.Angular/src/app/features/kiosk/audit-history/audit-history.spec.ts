@@ -6,7 +6,7 @@
  */
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 
@@ -207,7 +207,7 @@ describe('AuditHistoryDialogComponent', () => {
       ],
       providers: [
         { provide: AuditHistoryService, useValue: auditServiceSpy },
-        { provide: 'MAT_DIALOG_DATA', useValue: mockData }
+        { provide: MAT_DIALOG_DATA, useValue: mockData }
       ]
     }).compileComponents();
 
@@ -351,7 +351,7 @@ describe('AuditHistoryButtonComponent', () => {
 
     const button = fixture.nativeElement.querySelector('button');
     expect(button).toBeTruthy();
-    expect(button.getAttribute('mattooltip')).toContain('Person');
+    expect(button.getAttribute('aria-label')).toContain('Person');
   });
 });
 
@@ -414,7 +414,7 @@ describe('AuditHistoryService', () => {
       .subscribe();
 
     const req = httpMock.expectOne(req =>
-      req.url.includes('actionType=Updated') && req.url.includes('pageSize=20')
+      req.urlWithParams.includes('actionType=Updated') && req.urlWithParams.includes('pageSize=20')
     );
     expect(req.request.method).toBe('GET');
     req.flush([]);
