@@ -1,58 +1,60 @@
 <div class="modal-backdrop" (click)="onClose()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Configure PTO for {{ person?.name }}</h2>
+      <h2 i18n="@@pto_config.title">Configure PTO for {{ person?.name }}</h2>
       <button class="close-btn" (click)="onClose()">&times;</button>
     </div>
 
     <div class="modal-body">
       <div class="info-section" *ngIf="currentBalance !== null">
-        <div class="info-label">Current PTO Balance:</div>
+        <div class="info-label" i18n="@@pto_config.balance_label">Current PTO Balance:</div>
         <div class="info-value">{{ currentBalance }} hours</div>
       </div>
 
       <form>
         <div class="form-group">
-          <label for="accrualRate">Accrual Rate (hours per month)</label>
-          <input 
-            type="number" 
+          <label for="accrualRate" i18n="@@pto_config.accrual_label">Accrual Rate (hours per month)</label>
+          <input
+            type="number"
             id="accrualRate"
-            [(ngModel)]="accrualRatePerMonth" 
+            [(ngModel)]="accrualRatePerMonth"
             name="accrualRate"
             placeholder="e.g., 10"
+            i18n-placeholder="@@pto_config.accrual_placeholder"
             step="0.25"
             min="0"
           />
-          <small class="hint">How many PTO hours this employee earns each month (e.g., 10 = 10 hours/month)</small>
+          <small class="hint" i18n="@@pto_config.accrual_hint">How many PTO hours this employee earns each month (e.g., 10 = 10 hours/month)</small>
         </div>
 
         <div class="form-group">
-          <label for="startingBalance">Starting Balance (hours)</label>
-          <input 
-            type="number" 
+          <label for="startingBalance" i18n="@@pto_config.starting_label">Starting Balance (hours)</label>
+          <input
+            type="number"
             id="startingBalance"
-            [(ngModel)]="startingBalance" 
+            [(ngModel)]="startingBalance"
             name="startingBalance"
             placeholder="e.g., 40"
+            i18n-placeholder="@@pto_config.starting_placeholder"
             step="1"
             min="0"
           />
-          <small class="hint">Initial PTO balance when employee started or when accrual begins</small>
+          <small class="hint" i18n="@@pto_config.starting_hint">Initial PTO balance when employee started or when accrual begins</small>
         </div>
 
         <div class="form-group">
-          <label for="startDate">Accrual Start Date</label>
-          <input 
-            type="date" 
+          <label for="startDate" i18n="@@pto_config.start_date_label">Accrual Start Date</label>
+          <input
+            type="date"
             id="startDate"
-            [(ngModel)]="startDate" 
+            [(ngModel)]="startDate"
             name="startDate"
           />
-          <small class="hint">Date when PTO accrual begins for this employee</small>
+          <small class="hint" i18n="@@pto_config.start_date_hint">Date when PTO accrual begins for this employee</small>
         </div>
 
         <div class="form-info">
-          <strong>How it works:</strong>
+          <strong i18n="@@pto_config.how_it_works">How it works:</strong>
           <ul>
             <li>Employee starts with the <strong>starting balance</strong> hours.</li>
             <li>Each month, <strong>accrual rate</strong> hours are added automatically.</li>
@@ -64,14 +66,15 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="resetForm()" [disabled]="loading">
+      <button class="btn btn-secondary" (click)="resetForm()" [disabled]="loading" i18n="@@pto_config.clear_btn">
         Clear
       </button>
-      <button class="btn btn-secondary" (click)="onClose()" [disabled]="loading">
+      <button class="btn btn-secondary" (click)="onClose()" [disabled]="loading" i18n="@@common.cancel">
         Cancel
       </button>
       <button class="btn btn-primary" (click)="save()" [disabled]="loading">
-        {{ loading ? 'Saving...' : 'Save Configuration' }}
+        <ng-container *ngIf="loading" i18n="@@pto_config.saving">Saving...</ng-container>
+        <ng-container *ngIf="!loading" i18n="@@pto_config.save_btn">Save Configuration</ng-container>
       </button>
     </div>
   </div>

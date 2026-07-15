@@ -5,10 +5,11 @@ import type { Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { colors } from '@/styles/theme';
 import { getToken } from '@/utils/storage.utils';
+import { useTranslation } from '@/i18n';
 
 export default function Index() {
   const router = useRouter();
-  // Check stored API token to decide where to navigate
+  const { t } = useTranslation();
   const [authState, setAuthState] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking');
 
   useEffect(() => {
@@ -24,7 +25,6 @@ export default function Index() {
     return () => { cancelled = true; };
   }, []);
 
-  // While Firebase resolves persisted auth (<200ms), show subtle loading
   if (authState === 'checking' || authState === 'authenticated') {
     return (
       <View style={[styles.container, styles.centered]}>
@@ -39,8 +39,8 @@ export default function Index() {
       <StatusBar style="light" />
 
       <View style={styles.header}>
-        <Text style={styles.title}>ShiftWork Mobile</Text>
-        <Text style={styles.subtitle}>Workforce Management</Text>
+        <Text style={styles.title}>{t('index.title')}</Text>
+        <Text style={styles.subtitle}>{t('index.subtitle')}</Text>
       </View>
 
       <View style={styles.content}>
@@ -48,16 +48,14 @@ export default function Index() {
           style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
           onPress={() => router.push('/(auth)/login' as Href)}
         >
-          <Text style={styles.buttonText}>Get Started</Text>
+          <Text style={styles.buttonText}>{t('index.get_started')}</Text>
         </Pressable>
 
-        <Text style={styles.infoText}>
-          Clock in/out • View Schedules • Track Hours
-        </Text>
+        <Text style={styles.infoText}>{t('index.info')}</Text>
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Version 1.0.0</Text>
+        <Text style={styles.footerText}>{t('index.version')}</Text>
       </View>
     </View>
   );

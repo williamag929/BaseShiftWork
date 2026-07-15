@@ -1,38 +1,38 @@
 <div class="modal-backdrop" (click)="onClose()"></div>
 <div class="modal-content">
   <div class="modal-header">
-    <span class="modal-title">Report Sick</span>
+    <span class="modal-title" i18n="@@sick_report.title">Report Sick</span>
     <button class="close-btn" (click)="onClose()">&times;</button>
   </div>
 
   <div class="modal-body">
     <div class="form-group">
-      <label for="person-name">Employee</label>
-      <input 
-        type="text" 
-        id="person-name" 
-        class="form-input" 
-        [value]="personName" 
-        disabled 
+      <label for="person-name" i18n="@@sick_report.employee">Employee</label>
+      <input
+        type="text"
+        id="person-name"
+        class="form-input"
+        [value]="personName"
+        disabled
       />
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label for="start-date">Sick Date</label>
-        <input 
-          type="date" 
-          id="start-date" 
-          class="form-input" 
+        <label for="start-date" i18n="@@sick_report.sick_date">Sick Date</label>
+        <input
+          type="date"
+          id="start-date"
+          class="form-input"
           [(ngModel)]="startDate"
         />
       </div>
       <div class="form-group" *ngIf="isMultiDay">
-        <label for="end-date">End Date</label>
-        <input 
-          type="date" 
-          id="end-date" 
-          class="form-input" 
+        <label for="end-date" i18n="@@sick_report.end_date">End Date</label>
+        <input
+          type="date"
+          id="end-date"
+          class="form-input"
           [(ngModel)]="endDate"
         />
       </div>
@@ -40,49 +40,51 @@
 
     <div class="form-group">
       <label class="checkbox-label">
-        <input 
-          type="checkbox" 
+        <input
+          type="checkbox"
           [(ngModel)]="isMultiDay"
         />
-        <span>Multiple Days</span>
+        <span i18n="@@sick_report.multiple_days">Multiple Days</span>
       </label>
     </div>
 
     <div class="form-group">
-      <label for="symptoms">Symptoms (Optional)</label>
-      <input 
-        type="text" 
-        id="symptoms" 
-        class="form-input" 
+      <label for="symptoms" i18n="@@sick_report.symptoms">Symptoms (Optional)</label>
+      <input
+        type="text"
+        id="symptoms"
+        class="form-input"
         placeholder="e.g., Fever, Headache, Cough"
+        i18n-placeholder="@@sick_report.symptoms_ph"
         [(ngModel)]="symptoms"
       />
     </div>
 
     <div class="form-group">
       <label class="checkbox-label">
-        <input 
-          type="checkbox" 
+        <input
+          type="checkbox"
           [(ngModel)]="requiresDoctor"
         />
-        <span>Requires Doctor's Note</span>
+        <span i18n="@@sick_report.doctor_note">Requires Doctor's Note</span>
       </label>
     </div>
 
     <div class="form-group">
-      <label for="note">Additional Notes (Optional)</label>
-      <textarea 
-        id="note" 
-        class="form-textarea" 
+      <label for="note" i18n="@@sick_report.notes">Additional Notes (Optional)</label>
+      <textarea
+        id="note"
+        class="form-textarea"
         rows="3"
         placeholder="Provide additional details..."
+        i18n-placeholder="@@sick_report.notes_ph"
         [(ngModel)]="note"
       ></textarea>
     </div>
 
     <div class="info-message">
       <i class="bi bi-info-circle"></i>
-      <span>Reporting sick will automatically mark your scheduled shifts as "open" for the selected date(s).</span>
+      <span i18n="@@sick_report.info_msg">Reporting sick will automatically mark your scheduled shifts as "open" for the selected date(s).</span>
     </div>
 
     <div class="error-message" *ngIf="errorMessage">
@@ -92,14 +94,14 @@
   </div>
 
   <div class="modal-footer">
-    <button class="btn-cancel" (click)="onClose()" [disabled]="submitting">
+    <button class="btn-cancel" (click)="onClose()" [disabled]="submitting" i18n="@@common.cancel">
       Cancel
     </button>
     <button class="btn-submit" (click)="onSubmit()" [disabled]="submitting">
-      <span *ngIf="!submitting">Report Sick</span>
+      <span *ngIf="!submitting" i18n="@@sick_report.submit">Report Sick</span>
       <span *ngIf="submitting" class="loading-text">
         <span class="spinner-small"></span>
-        Submitting...
+        <ng-container i18n="@@sick_report.submitting">Submitting...</ng-container>
       </span>
     </button>
   </div>

@@ -11,6 +11,7 @@ import * as Haptics from 'expo-haptics';
 import { useAuthStore } from '@/store/authStore';
 import { safetyService, SafetyContent } from '@/services/safety.service';
 import { colors, spacing, radius } from '@/styles/tokens';
+import { useTranslation } from '@/i18n';
 
 const TYPE_ICON: Record<string, React.ComponentPropsWithRef<typeof Ionicons>['name']> = {
   ToolboxTalk:        'construct-outline',
@@ -25,6 +26,7 @@ export default function SafetyDetailScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { companyId } = useAuthStore();
+  const { t } = useTranslation();
 
   const [item, setItem]                   = useState<SafetyContent | null>(null);
   const [loading, setLoading]             = useState(true);
@@ -37,7 +39,6 @@ export default function SafetyDetailScreen() {
       .then(data => {
         setItem(data);
         setAcknowledged(data.isAcknowledgedByCurrentUser);
-        // No text content means nothing to scroll — enable immediately
         if (!data.textContent) setScrolledToBottom(true);
       })
       .catch(() => Alert.alert('Error', 'Could not load safety content.'))
@@ -84,7 +85,7 @@ export default function SafetyDetailScreen() {
       <View style={[styles.navBar, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="chevron-back" size={26} color={colors.primary} />
-          <Text style={styles.backText}>Safety</Text>
+          <Text style={styles.backText}>{t('safety_detail.back')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -134,7 +135,7 @@ export default function SafetyDetailScreen() {
               color={colors.primary}
             />
             <Text style={styles.openContentText}>
-              {item.type === 'InstructionalVideo' ? 'Watch Video' : 'Open Document'}
+              {item.type === 'InstructionalVideo' ? t('safety_detail.watch_video') : t('safety_detail.open_document')}
             </Text>
           </TouchableOpacity>
         )}
@@ -143,7 +144,7 @@ export default function SafetyDetailScreen() {
         {item.isAcknowledgmentRequired && !scrolledToBottom && !!item.textContent && (
           <View style={styles.scrollHint}>
             <Ionicons name="arrow-down-outline" size={15} color={colors.muted} />
-            <Text style={styles.scrollHintText}>Scroll to the bottom to enable acknowledgment</Text>
+            <Text style={styles.scrollHintText}>{t('safety_detail.scroll_hint')}</Text>
           </View>
         )}
 
@@ -151,7 +152,7 @@ export default function SafetyDetailScreen() {
         {acknowledged && (
           <View style={styles.ackedCard}>
             <Ionicons name="checkmark-circle" size={22} color={colors.success} />
-            <Text style={styles.ackedText}>You have acknowledged this content.</Text>
+            <Text style={styles.ackedText}>{t('safety_detail.acknowledged')}</Text>
           </View>
         )}
 
@@ -162,7 +163,7 @@ export default function SafetyDetailScreen() {
       {item.isAcknowledgmentRequired && !acknowledged && (
         <View style={styles.bottomBar}>
           {!scrolledToBottom && !!item.textContent && (
-            <Text style={styles.scrollPrompt}>Read to the end to enable acknowledgment</Text>
+            <Text style={styles.scrollPrompt}>{t('safety_detail.scroll_prompt')}</Text>
           )}
           <TouchableOpacity
             style={[styles.ackBtn, !ackEnabled && styles.ackBtnDisabled]}
@@ -174,7 +175,7 @@ export default function SafetyDetailScreen() {
               ? <ActivityIndicator color="#fff" />
               : <>
                   <Ionicons name="checkmark-done-outline" size={20} color="#fff" />
-                  <Text style={styles.ackBtnText}>I Acknowledge</Text>
+                  <Text style={styles.ackBtnText}>{t('safety_detail.i_acknowledge')}</Text>
                 </>
             }
           </TouchableOpacity>

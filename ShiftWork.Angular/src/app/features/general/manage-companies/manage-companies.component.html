@@ -1,29 +1,29 @@
 <div class="container-fluid mt-4">
-  <h2>Manage Companies</h2>
+  <h2 i18n="@@manage_companies.title">Manage Companies</h2>
   <hr>
   <div class="row">
     <!-- Companies List -->
     <div class="col-md-4">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h4>Companies</h4>
-          <button class="btn btn-primary btn-sm" (click)="createCompany()">Create New</button>
+          <h4 i18n="@@manage_companies.companies_heading">Companies</h4>
+          <button class="btn btn-primary btn-sm" (click)="createCompany()" i18n="@@manage_companies.create_new_btn">Create New</button>
         </div>
         <div class="card-body">
           <div *ngIf="isLoading" class="text-center">
             <div class="spinner-border" role="status">
-              <span class="visually-hidden">Loading...</span>
+              <span class="visually-hidden" i18n="@@common.loading_short">Loading...</span>
             </div>
           </div>
           <ul *ngIf="!isLoading" class="list-group">
-            <li *ngFor="let company of companies" 
+            <li *ngFor="let company of companies"
                 class="list-group-item d-flex justify-content-between align-items-center"
                 [class.active]="selectedCompany?.companyId === company.companyId">
               {{ company.name }}
               <div>
-                <button class="btn btn-outline-secondary btn-sm me-1" (click)="selectCompany(company)">Manage Users</button>
-                <button class="btn btn-outline-info btn-sm me-1" (click)="editCompany(company)">Edit</button>
-                <button class="btn btn-outline-danger btn-sm" (click)="deleteCompany(company)">Delete</button>
+                <button class="btn btn-outline-secondary btn-sm me-1" (click)="selectCompany(company)" i18n="@@manage_companies.manage_users_btn">Manage Users</button>
+                <button class="btn btn-outline-info btn-sm me-1" (click)="editCompany(company)" i18n="@@manage_companies.edit_btn">Edit</button>
+                <button class="btn btn-outline-danger btn-sm" (click)="deleteCompany(company)" i18n="@@manage_companies.delete_btn">Delete</button>
               </div>
             </li>
           </ul>
@@ -35,17 +35,17 @@
     <div class="col-md-8">
       <div *ngIf="selectedCompany" class="card">
         <div class="card-header">
-          <h4>Users for {{ selectedCompany.name }}</h4>
+          <h4 i18n="@@manage_companies.users_for">Users for {{ selectedCompany.name }}</h4>
         </div>
         <div class="card-body">
           <div *ngIf="isLoadingUsers" class="text-center">
             <div class="spinner-border" role="status">
-              <span class="visually-hidden">Loading...</span>
+              <span class="visually-hidden" i18n="@@common.loading_short">Loading...</span>
             </div>
           </div>
           <div *ngIf="!isLoadingUsers" class="row">
             <div class="col-md-6">
-              <h5>In Company ({{ companyMembers.length }})</h5>
+              <h5 i18n="@@manage_companies.in_company">In Company ({{ companyMembers.length }})</h5>
               <ul class="list-group">
                 <li *ngFor="let member of companyMembers" class="list-group-item d-flex justify-content-between align-items-center"
                     [style.opacity]="member.isActive ? 1 : 0.5">
@@ -53,7 +53,8 @@
                     <strong>{{ member.displayName || member.email }}</strong>
                     <small *ngIf="member.displayName" class="text-muted ms-1">{{ member.email }}</small>
                     <span class="badge ms-2" [class.bg-success]="member.isActive" [class.bg-danger]="!member.isActive">
-                      {{ member.isActive ? 'Active' : 'Inactive' }}
+                      <ng-container *ngIf="member.isActive" i18n="@@common.active">Active</ng-container>
+                      <ng-container *ngIf="!member.isActive" i18n="@@common.inactive">Inactive</ng-container>
                     </span>
                   </span>
                   <div>
@@ -61,34 +62,34 @@
                             [class.btn-warning]="member.isActive" [class.btn-success]="!member.isActive"
                             (click)="toggleActive(member)"
                             [disabled]="togglingId === member.companyUserId">
-                      {{ member.isActive ? 'Deactivate' : 'Activate' }}
+                      <ng-container *ngIf="member.isActive" i18n="@@manage_companies.deactivate_btn">Deactivate</ng-container>
+                      <ng-container *ngIf="!member.isActive" i18n="@@manage_companies.activate_btn">Activate</ng-container>
                     </button>
-                    <button class="btn btn-danger btn-sm" (click)="removeUserFromCompany(member)">Remove</button>
+                    <button class="btn btn-danger btn-sm" (click)="removeUserFromCompany(member)" i18n="@@manage_companies.remove_btn">Remove</button>
                   </div>
                 </li>
-                <li *ngIf="companyMembers.length === 0" class="list-group-item text-muted">No users in this company.</li>
+                <li *ngIf="companyMembers.length === 0" class="list-group-item text-muted" i18n="@@manage_companies.no_members">No users in this company.</li>
               </ul>
             </div>
             <div class="col-md-6">
-              <h5>Available Users ({{ availablePeople.length }})</h5>
+              <h5 i18n="@@manage_companies.available_users">Available Users ({{ availablePeople.length }})</h5>
               <ul class="list-group">
                 <li *ngFor="let person of availablePeople" class="list-group-item d-flex justify-content-between align-items-center">
                   <span>
                     <strong>{{ person.name }}</strong>
                     <small class="text-muted ms-1">{{ person.email }}</small>
                   </span>
-                  <button class="btn btn-success btn-sm" (click)="addUserToCompany(person)">Add</button>
+                  <button class="btn btn-success btn-sm" (click)="addUserToCompany(person)" i18n="@@manage_companies.add_btn">Add</button>
                 </li>
-                <li *ngIf="availablePeople.length === 0" class="list-group-item text-muted">No available users to add.</li>
+                <li *ngIf="availablePeople.length === 0" class="list-group-item text-muted" i18n="@@manage_companies.no_available">No available users to add.</li>
               </ul>
             </div>
           </div>
         </div>
       </div>
-      <div *ngIf="!selectedCompany && !isLoading" class="alert alert-info">
+      <div *ngIf="!selectedCompany && !isLoading" class="alert alert-info" i18n="@@manage_companies.select_hint">
         Select a company to manage its users.
       </div>
     </div>
   </div>
 </div>
-

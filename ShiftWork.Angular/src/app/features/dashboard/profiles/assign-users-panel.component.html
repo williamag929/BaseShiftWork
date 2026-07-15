@@ -2,7 +2,7 @@
   <div class="panel-overlay" (click)="close()"></div>
   <div class="panel-content">
     <div class="assign-users-header">
-      <h2>Assign Users to {{ roleName }}</h2>
+      <h2 i18n="@@assign_users.title">Assign Users to {{ roleName }}</h2>
       <button mat-icon-button (click)="close()">
         <mat-icon>close</mat-icon>
       </button>
@@ -18,9 +18,9 @@
     <div class="assign-users-actions">
       <button mat-raised-button color="primary" (click)="save()">
         <mat-icon>save</mat-icon>
-        Save
+        <ng-container i18n="@@common.save">Save</ng-container>
       </button>
-      <button mat-button (click)="close()">Cancel</button>
+      <button mat-button (click)="close()" i18n="@@common.cancel">Cancel</button>
     </div>
   </div>
 </div>

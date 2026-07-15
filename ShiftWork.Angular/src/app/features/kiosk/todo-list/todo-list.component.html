@@ -1,9 +1,9 @@
 <div *ngIf="loading" class="text-center">
   <div class="spinner-border" role="status">
-    <span class="sr-only">Loading...</span>
+    <span class="sr-only" i18n="@@common.loading_short">Loading...</span>
   </div>
 </div>
-<div *ngIf="error" class="alert alert-danger">
+<div *ngIf="error" class="alert alert-danger" i18n="@@kiosk_todo.error">
   Error loading tasks.
 </div>
 <div class="container">

@@ -7,10 +7,10 @@
       </div>
       <div class="company-info">
         <div class="company-name">{{ activeCompany?.name }}</div>
-        <div class="kiosk-label">Employee Kiosk</div>
+        <div class="kiosk-label" i18n="@@kiosk.label">Employee Kiosk</div>
       </div>
     </div>
-    
+
     <div class="header-right">
       <div class="clock-wrapper">
         <div class="digital-clock">
@@ -19,10 +19,11 @@
         </div>
         <app-analog-clock class="analog-clock"></app-analog-clock>
       </div>
-      
+
       <!-- Settings icon for location change -->
-      <button mat-icon-button class="settings-btn" (click)="openLocationSettings()" *ngIf="selectedLocation" 
-              title="Change Location" aria-label="Change device location">
+      <button mat-icon-button class="settings-btn" (click)="openLocationSettings()" *ngIf="selectedLocation"
+              i18n-title="@@kiosk.change_location_title" title="Change Location"
+              i18n-aria-label="@@kiosk.change_location_aria" aria-label="Change device location">
         <i class="fa fa-cog"></i>
       </button>
     </div>
@@ -38,7 +39,7 @@
     <div class="footer-content">
       <span class="footer-text">
         <i class="fa fa-shield"></i>
-        Secure Employee Time Tracking System
+        <ng-container i18n="@@kiosk.footer_system">Secure Employee Time Tracking System</ng-container>
       </span>
       <span class="footer-text">
         <i class="fa fa-clock-o"></i>
