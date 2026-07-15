@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/authStore';
 import { bulletinService, Bulletin } from '@/services/bulletin.service';
 import { colors, spacing, radius } from '@/styles/tokens';
 import { EmptyState } from '@/components/ui';
+import { useTranslation } from '@/i18n';
 
 const PRIORITY_COLOR: Record<string, string> = {
   Critical: colors.danger ?? '#FF3B30',
@@ -22,6 +23,7 @@ const PRIORITY_COLOR: Record<string, string> = {
 export default function BulletinsScreen() {
   const { companyId } = useAuthStore();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const [bulletins, setBulletins] = useState<Bulletin[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -65,6 +67,14 @@ export default function BulletinsScreen() {
 
   const unreadCount = bulletins.filter(b => !b.isReadByCurrentUser && b.status === 'Published').length;
 
+  const filterLabel = (f: 'all' | 'unread' | 'urgent') => {
+    if (f === 'all') return t('bulletins.filter_all');
+    if (f === 'unread') return unreadCount
+      ? t('bulletins.filter_unread_count', { count: unreadCount })
+      : t('bulletins.filter_unread');
+    return t('bulletins.filter_urgent');
+  };
+
   const renderItem = ({ item, index }: { item: Bulletin; index: number }) => (
     <Animated.View entering={FadeInDown.delay(index * 40).duration(280)}>
       <TouchableOpacity style={[styles.card, !item.isReadByCurrentUser && styles.cardUnread]} onPress={() => openBulletin(item)} activeOpacity={0.75}>
@@ -97,7 +107,7 @@ export default function BulletinsScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Bulletins</Text>
+        <Text style={styles.headerTitle}>{t('bulletins.title')}</Text>
         {unreadCount > 0 && (
           <View style={styles.headerBadge}>
             <Text style={styles.headerBadgeText}>{unreadCount}</Text>
@@ -114,7 +124,7 @@ export default function BulletinsScreen() {
             onPress={() => setFilter(f)}
           >
             <Text style={[styles.pillText, filter === f && styles.pillTextActive]}>
-              {f === 'all' ? 'All' : f === 'unread' ? `Unread${unreadCount ? ` (${unreadCount})` : ''}` : 'Urgent'}
+              {filterLabel(f)}
             </Text>
           </TouchableOpacity>
         ))}
@@ -126,7 +136,7 @@ export default function BulletinsScreen() {
           <Ionicons name="wifi-outline" size={28} color="#FF3B30" />
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryBtn} onPress={() => load()}>
-            <Text style={styles.retryText}>Try Again</Text>
+            <Text style={styles.retryText}>{t('bulletins.try_again')}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -141,7 +151,13 @@ export default function BulletinsScreen() {
           renderItem={renderItem}
           contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + 80 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
-          ListEmptyComponent={<EmptyState icon="megaphone-outline" title="No bulletins" message="Check back later for updates" />}
+          ListEmptyComponent={
+            <EmptyState
+              icon="megaphone-outline"
+              title={t('bulletins.empty_title')}
+              message={t('bulletins.check_back')}
+            />
+          }
           ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
         />
       )}

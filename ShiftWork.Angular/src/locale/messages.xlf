@@ -102,7 +102,7 @@
         <source>Log in with Google</source>
       </trans-unit>
       <trans-unit id="auth.login.biometric" datatype="html">
-        <source>Sign in with {{biometricType}}</source>
+        <source>Sign in with <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/></source>
       </trans-unit>
       <trans-unit id="auth.login.or_continue" datatype="html">
         <source>or continue with</source>
@@ -198,7 +198,7 @@
         <source>Continue with Google</source>
       </trans-unit>
       <trans-unit id="auth.onboarding.title" datatype="html">
-        <source>Welcome to {{appName}}!</source>
+        <source>Welcome to <x id="INTERPOLATION" equiv-text="{{ appName }}"/>!</source>
       </trans-unit>
       <trans-unit id="auth.onboarding.subtitle" datatype="html">
         <source>Your account is ready. Let&apos;s get you started.</source>
@@ -216,7 +216,7 @@
         <source>Your account includes sample data</source>
       </trans-unit>
       <trans-unit id="auth.onboarding.demo_description" datatype="html">
-        <source>We&apos;ve added demo employees, a location, and an area so you can explore {{appName}}.</source>
+        <source>We&apos;ve added demo employees, a location, and an area so you can explore <x id="INTERPOLATION" equiv-text="{{ appName }}"/>.</source>
       </trans-unit>
       <trans-unit id="auth.onboarding.employees" datatype="html">
         <source>Employees</source>
@@ -345,7 +345,7 @@
         <source>You&apos;re All Set!</source>
       </trans-unit>
       <trans-unit id="auth.accept_invite.success_subtitle" datatype="html">
-        <source>Your account is ready. Log in with {{email}}.</source>
+        <source>Your account is ready. Log in with <x id="INTERPOLATION" equiv-text="{{ email }}"/>.</source>
       </trans-unit>
       <trans-unit id="auth.accept_invite.or_download" datatype="html">
         <source>Or download the mobile app</source>
@@ -390,7 +390,7 @@
         <source>Thank You for Registering</source>
       </trans-unit>
       <trans-unit id="auth.verify_email.sent" datatype="html">
-        <source>We have sent a confirmation email to {{email}}.</source>
+        <source>We have sent a confirmation email to <x id="INTERPOLATION" equiv-text="{{ email }}"/>.</source>
       </trans-unit>
       <trans-unit id="auth.verify_email.instruction" datatype="html">
         <source>Please check your email and click on the link to verify your email address.</source>
@@ -402,7 +402,7 @@
         <source>Go back to Sign in</source>
       </trans-unit>
       <trans-unit id="registration.title" datatype="html">
-        <source>Create your {{appName}} account</source>
+        <source>Create your <x id="INTERPOLATION" equiv-text="{{ appName }}"/> account</source>
       </trans-unit>
       <trans-unit id="registration.subtitle" datatype="html">
         <source>Get started in just a few steps — it&apos;s free</source>
@@ -675,7 +675,7 @@
         <source>All Content</source>
       </trans-unit>
       <trans-unit id="safety.tab_pending" datatype="html">
-        <source>Pending Ack</source>
+        <source>Pending</source>
       </trans-unit>
       <trans-unit id="safety.loading" datatype="html">
         <source>Loading safety content...</source>
@@ -732,7 +732,7 @@
         <source>Upgrade to Pro</source>
       </trans-unit>
       <trans-unit id="upgrade.subtitle" datatype="html">
-        <source>Unlock the full power of {{appName}} for your team.</source>
+        <source>Unlock the full power of ShiftWork for your team.</source>
       </trans-unit>
       <trans-unit id="upgrade.col_feature" datatype="html">
         <source>Feature</source>
@@ -972,7 +972,7 @@
         <source>Shift updated thanks!</source>
       </trans-unit>
       <trans-unit id="clock.countdown" datatype="html">
-        <source>Capturing photo in {{count}} seconds...</source>
+        <source>Capturing photo in <x id="INTERPOLATION" equiv-text="{{ count }}"/> seconds...</source>
       </trans-unit>
       <trans-unit id="clock.start_shift" datatype="html">
         <source>Start Shift</source>
@@ -994,6 +994,9 @@
       </trans-unit>
       <trans-unit id="overview.title" datatype="html">
         <source>Workforce Intelligence Dashboard</source>
+      </trans-unit>
+      <trans-unit id="overview.subtitle" datatype="html">
+        <source>real-time visibility of attendance, GPS compliance, labor health, and location-level exceptions.</source>
       </trans-unit>
       <trans-unit id="overview.live_sync" datatype="html">
         <source>Live Sync</source>
@@ -1107,7 +1110,7 @@
         <source>On clock</source>
       </trans-unit>
       <trans-unit id="dashboard.updated_at" datatype="html">
-        <source>Updated {{time}}</source>
+        <source>Updated <x id="INTERPOLATION" equiv-text="{{ time }}"/></source>
       </trans-unit>
       <trans-unit id="dashboard.quick_clock_in" datatype="html">
         <source>Clock In</source>
@@ -1128,10 +1131,10 @@
         <source>Security</source>
       </trans-unit>
       <trans-unit id="profile.biometric_label" datatype="html">
-        <source>{{biometricType}} Login</source>
+        <source><x id="INTERPOLATION" equiv-text="{{ biometricType }}"/> Login</source>
       </trans-unit>
       <trans-unit id="profile.biometric_desc" datatype="html">
-        <source>Use {{biometricType}} to sign in quickly</source>
+        <source>Use <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/> to sign in quickly</source>
       </trans-unit>
       <trans-unit id="profile.change_pin" datatype="html">
         <source>Change PIN</source>
@@ -1179,10 +1182,10 @@
         <source>No bulletins yet.</source>
       </trans-unit>
       <trans-unit id="bulletins.unread_one" datatype="html">
-        <source>{{count}} unread bulletin</source>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unread bulletin</source>
       </trans-unit>
       <trans-unit id="bulletins.unread_other" datatype="html">
-        <source>{{count}} unread bulletins</source>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unread bulletins</source>
       </trans-unit>
       <trans-unit id="bulletins.mark_read" datatype="html">
         <source>Mark as read</source>
@@ -1769,7 +1772,7 @@ Option C</source>
         <source>All shifts published</source>
       </trans-unit>
       <trans-unit id="schedule_grid.unpublished_shifts" datatype="html">
-        <source>{{count}} unpublished shifts</source>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unpublished shifts</source>
       </trans-unit>
       <trans-unit id="schedule_grid.search_ph" datatype="html">
         <source>Search</source>
@@ -1805,28 +1808,28 @@ Option C</source>
         <source>Void</source>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_unpublished" datatype="html">
-        <source>{{count}} unpublished</source>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unpublished</source>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_warnings" datatype="html">
-        <source>{{count}} warnings</source>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> warnings</source>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_open_shifts" datatype="html">
-        <source>{{count}} open shifts</source>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> open shifts</source>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_empty" datatype="html">
-        <source>{{count}} empty</source>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> empty</source>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_published" datatype="html">
-        <source>{{count}} published</source>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> published</source>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_req_confirm" datatype="html">
-        <source>{{count}} require confirmation</source>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> require confirmation</source>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_leave_pending" datatype="html">
-        <source>{{count}} leave pending</source>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> leave pending</source>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_unavailable" datatype="html">
-        <source>{{count}} unavailable</source>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unavailable</source>
       </trans-unit>
       <trans-unit id="schedule_grid.loading" datatype="html">
         <source>Loading schedule...</source>
@@ -2024,7 +2027,7 @@ Option C</source>
         <source>Find replacement</source>
       </trans-unit>
       <trans-unit id="add_modal.view_profile" datatype="html">
-        <source>View {{name}}&apos;s profile</source>
+        <source>View <x id="INTERPOLATION" equiv-text="{{ name }}"/>&apos;s profile</source>
       </trans-unit>
       <trans-unit id="add_modal.view_history" datatype="html">
         <source>View shift history</source>
@@ -2186,7 +2189,7 @@ Option C</source>
         <source>All employees are either scheduled or have reported sick/time off.</source>
       </trans-unit>
       <trans-unit id="replacement.match_score" datatype="html">
-        <source>Match: {{score}}%</source>
+        <source>Match: <x id="INTERPOLATION" equiv-text="{{ score }}"/>%</source>
       </trans-unit>
       <trans-unit id="replacement.notify" datatype="html">
         <source>Notify</source>
@@ -2432,7 +2435,7 @@ Option C</source>
         <source>Assign users</source>
       </trans-unit>
       <trans-unit id="assign_users.title" datatype="html">
-        <source>Assign Users to {{roleName}}</source>
+        <source>Assign Users to <x id="INTERPOLATION" equiv-text="{{ roleName }}"/></source>
       </trans-unit>
       <trans-unit id="areas.page_title" datatype="html">
         <source>Area Management</source>
@@ -2831,7 +2834,7 @@ Option C</source>
         <source>Try adjusting your filters</source>
       </trans-unit>
       <trans-unit id="time_off_approvals.requested" datatype="html">
-        <source>Requested {{date}}</source>
+        <source>Requested <x id="INTERPOLATION" equiv-text="{{ date }}"/></source>
       </trans-unit>
       <trans-unit id="time_off_approvals.type_label" datatype="html">
         <source>Type</source>
@@ -2873,7 +2876,7 @@ Option C</source>
         <source>Next</source>
       </trans-unit>
       <trans-unit id="pto_config.title" datatype="html">
-        <source>Configure PTO for {{name}}</source>
+        <source>Configure PTO for <x id="INTERPOLATION" equiv-text="{{ name }}"/></source>
       </trans-unit>
       <trans-unit id="pto_config.balance_label" datatype="html">
         <source>Current PTO Balance:</source>
@@ -2931,6 +2934,9 @@ Option C</source>
       </trans-unit>
       <trans-unit id="shift_summaries.all_locations" datatype="html">
         <source>All Locations</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.person" datatype="html">
+        <source>Person</source>
       </trans-unit>
       <trans-unit id="shift_summaries.all_people" datatype="html">
         <source>All People</source>
@@ -3308,7 +3314,7 @@ Option C</source>
         <source>Shift updated thanks!</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.countdown" datatype="html">
-        <source>Capturing photo in {{ count }} seconds...</source>
+        <source>Capturing photo in <x id="INTERPOLATION" equiv-text="{{ count }}"/> seconds...</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.wake_lock_title" datatype="html">
         <source>Screen wake lock active to prevent sleep</source>
@@ -3347,7 +3353,7 @@ Option C</source>
         <source>Please select an employee to continue</source>
       </trans-unit>
       <trans-unit id="kiosk_pin.title" datatype="html">
-        <source>Enter PIN for {{name}}</source>
+        <source>Enter PIN for <x id="INTERPOLATION" equiv-text="{{ name }}"/></source>
       </trans-unit>
       <trans-unit id="kiosk_pin.pin_label" datatype="html">
         <source>PIN</source>
@@ -3563,19 +3569,19 @@ Option C</source>
         <source>Delete</source>
       </trans-unit>
       <trans-unit id="manage_companies.users_title" datatype="html">
-        <source>Users for {{companyName}}</source>
+        <source>Users for <x id="INTERPOLATION" equiv-text="{{ companyName }}"/></source>
       </trans-unit>
       <trans-unit id="manage_companies.users_for" datatype="html">
-        <source>Users for {{ selectedCompany.name }}</source>
+        <source>Users for <x id="INTERPOLATION" equiv-text="{{ selectedCompany.name }}"/></source>
       </trans-unit>
       <trans-unit id="manage_companies.in_company" datatype="html">
-        <source>In Company ({{ companyMembers.length }})</source>
+        <source>In Company (<x id="INTERPOLATION" equiv-text="{{ companyMembers.length }}"/>)</source>
       </trans-unit>
       <trans-unit id="manage_companies.available" datatype="html">
-        <source>Available Users ({{count}})</source>
+        <source>Available Users (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
       </trans-unit>
       <trans-unit id="manage_companies.available_users" datatype="html">
-        <source>Available Users ({{ availablePeople.length }})</source>
+        <source>Available Users (<x id="INTERPOLATION" equiv-text="{{ availablePeople.length }}"/>)</source>
       </trans-unit>
       <trans-unit id="manage_companies.deactivate" datatype="html">
         <source>Deactivate</source>
@@ -3624,6 +3630,498 @@ Option C</source>
       </trans-unit>
       <trans-unit id="company_switch.empty" datatype="html">
         <source>No companies available</source>
+      </trans-unit>
+      <trans-unit id="auth.company_select.loading" datatype="html">
+        <source>Loading your companies…</source>
+      </trans-unit>
+      <trans-unit id="auth.company_select.no_companies" datatype="html">
+        <source>No companies found</source>
+      </trans-unit>
+      <trans-unit id="auth.company_select.not_linked" datatype="html">
+        <source>Your account is not linked to any companies.</source>
+      </trans-unit>
+      <trans-unit id="auth.company_select.welcome" datatype="html">
+        <source>Welcome back!</source>
+      </trans-unit>
+      <trans-unit id="auth.company_select.select" datatype="html">
+        <source>Select a company to continue</source>
+      </trans-unit>
+      <trans-unit id="auth.pin_verify.title" datatype="html">
+        <source>Enter Your PIN</source>
+      </trans-unit>
+      <trans-unit id="auth.pin_verify.subtitle" datatype="html">
+        <source>Enter your 4-digit PIN to continue</source>
+      </trans-unit>
+      <trans-unit id="auth.pin_verify.error" datatype="html">
+        <source>Invalid PIN. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="auth.pin_verify.delete" datatype="html">
+        <source>Delete</source>
+      </trans-unit>
+      <trans-unit id="index.title" datatype="html">
+        <source>ShiftWork Mobile</source>
+      </trans-unit>
+      <trans-unit id="index.subtitle" datatype="html">
+        <source>Workforce Management</source>
+      </trans-unit>
+      <trans-unit id="index.get_started" datatype="html">
+        <source>Get Started</source>
+      </trans-unit>
+      <trans-unit id="index.info" datatype="html">
+        <source>Clock in/out • View Schedules • Track Hours</source>
+      </trans-unit>
+      <trans-unit id="index.version" datatype="html">
+        <source>Version 1.0.0</source>
+      </trans-unit>
+      <trans-unit id="clock.clock_out_hint" datatype="html">
+        <source>Clock out when done</source>
+      </trans-unit>
+      <trans-unit id="clock.clock_in_hint" datatype="html">
+        <source>Clock in to start your shift</source>
+      </trans-unit>
+      <trans-unit id="profile.footer" datatype="html">
+        <source>ShiftWork Mobile · v1.0.0</source>
+      </trans-unit>
+      <trans-unit id="schedule.offline_cached" datatype="html">
+        <source>Offline · cached data</source>
+      </trans-unit>
+      <trans-unit id="schedule.shifts_label" datatype="html">
+        <source>Shifts</source>
+      </trans-unit>
+      <trans-unit id="schedule.no_shifts" datatype="html">
+        <source>No shifts</source>
+      </trans-unit>
+      <trans-unit id="schedule.no_shifts_msg" datatype="html">
+        <source>No shifts scheduled for this period.</source>
+      </trans-unit>
+      <trans-unit id="schedule.shift_meta" datatype="html">
+        <source>Shift #<x id="INTERPOLATION" equiv-text="{{ id }}"/> · <x id="INTERPOLATION_1" equiv-text="{{ status }}"/></source>
+      </trans-unit>
+      <trans-unit id="schedule.clocked_events" datatype="html">
+        <source>Clocked Events</source>
+      </trans-unit>
+      <trans-unit id="schedule.no_events" datatype="html">
+        <source>No events</source>
+      </trans-unit>
+      <trans-unit id="schedule.no_events_msg" datatype="html">
+        <source>No events recorded for this period.</source>
+      </trans-unit>
+      <trans-unit id="schedule.view_title" datatype="html">
+        <source>Schedule View</source>
+      </trans-unit>
+      <trans-unit id="schedule.view_by" datatype="html">
+        <source>View By</source>
+      </trans-unit>
+      <trans-unit id="schedule.navigate" datatype="html">
+        <source>Navigate</source>
+      </trans-unit>
+      <trans-unit id="schedule.prev" datatype="html">
+        <source>Prev</source>
+      </trans-unit>
+      <trans-unit id="schedule.next_btn" datatype="html">
+        <source>Next</source>
+      </trans-unit>
+      <trans-unit id="schedule.mode_day" datatype="html">
+        <source>Day</source>
+      </trans-unit>
+      <trans-unit id="schedule.mode_week" datatype="html">
+        <source>Week</source>
+      </trans-unit>
+      <trans-unit id="schedule.mode_month" datatype="html">
+        <source>Month</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.title" datatype="html">
+        <source>My Weekly Schedule</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.pull_refresh" datatype="html">
+        <source>Pull to refresh</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.total_hours" datatype="html">
+        <source>Total Hours</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.days_scheduled" datatype="html">
+        <source>Days Scheduled</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.last_updated" datatype="html">
+        <source>Last updated: <x id="INTERPOLATION" equiv-text="{{ time }}"/></source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.syncing" datatype="html">
+        <source>🔄 Syncing...</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.loading" datatype="html">
+        <source>Loading schedule...</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.retry" datatype="html">
+        <source>Retry</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.no_shifts" datatype="html">
+        <source>No shifts</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.no_shifts_scheduled" datatype="html">
+        <source>No shifts scheduled</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.no_shifts_msg" datatype="html">
+        <source>Check back later or contact your manager.</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.shift_details" datatype="html">
+        <source>Shift Details</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.date" datatype="html">
+        <source>Date</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.time" datatype="html">
+        <source>Time</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.duration" datatype="html">
+        <source>Duration</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.notes" datatype="html">
+        <source>Notes</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.close" datatype="html">
+        <source>Close</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.title" datatype="html">
+        <source>AI Assistant</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.mcp_online" datatype="html">
+        <source>MCP Online</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.offline" datatype="html">
+        <source>Offline</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.checking" datatype="html">
+        <source>Checking…</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.thinking" datatype="html">
+        <source>Thinking…</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.placeholder" datatype="html">
+        <source>Ask me about schedules…</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.quick_schedule" datatype="html">
+        <source>📅 My Schedule</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.quick_tools" datatype="html">
+        <source>🔧 Tools</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.quick_unpublished" datatype="html">
+        <source>📝 Unpublished</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.quick_ping" datatype="html">
+        <source>🏓 Ping</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.unable_to_load" datatype="html">
+        <source>Unable to load</source>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.not_found" datatype="html">
+        <source>Bulletin not found.</source>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.go_back" datatype="html">
+        <source>Go Back</source>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.expires" datatype="html">
+        <source>Expires <x id="INTERPOLATION" equiv-text="{{ date }}"/></source>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.attachments" datatype="html">
+        <source>Attachments</source>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.attachment_label" datatype="html">
+        <source>Attachment <x id="INTERPOLATION" equiv-text="{{ number }}"/></source>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.marked_read" datatype="html">
+        <source>Marked as read</source>
+      </trans-unit>
+      <trans-unit id="document_detail.back" datatype="html">
+        <source>Documents</source>
+      </trans-unit>
+      <trans-unit id="document_detail.open_btn" datatype="html">
+        <source>Open Document</source>
+      </trans-unit>
+      <trans-unit id="document_detail.description" datatype="html">
+        <source>DESCRIPTION</source>
+      </trans-unit>
+      <trans-unit id="document_detail.version" datatype="html">
+        <source>Version</source>
+      </trans-unit>
+      <trans-unit id="document_detail.file_size" datatype="html">
+        <source>File Size</source>
+      </trans-unit>
+      <trans-unit id="document_detail.uploaded_by" datatype="html">
+        <source>Uploaded By</source>
+      </trans-unit>
+      <trans-unit id="document_detail.added" datatype="html">
+        <source>Added</source>
+      </trans-unit>
+      <trans-unit id="document_detail.total_opens" datatype="html">
+        <source>Total Opens</source>
+      </trans-unit>
+      <trans-unit id="document_detail.access" datatype="html">
+        <source>Access</source>
+      </trans-unit>
+      <trans-unit id="document_detail.tags" datatype="html">
+        <source>TAGS</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.back" datatype="html">
+        <source>Safety</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.watch_video" datatype="html">
+        <source>Watch Video</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.open_document" datatype="html">
+        <source>Open Document</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.scroll_hint" datatype="html">
+        <source>Scroll to the bottom to enable acknowledgment</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.acknowledged" datatype="html">
+        <source>You have acknowledged this content.</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.scroll_prompt" datatype="html">
+        <source>Read to the end to enable acknowledgment</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.i_acknowledge" datatype="html">
+        <source>I Acknowledge</source>
+      </trans-unit>
+      <trans-unit id="bulletins.check_back" datatype="html">
+        <source>Check back later for updates</source>
+      </trans-unit>
+      <trans-unit id="documents.search_placeholder" datatype="html">
+        <source>Search documents...</source>
+      </trans-unit>
+      <trans-unit id="documents.try_again" datatype="html">
+        <source>Try Again</source>
+      </trans-unit>
+      <trans-unit id="safety.try_again" datatype="html">
+        <source>Try Again</source>
+      </trans-unit>
+      <trans-unit id="auth.register.company_label" datatype="html">
+        <source>Company</source>
+      </trans-unit>
+      <trans-unit id="auth.register.already_account_prompt" datatype="html">
+        <source>Already have an account?</source>
+      </trans-unit>
+      <trans-unit id="auth.register.sign_in_link" datatype="html">
+        <source>Sign in</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.invalid_msg" datatype="html">
+        <source>Invalid invite link. Please use the link from your invitation email.</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.welcome" datatype="html">
+        <source>Welcome!</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.welcome_name" datatype="html">
+        <source>Welcome, <x id="INTERPOLATION" equiv-text="{{ name }}"/>!</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.activating" datatype="html">
+        <source>Activating...</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.activate_btn" datatype="html">
+        <source>Activate Account</source>
+      </trans-unit>
+      <trans-unit id="auth.company_select.contact_admin" datatype="html">
+        <source>Contact your administrator.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_sample_title" datatype="html">
+        <source>Sample data included</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.upgrade_title" datatype="html">
+        <source>Upgrade for more power</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.explore_pro_features" datatype="html">
+        <source>Explore Pro Features</source>
+      </trans-unit>
+      <trans-unit id="clock.on_clock" datatype="html">
+        <source>You are on the clock</source>
+      </trans-unit>
+      <trans-unit id="clock.ready" datatype="html">
+        <source>Ready to start?</source>
+      </trans-unit>
+      <trans-unit id="clock.status_in" datatype="html">
+        <source>On Clock</source>
+      </trans-unit>
+      <trans-unit id="clock.status_out" datatype="html">
+        <source>Off Clock</source>
+      </trans-unit>
+      <trans-unit id="clock.info_location" datatype="html">
+        <source>Location captured</source>
+      </trans-unit>
+      <trans-unit id="clock.info_photo" datatype="html">
+        <source>Photo optional</source>
+      </trans-unit>
+      <trans-unit id="clock.info_device" datatype="html">
+        <source>Device recorded</source>
+      </trans-unit>
+      <trans-unit id="bulletins.filter_unread_count" datatype="html">
+        <source>Unread (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+      </trans-unit>
+      <trans-unit id="bulletins.empty_title" datatype="html">
+        <source>No bulletins</source>
+      </trans-unit>
+      <trans-unit id="bulletins.try_again" datatype="html">
+        <source>Try Again</source>
+      </trans-unit>
+      <trans-unit id="safety.tab_pending_count" datatype="html">
+        <source>Pending (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_pending_title" datatype="html">
+        <source>All caught up!</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_pending_msg" datatype="html">
+        <source>No pending acknowledgments</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_all_title" datatype="html">
+        <source>No safety content</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_all_msg" datatype="html">
+        <source>Check back later</source>
+      </trans-unit>
+      <trans-unit id="daily_report.title" datatype="html">
+        <source>Daily Report</source>
+      </trans-unit>
+      <trans-unit id="daily_report.weather" datatype="html">
+        <source>WEATHER</source>
+      </trans-unit>
+      <trans-unit id="daily_report.weather_meta" datatype="html">
+        <source>Feels <x id="INTERPOLATION" equiv-text="{{ feels }}"/>° · Wind <x id="INTERPOLATION_1" equiv-text="{{ wind }}"/> mph · <x id="INTERPOLATION_2" equiv-text="{{ humidity }}"/>% humidity</source>
+      </trans-unit>
+      <trans-unit id="daily_report.attendance" datatype="html">
+        <source>ATTENDANCE</source>
+      </trans-unit>
+      <trans-unit id="daily_report.employees" datatype="html">
+        <source>Employees</source>
+      </trans-unit>
+      <trans-unit id="daily_report.hours" datatype="html">
+        <source>Hours</source>
+      </trans-unit>
+      <trans-unit id="daily_report.attachments" datatype="html">
+        <source>ATTACHMENTS</source>
+      </trans-unit>
+      <trans-unit id="daily_report.add" datatype="html">
+        <source>Add</source>
+      </trans-unit>
+      <trans-unit id="daily_report.photos_count" datatype="html">
+        <source>Photos (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+      </trans-unit>
+      <trans-unit id="daily_report.notes_count" datatype="html">
+        <source>Notes (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+      </trans-unit>
+      <trans-unit id="daily_report.empty_attachments" datatype="html">
+        <source>No attachments yet. Tap Add to include photos or notes.</source>
+      </trans-unit>
+      <trans-unit id="daily_report.shift_notes" datatype="html">
+        <source>SHIFT NOTES</source>
+      </trans-unit>
+      <trans-unit id="daily_report.notes_placeholder" datatype="html">
+        <source>Add shift notes, incidents, observations...</source>
+      </trans-unit>
+      <trans-unit id="daily_report.saving" datatype="html">
+        <source>Saving…</source>
+      </trans-unit>
+      <trans-unit id="daily_report.save_draft" datatype="html">
+        <source>Save Draft</source>
+      </trans-unit>
+      <trans-unit id="daily_report.submit" datatype="html">
+        <source>Submit Report</source>
+      </trans-unit>
+      <trans-unit id="daily_report.approve" datatype="html">
+        <source>Approve</source>
+      </trans-unit>
+      <trans-unit id="daily_report.no_access" datatype="html">
+        <source>You don&apos;t have access to daily reports.</source>
+      </trans-unit>
+      <trans-unit id="daily_report.not_found" datatype="html">
+        <source>No report found for this location.</source>
+      </trans-unit>
+      <trans-unit id="daily_report.add_note" datatype="html">
+        <source>Add Note</source>
+      </trans-unit>
+      <trans-unit id="daily_report.note_placeholder" datatype="html">
+        <source>Enter note text...</source>
+      </trans-unit>
+      <trans-unit id="time_off.title" datatype="html">
+        <source>Request Time Off</source>
+      </trans-unit>
+      <trans-unit id="time_off.back" datatype="html">
+        <source>← Back</source>
+      </trans-unit>
+      <trans-unit id="time_off.balance_label" datatype="html">
+        <source>Available PTO Balance</source>
+      </trans-unit>
+      <trans-unit id="time_off.balance_hours" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ value }}"/> hours</source>
+      </trans-unit>
+      <trans-unit id="time_off.type_label" datatype="html">
+        <source>Type</source>
+      </trans-unit>
+      <trans-unit id="time_off.start_date" datatype="html">
+        <source>Start Date</source>
+      </trans-unit>
+      <trans-unit id="time_off.end_date" datatype="html">
+        <source>End Date</source>
+      </trans-unit>
+      <trans-unit id="time_off.estimated_hours" datatype="html">
+        <source>Estimated Hours</source>
+      </trans-unit>
+      <trans-unit id="time_off.business_days" datatype="html">
+        <source>Based on <x id="INTERPOLATION" equiv-text="{{ days }}"/> business days</source>
+      </trans-unit>
+      <trans-unit id="time_off.reason_label" datatype="html">
+        <source>Reason (Optional)</source>
+      </trans-unit>
+      <trans-unit id="time_off.reason_placeholder" datatype="html">
+        <source>Why are you requesting time off?</source>
+      </trans-unit>
+      <trans-unit id="time_off.submitting" datatype="html">
+        <source>Submitting...</source>
+      </trans-unit>
+      <trans-unit id="time_off.submit" datatype="html">
+        <source>Submit Request</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feature" datatype="html">
+        <source>Feature</source>
+      </trans-unit>
+      <trans-unit id="upgrade.upgrade_btn" datatype="html">
+        <source>Upgrade to Pro Now</source>
+      </trans-unit>
+      <trans-unit id="upgrade.back" datatype="html">
+        <source>← Back</source>
+      </trans-unit>
+      <trans-unit id="documents.empty_title" datatype="html">
+        <source>No documents</source>
+      </trans-unit>
+      <trans-unit id="documents.empty_msg" datatype="html">
+        <source>No documents available for your account</source>
+      </trans-unit>
+      <trans-unit id="tabs.home" datatype="html">
+        <source>Home</source>
+      </trans-unit>
+      <trans-unit id="tabs.clock" datatype="html">
+        <source>Clock</source>
+      </trans-unit>
+      <trans-unit id="tabs.schedule" datatype="html">
+        <source>Schedule</source>
+      </trans-unit>
+      <trans-unit id="tabs.profile" datatype="html">
+        <source>Profile</source>
+      </trans-unit>
+      <trans-unit id="tabs.ai" datatype="html">
+        <source>AI</source>
+      </trans-unit>
+      <trans-unit id="tabs.docs" datatype="html">
+        <source>Docs</source>
+      </trans-unit>
+      <trans-unit id="tabs.bulletins" datatype="html">
+        <source>Bulletins</source>
+      </trans-unit>
+      <trans-unit id="tabs.safety" datatype="html">
+        <source>Safety</source>
+      </trans-unit>
+      <trans-unit id="tabs.report" datatype="html">
+        <source>Report</source>
+      </trans-unit>
+      <trans-unit id="tabs.upgrade" datatype="html">
+        <source>Upgrade to Pro</source>
       </trans-unit>
     </body>
   </file>

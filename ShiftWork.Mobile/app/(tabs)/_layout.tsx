@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import { Platform, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/styles/tokens';
+import { useTranslation } from '@/i18n';
 
 /** Apple-style active tab icon — filled variant with tinted dot indicator */
 function TabIcon({
@@ -24,6 +25,8 @@ function TabIcon({
 }
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -66,7 +69,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: 'Home',
+          title: t('tabs.home'),
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="home-outline" filled="home" color={color} size={size} />
@@ -76,7 +79,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="clock"
         options={{
-          title: 'Clock',
+          title: t('tabs.clock'),
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="time-outline" filled="time" color={color} size={size} />
@@ -90,7 +93,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="schedule"
         options={{
-          title: 'Schedule',
+          title: t('tabs.schedule'),
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="calendar-outline" filled="calendar" color={color} size={size} />
@@ -100,7 +103,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('tabs.profile'),
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="person-outline" filled="person" color={color} size={size} />
@@ -110,7 +113,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="ai-chat"
         options={{
-          title: 'AI',
+          title: t('tabs.ai'),
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="chatbubble-ellipses-outline" filled="chatbubble-ellipses" color={color} size={size} />
@@ -120,7 +123,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="documents"
         options={{
-          title: 'Docs',
+          title: t('tabs.docs'),
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="folder-outline" filled="folder" color={color} size={size} />
@@ -130,7 +133,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="bulletins"
         options={{
-          title: 'Bulletins',
+          title: t('tabs.bulletins'),
           href: null,
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
@@ -141,7 +144,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="safety"
         options={{
-          title: 'Safety',
+          title: t('tabs.safety'),
           href: null,
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
@@ -152,7 +155,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="daily-report"
         options={{
-          title: 'Report',
+          title: t('tabs.report'),
           href: null,
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
@@ -165,7 +168,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="upgrade"
         options={{
-          title: 'Upgrade to Pro',
+          title: t('tabs.upgrade'),
           href: null,
           headerStyle: { backgroundColor: colors.surface },
           headerTintColor: colors.primary,

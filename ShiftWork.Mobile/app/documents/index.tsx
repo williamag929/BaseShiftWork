@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList,
   RefreshControl, TouchableOpacity, TextInput,
-  ActivityIndicator, // used by the loading spinner below
+  ActivityIndicator,
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,6 +12,7 @@ import { useAuthStore } from '@/store/authStore';
 import { documentService, Document } from '@/services/document.service';
 import { colors, spacing, radius } from '@/styles/tokens';
 import { EmptyState } from '@/components/ui';
+import { useTranslation } from '@/i18n';
 
 const TYPE_ICON: Record<string, React.ComponentPropsWithRef<typeof Ionicons>['name']> = {
   SafetyDataSheet: 'warning-outline',
@@ -31,6 +32,7 @@ export default function DocumentsScreen() {
   const router = useRouter();
   const { companyId } = useAuthStore();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -87,11 +89,11 @@ export default function DocumentsScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <Stack.Screen options={{ title: 'Documents', headerShown: false }} />
+      <Stack.Screen options={{ title: t('documents.title'), headerShown: false }} />
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Documents</Text>
+        <Text style={styles.headerTitle}>{t('documents.title')}</Text>
       </View>
 
       {/* Search */}
@@ -99,7 +101,7 @@ export default function DocumentsScreen() {
         <Ionicons name="search-outline" size={18} color={colors.muted} style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search documents..."
+          placeholder={t('documents.search_placeholder')}
           placeholderTextColor={colors.muted}
           value={search}
           onChangeText={setSearch}
@@ -119,7 +121,7 @@ export default function DocumentsScreen() {
           <Ionicons name="wifi-outline" size={28} color="#FF3B30" />
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryBtn} onPress={() => load()}>
-            <Text style={styles.retryText}>Try Again</Text>
+            <Text style={styles.retryText}>{t('documents.try_again')}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -134,7 +136,13 @@ export default function DocumentsScreen() {
           renderItem={renderItem}
           contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + 80 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
-          ListEmptyComponent={<EmptyState icon="folder-open-outline" title="No documents" message="No documents available for your account" />}
+          ListEmptyComponent={
+            <EmptyState
+              icon="folder-open-outline"
+              title={t('documents.empty_title')}
+              message={t('documents.empty_msg')}
+            />
+          }
           ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
         />
       )}

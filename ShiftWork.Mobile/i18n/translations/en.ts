@@ -71,7 +71,10 @@ export default {
       "free_plan_note": "You'll start on the Free plan with sample data to explore.",
       "already_account": "Already have an account? Sign in",
       "sign_up": "Sign Up",
-      "google": "Continue with Google"
+      "google": "Continue with Google",
+      "company_label": "Company",
+      "already_account_prompt": "Already have an account?",
+      "sign_in_link": "Sign in"
     },
     "onboarding": {
       "title": "Welcome to {{appName}}!",
@@ -107,7 +110,10 @@ export default {
       "free_plan_heading": "You're on the Free plan",
       "upgrade_description": "Upgrade to Pro to unlock advanced scheduling, analytics, multi-location support, and more.",
       "explore_pro": "Explore Pro",
-      "go_dashboard": "Go to Dashboard"
+      "go_dashboard": "Go to Dashboard",
+      "demo_sample_title": "Sample data included",
+      "upgrade_title": "Upgrade for more power",
+      "explore_pro_features": "Explore Pro Features"
     },
     "forgot_password": {
       "title": "Forgot Password",
@@ -140,7 +146,12 @@ export default {
       "password_min": "Password must be at least 6 characters",
       "password_mismatch": "Passwords do not match",
       "setting": "Setting Password...",
-      "submit": "Set Password & Activate Account"
+      "submit": "Set Password & Activate Account",
+      "invalid_msg": "Invalid invite link. Please use the link from your invitation email.",
+      "welcome": "Welcome!",
+      "welcome_name": "Welcome, {{name}}!",
+      "activating": "Activating...",
+      "activate_btn": "Activate Account"
     },
     "verify_email": {
       "title": "Thank You for Registering",
@@ -148,6 +159,20 @@ export default {
       "instruction": "Please check your email and click on the link to verify your email address.",
       "resend": "Resend Verification Email",
       "back": "Go back to Sign in"
+    },
+    "company_select": {
+      "loading": "Loading your companies…",
+      "no_companies": "No companies found",
+      "not_linked": "Your account is not linked to any companies.",
+      "welcome": "Welcome back!",
+      "select": "Select a company to continue",
+      "contact_admin": "Contact your administrator."
+    },
+    "pin_verify": {
+      "title": "Enter Your PIN",
+      "subtitle": "Enter your 4-digit PIN to continue",
+      "error": "Invalid PIN. Please try again.",
+      "delete": "Delete"
     }
   },
   "registration": {
@@ -208,7 +233,11 @@ export default {
     "unread_one": "{{count}} unread bulletin",
     "unread_other": "{{count}} unread bulletins",
     "mark_read": "Mark as read",
-    "acknowledge": "Acknowledge"
+    "acknowledge": "Acknowledge",
+    "check_back": "Check back later for updates",
+    "filter_unread_count": "Unread ({{count}})",
+    "empty_title": "No bulletins",
+    "try_again": "Try Again"
   },
   "documents": {
     "page_subtitle": "Manuals, procedures, SDS sheets, and policies",
@@ -241,7 +270,11 @@ export default {
     "title": "Documents",
     "empty": "No documents available.",
     "download": "Download",
-    "open": "Open"
+    "open": "Open",
+    "search_placeholder": "Search documents...",
+    "try_again": "Try Again",
+    "empty_title": "No documents",
+    "empty_msg": "No documents available for your account"
   },
   "safety": {
     "page_subtitle": "Trainings, toolbox talks, and mandatory acknowledgments",
@@ -258,7 +291,7 @@ export default {
     "form_require_ack": "Require employee acknowledgment",
     "form_publish": "Publish",
     "tab_all": "All Content",
-    "tab_pending": "Pending Ack",
+    "tab_pending": "Pending",
     "loading": "Loading safety content...",
     "action_required": "Action Required",
     "ack_prompt": "Please review and acknowledge this safety content before continuing.",
@@ -280,11 +313,17 @@ export default {
     "empty": "No safety content.",
     "acknowledge": "I Acknowledge",
     "required": "Required",
-    "acknowledged": "Acknowledged"
+    "acknowledged": "Acknowledged",
+    "try_again": "Try Again",
+    "tab_pending_count": "Pending ({{count}})",
+    "empty_pending_title": "All caught up!",
+    "empty_pending_msg": "No pending acknowledgments",
+    "empty_all_title": "No safety content",
+    "empty_all_msg": "Check back later"
   },
   "upgrade": {
     "title": "Upgrade to Pro",
-    "subtitle": "Unlock the full power of {{appName}} for your team.",
+    "subtitle": "Unlock the full power of ShiftWork for your team.",
     "col_feature": "Feature",
     "feat_kiosk": "Kiosk Clock-In / Out",
     "feat_basic_schedule": "Basic Scheduling",
@@ -300,7 +339,10 @@ export default {
     "back_dashboard": "← Back to Dashboard",
     "plan_free": "Free",
     "plan_pro": "Pro ⭐",
-    "subtitle_web": "Unlock the full power of Loqzen for your team."
+    "subtitle_web": "Unlock the full power of Loqzen for your team.",
+    "feature": "Feature",
+    "upgrade_btn": "Upgrade to Pro Now",
+    "back": "← Back"
   },
   "nav": {
     "home": "Home",
@@ -373,11 +415,21 @@ export default {
     "end_shift": "End Shift",
     "start_break": "Start Break",
     "end_break": "End Break",
-    "please_login": "Please log in to continue"
+    "please_login": "Please log in to continue",
+    "clock_out_hint": "Clock out when done",
+    "clock_in_hint": "Clock in to start your shift",
+    "on_clock": "You are on the clock",
+    "ready": "Ready to start?",
+    "status_in": "On Clock",
+    "status_out": "Off Clock",
+    "info_location": "Location captured",
+    "info_photo": "Photo optional",
+    "info_device": "Device recorded"
   },
   "overview": {
     "eyebrow": "Operations Command",
     "title": "Workforce Intelligence Dashboard",
+    "subtitle": "real-time visibility of attendance, GPS compliance, labor health, and location-level exceptions.",
     "live_sync": "Live Sync",
     "refreshing": "Refreshing data...",
     "shift_pulse": "Shift Pulse",
@@ -440,7 +492,8 @@ export default {
     "sign_out": "Sign Out",
     "language": "Language",
     "language_en": "English",
-    "language_es": "Spanish"
+    "language_es": "Spanish",
+    "footer": "ShiftWork Mobile · v1.0.0"
   },
   "daily_reports": {
     "page_title": "Daily Reports",
@@ -699,7 +752,8 @@ export default {
     "bulk_create_shifts": "Create shifts",
     "avail_ok": "Available",
     "avail_conflict": "Already scheduled",
-    "avail_timeoff": "Has time off"
+    "avail_timeoff": "Has time off",
+    "unable_to_load": "Unable to load"
   },
   "add_modal": {
     "edit_schedule": "Edit Schedule",
@@ -1054,6 +1108,7 @@ export default {
     "start_date": "Start Date",
     "end_date": "End Date",
     "all_locations": "All Locations",
+    "person": "Person",
     "all_people": "All People",
     "apply_filters": "Apply Filters",
     "view_cards": "Cards",
@@ -1099,7 +1154,23 @@ export default {
   "schedule": {
     "title": "Schedule",
     "all_locations": "All Locations",
-    "error": "Error loading schedule."
+    "error": "Error loading schedule.",
+    "offline_cached": "Offline · cached data",
+    "shifts_label": "Shifts",
+    "no_shifts": "No shifts",
+    "no_shifts_msg": "No shifts scheduled for this period.",
+    "shift_meta": "Shift #{{id}} · {{status}}",
+    "clocked_events": "Clocked Events",
+    "no_events": "No events",
+    "no_events_msg": "No events recorded for this period.",
+    "view_title": "Schedule View",
+    "view_by": "View By",
+    "navigate": "Navigate",
+    "prev": "Prev",
+    "next_btn": "Next",
+    "mode_day": "Day",
+    "mode_week": "Week",
+    "mode_month": "Month"
   },
   "schedules": {
     "title": "Schedules",
@@ -1319,5 +1390,122 @@ export default {
     "loading": "Loading companies...",
     "error": "Error loading companies. Please try again.",
     "empty": "No companies available"
+  },
+  "index": {
+    "title": "ShiftWork Mobile",
+    "subtitle": "Workforce Management",
+    "get_started": "Get Started",
+    "info": "Clock in/out • View Schedules • Track Hours",
+    "version": "Version 1.0.0"
+  },
+  "weekly_schedule": {
+    "title": "My Weekly Schedule",
+    "pull_refresh": "Pull to refresh",
+    "total_hours": "Total Hours",
+    "days_scheduled": "Days Scheduled",
+    "last_updated": "Last updated: {{time}}",
+    "syncing": "🔄 Syncing...",
+    "loading": "Loading schedule...",
+    "retry": "Retry",
+    "no_shifts": "No shifts",
+    "no_shifts_scheduled": "No shifts scheduled",
+    "no_shifts_msg": "Check back later or contact your manager.",
+    "shift_details": "Shift Details",
+    "date": "Date",
+    "time": "Time",
+    "duration": "Duration",
+    "notes": "Notes",
+    "close": "Close"
+  },
+  "ai_chat": {
+    "title": "AI Assistant",
+    "mcp_online": "MCP Online",
+    "offline": "Offline",
+    "checking": "Checking…",
+    "thinking": "Thinking…",
+    "placeholder": "Ask me about schedules…",
+    "quick_schedule": "📅 My Schedule",
+    "quick_tools": "🔧 Tools",
+    "quick_unpublished": "📝 Unpublished",
+    "quick_ping": "🏓 Ping"
+  },
+  "bulletin_detail": {
+    "not_found": "Bulletin not found.",
+    "go_back": "Go Back",
+    "expires": "Expires {{date}}",
+    "attachments": "Attachments",
+    "attachment_label": "Attachment {{number}}",
+    "marked_read": "Marked as read"
+  },
+  "document_detail": {
+    "back": "Documents",
+    "open_btn": "Open Document",
+    "description": "DESCRIPTION",
+    "version": "Version",
+    "file_size": "File Size",
+    "uploaded_by": "Uploaded By",
+    "added": "Added",
+    "total_opens": "Total Opens",
+    "access": "Access",
+    "tags": "TAGS"
+  },
+  "safety_detail": {
+    "back": "Safety",
+    "watch_video": "Watch Video",
+    "open_document": "Open Document",
+    "scroll_hint": "Scroll to the bottom to enable acknowledgment",
+    "acknowledged": "You have acknowledged this content.",
+    "scroll_prompt": "Read to the end to enable acknowledgment",
+    "i_acknowledge": "I Acknowledge"
+  },
+  "daily_report": {
+    "title": "Daily Report",
+    "weather": "WEATHER",
+    "weather_meta": "Feels {{feels}}° · Wind {{wind}} mph · {{humidity}}% humidity",
+    "attendance": "ATTENDANCE",
+    "employees": "Employees",
+    "hours": "Hours",
+    "attachments": "ATTACHMENTS",
+    "add": "Add",
+    "photos_count": "Photos ({{count}})",
+    "notes_count": "Notes ({{count}})",
+    "empty_attachments": "No attachments yet. Tap Add to include photos or notes.",
+    "shift_notes": "SHIFT NOTES",
+    "notes_placeholder": "Add shift notes, incidents, observations...",
+    "saving": "Saving…",
+    "save_draft": "Save Draft",
+    "submit": "Submit Report",
+    "approve": "Approve",
+    "no_access": "You don't have access to daily reports.",
+    "not_found": "No report found for this location.",
+    "add_note": "Add Note",
+    "note_placeholder": "Enter note text..."
+  },
+  "time_off": {
+    "title": "Request Time Off",
+    "back": "← Back",
+    "balance_label": "Available PTO Balance",
+    "balance_hours": "{{value}} hours",
+    "type_label": "Type",
+    "start_date": "Start Date",
+    "end_date": "End Date",
+    "estimated_hours": "Estimated Hours",
+    "business_days": "Based on {{days}} business days",
+    "reason_label": "Reason (Optional)",
+    "reason_placeholder": "Why are you requesting time off?",
+    "submitting": "Submitting...",
+    "submit": "Submit Request"
+  },
+  "tabs": {
+    "home": "Home",
+    "clock": "Clock",
+    "schedule": "Schedule",
+    "profile": "Profile",
+    "ai": "AI",
+    "docs": "Docs",
+    "bulletins": "Bulletins",
+    "safety": "Safety",
+    "report": "Report",
+    "upgrade": "Upgrade to Pro"
   }
 } as const;

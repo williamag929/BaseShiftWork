@@ -71,7 +71,10 @@ export default {
       "free_plan_note": "Comenzarás en el plan gratuito con datos de muestra.",
       "already_account": "¿Ya tienes cuenta? Inicia sesión",
       "sign_up": "Registrarse",
-      "google": "Continuar con Google"
+      "google": "Continuar con Google",
+      "company_label": "Empresa",
+      "already_account_prompt": "¿Ya tienes cuenta?",
+      "sign_in_link": "Iniciar sesión"
     },
     "onboarding": {
       "title": "¡Bienvenido a {{appName}}!",
@@ -107,7 +110,10 @@ export default {
       "free_plan_heading": "Estás en el plan gratuito",
       "upgrade_description": "Mejora a Pro para desbloquear programación avanzada, análisis, soporte multi-ubicación y más.",
       "explore_pro": "Explorar Pro",
-      "go_dashboard": "Ir al panel"
+      "go_dashboard": "Ir al panel",
+      "demo_sample_title": "Datos de muestra incluidos",
+      "upgrade_title": "Mejora para obtener más funciones",
+      "explore_pro_features": "Explorar funciones Pro"
     },
     "forgot_password": {
       "title": "Recuperar contraseña",
@@ -140,7 +146,12 @@ export default {
       "password_min": "La contraseña debe tener al menos 6 caracteres",
       "password_mismatch": "Las contraseñas no coinciden",
       "setting": "Configurando contraseña...",
-      "submit": "Establecer contraseña y activar cuenta"
+      "submit": "Establecer contraseña y activar cuenta",
+      "invalid_msg": "Enlace inválido. Usa el enlace de tu correo de invitación.",
+      "welcome": "¡Bienvenido!",
+      "welcome_name": "¡Bienvenido, {{name}}!",
+      "activating": "Activando...",
+      "activate_btn": "Activar cuenta"
     },
     "verify_email": {
       "title": "Gracias por registrarte",
@@ -148,6 +159,20 @@ export default {
       "instruction": "Revisa tu correo y haz clic en el enlace para verificar tu dirección.",
       "resend": "Reenviar correo de verificación",
       "back": "Volver a iniciar sesión"
+    },
+    "company_select": {
+      "loading": "Cargando tus empresas…",
+      "no_companies": "No se encontraron empresas",
+      "not_linked": "Tu cuenta no está vinculada a ninguna empresa.",
+      "welcome": "¡Bienvenido de nuevo!",
+      "select": "Selecciona una empresa para continuar",
+      "contact_admin": "Contacta a tu administrador."
+    },
+    "pin_verify": {
+      "title": "Ingresa tu PIN",
+      "subtitle": "Ingresa tu PIN de 4 dígitos para continuar",
+      "error": "PIN inválido. Por favor intenta de nuevo.",
+      "delete": "Eliminar"
     }
   },
   "registration": {
@@ -208,7 +233,11 @@ export default {
     "unread_one": "{{count}} boletín sin leer",
     "unread_other": "{{count}} boletines sin leer",
     "mark_read": "Marcar como leído",
-    "acknowledge": "Reconocer"
+    "acknowledge": "Reconocer",
+    "check_back": "Vuelve más tarde para ver actualizaciones",
+    "filter_unread_count": "No leídos ({{count}})",
+    "empty_title": "Sin boletines",
+    "try_again": "Intentar de nuevo"
   },
   "documents": {
     "page_subtitle": "Manuales, procedimientos, fichas SDS y políticas",
@@ -241,7 +270,11 @@ export default {
     "title": "Documentos",
     "empty": "No hay documentos disponibles.",
     "download": "Descargar",
-    "open": "Abrir"
+    "open": "Abrir",
+    "search_placeholder": "Buscar documentos...",
+    "try_again": "Intentar de nuevo",
+    "empty_title": "Sin documentos",
+    "empty_msg": "No hay documentos disponibles para tu cuenta"
   },
   "safety": {
     "page_subtitle": "Capacitaciones, charlas de seguridad y reconocimientos obligatorios",
@@ -258,7 +291,7 @@ export default {
     "form_require_ack": "Requerir reconocimiento del empleado",
     "form_publish": "Publicar",
     "tab_all": "Todo el contenido",
-    "tab_pending": "Pendiente de reconocimiento",
+    "tab_pending": "Pendiente",
     "loading": "Cargando contenido de seguridad...",
     "action_required": "Acción requerida",
     "ack_prompt": "Revisa y reconoce este contenido de seguridad antes de continuar.",
@@ -280,11 +313,17 @@ export default {
     "empty": "Sin contenido de seguridad.",
     "acknowledge": "Reconozco",
     "required": "Requerido",
-    "acknowledged": "Reconocido"
+    "acknowledged": "Reconocido",
+    "try_again": "Intentar de nuevo",
+    "tab_pending_count": "Pendiente ({{count}})",
+    "empty_pending_title": "¡Todo al día!",
+    "empty_pending_msg": "Sin reconocimientos pendientes",
+    "empty_all_title": "Sin contenido de seguridad",
+    "empty_all_msg": "Vuelve más tarde"
   },
   "upgrade": {
-    "title": "Mejorar a Pro",
-    "subtitle": "Desbloquea todo el poder de {{appName}} para tu equipo.",
+    "title": "Actualizar a Pro",
+    "subtitle": "Desbloquea todo el potencial de ShiftWork para tu equipo.",
     "col_feature": "Función",
     "feat_kiosk": "Reloj de entrada/salida en kiosco",
     "feat_basic_schedule": "Programación básica",
@@ -300,7 +339,10 @@ export default {
     "back_dashboard": "← Volver al panel",
     "plan_free": "Gratis",
     "plan_pro": "Pro ⭐",
-    "subtitle_web": "Desbloquea todo el poder de Loqzen para tu equipo."
+    "subtitle_web": "Desbloquea todo el poder de Loqzen para tu equipo.",
+    "feature": "Función",
+    "upgrade_btn": "Actualizar a Pro ahora",
+    "back": "← Atrás"
   },
   "nav": {
     "home": "Inicio",
@@ -373,11 +415,21 @@ export default {
     "end_shift": "Finalizar turno",
     "start_break": "Iniciar descanso",
     "end_break": "Finalizar descanso",
-    "please_login": "Inicia sesión para continuar"
+    "please_login": "Inicia sesión para continuar",
+    "clock_out_hint": "Marca salida cuando termines",
+    "clock_in_hint": "Marca entrada para iniciar tu turno",
+    "on_clock": "Estás en turno",
+    "ready": "¿Listo para empezar?",
+    "status_in": "En turno",
+    "status_out": "Fuera de turno",
+    "info_location": "Ubicación capturada",
+    "info_photo": "Foto opcional",
+    "info_device": "Dispositivo registrado"
   },
   "overview": {
     "eyebrow": "Centro de operaciones",
     "title": "Panel de inteligencia laboral",
+    "subtitle": "visibilidad en tiempo real de asistencia, cumplimiento GPS, salud laboral y excepciones por ubicación.",
     "live_sync": "Sincronizar",
     "refreshing": "Actualizando datos...",
     "shift_pulse": "Pulso de turno",
@@ -440,7 +492,8 @@ export default {
     "sign_out": "Cerrar sesión",
     "language": "Idioma",
     "language_en": "Inglés",
-    "language_es": "Español"
+    "language_es": "Español",
+    "footer": "ShiftWork Mobile · v1.0.0"
   },
   "daily_reports": {
     "page_title": "Reportes diarios",
@@ -699,7 +752,8 @@ export default {
     "bulk_create_shifts": "Crear turnos",
     "avail_ok": "Disponible",
     "avail_conflict": "Ya programado",
-    "avail_timeoff": "Tiene permiso"
+    "avail_timeoff": "Tiene permiso",
+    "unable_to_load": "No se pudo cargar"
   },
   "add_modal": {
     "edit_schedule": "Editar horario",
@@ -1054,6 +1108,7 @@ export default {
     "start_date": "Fecha de inicio",
     "end_date": "Fecha de fin",
     "all_locations": "Todas las ubicaciones",
+    "person": "Persona",
     "all_people": "Todas las personas",
     "apply_filters": "Aplicar filtros",
     "view_cards": "Tarjetas",
@@ -1099,7 +1154,23 @@ export default {
   "schedule": {
     "title": "Horario",
     "all_locations": "Todas las ubicaciones",
-    "error": "Error al cargar el horario."
+    "error": "Error al cargar el horario.",
+    "offline_cached": "Sin conexión · datos en caché",
+    "shifts_label": "Turnos",
+    "no_shifts": "Sin turnos",
+    "no_shifts_msg": "No hay turnos programados para este período.",
+    "shift_meta": "Turno #{{id}} · {{status}}",
+    "clocked_events": "Eventos marcados",
+    "no_events": "Sin eventos",
+    "no_events_msg": "No se registraron eventos para este período.",
+    "view_title": "Vista de horario",
+    "view_by": "Ver por",
+    "navigate": "Navegar",
+    "prev": "Anterior",
+    "next_btn": "Siguiente",
+    "mode_day": "Día",
+    "mode_week": "Semana",
+    "mode_month": "Mes"
   },
   "schedules": {
     "title": "Horarios",
@@ -1319,5 +1390,122 @@ export default {
     "loading": "Cargando empresas...",
     "error": "Error al cargar empresas. Por favor intenta de nuevo.",
     "empty": "No hay empresas disponibles"
+  },
+  "index": {
+    "title": "ShiftWork Móvil",
+    "subtitle": "Gestión de personal",
+    "get_started": "Comenzar",
+    "info": "Marcar entrada/salida • Ver horarios • Registrar horas",
+    "version": "Versión 1.0.0"
+  },
+  "weekly_schedule": {
+    "title": "Mi horario semanal",
+    "pull_refresh": "Jalar para actualizar",
+    "total_hours": "Total de horas",
+    "days_scheduled": "Días programados",
+    "last_updated": "Actualizado: {{time}}",
+    "syncing": "🔄 Sincronizando...",
+    "loading": "Cargando horario...",
+    "retry": "Reintentar",
+    "no_shifts": "Sin turnos",
+    "no_shifts_scheduled": "Sin turnos programados",
+    "no_shifts_msg": "Revisa más tarde o contacta a tu manager.",
+    "shift_details": "Detalles del turno",
+    "date": "Fecha",
+    "time": "Hora",
+    "duration": "Duración",
+    "notes": "Notas",
+    "close": "Cerrar"
+  },
+  "ai_chat": {
+    "title": "Asistente IA",
+    "mcp_online": "MCP en línea",
+    "offline": "Sin conexión",
+    "checking": "Verificando…",
+    "thinking": "Pensando…",
+    "placeholder": "Pregúntame sobre horarios…",
+    "quick_schedule": "📅 Mi horario",
+    "quick_tools": "🔧 Herramientas",
+    "quick_unpublished": "📝 Sin publicar",
+    "quick_ping": "🏓 Ping"
+  },
+  "bulletin_detail": {
+    "not_found": "Boletín no encontrado.",
+    "go_back": "Volver",
+    "expires": "Vence {{date}}",
+    "attachments": "Adjuntos",
+    "attachment_label": "Adjunto {{number}}",
+    "marked_read": "Marcado como leído"
+  },
+  "document_detail": {
+    "back": "Documentos",
+    "open_btn": "Abrir documento",
+    "description": "DESCRIPCIÓN",
+    "version": "Versión",
+    "file_size": "Tamaño de archivo",
+    "uploaded_by": "Subido por",
+    "added": "Agregado",
+    "total_opens": "Total de aperturas",
+    "access": "Acceso",
+    "tags": "ETIQUETAS"
+  },
+  "safety_detail": {
+    "back": "Seguridad",
+    "watch_video": "Ver video",
+    "open_document": "Abrir documento",
+    "scroll_hint": "Desplázate hasta abajo para habilitar el reconocimiento",
+    "acknowledged": "Has reconocido este contenido.",
+    "scroll_prompt": "Lee hasta el final para habilitar el reconocimiento",
+    "i_acknowledge": "Reconozco"
+  },
+  "daily_report": {
+    "title": "Reporte diario",
+    "weather": "CLIMA",
+    "weather_meta": "Sensación {{feels}}° · Viento {{wind}} mph · {{humidity}}% humedad",
+    "attendance": "ASISTENCIA",
+    "employees": "Empleados",
+    "hours": "Horas",
+    "attachments": "ADJUNTOS",
+    "add": "Agregar",
+    "photos_count": "Fotos ({{count}})",
+    "notes_count": "Notas ({{count}})",
+    "empty_attachments": "Sin adjuntos. Toca Agregar para incluir fotos o notas.",
+    "shift_notes": "NOTAS DE TURNO",
+    "notes_placeholder": "Agrega notas de turno, incidentes, observaciones...",
+    "saving": "Guardando…",
+    "save_draft": "Guardar borrador",
+    "submit": "Enviar reporte",
+    "approve": "Aprobar",
+    "no_access": "No tienes acceso a los reportes diarios.",
+    "not_found": "No se encontró reporte para esta ubicación.",
+    "add_note": "Agregar nota",
+    "note_placeholder": "Ingresa el texto de la nota..."
+  },
+  "time_off": {
+    "title": "Solicitar tiempo libre",
+    "back": "← Atrás",
+    "balance_label": "Saldo PTO disponible",
+    "balance_hours": "{{value}} horas",
+    "type_label": "Tipo",
+    "start_date": "Fecha de inicio",
+    "end_date": "Fecha de fin",
+    "estimated_hours": "Horas estimadas",
+    "business_days": "Basado en {{days}} días hábiles",
+    "reason_label": "Razón (opcional)",
+    "reason_placeholder": "¿Por qué solicitas tiempo libre?",
+    "submitting": "Enviando...",
+    "submit": "Enviar solicitud"
+  },
+  "tabs": {
+    "home": "Inicio",
+    "clock": "Reloj",
+    "schedule": "Horario",
+    "profile": "Perfil",
+    "ai": "IA",
+    "docs": "Docs",
+    "bulletins": "Boletines",
+    "safety": "Seguridad",
+    "report": "Reporte",
+    "upgrade": "Actualizar a Pro"
   }
 } as const;

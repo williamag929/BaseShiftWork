@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/authStore';
 import { safetyService, SafetyContent } from '@/services/safety.service';
 import { colors, spacing, radius } from '@/styles/tokens';
 import { EmptyState } from '@/components/ui';
+import { useTranslation } from '@/i18n';
 
 const TYPE_ICON: Record<string, React.ComponentPropsWithRef<typeof Ionicons>['name']> = {
   ToolboxTalk:       'construct-outline',
@@ -24,6 +25,7 @@ export default function SafetyScreen() {
   const router = useRouter();
   const { companyId } = useAuthStore();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const [contents, setContents]   = useState<SafetyContent[]>([]);
   const [pending, setPending]     = useState<SafetyContent[]>([]);
@@ -91,13 +93,13 @@ export default function SafetyScreen() {
               <Text style={styles.typeLabel}>{item.type}</Text>
               {item.isAcknowledgmentRequired && !item.isAcknowledgedByCurrentUser && (
                 <View style={styles.actionBadge}>
-                  <Text style={styles.actionBadgeText}>Action Required</Text>
+                  <Text style={styles.actionBadgeText}>{t('safety.action_required')}</Text>
                 </View>
               )}
               {item.isAcknowledgedByCurrentUser && (
                 <View style={styles.ackedBadge}>
                   <Ionicons name="checkmark-circle" size={14} color="#34C759" />
-                  <Text style={styles.ackedText}>Acknowledged</Text>
+                  <Text style={styles.ackedText}>{t('safety.acknowledged_badge')}</Text>
                 </View>
               )}
             </View>
@@ -128,7 +130,7 @@ export default function SafetyScreen() {
                 ? <ActivityIndicator color="#fff" size="small" />
                 : <>
                     <Ionicons name="checkmark-done-outline" size={18} color="#fff" />
-                    <Text style={styles.ackBtnText}>I Acknowledge</Text>
+                    <Text style={styles.ackBtnText}>{t('safety_detail.i_acknowledge')}</Text>
                   </>
               }
             </TouchableOpacity>
@@ -142,7 +144,7 @@ export default function SafetyScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Safety</Text>
+        <Text style={styles.headerTitle}>{t('safety.title')}</Text>
         {pending.length > 0 && (
           <View style={styles.headerBadge}>
             <Text style={styles.headerBadgeText}>{pending.length}</Text>
@@ -157,14 +159,16 @@ export default function SafetyScreen() {
           onPress={() => setTab('pending')}
         >
           <Text style={[styles.tabText, tab === 'pending' && styles.tabTextActive]}>
-            Pending{pending.length > 0 ? ` (${pending.length})` : ''}
+            {pending.length > 0
+              ? t('safety.tab_pending_count', { count: pending.length })
+              : t('safety.tab_pending')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tabBtn, tab === 'all' && styles.tabBtnActive]}
           onPress={() => setTab('all')}
         >
-          <Text style={[styles.tabText, tab === 'all' && styles.tabTextActive]}>All Content</Text>
+          <Text style={[styles.tabText, tab === 'all' && styles.tabTextActive]}>{t('safety.tab_all')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -174,7 +178,7 @@ export default function SafetyScreen() {
           <Ionicons name="wifi-outline" size={28} color="#FF3B30" />
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryBtn} onPress={() => load()}>
-            <Text style={styles.retryText}>Try Again</Text>
+            <Text style={styles.retryText}>{t('safety.try_again')}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -192,8 +196,8 @@ export default function SafetyScreen() {
           ListEmptyComponent={
             <EmptyState
               icon="shield-checkmark-outline"
-              title={tab === 'pending' ? "All caught up!" : "No safety content"}
-              message={tab === 'pending' ? "No pending acknowledgments" : "Check back later"}
+              title={tab === 'pending' ? t('safety.empty_pending_title') : t('safety.empty_all_title')}
+              message={tab === 'pending' ? t('safety.empty_pending_msg') : t('safety.empty_all_msg')}
             />
           }
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}

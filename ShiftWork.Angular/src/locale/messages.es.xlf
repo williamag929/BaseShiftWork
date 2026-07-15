@@ -135,8 +135,8 @@
         <target state="translated">Iniciar sesión con Google</target>
       </trans-unit>
       <trans-unit id="auth.login.biometric" datatype="html">
-        <source>Sign in with {{biometricType}}</source>
-        <target state="translated">Iniciar sesión con {{biometricType}}</target>
+        <source>Sign in with <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/></source>
+        <target state="translated">Iniciar sesión con <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/></target>
       </trans-unit>
       <trans-unit id="auth.login.or_continue" datatype="html">
         <source>or continue with</source>
@@ -263,8 +263,8 @@
         <target state="translated">Continuar con Google</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.title" datatype="html">
-        <source>Welcome to {{appName}}!</source>
-        <target state="translated">¡Bienvenido a {{appName}}!</target>
+        <source>Welcome to <x id="INTERPOLATION" equiv-text="{{ appName }}"/>!</source>
+        <target state="translated">¡Bienvenido a <x id="INTERPOLATION" equiv-text="{{ appName }}"/>!</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.subtitle" datatype="html">
         <source>Your account is ready. Let&apos;s get you started.</source>
@@ -287,8 +287,8 @@
         <target state="translated">Tu cuenta incluye datos de muestra</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.demo_description" datatype="html">
-        <source>We&apos;ve added demo employees, a location, and an area so you can explore {{appName}}.</source>
-        <target state="translated">Hemos añadido empleados, una ubicación y un área para que puedas explorar {{appName}}.</target>
+        <source>We&apos;ve added demo employees, a location, and an area so you can explore <x id="INTERPOLATION" equiv-text="{{ appName }}"/>.</source>
+        <target state="translated">Hemos añadido empleados, una ubicación y un área para que puedas explorar <x id="INTERPOLATION" equiv-text="{{ appName }}"/>.</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.employees" datatype="html">
         <source>Employees</source>
@@ -459,8 +459,8 @@
         <target state="translated">¡Todo listo!</target>
       </trans-unit>
       <trans-unit id="auth.accept_invite.success_subtitle" datatype="html">
-        <source>Your account is ready. Log in with {{email}}.</source>
-        <target state="translated">Tu cuenta está lista. Inicia sesión con {{email}}.</target>
+        <source>Your account is ready. Log in with <x id="INTERPOLATION" equiv-text="{{ email }}"/>.</source>
+        <target state="translated">Tu cuenta está lista. Inicia sesión con <x id="INTERPOLATION" equiv-text="{{ email }}"/>.</target>
       </trans-unit>
       <trans-unit id="auth.accept_invite.or_download" datatype="html">
         <source>Or download the mobile app</source>
@@ -519,8 +519,8 @@
         <target state="translated">Gracias por registrarte</target>
       </trans-unit>
       <trans-unit id="auth.verify_email.sent" datatype="html">
-        <source>We have sent a confirmation email to {{email}}.</source>
-        <target state="translated">Hemos enviado un correo de confirmación a {{email}}.</target>
+        <source>We have sent a confirmation email to <x id="INTERPOLATION" equiv-text="{{ email }}"/>.</source>
+        <target state="translated">Hemos enviado un correo de confirmación a <x id="INTERPOLATION" equiv-text="{{ email }}"/>.</target>
       </trans-unit>
       <trans-unit id="auth.verify_email.instruction" datatype="html">
         <source>Please check your email and click on the link to verify your email address.</source>
@@ -535,8 +535,8 @@
         <target state="translated">Volver a iniciar sesión</target>
       </trans-unit>
       <trans-unit id="registration.title" datatype="html">
-        <source>Create your {{appName}} account</source>
-        <target state="translated">Crea tu cuenta de {{appName}}</target>
+        <source>Create your <x id="INTERPOLATION" equiv-text="{{ appName }}"/> account</source>
+        <target state="translated">Crea tu cuenta de <x id="INTERPOLATION" equiv-text="{{ appName }}"/></target>
       </trans-unit>
       <trans-unit id="registration.subtitle" datatype="html">
         <source>Get started in just a few steps — it&apos;s free</source>
@@ -899,8 +899,8 @@
         <target state="translated">Todo el contenido</target>
       </trans-unit>
       <trans-unit id="safety.tab_pending" datatype="html">
-        <source>Pending Ack</source>
-        <target state="translated">Pendiente de reconocimiento</target>
+        <source>Pending</source>
+        <target state="translated">Pendiente</target>
       </trans-unit>
       <trans-unit id="safety.loading" datatype="html">
         <source>Loading safety content...</source>
@@ -972,11 +972,11 @@
       </trans-unit>
       <trans-unit id="upgrade.title" datatype="html">
         <source>Upgrade to Pro</source>
-        <target state="translated">Mejorar a Pro</target>
+        <target state="translated">Actualizar a Pro</target>
       </trans-unit>
       <trans-unit id="upgrade.subtitle" datatype="html">
-        <source>Unlock the full power of {{appName}} for your team.</source>
-        <target state="translated">Desbloquea todo el poder de {{appName}} para tu equipo.</target>
+        <source>Unlock the full power of ShiftWork for your team.</source>
+        <target state="translated">Desbloquea todo el potencial de ShiftWork para tu equipo.</target>
       </trans-unit>
       <trans-unit id="upgrade.col_feature" datatype="html">
         <source>Feature</source>
@@ -1295,8 +1295,8 @@
         <target state="translated">¡Turno actualizado, gracias!</target>
       </trans-unit>
       <trans-unit id="clock.countdown" datatype="html">
-        <source>Capturing photo in {{count}} seconds...</source>
-        <target state="translated">Capturando foto en {{count}} segundos...</target>
+        <source>Capturing photo in <x id="INTERPOLATION" equiv-text="{{ count }}"/> seconds...</source>
+        <target state="translated">Capturando foto en <x id="INTERPOLATION" equiv-text="{{ count }}"/> segundos...</target>
       </trans-unit>
       <trans-unit id="clock.start_shift" datatype="html">
         <source>Start Shift</source>
@@ -1325,6 +1325,10 @@
       <trans-unit id="overview.title" datatype="html">
         <source>Workforce Intelligence Dashboard</source>
         <target state="translated">Panel de inteligencia laboral</target>
+      </trans-unit>
+      <trans-unit id="overview.subtitle" datatype="html">
+        <source>real-time visibility of attendance, GPS compliance, labor health, and location-level exceptions.</source>
+        <target state="translated">visibilidad en tiempo real de asistencia, cumplimiento GPS, salud laboral y excepciones por ubicación.</target>
       </trans-unit>
       <trans-unit id="overview.live_sync" datatype="html">
         <source>Live Sync</source>
@@ -1475,8 +1479,8 @@
         <target state="translated">En turno</target>
       </trans-unit>
       <trans-unit id="dashboard.updated_at" datatype="html">
-        <source>Updated {{time}}</source>
-        <target state="translated">Actualizado {{time}}</target>
+        <source>Updated <x id="INTERPOLATION" equiv-text="{{ time }}"/></source>
+        <target state="translated">Actualizado <x id="INTERPOLATION" equiv-text="{{ time }}"/></target>
       </trans-unit>
       <trans-unit id="dashboard.quick_clock_in" datatype="html">
         <source>Clock In</source>
@@ -1503,12 +1507,12 @@
         <target state="translated">Seguridad</target>
       </trans-unit>
       <trans-unit id="profile.biometric_label" datatype="html">
-        <source>{{biometricType}} Login</source>
-        <target state="translated">Inicio con {{biometricType}}</target>
+        <source><x id="INTERPOLATION" equiv-text="{{ biometricType }}"/> Login</source>
+        <target state="translated">Inicio con <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/></target>
       </trans-unit>
       <trans-unit id="profile.biometric_desc" datatype="html">
-        <source>Use {{biometricType}} to sign in quickly</source>
-        <target state="translated">Usa {{biometricType}} para iniciar sesión rápidamente</target>
+        <source>Use <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/> to sign in quickly</source>
+        <target state="translated">Usa <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/> para iniciar sesión rápidamente</target>
       </trans-unit>
       <trans-unit id="profile.change_pin" datatype="html">
         <source>Change PIN</source>
@@ -1571,12 +1575,12 @@
         <target state="translated">Aún no hay boletines.</target>
       </trans-unit>
       <trans-unit id="bulletins.unread_one" datatype="html">
-        <source>{{count}} unread bulletin</source>
-        <target state="translated">{{count}} boletín sin leer</target>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unread bulletin</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> boletín sin leer</target>
       </trans-unit>
       <trans-unit id="bulletins.unread_other" datatype="html">
-        <source>{{count}} unread bulletins</source>
-        <target state="translated">{{count}} boletines sin leer</target>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unread bulletins</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> boletines sin leer</target>
       </trans-unit>
       <trans-unit id="bulletins.mark_read" datatype="html">
         <source>Mark as read</source>
@@ -2359,8 +2363,8 @@ Opción C</target>
         <target state="translated">Todos los turnos publicados</target>
       </trans-unit>
       <trans-unit id="schedule_grid.unpublished_shifts" datatype="html">
-        <source>{{count}} unpublished shifts</source>
-        <target state="translated">{{count}} turnos sin publicar</target>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unpublished shifts</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> turnos sin publicar</target>
       </trans-unit>
       <trans-unit id="schedule_grid.search_ph" datatype="html">
         <source>Search</source>
@@ -2407,36 +2411,36 @@ Opción C</target>
         <target state="translated">Anulado</target>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_unpublished" datatype="html">
-        <source>{{count}} unpublished</source>
-        <target state="translated">{{count}} sin publicar</target>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unpublished</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> sin publicar</target>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_warnings" datatype="html">
-        <source>{{count}} warnings</source>
-        <target state="translated">{{count}} advertencias</target>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> warnings</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> advertencias</target>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_open_shifts" datatype="html">
-        <source>{{count}} open shifts</source>
-        <target state="translated">{{count}} turnos abiertos</target>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> open shifts</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> turnos abiertos</target>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_empty" datatype="html">
-        <source>{{count}} empty</source>
-        <target state="translated">{{count}} vacíos</target>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> empty</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> vacíos</target>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_published" datatype="html">
-        <source>{{count}} published</source>
-        <target state="translated">{{count}} publicados</target>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> published</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> publicados</target>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_req_confirm" datatype="html">
-        <source>{{count}} require confirmation</source>
-        <target state="translated">{{count}} requieren confirmación</target>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> require confirmation</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> requieren confirmación</target>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_leave_pending" datatype="html">
-        <source>{{count}} leave pending</source>
-        <target state="translated">{{count}} permisos pendientes</target>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> leave pending</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> permisos pendientes</target>
       </trans-unit>
       <trans-unit id="schedule_grid.stat_unavailable" datatype="html">
-        <source>{{count}} unavailable</source>
-        <target state="translated">{{count}} no disponibles</target>
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unavailable</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> no disponibles</target>
       </trans-unit>
       <trans-unit id="schedule_grid.loading" datatype="html">
         <source>Loading schedule...</source>
@@ -2699,8 +2703,8 @@ Opción C</target>
         <target state="translated">Buscar reemplazo</target>
       </trans-unit>
       <trans-unit id="add_modal.view_profile" datatype="html">
-        <source>View {{name}}&apos;s profile</source>
-        <target state="translated">Ver perfil de {{name}}</target>
+        <source>View <x id="INTERPOLATION" equiv-text="{{ name }}"/>&apos;s profile</source>
+        <target state="translated">Ver perfil de <x id="INTERPOLATION" equiv-text="{{ name }}"/></target>
       </trans-unit>
       <trans-unit id="add_modal.view_history" datatype="html">
         <source>View shift history</source>
@@ -2915,8 +2919,8 @@ Opción C</target>
         <target state="translated">Todos los empleados están programados o han reportado enfermedad/permiso.</target>
       </trans-unit>
       <trans-unit id="replacement.match_score" datatype="html">
-        <source>Match: {{score}}%</source>
-        <target state="translated">Coincidencia: {{score}}%</target>
+        <source>Match: <x id="INTERPOLATION" equiv-text="{{ score }}"/>%</source>
+        <target state="translated">Coincidencia: <x id="INTERPOLATION" equiv-text="{{ score }}"/>%</target>
       </trans-unit>
       <trans-unit id="replacement.notify" datatype="html">
         <source>Notify</source>
@@ -3243,8 +3247,8 @@ Opción C</target>
         <target state="translated">Asignar usuarios</target>
       </trans-unit>
       <trans-unit id="assign_users.title" datatype="html">
-        <source>Assign Users to {{roleName}}</source>
-        <target state="translated">Asignar usuarios a {{roleName}}</target>
+        <source>Assign Users to <x id="INTERPOLATION" equiv-text="{{ roleName }}"/></source>
+        <target state="translated">Asignar usuarios a <x id="INTERPOLATION" equiv-text="{{ roleName }}"/></target>
       </trans-unit>
       <trans-unit id="areas.page_title" datatype="html">
         <source>Area Management</source>
@@ -3775,8 +3779,8 @@ Opción C</target>
         <target state="translated">Intenta ajustar tus filtros</target>
       </trans-unit>
       <trans-unit id="time_off_approvals.requested" datatype="html">
-        <source>Requested {{date}}</source>
-        <target state="translated">Solicitado {{date}}</target>
+        <source>Requested <x id="INTERPOLATION" equiv-text="{{ date }}"/></source>
+        <target state="translated">Solicitado <x id="INTERPOLATION" equiv-text="{{ date }}"/></target>
       </trans-unit>
       <trans-unit id="time_off_approvals.type_label" datatype="html">
         <source>Type</source>
@@ -3831,8 +3835,8 @@ Opción C</target>
         <target state="translated">Siguiente</target>
       </trans-unit>
       <trans-unit id="pto_config.title" datatype="html">
-        <source>Configure PTO for {{name}}</source>
-        <target state="translated">Configurar PTO para {{name}}</target>
+        <source>Configure PTO for <x id="INTERPOLATION" equiv-text="{{ name }}"/></source>
+        <target state="translated">Configurar PTO para <x id="INTERPOLATION" equiv-text="{{ name }}"/></target>
       </trans-unit>
       <trans-unit id="pto_config.balance_label" datatype="html">
         <source>Current PTO Balance:</source>
@@ -3909,6 +3913,10 @@ Opción C</target>
       <trans-unit id="shift_summaries.all_locations" datatype="html">
         <source>All Locations</source>
         <target state="translated">Todas las ubicaciones</target>
+      </trans-unit>
+      <trans-unit id="shift_summaries.person" datatype="html">
+        <source>Person</source>
+        <target state="translated">Persona</target>
       </trans-unit>
       <trans-unit id="shift_summaries.all_people" datatype="html">
         <source>All People</source>
@@ -4411,8 +4419,8 @@ Opción C</target>
         <target state="translated">¡Turno actualizado!</target>
       </trans-unit>
       <trans-unit id="kiosk_photo.countdown" datatype="html">
-        <source>Capturing photo in {{ count }} seconds...</source>
-        <target state="translated">Capturando foto en {{ count }} segundos...</target>
+        <source>Capturing photo in <x id="INTERPOLATION" equiv-text="{{ count }}"/> seconds...</source>
+        <target state="translated">Capturando foto en <x id="INTERPOLATION" equiv-text="{{ count }}"/> segundos...</target>
       </trans-unit>
       <trans-unit id="kiosk_photo.wake_lock_title" datatype="html">
         <source>Screen wake lock active to prevent sleep</source>
@@ -4463,8 +4471,8 @@ Opción C</target>
         <target state="translated">Por favor selecciona un empleado para continuar</target>
       </trans-unit>
       <trans-unit id="kiosk_pin.title" datatype="html">
-        <source>Enter PIN for {{name}}</source>
-        <target state="translated">Ingresar PIN para {{name}}</target>
+        <source>Enter PIN for <x id="INTERPOLATION" equiv-text="{{ name }}"/></source>
+        <target state="translated">Ingresar PIN para <x id="INTERPOLATION" equiv-text="{{ name }}"/></target>
       </trans-unit>
       <trans-unit id="kiosk_pin.pin_label" datatype="html">
         <source>PIN</source>
@@ -4751,24 +4759,24 @@ Opción C</target>
         <target state="translated">Eliminar</target>
       </trans-unit>
       <trans-unit id="manage_companies.users_title" datatype="html">
-        <source>Users for {{companyName}}</source>
-        <target state="translated">Usuarios de {{companyName}}</target>
+        <source>Users for <x id="INTERPOLATION" equiv-text="{{ companyName }}"/></source>
+        <target state="translated">Usuarios de <x id="INTERPOLATION" equiv-text="{{ companyName }}"/></target>
       </trans-unit>
       <trans-unit id="manage_companies.users_for" datatype="html">
-        <source>Users for {{ selectedCompany.name }}</source>
-        <target state="translated">Usuarios de {{ selectedCompany.name }}</target>
+        <source>Users for <x id="INTERPOLATION" equiv-text="{{ selectedCompany.name }}"/></source>
+        <target state="translated">Usuarios de <x id="INTERPOLATION" equiv-text="{{ selectedCompany.name }}"/></target>
       </trans-unit>
       <trans-unit id="manage_companies.in_company" datatype="html">
-        <source>In Company ({{ companyMembers.length }})</source>
-        <target state="translated">En la empresa ({{ companyMembers.length }})</target>
+        <source>In Company (<x id="INTERPOLATION" equiv-text="{{ companyMembers.length }}"/>)</source>
+        <target state="translated">En la empresa (<x id="INTERPOLATION" equiv-text="{{ companyMembers.length }}"/>)</target>
       </trans-unit>
       <trans-unit id="manage_companies.available" datatype="html">
-        <source>Available Users ({{count}})</source>
-        <target state="translated">Usuarios disponibles ({{count}})</target>
+        <source>Available Users (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+        <target state="translated">Usuarios disponibles (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</target>
       </trans-unit>
       <trans-unit id="manage_companies.available_users" datatype="html">
-        <source>Available Users ({{ availablePeople.length }})</source>
-        <target state="translated">Usuarios disponibles ({{ availablePeople.length }})</target>
+        <source>Available Users (<x id="INTERPOLATION" equiv-text="{{ availablePeople.length }}"/>)</source>
+        <target state="translated">Usuarios disponibles (<x id="INTERPOLATION" equiv-text="{{ availablePeople.length }}"/>)</target>
       </trans-unit>
       <trans-unit id="manage_companies.deactivate" datatype="html">
         <source>Deactivate</source>
@@ -4833,6 +4841,662 @@ Opción C</target>
       <trans-unit id="company_switch.empty" datatype="html">
         <source>No companies available</source>
         <target state="translated">No hay empresas disponibles</target>
+      </trans-unit>
+      <trans-unit id="auth.company_select.loading" datatype="html">
+        <source>Loading your companies…</source>
+        <target state="translated">Cargando tus empresas…</target>
+      </trans-unit>
+      <trans-unit id="auth.company_select.no_companies" datatype="html">
+        <source>No companies found</source>
+        <target state="translated">No se encontraron empresas</target>
+      </trans-unit>
+      <trans-unit id="auth.company_select.not_linked" datatype="html">
+        <source>Your account is not linked to any companies.</source>
+        <target state="translated">Tu cuenta no está vinculada a ninguna empresa.</target>
+      </trans-unit>
+      <trans-unit id="auth.company_select.welcome" datatype="html">
+        <source>Welcome back!</source>
+        <target state="translated">¡Bienvenido de nuevo!</target>
+      </trans-unit>
+      <trans-unit id="auth.company_select.select" datatype="html">
+        <source>Select a company to continue</source>
+        <target state="translated">Selecciona una empresa para continuar</target>
+      </trans-unit>
+      <trans-unit id="auth.pin_verify.title" datatype="html">
+        <source>Enter Your PIN</source>
+        <target state="translated">Ingresa tu PIN</target>
+      </trans-unit>
+      <trans-unit id="auth.pin_verify.subtitle" datatype="html">
+        <source>Enter your 4-digit PIN to continue</source>
+        <target state="translated">Ingresa tu PIN de 4 dígitos para continuar</target>
+      </trans-unit>
+      <trans-unit id="auth.pin_verify.error" datatype="html">
+        <source>Invalid PIN. Please try again.</source>
+        <target state="translated">PIN inválido. Por favor intenta de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="auth.pin_verify.delete" datatype="html">
+        <source>Delete</source>
+        <target state="translated">Eliminar</target>
+      </trans-unit>
+      <trans-unit id="index.title" datatype="html">
+        <source>ShiftWork Mobile</source>
+        <target state="translated">ShiftWork Móvil</target>
+      </trans-unit>
+      <trans-unit id="index.subtitle" datatype="html">
+        <source>Workforce Management</source>
+        <target state="translated">Gestión de personal</target>
+      </trans-unit>
+      <trans-unit id="index.get_started" datatype="html">
+        <source>Get Started</source>
+        <target state="translated">Comenzar</target>
+      </trans-unit>
+      <trans-unit id="index.info" datatype="html">
+        <source>Clock in/out • View Schedules • Track Hours</source>
+        <target state="translated">Marcar entrada/salida • Ver horarios • Registrar horas</target>
+      </trans-unit>
+      <trans-unit id="index.version" datatype="html">
+        <source>Version 1.0.0</source>
+        <target state="translated">Versión 1.0.0</target>
+      </trans-unit>
+      <trans-unit id="clock.clock_out_hint" datatype="html">
+        <source>Clock out when done</source>
+        <target state="translated">Marca salida cuando termines</target>
+      </trans-unit>
+      <trans-unit id="clock.clock_in_hint" datatype="html">
+        <source>Clock in to start your shift</source>
+        <target state="translated">Marca entrada para iniciar tu turno</target>
+      </trans-unit>
+      <trans-unit id="profile.footer" datatype="html">
+        <source>ShiftWork Mobile · v1.0.0</source>
+        <target state="translated">ShiftWork Mobile · v1.0.0</target>
+      </trans-unit>
+      <trans-unit id="schedule.offline_cached" datatype="html">
+        <source>Offline · cached data</source>
+        <target state="translated">Sin conexión · datos en caché</target>
+      </trans-unit>
+      <trans-unit id="schedule.shifts_label" datatype="html">
+        <source>Shifts</source>
+        <target state="translated">Turnos</target>
+      </trans-unit>
+      <trans-unit id="schedule.no_shifts" datatype="html">
+        <source>No shifts</source>
+        <target state="translated">Sin turnos</target>
+      </trans-unit>
+      <trans-unit id="schedule.no_shifts_msg" datatype="html">
+        <source>No shifts scheduled for this period.</source>
+        <target state="translated">No hay turnos programados para este período.</target>
+      </trans-unit>
+      <trans-unit id="schedule.shift_meta" datatype="html">
+        <source>Shift #<x id="INTERPOLATION" equiv-text="{{ id }}"/> · <x id="INTERPOLATION_1" equiv-text="{{ status }}"/></source>
+        <target state="translated">Turno #<x id="INTERPOLATION" equiv-text="{{ id }}"/> · <x id="INTERPOLATION_1" equiv-text="{{ status }}"/></target>
+      </trans-unit>
+      <trans-unit id="schedule.clocked_events" datatype="html">
+        <source>Clocked Events</source>
+        <target state="translated">Eventos marcados</target>
+      </trans-unit>
+      <trans-unit id="schedule.no_events" datatype="html">
+        <source>No events</source>
+        <target state="translated">Sin eventos</target>
+      </trans-unit>
+      <trans-unit id="schedule.no_events_msg" datatype="html">
+        <source>No events recorded for this period.</source>
+        <target state="translated">No se registraron eventos para este período.</target>
+      </trans-unit>
+      <trans-unit id="schedule.view_title" datatype="html">
+        <source>Schedule View</source>
+        <target state="translated">Vista de horario</target>
+      </trans-unit>
+      <trans-unit id="schedule.view_by" datatype="html">
+        <source>View By</source>
+        <target state="translated">Ver por</target>
+      </trans-unit>
+      <trans-unit id="schedule.navigate" datatype="html">
+        <source>Navigate</source>
+        <target state="translated">Navegar</target>
+      </trans-unit>
+      <trans-unit id="schedule.prev" datatype="html">
+        <source>Prev</source>
+        <target state="translated">Anterior</target>
+      </trans-unit>
+      <trans-unit id="schedule.next_btn" datatype="html">
+        <source>Next</source>
+        <target state="translated">Siguiente</target>
+      </trans-unit>
+      <trans-unit id="schedule.mode_day" datatype="html">
+        <source>Day</source>
+        <target state="translated">Día</target>
+      </trans-unit>
+      <trans-unit id="schedule.mode_week" datatype="html">
+        <source>Week</source>
+        <target state="translated">Semana</target>
+      </trans-unit>
+      <trans-unit id="schedule.mode_month" datatype="html">
+        <source>Month</source>
+        <target state="translated">Mes</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.title" datatype="html">
+        <source>My Weekly Schedule</source>
+        <target state="translated">Mi horario semanal</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.pull_refresh" datatype="html">
+        <source>Pull to refresh</source>
+        <target state="translated">Jalar para actualizar</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.total_hours" datatype="html">
+        <source>Total Hours</source>
+        <target state="translated">Total de horas</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.days_scheduled" datatype="html">
+        <source>Days Scheduled</source>
+        <target state="translated">Días programados</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.last_updated" datatype="html">
+        <source>Last updated: <x id="INTERPOLATION" equiv-text="{{ time }}"/></source>
+        <target state="translated">Actualizado: <x id="INTERPOLATION" equiv-text="{{ time }}"/></target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.syncing" datatype="html">
+        <source>🔄 Syncing...</source>
+        <target state="translated">🔄 Sincronizando...</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.loading" datatype="html">
+        <source>Loading schedule...</source>
+        <target state="translated">Cargando horario...</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.retry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">Reintentar</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.no_shifts" datatype="html">
+        <source>No shifts</source>
+        <target state="translated">Sin turnos</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.no_shifts_scheduled" datatype="html">
+        <source>No shifts scheduled</source>
+        <target state="translated">Sin turnos programados</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.no_shifts_msg" datatype="html">
+        <source>Check back later or contact your manager.</source>
+        <target state="translated">Revisa más tarde o contacta a tu manager.</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.shift_details" datatype="html">
+        <source>Shift Details</source>
+        <target state="translated">Detalles del turno</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.date" datatype="html">
+        <source>Date</source>
+        <target state="translated">Fecha</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.time" datatype="html">
+        <source>Time</source>
+        <target state="translated">Hora</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">Duración</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.notes" datatype="html">
+        <source>Notes</source>
+        <target state="translated">Notas</target>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">Cerrar</target>
+      </trans-unit>
+      <trans-unit id="ai_chat.title" datatype="html">
+        <source>AI Assistant</source>
+        <target state="translated">Asistente IA</target>
+      </trans-unit>
+      <trans-unit id="ai_chat.mcp_online" datatype="html">
+        <source>MCP Online</source>
+        <target state="translated">MCP en línea</target>
+      </trans-unit>
+      <trans-unit id="ai_chat.offline" datatype="html">
+        <source>Offline</source>
+        <target state="translated">Sin conexión</target>
+      </trans-unit>
+      <trans-unit id="ai_chat.checking" datatype="html">
+        <source>Checking…</source>
+        <target state="translated">Verificando…</target>
+      </trans-unit>
+      <trans-unit id="ai_chat.thinking" datatype="html">
+        <source>Thinking…</source>
+        <target state="translated">Pensando…</target>
+      </trans-unit>
+      <trans-unit id="ai_chat.placeholder" datatype="html">
+        <source>Ask me about schedules…</source>
+        <target state="translated">Pregúntame sobre horarios…</target>
+      </trans-unit>
+      <trans-unit id="ai_chat.quick_schedule" datatype="html">
+        <source>📅 My Schedule</source>
+        <target state="translated">📅 Mi horario</target>
+      </trans-unit>
+      <trans-unit id="ai_chat.quick_tools" datatype="html">
+        <source>🔧 Tools</source>
+        <target state="translated">🔧 Herramientas</target>
+      </trans-unit>
+      <trans-unit id="ai_chat.quick_unpublished" datatype="html">
+        <source>📝 Unpublished</source>
+        <target state="translated">📝 Sin publicar</target>
+      </trans-unit>
+      <trans-unit id="ai_chat.quick_ping" datatype="html">
+        <source>🏓 Ping</source>
+        <target state="translated">🏓 Ping</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.unable_to_load" datatype="html">
+        <source>Unable to load</source>
+        <target state="translated">No se pudo cargar</target>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.not_found" datatype="html">
+        <source>Bulletin not found.</source>
+        <target state="translated">Boletín no encontrado.</target>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.go_back" datatype="html">
+        <source>Go Back</source>
+        <target state="translated">Volver</target>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.expires" datatype="html">
+        <source>Expires <x id="INTERPOLATION" equiv-text="{{ date }}"/></source>
+        <target state="translated">Vence <x id="INTERPOLATION" equiv-text="{{ date }}"/></target>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.attachments" datatype="html">
+        <source>Attachments</source>
+        <target state="translated">Adjuntos</target>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.attachment_label" datatype="html">
+        <source>Attachment <x id="INTERPOLATION" equiv-text="{{ number }}"/></source>
+        <target state="translated">Adjunto <x id="INTERPOLATION" equiv-text="{{ number }}"/></target>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.marked_read" datatype="html">
+        <source>Marked as read</source>
+        <target state="translated">Marcado como leído</target>
+      </trans-unit>
+      <trans-unit id="document_detail.back" datatype="html">
+        <source>Documents</source>
+        <target state="translated">Documentos</target>
+      </trans-unit>
+      <trans-unit id="document_detail.open_btn" datatype="html">
+        <source>Open Document</source>
+        <target state="translated">Abrir documento</target>
+      </trans-unit>
+      <trans-unit id="document_detail.description" datatype="html">
+        <source>DESCRIPTION</source>
+        <target state="translated">DESCRIPCIÓN</target>
+      </trans-unit>
+      <trans-unit id="document_detail.version" datatype="html">
+        <source>Version</source>
+        <target state="translated">Versión</target>
+      </trans-unit>
+      <trans-unit id="document_detail.file_size" datatype="html">
+        <source>File Size</source>
+        <target state="translated">Tamaño de archivo</target>
+      </trans-unit>
+      <trans-unit id="document_detail.uploaded_by" datatype="html">
+        <source>Uploaded By</source>
+        <target state="translated">Subido por</target>
+      </trans-unit>
+      <trans-unit id="document_detail.added" datatype="html">
+        <source>Added</source>
+        <target state="translated">Agregado</target>
+      </trans-unit>
+      <trans-unit id="document_detail.total_opens" datatype="html">
+        <source>Total Opens</source>
+        <target state="translated">Total de aperturas</target>
+      </trans-unit>
+      <trans-unit id="document_detail.access" datatype="html">
+        <source>Access</source>
+        <target state="translated">Acceso</target>
+      </trans-unit>
+      <trans-unit id="document_detail.tags" datatype="html">
+        <source>TAGS</source>
+        <target state="translated">ETIQUETAS</target>
+      </trans-unit>
+      <trans-unit id="safety_detail.back" datatype="html">
+        <source>Safety</source>
+        <target state="translated">Seguridad</target>
+      </trans-unit>
+      <trans-unit id="safety_detail.watch_video" datatype="html">
+        <source>Watch Video</source>
+        <target state="translated">Ver video</target>
+      </trans-unit>
+      <trans-unit id="safety_detail.open_document" datatype="html">
+        <source>Open Document</source>
+        <target state="translated">Abrir documento</target>
+      </trans-unit>
+      <trans-unit id="safety_detail.scroll_hint" datatype="html">
+        <source>Scroll to the bottom to enable acknowledgment</source>
+        <target state="translated">Desplázate hasta abajo para habilitar el reconocimiento</target>
+      </trans-unit>
+      <trans-unit id="safety_detail.acknowledged" datatype="html">
+        <source>You have acknowledged this content.</source>
+        <target state="translated">Has reconocido este contenido.</target>
+      </trans-unit>
+      <trans-unit id="safety_detail.scroll_prompt" datatype="html">
+        <source>Read to the end to enable acknowledgment</source>
+        <target state="translated">Lee hasta el final para habilitar el reconocimiento</target>
+      </trans-unit>
+      <trans-unit id="safety_detail.i_acknowledge" datatype="html">
+        <source>I Acknowledge</source>
+        <target state="translated">Reconozco</target>
+      </trans-unit>
+      <trans-unit id="bulletins.check_back" datatype="html">
+        <source>Check back later for updates</source>
+        <target state="translated">Vuelve más tarde para ver actualizaciones</target>
+      </trans-unit>
+      <trans-unit id="documents.search_placeholder" datatype="html">
+        <source>Search documents...</source>
+        <target state="translated">Buscar documentos...</target>
+      </trans-unit>
+      <trans-unit id="documents.try_again" datatype="html">
+        <source>Try Again</source>
+        <target state="translated">Intentar de nuevo</target>
+      </trans-unit>
+      <trans-unit id="safety.try_again" datatype="html">
+        <source>Try Again</source>
+        <target state="translated">Intentar de nuevo</target>
+      </trans-unit>
+      <trans-unit id="auth.register.company_label" datatype="html">
+        <source>Company</source>
+        <target state="translated">Empresa</target>
+      </trans-unit>
+      <trans-unit id="auth.register.already_account_prompt" datatype="html">
+        <source>Already have an account?</source>
+        <target state="translated">¿Ya tienes cuenta?</target>
+      </trans-unit>
+      <trans-unit id="auth.register.sign_in_link" datatype="html">
+        <source>Sign in</source>
+        <target state="translated">Iniciar sesión</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.invalid_msg" datatype="html">
+        <source>Invalid invite link. Please use the link from your invitation email.</source>
+        <target state="translated">Enlace inválido. Usa el enlace de tu correo de invitación.</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.welcome" datatype="html">
+        <source>Welcome!</source>
+        <target state="translated">¡Bienvenido!</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.welcome_name" datatype="html">
+        <source>Welcome, <x id="INTERPOLATION" equiv-text="{{ name }}"/>!</source>
+        <target state="translated">¡Bienvenido, <x id="INTERPOLATION" equiv-text="{{ name }}"/>!</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.activating" datatype="html">
+        <source>Activating...</source>
+        <target state="translated">Activando...</target>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.activate_btn" datatype="html">
+        <source>Activate Account</source>
+        <target state="translated">Activar cuenta</target>
+      </trans-unit>
+      <trans-unit id="auth.company_select.contact_admin" datatype="html">
+        <source>Contact your administrator.</source>
+        <target state="translated">Contacta a tu administrador.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_sample_title" datatype="html">
+        <source>Sample data included</source>
+        <target state="translated">Datos de muestra incluidos</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.upgrade_title" datatype="html">
+        <source>Upgrade for more power</source>
+        <target state="translated">Mejora para obtener más funciones</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.explore_pro_features" datatype="html">
+        <source>Explore Pro Features</source>
+        <target state="translated">Explorar funciones Pro</target>
+      </trans-unit>
+      <trans-unit id="clock.on_clock" datatype="html">
+        <source>You are on the clock</source>
+        <target state="translated">Estás en turno</target>
+      </trans-unit>
+      <trans-unit id="clock.ready" datatype="html">
+        <source>Ready to start?</source>
+        <target state="translated">¿Listo para empezar?</target>
+      </trans-unit>
+      <trans-unit id="clock.status_in" datatype="html">
+        <source>On Clock</source>
+        <target state="translated">En turno</target>
+      </trans-unit>
+      <trans-unit id="clock.status_out" datatype="html">
+        <source>Off Clock</source>
+        <target state="translated">Fuera de turno</target>
+      </trans-unit>
+      <trans-unit id="clock.info_location" datatype="html">
+        <source>Location captured</source>
+        <target state="translated">Ubicación capturada</target>
+      </trans-unit>
+      <trans-unit id="clock.info_photo" datatype="html">
+        <source>Photo optional</source>
+        <target state="translated">Foto opcional</target>
+      </trans-unit>
+      <trans-unit id="clock.info_device" datatype="html">
+        <source>Device recorded</source>
+        <target state="translated">Dispositivo registrado</target>
+      </trans-unit>
+      <trans-unit id="bulletins.filter_unread_count" datatype="html">
+        <source>Unread (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+        <target state="translated">No leídos (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</target>
+      </trans-unit>
+      <trans-unit id="bulletins.empty_title" datatype="html">
+        <source>No bulletins</source>
+        <target state="translated">Sin boletines</target>
+      </trans-unit>
+      <trans-unit id="bulletins.try_again" datatype="html">
+        <source>Try Again</source>
+        <target state="translated">Intentar de nuevo</target>
+      </trans-unit>
+      <trans-unit id="safety.tab_pending_count" datatype="html">
+        <source>Pending (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+        <target state="translated">Pendiente (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</target>
+      </trans-unit>
+      <trans-unit id="safety.empty_pending_title" datatype="html">
+        <source>All caught up!</source>
+        <target state="translated">¡Todo al día!</target>
+      </trans-unit>
+      <trans-unit id="safety.empty_pending_msg" datatype="html">
+        <source>No pending acknowledgments</source>
+        <target state="translated">Sin reconocimientos pendientes</target>
+      </trans-unit>
+      <trans-unit id="safety.empty_all_title" datatype="html">
+        <source>No safety content</source>
+        <target state="translated">Sin contenido de seguridad</target>
+      </trans-unit>
+      <trans-unit id="safety.empty_all_msg" datatype="html">
+        <source>Check back later</source>
+        <target state="translated">Vuelve más tarde</target>
+      </trans-unit>
+      <trans-unit id="daily_report.title" datatype="html">
+        <source>Daily Report</source>
+        <target state="translated">Reporte diario</target>
+      </trans-unit>
+      <trans-unit id="daily_report.weather" datatype="html">
+        <source>WEATHER</source>
+        <target state="translated">CLIMA</target>
+      </trans-unit>
+      <trans-unit id="daily_report.weather_meta" datatype="html">
+        <source>Feels <x id="INTERPOLATION" equiv-text="{{ feels }}"/>° · Wind <x id="INTERPOLATION_1" equiv-text="{{ wind }}"/> mph · <x id="INTERPOLATION_2" equiv-text="{{ humidity }}"/>% humidity</source>
+        <target state="translated">Sensación <x id="INTERPOLATION" equiv-text="{{ feels }}"/>° · Viento <x id="INTERPOLATION_1" equiv-text="{{ wind }}"/> mph · <x id="INTERPOLATION_2" equiv-text="{{ humidity }}"/>% humedad</target>
+      </trans-unit>
+      <trans-unit id="daily_report.attendance" datatype="html">
+        <source>ATTENDANCE</source>
+        <target state="translated">ASISTENCIA</target>
+      </trans-unit>
+      <trans-unit id="daily_report.employees" datatype="html">
+        <source>Employees</source>
+        <target state="translated">Empleados</target>
+      </trans-unit>
+      <trans-unit id="daily_report.hours" datatype="html">
+        <source>Hours</source>
+        <target state="translated">Horas</target>
+      </trans-unit>
+      <trans-unit id="daily_report.attachments" datatype="html">
+        <source>ATTACHMENTS</source>
+        <target state="translated">ADJUNTOS</target>
+      </trans-unit>
+      <trans-unit id="daily_report.add" datatype="html">
+        <source>Add</source>
+        <target state="translated">Agregar</target>
+      </trans-unit>
+      <trans-unit id="daily_report.photos_count" datatype="html">
+        <source>Photos (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+        <target state="translated">Fotos (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</target>
+      </trans-unit>
+      <trans-unit id="daily_report.notes_count" datatype="html">
+        <source>Notes (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+        <target state="translated">Notas (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</target>
+      </trans-unit>
+      <trans-unit id="daily_report.empty_attachments" datatype="html">
+        <source>No attachments yet. Tap Add to include photos or notes.</source>
+        <target state="translated">Sin adjuntos. Toca Agregar para incluir fotos o notas.</target>
+      </trans-unit>
+      <trans-unit id="daily_report.shift_notes" datatype="html">
+        <source>SHIFT NOTES</source>
+        <target state="translated">NOTAS DE TURNO</target>
+      </trans-unit>
+      <trans-unit id="daily_report.notes_placeholder" datatype="html">
+        <source>Add shift notes, incidents, observations...</source>
+        <target state="translated">Agrega notas de turno, incidentes, observaciones...</target>
+      </trans-unit>
+      <trans-unit id="daily_report.saving" datatype="html">
+        <source>Saving…</source>
+        <target state="translated">Guardando…</target>
+      </trans-unit>
+      <trans-unit id="daily_report.save_draft" datatype="html">
+        <source>Save Draft</source>
+        <target state="translated">Guardar borrador</target>
+      </trans-unit>
+      <trans-unit id="daily_report.submit" datatype="html">
+        <source>Submit Report</source>
+        <target state="translated">Enviar reporte</target>
+      </trans-unit>
+      <trans-unit id="daily_report.approve" datatype="html">
+        <source>Approve</source>
+        <target state="translated">Aprobar</target>
+      </trans-unit>
+      <trans-unit id="daily_report.no_access" datatype="html">
+        <source>You don&apos;t have access to daily reports.</source>
+        <target state="translated">No tienes acceso a los reportes diarios.</target>
+      </trans-unit>
+      <trans-unit id="daily_report.not_found" datatype="html">
+        <source>No report found for this location.</source>
+        <target state="translated">No se encontró reporte para esta ubicación.</target>
+      </trans-unit>
+      <trans-unit id="daily_report.add_note" datatype="html">
+        <source>Add Note</source>
+        <target state="translated">Agregar nota</target>
+      </trans-unit>
+      <trans-unit id="daily_report.note_placeholder" datatype="html">
+        <source>Enter note text...</source>
+        <target state="translated">Ingresa el texto de la nota...</target>
+      </trans-unit>
+      <trans-unit id="time_off.title" datatype="html">
+        <source>Request Time Off</source>
+        <target state="translated">Solicitar tiempo libre</target>
+      </trans-unit>
+      <trans-unit id="time_off.back" datatype="html">
+        <source>← Back</source>
+        <target state="translated">← Atrás</target>
+      </trans-unit>
+      <trans-unit id="time_off.balance_label" datatype="html">
+        <source>Available PTO Balance</source>
+        <target state="translated">Saldo PTO disponible</target>
+      </trans-unit>
+      <trans-unit id="time_off.balance_hours" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ value }}"/> hours</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ value }}"/> horas</target>
+      </trans-unit>
+      <trans-unit id="time_off.type_label" datatype="html">
+        <source>Type</source>
+        <target state="translated">Tipo</target>
+      </trans-unit>
+      <trans-unit id="time_off.start_date" datatype="html">
+        <source>Start Date</source>
+        <target state="translated">Fecha de inicio</target>
+      </trans-unit>
+      <trans-unit id="time_off.end_date" datatype="html">
+        <source>End Date</source>
+        <target state="translated">Fecha de fin</target>
+      </trans-unit>
+      <trans-unit id="time_off.estimated_hours" datatype="html">
+        <source>Estimated Hours</source>
+        <target state="translated">Horas estimadas</target>
+      </trans-unit>
+      <trans-unit id="time_off.business_days" datatype="html">
+        <source>Based on <x id="INTERPOLATION" equiv-text="{{ days }}"/> business days</source>
+        <target state="translated">Basado en <x id="INTERPOLATION" equiv-text="{{ days }}"/> días hábiles</target>
+      </trans-unit>
+      <trans-unit id="time_off.reason_label" datatype="html">
+        <source>Reason (Optional)</source>
+        <target state="translated">Razón (opcional)</target>
+      </trans-unit>
+      <trans-unit id="time_off.reason_placeholder" datatype="html">
+        <source>Why are you requesting time off?</source>
+        <target state="translated">¿Por qué solicitas tiempo libre?</target>
+      </trans-unit>
+      <trans-unit id="time_off.submitting" datatype="html">
+        <source>Submitting...</source>
+        <target state="translated">Enviando...</target>
+      </trans-unit>
+      <trans-unit id="time_off.submit" datatype="html">
+        <source>Submit Request</source>
+        <target state="translated">Enviar solicitud</target>
+      </trans-unit>
+      <trans-unit id="upgrade.feature" datatype="html">
+        <source>Feature</source>
+        <target state="translated">Función</target>
+      </trans-unit>
+      <trans-unit id="upgrade.upgrade_btn" datatype="html">
+        <source>Upgrade to Pro Now</source>
+        <target state="translated">Actualizar a Pro ahora</target>
+      </trans-unit>
+      <trans-unit id="upgrade.back" datatype="html">
+        <source>← Back</source>
+        <target state="translated">← Atrás</target>
+      </trans-unit>
+      <trans-unit id="documents.empty_title" datatype="html">
+        <source>No documents</source>
+        <target state="translated">Sin documentos</target>
+      </trans-unit>
+      <trans-unit id="documents.empty_msg" datatype="html">
+        <source>No documents available for your account</source>
+        <target state="translated">No hay documentos disponibles para tu cuenta</target>
+      </trans-unit>
+      <trans-unit id="tabs.home" datatype="html">
+        <source>Home</source>
+        <target state="translated">Inicio</target>
+      </trans-unit>
+      <trans-unit id="tabs.clock" datatype="html">
+        <source>Clock</source>
+        <target state="translated">Reloj</target>
+      </trans-unit>
+      <trans-unit id="tabs.schedule" datatype="html">
+        <source>Schedule</source>
+        <target state="translated">Horario</target>
+      </trans-unit>
+      <trans-unit id="tabs.profile" datatype="html">
+        <source>Profile</source>
+        <target state="translated">Perfil</target>
+      </trans-unit>
+      <trans-unit id="tabs.ai" datatype="html">
+        <source>AI</source>
+        <target state="translated">IA</target>
+      </trans-unit>
+      <trans-unit id="tabs.docs" datatype="html">
+        <source>Docs</source>
+        <target state="translated">Docs</target>
+      </trans-unit>
+      <trans-unit id="tabs.bulletins" datatype="html">
+        <source>Bulletins</source>
+        <target state="translated">Boletines</target>
+      </trans-unit>
+      <trans-unit id="tabs.safety" datatype="html">
+        <source>Safety</source>
+        <target state="translated">Seguridad</target>
+      </trans-unit>
+      <trans-unit id="tabs.report" datatype="html">
+        <source>Report</source>
+        <target state="translated">Reporte</target>
+      </trans-unit>
+      <trans-unit id="tabs.upgrade" datatype="html">
+        <source>Upgrade to Pro</source>
+        <target state="translated">Actualizar a Pro</target>
       </trans-unit>
     </body>
   </file>
