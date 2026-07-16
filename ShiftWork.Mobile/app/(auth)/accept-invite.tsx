@@ -97,7 +97,7 @@ export default function AcceptInviteScreen() {
             render={({ field: { value, onChange } }) => (
               <TextInput
                 style={styles.input}
-                placeholder="Choose a password (min. 6 characters)"
+                placeholder={t('auth.accept_invite.password_placeholder')}
                 placeholderTextColor={colors.muted}
                 value={value}
                 onChangeText={onChange}

@@ -1,13 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setDateLocale } from '@/utils/date.utils';
+import * as SecureStore from 'expo-secure-store';
 import en from './translations/en';
 import es from './translations/es';
 
 type TranslationDict = Record<string, unknown>;
 
 const translationMap: Record<string, TranslationDict> = { en, es };
-const LOCALE_STORAGE_KEY = '@app_locale';
+const LOCALE_STORAGE_KEY = 'app_locale';
 const SUPPORTED_LOCALES = ['en', 'es'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
@@ -16,9 +15,8 @@ interface LocaleContextValue {
   locale: SupportedLocale;
   setLocale: (locale: SupportedLocale) => Promise<void>;
   /**
-   * Applies a server-resolved language (Person.PreferredLanguage or
-   * CompanySettings.DefaultLanguage). Ignored when the user has made an
-   * explicit in-app choice; not persisted, so the server stays authoritative.
+   * Applies the company's default language (CompanySettings.DefaultLanguage).
+   * Ignored once someone has toggled the language on this device; not persisted.
    */
   applyServerLocale: (language: string | null | undefined) => void;
 }
@@ -65,21 +63,17 @@ const LocaleContext = createContext<LocaleContextValue>({
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<SupportedLocale>('en');
-  // True once the user has picked a language in-app (stored choice wins over server values)
+  // True once someone toggled the language on this device (stored choice wins over company default)
   const hasExplicitChoice = useRef(false);
 
   useEffect(() => {
     (async () => {
-      const stored = await AsyncStorage.getItem(LOCALE_STORAGE_KEY).catch(() => null);
+      const stored = await SecureStore.getItemAsync(LOCALE_STORAGE_KEY).catch(() => null);
       const storedLocale = normalizeLocale(stored);
       if (storedLocale) hasExplicitChoice.current = true;
       setLocaleState(storedLocale ?? detectDeviceLocale());
     })();
   }, []);
-
-  useEffect(() => {
-    setDateLocale(locale);
-  }, [locale]);
 
   function t(key: string, vars?: Record<string, string | number>): string {
     const dict = translationMap[locale] ?? en;
@@ -93,7 +87,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
   async function setLocale(newLocale: SupportedLocale): Promise<void> {
     hasExplicitChoice.current = true;
     setLocaleState(newLocale);
-    await AsyncStorage.setItem(LOCALE_STORAGE_KEY, newLocale).catch(() => {});
+    await SecureStore.setItemAsync(LOCALE_STORAGE_KEY, newLocale).catch(() => {});
   }
 
   function applyServerLocale(language: string | null | undefined): void {

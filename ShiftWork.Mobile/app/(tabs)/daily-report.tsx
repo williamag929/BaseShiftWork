@@ -278,7 +278,7 @@ export default function DailyReportScreen() {
                   ? <ActivityIndicator color={colors.primary} size="small" />
                   : <>
                       <Ionicons name="add" size={16} color={colors.primary} />
-                      <Text style={styles.addBtnText}>Add</Text>
+                      <Text style={styles.addBtnText}>{t('daily_report.add')}</Text>
                     </>
                 }
               </TouchableOpacity>

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -13,6 +14,7 @@ public class PushNotificationService
     private readonly ShiftWorkContext _context;
     private readonly ILogger<PushNotificationService> _logger;
     private readonly INotificationService _notificationService;
+    private readonly NotificationLocalizer _localizer;
     private const string ExpoApiUrl = "https://exp.host/--/api/v2/push/send";
     private static readonly Regex ExpoTokenRegex = new(@"^(Expo|Exponent)PushToken\[.+\]$", RegexOptions.Compiled);
     private const int ExpoChunkSize = 100;
@@ -21,13 +23,88 @@ public class PushNotificationService
         IHttpClientFactory httpClientFactory,
         ShiftWorkContext context,
         ILogger<PushNotificationService> logger,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        NotificationLocalizer localizer)
     {
         _httpClientFactory = httpClientFactory;
         _context = context;
         _logger = logger;
         _notificationService = notificationService;
+        _localizer = localizer;
     }
+
+    /// <summary>
+    /// Send a localized push notification, resolving each recipient's language as
+    /// Person.PreferredLanguage ?? CompanySettings.DefaultLanguage ?? "en" and sending
+    /// one batch per language group. varsByLang supplies template variables per language
+    /// (so dates can be formatted with the right culture).
+    /// </summary>
+    public async Task<bool> SendLocalizedNotificationAsync(
+        string companyId,
+        List<int> personIds,
+        string templateKey,
+        Func<string, Dictionary<string, string>>? varsByLang = null,
+        Dictionary<string, object>? data = null)
+    {
+        var companyDefault = NotificationLocalizer.Normalize(
+            await _context.CompanySettings
+                .Where(cs => cs.CompanyId == companyId)
+                .Select(cs => cs.DefaultLanguage)
+                .FirstOrDefaultAsync());
+
+        var recipients = await _context.DeviceTokens
+            .Where(dt => dt.CompanyId == companyId && personIds.Contains(dt.PersonId))
+            .Join(_context.Persons,
+                dt => dt.PersonId,
+                p => p.PersonId,
+                (dt, p) => new { dt.Token, p.PreferredLanguage })
+            .ToListAsync();
+
+        if (!recipients.Any())
+        {
+            _logger.LogWarning("No device tokens found for PersonIds {PersonIds}", string.Join(", ", personIds));
+            return false;
+        }
+
+        var anySuccess = false;
+        foreach (var group in recipients.GroupBy(r =>
+            string.IsNullOrWhiteSpace(r.PreferredLanguage)
+                ? companyDefault
+                : NotificationLocalizer.Normalize(r.PreferredLanguage)))
+        {
+            var (title, body) = _localizer.Get(group.Key, templateKey, varsByLang?.Invoke(group.Key));
+            anySuccess |= await SendNotificationsAsync(group.Select(r => r.Token).ToList(), title, body, data);
+        }
+
+        return anySuccess;
+    }
+
+    /// <summary>
+    /// Localized send to every active employee in a company.
+    /// </summary>
+    public async Task<bool> SendLocalizedNotificationToCompanyAsync(
+        string companyId,
+        string templateKey,
+        Func<string, Dictionary<string, string>>? varsByLang = null,
+        Dictionary<string, object>? data = null)
+    {
+        var personIds = await _context.DeviceTokens
+            .Where(dt => dt.CompanyId == companyId)
+            .Select(dt => dt.PersonId)
+            .Distinct()
+            .ToListAsync();
+
+        if (!personIds.Any())
+        {
+            _logger.LogWarning("No device tokens found for CompanyId {CompanyId}", companyId);
+            return false;
+        }
+
+        return await SendLocalizedNotificationAsync(companyId, personIds, templateKey, varsByLang, data);
+    }
+
+    private static CultureInfo CultureFor(string lang) =>
+        lang == "es" ? CultureInfo.GetCultureInfo("es") : CultureInfo.GetCultureInfo("en");
 
     /// <summary>
     /// Send push notification to a specific person
@@ -225,11 +302,15 @@ public class PushNotificationService
             { "endDate", endDate.ToString("o") }
         };
 
-        await SendNotificationToMultiplePeopleAsync(
+        await SendLocalizedNotificationAsync(
             companyId,
             personIds,
-            "Schedule Published",
-            $"New schedule available for {startDate:MMM dd} - {endDate:MMM dd}",
+            "schedule_published",
+            lang => new Dictionary<string, string>
+            {
+                { "start", startDate.ToString("MMM dd", CultureFor(lang)) },
+                { "end", endDate.ToString("MMM dd", CultureFor(lang)) }
+            },
             data);
 
         var persons = await _context.Persons
@@ -260,11 +341,14 @@ public class PushNotificationService
             { "startDate", startDate.ToString("o") }
         };
 
-        await SendNotificationToPersonAsync(
+        await SendLocalizedNotificationAsync(
             companyId,
-            personId,
-            "New Shift Assigned",
-            $"You have a new shift on {startDate:MMM dd 'at' h:mm tt}",
+            new List<int> { personId },
+            "shift_assigned",
+            lang => new Dictionary<string, string>
+            {
+                { "date", startDate.ToString("MMM dd, h:mm tt", CultureFor(lang)) }
+            },
             data);
 
         var person = await _context.Persons
@@ -294,11 +378,16 @@ public class PushNotificationService
             { "endDate", endDate.ToString("o") }
         };
 
-        await SendNotificationToPersonAsync(
+        await SendLocalizedNotificationAsync(
             companyId,
-            personId,
-            "Time Off Approved",
-            $"Your {type} request for {startDate:MMM dd} - {endDate:MMM dd} has been approved",
+            new List<int> { personId },
+            "time_off_approved",
+            lang => new Dictionary<string, string>
+            {
+                { "type", type },
+                { "start", startDate.ToString("MMM dd", CultureFor(lang)) },
+                { "end", endDate.ToString("MMM dd", CultureFor(lang)) }
+            },
             data
         );
     }
@@ -315,11 +404,16 @@ public class PushNotificationService
             { "endDate", endDate.ToString("o") }
         };
 
-        await SendNotificationToPersonAsync(
+        await SendLocalizedNotificationAsync(
             companyId,
-            personId,
-            "Time Off Request Update",
-            $"Your {type} request for {startDate:MMM dd} - {endDate:MMM dd} has been reviewed",
+            new List<int> { personId },
+            "time_off_denied",
+            lang => new Dictionary<string, string>
+            {
+                { "type", type },
+                { "start", startDate.ToString("MMM dd", CultureFor(lang)) },
+                { "end", endDate.ToString("MMM dd", CultureFor(lang)) }
+            },
             data
         );
     }
@@ -337,11 +431,15 @@ public class PushNotificationService
             { "change", changeDescription }
         };
 
-        await SendNotificationToPersonAsync(
+        await SendLocalizedNotificationAsync(
             companyId,
-            personId,
-            "Shift Updated",
-            $"Your shift on {startDate:MMM dd} has been updated: {changeDescription}",
+            new List<int> { personId },
+            "shift_changed",
+            lang => new Dictionary<string, string>
+            {
+                { "date", startDate.ToString("MMM dd", CultureFor(lang)) },
+                { "change", changeDescription }
+            },
             data
         );
     }

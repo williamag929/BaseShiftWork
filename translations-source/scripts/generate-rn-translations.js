@@ -5,7 +5,10 @@ const fs = require('fs');
 const path = require('path');
 
 const stringsPath = path.resolve(__dirname, '../strings.json');
-const outputDir = path.resolve(__dirname, '../../ShiftWork.Mobile/i18n/translations');
+const outputDirs = [
+  path.resolve(__dirname, '../../ShiftWork.Mobile/i18n/translations'),
+  path.resolve(__dirname, '../../ShiftWork.Kiosk/i18n/translations'),
+];
 
 const strings = JSON.parse(fs.readFileSync(stringsPath, 'utf-8'));
 
@@ -42,10 +45,12 @@ function writeLocale(lang) {
     `// Source: translations-source/strings.json — run: npm run generate:rn\n` +
     `export default ${json} as const;\n`;
 
-  fs.mkdirSync(outputDir, { recursive: true });
-  const outPath = path.join(outputDir, `${lang}.ts`);
-  fs.writeFileSync(outPath, content, 'utf-8');
-  console.log(`  ✓ ${outPath}`);
+  for (const outputDir of outputDirs) {
+    fs.mkdirSync(outputDir, { recursive: true });
+    const outPath = path.join(outputDir, `${lang}.ts`);
+    fs.writeFileSync(outPath, content, 'utf-8');
+    console.log(`  ✓ ${outPath}`);
+  }
 }
 
 console.log('Generating React Native translations…');

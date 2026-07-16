@@ -13,16 +13,30 @@ import { ProfileInfoSection } from '@/components/screens/profile/ProfileInfoSect
 import { SecuritySection } from '@/components/screens/profile/SecuritySection';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation, SupportedLocale } from '@/i18n';
+import { useAuthStore } from '@/store/authStore';
+import { peopleService } from '@/services/people.service';
 
 export default function ProfileScreen() {
   const profile = useProfile();
   const insets = useSafeAreaInsets();
   const { t, locale, setLocale } = useTranslation();
+  const { companyId, personId } = useAuthStore();
 
   const languages: { code: SupportedLocale; label: string }[] = [
     { code: 'en', label: t('profile.language_en') },
     { code: 'es', label: t('profile.language_es') },
   ];
+
+  const selectLanguage = (code: SupportedLocale) => {
+    Haptics.selectionAsync();
+    setLocale(code);
+    // Fire-and-forget server sync so pushes and other devices follow the choice
+    if (companyId && personId) {
+      peopleService
+        .partialUpdatePerson(companyId, personId, { preferredLanguage: code })
+        .catch(() => {});
+    }
+  };
 
   if (profile.loading && !profile.person) {
     return (
@@ -76,10 +90,7 @@ export default function ProfileScreen() {
               <PressableScale
                 key={lang.code}
                 style={[styles.languageOption, locale === lang.code && styles.languageOptionActive]}
-                onPress={() => {
-                  Haptics.selectionAsync();
-                  setLocale(lang.code);
-                }}
+                onPress={() => selectLanguage(lang.code)}
               >
                 <Text style={[styles.languageOptionText, locale === lang.code && styles.languageOptionTextActive]}>
                   {lang.label}

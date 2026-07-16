@@ -7,6 +7,7 @@ import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useDeviceStore } from '@/store/deviceStore';
 import { colors } from '@/styles/tokens';
+import { LocaleProvider } from '@/i18n';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,10 +34,12 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <StatusBar style="light" backgroundColor={colors.background} />
-          <Stack screenOptions={{ headerShown: false }} />
-        </QueryClientProvider>
+        <LocaleProvider>
+          <QueryClientProvider client={queryClient}>
+            <StatusBar style="light" backgroundColor={colors.background} />
+            <Stack screenOptions={{ headerShown: false }} />
+          </QueryClientProvider>
+        </LocaleProvider>
       </ErrorBoundary>
     </GestureHandlerRootView>
   );

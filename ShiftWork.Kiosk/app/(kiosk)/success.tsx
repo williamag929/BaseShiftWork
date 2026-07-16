@@ -8,6 +8,7 @@ import { kioskService } from '@/services/kiosk.service';
 import { useSessionStore } from '@/store/sessionStore';
 import { useDeviceStore } from '@/store/deviceStore';
 import { colors, spacing, typography } from '@/styles/tokens';
+import { useTranslation } from '@/i18n';
 
 const AUTO_RETURN_SECONDS = 5;
 
@@ -23,6 +24,7 @@ const AUTO_RETURN_SECONDS = 5;
  */
 export default function SuccessScreen() {
   const router = useRouter();
+  const { t, locale } = useTranslation();
   const employee = useSessionStore((s) => s.employee);
   const clockType = useSessionStore((s) => s.clockType);
   const capturedPhotoUri = useSessionStore((s) => s.capturedPhotoUri);
@@ -35,7 +37,7 @@ export default function SuccessScreen() {
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(AUTO_RETURN_SECONDS);
   const [eventTime] = useState(() =>
-    new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
   );
 
   const scale = useRef(new Animated.Value(0)).current;
@@ -63,7 +65,7 @@ export default function SuccessScreen() {
       });
       setSubmitted(true);
     } catch {
-      setError('Could not record your clock event. Please notify your manager.');
+      setError(t('kiosk_app.clock_record_error'));
       setSubmitted(true); // still show success UX — error logged separately
     } finally {
       setSubmitting(false);
@@ -117,7 +119,7 @@ export default function SuccessScreen() {
     };
   }, [submitted, resetSession, router, clockType, employee]);
 
-  const label = clockType === 'ClockIn' ? 'Clocked In' : 'Clocked Out';
+  const label = clockType === 'ClockIn' ? t('kiosk_app.clocked_in') : t('kiosk_app.clocked_out');
   const bgColor = clockType === 'ClockIn' ? colors.clockIn : colors.clockOut;
 
   return (
@@ -125,7 +127,7 @@ export default function SuccessScreen() {
       {submitting && !submitted ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#fff" />
-          <Text style={styles.waitText}>Recording…</Text>
+          <Text style={styles.waitText}>{t('kiosk_app.recording')}</Text>
         </View>
       ) : (
         <View style={styles.center}>
@@ -133,7 +135,7 @@ export default function SuccessScreen() {
             <Ionicons name="checkmark-circle" size={128} color="#fff" />
           </Animated.View>
 
-          <Text style={styles.name}>{employee?.name ?? 'Employee'}</Text>
+          <Text style={styles.name}>{employee?.name ?? t('kiosk_app.employee_fallback')}</Text>
           <Text style={styles.label}>{label}</Text>
           <Text style={styles.time}>{eventTime}</Text>
 
@@ -141,7 +143,7 @@ export default function SuccessScreen() {
 
           {submitted && (
             <Text style={styles.countdown}>
-              Returning in {countdown}s…
+              {t('kiosk_app.returning_in', { count: countdown })}
             </Text>
           )}
         </View>

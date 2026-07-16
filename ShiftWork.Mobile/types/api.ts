@@ -8,6 +8,7 @@ export interface PersonDto {
   phoneNumber?: string;
   photoUrl?: string;
   pin?: string;
+  preferredLanguage?: string | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

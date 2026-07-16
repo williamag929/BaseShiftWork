@@ -53,5 +53,10 @@ namespace ShiftWork.Api.Models
         /// Null when the person has no API password set.
         /// </summary>
         public string? PasswordHash { get; set; }
+
+        /// <summary>
+        /// UI language preference: "en" or "es". Null = inherit CompanySettings.DefaultLanguage.
+        /// </summary>
+        public string? PreferredLanguage { get; set; }
     }
 }

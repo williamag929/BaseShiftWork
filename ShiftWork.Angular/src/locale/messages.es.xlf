@@ -5498,6 +5498,332 @@ Opción C</target>
         <source>Upgrade to Pro</source>
         <target state="translated">Actualizar a Pro</target>
       </trans-unit>
+      <trans-unit id="kiosk_app.admin_aria" datatype="html">
+        <source>Admin settings</source>
+        <target state="translated">Configuración de administrador</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_aria" datatype="html">
+        <source>Clock in or out for <x id="INTERPOLATION" equiv-text="{{ name }}"/></source>
+        <target state="translated">Marcar entrada o salida para <x id="INTERPOLATION" equiv-text="{{ name }}"/></target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.on_shift" datatype="html">
+        <source>On Shift</source>
+        <target state="translated">En turno</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.load_employees_error" datatype="html">
+        <source>Could not load employees.</source>
+        <target state="translated">No se pudieron cargar los empleados.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.retry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">Reintentar</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.search_placeholder" datatype="html">
+        <source>Search employee…</source>
+        <target state="translated">Buscar empleado…</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.tap_hint" datatype="html">
+        <source>Tap your name to clock in or out</source>
+        <target state="translated">Toca tu nombre para marcar entrada o salida</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.no_employees" datatype="html">
+        <source>No employees found.</source>
+        <target state="translated">No se encontraron empleados.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.enter_pin" datatype="html">
+        <source>Enter your PIN</source>
+        <target state="translated">Ingresa tu PIN</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.pin_incorrect" datatype="html">
+        <source>Incorrect PIN. Please try again.</source>
+        <target state="translated">PIN incorrecto. Intenta de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.pin_failed" datatype="html">
+        <source>Verification failed. Check your connection.</source>
+        <target state="translated">Falló la verificación. Revisa tu conexión.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Cancelar</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.camera_required" datatype="html">
+        <source>Camera access is required to clock in.</source>
+        <target state="translated">Se requiere acceso a la cámara para marcar entrada.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.grant_camera" datatype="html">
+        <source>Grant Camera Access</source>
+        <target state="translated">Permitir acceso a la cámara</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.hello_prompt" datatype="html">
+        <source>Hello, <x id="INTERPOLATION" equiv-text="{{ name }}"/>.
+What would you like to do?</source>
+        <target state="translated">Hola, <x id="INTERPOLATION" equiv-text="{{ name }}"/>.
+¿Qué deseas hacer?</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_in" datatype="html">
+        <source>Clock In</source>
+        <target state="translated">Marcar entrada</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_in_sub" datatype="html">
+        <source>Start your shift</source>
+        <target state="translated">Comienza tu turno</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_out" datatype="html">
+        <source>Clock Out</source>
+        <target state="translated">Marcar salida</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_out_sub" datatype="html">
+        <source>End your shift</source>
+        <target state="translated">Termina tu turno</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.back" datatype="html">
+        <source>← Back</source>
+        <target state="translated">← Atrás</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.look_at_camera" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ action }}"/> — look at the camera</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ action }}"/> — mira a la cámara</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.change" datatype="html">
+        <source>← Change</source>
+        <target state="translated">← Cambiar</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.questions_heading" datatype="html">
+        <source>A few quick questions</source>
+        <target state="translated">Unas preguntas rápidas</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.please_answer" datatype="html">
+        <source>Please answer: <x id="INTERPOLATION" equiv-text="{{ question }}"/></source>
+        <target state="translated">Por favor responde: <x id="INTERPOLATION" equiv-text="{{ question }}"/></target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.submit_failed" datatype="html">
+        <source>Submission failed. Please try again.</source>
+        <target state="translated">Falló el envío. Intenta de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.yes" datatype="html">
+        <source>Yes</source>
+        <target state="translated">Sí</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.no" datatype="html">
+        <source>No</source>
+        <target state="translated">No</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.answer_placeholder" datatype="html">
+        <source>Your answer…</source>
+        <target state="translated">Tu respuesta…</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.submit_clock_in" datatype="html">
+        <source>Submit &amp; Clock In</source>
+        <target state="translated">Enviar y marcar entrada</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.submit_clock_out" datatype="html">
+        <source>Submit &amp; Clock Out</source>
+        <target state="translated">Enviar y marcar salida</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.recording" datatype="html">
+        <source>Recording…</source>
+        <target state="translated">Registrando…</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clocked_in" datatype="html">
+        <source>Clocked In</source>
+        <target state="translated">Entrada registrada</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clocked_out" datatype="html">
+        <source>Clocked Out</source>
+        <target state="translated">Salida registrada</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.employee_fallback" datatype="html">
+        <source>Employee</source>
+        <target state="translated">Empleado</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_record_error" datatype="html">
+        <source>Could not record your clock event. Please notify your manager.</source>
+        <target state="translated">No se pudo registrar tu marcación. Notifica a tu supervisor.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.returning_in" datatype="html">
+        <source>Returning in <x id="INTERPOLATION" equiv-text="{{ count }}"/>s…</source>
+        <target state="translated">Regresando en <x id="INTERPOLATION" equiv-text="{{ count }}"/>s…</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.no_messages" datatype="html">
+        <source>No messages</source>
+        <target state="translated">Sin mensajes</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.all_set" datatype="html">
+        <source>You&apos;re all set. Have a great shift!</source>
+        <target state="translated">Todo listo. ¡Que tengas un buen turno!</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.done" datatype="html">
+        <source>Done</source>
+        <target state="translated">Listo</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.skip_all" datatype="html">
+        <source>Skip all · Done</source>
+        <target state="translated">Omitir todo · Listo</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.bulletin_badge" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ priority }}"/> BULLETIN</source>
+        <target state="translated">BOLETÍN <x id="INTERPOLATION" equiv-text="{{ priority }}"/></target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.safety_badge" datatype="html">
+        <source>SAFETY · <x id="INTERPOLATION" equiv-text="{{ type }}"/></source>
+        <target state="translated">SEGURIDAD · <x id="INTERPOLATION" equiv-text="{{ type }}"/></target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.got_it_done" datatype="html">
+        <source>Got it · Done</source>
+        <target state="translated">Entendido · Listo</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.got_it_next" datatype="html">
+        <source>Got it · Next</source>
+        <target state="translated">Entendido · Siguiente</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.ack_done" datatype="html">
+        <source>I Acknowledge · Done</source>
+        <target state="translated">Reconozco · Listo</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.ack_next" datatype="html">
+        <source>I Acknowledge · Next</source>
+        <target state="translated">Reconozco · Siguiente</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.noted_done" datatype="html">
+        <source>Noted · Done</source>
+        <target state="translated">Anotado · Listo</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.noted_next" datatype="html">
+        <source>Noted · Next</source>
+        <target state="translated">Anotado · Siguiente</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.setup_login_subtitle" datatype="html">
+        <source>Sign in to set up this kiosk</source>
+        <target state="translated">Inicia sesión para configurar este kiosco</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.setup_company_subtitle" datatype="html">
+        <source>Connect this device to your company</source>
+        <target state="translated">Conecta este dispositivo a tu empresa</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.setup_location_subtitle" datatype="html">
+        <source>Select the location for this kiosk</source>
+        <target state="translated">Selecciona la ubicación de este kiosco</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.enter_email" datatype="html">
+        <source>Please enter your email.</source>
+        <target state="translated">Por favor ingresa tu correo.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.no_company_assigned" datatype="html">
+        <source>This account has no company assigned. Use manual Company ID instead.</source>
+        <target state="translated">Esta cuenta no tiene empresa asignada. Usa el ID de empresa manual.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.user_not_found" datatype="html">
+        <source>User not found. Check your email or enter the Company ID manually.</source>
+        <target state="translated">Usuario no encontrado. Revisa tu correo o ingresa el ID de empresa manualmente.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.enter_company_id" datatype="html">
+        <source>Please enter a Company ID.</source>
+        <target state="translated">Por favor ingresa un ID de empresa.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.connect_failed" datatype="html">
+        <source>Could not connect. Check the Company ID and network.</source>
+        <target state="translated">No se pudo conectar. Revisa el ID de empresa y la red.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.select_location_error" datatype="html">
+        <source>Please select a location.</source>
+        <target state="translated">Por favor selecciona una ubicación.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.activate_failed" datatype="html">
+        <source>Failed to activate device. Please try again.</source>
+        <target state="translated">No se pudo activar el dispositivo. Intenta de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.email_placeholder" datatype="html">
+        <source>Email address</source>
+        <target state="translated">Correo electrónico</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.sign_in" datatype="html">
+        <source>Sign In</source>
+        <target state="translated">Iniciar sesión</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.manual_company_link" datatype="html">
+        <source>Enter Company ID manually →</source>
+        <target state="translated">Ingresar ID de empresa manualmente →</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.company_id_placeholder" datatype="html">
+        <source>Company ID</source>
+        <target state="translated">ID de empresa</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.connect" datatype="html">
+        <source>Connect</source>
+        <target state="translated">Conectar</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.email_signin_link" datatype="html">
+        <source>← Sign in with email</source>
+        <target state="translated">← Iniciar sesión con correo</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.available_locations" datatype="html">
+        <source>Available Locations</source>
+        <target state="translated">Ubicaciones disponibles</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.activate_kiosk" datatype="html">
+        <source>Activate Kiosk</source>
+        <target state="translated">Activar kiosco</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.start_over" datatype="html">
+        <source>← Start over</source>
+        <target state="translated">← Empezar de nuevo</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.admin_settings" datatype="html">
+        <source>Admin Settings</source>
+        <target state="translated">Configuración de administrador</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.enter_admin_password" datatype="html">
+        <source>Enter Admin Password</source>
+        <target state="translated">Ingresa la contraseña de administrador</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.admin_password_ph" datatype="html">
+        <source>Admin password</source>
+        <target state="translated">Contraseña de administrador</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.incorrect_password" datatype="html">
+        <source>Incorrect password.</source>
+        <target state="translated">Contraseña incorrecta.</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.verify" datatype="html">
+        <source>Verify</source>
+        <target state="translated">Verificar</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.admin_menu_title" datatype="html">
+        <source>What would you like to do?</source>
+        <target state="translated">¿Qué deseas hacer?</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.current_location" datatype="html">
+        <source>Current location: <x id="INTERPOLATION" equiv-text="{{ location }}"/></source>
+        <target state="translated">Ubicación actual: <x id="INTERPOLATION" equiv-text="{{ location }}"/></target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.change_location" datatype="html">
+        <source>Change Location</source>
+        <target state="translated">Cambiar ubicación</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.change_location_sub" datatype="html">
+        <source>Assign this device to a different location</source>
+        <target state="translated">Asignar este dispositivo a otra ubicación</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.reset_device" datatype="html">
+        <source>Reset Device</source>
+        <target state="translated">Restablecer dispositivo</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.reset_device_sub" datatype="html">
+        <source>Remove enrollment — re-setup required</source>
+        <target state="translated">Eliminar inscripción — requiere configurar de nuevo</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.back_plain" datatype="html">
+        <source>Back</source>
+        <target state="translated">Atrás</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.select_location" datatype="html">
+        <source>Select Location</source>
+        <target state="translated">Seleccionar ubicación</target>
+      </trans-unit>
+      <trans-unit id="kiosk_app.save_location" datatype="html">
+        <source>Save Location</source>
+        <target state="translated">Guardar ubicación</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

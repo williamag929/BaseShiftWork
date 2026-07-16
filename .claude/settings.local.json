@@ -8,7 +8,9 @@
       "Bash(dotnet clean *)",
       "Bash(npx ng *)",
       "Bash(npx tsc *)",
-      "Bash(grep -v \"^$\")"
+      "Bash(grep -v \"^$\")",
+      "Bash(dotnet ef *)",
+      "Bash(dotnet tool *)"
     ]
   }
 }

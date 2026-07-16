@@ -1,0 +1,38 @@
+{
+  "schedule_published": {
+    "title": "Schedule Published",
+    "body": "New schedule available for {{start}} - {{end}}"
+  },
+  "shift_assigned": {
+    "title": "New Shift Assigned",
+    "body": "You have a new shift on {{date}}"
+  },
+  "shift_changed": {
+    "title": "Shift Updated",
+    "body": "Your shift on {{date}} has been updated: {{change}}"
+  },
+  "time_off_approved": {
+    "title": "Time Off Approved",
+    "body": "Your {{type}} request for {{start}} - {{end}} has been approved"
+  },
+  "time_off_denied": {
+    "title": "Time Off Request Update",
+    "body": "Your {{type}} request for {{start}} - {{end}} has been reviewed"
+  },
+  "bulletin_posted": {
+    "title": "{{title}}",
+    "body": "New {{type}} bulletin posted"
+  },
+  "bulletin_posted_urgent": {
+    "title": "⚠ {{title}}",
+    "body": "New {{type}} bulletin posted"
+  },
+  "safety_posted": {
+    "title": "{{title}}",
+    "body": "New {{type}} posted — tap to view"
+  },
+  "safety_posted_ack": {
+    "title": "Action Required: {{title}}",
+    "body": "New {{type}} posted — tap to view"
+  }
+}
