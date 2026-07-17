@@ -166,6 +166,13 @@
           </div>
         </a>
 
+        <a *ngIf="hasPermission('analytics.view')" mat-list-item routerLink="/dashboard/analytics" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>insights</mat-icon>
+            <span matListItemTitle i18n="@@nav.web_analytics">Analytics</span>
+          </div>
+        </a>
+
         <div class="nav-section-title" i18n="@@nav.web_section_pto">PTO</div>
 
         <a mat-list-item routerLink="/dashboard/people-management" routerLinkActive="active-link" class="nav-item">

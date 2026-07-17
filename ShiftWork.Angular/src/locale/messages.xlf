@@ -848,6 +848,9 @@
       <trans-unit id="nav.web_user_profiles" datatype="html">
         <source>User Profiles</source>
       </trans-unit>
+      <trans-unit id="nav.web_analytics" datatype="html">
+        <source>Analytics</source>
+      </trans-unit>
       <trans-unit id="nav.web_pto_management" datatype="html">
         <source>PTO Management</source>
       </trans-unit>
@@ -4366,6 +4369,165 @@ What would you like to do?</source>
       </trans-unit>
       <trans-unit id="kiosk_app.save_location" datatype="html">
         <source>Save Location</source>
+      </trans-unit>
+      <trans-unit id="analytics.preset_today" datatype="html">
+        <source>Today</source>
+      </trans-unit>
+      <trans-unit id="analytics.preset_week" datatype="html">
+        <source>This week</source>
+      </trans-unit>
+      <trans-unit id="analytics.preset_month" datatype="html">
+        <source>This month</source>
+      </trans-unit>
+      <trans-unit id="analytics.preset_last_month" datatype="html">
+        <source>Last month</source>
+      </trans-unit>
+      <trans-unit id="analytics.preset_custom" datatype="html">
+        <source>Custom</source>
+      </trans-unit>
+      <trans-unit id="analytics.from" datatype="html">
+        <source>From</source>
+      </trans-unit>
+      <trans-unit id="analytics.to" datatype="html">
+        <source>To</source>
+      </trans-unit>
+      <trans-unit id="analytics.location" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="analytics.all_locations" datatype="html">
+        <source>All locations</source>
+      </trans-unit>
+      <trans-unit id="analytics.area" datatype="html">
+        <source>Area</source>
+      </trans-unit>
+      <trans-unit id="analytics.all_areas" datatype="html">
+        <source>All areas</source>
+      </trans-unit>
+      <trans-unit id="analytics.person" datatype="html">
+        <source>Person</source>
+      </trans-unit>
+      <trans-unit id="analytics.all_people" datatype="html">
+        <source>All people</source>
+      </trans-unit>
+      <trans-unit id="analytics.group_day" datatype="html">
+        <source>Day</source>
+      </trans-unit>
+      <trans-unit id="analytics.group_week" datatype="html">
+        <source>Week</source>
+      </trans-unit>
+      <trans-unit id="analytics.group_month" datatype="html">
+        <source>Month</source>
+      </trans-unit>
+      <trans-unit id="analytics.export" datatype="html">
+        <source>Export</source>
+      </trans-unit>
+      <trans-unit id="analytics.export_csv" datatype="html">
+        <source>Export CSV</source>
+      </trans-unit>
+      <trans-unit id="analytics.export_hours_png" datatype="html">
+        <source>Hours trend (PNG)</source>
+      </trans-unit>
+      <trans-unit id="analytics.export_coverage_png" datatype="html">
+        <source>Coverage (PNG)</source>
+      </trans-unit>
+      <trans-unit id="analytics.export_all_csv" datatype="html">
+        <source>All rows (CSV)</source>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_worked" datatype="html">
+        <source>Worked hours</source>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_scheduled" datatype="html">
+        <source>Scheduled hours</source>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_on_time" datatype="html">
+        <source>On-time %</source>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_open_shifts" datatype="html">
+        <source>Open shifts</source>
+      </trans-unit>
+      <trans-unit id="analytics.no_change" datatype="html">
+        <source>no change</source>
+      </trans-unit>
+      <trans-unit id="analytics.chart_hours_trend" datatype="html">
+        <source>Hours trend</source>
+      </trans-unit>
+      <trans-unit id="analytics.chart_hours_location" datatype="html">
+        <source>Hours by location</source>
+      </trans-unit>
+      <trans-unit id="analytics.chart_attendance" datatype="html">
+        <source>Attendance</source>
+      </trans-unit>
+      <trans-unit id="analytics.chart_coverage" datatype="html">
+        <source>Coverage by location</source>
+      </trans-unit>
+      <trans-unit id="analytics.click_hint" datatype="html">
+        <source>Click a point to drill down</source>
+      </trans-unit>
+      <trans-unit id="analytics.empty_hours" datatype="html">
+        <source>No hours in this range</source>
+      </trans-unit>
+      <trans-unit id="analytics.empty_location" datatype="html">
+        <source>No location data</source>
+      </trans-unit>
+      <trans-unit id="analytics.empty_attendance" datatype="html">
+        <source>No attendance data</source>
+      </trans-unit>
+      <trans-unit id="analytics.empty_coverage" datatype="html">
+        <source>No coverage data</source>
+      </trans-unit>
+      <trans-unit id="analytics.series_worked" datatype="html">
+        <source>Worked</source>
+      </trans-unit>
+      <trans-unit id="analytics.series_scheduled" datatype="html">
+        <source>Scheduled</source>
+      </trans-unit>
+      <trans-unit id="analytics.series_filled" datatype="html">
+        <source>Filled</source>
+      </trans-unit>
+      <trans-unit id="analytics.series_open" datatype="html">
+        <source>Open</source>
+      </trans-unit>
+      <trans-unit id="analytics.drilldown_title" datatype="html">
+        <source>Underlying rows</source>
+      </trans-unit>
+      <trans-unit id="analytics.drilldown_empty" datatype="html">
+        <source>No rows for this selection.</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_day" datatype="html">
+        <source>Day</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_person" datatype="html">
+        <source>Person</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_location" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_scheduled" datatype="html">
+        <source>Scheduled</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_worked" datatype="html">
+        <source>Worked</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_variance" datatype="html">
+        <source>Variance</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_status" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="analytics.status_on_time" datatype="html">
+        <source>On time</source>
+      </trans-unit>
+      <trans-unit id="analytics.status_late" datatype="html">
+        <source>Late</source>
+      </trans-unit>
+      <trans-unit id="analytics.status_no_show" datatype="html">
+        <source>No show</source>
+      </trans-unit>
+      <trans-unit id="analytics.status_open" datatype="html">
+        <source>Open</source>
+      </trans-unit>
+      <trans-unit id="analytics.status_unscheduled" datatype="html">
+        <source>Unscheduled</source>
       </trans-unit>
     </body>
   </file>

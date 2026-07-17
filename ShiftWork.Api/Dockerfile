@@ -24,6 +24,6 @@ ENV ASPNETCORE_URLS=http://0.0.0.0:80
 
 # All secrets/config must be injected via environment variables — never COPY .env
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD curl -sf http://localhost/api/health || exit 1
+    CMD curl -sf http://localhost/health || exit 1
 
 ENTRYPOINT ["dotnet", "ShiftWork.Api.dll"]

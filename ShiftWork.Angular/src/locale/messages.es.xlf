@@ -1130,6 +1130,10 @@
         <source>User Profiles</source>
         <target state="translated">Perfiles de usuario</target>
       </trans-unit>
+      <trans-unit id="nav.web_analytics" datatype="html">
+        <source>Analytics</source>
+        <target state="translated">Analíticas</target>
+      </trans-unit>
       <trans-unit id="nav.web_pto_management" datatype="html">
         <source>PTO Management</source>
         <target state="translated">Gestión de PTO</target>
@@ -5823,6 +5827,218 @@ What would you like to do?</source>
       <trans-unit id="kiosk_app.save_location" datatype="html">
         <source>Save Location</source>
         <target state="translated">Guardar ubicación</target>
+      </trans-unit>
+      <trans-unit id="analytics.preset_today" datatype="html">
+        <source>Today</source>
+        <target state="translated">Hoy</target>
+      </trans-unit>
+      <trans-unit id="analytics.preset_week" datatype="html">
+        <source>This week</source>
+        <target state="translated">Esta semana</target>
+      </trans-unit>
+      <trans-unit id="analytics.preset_month" datatype="html">
+        <source>This month</source>
+        <target state="translated">Este mes</target>
+      </trans-unit>
+      <trans-unit id="analytics.preset_last_month" datatype="html">
+        <source>Last month</source>
+        <target state="translated">Mes pasado</target>
+      </trans-unit>
+      <trans-unit id="analytics.preset_custom" datatype="html">
+        <source>Custom</source>
+        <target state="translated">Personalizado</target>
+      </trans-unit>
+      <trans-unit id="analytics.from" datatype="html">
+        <source>From</source>
+        <target state="translated">Desde</target>
+      </trans-unit>
+      <trans-unit id="analytics.to" datatype="html">
+        <source>To</source>
+        <target state="translated">Hasta</target>
+      </trans-unit>
+      <trans-unit id="analytics.location" datatype="html">
+        <source>Location</source>
+        <target state="translated">Ubicación</target>
+      </trans-unit>
+      <trans-unit id="analytics.all_locations" datatype="html">
+        <source>All locations</source>
+        <target state="translated">Todas las ubicaciones</target>
+      </trans-unit>
+      <trans-unit id="analytics.area" datatype="html">
+        <source>Area</source>
+        <target state="translated">Área</target>
+      </trans-unit>
+      <trans-unit id="analytics.all_areas" datatype="html">
+        <source>All areas</source>
+        <target state="translated">Todas las áreas</target>
+      </trans-unit>
+      <trans-unit id="analytics.person" datatype="html">
+        <source>Person</source>
+        <target state="translated">Persona</target>
+      </trans-unit>
+      <trans-unit id="analytics.all_people" datatype="html">
+        <source>All people</source>
+        <target state="translated">Todas las personas</target>
+      </trans-unit>
+      <trans-unit id="analytics.group_day" datatype="html">
+        <source>Day</source>
+        <target state="translated">Día</target>
+      </trans-unit>
+      <trans-unit id="analytics.group_week" datatype="html">
+        <source>Week</source>
+        <target state="translated">Semana</target>
+      </trans-unit>
+      <trans-unit id="analytics.group_month" datatype="html">
+        <source>Month</source>
+        <target state="translated">Mes</target>
+      </trans-unit>
+      <trans-unit id="analytics.export" datatype="html">
+        <source>Export</source>
+        <target state="translated">Exportar</target>
+      </trans-unit>
+      <trans-unit id="analytics.export_csv" datatype="html">
+        <source>Export CSV</source>
+        <target state="translated">Exportar CSV</target>
+      </trans-unit>
+      <trans-unit id="analytics.export_hours_png" datatype="html">
+        <source>Hours trend (PNG)</source>
+        <target state="translated">Tendencia de horas (PNG)</target>
+      </trans-unit>
+      <trans-unit id="analytics.export_coverage_png" datatype="html">
+        <source>Coverage (PNG)</source>
+        <target state="translated">Cobertura (PNG)</target>
+      </trans-unit>
+      <trans-unit id="analytics.export_all_csv" datatype="html">
+        <source>All rows (CSV)</source>
+        <target state="translated">Todas las filas (CSV)</target>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_worked" datatype="html">
+        <source>Worked hours</source>
+        <target state="translated">Horas trabajadas</target>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_scheduled" datatype="html">
+        <source>Scheduled hours</source>
+        <target state="translated">Horas programadas</target>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_on_time" datatype="html">
+        <source>On-time %</source>
+        <target state="translated">% Puntualidad</target>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_open_shifts" datatype="html">
+        <source>Open shifts</source>
+        <target state="translated">Turnos abiertos</target>
+      </trans-unit>
+      <trans-unit id="analytics.no_change" datatype="html">
+        <source>no change</source>
+        <target state="translated">sin cambios</target>
+      </trans-unit>
+      <trans-unit id="analytics.chart_hours_trend" datatype="html">
+        <source>Hours trend</source>
+        <target state="translated">Tendencia de horas</target>
+      </trans-unit>
+      <trans-unit id="analytics.chart_hours_location" datatype="html">
+        <source>Hours by location</source>
+        <target state="translated">Horas por ubicación</target>
+      </trans-unit>
+      <trans-unit id="analytics.chart_attendance" datatype="html">
+        <source>Attendance</source>
+        <target state="translated">Asistencia</target>
+      </trans-unit>
+      <trans-unit id="analytics.chart_coverage" datatype="html">
+        <source>Coverage by location</source>
+        <target state="translated">Cobertura por ubicación</target>
+      </trans-unit>
+      <trans-unit id="analytics.click_hint" datatype="html">
+        <source>Click a point to drill down</source>
+        <target state="translated">Haz clic en un punto para ver el detalle</target>
+      </trans-unit>
+      <trans-unit id="analytics.empty_hours" datatype="html">
+        <source>No hours in this range</source>
+        <target state="translated">Sin horas en este rango</target>
+      </trans-unit>
+      <trans-unit id="analytics.empty_location" datatype="html">
+        <source>No location data</source>
+        <target state="translated">Sin datos de ubicación</target>
+      </trans-unit>
+      <trans-unit id="analytics.empty_attendance" datatype="html">
+        <source>No attendance data</source>
+        <target state="translated">Sin datos de asistencia</target>
+      </trans-unit>
+      <trans-unit id="analytics.empty_coverage" datatype="html">
+        <source>No coverage data</source>
+        <target state="translated">Sin datos de cobertura</target>
+      </trans-unit>
+      <trans-unit id="analytics.series_worked" datatype="html">
+        <source>Worked</source>
+        <target state="translated">Trabajadas</target>
+      </trans-unit>
+      <trans-unit id="analytics.series_scheduled" datatype="html">
+        <source>Scheduled</source>
+        <target state="translated">Programadas</target>
+      </trans-unit>
+      <trans-unit id="analytics.series_filled" datatype="html">
+        <source>Filled</source>
+        <target state="translated">Cubiertos</target>
+      </trans-unit>
+      <trans-unit id="analytics.series_open" datatype="html">
+        <source>Open</source>
+        <target state="translated">Abiertos</target>
+      </trans-unit>
+      <trans-unit id="analytics.drilldown_title" datatype="html">
+        <source>Underlying rows</source>
+        <target state="translated">Filas de detalle</target>
+      </trans-unit>
+      <trans-unit id="analytics.drilldown_empty" datatype="html">
+        <source>No rows for this selection.</source>
+        <target state="translated">Sin filas para esta selección.</target>
+      </trans-unit>
+      <trans-unit id="analytics.col_day" datatype="html">
+        <source>Day</source>
+        <target state="translated">Día</target>
+      </trans-unit>
+      <trans-unit id="analytics.col_person" datatype="html">
+        <source>Person</source>
+        <target state="translated">Persona</target>
+      </trans-unit>
+      <trans-unit id="analytics.col_location" datatype="html">
+        <source>Location</source>
+        <target state="translated">Ubicación</target>
+      </trans-unit>
+      <trans-unit id="analytics.col_scheduled" datatype="html">
+        <source>Scheduled</source>
+        <target state="translated">Programadas</target>
+      </trans-unit>
+      <trans-unit id="analytics.col_worked" datatype="html">
+        <source>Worked</source>
+        <target state="translated">Trabajadas</target>
+      </trans-unit>
+      <trans-unit id="analytics.col_variance" datatype="html">
+        <source>Variance</source>
+        <target state="translated">Variación</target>
+      </trans-unit>
+      <trans-unit id="analytics.col_status" datatype="html">
+        <source>Status</source>
+        <target state="translated">Estado</target>
+      </trans-unit>
+      <trans-unit id="analytics.status_on_time" datatype="html">
+        <source>On time</source>
+        <target state="translated">Puntual</target>
+      </trans-unit>
+      <trans-unit id="analytics.status_late" datatype="html">
+        <source>Late</source>
+        <target state="translated">Tarde</target>
+      </trans-unit>
+      <trans-unit id="analytics.status_no_show" datatype="html">
+        <source>No show</source>
+        <target state="translated">Ausente</target>
+      </trans-unit>
+      <trans-unit id="analytics.status_open" datatype="html">
+        <source>Open</source>
+        <target state="translated">Abierto</target>
+      </trans-unit>
+      <trans-unit id="analytics.status_unscheduled" datatype="html">
+        <source>Unscheduled</source>
+        <target state="translated">Sin programar</target>
       </trans-unit>
     </body>
   </file>
