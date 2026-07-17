@@ -184,18 +184,21 @@ namespace ShiftWork.Api.Services
         {
             try
             {
-                var title = bulletin.Priority == "Urgent" ? $"⚠ {bulletin.Title}" : bulletin.Title;
-                var body = $"New {bulletin.Type.ToLower()} bulletin posted";
+                var templateKey = bulletin.Priority == "Urgent" ? "bulletin_posted_urgent" : "bulletin_posted";
+                Dictionary<string, string> Vars(string lang) => new()
+                {
+                    { "title", bulletin.Title },
+                    { "type", bulletin.Type.ToLower() }
+                };
+                var data = new Dictionary<string, object> { { "type", "bulletin" }, { "bulletinId", bulletin.BulletinId } };
 
                 if (bulletin.LocationId.HasValue)
-                    await _push.SendNotificationToMultiplePeopleAsync(
+                    await _push.SendLocalizedNotificationAsync(
                         bulletin.CompanyId,
                         await GetPersonIdsAtLocationAsync(bulletin.CompanyId, bulletin.LocationId.Value),
-                        title, body,
-                        new Dictionary<string, object> { { "type", "bulletin" }, { "bulletinId", bulletin.BulletinId } });
+                        templateKey, Vars, data);
                 else
-                    await _push.SendNotificationToCompanyAsync(bulletin.CompanyId, title, body,
-                        new Dictionary<string, object> { { "type", "bulletin" }, { "bulletinId", bulletin.BulletinId } });
+                    await _push.SendLocalizedNotificationToCompanyAsync(bulletin.CompanyId, templateKey, Vars, data);
             }
             catch (Exception ex)
             {

@@ -232,13 +232,14 @@ namespace ShiftWork.Api.Services
 
                 if (!personIds.Any()) return;
 
-                var title = content.IsAcknowledgmentRequired
-                    ? $"Action Required: {content.Title}"
-                    : content.Title;
-
-                await _push.SendNotificationToMultiplePeopleAsync(
-                    content.CompanyId, personIds, title,
-                    $"New {content.Type} posted — tap to view",
+                await _push.SendLocalizedNotificationAsync(
+                    content.CompanyId, personIds,
+                    content.IsAcknowledgmentRequired ? "safety_posted_ack" : "safety_posted",
+                    lang => new Dictionary<string, string>
+                    {
+                        { "title", content.Title },
+                        { "type", content.Type }
+                    },
                     new Dictionary<string, object> { { "type", "safety" }, { "safetyContentId", content.SafetyContentId } });
 
                 content.NotificationSent = true;
@@ -320,13 +321,14 @@ namespace ShiftWork.Api.Services
 
                     if (personIds.Any())
                     {
-                        var title = content.IsAcknowledgmentRequired
-                            ? $"Action Required: {content.Title}"
-                            : content.Title;
-
-                        await push.SendNotificationToMultiplePeopleAsync(
-                            content.CompanyId, personIds, title,
-                            $"New {content.Type} posted — tap to view",
+                        await push.SendLocalizedNotificationAsync(
+                            content.CompanyId, personIds,
+                            content.IsAcknowledgmentRequired ? "safety_posted_ack" : "safety_posted",
+                            lang => new Dictionary<string, string>
+                            {
+                                { "title", content.Title },
+                                { "type", content.Type }
+                            },
                             new Dictionary<string, object> { { "type", "safety" }, { "safetyContentId", content.SafetyContentId } });
                     }
 

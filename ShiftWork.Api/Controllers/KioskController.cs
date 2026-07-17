@@ -41,6 +41,21 @@ namespace ShiftWork.Api.Controllers
             _safety = safety;
         }
 
+        /// <summary>
+        /// Returns the company's default UI language for kiosk devices.
+        /// Anonymous — exposes only the language tag, nothing sensitive.
+        /// </summary>
+        [HttpGet("{companyId}/language")]
+        [AllowAnonymous]
+        public async Task<ActionResult<object>> GetKioskLanguage(string companyId)
+        {
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest("companyId is required.");
+
+            var settings = await _companySettingsService.GetSettingsByCompanyId(companyId);
+            return Ok(new { defaultLanguage = settings?.DefaultLanguage ?? "en" });
+        }
+
         [HttpGet("{companyId}/questions")]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<KioskQuestionDto>>> GetKioskQuestions(int companyId)

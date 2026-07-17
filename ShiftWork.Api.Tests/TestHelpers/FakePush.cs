@@ -1,5 +1,7 @@
 using System.Net;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.Services;
@@ -18,7 +20,17 @@ internal static class FakePush
         var factory = new SingletonHttpClientFactory(handler);
         var config = new ConfigurationBuilder().Build();
         var notificationService = new NotificationService(config, NullLogger<NotificationService>.Instance);
-        return new PushNotificationService(factory, context, NullLogger<PushNotificationService>.Instance, notificationService);
+        var localizer = new NotificationLocalizer(new TestHostEnvironment(), NullLogger<NotificationLocalizer>.Instance);
+        return new PushNotificationService(factory, context, NullLogger<PushNotificationService>.Instance, notificationService, localizer);
+    }
+
+    private sealed class TestHostEnvironment : IHostEnvironment
+    {
+        public string ApplicationName { get; set; } = "ShiftWork.Api.Tests";
+        public string EnvironmentName { get; set; } = "Test";
+        public string ContentRootPath { get; set; } = AppContext.BaseDirectory;
+        public IFileProvider ContentRootFileProvider { get; set; } =
+            new PhysicalFileProvider(AppContext.BaseDirectory);
     }
 
     private sealed class NullHttpMessageHandler : HttpMessageHandler

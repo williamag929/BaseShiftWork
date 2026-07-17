@@ -3,6 +3,7 @@ import { Platform, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
+import { useServerLocale } from '@/hooks/useServerLocale';
 
 /** Apple-style active tab icon — filled variant with tinted dot indicator */
 function TabIcon({
@@ -26,6 +27,7 @@ function TabIcon({
 
 export default function TabsLayout() {
   const { t } = useTranslation();
+  useServerLocale();
 
   return (
     <Tabs

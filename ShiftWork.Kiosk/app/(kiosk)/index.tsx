@@ -20,6 +20,7 @@ import { kioskService } from '@/services/kiosk.service';
 import { useDeviceStore } from '@/store/deviceStore';
 import { useSessionStore } from '@/store/sessionStore';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
+import { useTranslation } from '@/i18n';
 import type { KioskEmployee } from '@/types';
 
 const AVATAR_SIZE = 72;
@@ -34,6 +35,8 @@ function EmployeeCard({
   index: number;
   onPress: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <View>
       <Pressable
@@ -41,7 +44,7 @@ function EmployeeCard({
         onPress={onPress}
         accessible
         accessibilityRole="button"
-        accessibilityLabel={`Clock in or out for ${employee.name}`}
+        accessibilityLabel={t('kiosk_app.clock_aria', { name: employee.name })}
       >
         <View style={[
           styles.avatarRing,
@@ -67,7 +70,7 @@ function EmployeeCard({
         </Text>
         {employee.statusShiftWork === 'OnShift' && (
           <View style={styles.onShiftBadge}>
-            <Text style={styles.onShiftText}>On Shift</Text>
+            <Text style={styles.onShiftText}>{t('kiosk_app.on_shift')}</Text>
           </View>
         )}
       </Pressable>
@@ -77,6 +80,7 @@ function EmployeeCard({
 
 export default function EmployeeListScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const companyId = useDeviceStore((s) => s.companyId);
   const setEmployee = useSessionStore((s) => s.setEmployee);
   const [search, setSearch] = useState('');
@@ -112,9 +116,9 @@ export default function EmployeeListScreen() {
   if (error) {
     return (
       <View style={styles.center}>
-        <Text style={styles.errorText}>Could not load employees.</Text>
+        <Text style={styles.errorText}>{t('kiosk_app.load_employees_error')}</Text>
         <Pressable style={styles.retryBtn} onPress={() => refetch()}>
-          <Text style={styles.retryText}>Retry</Text>
+          <Text style={styles.retryText}>{t('kiosk_app.retry')}</Text>
         </Pressable>
       </View>
     );
@@ -127,19 +131,19 @@ export default function EmployeeListScreen() {
           <Ionicons name="search" size={16} color={colors.textMuted} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search employee…"
+            placeholder={t('kiosk_app.search_placeholder')}
             placeholderTextColor={colors.textMuted}
             value={search}
             onChangeText={setSearch}
             clearButtonMode="while-editing"
           />
         </View>
-        <Text style={styles.tap}>Tap your name to clock in or out</Text>
+        <Text style={styles.tap}>{t('kiosk_app.tap_hint')}</Text>
       </View>
 
       {filtered.length === 0 ? (
         <View style={styles.center}>
-          <Text style={styles.emptyText}>No employees found.</Text>
+          <Text style={styles.emptyText}>{t('kiosk_app.no_employees')}</Text>
         </View>
       ) : (
         <FlashList

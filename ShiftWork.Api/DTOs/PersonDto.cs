@@ -26,6 +26,11 @@ namespace ShiftWork.Api.DTOs
         public int? RoleId { get; set; } // Foreign key to Role
         public string? ExternalCode { get; set; }
         
+        /// <summary>
+        /// UI language preference: "en" or "es". Null = inherit CompanySettings.DefaultLanguage.
+        /// </summary>
+        public string? PreferredLanguage { get; set; }
+
         // PTO configuration fields (optional)
         public decimal? PtoAccrualRatePerMonth { get; set; }
         public decimal? PtoStartingBalance { get; set; }

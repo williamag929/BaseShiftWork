@@ -1,4 +1,8 @@
 import 'zone.js/testing';
+// Provides the global `$localize` used by i18n-marked templates. The production/dev
+// builds supply this via angular.json's `localize` option; Karma does not, so without
+// this import every component with an `i18n` attribute throws "$localize is not defined".
+import '@angular/localize/init';
 import { getTestBed } from '@angular/core/testing';
 import {
   BrowserDynamicTestingModule,

@@ -16,6 +16,7 @@ import { useDeviceStore } from '@/store/deviceStore';
 import { kioskService } from '@/services/kiosk.service';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
 import { logger } from '@/utils/logger';
+import { useTranslation } from '@/i18n';
 import type { KioskLocation } from '@/types';
 
 type Step = 'login' | 'company' | 'location';
@@ -24,6 +25,7 @@ const DEFAULT_COMPANY_ID = process.env.EXPO_PUBLIC_DEFAULT_COMPANY_ID ?? '';
 
 export default function SetupScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const enroll = useDeviceStore((s) => s.enroll);
 
   const [step, setStep] = useState<Step>('login');
@@ -38,7 +40,7 @@ export default function SetupScreen() {
   const handleLogin = useCallback(async () => {
     const trimmed = email.trim();
     if (!trimmed) {
-      setError('Please enter your email.');
+      setError(t('kiosk_app.enter_email'));
       return;
     }
     setError('');
@@ -46,7 +48,7 @@ export default function SetupScreen() {
     try {
       const user = await kioskService.getUserByEmail(trimmed);
       if (!user.companyId) {
-        setError('This account has no company assigned. Use manual Company ID instead.');
+        setError(t('kiosk_app.no_company_assigned'));
         return;
       }
       setCompanyId(user.companyId);
@@ -57,16 +59,16 @@ export default function SetupScreen() {
       setStep('location');
     } catch (e) {
       logger.error('[Setup] Login lookup failed', e);
-      setError('User not found. Check your email or enter the Company ID manually.');
+      setError(t('kiosk_app.user_not_found'));
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setLoading(false);
     }
-  }, [email]);
+  }, [email, t]);
 
   const handleConnectCompany = useCallback(async () => {
     if (!companyId.trim()) {
-      setError('Please enter a Company ID.');
+      setError(t('kiosk_app.enter_company_id'));
       return;
     }
     setError('');
@@ -77,15 +79,15 @@ export default function SetupScreen() {
       setStep('location');
     } catch (e) {
       logger.error('[Setup] Failed to fetch locations', e);
-      setError('Could not connect. Check the Company ID and network.');
+      setError(t('kiosk_app.connect_failed'));
     } finally {
       setLoading(false);
     }
-  }, [companyId]);
+  }, [companyId, t]);
 
   const handleActivate = useCallback(async () => {
     if (!selectedLocation) {
-      setError('Please select a location.');
+      setError(t('kiosk_app.select_location_error'));
       return;
     }
     setLoading(true);
@@ -102,12 +104,12 @@ export default function SetupScreen() {
       router.replace('/(kiosk)');
     } catch (e) {
       logger.error('[Setup] Enrollment failed', e);
-      setError('Failed to activate device. Please try again.');
+      setError(t('kiosk_app.activate_failed'));
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setLoading(false);
     }
-  }, [selectedLocation, companyId, enroll, router]);
+  }, [selectedLocation, companyId, enroll, router, t]);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -116,17 +118,17 @@ export default function SetupScreen() {
           <Text style={styles.logoText}>ShiftWork Kiosk</Text>
           <Text style={styles.subtitle}>
             {step === 'login'
-              ? 'Sign in to set up this kiosk'
+              ? t('kiosk_app.setup_login_subtitle')
               : step === 'company'
-                ? 'Connect this device to your company'
-                : 'Select the location for this kiosk'}
+                ? t('kiosk_app.setup_company_subtitle')
+                : t('kiosk_app.setup_location_subtitle')}
           </Text>
 
           {step === 'login' && (
             <>
               <TextInput
                 style={styles.input}
-                placeholder="Email address"
+                placeholder={t('kiosk_app.email_placeholder')}
                 placeholderTextColor={colors.textMuted}
                 value={email}
                 onChangeText={setEmail}
@@ -144,7 +146,7 @@ export default function SetupScreen() {
                 {loading ? (
                   <ActivityIndicator color={colors.textOnPrimary} />
                 ) : (
-                  <Text style={styles.buttonText}>Sign In</Text>
+                  <Text style={styles.buttonText}>{t('kiosk_app.sign_in')}</Text>
                 )}
               </Pressable>
 
@@ -152,7 +154,7 @@ export default function SetupScreen() {
                 style={styles.backLink}
                 onPress={() => { setStep('company'); setError(''); }}
               >
-                <Text style={styles.backLinkText}>Enter Company ID manually →</Text>
+                <Text style={styles.backLinkText}>{t('kiosk_app.manual_company_link')}</Text>
               </Pressable>
             </>
           )}
@@ -161,7 +163,7 @@ export default function SetupScreen() {
             <>
               <TextInput
                 style={styles.input}
-                placeholder="Company ID"
+                placeholder={t('kiosk_app.company_id_placeholder')}
                 placeholderTextColor={colors.textMuted}
                 value={companyId}
                 onChangeText={setCompanyId}
@@ -178,7 +180,7 @@ export default function SetupScreen() {
                 {loading ? (
                   <ActivityIndicator color={colors.textOnPrimary} />
                 ) : (
-                  <Text style={styles.buttonText}>Connect</Text>
+                  <Text style={styles.buttonText}>{t('kiosk_app.connect')}</Text>
                 )}
               </Pressable>
 
@@ -186,14 +188,14 @@ export default function SetupScreen() {
                 style={styles.backLink}
                 onPress={() => { setStep('login'); setError(''); }}
               >
-                <Text style={styles.backLinkText}>← Sign in with email</Text>
+                <Text style={styles.backLinkText}>{t('kiosk_app.email_signin_link')}</Text>
               </Pressable>
             </>
           )}
 
           {step === 'location' && (
             <>
-              <Text style={styles.sectionLabel}>Available Locations</Text>
+              <Text style={styles.sectionLabel}>{t('kiosk_app.available_locations')}</Text>
               {locations.map((loc) => (
                 <Pressable
                   key={loc.locationId}
@@ -224,7 +226,7 @@ export default function SetupScreen() {
                 {loading ? (
                   <ActivityIndicator color={colors.textOnPrimary} />
                 ) : (
-                  <Text style={styles.buttonText}>Activate Kiosk</Text>
+                  <Text style={styles.buttonText}>{t('kiosk_app.activate_kiosk')}</Text>
                 )}
               </Pressable>
 
@@ -232,7 +234,7 @@ export default function SetupScreen() {
                 style={styles.backLink}
                 onPress={() => { setStep('login'); setError(''); setSelectedLocation(null); }}
               >
-                <Text style={styles.backLinkText}>← Start over</Text>
+                <Text style={styles.backLinkText}>{t('kiosk_app.start_over')}</Text>
               </Pressable>
             </>
           )}

@@ -4123,6 +4123,250 @@ Option C</source>
       <trans-unit id="tabs.upgrade" datatype="html">
         <source>Upgrade to Pro</source>
       </trans-unit>
+      <trans-unit id="kiosk_app.admin_aria" datatype="html">
+        <source>Admin settings</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_aria" datatype="html">
+        <source>Clock in or out for <x id="INTERPOLATION" equiv-text="{{ name }}"/></source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.on_shift" datatype="html">
+        <source>On Shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.load_employees_error" datatype="html">
+        <source>Could not load employees.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.retry" datatype="html">
+        <source>Retry</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.search_placeholder" datatype="html">
+        <source>Search employee…</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.tap_hint" datatype="html">
+        <source>Tap your name to clock in or out</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.no_employees" datatype="html">
+        <source>No employees found.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.enter_pin" datatype="html">
+        <source>Enter your PIN</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.pin_incorrect" datatype="html">
+        <source>Incorrect PIN. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.pin_failed" datatype="html">
+        <source>Verification failed. Check your connection.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.cancel" datatype="html">
+        <source>Cancel</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.camera_required" datatype="html">
+        <source>Camera access is required to clock in.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.grant_camera" datatype="html">
+        <source>Grant Camera Access</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.hello_prompt" datatype="html">
+        <source>Hello, <x id="INTERPOLATION" equiv-text="{{ name }}"/>.
+What would you like to do?</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_in" datatype="html">
+        <source>Clock In</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_in_sub" datatype="html">
+        <source>Start your shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_out" datatype="html">
+        <source>Clock Out</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_out_sub" datatype="html">
+        <source>End your shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.back" datatype="html">
+        <source>← Back</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.look_at_camera" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ action }}"/> — look at the camera</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.change" datatype="html">
+        <source>← Change</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.questions_heading" datatype="html">
+        <source>A few quick questions</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.please_answer" datatype="html">
+        <source>Please answer: <x id="INTERPOLATION" equiv-text="{{ question }}"/></source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.submit_failed" datatype="html">
+        <source>Submission failed. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.yes" datatype="html">
+        <source>Yes</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.no" datatype="html">
+        <source>No</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.answer_placeholder" datatype="html">
+        <source>Your answer…</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.submit_clock_in" datatype="html">
+        <source>Submit &amp; Clock In</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.submit_clock_out" datatype="html">
+        <source>Submit &amp; Clock Out</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.recording" datatype="html">
+        <source>Recording…</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clocked_in" datatype="html">
+        <source>Clocked In</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clocked_out" datatype="html">
+        <source>Clocked Out</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.employee_fallback" datatype="html">
+        <source>Employee</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_record_error" datatype="html">
+        <source>Could not record your clock event. Please notify your manager.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.returning_in" datatype="html">
+        <source>Returning in <x id="INTERPOLATION" equiv-text="{{ count }}"/>s…</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.no_messages" datatype="html">
+        <source>No messages</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.all_set" datatype="html">
+        <source>You&apos;re all set. Have a great shift!</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.done" datatype="html">
+        <source>Done</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.skip_all" datatype="html">
+        <source>Skip all · Done</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.bulletin_badge" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ priority }}"/> BULLETIN</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.safety_badge" datatype="html">
+        <source>SAFETY · <x id="INTERPOLATION" equiv-text="{{ type }}"/></source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.got_it_done" datatype="html">
+        <source>Got it · Done</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.got_it_next" datatype="html">
+        <source>Got it · Next</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.ack_done" datatype="html">
+        <source>I Acknowledge · Done</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.ack_next" datatype="html">
+        <source>I Acknowledge · Next</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.noted_done" datatype="html">
+        <source>Noted · Done</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.noted_next" datatype="html">
+        <source>Noted · Next</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.setup_login_subtitle" datatype="html">
+        <source>Sign in to set up this kiosk</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.setup_company_subtitle" datatype="html">
+        <source>Connect this device to your company</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.setup_location_subtitle" datatype="html">
+        <source>Select the location for this kiosk</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.enter_email" datatype="html">
+        <source>Please enter your email.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.no_company_assigned" datatype="html">
+        <source>This account has no company assigned. Use manual Company ID instead.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.user_not_found" datatype="html">
+        <source>User not found. Check your email or enter the Company ID manually.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.enter_company_id" datatype="html">
+        <source>Please enter a Company ID.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.connect_failed" datatype="html">
+        <source>Could not connect. Check the Company ID and network.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.select_location_error" datatype="html">
+        <source>Please select a location.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.activate_failed" datatype="html">
+        <source>Failed to activate device. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.email_placeholder" datatype="html">
+        <source>Email address</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.sign_in" datatype="html">
+        <source>Sign In</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.manual_company_link" datatype="html">
+        <source>Enter Company ID manually →</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.company_id_placeholder" datatype="html">
+        <source>Company ID</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.connect" datatype="html">
+        <source>Connect</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.email_signin_link" datatype="html">
+        <source>← Sign in with email</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.available_locations" datatype="html">
+        <source>Available Locations</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.activate_kiosk" datatype="html">
+        <source>Activate Kiosk</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.start_over" datatype="html">
+        <source>← Start over</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.admin_settings" datatype="html">
+        <source>Admin Settings</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.enter_admin_password" datatype="html">
+        <source>Enter Admin Password</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.admin_password_ph" datatype="html">
+        <source>Admin password</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.incorrect_password" datatype="html">
+        <source>Incorrect password.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.verify" datatype="html">
+        <source>Verify</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.admin_menu_title" datatype="html">
+        <source>What would you like to do?</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.current_location" datatype="html">
+        <source>Current location: <x id="INTERPOLATION" equiv-text="{{ location }}"/></source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.change_location" datatype="html">
+        <source>Change Location</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.change_location_sub" datatype="html">
+        <source>Assign this device to a different location</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.reset_device" datatype="html">
+        <source>Reset Device</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.reset_device_sub" datatype="html">
+        <source>Remove enrollment — re-setup required</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.back_plain" datatype="html">
+        <source>Back</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.select_location" datatype="html">
+        <source>Select Location</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.save_location" datatype="html">
+        <source>Save Location</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>
