@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Extensions.Hosting;
 
 namespace ShiftWork.Api.Services;
 
@@ -15,13 +16,26 @@ public class NotificationLocalizer
     private readonly ILogger<NotificationLocalizer> _logger;
     private readonly Dictionary<string, Dictionary<string, NotificationTemplate>> _catalogs = new();
 
-    public NotificationLocalizer(IWebHostEnvironment env, ILogger<NotificationLocalizer> logger)
+    public NotificationLocalizer(IHostEnvironment env, ILogger<NotificationLocalizer> logger)
     {
         _logger = logger;
 
+        // Prefer the content root; fall back to the app base directory (where Resources
+        // are copied on publish / in test runs) so the catalog loads outside the web host too.
+        var searchRoots = new[] { env.ContentRootPath, AppContext.BaseDirectory };
+
         foreach (var lang in SupportedLanguages)
         {
-            var path = Path.Combine(env.ContentRootPath, "Resources", $"notifications.{lang}.json");
+            var path = searchRoots
+                .Select(root => Path.Combine(root, "Resources", $"notifications.{lang}.json"))
+                .FirstOrDefault(File.Exists);
+
+            if (path == null)
+            {
+                _logger.LogWarning("Notification catalog not found for language {Lang}", lang);
+                continue;
+            }
+
             try
             {
                 var json = File.ReadAllText(path);
