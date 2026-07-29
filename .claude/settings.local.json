@@ -8,7 +8,11 @@
       "Bash(dotnet clean *)",
       "Bash(npx ng *)",
       "Bash(npx tsc *)",
-      "Bash(grep -v \"^$\")"
+      "Bash(grep -v \"^$\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(gh pr create --title 'feat: rebrand to Loqzen \\(loqzen.com\\)' --body ' *)"
     ]
   }
 }
