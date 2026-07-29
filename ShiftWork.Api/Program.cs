@@ -103,6 +103,7 @@ else
 
 // Register your application's services
 builder.Services.AddScoped<IAreaService, AreaService>();
+builder.Services.AddScoped<ICostCodeService, CostCodeService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IPeopleService, PeopleService>();

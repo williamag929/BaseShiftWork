@@ -13,6 +13,8 @@ namespace ShiftWork.Api.Helpers
         {
             CreateMap<Area, AreaDto>();
             CreateMap<AreaDto, Area>();
+            CreateMap<CostCode, CostCodeDto>();
+            CreateMap<CostCodeDto, CostCode>();
             CreateMap<Company, CompanyDto>();
             CreateMap<CompanyDto, Company>();
             CreateMap<CompanyUser, CompanyUserDto>();

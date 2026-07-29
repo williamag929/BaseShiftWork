@@ -67,6 +67,12 @@ namespace ShiftWork.Api.Services
                 Create("areas.update", "Areas - Update", "Update areas"),
                 Create("areas.delete", "Areas - Delete", "Delete areas"),
 
+                // Cost Codes
+                Create("costcodes.read", "Cost Codes - Read", "View cost codes"),
+                Create("costcodes.create", "Cost Codes - Create", "Create cost codes"),
+                Create("costcodes.update", "Cost Codes - Update", "Update cost codes"),
+                Create("costcodes.delete", "Cost Codes - Delete", "Delete cost codes"),
+
                 // Tasks
                 Create("tasks.read", "Tasks - Read", "View task shifts"),
                 Create("tasks.create", "Tasks - Create", "Create task shifts"),
