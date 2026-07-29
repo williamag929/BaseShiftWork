@@ -73,6 +73,11 @@ namespace ShiftWork.Api.Services
                 Create("costcodes.update", "Cost Codes - Update", "Update cost codes"),
                 Create("costcodes.delete", "Cost Codes - Delete", "Delete cost codes"),
 
+                // Procore integration
+                Create("procore.read", "Procore - Read", "View Procore connection"),
+                Create("procore.manage", "Procore - Manage", "Configure the Procore connection"),
+                Create("procore.sync", "Procore - Sync", "Push data to Procore"),
+
                 // Tasks
                 Create("tasks.read", "Tasks - Read", "View task shifts"),
                 Create("tasks.create", "Tasks - Create", "Create task shifts"),

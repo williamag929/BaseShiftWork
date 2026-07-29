@@ -104,6 +104,7 @@ else
 // Register your application's services
 builder.Services.AddScoped<IAreaService, AreaService>();
 builder.Services.AddScoped<ICostCodeService, CostCodeService>();
+builder.Services.AddScoped<IProcoreService, ProcoreService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IPeopleService, PeopleService>();
@@ -135,6 +136,10 @@ builder.Services.AddScoped<PushNotificationService>();
 builder.Services.AddScoped<IWebhookService, WebhookService>();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient("weather");
+builder.Services.AddHttpClient("procore", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
 
 // v2 Content & Communication services
 builder.Services.AddScoped<IBulletinService, BulletinService>();

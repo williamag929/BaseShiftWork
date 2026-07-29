@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShiftWork + Procore Integration — Daily-Log Manpower, Synced Automatically</title>
+  <meta name="description" content="Connect ShiftWork to Procore and push verified field hours straight into your Procore daily log manpower — no double entry. See how the integration works and how to set it up." />
+  <meta property="og:title" content="ShiftWork + Procore — Your field hours, in Procore automatically" />
+  <meta property="og:description" content="Verified clock-in hours flow from ShiftWork into Procore's daily log manpower by project. Set it up in minutes." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230f1b2d'/><path d='M30 52l14 14 26-30' stroke='%23ffb648' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-inner">
+      <a href="index.html#top" class="brand" aria-label="ShiftWork home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 100 100" width="30" height="30"><rect width="100" height="100" rx="22" fill="#0f1b2d"/><path d="M30 52l14 14 26-30" stroke="#ffb648" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Shift<span class="brand-accent">Work</span>
+      </a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#how-it-works">How it works</a>
+        <a href="index.html#industries">Industries</a>
+        <a href="index.html#pricing">Pricing</a>
+        <a href="#process">Procore setup</a>
+      </nav>
+      <div class="nav-cta">
+        <a href="index.html#demo" class="btn btn-ghost">Sign in</a>
+        <a href="index.html#demo" class="btn btn-primary">Request a demo</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ============ HERO ============ -->
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow reveal">ShiftWork &nbsp;×&nbsp; Procore integration</p>
+        <h1 class="reveal">Your field hours, in Procore —<br />without the double entry</h1>
+        <p class="page-hero-sub reveal">
+          ShiftWork already captures every clock-in with photo and GPS proof. The Procore
+          integration takes those verified hours and posts them straight into your
+          <strong>Procore daily log manpower</strong>, by project, the moment a daily report is
+          submitted. Your team stops re-keying labor, and your Procore logs stay accurate every day.
+        </p>
+        <div class="hero-actions reveal">
+          <a href="#process" class="btn btn-primary btn-lg">See the setup process</a>
+          <a href="index.html#demo" class="btn btn-outline btn-lg">Request a demo</a>
+        </div>
+        <div class="partner-line reveal">
+          <span>Works with</span>
+          <span class="pill">Procore Daily Log</span>
+          <span class="pill">Manpower</span>
+          <span class="pill">Projects &amp; Cost Codes</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WHY / BENEFITS ============ -->
+    <section class="section" id="benefits">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Why connect the two</p>
+          <h2>One source of truth for labor</h2>
+          <p class="section-sub">The people counting hours in the field and the people tracking projects in Procore finally work from the same numbers.</p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card reveal">
+            <div class="feature-icon" style="--ic:#ffb648">⚡</div>
+            <h3>Automatic daily manpower</h3>
+            <p>When a site's daily report is submitted in ShiftWork, worker headcount and total hours post to that project's Procore daily log — no one has to open Procore.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon" style="--ic:#3ecf8e">✅</div>
+            <h3>Verified, not estimated</h3>
+            <p>The hours that reach Procore come from real photo- and GPS-verified clock-ins — not memory or end-of-week guesses.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon" style="--ic:#5b8def">🗂️</div>
+            <h3>Mapped to your projects</h3>
+            <p>Each ShiftWork location links to a Procore project once. After that, every push lands in the right place automatically.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon" style="--ic:#b86ef0">🔐</div>
+            <h3>Secure by design</h3>
+            <p>Connects through Procore's OAuth 2.0. Credentials are stored per company and never exposed to field users.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon" style="--ic:#ff7a6b">🏷️</div>
+            <h3>Cost-code ready</h3>
+            <p>Manage cost codes in ShiftWork and map them to Procore, so labor can be grouped the way your budget expects.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon" style="--ic:#4cc3d9">⏱️</div>
+            <h3>Minutes to set up</h3>
+            <p>Paste your Procore credentials, map your locations to projects, and you're live. No developer, no spreadsheet exports.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOW THE SYNC WORKS (high level) ============ -->
+    <section class="section section-alt" id="how-sync">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">The flow, at a glance</p>
+          <h2>From the job-site clock to your Procore log</h2>
+        </div>
+        <div class="steps">
+          <article class="step reveal">
+            <div class="step-num">1</div>
+            <h3>Crew clocks in</h3>
+            <p>Workers clock in and out on the kiosk or mobile app with photo + GPS. ShiftWork totals their hours per site, per day.</p>
+          </article>
+          <div class="step-arrow" aria-hidden="true">→</div>
+          <article class="step reveal">
+            <div class="step-num">2</div>
+            <h3>Daily report submitted</h3>
+            <p>A supervisor reviews the day and submits the location's daily report — locking in the verified worker count and hours.</p>
+          </article>
+          <div class="step-arrow" aria-hidden="true">→</div>
+          <article class="step reveal">
+            <div class="step-num">3</div>
+            <h3>Procore updates itself</h3>
+            <p>ShiftWork instantly posts that manpower to the matching Procore project's daily log. Your office sees it without lifting a finger.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WHAT SYNCS (mapping) ============ -->
+    <section class="section" id="what-syncs">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">What maps to what</p>
+          <h2>How ShiftWork lines up with Procore</h2>
+          <p class="section-sub">A few one-time connections keep everything flowing to the right place.</p>
+        </div>
+        <div class="map-list">
+          <div class="map-row reveal">
+            <div class="map-side"><strong>Location</strong><span>Your ShiftWork job site</span></div>
+            <div class="map-arrow" aria-hidden="true">→</div>
+            <div class="map-side to"><strong>Project</strong><span>Procore project</span></div>
+          </div>
+          <div class="map-row reveal">
+            <div class="map-side"><strong>Verified hours</strong><span>From clock-in / clock-out</span></div>
+            <div class="map-arrow" aria-hidden="true">→</div>
+            <div class="map-side to"><strong>Manpower hours</strong><span>Daily log entry</span></div>
+          </div>
+          <div class="map-row reveal">
+            <div class="map-side"><strong>Workers on site</strong><span>Unique people clocked in</span></div>
+            <div class="map-arrow" aria-hidden="true">→</div>
+            <div class="map-side to"><strong>Worker count</strong><span>Daily log headcount</span></div>
+          </div>
+          <div class="map-row reveal">
+            <div class="map-side"><strong>Cost codes</strong><span>Managed in ShiftWork</span></div>
+            <div class="map-arrow" aria-hidden="true">→</div>
+            <div class="map-side to"><strong>Cost codes</strong><span>Procore project budget</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DETAILED PROCESS ============ -->
+    <section class="section section-alt" id="process">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Step by step</p>
+          <h2>Setting up the Procore integration</h2>
+          <p class="section-sub">A one-time setup by an administrator, then it runs on its own every day.</p>
+        </div>
+
+        <div class="process">
+          <div class="process-step reveal">
+            <div class="process-num">1</div>
+            <div class="process-body">
+              <span class="process-tag setup">One-time setup</span>
+              <h3>Create a Procore integration app</h3>
+              <p>In your Procore account, generate OAuth credentials (a client ID and secret) for a data connection. You'll also note your Procore company ID.</p>
+            </div>
+          </div>
+
+          <div class="process-step reveal">
+            <div class="process-num">2</div>
+            <div class="process-body">
+              <span class="process-tag setup">One-time setup</span>
+              <h3>Connect it in ShiftWork</h3>
+              <p>Open <strong>Integrations → Procore</strong> in the ShiftWork admin, paste your company ID, client ID, and secret, then click <strong>Test Connection</strong> to confirm ShiftWork can reach Procore.</p>
+            </div>
+          </div>
+
+          <div class="process-step reveal">
+            <div class="process-num">3</div>
+            <div class="process-body">
+              <span class="process-tag setup">One-time setup</span>
+              <h3>Map locations to projects</h3>
+              <p>For each ShiftWork location, enter its matching Procore project ID. Only mapped locations sync — so you can roll out project by project at your own pace.</p>
+            </div>
+          </div>
+
+          <div class="process-step reveal">
+            <div class="process-num">4</div>
+            <div class="process-body">
+              <span class="process-tag setup">Optional</span>
+              <h3>Set up cost codes</h3>
+              <p>Add your cost codes in ShiftWork and link them to Procore. Skip this if you only need overall daily manpower — you can add it later.</p>
+            </div>
+          </div>
+
+          <div class="process-step reveal">
+            <div class="process-num">5</div>
+            <div class="process-body">
+              <span class="process-tag setup">One-time setup</span>
+              <h3>Turn on auto-push</h3>
+              <p>Flip <strong>Enable integration</strong> and <strong>Auto-push on submit</strong>. From now on, submitting a daily report sends its manpower to Procore automatically.</p>
+            </div>
+          </div>
+
+          <div class="process-step is-daily reveal">
+            <div class="process-num">6</div>
+            <div class="process-body">
+              <span class="process-tag daily">Every day</span>
+              <h3>Your crew just works</h3>
+              <p>Employees clock in and out as usual on the kiosk or mobile app. ShiftWork keeps a running, verified tally of hours and headcount per site.</p>
+            </div>
+          </div>
+
+          <div class="process-step is-daily reveal">
+            <div class="process-num">7</div>
+            <div class="process-body">
+              <span class="process-tag daily">Every day</span>
+              <h3>Submit the daily report</h3>
+              <p>At the end of the day a supervisor submits each site's daily report. That single action locks the numbers and triggers the push to Procore.</p>
+            </div>
+          </div>
+
+          <div class="process-step is-daily reveal">
+            <div class="process-num">8</div>
+            <div class="process-body">
+              <span class="process-tag daily">Every day</span>
+              <h3>Confirm in Procore</h3>
+              <p>The manpower appears in the project's daily log. ShiftWork records the sync status, so you always know it went through — and can re-push in one click if you ever need to.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section" id="procore-faq">
+      <div class="container container-narrow">
+        <div class="section-head reveal">
+          <p class="eyebrow">Good to know</p>
+          <h2>Procore integration questions</h2>
+        </div>
+        <div class="faq-list">
+          <details class="faq-item reveal">
+            <summary>Do I need a Procore account already?</summary>
+            <p>Yes. The integration connects your existing Procore account to ShiftWork. You'll create OAuth credentials in Procore and paste them into ShiftWork once.</p>
+          </details>
+          <details class="faq-item reveal">
+            <summary>Does this replace Procore timesheets?</summary>
+            <p>No. It populates the <strong>daily log manpower</strong> — total workers and hours per project, per day. It's designed to keep your daily logs accurate without manual entry, not to replace individual timecards.</p>
+          </details>
+          <details class="faq-item reveal">
+            <summary>What if a location isn't mapped to a project?</summary>
+            <p>Nothing is sent for it. Only locations you've mapped to a Procore project ID sync, so unmapped sites are simply skipped until you're ready.</p>
+          </details>
+          <details class="faq-item reveal">
+            <summary>Can I push a day manually?</summary>
+            <p>Yes. Beyond the automatic push on submit, an administrator can re-sync any daily report on demand — handy if a project was mapped after the fact.</p>
+          </details>
+          <details class="faq-item reveal">
+            <summary>Is my Procore login safe?</summary>
+            <p>The connection uses Procore's OAuth 2.0. Credentials live at the company level in ShiftWork, are never shown to field employees, and can be disabled at any time.</p>
+          </details>
+          <details class="faq-item reveal">
+            <summary>How much does the integration cost?</summary>
+            <p>The Procore integration is part of ShiftWork's Enterprise plan for multi-project operations. Talk to our team and we'll walk you through the fit for your setup.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="section demo-section">
+      <div class="container demo-grid">
+        <div class="demo-copy reveal">
+          <p class="eyebrow eyebrow-light">Ready to connect them?</p>
+          <h2>Stop re-keying field hours into Procore</h2>
+          <p>See the ShiftWork + Procore integration on your own projects. We'll walk your team through the setup and get your first location syncing.</p>
+          <ul class="demo-points">
+            <li>✓ Live walkthrough tailored to your projects</li>
+            <li>✓ Help creating your Procore connection</li>
+            <li>✓ First location mapped and syncing with you</li>
+          </ul>
+          <div class="hero-actions">
+            <a href="index.html#demo" class="btn btn-primary btn-lg">Request a demo</a>
+            <a href="index.html#features" class="btn btn-outline btn-lg">Explore ShiftWork</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a href="index.html#top" class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 100 100" width="26" height="26"><rect width="100" height="100" rx="22" fill="#1b2940"/><path d="M30 52l14 14 26-30" stroke="#ffb648" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          Shift<span class="brand-accent">Work</span>
+        </a>
+        <p>Verified time tracking and workforce scheduling for teams in the field.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#how-it-works">How it works</a>
+        <a href="index.html#pricing">Pricing</a>
+        <a href="procore-integration.html">Procore integration</a>
+      </div>
+      <div class="footer-col">
+        <h4>Integrations</h4>
+        <a href="procore-integration.html">Procore daily log</a>
+        <a href="procore-integration.html#process">Setup process</a>
+        <a href="procore-integration.html#procore-faq">Integration FAQ</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="index.html#demo">Contact</a>
+        <a href="index.html#demo">Request a demo</a>
+        <a href="leads.html">Customer leads</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© <span id="year"></span> ShiftWork. All rights reserved.</span>
+      <span>Made for crews who build, serve, and keep things running.</span>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

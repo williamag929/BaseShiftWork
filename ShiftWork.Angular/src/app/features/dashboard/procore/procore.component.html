@@ -1,0 +1,137 @@
+<div class="procore-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="fa fa-cloud-upload"></i>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">Procore Integration</h1>
+        <p class="page-subtitle">Push daily-log manpower (workers &amp; hours) from ShiftWork to Procore</p>
+      </div>
+      <div class="header-status" *ngIf="connection">
+        <span class="status-pill" [class.on]="connection.enabled">
+          <i class="fa" [class.fa-check-circle]="connection.enabled" [class.fa-pause-circle]="!connection.enabled"></i>
+          {{ connection.enabled ? 'Enabled' : 'Disabled' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p class="loading-text">Loading Procore settings...</p>
+  </div>
+
+  <div *ngIf="!loading" class="content-grid">
+    <!-- Left: Connection settings -->
+    <div class="form-panel">
+      <div class="panel-card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fa fa-plug"></i> Connection</h3>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="connectionForm" (ngSubmit)="saveConnection()" class="procore-form">
+            <div class="form-section">
+              <div class="form-group">
+                <label class="form-label"><i class="fa fa-building"></i> Procore Company ID</label>
+                <input type="text" class="form-input" formControlName="procoreCompanyId" placeholder="e.g., 598134">
+                <small class="form-hint">Sent as the Procore-Company-Id header</small>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label"><i class="fa fa-id-badge"></i> Client ID</label>
+                <input type="text" class="form-input" formControlName="clientId" placeholder="OAuth application client id">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label"><i class="fa fa-key"></i> Client Secret</label>
+                <input type="password" class="form-input" formControlName="clientSecret"
+                  [placeholder]="connection?.hasClientSecret ? '•••••••• (leave blank to keep current)' : 'OAuth application client secret'">
+                <small class="form-hint" *ngIf="connection?.hasClientSecret">A secret is already stored. Enter a new value only to replace it.</small>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label"><i class="fa fa-link"></i> API Base URL <span class="required">*</span></label>
+                <input type="text" class="form-input" formControlName="baseUrl" placeholder="https://api.procore.com">
+                <small class="form-hint">Sandbox: https://sandbox.procore.com</small>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label"><i class="fa fa-exchange"></i> Token URL <span class="required">*</span></label>
+                <input type="text" class="form-input" formControlName="tokenUrl" placeholder="https://login.procore.com/oauth/token">
+              </div>
+
+              <div class="form-group toggle-group">
+                <label class="toggle">
+                  <input type="checkbox" formControlName="enabled">
+                  <span>Enable integration</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" formControlName="autoPushOnSubmit">
+                  <span>Auto-push manpower when a daily report is submitted</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" (click)="testConnection()"
+                [disabled]="testing || !connection">
+                <i class="fa" [class.fa-spinner]="testing" [class.fa-spin]="testing" [class.fa-bolt]="!testing"></i>
+                {{ testing ? 'Testing...' : 'Test Connection' }}
+              </button>
+              <button type="submit" class="btn-submit" [disabled]="!connectionForm.valid || saving">
+                <i class="fa" [class.fa-spinner]="saving" [class.fa-spin]="saving" [class.fa-save]="!saving"></i>
+                {{ saving ? 'Saving...' : 'Save Connection' }}
+              </button>
+            </div>
+
+            <div class="info-section" *ngIf="connection?.lastSyncAt">
+              <p class="info-text">
+                <i class="fa fa-history"></i>
+                Last sync: {{ connection?.lastSyncAt | date:'medium' }} — <strong>{{ connection?.lastSyncStatus }}</strong>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Location -> Procore project mapping -->
+    <div class="list-panel">
+      <div class="panel-card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fa fa-map-signs"></i> Project Mapping</h3>
+          <span class="badge">{{ mappedCount }}/{{ locations.length }} mapped</span>
+        </div>
+        <div class="card-body">
+          <p class="section-hint">
+            <i class="fa fa-info-circle"></i>
+            Enter each location's Procore <strong>Project ID</strong>. Only mapped locations push to Procore.
+          </p>
+
+          <div class="mapping-list">
+            <div class="mapping-item" *ngFor="let location of locations">
+              <div class="mapping-info">
+                <h4 class="mapping-name">{{ location.name }}</h4>
+                <p class="mapping-sub">{{ location.city }}{{ location.state ? ', ' + location.state : '' }}</p>
+              </div>
+              <div class="mapping-input">
+                <input type="text" class="form-input" [(ngModel)]="location.externalCode"
+                  [ngModelOptions]="{ standalone: true }" placeholder="Procore Project ID">
+                <button class="btn-map" (click)="saveMapping(location)" title="Save mapping">
+                  <i class="fa fa-save"></i>
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="locations.length === 0" class="empty-state">
+              <i class="fa fa-map-o empty-icon"></i>
+              <p class="empty-text">No locations to map</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

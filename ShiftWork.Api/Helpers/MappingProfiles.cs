@@ -15,6 +15,8 @@ namespace ShiftWork.Api.Helpers
             CreateMap<AreaDto, Area>();
             CreateMap<CostCode, CostCodeDto>();
             CreateMap<CostCodeDto, CostCode>();
+            CreateMap<ProcoreConnection, ProcoreConnectionDto>()
+                .ForMember(dest => dest.HasClientSecret, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.ClientSecret)));
             CreateMap<Company, CompanyDto>();
             CreateMap<CompanyDto, Company>();
             CreateMap<CompanyUser, CompanyUserDto>();

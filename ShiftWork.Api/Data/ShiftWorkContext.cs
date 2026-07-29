@@ -12,6 +12,7 @@ namespace ShiftWork.Api.Data
 
         public DbSet<Area> Areas { get; set; }
         public DbSet<CostCode> CostCodes { get; set; }
+        public DbSet<ProcoreConnection> ProcoreConnections { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Person> Persons { get; set; }
@@ -55,6 +56,8 @@ namespace ShiftWork.Api.Data
             modelBuilder.Entity<Person>().ToTable("People");
             modelBuilder.Entity<Area>().ToTable("Areas");
             modelBuilder.Entity<CostCode>().ToTable("CostCodes");
+            modelBuilder.Entity<ProcoreConnection>().ToTable("ProcoreConnections");
+            modelBuilder.Entity<ProcoreConnection>().HasIndex(p => p.CompanyId).IsUnique();
             modelBuilder.Entity<Location>().ToTable("Locations");
             modelBuilder.Entity<Role>().ToTable("Roles");
             modelBuilder.Entity<Schedule>().ToTable("Schedules");
