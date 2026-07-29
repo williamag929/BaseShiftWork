@@ -15,6 +15,7 @@ namespace ShiftWork.Api.DTOs
         public string TokenUrl { get; set; }
         public bool Enabled { get; set; }
         public bool AutoPushOnSubmit { get; set; }
+        public bool TimesheetSyncEnabled { get; set; }
         public DateTime? LastSyncAt { get; set; }
         public string? LastSyncStatus { get; set; }
     }
@@ -31,6 +32,7 @@ namespace ShiftWork.Api.DTOs
         public string? TokenUrl { get; set; }
         public bool Enabled { get; set; }
         public bool AutoPushOnSubmit { get; set; } = true;
+        public bool TimesheetSyncEnabled { get; set; } = false;
     }
 
     public class ProcoreSyncResultDto

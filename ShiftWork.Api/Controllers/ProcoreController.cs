@@ -84,5 +84,17 @@ namespace ShiftWork.Api.Controllers
             var result = await _procoreService.PushDailyReportManpowerAsync(companyId, reportId);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Manually pushes a daily report's per-employee hours to Procore Timesheets (timecard entries).
+        /// </summary>
+        [HttpPost("sync/daily-report/{reportId}/timesheets")]
+        [Authorize(Policy = "procore.sync")]
+        [ProducesResponseType(typeof(ProcoreSyncResultDto), 200)]
+        public async Task<ActionResult<ProcoreSyncResultDto>> SyncDailyReportTimesheets(string companyId, Guid reportId)
+        {
+            var result = await _procoreService.PushDailyReportTimesheetsAsync(companyId, reportId);
+            return Ok(result);
+        }
     }
 }

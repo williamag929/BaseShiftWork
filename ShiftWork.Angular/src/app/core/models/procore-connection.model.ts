@@ -7,6 +7,7 @@ export interface ProcoreConnection {
   tokenUrl: string;
   enabled: boolean;
   autoPushOnSubmit: boolean;
+  timesheetSyncEnabled: boolean;
   lastSyncAt?: string;
   lastSyncStatus?: string;
 }
@@ -19,6 +20,7 @@ export interface ProcoreConnectionInput {
   tokenUrl?: string;
   enabled: boolean;
   autoPushOnSubmit: boolean;
+  timesheetSyncEnabled: boolean;
 }
 
 export interface ProcoreSyncResult {

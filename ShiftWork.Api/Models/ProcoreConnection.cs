@@ -36,6 +36,12 @@ namespace ShiftWork.Api.Models
         /// <summary>When true, submitting a daily report pushes manpower to Procore automatically.</summary>
         public bool AutoPushOnSubmit { get; set; } = true;
 
+        /// <summary>
+        /// When true, per-employee hours are also pushed to Procore Timesheets (timecard entries)
+        /// on daily-report submit. Off by default — this is the heavier, per-worker sync.
+        /// </summary>
+        public bool TimesheetSyncEnabled { get; set; } = false;
+
         public DateTime? LastSyncAt { get; set; }
         public string? LastSyncStatus { get; set; }
 

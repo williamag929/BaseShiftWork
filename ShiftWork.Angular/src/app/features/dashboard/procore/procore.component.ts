@@ -48,7 +48,8 @@ export class ProcoreComponent implements OnInit, OnDestroy {
       baseUrl: ['https://api.procore.com', Validators.required],
       tokenUrl: ['https://login.procore.com/oauth/token', Validators.required],
       enabled: [false],
-      autoPushOnSubmit: [true]
+      autoPushOnSubmit: [true],
+      timesheetSyncEnabled: [false]
     });
 
     this.activeCompany$.pipe(
@@ -85,7 +86,8 @@ export class ProcoreComponent implements OnInit, OnDestroy {
           baseUrl: connection.baseUrl,
           tokenUrl: connection.tokenUrl,
           enabled: connection.enabled,
-          autoPushOnSubmit: connection.autoPushOnSubmit
+          autoPushOnSubmit: connection.autoPushOnSubmit,
+          timesheetSyncEnabled: connection.timesheetSyncEnabled
         });
       }
       this.loading = false;

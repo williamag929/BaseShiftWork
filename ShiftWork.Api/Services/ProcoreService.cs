@@ -20,6 +20,7 @@ namespace ShiftWork.Api.Services
         Task<ProcoreConnection> SaveConnectionAsync(string companyId, ProcoreConnectionInputDto input);
         Task<ProcoreSyncResultDto> TestConnectionAsync(string companyId);
         Task<ProcoreSyncResultDto> PushDailyReportManpowerAsync(string companyId, Guid reportId);
+        Task<ProcoreSyncResultDto> PushDailyReportTimesheetsAsync(string companyId, Guid reportId);
     }
 
     /// <summary>
@@ -70,6 +71,7 @@ namespace ShiftWork.Api.Services
             if (!string.IsNullOrWhiteSpace(input.TokenUrl)) connection.TokenUrl = input.TokenUrl;
             connection.Enabled = input.Enabled;
             connection.AutoPushOnSubmit = input.AutoPushOnSubmit;
+            connection.TimesheetSyncEnabled = input.TimesheetSyncEnabled;
             connection.UpdatedAt = DateTime.UtcNow;
 
             // Credentials changed — invalidate any cached token.
@@ -198,6 +200,167 @@ namespace ShiftWork.Api.Services
                 _logger.LogError(ex, "Error pushing manpower to Procore for report {ReportId} (company {CompanyId}).", reportId, companyId);
                 return await RecordResult(connection, Fail($"Push failed: {ex.Message}"));
             }
+        }
+
+        public async Task<ProcoreSyncResultDto> PushDailyReportTimesheetsAsync(string companyId, Guid reportId)
+        {
+            var connection = await GetConnectionAsync(companyId);
+            if (connection == null || !connection.Enabled)
+            {
+                return Skip("Procore integration is not enabled for this company.");
+            }
+            if (!connection.TimesheetSyncEnabled)
+            {
+                return Skip("Timesheet sync is disabled for this company.");
+            }
+
+            var report = await _context.LocationDailyReports
+                .Include(r => r.Location)
+                .FirstOrDefaultAsync(r => r.ReportId == reportId && r.CompanyId == companyId);
+
+            if (report == null)
+            {
+                return Fail("Daily report not found.");
+            }
+
+            var projectId = report.Location?.ExternalCode;
+            if (string.IsNullOrWhiteSpace(projectId))
+            {
+                return Skip($"Location '{report.Location?.Name}' has no Procore project id (ExternalCode). Map it before syncing.");
+            }
+
+            try
+            {
+                var perPerson = await GetPerPersonHoursAsync(companyId, report.LocationId, report.ReportDate);
+                if (perPerson.Count == 0)
+                {
+                    return await RecordResult(connection, Skip("No clocked hours to push for this report."));
+                }
+
+                var token = await GetAccessTokenAsync(connection);
+                if (string.IsNullOrEmpty(token))
+                {
+                    return await RecordResult(connection, Fail("Could not authenticate with Procore."));
+                }
+
+                // Map ShiftWork people to their Procore party id via Person.ExternalCode.
+                var personIds = perPerson.Keys.ToList();
+                var people = await _context.Persons
+                    .Where(p => p.CompanyId == companyId && personIds.Contains(p.PersonId))
+                    .ToDictionaryAsync(p => p.PersonId, p => p);
+
+                var client = _httpClientFactory.CreateClient("procore");
+                var url = $"{connection.BaseUrl}/rest/v1.0/projects/{projectId}/timecard_entries";
+                var date = report.ReportDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                int pushed = 0, skipped = 0;
+                var failures = new List<string>();
+
+                foreach (var (personId, hours) in perPerson)
+                {
+                    people.TryGetValue(personId, out var person);
+                    var partyId = person?.ExternalCode;
+                    if (string.IsNullOrWhiteSpace(partyId))
+                    {
+                        // Unmapped worker — cannot attribute the timecard entry in Procore.
+                        skipped++;
+                        continue;
+                    }
+
+                    // Procore timecard entry shape is best-guess; verify against a real tenant.
+                    var payload = new
+                    {
+                        timecard_entry = new
+                        {
+                            date,
+                            hours = Math.Round(hours, 2),
+                            party_id = partyId
+                        }
+                    };
+
+                    using var request = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json")
+                    };
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    if (!string.IsNullOrWhiteSpace(connection.ProcoreCompanyId))
+                    {
+                        request.Headers.Add("Procore-Company-Id", connection.ProcoreCompanyId);
+                    }
+
+                    var response = await client.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        pushed++;
+                    }
+                    else
+                    {
+                        var body = await response.Content.ReadAsStringAsync();
+                        failures.Add($"{person?.Name ?? personId.ToString()}: {(int)response.StatusCode}");
+                        _logger.LogWarning(
+                            "Procore timecard push failed for person {PersonId} on project {ProjectId} ({Status}): {Body}",
+                            personId, projectId, (int)response.StatusCode, body);
+                    }
+                }
+
+                var success = failures.Count == 0;
+                var message = $"Timecards: {pushed} pushed, {skipped} skipped (unmapped worker)"
+                            + (failures.Count > 0 ? $", {failures.Count} failed — {string.Join("; ", failures)}" : ".");
+
+                return await RecordResult(connection, new ProcoreSyncResultDto
+                {
+                    Success = success,
+                    Status = success ? "Pushed" : "Failed",
+                    Message = message,
+                    ProcoreProjectId = projectId,
+                    Workers = pushed
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error pushing timesheets to Procore for report {ReportId} (company {CompanyId}).", reportId, companyId);
+                return await RecordResult(connection, Fail($"Timesheet push failed: {ex.Message}"));
+            }
+        }
+
+        /// <summary>
+        /// Per-person clocked hours for a location/date. Mirrors DailyReportService's aggregation
+        /// but keyed by person, so timecard entries can be attributed to individual workers.
+        /// </summary>
+        private async Task<Dictionary<int, decimal>> GetPerPersonHoursAsync(string companyId, int locationId, DateOnly date)
+        {
+            var dayStart = date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+            var dayEnd = date.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
+
+            var scheduledPersonIds = await _context.ScheduleShifts
+                .Where(ss => ss.LocationId == locationId
+                    && _context.Schedules.Any(s => s.ScheduleId == ss.ScheduleId && s.CompanyId == companyId
+                        && s.StartDate <= dayEnd && s.EndDate >= dayStart))
+                .Select(ss => ss.PersonId)
+                .Distinct()
+                .ToListAsync();
+
+            var events = await _context.ShiftEvents
+                .Where(e => e.CompanyId == companyId
+                    && e.EventDate >= dayStart
+                    && e.EventDate <= dayEnd
+                    && scheduledPersonIds.Contains(e.PersonId))
+                .ToListAsync();
+
+            var result = new Dictionary<int, decimal>();
+            foreach (var personId in scheduledPersonIds)
+            {
+                var ins = events.Where(e => e.PersonId == personId && e.EventType == "clock_in").OrderBy(e => e.EventDate).ToList();
+                var outs = events.Where(e => e.PersonId == personId && e.EventType == "clock_out").OrderBy(e => e.EventDate).ToList();
+
+                var hours = 0m;
+                for (var i = 0; i < ins.Count && i < outs.Count; i++)
+                    hours += (decimal)(outs[i].EventDate - ins[i].EventDate).TotalHours;
+
+                if (hours > 0) result[personId] = hours;
+            }
+
+            return result;
         }
 
         /// <summary>

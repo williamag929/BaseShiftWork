@@ -137,7 +137,13 @@ namespace ShiftWork.Api.Services
                     if (connection != null && connection.Enabled && connection.AutoPushOnSubmit)
                     {
                         var result = await _procore.PushDailyReportManpowerAsync(companyId, reportId);
-                        _logger.LogInformation("Procore auto-push for report {ReportId}: {Status} — {Message}", reportId, result.Status, result.Message);
+                        _logger.LogInformation("Procore manpower auto-push for report {ReportId}: {Status} — {Message}", reportId, result.Status, result.Message);
+
+                        if (connection.TimesheetSyncEnabled)
+                        {
+                            var tsResult = await _procore.PushDailyReportTimesheetsAsync(companyId, reportId);
+                            _logger.LogInformation("Procore timesheet auto-push for report {ReportId}: {Status} — {Message}", reportId, tsResult.Status, tsResult.Message);
+                        }
                     }
                 }
                 catch (Exception ex)
