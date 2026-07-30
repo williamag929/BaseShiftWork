@@ -137,63 +137,90 @@ namespace ShiftWork.Api.Services
 
             try
             {
+                // Group clocked hours by cost code (via each worker's scheduled area). A location with no
+                // area cost codes yields a single unassigned bucket — i.e. one aggregate row, as before.
+                var buckets = await GetPerCostCodeHoursAsync(companyId, report.LocationId, report.ReportDate);
+                if (buckets.Count == 0)
+                {
+                    return await RecordResult(connection, Skip("No clocked hours to push for this report."));
+                }
+
                 var token = await GetAccessTokenAsync(connection);
                 if (string.IsNullOrEmpty(token))
                 {
                     return await RecordResult(connection, Fail("Could not authenticate with Procore."));
                 }
 
-                // Procore daily-log manpower is aggregate: workers + hours per project/date.
-                // Areas are internal-only; a single "Main Area" note stands in for location granularity.
-                var payload = new
-                {
-                    manpower_log = new
-                    {
-                        log_date = report.ReportDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                        num_workers = report.TotalEmployees,
-                        hours = report.TotalHours,
-                        notes = "Main Area — pushed from ShiftWork"
-                    }
-                };
+                // Resolve ShiftWork cost codes to their Procore ids (ExternalCode).
+                var costCodeIds = buckets.Keys.Where(k => k.HasValue).Select(k => k!.Value).ToList();
+                var costCodeExternal = await _context.CostCodes
+                    .Where(c => c.CompanyId == companyId && costCodeIds.Contains(c.CostCodeId))
+                    .ToDictionaryAsync(c => c.CostCodeId, c => c.ExternalCode);
 
-                var json = JsonSerializer.Serialize(payload);
                 var url = $"{connection.BaseUrl}/rest/v1.0/projects/{projectId}/manpower_logs";
-
+                var logDate = report.ReportDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
                 var client = _httpClientFactory.CreateClient("procore");
-                using var request = new HttpRequestMessage(HttpMethod.Post, url)
-                {
-                    Content = new StringContent(json, Encoding.UTF8, "application/json")
-                };
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                if (!string.IsNullOrWhiteSpace(connection.ProcoreCompanyId))
-                {
-                    request.Headers.Add("Procore-Company-Id", connection.ProcoreCompanyId);
-                }
 
-                var response = await client.SendAsync(request);
-                if (response.IsSuccessStatusCode)
-                {
-                    _logger.LogInformation(
-                        "Pushed manpower to Procore project {ProjectId}: {Workers} workers, {Hours} hours ({Date}).",
-                        projectId, report.TotalEmployees, report.TotalHours, report.ReportDate);
+                int pushedRows = 0, totalWorkers = 0;
+                decimal totalHours = 0m;
+                var failures = new List<string>();
 
-                    return await RecordResult(connection, new ProcoreSyncResultDto
+                foreach (var (costCodeId, bucket) in buckets)
+                {
+                    string? procoreCostCode = null;
+                    if (costCodeId.HasValue) costCodeExternal.TryGetValue(costCodeId.Value, out procoreCostCode);
+
+                    // Procore manpower_log shape is best-guess; verify against a real tenant.
+                    object manpower = string.IsNullOrWhiteSpace(procoreCostCode)
+                        ? new { log_date = logDate, num_workers = bucket.workers, hours = bucket.hours, notes = "Pushed from ShiftWork" }
+                        : new { log_date = logDate, num_workers = bucket.workers, hours = bucket.hours, cost_code_id = procoreCostCode, notes = "Pushed from ShiftWork" };
+
+                    using var request = new HttpRequestMessage(HttpMethod.Post, url)
                     {
-                        Success = true,
-                        Status = "Pushed",
-                        Message = "Manpower pushed to Procore.",
-                        ProcoreProjectId = projectId,
-                        Workers = report.TotalEmployees,
-                        Hours = report.TotalHours
-                    });
+                        Content = new StringContent(JsonSerializer.Serialize(new { manpower_log = manpower }), Encoding.UTF8, "application/json")
+                    };
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    if (!string.IsNullOrWhiteSpace(connection.ProcoreCompanyId))
+                    {
+                        request.Headers.Add("Procore-Company-Id", connection.ProcoreCompanyId);
+                    }
+
+                    var response = await client.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        pushedRows++;
+                        totalWorkers += bucket.workers;
+                        totalHours += bucket.hours;
+                    }
+                    else
+                    {
+                        var body = await response.Content.ReadAsStringAsync();
+                        var label = procoreCostCode ?? (costCodeId?.ToString() ?? "unassigned");
+                        failures.Add($"{label}: {(int)response.StatusCode}");
+                        _logger.LogWarning(
+                            "Procore manpower push failed for project {ProjectId} cost code {Label} ({Status}): {Body}",
+                            projectId, label, (int)response.StatusCode, body);
+                    }
                 }
 
-                var body = await response.Content.ReadAsStringAsync();
-                _logger.LogWarning(
-                    "Procore manpower push failed for project {ProjectId} with status {Status}: {Body}",
-                    projectId, (int)response.StatusCode, body);
+                var success = failures.Count == 0;
+                var message = success
+                    ? $"Pushed {pushedRows} manpower row(s) grouped by cost code ({totalWorkers} workers, {totalHours} hours)."
+                    : $"Pushed {pushedRows} row(s); {failures.Count} failed — {string.Join("; ", failures)}";
 
-                return await RecordResult(connection, Fail($"Procore returned {(int)response.StatusCode}: {body}"));
+                _logger.LogInformation(
+                    "Procore manpower push for project {ProjectId} ({Date}): {Rows} rows, {Workers} workers, {Hours} hours.",
+                    projectId, report.ReportDate, pushedRows, totalWorkers, totalHours);
+
+                return await RecordResult(connection, new ProcoreSyncResultDto
+                {
+                    Success = success,
+                    Status = success ? "Pushed" : "Failed",
+                    Message = message,
+                    ProcoreProjectId = projectId,
+                    Workers = totalWorkers,
+                    Hours = totalHours
+                });
             }
             catch (Exception ex)
             {
@@ -358,6 +385,58 @@ namespace ShiftWork.Api.Services
                     hours += (decimal)(outs[i].EventDate - ins[i].EventDate).TotalHours;
 
                 if (hours > 0) result[personId] = hours;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Groups a location/date's clocked hours by cost code. Each worker's hours are attributed to the
+        /// cost code of the area they were scheduled in. Workers with no area cost code — or with shifts in
+        /// areas of differing cost codes — fall into the null (unassigned) bucket. Key = CostCodeId or null.
+        /// </summary>
+        private async Task<Dictionary<int?, (int workers, decimal hours)>> GetPerCostCodeHoursAsync(string companyId, int locationId, DateOnly date)
+        {
+            var result = new Dictionary<int?, (int workers, decimal hours)>();
+
+            var perPerson = await GetPerPersonHoursAsync(companyId, locationId, date);
+            if (perPerson.Count == 0) return result;
+
+            var dayStart = date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+            var dayEnd = date.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
+
+            var shiftAreas = await _context.ScheduleShifts
+                .Where(ss => ss.LocationId == locationId
+                    && _context.Schedules.Any(s => s.ScheduleId == ss.ScheduleId && s.CompanyId == companyId
+                        && s.StartDate <= dayEnd && s.EndDate >= dayStart))
+                .Select(ss => new { ss.PersonId, ss.AreaId })
+                .Distinct()
+                .ToListAsync();
+
+            var areaIds = shiftAreas.Select(x => x.AreaId).Distinct().ToList();
+            var areaCostCode = await _context.Areas
+                .Where(a => areaIds.Contains(a.AreaId))
+                .ToDictionaryAsync(a => a.AreaId, a => a.CostCodeId);
+
+            var personCostCodes = new Dictionary<int, HashSet<int>>();
+            foreach (var sa in shiftAreas)
+            {
+                if (areaCostCode.TryGetValue(sa.AreaId, out var cc) && cc.HasValue)
+                {
+                    if (!personCostCodes.TryGetValue(sa.PersonId, out var set))
+                        personCostCodes[sa.PersonId] = set = new HashSet<int>();
+                    set.Add(cc.Value);
+                }
+            }
+
+            foreach (var (personId, hours) in perPerson)
+            {
+                int? key = null;
+                if (personCostCodes.TryGetValue(personId, out var codes) && codes.Count == 1)
+                    key = codes.First();
+
+                var cur = result.TryGetValue(key, out var v) ? v : (0, 0m);
+                result[key] = (cur.Item1 + 1, cur.Item2 + hours);
             }
 
             return result;

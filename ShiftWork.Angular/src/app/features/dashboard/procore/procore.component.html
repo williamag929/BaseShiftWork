@@ -137,5 +137,53 @@
         </div>
       </div>
     </div>
+
+    <!-- Employee -> Procore worker mapping -->
+    <div class="employee-panel">
+      <div class="panel-card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fa fa-users"></i> Employee Mapping</h3>
+          <span class="badge">{{ mappedEmployeeCount }}/{{ people.length }} mapped</span>
+        </div>
+        <div class="card-body">
+          <p class="section-hint">
+            <i class="fa fa-info-circle"></i>
+            Enter each employee's Procore <strong>worker / party ID</strong>. Required for
+            <strong>timesheet sync</strong> — unmapped employees are skipped when timecards are pushed.
+          </p>
+
+          <div class="employee-search">
+            <i class="fa fa-search"></i>
+            <input type="text" class="form-input" [(ngModel)]="peopleFilter"
+              [ngModelOptions]="{ standalone: true }" placeholder="Search employees by name or email…">
+          </div>
+
+          <div class="mapping-list employee-list">
+            <div class="mapping-item" *ngFor="let person of filteredPeople">
+              <div class="mapping-info">
+                <h4 class="mapping-name">{{ person.name }}</h4>
+                <p class="mapping-sub">{{ person.email }}</p>
+              </div>
+              <div class="mapping-input">
+                <input type="text" class="form-input" [(ngModel)]="person.externalCode"
+                  [ngModelOptions]="{ standalone: true }" placeholder="Procore worker ID">
+                <button class="btn-map" (click)="saveEmployeeMapping(person)" title="Save mapping">
+                  <i class="fa fa-save"></i>
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="people.length === 0" class="empty-state">
+              <i class="fa fa-user-o empty-icon"></i>
+              <p class="empty-text">No employees to map</p>
+            </div>
+            <div *ngIf="people.length > 0 && filteredPeople.length === 0" class="empty-state">
+              <i class="fa fa-search empty-icon"></i>
+              <p class="empty-text">No employees match "{{ peopleFilter }}"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

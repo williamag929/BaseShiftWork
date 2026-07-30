@@ -54,6 +54,10 @@
                   <i class="fa fa-map-marker"></i>
                   {{ getLocationName(area.locationId) }}
                 </p>
+                <p class="area-location" *ngIf="getCostCodeLabel(area.costCodeId)">
+                  <i class="fa fa-barcode"></i>
+                  {{ getCostCodeLabel(area.costCodeId) }}
+                </p>
                 <span class="status-badge" [class.active]="area.status === 'Active'">
                   {{ area.status }}
                 </span>
@@ -144,6 +148,20 @@
                   Location is required
                 </div>
                 <small class="form-hint">Select the location this area belongs to</small>
+              </div>
+
+              <div class="form-group">
+                <label for="costCodeId" class="form-label">
+                  <i class="fa fa-barcode"></i>
+                  Cost Code
+                </label>
+                <select id="costCodeId" class="form-select" formControlName="costCodeId">
+                  <option value="">None</option>
+                  <option *ngFor="let costCode of costCodes" [value]="costCode.costCodeId">
+                    {{ costCode.code }} — {{ costCode.name }}
+                  </option>
+                </select>
+                <small class="form-hint">Hours worked in this area are grouped under this cost code when syncing to Procore</small>
               </div>
 
               <div class="form-group">

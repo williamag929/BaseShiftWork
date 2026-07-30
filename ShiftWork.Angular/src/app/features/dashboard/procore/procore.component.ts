@@ -8,8 +8,10 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { ProcoreService } from 'src/app/core/services/procore.service';
 import { LocationService } from 'src/app/core/services/location.service';
+import { PeopleService } from 'src/app/core/services/people.service';
 import { ProcoreConnection } from 'src/app/core/models/procore-connection.model';
 import { Location } from 'src/app/core/models/location.model';
+import { People } from 'src/app/core/models/people.model';
 
 @Component({
   selector: 'app-procore',
@@ -23,6 +25,8 @@ export class ProcoreComponent implements OnInit, OnDestroy {
   activeCompany: any;
   connection: ProcoreConnection | null = null;
   locations: Location[] = [];
+  people: People[] = [];
+  peopleFilter = '';
   connectionForm!: FormGroup;
   loading = false;
   saving = false;
@@ -33,6 +37,7 @@ export class ProcoreComponent implements OnInit, OnDestroy {
   constructor(
     private procoreService: ProcoreService,
     private locationService: LocationService,
+    private peopleService: PeopleService,
     private fb: FormBuilder,
     private toastr: ToastrService,
     private store: Store<AppState>
@@ -62,22 +67,24 @@ export class ProcoreComponent implements OnInit, OnDestroy {
       switchMap(company => {
         if (!company) {
           this.loading = false;
-          return of({ connection: null, locations: [] });
+          return of({ connection: null, locations: [], people: [] });
         }
         return forkJoin({
           connection: this.procoreService.getConnection(company.companyId),
-          locations: this.locationService.getLocations(company.companyId)
+          locations: this.locationService.getLocations(company.companyId),
+          people: this.peopleService.getPeople(company.companyId, 1, 500)
         }).pipe(
           catchError(error => {
             this.error = error;
             this.loading = false;
-            return of({ connection: null, locations: [] });
+            return of({ connection: null, locations: [], people: [] });
           })
         );
       })
-    ).subscribe(({ connection, locations }) => {
+    ).subscribe(({ connection, locations, people }) => {
       this.connection = connection;
       this.locations = (locations || []).filter(l => l.companyId === this.activeCompany?.companyId);
+      this.people = (people || []).filter(p => p.companyId === this.activeCompany?.companyId);
       if (connection) {
         this.connectionForm.patchValue({
           procoreCompanyId: connection.procoreCompanyId ?? '',
@@ -101,6 +108,31 @@ export class ProcoreComponent implements OnInit, OnDestroy {
 
   get mappedCount(): number {
     return this.locations.filter(l => !!l.externalCode).length;
+  }
+
+  get mappedEmployeeCount(): number {
+    return this.people.filter(p => !!p.externalCode).length;
+  }
+
+  get filteredPeople(): People[] {
+    const q = this.peopleFilter.trim().toLowerCase();
+    if (!q) {
+      return this.people;
+    }
+    return this.people.filter(p =>
+      (p.name || '').toLowerCase().includes(q) ||
+      (p.email || '').toLowerCase().includes(q) ||
+      (p.externalCode || '').toLowerCase().includes(q));
+  }
+
+  saveEmployeeMapping(person: People): void {
+    if (!this.activeCompany) {
+      return;
+    }
+    this.peopleService.updatePerson(this.activeCompany.companyId, person.personId, person).subscribe({
+      next: () => this.toastr.success(`Procore worker ID saved for ${person.name}.`),
+      error: () => this.toastr.error(`Failed to save mapping for ${person.name}.`)
+    });
   }
 
   saveConnection(): void {
