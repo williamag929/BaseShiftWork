@@ -15,7 +15,7 @@ namespace ShiftWork.Api.Services
         Task<List<LocationDailyReport>> GetReportsAsync(string companyId, int locationId, DateOnly? startDate = null, DateOnly? endDate = null, string? status = null);
         Task<LocationDailyReport> GetOrCreateAsync(string companyId, int locationId, DateOnly date);
         Task<LocationDailyReport?> UpdateAsync(Guid reportId, string companyId, string? notes, string status, int submittedByPersonId);
-        Task<ReportMedia> AddMediaAsync(Guid reportId, string companyId, int personId, string mediaType, string mediaUrl, string? caption, Guid? shiftEventId = null);
+        Task<ReportMedia?> AddMediaAsync(Guid reportId, string companyId, int personId, string mediaType, string mediaUrl, string? caption, Guid? shiftEventId = null);
         Task<bool> RemoveMediaAsync(Guid mediaId, Guid reportId, string companyId);
     }
 
@@ -155,8 +155,13 @@ namespace ShiftWork.Api.Services
             return report;
         }
 
-        public async Task<ReportMedia> AddMediaAsync(Guid reportId, string companyId, int personId, string mediaType, string mediaUrl, string? caption, Guid? shiftEventId = null)
+        public async Task<ReportMedia?> AddMediaAsync(Guid reportId, string companyId, int personId, string mediaType, string mediaUrl, string? caption, Guid? shiftEventId = null)
         {
+            var belongsToCompany = await _context.LocationDailyReports
+                .AnyAsync(r => r.ReportId == reportId && r.CompanyId == companyId);
+
+            if (!belongsToCompany) return null;
+
             var media = new ReportMedia
             {
                 ReportId = reportId,
@@ -175,6 +180,11 @@ namespace ShiftWork.Api.Services
 
         public async Task<bool> RemoveMediaAsync(Guid mediaId, Guid reportId, string companyId)
         {
+            var belongsToCompany = await _context.LocationDailyReports
+                .AnyAsync(r => r.ReportId == reportId && r.CompanyId == companyId);
+
+            if (!belongsToCompany) return false;
+
             var media = await _context.ReportMedia
                 .FirstOrDefaultAsync(m => m.MediaId == mediaId && m.ReportId == reportId);
 
