@@ -7,9 +7,11 @@ import { Card, Button } from '@/components/ui';
 import { colors, spacing } from '@/styles/tokens';
 import { useTimeOffForm } from '@/hooks/useTimeOffForm';
 import { timeOffTypes } from '@/utils/schemas/timeoff';
+import { useTranslation } from '@/i18n';
 
 export default function TimeOffRequestScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { form, ptoBalance, estimatedHours, businessDays, showStartPicker, setShowStartPicker, showEndPicker, setShowEndPicker, submitting, onSubmit, onStartDateChange, onEndDateChange, formatDate } = useTimeOffForm();
   const { control, handleSubmit, watch, formState: { errors } } = form;
   const startDate = watch('startDate');
@@ -19,28 +21,30 @@ export default function TimeOffRequestScreen() {
     <ScrollView style={styles.container}>
       <StatusBar style="light" />
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.back}><Text style={styles.backText}>← Back</Text></Pressable>
-        <Text style={styles.title}>Request Time Off</Text>
+        <Pressable onPress={() => router.back()} style={styles.back}>
+          <Text style={styles.backText}>{t('time_off.back')}</Text>
+        </Pressable>
+        <Text style={styles.title}>{t('time_off.title')}</Text>
       </View>
 
       {ptoBalance !== null && (
         <Card style={styles.balanceCard}>
-          <Text style={styles.balanceLabel}>Available PTO Balance</Text>
-          <Text style={styles.balanceValue}>{ptoBalance.toFixed(2)} hours</Text>
+          <Text style={styles.balanceLabel}>{t('time_off.balance_label')}</Text>
+          <Text style={styles.balanceValue}>{t('time_off.balance_hours', { value: ptoBalance.toFixed(2) })}</Text>
         </Card>
       )}
 
       <View style={styles.form}>
         <View style={styles.group}>
-          <Text style={styles.label}>Type</Text>
+          <Text style={styles.label}>{t('time_off.type_label')}</Text>
           <Controller
             control={control}
             name="type"
             render={({ field: { value, onChange } }) => (
               <View style={styles.typeRow}>
-                {timeOffTypes.map((t) => (
-                  <Pressable key={t} style={[styles.typeBtn, value === t && styles.typeBtnActive]} onPress={() => onChange(t)}>
-                    <Text style={[styles.typeBtnText, value === t && styles.typeBtnTextActive]}>{t}</Text>
+                {timeOffTypes.map((type) => (
+                  <Pressable key={type} style={[styles.typeBtn, value === type && styles.typeBtnActive]} onPress={() => onChange(type)}>
+                    <Text style={[styles.typeBtnText, value === type && styles.typeBtnTextActive]}>{type}</Text>
                   </Pressable>
                 ))}
               </View>
@@ -49,7 +53,7 @@ export default function TimeOffRequestScreen() {
         </View>
 
         <View style={styles.group}>
-          <Text style={styles.label}>Start Date</Text>
+          <Text style={styles.label}>{t('time_off.start_date')}</Text>
           <Controller
             control={control}
             name="startDate"
@@ -64,7 +68,7 @@ export default function TimeOffRequestScreen() {
         </View>
 
         <View style={styles.group}>
-          <Text style={styles.label}>End Date</Text>
+          <Text style={styles.label}>{t('time_off.end_date')}</Text>
           <Controller
             control={control}
             name="endDate"
@@ -79,24 +83,45 @@ export default function TimeOffRequestScreen() {
         </View>
 
         <Card style={styles.estimateCard}>
-          <Text style={styles.estimateLabel}>Estimated Hours</Text>
-          <Text style={styles.estimateValue}>{estimatedHours} hours</Text>
-          <Text style={styles.estimateNote}>Based on {businessDays} business days</Text>
+          <Text style={styles.estimateLabel}>{t('time_off.estimated_hours')}</Text>
+          <Text style={styles.estimateValue}>{t('time_off.balance_hours', { value: estimatedHours })}</Text>
+          <Text style={styles.estimateNote}>{t('time_off.business_days', { days: businessDays })}</Text>
         </Card>
 
         <View style={styles.group}>
-          <Text style={styles.label}>Reason (Optional)</Text>
+          <Text style={styles.label}>{t('time_off.reason_label')}</Text>
           <Controller
             control={control}
             name="reason"
             render={({ field: { value, onChange } }) => (
-              <TextInput style={styles.textArea} value={value} onChangeText={onChange} placeholder="Why are you requesting time off?" placeholderTextColor={colors.muted} multiline numberOfLines={4} textAlignVertical="top" />
+              <TextInput
+                style={styles.textArea}
+                value={value}
+                onChangeText={onChange}
+                placeholder={t('time_off.reason_placeholder')}
+                placeholderTextColor={colors.muted}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
             )}
           />
         </View>
 
-        <Button label={submitting ? 'Submitting...' : 'Submit Request'} onPress={handleSubmit(onSubmit)} loading={submitting} variant="primary" style={styles.submitBtn} />
-        <Button label="Cancel" onPress={() => router.back()} disabled={submitting} variant="secondary" style={styles.cancelBtn} />
+        <Button
+          label={submitting ? t('time_off.submitting') : t('time_off.submit')}
+          onPress={handleSubmit(onSubmit)}
+          loading={submitting}
+          variant="primary"
+          style={styles.submitBtn}
+        />
+        <Button
+          label={t('common.cancel')}
+          onPress={() => router.back()}
+          disabled={submitting}
+          variant="secondary"
+          style={styles.cancelBtn}
+        />
       </View>
     </ScrollView>
   );

@@ -9,6 +9,7 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PeopleService } from 'src/app/core/services/people.service';
+import { PermissionService } from 'src/app/core/services/permission.service';
 import { environment } from 'src/environments/environment';
 import { TourService } from 'src/app/shared/tour/tour.service';
 
@@ -44,7 +45,8 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
     private store: Store<AppState>,
     private router: Router,
     private peopleService: PeopleService,
-    public tourService: TourService
+    public tourService: TourService,
+    private permissionService: PermissionService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
     this.user$ = this.authService.user$;
@@ -98,6 +100,10 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
 
   refreshStatus(): void {
     this.refreshTrigger$.next();
+  }
+
+  hasPermission(key: string): boolean {
+    return this.permissionService.hasPermission(key);
   }
 
   logout() {

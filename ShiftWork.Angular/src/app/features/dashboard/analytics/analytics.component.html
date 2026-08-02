@@ -1,0 +1,166 @@
+<div class="analytics-page">
+  <!-- ── Filter bar (sticky) ── -->
+  <div class="filter-bar" [formGroup]="form">
+    <div class="filters">
+      <div class="preset-group">
+        <button
+          *ngFor="let p of presets"
+          type="button"
+          class="preset-chip"
+          [class.active]="form.value.preset === p.key"
+          (click)="onPreset(p.key)">
+          <ng-container [ngSwitch]="p.key">
+            <span *ngSwitchCase="'today'" i18n="@@analytics.preset_today">Today</span>
+            <span *ngSwitchCase="'week'" i18n="@@analytics.preset_week">This week</span>
+            <span *ngSwitchCase="'month'" i18n="@@analytics.preset_month">This month</span>
+            <span *ngSwitchCase="'last_month'" i18n="@@analytics.preset_last_month">Last month</span>
+            <span *ngSwitchDefault i18n="@@analytics.preset_custom">Custom</span>
+          </ng-container>
+        </button>
+      </div>
+
+      <div class="custom-range" *ngIf="isCustom">
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label i18n="@@analytics.from">From</mat-label>
+          <input matInput [matDatepicker]="fromPicker" formControlName="from" />
+          <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fromPicker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label i18n="@@analytics.to">To</mat-label>
+          <input matInput [matDatepicker]="toPicker" formControlName="to" />
+          <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+          <mat-datepicker #toPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="dim">
+        <mat-label i18n="@@analytics.location">Location</mat-label>
+        <mat-select formControlName="locationId">
+          <mat-option [value]="null" i18n="@@analytics.all_locations">All locations</mat-option>
+          <mat-option *ngFor="let l of locations" [value]="l.locationId">{{ l.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="dim">
+        <mat-label i18n="@@analytics.area">Area</mat-label>
+        <mat-select formControlName="areaId">
+          <mat-option [value]="null" i18n="@@analytics.all_areas">All areas</mat-option>
+          <mat-option *ngFor="let a of areas" [value]="a.areaId">{{ a.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="dim">
+        <mat-label i18n="@@analytics.person">Person</mat-label>
+        <mat-select formControlName="personId">
+          <mat-option [value]="null" i18n="@@analytics.all_people">All people</mat-option>
+          <mat-option *ngFor="let p of people" [value]="p.personId">{{ p.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-button-toggle-group formControlName="groupBy" class="groupby" aria-label="Group by">
+        <mat-button-toggle value="day" i18n="@@analytics.group_day">Day</mat-button-toggle>
+        <mat-button-toggle value="week" i18n="@@analytics.group_week">Week</mat-button-toggle>
+        <mat-button-toggle value="month" i18n="@@analytics.group_month">Month</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
+    <button mat-flat-button color="primary" [matMenuTriggerFor]="exportMenu" class="export-btn">
+      <mat-icon>download</mat-icon>
+      <span i18n="@@analytics.export">Export</span>
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #exportMenu="matMenu">
+      <button mat-menu-item (click)="exportPng('hours')"><mat-icon>image</mat-icon><span i18n="@@analytics.export_hours_png">Hours trend (PNG)</span></button>
+      <button mat-menu-item (click)="exportPng('coverage')"><mat-icon>image</mat-icon><span i18n="@@analytics.export_coverage_png">Coverage (PNG)</span></button>
+      <button mat-menu-item (click)="openDrilldown(null); exportDrilldownCsv()"><mat-icon>table_view</mat-icon><span i18n="@@analytics.export_all_csv">All rows (CSV)</span></button>
+    </mat-menu>
+  </div>
+
+  <!-- ── KPI cards ── -->
+  <div class="kpi-section">
+    <div class="kpi-skeletons" *ngIf="loading.kpis">
+      <div class="skel-card" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+    <app-kpi-cards *ngIf="!loading.kpis" [kpis]="kpis"></app-kpi-cards>
+  </div>
+
+  <!-- ── Charts grid ── -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-head">
+        <h3 i18n="@@analytics.chart_hours_trend">Hours trend</h3>
+        <span class="chart-hint" i18n="@@analytics.click_hint">Click a point to drill down</span>
+      </div>
+      <div class="chart-body">
+        <div class="skeleton" *ngIf="loading.hours"></div>
+        <div class="empty" *ngIf="!loading.hours && empty.hours">
+          <mat-icon>show_chart</mat-icon>
+          <span i18n="@@analytics.empty_hours">No hours in this range</span>
+        </div>
+        <div echarts *ngIf="!loading.hours && !empty.hours" [options]="hoursOptions" class="echart"
+             (chartInit)="onChartInit('hours', $event)" (chartClick)="onChartClick($event)"></div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head">
+        <h3 i18n="@@analytics.chart_hours_location">Hours by location</h3>
+      </div>
+      <div class="chart-body">
+        <div class="skeleton" *ngIf="loading.location"></div>
+        <div class="empty" *ngIf="!loading.location && empty.location">
+          <mat-icon>bar_chart</mat-icon>
+          <span i18n="@@analytics.empty_location">No location data</span>
+        </div>
+        <div echarts *ngIf="!loading.location && !empty.location" [options]="locationOptions" class="echart"
+             (chartInit)="onChartInit('location', $event)" (chartClick)="onChartClick($event)"></div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head">
+        <h3 i18n="@@analytics.chart_attendance">Attendance</h3>
+        <span class="chart-hint" i18n="@@analytics.click_hint">Click a point to drill down</span>
+      </div>
+      <div class="chart-body">
+        <div class="skeleton" *ngIf="loading.attendance"></div>
+        <div class="empty" *ngIf="!loading.attendance && empty.attendance">
+          <mat-icon>event_available</mat-icon>
+          <span i18n="@@analytics.empty_attendance">No attendance data</span>
+        </div>
+        <div echarts *ngIf="!loading.attendance && !empty.attendance" [options]="attendanceOptions" class="echart"
+             (chartInit)="onChartInit('attendance', $event)" (chartClick)="onChartClick($event)"></div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head">
+        <h3 i18n="@@analytics.chart_coverage">Coverage by location</h3>
+      </div>
+      <div class="chart-body">
+        <div class="skeleton" *ngIf="loading.coverage"></div>
+        <div class="empty" *ngIf="!loading.coverage && empty.coverage">
+          <mat-icon>grid_on</mat-icon>
+          <span i18n="@@analytics.empty_coverage">No coverage data</span>
+        </div>
+        <div echarts *ngIf="!loading.coverage && !empty.coverage" [options]="coverageOptions" class="echart"
+             (chartInit)="onChartInit('coverage', $event)" (chartClick)="onChartClick($event)"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Drill-down table ── -->
+  <div class="drilldown-section" *ngIf="drilldown.open">
+    <app-drilldown-table
+      [rows]="drilldown.rows"
+      [total]="drilldown.total"
+      [page]="drilldown.page"
+      [pageSize]="drilldown.pageSize"
+      [bucket]="drilldown.bucket"
+      (pageChange)="onDrilldownPage($event)"
+      (exportCsv)="exportDrilldownCsv()"
+      (close)="closeDrilldown()">
+    </app-drilldown-table>
+  </div>
+</div>

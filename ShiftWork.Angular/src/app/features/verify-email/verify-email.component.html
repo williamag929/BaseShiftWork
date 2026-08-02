@@ -1,14 +1,14 @@
 <div class="container">
   <div class="card">
     <div class="card-body text-center">
-      <h3 class="card-title">Thank You for Registering</h3>
+      <h3 class="card-title" i18n="@@auth.verify_email.title">Thank You for Registering</h3>
       <div *ngIf="authService.user$ | async as user">
-        <p>We have sent a confirmation email to <strong>{{ user.email }}</strong>.</p>
-        <p>Please check your email and click on the link to verify your email address.</p>
+        <p i18n="@@auth.verify_email.sent">We have sent a confirmation email to <strong>{{ user.email }}</strong>.</p>
+        <p i18n="@@auth.verify_email.instruction">Please check your email and click on the link to verify your email address.</p>
       </div>
-      <button type="button" class="btn btn-primary" (click)="resendVerificationMail()">Resend Verification Email</button>
+      <button type="button" class="btn btn-primary" (click)="resendVerificationMail()" i18n="@@auth.verify_email.resend">Resend Verification Email</button>
       <div class="mt-3">
-        <span>Go back to <a routerLink="/sign-in">Sign in</a></span>
+        <span><ng-container i18n="@@auth.forgot_password.go_back_to">Go back to</ng-container> <a routerLink="/sign-in" i18n="@@auth.login.sign_up_link">Sign in</a></span>
       </div>
     </div>
   </div>

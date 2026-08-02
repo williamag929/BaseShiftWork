@@ -7,13 +7,15 @@ import { colors } from '@/styles/theme';
 import { EmptyState } from '@/components/ui';
 import { useToast } from '@/hooks/useToast';
 import { logger } from '@/utils/logger';
+import { useTranslation } from '@/i18n';
 
 export default function ScheduleGridScreen() {
   const { companyId } = useAuthStore();
+  const { t } = useTranslation();
   const toast = useToast();
   const { loading, error, data, filters, setFilters, refresh } = useScheduleGrid({
     companyId,
-    locationId: undefined, // TODO: allow user to select location
+    locationId: undefined,
   });
 
   const handleShiftPress = (shift: any) => {
@@ -21,7 +23,6 @@ export default function ScheduleGridScreen() {
   };
 
   const handleAddShift = (personId: number, date: Date) => {
-    // TODO Phase 3: Replace with bottom sheet
     Alert.alert(
       'Add Shift',
       `Add shift for Person ${personId} on ${date.toLocaleDateString()}`,
@@ -36,7 +37,7 @@ export default function ScheduleGridScreen() {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>Loading schedule...</Text>
+        <Text style={styles.loadingText}>{t('schedule_grid.loading')}</Text>
       </View>
     );
   }
@@ -44,7 +45,7 @@ export default function ScheduleGridScreen() {
   if (error && !data) {
     return (
       <View style={styles.centered}>
-        <EmptyState title="Unable to load" message={error} icon="alert-circle-outline" />
+        <EmptyState title={t('schedule_grid.unable_to_load')} message={error} icon="alert-circle-outline" />
       </View>
     );
   }

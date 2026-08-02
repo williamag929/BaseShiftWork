@@ -1,7 +1,7 @@
 <div class="upgrade-container">
   <div class="upgrade-card">
-    <h1>Upgrade to Pro</h1>
-    <p class="subtitle">Unlock the full power of Loqzen for your team.</p>
+    <h1 i18n="@@upgrade.title">Upgrade to Pro</h1>
+    <p class="subtitle" i18n="@@upgrade.subtitle_web">Unlock the full power of Loqzen for your team.</p>
 
     <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
     <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
@@ -11,49 +11,49 @@
       <table class="comparison-table">
         <thead>
           <tr>
-            <th>Feature</th>
-            <th class="plan-col plan-free">Free</th>
-            <th class="plan-col plan-pro">Pro ⭐</th>
+            <th i18n="@@upgrade.col_feature">Feature</th>
+            <th class="plan-col plan-free" i18n="@@upgrade.plan_free">Free</th>
+            <th class="plan-col plan-pro" i18n="@@upgrade.plan_pro">Pro ⭐</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Kiosk Clock-In / Out</td>
+            <td i18n="@@upgrade.feat_kiosk">Kiosk Clock-In / Out</td>
             <td>✅</td>
             <td>✅</td>
           </tr>
           <tr>
-            <td>Basic Scheduling</td>
+            <td i18n="@@upgrade.feat_basic_schedule">Basic Scheduling</td>
             <td>✅</td>
             <td>✅</td>
           </tr>
           <tr>
-            <td>Sandbox Demo Data</td>
+            <td i18n="@@upgrade.feat_sandbox">Sandbox Demo Data</td>
             <td>✅</td>
             <td>✅</td>
           </tr>
           <tr>
-            <td>Remove Sandbox Data</td>
+            <td i18n="@@upgrade.feat_remove_sandbox">Remove Sandbox Data</td>
             <td>❌</td>
             <td>✅</td>
           </tr>
           <tr>
-            <td>Advanced Scheduling</td>
+            <td i18n="@@upgrade.feat_advanced">Advanced Scheduling</td>
             <td>❌</td>
             <td>✅</td>
           </tr>
           <tr>
-            <td>Analytics & Reports</td>
+            <td i18n="@@upgrade.feat_analytics">Analytics &amp; Reports</td>
             <td>❌</td>
             <td>✅</td>
           </tr>
           <tr>
-            <td>Multi-Location Support</td>
+            <td i18n="@@upgrade.feat_multilocation">Multi-Location Support</td>
             <td>❌</td>
             <td>✅</td>
           </tr>
           <tr>
-            <td>Data Export</td>
+            <td i18n="@@upgrade.feat_export">Data Export</td>
             <td>❌</td>
             <td>✅</td>
           </tr>
@@ -62,14 +62,15 @@
     </div>
 
     <div class="upgrade-cta">
-      <p class="price-info">Pro plan — contact sales for pricing</p>
+      <p class="price-info" i18n="@@upgrade.price_info">Pro plan — contact sales for pricing</p>
       <button
         class="btn btn-primary btn-lg"
         (click)="upgradeToPro()"
         [disabled]="isLoading">
-        {{ isLoading ? 'Processing…' : 'Upgrade to Pro Now' }}
+        <ng-container *ngIf="isLoading" i18n="@@upgrade.processing">Processing…</ng-container>
+        <ng-container *ngIf="!isLoading" i18n="@@upgrade.submit">Upgrade to Pro Now</ng-container>
       </button>
-      <p class="back-link"><a routerLink="/dashboard">← Back to Dashboard</a></p>
+      <p class="back-link"><a routerLink="/dashboard" i18n="@@upgrade.back_dashboard">← Back to Dashboard</a></p>
     </div>
   </div>
 </div>

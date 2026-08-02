@@ -1,31 +1,30 @@
-# Stage 1: Build the Angular application
-FROM node:20.18.0 AS build
-
-# Install Angular CLI globally
-RUN npm install -g @angular/cli@19.0.0
-
+# ── Build ────────────────────────────────────────────────────────────────────
+FROM node:20-alpine AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-
-RUN npm install
+RUN npm ci
 
 COPY . .
 
-# Expose port 80
-EXPOSE 4200
+# Build each locale into its own output dir. Angular places the compiled app in a
+# subfolder named after the locale, with a per-locale base href:
+#   en-US  → dist/build-en/en-US/   base href "/en-US/"  (default)
+#   es-SP  → dist/build-es/es-SP/   base href "/es/"     (angular.json es-SP config)
+RUN npx ng build --configuration=production --output-path=dist/build-en
+RUN npx ng build --configuration=production,es-SP --output-path=dist/build-es
 
-#CMD ["npm", "start"]
-CMD ["ng", "serve", "--host", "0.0.0.0", "--disable-host-check"]
+# ── Runtime ──────────────────────────────────────────────────────────────────
+FROM nginx:alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Serve each locale under a path that matches its base href.
+COPY --from=build /app/dist/build-en/en-US /usr/share/nginx/html/en-US
+COPY --from=build /app/dist/build-es/es-SP /usr/share/nginx/html/es
 
-#RUN npm run build -- --configuration production
+EXPOSE 80
 
-# Stage 2: Serve the application from a lightweight web server
-#FROM nginx:alpine
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://localhost/en-US/ || exit 1
 
-#COPY --from=build /app/dist/shift-workfrontend /usr/share/nginx/html
-
-#EXPOSE 80
-
-#CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]

@@ -6,8 +6,8 @@
       <div class="logo-circle">
         <i class="fa fa-calendar-check-o"></i>
       </div>
-      <h1>Create your Loqzen account</h1>
-      <p class="sub">Get started in just a few steps — it's free</p>
+      <h1 i18n="@@registration.title">Create your Loqzen account</h1>
+      <p class="sub" i18n="@@registration.subtitle">Get started in just a few steps — it's free</p>
     </div>
 
     <!-- ── Step progress ── -->
@@ -17,7 +17,7 @@
           <span *ngIf="currentStep <= 1">1</span>
           <i *ngIf="currentStep > 1" class="fa fa-check"></i>
         </div>
-        <span class="step-label" [class.active]="currentStep === 1" [class.done]="currentStep > 1">Account</span>
+        <span class="step-label" [class.active]="currentStep === 1" [class.done]="currentStep > 1" i18n="@@registration.step_account">Account</span>
       </div>
       <div class="step-line" [class.done]="currentStep > 1"></div>
       <div class="step-node">
@@ -25,14 +25,14 @@
           <span *ngIf="currentStep <= 2">2</span>
           <i *ngIf="currentStep > 2" class="fa fa-check"></i>
         </div>
-        <span class="step-label" [class.active]="currentStep === 2" [class.done]="currentStep > 2">Company</span>
+        <span class="step-label" [class.active]="currentStep === 2" [class.done]="currentStep > 2" i18n="@@registration.step_company">Company</span>
       </div>
       <div class="step-line" [class.done]="currentStep > 2"></div>
       <div class="step-node">
         <div class="step-dot" [class.active]="currentStep === 3">
           <span>3</span>
         </div>
-        <span class="step-label" [class.active]="currentStep === 3">Confirm</span>
+        <span class="step-label" [class.active]="currentStep === 3" i18n="@@registration.step_confirm">Confirm</span>
       </div>
     </div>
 
@@ -43,10 +43,10 @@
 
     <!-- ── Step 1: User Info ── -->
     <form *ngIf="currentStep === 1" [formGroup]="userForm">
-      <p class="section-title">Your Account Details</p>
+      <p class="section-title" i18n="@@registration.step1_section">Your Account Details</p>
 
       <div class="form-group">
-        <label for="displayName">Full Name <span style="color:#dc3545">*</span></label>
+        <label for="displayName" i18n="@@auth.register.full_name">Full Name <span style="color:#dc3545">*</span></label>
         <div class="input-wrapper">
           <i class="fa fa-user input-icon"></i>
           <input id="displayName" type="text" class="form-control"
@@ -54,12 +54,13 @@
             [class.is-invalid]="userForm.get('displayName')?.invalid && userForm.get('displayName')?.touched" />
         </div>
         <div *ngIf="userForm.get('displayName')?.invalid && userForm.get('displayName')?.touched" class="field-error">
-          <i class="fa fa-exclamation-circle"></i> Name is required (min 2 characters).
+          <i class="fa fa-exclamation-circle"></i>
+          <ng-container i18n="@@registration.full_name_required">Name is required (min 2 characters).</ng-container>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="email">Email Address <span style="color:#dc3545">*</span></label>
+        <label for="email" i18n="@@auth.register.email">Email Address <span style="color:#dc3545">*</span></label>
         <div class="input-wrapper">
           <i class="fa fa-envelope input-icon"></i>
           <input id="email" type="email" class="form-control"
@@ -67,36 +68,39 @@
             [class.is-invalid]="userForm.get('email')?.invalid && userForm.get('email')?.touched" />
         </div>
         <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="field-error">
-          <i class="fa fa-exclamation-circle"></i> A valid email is required.
+          <i class="fa fa-exclamation-circle"></i>
+          <ng-container i18n="@@registration.email_required">A valid email is required.</ng-container>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="password">Password <span style="color:#dc3545">*</span></label>
+        <label for="password" i18n="@@auth.register.password">Password <span style="color:#dc3545">*</span></label>
         <div class="input-wrapper">
           <i class="fa fa-lock input-icon"></i>
           <input id="password" type="password" class="form-control"
             formControlName="password" placeholder="Min 8 characters" autocomplete="new-password"
+            i18n-placeholder="@@auth.register.password_hint"
             [class.is-invalid]="userForm.get('password')?.invalid && userForm.get('password')?.touched" />
         </div>
         <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="field-error">
-          <i class="fa fa-exclamation-circle"></i> Password must be at least 8 characters.
+          <i class="fa fa-exclamation-circle"></i>
+          <ng-container i18n="@@registration.password_min_8">Password must be at least 8 characters.</ng-container>
         </div>
       </div>
 
       <div class="form-actions">
         <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!isStep1Valid">
-          Next: Company Info <i class="fa fa-arrow-right"></i>
+          <ng-container i18n="@@registration.next_company">Next: Company Info</ng-container> <i class="fa fa-arrow-right"></i>
         </button>
       </div>
     </form>
 
     <!-- ── Step 2: Company Info ── -->
     <form *ngIf="currentStep === 2" [formGroup]="companyForm">
-      <p class="section-title">Your Company Details</p>
+      <p class="section-title" i18n="@@registration.step2_section">Your Company Details</p>
 
       <div class="form-group">
-        <label for="companyName">Company Name <span style="color:#dc3545">*</span></label>
+        <label for="companyName" i18n="@@auth.register.company_name">Company Name <span style="color:#dc3545">*</span></label>
         <div class="input-wrapper">
           <i class="fa fa-building input-icon"></i>
           <input id="companyName" type="text" class="form-control"
@@ -104,12 +108,13 @@
             [class.is-invalid]="companyForm.get('companyName')?.invalid && companyForm.get('companyName')?.touched" />
         </div>
         <div *ngIf="companyForm.get('companyName')?.invalid && companyForm.get('companyName')?.touched" class="field-error">
-          <i class="fa fa-exclamation-circle"></i> Company name is required.
+          <i class="fa fa-exclamation-circle"></i>
+          <ng-container i18n="@@registration.company_name_req">Company name is required.</ng-container>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="companyEmail">Company Email <span style="color:#dc3545">*</span></label>
+        <label for="companyEmail" i18n="@@auth.register.company_email">Company Email <span style="color:#dc3545">*</span></label>
         <div class="input-wrapper">
           <i class="fa fa-envelope input-icon"></i>
           <input id="companyEmail" type="email" class="form-control"
@@ -117,12 +122,13 @@
             [class.is-invalid]="companyForm.get('companyEmail')?.invalid && companyForm.get('companyEmail')?.touched" />
         </div>
         <div *ngIf="companyForm.get('companyEmail')?.invalid && companyForm.get('companyEmail')?.touched" class="field-error">
-          <i class="fa fa-exclamation-circle"></i> A valid company email is required.
+          <i class="fa fa-exclamation-circle"></i>
+          <ng-container i18n="@@registration.company_email_req">A valid company email is required.</ng-container>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="companyPhone">Phone Number <span style="color:#adb5bd;font-weight:400">(optional)</span></label>
+        <label for="companyPhone" i18n="@@registration.phone_label">Phone Number <span style="color:#adb5bd;font-weight:400">(optional)</span></label>
         <div class="input-wrapper">
           <i class="fa fa-phone input-icon"></i>
           <input id="companyPhone" type="tel" class="form-control"
@@ -131,7 +137,7 @@
       </div>
 
       <div class="form-group">
-        <label for="timeZone">Time Zone <span style="color:#dc3545">*</span></label>
+        <label for="timeZone" i18n="@@registration.time_zone">Time Zone <span style="color:#dc3545">*</span></label>
         <div class="input-wrapper">
           <i class="fa fa-globe input-icon"></i>
           <select id="timeZone" class="form-control" formControlName="timeZone">
@@ -149,59 +155,60 @@
 
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="prevStep()">
-          <i class="fa fa-arrow-left"></i> Back
+          <i class="fa fa-arrow-left"></i> <ng-container i18n="@@common.back">Back</ng-container>
         </button>
         <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!isStep2Valid">
-          Next: Confirm <i class="fa fa-arrow-right"></i>
+          <ng-container i18n="@@registration.next_confirm">Next: Confirm</ng-container> <i class="fa fa-arrow-right"></i>
         </button>
       </div>
     </form>
 
     <!-- ── Step 3: Confirm & Submit ── -->
     <div *ngIf="currentStep === 3">
-      <p class="section-title">Review &amp; Create Account</p>
+      <p class="section-title" i18n="@@registration.step3_section">Review &amp; Create Account</p>
 
       <div class="summary-card">
         <div class="summary-row">
-          <span class="label">Full Name</span>
+          <span class="label" i18n="@@auth.register.full_name">Full Name</span>
           <span class="value">{{ userForm.value.displayName }}</span>
         </div>
         <div class="summary-row">
-          <span class="label">Email</span>
+          <span class="label" i18n="@@auth.register.email">Email</span>
           <span class="value">{{ userForm.value.email }}</span>
         </div>
         <div class="summary-row">
-          <span class="label">Company</span>
+          <span class="label" i18n="@@registration.summary_company">Company</span>
           <span class="value">{{ companyForm.value.companyName }}</span>
         </div>
         <div class="summary-row">
-          <span class="label">Company Email</span>
+          <span class="label" i18n="@@auth.register.company_email">Company Email</span>
           <span class="value">{{ companyForm.value.companyEmail }}</span>
         </div>
         <div class="summary-row">
-          <span class="label">Time Zone</span>
+          <span class="label" i18n="@@registration.summary_timezone">Time Zone</span>
           <span class="value">{{ companyForm.value.timeZone }}</span>
         </div>
       </div>
 
       <div class="notice">
         <i class="fa fa-info-circle"></i>
-        A verification email will be sent to your inbox. Your company will start on the
-        <strong>Free plan</strong> with sandbox demo data so you can explore the app right away.
+        <ng-container i18n="@@registration.notice">A verification email will be sent to your inbox. Your company will start on the
+        <strong>Free plan</strong> with sandbox demo data so you can explore the app right away.</ng-container>
       </div>
 
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="prevStep()">
-          <i class="fa fa-arrow-left"></i> Back
+          <i class="fa fa-arrow-left"></i> <ng-container i18n="@@common.back">Back</ng-container>
         </button>
         <button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="isLoading">
           <span *ngIf="isLoading" class="spinner"></span>
           <i *ngIf="!isLoading" class="fa fa-check"></i>
-          {{ isLoading ? 'Creating account…' : 'Create Account' }}
+          <ng-container *ngIf="isLoading" i18n="@@registration.creating">Creating account…</ng-container>
+          <ng-container *ngIf="!isLoading" i18n="@@auth.register.submit">Create Account</ng-container>
         </button>
       </div>
     </div>
 
-    <p class="sign-in-link">Already have an account? <a routerLink="/auth/sign-in">Sign in</a></p>
+    <p class="sign-in-link" i18n="@@registration.sign_in_link">Already have an account? <a routerLink="/auth/sign-in">Sign in</a></p>
   </div>
 </div>

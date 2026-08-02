@@ -1,17 +1,17 @@
 <section class="overview-page">
   <header class="overview-hero">
     <div>
-      <p class="eyebrow">Operations Command</p>
-      <h1>Workforce Intelligence Dashboard</h1>
+      <p class="eyebrow" i18n="@@overview.eyebrow">Operations Command</p>
+      <h1 i18n="@@overview.title">Workforce Intelligence Dashboard</h1>
       <p class="hero-subtitle">
-        {{ activeCompanyName }}: real-time visibility of attendance, GPS compliance, labor health, and location-level exceptions.
+        {{ activeCompanyName }}: <ng-container i18n="@@overview.subtitle">real-time visibility of attendance, GPS compliance, labor health, and location-level exceptions.</ng-container>
       </p>
     </div>
 
     <div class="hero-actions">
       <button mat-stroked-button class="refresh-button" (click)="refreshCurrentData()" [disabled]="!activeCompanyId || loading">
         <mat-icon>autorenew</mat-icon>
-        Live Sync
+        <ng-container i18n="@@overview.live_sync">Live Sync</ng-container>
       </button>
 
       <div class="time-pill">
@@ -21,31 +21,13 @@
 
       <span class="loading-chip" *ngIf="loading">
         <mat-icon>hourglass_top</mat-icon>
-        Refreshing data...
+        <ng-container i18n="@@overview.refreshing">Refreshing data...</ng-container>
       </span>
 
       <div class="range-switcher" role="tablist" aria-label="Data range selector">
-        <button
-          type="button"
-          [class.active]="activeRange === '24h'"
-          (click)="setRange('24h')"
-        >
-          24h
-        </button>
-        <button
-          type="button"
-          [class.active]="activeRange === '7d'"
-          (click)="setRange('7d')"
-        >
-          7d
-        </button>
-        <button
-          type="button"
-          [class.active]="activeRange === '30d'"
-          (click)="setRange('30d')"
-        >
-          30d
-        </button>
+        <button type="button" [class.active]="activeRange === '24h'" (click)="setRange('24h')">24h</button>
+        <button type="button" [class.active]="activeRange === '7d'" (click)="setRange('7d')">7d</button>
+        <button type="button" [class.active]="activeRange === '30d'" (click)="setRange('30d')">30d</button>
       </div>
     </div>
   </header>
@@ -68,10 +50,10 @@
     <article class="panel">
       <div class="panel-header">
         <div>
-          <p class="panel-eyebrow">Shift Pulse</p>
-          <h2>Clock-in Activity</h2>
+          <p class="panel-eyebrow" i18n="@@overview.shift_pulse">Shift Pulse</p>
+          <h2 i18n="@@overview.clock_activity">Clock-in Activity</h2>
         </div>
-        <button mat-stroked-button color="primary" routerLink="/dashboard/shiftsummaries">
+        <button mat-stroked-button color="primary" routerLink="/dashboard/shiftsummaries" i18n="@@overview.open_summaries">
           Open Shift Summaries
         </button>
       </div>
@@ -89,18 +71,18 @@
       </div>
 
       <div class="activity-footer">
-        <span><strong>Peak:</strong> {{ maxActivityCount }} check-ins/hour</span>
-        <span><strong>Trend:</strong> Late arrivals dropped 9% compared to last week</span>
+        <span><strong i18n="@@overview.peak_label">Peak:</strong> {{ maxActivityCount }} <ng-container i18n="@@overview.checkins_hour">check-ins/hour</ng-container></span>
+        <span><strong i18n="@@overview.trend_label">Trend:</strong> <ng-container i18n="@@overview.late_dropped">Late arrivals dropped 9% compared to last week</ng-container></span>
       </div>
     </article>
 
     <article class="panel notifications-panel">
       <div class="panel-header">
         <div>
-          <p class="panel-eyebrow">Action Queue</p>
-          <h2>Operational Alerts</h2>
+          <p class="panel-eyebrow" i18n="@@overview.action_queue">Action Queue</p>
+          <h2 i18n="@@overview.alerts_title">Operational Alerts</h2>
         </div>
-        <span class="notification-count">{{ notifications.length }} open</span>
+        <span class="notification-count">{{ notifications.length }} <ng-container i18n="@@overview.notifications_open">open</ng-container></span>
       </div>
 
       <div class="notification-list">
@@ -116,7 +98,7 @@
         </article>
       </div>
 
-      <button mat-flat-button color="primary" routerLink="/dashboard/people-management">
+      <button mat-flat-button color="primary" routerLink="/dashboard/people-management" i18n="@@overview.review_team">
         Review Team Impact
       </button>
     </article>
@@ -126,10 +108,10 @@
     <article class="panel location-panel">
       <div class="panel-header">
         <div>
-          <p class="panel-eyebrow">By Location</p>
-          <h2>GPS and Attendance Compliance</h2>
+          <p class="panel-eyebrow" i18n="@@overview.by_location">By Location</p>
+          <h2 i18n="@@overview.gps_compliance">GPS and Attendance Compliance</h2>
         </div>
-        <button mat-stroked-button color="primary" routerLink="/dashboard/locations">
+        <button mat-stroked-button color="primary" routerLink="/dashboard/locations" i18n="@@overview.manage_locations">
           Manage Locations
         </button>
       </div>
@@ -139,15 +121,15 @@
           <div class="location-main">
             <h3>{{ location.name }}</h3>
             <div class="location-stats">
-              <span><mat-icon>badge</mat-icon> {{ location.onShift }} on shift</span>
-              <span><mat-icon>alarm</mat-icon> {{ location.late }} late</span>
-              <span><mat-icon>report_problem</mat-icon> {{ location.geofenceBreaches }} breaches</span>
+              <span><mat-icon>badge</mat-icon> {{ location.onShift }} <ng-container i18n="@@overview.on_shift">on shift</ng-container></span>
+              <span><mat-icon>alarm</mat-icon> {{ location.late }} <ng-container i18n="@@overview.late_label">late</ng-container></span>
+              <span><mat-icon>report_problem</mat-icon> {{ location.geofenceBreaches }} <ng-container i18n="@@overview.breaches">breaches</ng-container></span>
             </div>
           </div>
 
           <div class="gps-ring" [style.background]="getComplianceBackground(location.gpsCompliance)">
             <span>{{ location.gpsCompliance }}%</span>
-            <small>GPS</small>
+            <small i18n="@@overview.gps_ring">GPS</small>
           </div>
         </article>
       </div>
@@ -156,8 +138,8 @@
     <article class="panel quick-actions-panel">
       <div class="panel-header">
         <div>
-          <p class="panel-eyebrow">Next Moves</p>
-          <h2>Recommended Actions</h2>
+          <p class="panel-eyebrow" i18n="@@overview.next_moves">Next Moves</p>
+          <h2 i18n="@@overview.recommended_actions">Recommended Actions</h2>
         </div>
       </div>
 
@@ -165,24 +147,24 @@
         <a class="action-link" routerLink="/dashboard/schedule-grid">
           <mat-icon>view_comfy</mat-icon>
           <div>
-            <h3>Balance schedules for overtime hotspots</h3>
-            <p>Auto-reassign 5 shifts with one-click optimization.</p>
+            <h3 i18n="@@overview.action_balance">Balance schedules for overtime hotspots</h3>
+            <p i18n="@@overview.action_balance_desc">Auto-reassign 5 shifts with one-click optimization.</p>
           </div>
         </a>
 
         <a class="action-link" routerLink="/dashboard/time-off-approvals">
           <mat-icon>event_available</mat-icon>
           <div>
-            <h3>Resolve pending PTO approvals</h3>
-            <p>3 requests are impacting coverage for tomorrow morning.</p>
+            <h3 i18n="@@overview.action_pto">Resolve pending PTO approvals</h3>
+            <p i18n="@@overview.action_pto_desc">3 requests are impacting coverage for tomorrow morning.</p>
           </div>
         </a>
 
         <a class="action-link" routerLink="/dashboard/people">
           <mat-icon>supervisor_account</mat-icon>
           <div>
-            <h3>Coach frequent late arrivals</h3>
-            <p>4 employees exceeded lateness threshold this week.</p>
+            <h3 i18n="@@overview.action_coach">Coach frequent late arrivals</h3>
+            <p i18n="@@overview.action_coach_desc">4 employees exceeded lateness threshold this week.</p>
           </div>
         </a>
       </div>
@@ -192,8 +174,8 @@
   <section class="next-version-panel panel" aria-label="Recommended features for next dashboard version">
     <div class="panel-header">
       <div>
-        <p class="panel-eyebrow">Roadmap</p>
-        <h2>Recommended Features For Next Version</h2>
+        <p class="panel-eyebrow" i18n="@@overview.roadmap">Roadmap</p>
+        <h2 i18n="@@overview.next_features">Recommended Features For Next Version</h2>
       </div>
     </div>
 
@@ -208,7 +190,7 @@
 
         <h3>{{ feature.title }}</h3>
         <p class="next-feature-summary">{{ feature.summary }}</p>
-        <p class="next-feature-impact"><strong>Expected impact:</strong> {{ feature.impact }}</p>
+        <p class="next-feature-impact"><strong i18n="@@overview.expected_impact">Expected impact:</strong> {{ feature.impact }}</p>
       </article>
     </div>
   </section>

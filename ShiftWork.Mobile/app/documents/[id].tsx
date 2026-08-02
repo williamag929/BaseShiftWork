@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@/store/authStore';
 import { documentService, DocumentDetail } from '@/services/document.service';
 import { colors, spacing, radius } from '@/styles/tokens';
+import { useTranslation } from '@/i18n';
 
 const TYPE_ICON: Record<string, React.ComponentPropsWithRef<typeof Ionicons>['name']> = {
   SafetyDataSheet: 'warning-outline',
@@ -52,6 +53,7 @@ export default function DocumentDetailScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { companyId } = useAuthStore();
+  const { t } = useTranslation();
 
   const [detail, setDetail]   = useState<DocumentDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -95,7 +97,7 @@ export default function DocumentDetailScreen() {
       <View style={[styles.navBar, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="chevron-back" size={26} color={colors.primary} />
-          <Text style={styles.backText}>Documents</Text>
+          <Text style={styles.backText}>{t('document_detail.back')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -117,7 +119,7 @@ export default function DocumentDetailScreen() {
             ? <ActivityIndicator color="#fff" />
             : <>
                 <Ionicons name="open-outline" size={20} color="#fff" />
-                <Text style={styles.openBtnText}>Open Document</Text>
+                <Text style={styles.openBtnText}>{t('document_detail.open_btn')}</Text>
               </>
           }
         </TouchableOpacity>
@@ -125,21 +127,21 @@ export default function DocumentDetailScreen() {
         {/* Description */}
         {!!detail.description && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>DESCRIPTION</Text>
+            <Text style={styles.sectionLabel}>{t('document_detail.description')}</Text>
             <Text style={styles.sectionBody}>{detail.description}</Text>
           </View>
         )}
 
         {/* Metadata */}
         <View style={styles.metaGrid}>
-          <MetaRow icon="layers-outline"   label="Version"     value={`v${detail.version}`} />
-          <MetaRow icon="document-outline" label="File Size"   value={formatBytes(detail.fileSize)} />
-          <MetaRow icon="person-outline"   label="Uploaded By" value={detail.uploadedByName} />
-          <MetaRow icon="calendar-outline" label="Added"       value={new Date(detail.createdAt).toLocaleDateString()} />
-          <MetaRow icon="eye-outline"      label="Total Opens" value={`${detail.totalReads}`} />
+          <MetaRow icon="layers-outline"   label={t('document_detail.version')}      value={`v${detail.version}`} />
+          <MetaRow icon="document-outline" label={t('document_detail.file_size')}    value={formatBytes(detail.fileSize)} />
+          <MetaRow icon="person-outline"   label={t('document_detail.uploaded_by')}  value={detail.uploadedByName} />
+          <MetaRow icon="calendar-outline" label={t('document_detail.added')}        value={new Date(detail.createdAt).toLocaleDateString()} />
+          <MetaRow icon="eye-outline"      label={t('document_detail.total_opens')}  value={`${detail.totalReads}`} />
           <MetaRow
             icon="shield-outline"
-            label="Access"
+            label={t('document_detail.access')}
             value={access?.label ?? detail.accessLevel}
             valueColor={access?.color}
           />
@@ -148,7 +150,7 @@ export default function DocumentDetailScreen() {
         {/* Tags */}
         {detail.tags && detail.tags.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>TAGS</Text>
+            <Text style={styles.sectionLabel}>{t('document_detail.tags')}</Text>
             <View style={styles.tagRow}>
               {detail.tags.map(tag => (
                 <View key={tag} style={styles.tag}>

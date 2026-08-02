@@ -1,0 +1,38 @@
+{
+  "schedule_published": {
+    "title": "Horario publicado",
+    "body": "Nuevo horario disponible del {{start}} al {{end}}"
+  },
+  "shift_assigned": {
+    "title": "Nuevo turno asignado",
+    "body": "Tienes un nuevo turno el {{date}}"
+  },
+  "shift_changed": {
+    "title": "Turno actualizado",
+    "body": "Tu turno del {{date}} ha sido actualizado: {{change}}"
+  },
+  "time_off_approved": {
+    "title": "Tiempo libre aprobado",
+    "body": "Tu solicitud de {{type}} del {{start}} al {{end}} ha sido aprobada"
+  },
+  "time_off_denied": {
+    "title": "Actualización de solicitud de tiempo libre",
+    "body": "Tu solicitud de {{type}} del {{start}} al {{end}} ha sido revisada"
+  },
+  "bulletin_posted": {
+    "title": "{{title}}",
+    "body": "Nuevo boletín de {{type}} publicado"
+  },
+  "bulletin_posted_urgent": {
+    "title": "⚠ {{title}}",
+    "body": "Nuevo boletín de {{type}} publicado"
+  },
+  "safety_posted": {
+    "title": "{{title}}",
+    "body": "Nuevo {{type}} publicado — toca para ver"
+  },
+  "safety_posted_ack": {
+    "title": "Acción requerida: {{title}}",
+    "body": "Nuevo {{type}} publicado — toca para ver"
+  }
+}

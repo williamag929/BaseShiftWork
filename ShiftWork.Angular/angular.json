@@ -52,6 +52,11 @@
             ]
           },
           "configurations": {
+            "es-SP": {
+              "localize": ["es-SP"],
+              "baseHref": "/es/",
+              "outputPath": "dist/shift-workfrontend/es"
+            },
             "production": {
               "budgets": [
                 {

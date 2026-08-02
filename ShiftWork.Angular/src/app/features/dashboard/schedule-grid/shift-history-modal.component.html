@@ -2,7 +2,7 @@
 <div class="modal-content">
   <div class="modal-header">
     <div class="header-title">
-      <span class="modal-title">Shift History</span>
+      <span class="modal-title" i18n="@@shift_history.title">Shift History</span>
       <span class="person-name">{{ personName }}</span>
     </div>
     <button class="close-btn" (click)="onClose()">&times;</button>
@@ -10,32 +10,32 @@
 
   <div class="modal-filters">
     <div class="filter-group">
-      <label for="date-range">Date Range</label>
-      <select 
-        id="date-range" 
-        class="filter-select" 
+      <label for="date-range" i18n="@@shift_history.date_range">Date Range</label>
+      <select
+        id="date-range"
+        class="filter-select"
         [(ngModel)]="dateRange"
         (change)="onDateRangeChange()"
       >
-        <option value="week">Past Week</option>
-        <option value="month">Past Month</option>
-        <option value="quarter">Past 3 Months</option>
-        <option value="year">Past Year</option>
-        <option value="all">All History</option>
+        <option value="week" i18n="@@shift_history.past_week">Past Week</option>
+        <option value="month" i18n="@@shift_history.past_month">Past Month</option>
+        <option value="quarter" i18n="@@shift_history.past_3_months">Past 3 Months</option>
+        <option value="year" i18n="@@shift_history.past_year">Past Year</option>
+        <option value="all" i18n="@@shift_history.all_history">All History</option>
       </select>
     </div>
 
     <div class="filter-group">
-      <label for="status-filter">Status</label>
-      <select 
-        id="status-filter" 
-        class="filter-select" 
+      <label for="status-filter" i18n="@@shift_history.status_filter">Status</label>
+      <select
+        id="status-filter"
+        class="filter-select"
         [(ngModel)]="statusFilter"
       >
-        <option value="all">All</option>
-        <option value="completed">Completed</option>
-        <option value="missed">Missed</option>
-        <option value="sick">Sick</option>
+        <option value="all" i18n="@@shift_history.all_status">All</option>
+        <option value="completed" i18n="@@shift_history.completed">Completed</option>
+        <option value="missed" i18n="@@shift_history.missed">Missed</option>
+        <option value="sick" i18n="@@shift_history.sick">Sick</option>
       </select>
     </div>
   </div>
@@ -43,7 +43,7 @@
   <div class="modal-body">
     <div class="loading-spinner" *ngIf="loading">
       <div class="spinner"></div>
-      <span>Loading shift history...</span>
+      <span i18n="@@shift_history.loading">Loading shift history...</span>
     </div>
 
     <div class="error-message" *ngIf="errorMessage && !loading">
@@ -58,12 +58,12 @@
 
     <div class="no-data" *ngIf="!loading && !errorMessage && filteredEntries.length === 0">
       <i class="bi bi-calendar-x"></i>
-      <span>No shift history found for the selected period</span>
+      <span i18n="@@shift_history.no_data">No shift history found for the selected period</span>
     </div>
 
     <div class="history-list" *ngIf="!loading && !errorMessage && filteredEntries.length > 0">
-      <div 
-        class="history-entry" 
+      <div
+        class="history-entry"
         *ngFor="let entry of filteredEntries"
         [class.completed]="entry.status === 'completed'"
         [class.missed]="entry.status === 'missed'"
@@ -85,42 +85,42 @@
           <div class="time-info" *ngIf="entry.status === 'completed' || entry.status === 'partial'">
             <div class="time-row">
               <i class="bi bi-box-arrow-in-right"></i>
-              <span class="time-label">Clock In:</span>
+              <span class="time-label" i18n="@@shift_history.clock_in">Clock In:</span>
               <span class="time-value">{{ formatTime(entry.clockIn) }}</span>
             </div>
             <div class="time-row" *ngIf="entry.clockOut">
               <i class="bi bi-box-arrow-left"></i>
-              <span class="time-label">Clock Out:</span>
+              <span class="time-label" i18n="@@shift_history.clock_out">Clock Out:</span>
               <span class="time-value">{{ formatTime(entry.clockOut) }}</span>
             </div>
             <div class="duration-row" *ngIf="entry.duration">
               <i class="bi bi-clock"></i>
-              <span class="duration-label">Duration:</span>
+              <span class="duration-label" i18n="@@shift_history.duration">Duration:</span>
               <span class="duration-value">{{ entry.duration }}</span>
             </div>
             <div class="history-actions">
               <button class="action-btn" (click)="startEditClockTimes(entry)">
                 <i class="bi bi-pencil"></i>
-                Edit Clock Times
+                <ng-container i18n="@@shift_history.edit_clock">Edit Clock Times</ng-container>
               </button>
               <button class="action-btn warn" *ngIf="canManualClockOut(entry)" (click)="manualClockOut(entry)">
                 <i class="bi bi-box-arrow-left"></i>
-                Manual Clock Out
+                <ng-container i18n="@@shift_history.manual_clock_out">Manual Clock Out</ng-container>
               </button>
             </div>
 
             <div class="clock-edit" *ngIf="editingClockEntryKey === entry.date.toDateString()">
               <label>
-                Clock In
+                <ng-container i18n="@@shift_history.clock_in_label">Clock In</ng-container>
                 <input type="time" [(ngModel)]="editClockInTime" />
               </label>
               <label>
-                Clock Out
+                <ng-container i18n="@@shift_history.clock_out_label">Clock Out</ng-container>
                 <input type="time" [(ngModel)]="editClockOutTime" />
               </label>
               <div class="clock-edit-actions">
-                <button class="action-btn success" (click)="saveClockTimes(entry)">Save</button>
-                <button class="action-btn ghost" (click)="cancelEditClockTimes()">Cancel</button>
+                <button class="action-btn success" (click)="saveClockTimes(entry)" i18n="@@common.save">Save</button>
+                <button class="action-btn ghost" (click)="cancelEditClockTimes()" i18n="@@common.cancel">Cancel</button>
               </div>
             </div>
           </div>
@@ -138,30 +138,30 @@
               <div class="schedule-actions" *ngIf="editingScheduleId !== schedule.scheduleId">
                 <button class="action-btn" (click)="startEditSchedule(schedule)">
                   <i class="bi bi-pencil"></i>
-                  Edit Time
+                  <ng-container i18n="@@shift_history.edit_time">Edit Time</ng-container>
                 </button>
                 <button class="action-btn success" *ngIf="isUnpublished(schedule)" (click)="approveSchedule(schedule)">
                   <i class="bi bi-check-circle"></i>
-                  Approve
+                  <ng-container i18n="@@shift_history.approve">Approve</ng-container>
                 </button>
                 <button class="action-btn warn" *ngIf="canApproveMissed(entry)" (click)="approveMissedShift(entry)">
                   <i class="bi bi-check2-square"></i>
-                  Approve Missed
+                  <ng-container i18n="@@shift_history.approve_missed">Approve Missed</ng-container>
                 </button>
               </div>
 
               <div class="schedule-edit" *ngIf="editingScheduleId === schedule.scheduleId">
                 <label>
-                  Start
+                  <ng-container i18n="@@shift_history.start">Start</ng-container>
                   <input type="time" [(ngModel)]="editStartTime" />
                 </label>
                 <label>
-                  End
+                  <ng-container i18n="@@shift_history.end">End</ng-container>
                   <input type="time" [(ngModel)]="editEndTime" />
                 </label>
                 <div class="schedule-edit-actions">
-                  <button class="action-btn success" (click)="saveScheduleTime(schedule)">Save</button>
-                  <button class="action-btn ghost" (click)="cancelEditSchedule()">Cancel</button>
+                  <button class="action-btn success" (click)="saveScheduleTime(schedule)" i18n="@@common.save">Save</button>
+                  <button class="action-btn ghost" (click)="cancelEditSchedule()" i18n="@@common.cancel">Cancel</button>
                 </div>
               </div>
             </div>
@@ -181,18 +181,18 @@
   <div class="modal-footer">
     <div class="summary-stats" *ngIf="!loading && filteredEntries.length > 0">
       <div class="stat">
-        <span class="stat-label">Total Shifts:</span>
+        <span class="stat-label" i18n="@@shift_history.total_shifts">Total Shifts:</span>
         <span class="stat-value">{{ filteredEntries.length }}</span>
       </div>
       <div class="stat">
-        <span class="stat-label">Completed:</span>
+        <span class="stat-label" i18n="@@shift_history.completed_stat">Completed:</span>
         <span class="stat-value completed">{{ getCompletedCount() }}</span>
       </div>
       <div class="stat">
-        <span class="stat-label">Missed:</span>
+        <span class="stat-label" i18n="@@shift_history.missed_stat">Missed:</span>
         <span class="stat-value missed">{{ getMissedCount() }}</span>
       </div>
     </div>
-    <button class="btn-close" (click)="onClose()">Close</button>
+    <button class="btn-close" (click)="onClose()" i18n="@@shift_history.close">Close</button>
   </div>
 </div>

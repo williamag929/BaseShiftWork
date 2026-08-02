@@ -1,6 +1,29 @@
 name: shiftwork
 
 services:
+
+  # ── SQL Server ──────────────────────────────────────────────────────────────
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: shiftwork-mssql
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "${SA_PASSWORD:-Your_password123}"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    networks:
+      - shiftwork-net
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$SA_PASSWORD\" -Q 'SELECT 1' -No || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ── API (.NET 9) ────────────────────────────────────────────────────────────
   api:
     build:
       context: ./ShiftWork.Api
@@ -8,54 +31,67 @@ services:
     image: shiftwork/api:local
     container_name: shiftwork-api
     environment:
-      # REQUIRED: Update these to your environment
-      DB_CONNECTION_STRING: "Server=mssql;Database=ShiftWork;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
-      FIREBASE_PROJECT_ID: "your-project"
-      FIREBASE_AUTH_DOMAIN: "your-project.firebaseapp.com"
-      FIREBASE_API_KEY: "your-firebase-web-api-key"
-      # Optional: control ASP.NET Core runtime
-      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_ENVIRONMENT: "${ASPNETCORE_ENVIRONMENT:-Production}"
       ASPNETCORE_URLS: "http://0.0.0.0:80"
+      # Database (value comes from the root .env — DB_CONNECTION_STRING)
+      DB_CONNECTION_STRING: "${DB_CONNECTION_STRING}"
+      # Firebase
+      FIREBASE_PROJECT_ID: "${FIREBASE_PROJECT_ID}"
+      FIREBASE_AUTH_DOMAIN: "${FIREBASE_AUTH_DOMAIN}"
+      FIREBASE_API_KEY: "${FIREBASE_API_KEY}"
+      # AWS S3
+      AWS_REGION: "${AWS_REGION}"
+      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+      AWS_S3_BUCKET: "${AWS_S3_BUCKET}"
+      # Email (SMTP)
+      Smtp__Host: "${SMTP_HOST}"
+      Smtp__Port: "${SMTP_PORT:-587}"
+      Smtp__Username: "${SMTP_USERNAME}"
+      Smtp__Password: "${SMTP_PASSWORD}"
+      Smtp__From: "${SMTP_FROM}"
+      # Push notifications
+      EXPO_PUSH_API_URL: "${EXPO_PUSH_API_URL:-https://exp.host/--/api/v2/push/send}"
+      # Weather (daily reports)
+      OPENWEATHER_API_KEY: "${OPENWEATHER_API_KEY}"
     ports:
       - "5000:80"
-    #depends_on:
-    #  - mssql
+    depends_on:
+      mssql:
+        condition: service_healthy
     networks:
       - shiftwork-net
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
+  # ── Angular web (nginx) ─────────────────────────────────────────────────────
   web:
     build:
       context: ./ShiftWork.Angular
       dockerfile: Dockerfile
     image: shiftwork/web:local
     container_name: shiftwork-web
-    # Mount the Angular .env so custom webpack can inject process.env for ng serve
-    volumes:
-      - ./ShiftWork.Angular/.env:/app/.env:ro
     environment:
-      # If your Angular code reads process.env directly at runtime, you can set here too
-      API_URL: "http://localhost:5000"
+      API_URL: "http://api:80"
     ports:
-      - "4200:4200"
+      - "4200:80"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     networks:
       - shiftwork-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
-  #mssql:
-  #  image: mcr.microsoft.com/mssql/server:2022-latest
-  #  container_name: shiftwork-mssql
-  #  environment:
-  #    ACCEPT_EULA: "Y"
-  #    SA_PASSWORD: "Your_password123"
-  #    MSSQL_PID: "Developer"
-  #  ports:
-  #    - "1433:1433"
-  #  volumes:
-  #    - mssql-data:/var/opt/mssql
-  #  networks:
-  #    - shiftwork-net
-
+  # ── MCP Python server ───────────────────────────────────────────────────────
   mcp:
     build:
       context: ./python_client
@@ -68,12 +104,13 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     networks:
       - shiftwork-net
 
-#volumes:
-#  mssql-data:
+volumes:
+  mssql-data:
 
 networks:
   shiftwork-net:

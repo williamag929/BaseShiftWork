@@ -1,54 +1,57 @@
 <div class="modal-backdrop" (click)="onClose()"></div>
 <div class="modal-content">
   <div class="modal-header">
-    <span class="modal-title">Repeat Shift Pattern</span>
+    <span class="modal-title" i18n="@@repeat_pattern.title">Repeat Shift Pattern</span>
     <button class="close-btn" (click)="onClose()">&times;</button>
   </div>
 
   <div class="modal-body">
     <div class="form-group">
-      <label for="person-name">Employee</label>
-      <input 
-        type="text" 
-        id="person-name" 
-        class="form-input" 
-        [value]="personName" 
-        disabled 
+      <label for="person-name" i18n="@@repeat_pattern.employee">Employee</label>
+      <input
+        type="text"
+        id="person-name"
+        class="form-input"
+        [value]="personName"
+        disabled
       />
     </div>
 
     <div class="form-group">
-      <label for="pattern-type">Pattern Type</label>
-      <select 
-        id="pattern-type" 
-        class="form-select" 
+      <label for="pattern-type" i18n="@@repeat_pattern.pattern_type">Pattern Type</label>
+      <select
+        id="pattern-type"
+        class="form-select"
         [(ngModel)]="patternType"
       >
-        <option value="daily">Daily</option>
-        <option value="weekly">Weekly</option>
-        <option value="biweekly">Bi-weekly (every 2 weeks)</option>
-        <option value="monthly">Monthly</option>
+        <option value="daily" i18n="@@repeat_pattern.daily">Daily</option>
+        <option value="weekly" i18n="@@repeat_pattern.weekly">Weekly</option>
+        <option value="biweekly" i18n="@@repeat_pattern.biweekly">Bi-weekly (every 2 weeks)</option>
+        <option value="monthly" i18n="@@repeat_pattern.monthly">Monthly</option>
       </select>
     </div>
 
     <div class="form-group" *ngIf="patternType === 'daily' || patternType === 'monthly'">
-      <label for="repeat-every">Repeat Every</label>
+      <label for="repeat-every" i18n="@@repeat_pattern.repeat_every">Repeat Every</label>
       <div class="repeat-input-group">
-        <input 
-          type="number" 
-          id="repeat-every" 
-          class="form-input-small" 
+        <input
+          type="number"
+          id="repeat-every"
+          class="form-input-small"
           [(ngModel)]="repeatEvery"
           min="1"
         />
-        <span class="repeat-label">{{ patternType === 'daily' ? 'day(s)' : 'month(s)' }}</span>
+        <span class="repeat-label">
+          <ng-container *ngIf="patternType === 'daily'" i18n="@@repeat_pattern.days_unit">day(s)</ng-container>
+          <ng-container *ngIf="patternType !== 'daily'" i18n="@@repeat_pattern.months_unit">month(s)</ng-container>
+        </span>
       </div>
     </div>
 
     <div class="form-group" *ngIf="patternType === 'weekly' || patternType === 'biweekly'">
-      <label>Repeat On</label>
+      <label i18n="@@repeat_pattern.repeat_on">Repeat On</label>
       <div class="days-selector">
-        <button 
+        <button
           *ngFor="let day of dayNames; let i = index"
           type="button"
           class="day-btn"
@@ -61,38 +64,38 @@
     </div>
 
     <div class="form-group">
-      <label>End</label>
+      <label i18n="@@repeat_pattern.end">End</label>
       <div class="radio-group">
         <label class="radio-label">
-          <input 
-            type="radio" 
-            name="endType" 
+          <input
+            type="radio"
+            name="endType"
             value="occurrences"
             [(ngModel)]="endType"
           />
-          <span>After</span>
-          <input 
-            type="number" 
-            class="form-input-inline" 
+          <span i18n="@@repeat_pattern.after">After</span>
+          <input
+            type="number"
+            class="form-input-inline"
             [(ngModel)]="occurrences"
             [disabled]="endType !== 'occurrences'"
             min="1"
           />
-          <span>occurrence(s)</span>
+          <span i18n="@@repeat_pattern.occurrences">occurrence(s)</span>
         </label>
       </div>
       <div class="radio-group">
         <label class="radio-label">
-          <input 
-            type="radio" 
-            name="endType" 
+          <input
+            type="radio"
+            name="endType"
             value="date"
             [(ngModel)]="endType"
           />
-          <span>On</span>
-          <input 
-            type="date" 
-            class="form-input-inline-date" 
+          <span i18n="@@repeat_pattern.on_date">On</span>
+          <input
+            type="date"
+            class="form-input-inline-date"
             [(ngModel)]="endDate"
             [disabled]="endType !== 'date'"
           />
@@ -102,7 +105,7 @@
 
     <div class="info-message">
       <i class="bi bi-info-circle"></i>
-      <span>This will create multiple shifts based on your pattern. Review them in the schedule grid.</span>
+      <span i18n="@@repeat_pattern.info_msg">This will create multiple shifts based on your pattern. Review them in the schedule grid.</span>
     </div>
 
     <div class="error-message" *ngIf="errorMessage">
@@ -112,10 +115,10 @@
   </div>
 
   <div class="modal-footer">
-    <button class="btn-cancel" (click)="onClose()">
+    <button class="btn-cancel" (click)="onClose()" i18n="@@common.cancel">
       Cancel
     </button>
-    <button class="btn-submit" (click)="onSubmit()">
+    <button class="btn-submit" (click)="onSubmit()" i18n="@@repeat_pattern.create">
       Create Shifts
     </button>
   </div>

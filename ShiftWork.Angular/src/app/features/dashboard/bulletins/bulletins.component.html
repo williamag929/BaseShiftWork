@@ -7,68 +7,70 @@
         <mat-icon>campaign</mat-icon>
       </div>
       <div class="header-text">
-        <h1 class="page-title">Bulletins</h1>
-        <p class="page-subtitle">Company-wide announcements and updates</p>
+        <h1 class="page-title" i18n="@@bulletins.title">Bulletins</h1>
+        <p class="page-subtitle" i18n="@@bulletins.page_subtitle">Company-wide announcements and updates</p>
       </div>
-      <span class="badge badge-blue" *ngIf="unreadCount() > 0">{{ unreadCount() }} unread</span>
+      <span class="badge badge-blue" *ngIf="unreadCount() > 0">{{ unreadCount() }} <ng-container i18n="@@bulletins.unread_badge">unread</ng-container></span>
     </div>
     <button mat-flat-button color="primary" class="cta-btn" *ngIf="canCreate" (click)="showForm = !showForm">
-      <mat-icon>add</mat-icon> New Bulletin
+      <mat-icon>add</mat-icon>
+      <ng-container i18n="@@bulletins.new_btn">New Bulletin</ng-container>
     </button>
   </div>
 
   <!-- Create Form -->
   <div class="form-panel" *ngIf="showForm && canCreate">
     <div class="form-panel-header">
-      <h2>New Bulletin</h2>
+      <h2 i18n="@@bulletins.form_heading">New Bulletin</h2>
       <button mat-icon-button (click)="showForm = false"><mat-icon>close</mat-icon></button>
     </div>
     <form [formGroup]="form">
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Title</mat-label>
-        <input matInput formControlName="title" placeholder="Enter bulletin title" />
+        <mat-label i18n="@@bulletins.form_title">Title</mat-label>
+        <input matInput formControlName="title" placeholder="Enter bulletin title" i18n-placeholder="@@bulletins.form_title_ph" />
       </mat-form-field>
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Content</mat-label>
-        <textarea matInput formControlName="content" rows="4" placeholder="Write your message..."></textarea>
+        <mat-label i18n="@@bulletins.form_content">Content</mat-label>
+        <textarea matInput formControlName="content" rows="4" placeholder="Write your message..." i18n-placeholder="@@bulletins.form_content_ph"></textarea>
       </mat-form-field>
       <div class="form-cols">
         <mat-form-field appearance="outline">
-          <mat-label>Type</mat-label>
+          <mat-label i18n="@@bulletins.form_type">Type</mat-label>
           <mat-select formControlName="type">
             <mat-option *ngFor="let t of types" [value]="t">{{ t }}</mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Priority</mat-label>
+          <mat-label i18n="@@bulletins.form_priority">Priority</mat-label>
           <mat-select formControlName="priority">
             <mat-option *ngFor="let p of priorities" [value]="p">{{ p }}</mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Location Scope</mat-label>
+          <mat-label i18n="@@bulletins.form_location">Location Scope</mat-label>
           <mat-select formControlName="locationId">
-            <mat-option [value]="null">All locations</mat-option>
+            <mat-option [value]="null" i18n="@@bulletins.form_all_locations">All locations</mat-option>
             <mat-option *ngFor="let l of locations" [value]="l.locationId">{{ l.name }}</mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Status</mat-label>
+          <mat-label i18n="@@bulletins.form_status">Status</mat-label>
           <mat-select formControlName="status">
             <mat-option *ngFor="let s of statuses" [value]="s">{{ s }}</mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Expires At</mat-label>
+          <mat-label i18n="@@bulletins.form_expires">Expires At</mat-label>
           <input matInput [matDatepicker]="picker" formControlName="expiresAt" />
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
       </div>
       <div class="form-actions">
-        <button mat-stroked-button type="button" (click)="showForm = false">Cancel</button>
+        <button mat-stroked-button type="button" (click)="showForm = false" i18n="@@common.cancel">Cancel</button>
         <button mat-flat-button color="primary" type="button" (click)="submit()" [disabled]="form.invalid">
-          <mat-icon>send</mat-icon> Publish
+          <mat-icon>send</mat-icon>
+          <ng-container i18n="@@bulletins.form_publish">Publish</ng-container>
         </button>
       </div>
     </form>
@@ -76,15 +78,16 @@
 
   <!-- Filter Bar -->
   <div class="filter-bar">
-    <button class="filter-btn" [class.active]="activeFilter === 'all'" (click)="setFilter('all')">
+    <button class="filter-btn" [class.active]="activeFilter === 'all'" (click)="setFilter('all')" i18n="@@bulletins.filter_all">
       All
     </button>
     <button class="filter-btn" [class.active]="activeFilter === 'unread'" (click)="setFilter('unread')">
-      Unread
+      <ng-container i18n="@@bulletins.filter_unread">Unread</ng-container>
       <span class="filter-pill blue" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
     </button>
     <button class="filter-btn filter-btn-warn" [class.active]="activeFilter === 'urgent'" (click)="setFilter('urgent')">
-      <mat-icon>warning_amber</mat-icon> Urgent
+      <mat-icon>warning_amber</mat-icon>
+      <ng-container i18n="@@bulletins.filter_urgent">Urgent</ng-container>
     </button>
   </div>
 
@@ -92,13 +95,13 @@
   <div class="error-banner" *ngIf="errorMessage && !loading">
     <mat-icon>error_outline</mat-icon>
     <span>{{ errorMessage }}</span>
-    <button mat-stroked-button (click)="retry()">Retry</button>
+    <button mat-stroked-button (click)="retry()" i18n="@@bulletins.retry">Retry</button>
   </div>
 
   <!-- Loading -->
   <div class="loading-state" *ngIf="loading">
     <mat-spinner diameter="40"></mat-spinner>
-    <p>Loading bulletins...</p>
+    <p i18n="@@bulletins.loading">Loading bulletins...</p>
   </div>
 
   <!-- Bulletin List -->
@@ -116,16 +119,16 @@
           <div class="bulletin-badges">
             <span class="type-badge">{{ b.type }}</span>
             <span class="priority-badge" [ngClass]="'prio-' + b.priority.toLowerCase()">{{ b.priority }}</span>
-            <span class="unread-dot" *ngIf="!b.isReadByCurrentUser" matTooltip="Unread"></span>
+            <span class="unread-dot" *ngIf="!b.isReadByCurrentUser" matTooltip="Unread" i18n-matTooltip="@@bulletins.unread_tooltip"></span>
           </div>
           <div class="bulletin-controls">
-            <span class="read-check" *ngIf="b.isReadByCurrentUser" matTooltip="Read">
+            <span class="read-check" *ngIf="b.isReadByCurrentUser" matTooltip="Read" i18n-matTooltip="@@bulletins.read_tooltip">
               <mat-icon>check_circle</mat-icon>
             </span>
-            <span class="reads-counter" matTooltip="Total reads">
+            <span class="reads-counter" matTooltip="Total reads" i18n-matTooltip="@@bulletins.reads_tooltip">
               <mat-icon>visibility</mat-icon> {{ b.totalReads }}
             </span>
-            <button mat-icon-button class="archive-btn" *ngIf="canArchive" matTooltip="Archive" (click)="archive(b, $event)">
+            <button mat-icon-button class="archive-btn" *ngIf="canArchive" matTooltip="Archive" i18n-matTooltip="@@common.archive" (click)="archive(b, $event)">
               <mat-icon>archive</mat-icon>
             </button>
           </div>
@@ -145,7 +148,8 @@
             <mat-icon>calendar_today</mat-icon> {{ b.publishedAt | date:'mediumDate' }}
           </span>
           <span class="footer-item expires" *ngIf="b.expiresAt">
-            <mat-icon>schedule</mat-icon> Expires {{ b.expiresAt | date:'mediumDate' }}
+            <mat-icon>schedule</mat-icon>
+            <ng-container i18n="@@bulletins.expires_card">Expires</ng-container> {{ b.expiresAt | date:'mediumDate' }}
           </span>
         </div>
       </div>
@@ -156,11 +160,11 @@
       <div class="empty-icon">
         <mat-icon>inbox</mat-icon>
       </div>
-      <h3>No bulletins</h3>
+      <h3 i18n="@@bulletins.no_bulletins">No bulletins</h3>
       <p>
-        {{ activeFilter === 'unread' ? 'All caught up — no unread bulletins.' :
-           activeFilter === 'urgent' ? 'No urgent bulletins right now.' :
-           'No bulletins yet. Create the first one.' }}
+        <ng-container *ngIf="activeFilter === 'unread'" i18n="@@bulletins.empty_unread">All caught up — no unread bulletins.</ng-container>
+        <ng-container *ngIf="activeFilter === 'urgent'" i18n="@@bulletins.empty_urgent">No urgent bulletins right now.</ng-container>
+        <ng-container *ngIf="activeFilter !== 'unread' && activeFilter !== 'urgent'" i18n="@@bulletins.empty_all">No bulletins yet. Create the first one.</ng-container>
       </p>
     </div>
   </div>

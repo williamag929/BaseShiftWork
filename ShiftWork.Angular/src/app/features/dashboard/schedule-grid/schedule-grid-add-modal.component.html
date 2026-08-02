@@ -1,34 +1,37 @@
 <div class="modal-backdrop" (click)="onClose()"></div>
 <div class="modal-content">
   <div class="modal-header">
-    <span class="modal-title">{{ existingSchedule ? 'Edit Schedule' : 'Add Schedule' }}</span>
+    <span class="modal-title">
+      <ng-container *ngIf="existingSchedule" i18n="@@add_modal.edit_schedule">Edit Schedule</ng-container>
+      <ng-container *ngIf="!existingSchedule" i18n="@@add_modal.add_schedule">Add Schedule</ng-container>
+    </span>
     <button class="close-btn" (click)="onClose()">&times;</button>
   </div>
   <div class="modal-body">
-    <label for="person-select">Select Person</label>
+    <label for="person-select" i18n="@@add_modal.select_person">Select Person</label>
     <select id="person-select" [(ngModel)]="selectedPersonId" class="form-select">
-      <option [ngValue]="null">-- Select a person --</option>
+      <option [ngValue]="null" i18n="@@add_modal.select_person_ph">-- Select a person --</option>
       <option *ngFor="let person of people" [ngValue]="person.personId">
         {{ person.name }}
       </option>
     </select>
     <div class="modal-row">
-      <label for="location-select">Location</label>
+      <label for="location-select" i18n="@@add_modal.location">Location</label>
       <select id="location-select" class="form-select" [(ngModel)]="selectedLocationId" (change)="onLocationChange()">
         <option *ngFor="let loc of locations" [value]="loc.locationId">{{ loc.name }}</option>
       </select>
     </div>
     <div class="modal-row">
-      <label for="area-select">Area</label>
+      <label for="area-select" i18n="@@add_modal.area">Area</label>
       <select id="area-select" class="form-select" [(ngModel)]="selectedAreaId">
-        <option [value]="0">-- Select an area --</option>
+        <option [value]="0" i18n="@@add_modal.area_ph">-- Select an area --</option>
         <option *ngFor="let area of filteredAreas" [value]="area.areaId">{{ area.name }}</option>
       </select>
     </div>
     <div class="modal-row">
-      <label>Start Time</label>
+      <label i18n="@@add_modal.start_time">Start Time</label>
       <input type="time" [(ngModel)]="defaultStart" />
-      <label>End Time</label>
+      <label i18n="@@add_modal.end_time">End Time</label>
       <input type="time" [(ngModel)]="defaultEnd" />
     </div>
   </div>
@@ -37,43 +40,43 @@
       <div class="more-wrapper">
         <button type="button" class="more-btn" (click)="toggleMenu($event)">…</button>
         <div class="action-menu" *ngIf="menuOpen" (click)="$event.stopPropagation()">
-          <button class="menu-item" (click)="repeatTomorrow()">Repeat for tomorrow</button>
-          <button class="menu-item" (click)="repeatRestOfWeek()">Repeat for rest of the week</button>
+          <button class="menu-item" (click)="repeatTomorrow()" i18n="@@add_modal.repeat_tomorrow">Repeat for tomorrow</button>
+          <button class="menu-item" (click)="repeatRestOfWeek()" i18n="@@add_modal.repeat_week">Repeat for rest of the week</button>
           <ng-container *ngIf="!specificDaysMode; else daysSelector">
-            <button class="menu-item" (click)="repeatSpecificDays()">Repeat for specific days</button>
+            <button class="menu-item" (click)="repeatSpecificDays()" i18n="@@add_modal.repeat_specific">Repeat for specific days</button>
           </ng-container>
           <ng-template #daysSelector>
             <div class="days-selector">
               <div class="days-grid">
-                <button type="button" class="day-chip" *ngFor="let d of [0,1,2,3,4,5,6]" 
+                <button type="button" class="day-chip" *ngFor="let d of [0,1,2,3,4,5,6]"
                         [class.selected]="selectedDayIndices.has(d)" (click)="toggleDayIndex(d)">
                   {{ ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d] }}
                 </button>
               </div>
               <div class="days-actions">
-                <button type="button" class="menu-item" (click)="confirmSpecificDays()">Confirm days</button>
-                <button type="button" class="menu-item" (click)="cancelSpecificDays()">Cancel</button>
+                <button type="button" class="menu-item" (click)="confirmSpecificDays()" i18n="@@add_modal.confirm_days">Confirm days</button>
+                <button type="button" class="menu-item" (click)="cancelSpecificDays()" i18n="@@common.cancel">Cancel</button>
               </div>
             </div>
           </ng-template>
-          <button class="menu-item" (click)="repeatSetPattern()">Repeat for set pattern</button>
+          <button class="menu-item" (click)="repeatSetPattern()" i18n="@@add_modal.repeat_pattern">Repeat for set pattern</button>
           <hr class="menu-separator" />
-          <button class="menu-item" (click)="requestTimeOff()">Request time off</button>
-          <button class="menu-item" (click)="reportSick()">Report sick</button>
-          <button class="menu-item" (click)="findReplacement()">Find replacement</button>
-          <button class="menu-item" (click)="viewProfile()">View {{ personName }}'s profile</button>
+          <button class="menu-item" (click)="requestTimeOff()" i18n="@@add_modal.request_time_off">Request time off</button>
+          <button class="menu-item" (click)="reportSick()" i18n="@@add_modal.report_sick">Report sick</button>
+          <button class="menu-item" (click)="findReplacement()" i18n="@@add_modal.find_replacement">Find replacement</button>
+          <button class="menu-item" (click)="viewProfile()" i18n="@@add_modal.view_profile">View {{ personName }}'s profile</button>
           <button class="menu-item" (click)="viewShiftHistory()">
-            View shift history
+            <ng-container i18n="@@add_modal.view_history">View shift history</ng-container>
             <span class="badge-shortcut">H</span>
           </button>
           <hr class="menu-separator" />
-          <button class="menu-item danger" (click)="deleteShiftClicked()">Delete shift</button>
+          <button class="menu-item danger" (click)="deleteShiftClicked()" i18n="@@add_modal.delete_shift">Delete shift</button>
             <div class="delete-spinner" *ngIf="deleteInProgress">
               <div class="spinner"></div>
             </div>
         </div>
       </div>
-      <button class="save-btn" (click)="onSave()">Save</button>
+      <button class="save-btn" (click)="onSave()" i18n="@@add_modal.save">Save</button>
     </div>
   </div>
 </div>

@@ -6,8 +6,8 @@
         <i class="fa fa-map-marker"></i>
       </div>
       <div class="header-text">
-        <h1 class="page-title">Location Management</h1>
-        <p class="page-subtitle">Manage your business locations and service areas</p>
+        <h1 class="page-title" i18n="@@locations.page_title">Location Management</h1>
+        <p class="page-subtitle" i18n="@@locations.page_subtitle">Manage your business locations and service areas</p>
       </div>
     </div>
   </div>
@@ -19,7 +19,7 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="fa fa-list"></i>
-            Locations
+            <ng-container i18n="@@locations.list_title">Locations</ng-container>
           </h3>
           <span class="badge">{{ locations.length || 0 }}</span>
         </div>
@@ -28,13 +28,13 @@
           <!-- Loading State -->
           <div *ngIf="loading" class="loading-state">
             <div class="spinner"></div>
-            <p class="loading-text">Loading locations...</p>
+            <p class="loading-text" i18n="@@locations.loading">Loading locations...</p>
           </div>
 
           <!-- Error State -->
           <div *ngIf="error" class="error-state">
             <i class="fa fa-exclamation-triangle error-icon"></i>
-            <p class="error-text">Error loading locations. Please try again.</p>
+            <p class="error-text" i18n="@@locations.error">Error loading locations. Please try again.</p>
           </div>
 
           <!-- Locations List -->
@@ -63,8 +63,8 @@
             <!-- Empty State -->
             <div *ngIf="locations.length === 0" class="empty-state">
               <i class="fa fa-map-marker empty-icon"></i>
-              <p class="empty-text">No locations found</p>
-              <p class="empty-subtext">Create your first location to get started</p>
+              <p class="empty-text" i18n="@@locations.empty_text">No locations found</p>
+              <p class="empty-subtext" i18n="@@locations.empty_subtext">Create your first location to get started</p>
             </div>
           </div>
         </div>
@@ -77,7 +77,8 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="fa" [class.fa-plus]="!selectedLocation" [class.fa-edit]="selectedLocation"></i>
-            {{ selectedLocation ? 'Edit Location' : 'Create New Location' }}
+            <ng-container *ngIf="selectedLocation" i18n="@@locations.form_edit">Edit Location</ng-container>
+            <ng-container *ngIf="!selectedLocation" i18n="@@locations.form_create">Create New Location</ng-container>
           </h3>
           <div class="header-actions">
             <app-audit-history-button
@@ -100,12 +101,12 @@
             <button type="button" class="btn-map-trigger" (click)="openMapModal()">
               <i class="fa fa-map-marker"></i>
               <div class="map-trigger-text">
-                <span class="trigger-title">Set Location on Map</span>
+                <span class="trigger-title" i18n="@@locations.map_btn_title">Set Location on Map</span>
                 <span class="trigger-subtitle" *ngIf="markerPosition">
                   Lat: {{ locationForm.get('latitude')?.value | number:'1.4-4' }},
                   Long: {{ locationForm.get('longitude')?.value | number:'1.4-4' }}
                 </span>
-                <span class="trigger-subtitle" *ngIf="!markerPosition">
+                <span class="trigger-subtitle" *ngIf="!markerPosition" i18n="@@locations.map_hint">
                   Click to select location on map
                 </span>
               </div>
@@ -119,47 +120,47 @@
 
               <!-- Basic Information -->
               <div class="form-group-section">
-                <h4 class="section-title">Basic Information</h4>
+                <h4 class="section-title" i18n="@@locations.basic_info">Basic Information</h4>
 
                 <div class="form-group">
                   <label for="name" class="form-label">
                     <i class="fa fa-building"></i>
-                    Location Name <span class="required">*</span>
+                    <ng-container i18n="@@locations.name_label">Location Name</ng-container> <span class="required">*</span>
                   </label>
                   <input type="text" id="name" class="form-input" formControlName="name"
-                    placeholder="Enter location name">
+                    placeholder="Enter location name" i18n-placeholder="@@locations.name_placeholder">
                 </div>
 
                 <div class="form-group">
                   <label for="status" class="form-label">
                     <i class="fa fa-toggle-on"></i>
-                    Status
+                    <ng-container i18n="@@locations.status_label">Status</ng-container>
                   </label>
                   <select id="status" class="form-select" formControlName="status">
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
+                    <option value="Active" i18n="@@common.active">Active</option>
+                    <option value="Inactive" i18n="@@common.inactive">Inactive</option>
                   </select>
                 </div>
               </div>
 
               <!-- Address Information -->
               <div class="form-group-section">
-                <h4 class="section-title">Address Information</h4>
+                <h4 class="section-title" i18n="@@locations.address_section">Address Information</h4>
 
                 <div class="form-group">
                   <label for="address" class="form-label">
                     <i class="fa fa-map-marker"></i>
-                    Street Address <span class="required">*</span>
+                    <ng-container i18n="@@locations.street_label">Street Address</ng-container> <span class="required">*</span>
                   </label>
                   <input type="text" id="address" class="form-input" formControlName="address"
-                    placeholder="123 Main Street">
+                    placeholder="123 Main Street" i18n-placeholder="@@locations.street_placeholder">
                 </div>
 
                 <div class="form-row">
                   <div class="form-group">
                     <label for="city" class="form-label">
                       <i class="fa fa-building-o"></i>
-                      City
+                      <ng-container i18n="@@locations.city_label">City</ng-container>
                     </label>
                     <input type="text" id="city" class="form-input" formControlName="city" placeholder="New York">
                   </div>
@@ -167,7 +168,7 @@
                   <div class="form-group">
                     <label for="state" class="form-label">
                       <i class="fa fa-flag"></i>
-                      State
+                      <ng-container i18n="@@locations.state_label">State</ng-container>
                     </label>
                     <input type="text" id="state" class="form-input" formControlName="state" placeholder="NY">
                   </div>
@@ -177,7 +178,7 @@
                   <div class="form-group">
                     <label for="zipCode" class="form-label">
                       <i class="fa fa-hashtag"></i>
-                      Zip Code
+                      <ng-container i18n="@@locations.zip_label">Zip Code</ng-container>
                     </label>
                     <input type="text" id="zipCode" class="form-input" formControlName="zipCode" placeholder="10001">
                   </div>
@@ -185,7 +186,7 @@
                   <div class="form-group">
                     <label for="country" class="form-label">
                       <i class="fa fa-globe"></i>
-                      Country
+                      <ng-container i18n="@@locations.country_label">Country</ng-container>
                     </label>
                     <input type="text" id="country" class="form-input" formControlName="country" placeholder="USA">
                   </div>
@@ -194,13 +195,13 @@
 
               <!-- Geographic Coordinates -->
               <div class="form-group-section">
-                <h4 class="section-title">Geographic Coordinates</h4>
+                <h4 class="section-title" i18n="@@locations.geo_section">Geographic Coordinates</h4>
 
                 <div class="form-row">
                   <div class="form-group">
                     <label for="latitude" class="form-label">
                       <i class="fa fa-compass"></i>
-                      Latitude
+                      <ng-container i18n="@@locations.lat_label">Latitude</ng-container>
                     </label>
                     <input type="number" id="latitude" class="form-input" formControlName="latitude"
                       placeholder="40.7128" step="any">
@@ -209,7 +210,7 @@
                   <div class="form-group">
                     <label for="longitude" class="form-label">
                       <i class="fa fa-compass"></i>
-                      Longitude
+                      <ng-container i18n="@@locations.lng_label">Longitude</ng-container>
                     </label>
                     <input type="number" id="longitude" class="form-input" formControlName="longitude"
                       placeholder="-74.0060" step="any">
@@ -219,19 +220,19 @@
                 <div class="form-group">
                   <label for="ratioMax" class="form-label">
                     <i class="fa fa-circle-o"></i>
-                    Service Radius (meters)
+                    <ng-container i18n="@@locations.radius_label">Service Radius (meters)</ng-container>
                   </label>
                   <input type="number" id="ratioMax" class="form-input" formControlName="ratioMax" placeholder="500">
-                  <small class="form-hint">Defines the service area around this location</small>
+                  <small class="form-hint" i18n="@@locations.radius_hint">Defines the service area around this location</small>
                 </div>
 
                 <div class="form-group">
                   <label for="timezone" class="form-label">
                     <i class="fa fa-clock-o"></i>
-                    Time Zone <span class="required">*</span>
+                    <ng-container i18n="@@locations.timezone_label">Time Zone</ng-container> <span class="required">*</span>
                   </label>
                   <select id="timezone" class="form-select" formControlName="timezone">
-                    <option [ngValue]="null" disabled>Select a Timezone</option>
+                    <option [ngValue]="null" disabled i18n="@@locations.timezone_ph">Select a Timezone</option>
                     <option *ngFor="let tz of timezones" [value]="tz.value">{{ tz.name }}</option>
                   </select>
                 </div>
@@ -239,22 +240,22 @@
 
               <!-- Contact Information -->
               <div class="form-group-section">
-                <h4 class="section-title">Contact Information</h4>
+                <h4 class="section-title" i18n="@@locations.contact_section">Contact Information</h4>
 
                 <div class="form-row">
                   <div class="form-group">
                     <label for="email" class="form-label">
                       <i class="fa fa-envelope"></i>
-                      Email
+                      <ng-container i18n="@@locations.email_label">Email</ng-container>
                     </label>
                     <input type="email" id="email" class="form-input" formControlName="email"
-                      placeholder="location@example.com">
+                      placeholder="location@example.com" i18n-placeholder="@@locations.email_placeholder">
                   </div>
 
                   <div class="form-group">
                     <label for="phonenumber" class="form-label">
                       <i class="fa fa-phone"></i>
-                      Phone Number
+                      <ng-container i18n="@@locations.phone_label">Phone Number</ng-container>
                     </label>
                     <input type="text" id="phonenumber" class="form-input" formControlName="phoneNumber"
                       placeholder="(123) 456-7890">
@@ -264,11 +265,11 @@
                 <div class="form-group">
                   <label for="externalCode" class="form-label">
                     <i class="fa fa-code"></i>
-                    External Code
+                    <ng-container i18n="@@locations.ext_code_label">External Code</ng-container>
                   </label>
                   <input type="text" id="externalCode" class="form-input" formControlName="externalCode"
-                    placeholder="LOC-001">
-                  <small class="form-hint">Optional reference code for external systems</small>
+                    placeholder="LOC-001" i18n-placeholder="@@locations.ext_code_placeholder">
+                  <small class="form-hint" i18n="@@locations.ext_code_hint">Optional reference code for external systems</small>
                 </div>
               </div>
 
@@ -276,11 +277,12 @@
               <div class="form-actions">
                 <button type="button" class="btn-cancel" *ngIf="selectedLocation" (click)="cancelEdit()">
                   <i class="fa fa-times"></i>
-                  Cancel
+                  <ng-container i18n="@@common.cancel">Cancel</ng-container>
                 </button>
                 <button type="submit" class="btn-submit" [disabled]="!locationForm.valid">
                   <i class="fa" [class.fa-save]="selectedLocation" [class.fa-plus]="!selectedLocation"></i>
-                  {{ selectedLocation ? 'Update Location' : 'Create Location' }}
+                  <ng-container *ngIf="selectedLocation" i18n="@@locations.update_btn">Update Location</ng-container>
+                  <ng-container *ngIf="!selectedLocation" i18n="@@locations.create_btn">Create Location</ng-container>
                 </button>
               </div>
             </form>
@@ -298,7 +300,7 @@
     <div class="modal-header">
       <h3 class="modal-title">
         <i class="fa fa-map-marker"></i>
-        Select Location
+        <ng-container i18n="@@locations.modal_title">Select Location</ng-container>
       </h3>
       <button class="modal-close-btn" (click)="closeMapModal()">
         <i class="fa fa-times"></i>
@@ -310,7 +312,7 @@
       <div class="search-box-modal">
         <div class="search-input-wrapper">
           <i class="fa fa-search search-icon"></i>
-          <input type="text" class="search-input" placeholder="Search for an address..." #addressSearch>
+          <input type="text" class="search-input" placeholder="Search for an address..." i18n-placeholder="@@locations.search_placeholder" #addressSearch>
         </div>
       </div>
 
@@ -326,30 +328,30 @@
       <div class="map-info-modal">
         <div class="info-item">
           <i class="fa fa-crosshairs"></i>
-          <span>Click on the map to set location</span>
+          <span i18n="@@locations.map_info_click">Click on the map to set location</span>
         </div>
         <div class="info-item">
           <i class="fa fa-arrows"></i>
-          <span>Drag the marker to adjust position</span>
+          <span i18n="@@locations.map_info_drag">Drag the marker to adjust position</span>
         </div>
         <div class="info-item">
           <i class="fa fa-circle-o"></i>
-          <span>Use radius field to set service area</span>
+          <span i18n="@@locations.map_info_radius">Use radius field to set service area</span>
         </div>
       </div>
 
       <!-- Current Coordinates Display -->
       <div class="coordinates-display" *ngIf="markerPosition">
         <div class="coord-item">
-          <span class="coord-label">Latitude:</span>
+          <span class="coord-label" i18n="@@locations.coord_lat">Latitude:</span>
           <span class="coord-value">{{ locationForm.get('latitude')?.value | number:'1.6-6' }}</span>
         </div>
         <div class="coord-item">
-          <span class="coord-label">Longitude:</span>
+          <span class="coord-label" i18n="@@locations.coord_lng">Longitude:</span>
           <span class="coord-value">{{ locationForm.get('longitude')?.value | number:'1.6-6' }}</span>
         </div>
         <div class="coord-item">
-          <span class="coord-label">Radius:</span>
+          <span class="coord-label" i18n="@@locations.coord_radius">Radius:</span>
           <span class="coord-value">{{ locationForm.get('ratioMax')?.value }} meters</span>
         </div>
       </div>
@@ -358,11 +360,11 @@
     <div class="modal-footer">
       <button type="button" class="btn-modal-cancel" (click)="closeMapModal()">
         <i class="fa fa-times"></i>
-        Cancel
+        <ng-container i18n="@@common.cancel">Cancel</ng-container>
       </button>
       <button type="button" class="btn-modal-confirm" (click)="confirmMapSelection()">
         <i class="fa fa-check"></i>
-        Confirm Location
+        <ng-container i18n="@@locations.confirm_btn">Confirm Location</ng-container>
       </button>
     </div>
   </div>

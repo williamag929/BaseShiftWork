@@ -106,6 +106,12 @@ namespace ShiftWork.Api.Data
             modelBuilder.Entity<UserRole>()
                 .HasIndex(ur => new { ur.CompanyId, ur.CompanyUserId });
 
+            // Analytics read paths scan by company + date; these indexes keep aggregation fast.
+            modelBuilder.Entity<ShiftEvent>()
+                .HasIndex(e => new { e.CompanyId, e.EventDate });
+            modelBuilder.Entity<ScheduleShift>()
+                .HasIndex(s => new { s.CompanyId, s.StartDate });
+
             modelBuilder.Entity<CompanyUserProfile>()
                 .HasKey(cup => cup.ProfileId);
 

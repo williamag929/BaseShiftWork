@@ -1108,6 +1108,9 @@ namespace ShiftWork.Api.Migrations
                     b.Property<string>("Pin")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PreferredLanguage")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal?>("PtoAccrualRatePerMonth")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -1613,8 +1616,6 @@ namespace ShiftWork.Api.Migrations
 
                     b.HasIndex("AreaId");
 
-                    b.HasIndex("CompanyId");
-
                     b.HasIndex("LocationId");
 
                     b.HasIndex("PersonId");
@@ -1622,6 +1623,8 @@ namespace ShiftWork.Api.Migrations
                     b.HasIndex("ScheduleId");
 
                     b.HasIndex("TaskShiftId");
+
+                    b.HasIndex("CompanyId", "StartDate");
 
                     b.ToTable("ScheduleShifts", (string)null);
                 });
@@ -1667,9 +1670,9 @@ namespace ShiftWork.Api.Migrations
 
                     b.HasKey("EventLogId");
 
-                    b.HasIndex("CompanyId");
-
                     b.HasIndex("PersonId");
+
+                    b.HasIndex("CompanyId", "EventDate");
 
                     b.ToTable("ShiftEvents", (string)null);
                 });

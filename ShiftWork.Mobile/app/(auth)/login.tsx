@@ -11,10 +11,12 @@ import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Button } from '@/components/ui';
 import { colors, spacing, radius } from '@/styles/tokens';
 import { useLogin } from '@/hooks/useLogin';
+import { useTranslation } from '@/i18n';
 
 export default function LoginScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const { form, loading, showBiometric, biometricType, handleLogin, handleBiometricLogin } = useLogin();
   const { control, handleSubmit, formState: { errors } } = form;
 
@@ -31,7 +33,7 @@ export default function LoginScreen() {
           <Ionicons name="time" size={36} color="#fff" />
         </View>
         <Text style={styles.heroTitle}>ShiftWork</Text>
-        <Text style={styles.heroSub}>Sign in to your account</Text>
+        <Text style={styles.heroSub}>{t('auth.login.subtitle')}</Text>
       </Animated.View>
 
       {/* Form sheet */}
@@ -43,7 +45,7 @@ export default function LoginScreen() {
         >
           {/* Email */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>{t('auth.login.email_label')}</Text>
             <Controller
               control={control}
               name="email"
@@ -52,7 +54,7 @@ export default function LoginScreen() {
                   <Ionicons name="mail-outline" size={18} color={colors.muted} style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
-                    placeholder="you@email.com"
+                    placeholder={t('auth.login.email_placeholder')}
                     placeholderTextColor={colors.muted}
                     value={value}
                     onChangeText={onChange}
@@ -71,7 +73,7 @@ export default function LoginScreen() {
 
           {/* Password */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>{t('auth.login.password_label')}</Text>
             <Controller
               control={control}
               name="password"
@@ -99,7 +101,7 @@ export default function LoginScreen() {
 
           <View style={styles.ctaBlock}>
             <Button
-              label={loading ? 'Signing in…' : 'Sign In'}
+              label={loading ? t('auth.login.submitting') : t('auth.login.submit')}
               onPress={handleSubmit(handleLogin)}
               loading={loading}
             />
@@ -109,7 +111,7 @@ export default function LoginScreen() {
             <>
               <View style={styles.divider}>
                 <View style={styles.dividerLine} />
-                <Text style={styles.dividerLabel}>or continue with</Text>
+                <Text style={styles.dividerLabel}>{t('auth.login.or_continue')}</Text>
                 <View style={styles.dividerLine} />
               </View>
               <Pressable
@@ -117,10 +119,10 @@ export default function LoginScreen() {
                 onPress={handleBiometricLogin}
                 accessible
                 accessibilityRole="button"
-                accessibilityLabel={`Sign in with ${biometricType}`}
+                accessibilityLabel={t('auth.login.biometric', { biometricType })}
               >
                 <Ionicons name="finger-print" size={22} color={colors.primary} />
-                <Text style={styles.biometricLabel}>Sign in with {biometricType}</Text>
+                <Text style={styles.biometricLabel}>{t('auth.login.biometric', { biometricType })}</Text>
               </Pressable>
             </>
           )}
@@ -130,8 +132,8 @@ export default function LoginScreen() {
             onPress={() => router.push('/(auth)/register' as any)}
           >
             <Text style={styles.linkText}>
-              Don't have an account?{' '}
-              <Text style={styles.linkAccent}>Create one</Text>
+              {t('auth.login.no_account')}{' '}
+              <Text style={styles.linkAccent}>{t('auth.login.create_one')}</Text>
             </Text>
           </Pressable>
         </ScrollView>

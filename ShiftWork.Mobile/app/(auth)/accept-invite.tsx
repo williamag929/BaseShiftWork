@@ -13,10 +13,12 @@ import { saveToken, saveUserData, saveCompanyId } from '@/utils/storage.utils';
 import { useToast } from '@/hooks/useToast';
 import { logger } from '@/utils/logger';
 import { acceptInviteSchema, AcceptInviteFormData } from '@/utils/schemas/auth';
+import { useTranslation } from '@/i18n';
 
 export default function AcceptInviteScreen() {
   const router = useRouter();
   const toast = useToast();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
 
   // Params arrive from the invite deep-link:
@@ -40,9 +42,7 @@ export default function AcceptInviteScreen() {
   if (!token || !companyId || !personId || !email) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorMsg}>
-          Invalid invite link. Please use the link from your invitation email.
-        </Text>
+        <Text style={styles.errorMsg}>{t('auth.accept_invite.invalid_msg')}</Text>
       </View>
     );
   }
@@ -81,21 +81,23 @@ export default function AcceptInviteScreen() {
     <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
       <StatusBar style="light" />
       <View style={styles.header}>
-        <Text style={styles.title}>Welcome{name ? `, ${name}` : ''}!</Text>
-        <Text style={styles.subtitle}>Set a password to activate your account</Text>
+        <Text style={styles.title}>
+          {name ? t('auth.accept_invite.welcome_name', { name }) : t('auth.accept_invite.welcome')}
+        </Text>
+        <Text style={styles.subtitle}>{t('auth.accept_invite.subtitle')}</Text>
         <Text style={styles.emailLabel}>{email}</Text>
       </View>
 
       <View style={styles.form}>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
+          <Text style={styles.label}>{t('auth.login.password_label')}</Text>
           <Controller
             control={control}
             name="password"
             render={({ field: { value, onChange } }) => (
               <TextInput
                 style={styles.input}
-                placeholder="Choose a password (min. 6 characters)"
+                placeholder={t('auth.accept_invite.password_placeholder')}
                 placeholderTextColor={colors.muted}
                 value={value}
                 onChangeText={onChange}
@@ -108,7 +110,7 @@ export default function AcceptInviteScreen() {
         </View>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Confirm Password</Text>
+          <Text style={styles.label}>{t('auth.accept_invite.confirm_password')}</Text>
           <Controller
             control={control}
             name="confirmPassword"
@@ -128,7 +130,7 @@ export default function AcceptInviteScreen() {
         </View>
 
         <Button
-          label={loading ? 'Activating...' : 'Activate Account'}
+          label={loading ? t('auth.accept_invite.activating') : t('auth.accept_invite.activate_btn')}
           onPress={handleSubmit(handleAccept)}
           loading={loading}
         />

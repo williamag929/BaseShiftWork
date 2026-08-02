@@ -191,6 +191,10 @@ namespace ShiftWork.Api.Services
                 Create("documents.delete",   "Documents - Delete",    "Archive documents"),
                 Create("documents.manage",   "Documents - Manage",    "View read compliance logs and manage access"),
 
+                // Analytics & dynamic reports
+                Create("analytics.view",   "Analytics - View",   "View analytics dashboards and reports"),
+                Create("analytics.export", "Analytics - Export", "Export analytics data (CSV/PNG)"),
+
                 // v2 Safety
                 Create("safety.create",      "Safety - Create",      "Create safety content"),
                 Create("safety.read",        "Safety - Read",        "View safety content"),

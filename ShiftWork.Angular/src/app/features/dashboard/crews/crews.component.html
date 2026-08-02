@@ -6,8 +6,8 @@
         <i class="fa fa-users"></i>
       </div>
       <div class="header-text">
-        <h1 class="page-title">Crew Management</h1>
-        <p class="page-subtitle">Organise employees into crews for bulk scheduling</p>
+        <h1 class="page-title" i18n="@@crews.page_title">Crew Management</h1>
+        <p class="page-subtitle" i18n="@@crews.page_subtitle">Organise employees into crews for bulk scheduling</p>
       </div>
     </div>
   </div>
@@ -19,7 +19,7 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="fa fa-list"></i>
-            Crews
+            <ng-container i18n="@@crews.list_title">Crews</ng-container>
           </h3>
           <span class="badge">{{ crews.length }}</span>
           <button class="btn-icon-round" (click)="toggleCreateForm()" [title]="showCreateForm ? 'Cancel' : 'New crew'">
@@ -33,20 +33,22 @@
             type="text"
             class="form-input"
             placeholder="Crew name"
+            i18n-placeholder="@@crews.name_placeholder"
             [(ngModel)]="newCrewName"
             (keyup.enter)="createCrew()"
             maxlength="100"
             autofocus
           />
           <button class="btn btn-primary btn-sm" [disabled]="!newCrewName.trim() || creating" (click)="createCrew()">
-            {{ creating ? 'Creating...' : 'Create' }}
+            <ng-container *ngIf="creating" i18n="@@crews.creating">Creating...</ng-container>
+            <ng-container *ngIf="!creating" i18n="@@crews.create_btn">Create</ng-container>
           </button>
         </div>
 
         <div class="card-body">
           <div *ngIf="loadingCrews" class="loading-state">
             <div class="spinner"></div>
-            <p>Loading crews...</p>
+            <p i18n="@@crews.loading">Loading crews...</p>
           </div>
 
           <div *ngIf="!loadingCrews">
@@ -62,6 +64,7 @@
               </div>
               <button
                 class="delete-btn"
+                i18n-title="@@crews.delete_tooltip"
                 title="Delete crew"
                 [disabled]="deletingCrewId === crew.crewId"
                 (click)="deleteCrew(crew); $event.stopPropagation()"
@@ -72,7 +75,7 @@
 
             <div *ngIf="crews.length === 0" class="empty-state">
               <i class="fa fa-users empty-icon"></i>
-              <p>No crews yet</p>
+              <p i18n="@@crews.empty_text">No crews yet</p>
               <p class="empty-subtext">Click <strong>+</strong> to create your first crew</p>
             </div>
           </div>
@@ -97,7 +100,7 @@
           <!-- placeholder when nothing selected -->
           <div *ngIf="!selectedCrew" class="no-selection">
             <i class="fa fa-arrow-left no-selection-icon"></i>
-            <p>Select a crew from the list to manage it, or create a new one.</p>
+            <p i18n="@@crews.no_selection">Select a crew from the list to manage it, or create a new one.</p>
           </div>
 
           <div *ngIf="selectedCrew">
@@ -108,7 +111,7 @@
 
             <!-- ── Name edit ── -->
             <section class="section">
-              <h4 class="section-title">Crew Name</h4>
+              <h4 class="section-title" i18n="@@crews.name_section">Crew Name</h4>
               <div class="inline-edit">
                 <input
                   type="text"
@@ -121,30 +124,40 @@
                   class="btn btn-primary btn-sm"
                   [disabled]="!editName.trim() || saving || editName === selectedCrew.name"
                   (click)="saveCrew()"
-                >{{ saving ? 'Saving...' : 'Save' }}</button>
+                >
+                  <ng-container *ngIf="saving" i18n="@@crews.saving">Saving...</ng-container>
+                  <ng-container *ngIf="!saving" i18n="@@crews.save_btn">Save</ng-container>
+                </button>
               </div>
             </section>
 
             <!-- ── Members ── -->
             <section class="section">
-              <h4 class="section-title">Members <span class="badge">{{ crewMembers.length }}</span></h4>
+              <h4 class="section-title">
+                <ng-container i18n="@@crews.members_section">Members</ng-container>
+                <span class="badge">{{ crewMembers.length }}</span>
+              </h4>
 
               <div *ngIf="loadingMembers" class="loading-state small">
-                <div class="spinner sm"></div> Loading...
+                <div class="spinner sm"></div>
+                <ng-container i18n="@@common.loading_short">Loading...</ng-container>
               </div>
 
               <div *ngIf="!loadingMembers">
                 <!-- Add member row -->
                 <div class="add-member-row">
                   <select class="form-select" [(ngModel)]="addPersonId">
-                    <option [ngValue]="null">— Add a person —</option>
+                    <option [ngValue]="null" i18n="@@crews.add_person_ph">— Add a person —</option>
                     <option *ngFor="let p of availablePeople" [ngValue]="p.personId">{{ p.name }}</option>
                   </select>
                   <button
                     class="btn btn-secondary btn-sm"
                     [disabled]="!addPersonId || addingMember"
                     (click)="addMember()"
-                  >{{ addingMember ? '...' : 'Add' }}</button>
+                  >
+                    <ng-container *ngIf="addingMember" i18n="@@common.loading_short">Loading...</ng-container>
+                    <ng-container *ngIf="!addingMember" i18n="@@crews.add_btn">Add</ng-container>
+                  </button>
                 </div>
 
                 <!-- Members list -->
@@ -158,6 +171,7 @@
                     <span class="member-name">{{ member.name }}</span>
                     <button
                       class="remove-btn"
+                      i18n-title="@@crews.remove_tooltip"
                       title="Remove from crew"
                       [disabled]="removingMemberId === member.personId"
                       (click)="removeMember(member.personId)"
@@ -167,7 +181,7 @@
                   </div>
 
                   <div *ngIf="crewMembers.length === 0" class="empty-state small">
-                    <p>No members yet. Add people above.</p>
+                    <p i18n="@@crews.no_members">No members yet. Add people above.</p>
                   </div>
                 </div>
               </div>

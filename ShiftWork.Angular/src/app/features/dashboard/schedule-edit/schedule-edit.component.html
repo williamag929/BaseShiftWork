@@ -1,78 +1,63 @@
 <div class="modal-header">
-  <h4 class="modal-title">{{ schedule.scheduleId ? 'Edit' : 'Create' }} Schedule</h4>
-  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+  <h4 class="modal-title">
+    <ng-container *ngIf="schedule.scheduleId" i18n="@@schedule_edit.title_edit">Edit Schedule</ng-container>
+    <ng-container *ngIf="!schedule.scheduleId" i18n="@@schedule_edit.title_create">Create Schedule</ng-container>
+  </h4>
+  <button type="button" class="close" i18n-aria-label="@@common.close_aria" aria-label="Close" (click)="activeModal.dismiss()">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
 <div class="modal-body">
   <form [formGroup]="scheduleForm" (ngSubmit)="save()">
     <div class="form-group">
-      <label for="name">Name</label>
+      <label for="name" i18n="@@schedule_edit.name_label">Name</label>
       <input type="text" id="name" class="form-control" formControlName="name">
     </div>
     <div class="form-group">
-      <label for="personId">Person</label>
+      <label for="personId" i18n="@@schedule_edit.person_label">Person</label>
       <select id="personId" class="form-control" formControlName="personId">
         <option *ngFor="let person of people" [value]="person.personId">{{ person.name }}</option>
       </select>
     </div>
     <div class="form-group">
-      <label for="locationId">Location</label>
+      <label for="locationId" i18n="@@schedule_edit.location_label">Location</label>
       <select id="locationId" class="form-control" formControlName="locationId">
         <option *ngFor="let location of locations" [value]="location.locationId">{{ location.name }}</option>
       </select>
     </div>
     <div class="form-group">
-      <label for="areaId">Area</label>
+      <label for="areaId" i18n="@@schedule_edit.area_label">Area</label>
         <select id="areaId" class="form-control" formControlName="areaId">
-          <option value="" disabled>Select a Area</option>
+          <option value="" disabled i18n="@@schedule_edit.area_placeholder">Select an Area</option>
           <option *ngFor="let area of areas" [value]="area.areaId">{{ area.name }}</option>
         </select>
-        <div *ngIf="scheduleForm.get('areaId')?.touched && scheduleForm.get('areaId')?.errors?.['required']" class="text-danger small">
+        <div *ngIf="scheduleForm.get('areaId')?.touched && scheduleForm.get('areaId')?.errors?.['required']" class="text-danger small" i18n="@@schedule_edit.area_required">
           Area is required.
         </div>
     </div>
     <div class="form-group">
-      <label for="startDate">Start Date</label>
+      <label for="startDate" i18n="@@schedule_edit.start_date_label">Start Date</label>
       <input type="datetime-local" id="startDate" class="form-control" formControlName="startDate">
     </div>
     <div class="form-group">
-      <label for="endDate">End Date</label>
+      <label for="endDate" i18n="@@schedule_edit.end_date_label">End Date</label>
       <input type="datetime-local" id="endDate" class="form-control" formControlName="endDate">
     </div>
-    <!--
-        <div class="form-group">
-      <label for="startTime">Start Time</label>
-      <input type="datetime-local" id="startTime" class="form-control" formControlName="startTime">
-    </div>
     <div class="form-group">
-      <label for="endTime">End Time</label>
-      <input type="datetime-local" id="endTime" class="form-control" formControlName="endTime">
-    </div>
-    -->
-    <div class="form-group">
-      <label for="description">Description</label>
+      <label for="description" i18n="@@schedule_edit.description_label">Description</label>
       <textarea id="description" class="form-control" formControlName="description"></textarea>
     </div>
     <div class="form-group">
-      <label for="status">Status</label>
+      <label for="status" i18n="@@schedule_edit.status_label">Status</label>
       <input type="text" id="status" class="form-control" formControlName="status">
     </div>
     <div class="form-group">
-      <label for="color">Color</label>
+      <label for="color" i18n="@@schedule_edit.color_label">Color</label>
       <input type="color" id="color" class="form-control" formControlName="color">
-    </div>
-    <div class="form-group" *ngIf="false">
-      <label for="timezone">Timezone</label>
-      <input type="text" id="timezone" class="form-control" formControlName="timezone">
-    </div>
-    <div class="form-group" *ngIf="false">
-      <label for="type">Type</label>
-      <input type="text" id="type" class="form-control" formControlName="type">
     </div>
   </form>
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss()">Cancel</button>
-  <button type="button" class="btn btn-primary" (click)="save()" [disabled]="!scheduleForm.valid">Save</button>
+  <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss()" i18n="@@common.cancel">Cancel</button>
+  <button type="button" class="btn btn-primary" (click)="save()" [disabled]="!scheduleForm.valid" i18n="@@common.save">Save</button>
 </div>

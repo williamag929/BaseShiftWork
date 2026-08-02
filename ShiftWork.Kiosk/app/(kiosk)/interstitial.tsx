@@ -10,6 +10,7 @@ import { useSessionStore } from '@/store/sessionStore';
 import { useDeviceStore } from '@/store/deviceStore';
 import { interstitialService, KioskBulletin, KioskSafety } from '@/services/interstitial.service';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
+import { useTranslation } from '@/i18n';
 
 type InterstitialItem =
   | { kind: 'bulletin'; data: KioskBulletin }
@@ -20,6 +21,7 @@ const AUTO_ADVANCE_MS = 30_000;
 
 export default function InterstitialScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { personId: personIdParam } = useLocalSearchParams<{ personId: string }>();
   const personId = parseInt(personIdParam ?? '0', 10);
 
@@ -124,10 +126,10 @@ export default function InterstitialScreen() {
       <SafeAreaView style={styles.safe}>
         <View style={styles.center}>
           <Ionicons name="checkmark-circle-outline" size={72} color={colors.primary} />
-          <Text style={styles.fallbackTitle}>No messages</Text>
-          <Text style={styles.fallbackBody}>You're all set. Have a great shift!</Text>
+          <Text style={styles.fallbackTitle}>{t('kiosk_app.no_messages')}</Text>
+          <Text style={styles.fallbackBody}>{t('kiosk_app.all_set')}</Text>
           <Pressable style={[styles.primaryBtn, { backgroundColor: colors.primary, marginTop: 32 }]} onPress={goHome}>
-            <Text style={styles.primaryBtnText}>Done</Text>
+            <Text style={styles.primaryBtnText}>{t('kiosk_app.done')}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -170,7 +172,7 @@ export default function InterstitialScreen() {
 
       {/* Skip to home */}
       <Pressable style={styles.skipBtn} onPress={goHome}>
-        <Text style={styles.skipText}>Skip all · Done</Text>
+        <Text style={styles.skipText}>{t('kiosk_app.skip_all')}</Text>
       </Pressable>
     </SafeAreaView>
   );
@@ -186,6 +188,7 @@ function BulletinSlide({
   onAck: () => void;
   onSkip: () => void;
 }) {
+  const { t } = useTranslation();
   const PRIORITY_COLOR: Record<string, string> = {
     Critical: '#FF3B30',
     High:     '#FF9500',
@@ -197,7 +200,7 @@ function BulletinSlide({
     <View style={styles.slide}>
       <View style={[styles.typeBadge, { backgroundColor: accent }]}>
         <Ionicons name="megaphone-outline" size={20} color="#fff" />
-        <Text style={styles.typeBadgeText}>{item.priority} BULLETIN</Text>
+        <Text style={styles.typeBadgeText}>{t('kiosk_app.bulletin_badge', { priority: item.priority })}</Text>
       </View>
 
       <Text style={styles.slideTitle}>{item.title}</Text>
@@ -210,7 +213,7 @@ function BulletinSlide({
       >
         {acting
           ? <ActivityIndicator color="#fff" />
-          : <Text style={styles.primaryBtnText}>{isLast ? 'Got it · Done' : 'Got it · Next'}</Text>
+          : <Text style={styles.primaryBtnText}>{isLast ? t('kiosk_app.got_it_done') : t('kiosk_app.got_it_next')}</Text>
         }
       </Pressable>
     </View>
@@ -227,11 +230,13 @@ function SafetySlide({
   onAck: () => void;
   onSkip: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.slide}>
       <View style={[styles.typeBadge, { backgroundColor: '#FF9500' }]}>
         <Ionicons name="shield-checkmark-outline" size={20} color="#fff" />
-        <Text style={styles.typeBadgeText}>SAFETY · {item.type.toUpperCase()}</Text>
+        <Text style={styles.typeBadgeText}>{t('kiosk_app.safety_badge', { type: item.type.toUpperCase() })}</Text>
       </View>
 
       <Text style={styles.slideTitle}>{item.title}</Text>
@@ -253,7 +258,7 @@ function SafetySlide({
             ? <ActivityIndicator color="#fff" />
             : <>
                 <Ionicons name="checkmark-done-outline" size={22} color="#fff" />
-                <Text style={styles.primaryBtnText}>{isLast ? 'I Acknowledge · Done' : 'I Acknowledge · Next'}</Text>
+                <Text style={styles.primaryBtnText}>{isLast ? t('kiosk_app.ack_done') : t('kiosk_app.ack_next')}</Text>
               </>
           }
         </Pressable>
@@ -262,7 +267,7 @@ function SafetySlide({
           style={({ pressed }) => [styles.primaryBtn, { backgroundColor: colors.primary }, pressed && { opacity: 0.85 }]}
           onPress={onAck}
         >
-          <Text style={styles.primaryBtnText}>{isLast ? 'Noted · Done' : 'Noted · Next'}</Text>
+          <Text style={styles.primaryBtnText}>{isLast ? t('kiosk_app.noted_done') : t('kiosk_app.noted_next')}</Text>
         </Pressable>
       )}
     </View>

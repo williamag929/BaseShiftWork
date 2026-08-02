@@ -17,6 +17,7 @@ const routes: Routes = [
       { path: 'roles', loadChildren: () => import('./roles/roles.module').then(m => m.RolesModule) },
       { path: 'schedules', loadChildren: () => import('./schedules/schedules.module').then(m => m.SchedulesModule) },
       { path: 'tasks', loadChildren: () => import('./tasks/tasks.module').then(m => m.TasksModule) },
+      { path: 'analytics', loadChildren: () => import('./analytics/analytics.module').then(m => m.AnalyticsModule) },
       
       
 
