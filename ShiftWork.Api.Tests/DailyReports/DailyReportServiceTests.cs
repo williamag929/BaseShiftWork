@@ -31,7 +31,9 @@ public class DailyReportServiceTests : IDisposable
         weatherMock.Setup(w => w.GetCurrentWeatherAsync(It.IsAny<double>(), It.IsAny<double>()))
                    .ReturnsAsync((WeatherSnapshot?)null);
 
-        _sut = new DailyReportService(_context, weatherMock.Object, NullLogger<DailyReportService>.Instance);
+        var procoreMock = new Mock<IProcoreService>();
+
+        _sut = new DailyReportService(_context, weatherMock.Object, procoreMock.Object, NullLogger<DailyReportService>.Instance);
     }
 
     // ── GetOrCreateAsync ──────────────────────────────────────────────────────
