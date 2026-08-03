@@ -216,7 +216,7 @@ namespace ShiftWork.Api.Controllers
         /// Integrates Stripe when configured; falls back to simulation when STRIPE_SECRET_KEY is absent.
         /// </summary>
         [HttpPost("{companyId}/plan/upgrade")]
-        [Authorize]
+        [Authorize(Policy = "companies.billing")]
         [ProducesResponseType(typeof(PlanUpgradeResponse), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]

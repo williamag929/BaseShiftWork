@@ -31,4 +31,9 @@ public static class FunnelEventNames
     public const string PlanUpgradeSuccess    = "plan_upgrade_success";
     public const string PlanUpgradeFailure    = "plan_upgrade_failure";
     public const string PlanUpgradeSimulated  = "plan_upgrade_simulated";
+
+    // ── Stripe billing webhooks ───────────────────────────────────────────────
+    public const string PlanPaymentSuccess    = "plan_payment_success";
+    public const string PlanPaymentFailure    = "plan_payment_failure";
+    public const string PlanDowngraded        = "plan_downgraded_subscription_deleted";
 }

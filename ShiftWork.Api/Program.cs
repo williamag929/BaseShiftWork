@@ -36,6 +36,13 @@ if (string.IsNullOrEmpty(firebaseProjectId))
 }
 //FirebaseApp.Create();
 
+// Stripe billing: absent key means PlanService falls back to simulation mode (no real charges).
+var stripeSecretKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
+if (!string.IsNullOrWhiteSpace(stripeSecretKey))
+{
+    Stripe.StripeConfiguration.ApiKey = stripeSecretKey;
+}
+
 // The configuration builder automatically adds various sources, including environment variables.
 // By calling Env.Load(), the variables from your .env file are loaded into the environment
 // and become accessible to your application.
@@ -154,6 +161,8 @@ builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler
 
 // Registration & Onboarding feature services
 builder.Services.AddScoped<ISandboxService, SandboxService>();
+builder.Services.AddScoped<IStripeGateway, StripeGateway>();
+builder.Services.AddScoped<IStripeWebhookService, StripeWebhookService>();
 builder.Services.AddScoped<IPlanService, PlanService>();
 
 // Rate limiting: protect /api/auth/register from brute-force / account enumeration
@@ -375,6 +384,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("companies.create", policy => policy.Requirements.Add(new PermissionRequirement("companies.create")));
     options.AddPolicy("companies.update", policy => policy.Requirements.Add(new PermissionRequirement("companies.update")));
     options.AddPolicy("companies.delete", policy => policy.Requirements.Add(new PermissionRequirement("companies.delete")));
+    options.AddPolicy("companies.billing", policy => policy.Requirements.Add(new PermissionRequirement("companies.billing")));
 
     options.AddPolicy("kiosk.admin", policy => policy.Requirements.Add(new PermissionRequirement("kiosk.admin")));
 

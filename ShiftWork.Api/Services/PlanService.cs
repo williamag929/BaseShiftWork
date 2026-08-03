@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.Helpers;
+using Stripe;
 
 namespace ShiftWork.Api.Services
 {
@@ -10,6 +11,7 @@ namespace ShiftWork.Api.Services
     {
         private readonly ShiftWorkContext _context;
         private readonly ILogger<PlanService> _logger;
+        private readonly IStripeGateway _stripeGateway;
 
         // Feature gates per plan. Add more keys as needed.
         private static readonly Dictionary<string, HashSet<string>> PlanFeatures = new()
@@ -48,10 +50,11 @@ namespace ShiftWork.Api.Services
         private static bool IsStripeConfigured =>
             !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY"));
 
-        public PlanService(ShiftWorkContext context, ILogger<PlanService> logger)
+        public PlanService(ShiftWorkContext context, ILogger<PlanService> logger, IStripeGateway stripeGateway)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _stripeGateway = stripeGateway ?? throw new ArgumentNullException(nameof(stripeGateway));
         }
 
         /// <inheritdoc />
@@ -74,25 +77,49 @@ namespace ShiftWork.Api.Services
                 return true;
             }
 
-            // TODO: integrate real Stripe SDK when STRIPE_SECRET_KEY is set.
-            // 1. Create/retrieve Stripe customer for company.StripeCustomerId.
-            // 2. Attach stripePaymentMethodId to the customer.
-            // 3. Create a subscription for the Pro price ID.
-            // 4. Store subscription.Id in company.StripeSubscriptionId.
+            var priceId = StripePlanMapping.GetPriceIdForPlan(targetPlan);
+            if (string.IsNullOrWhiteSpace(priceId))
+            {
+                _logger.LogWarning("UpgradePlan: no Stripe price is configured for plan {TargetPlan}.", targetPlan);
+                throw new InvalidOperationException($"No Stripe price is configured for plan '{targetPlan}'.");
+            }
+
             _logger.LogInformation("{EventName} {CompanyId} {TargetPlan}",
                 FunnelEventNames.PlanUpgradeStarted, companyId, targetPlan);
 
             try
             {
-                company.Plan = targetPlan;
-                // company.StripeCustomerId and StripeSubscriptionId to be set after Stripe calls.
+                var result = await _stripeGateway.CreateSubscriptionAsync(
+                    company.StripeCustomerId,
+                    company.Email,
+                    company.Name,
+                    stripePaymentMethodId,
+                    priceId);
+
+                company.StripeCustomerId = result.CustomerId;
+                company.StripeSubscriptionId = result.SubscriptionId;
+
+                // Only flip the plan if Stripe confirms the subscription is actually active/trialing.
+                // If the first payment failed (status "incomplete"), the plan stays as-is; the
+                // subscription lifecycle webhook will finalize the state once Stripe resolves it.
+                var isActive = result.Status is "active" or "trialing";
+                if (isActive)
+                {
+                    company.Plan = targetPlan;
+                    if (result.CurrentPeriodEnd.HasValue)
+                    {
+                        company.PlanExpiresAt = result.CurrentPeriodEnd;
+                    }
+                }
+
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("{EventName} {CompanyId} {TargetPlan}",
-                    FunnelEventNames.PlanUpgradeSuccess, companyId, targetPlan);
-                return true;
+                _logger.LogInformation("{EventName} {CompanyId} {TargetPlan} stripeStatus={StripeStatus}",
+                    isActive ? FunnelEventNames.PlanUpgradeSuccess : FunnelEventNames.PlanUpgradeFailure,
+                    companyId, targetPlan, result.Status);
+                return isActive;
             }
-            catch (Exception ex)
+            catch (StripeException ex)
             {
                 _logger.LogError(ex, "{EventName} {CompanyId} {TargetPlan}",
                     FunnelEventNames.PlanUpgradeFailure, companyId, targetPlan);

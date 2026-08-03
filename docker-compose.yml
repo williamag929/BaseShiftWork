@@ -54,6 +54,11 @@ services:
       EXPO_PUSH_API_URL: "${EXPO_PUSH_API_URL:-https://exp.host/--/api/v2/push/send}"
       # Weather (daily reports)
       OPENWEATHER_API_KEY: "${OPENWEATHER_API_KEY}"
+      # Stripe billing (optional; plan upgrades simulate when absent)
+      STRIPE_SECRET_KEY: "${STRIPE_SECRET_KEY}"
+      STRIPE_PUBLISHABLE_KEY: "${STRIPE_PUBLISHABLE_KEY}"
+      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET}"
+      STRIPE_PRICE_PRO: "${STRIPE_PRICE_PRO}"
     ports:
       - "5000:80"
     depends_on:
