@@ -5,11 +5,18 @@ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { LocationService } from 'src/app/core/services/location.service';
 import { ShiftEventService } from 'src/app/core/services/shift-event.service';
+import { ScheduleShiftService } from 'src/app/core/services/schedule-shift.service';
+import { TimeOffRequestService } from 'src/app/core/services/time-off-request.service';
 import { Location } from 'src/app/core/models/location.model';
 import { People } from 'src/app/core/models/people.model';
 import { ShiftEvent } from 'src/app/core/models/shift-event.model';
+import { ScheduleShift } from 'src/app/core/models/schedule-shift.model';
+import { TimeOffRequest } from 'src/app/core/models/time-off-request.model';
 import { Subscription, forkJoin, interval, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+
+const LATE_THRESHOLD_MINUTES = 10;
+const FREQUENT_LATE_THRESHOLD = 2;
 
 interface KpiMetric {
   label: string;
@@ -39,6 +46,13 @@ interface OpsNotification {
 interface HourlyPoint {
   hour: string;
   count: number;
+}
+
+interface RecommendedAction {
+  icon: string;
+  title: string;
+  description: string;
+  routerLink: string;
 }
 
 interface UpcomingFeature {
@@ -108,51 +122,38 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
     { hour: '20:00', count: 11 }
   ];
 
-  locations: LocationHealth[] = [
-    {
-      name: 'North Warehouse',
-      onShift: 24,
-      late: 2,
-      gpsCompliance: 98,
-      geofenceBreaches: 1
-    },
-    {
-      name: 'Downtown Retail',
-      onShift: 18,
-      late: 4,
-      gpsCompliance: 93,
-      geofenceBreaches: 3
-    },
-    {
-      name: 'Airport Logistics',
-      onShift: 40,
-      late: 1,
-      gpsCompliance: 97,
-      geofenceBreaches: 0
-    }
-  ];
+  locations: LocationHealth[] = [];
 
   notifications: OpsNotification[] = [
     {
-      title: 'Potential Buddy Punch',
-      description: '2 check-ins flagged for biometric mismatch at Downtown Retail.',
-      level: 'critical',
-      ago: '5 min ago',
-      icon: 'gpp_maybe'
-    },
-    {
-      title: 'Geofence Drift Spike',
-      description: 'North Warehouse has 3x normal drift events in the past hour.',
-      level: 'warning',
-      ago: '11 min ago',
-      icon: 'location_searching'
-    },
-    {
-      title: 'Schedule Optimization Available',
-      description: 'AI suggests reducing overtime by 7.4 hours this week.',
+      title: 'Loading operational alerts',
+      description: 'Fetching live compliance and attendance signals for your company.',
       level: 'info',
-      ago: '28 min ago',
-      icon: 'lightbulb'
+      ago: 'Just now',
+      icon: 'hourglass_top'
+    }
+  ];
+
+  lateArrivalsTrend = 'Calculating late-arrival trend from schedule data…';
+
+  recommendedActions: RecommendedAction[] = [
+    {
+      icon: 'view_comfy',
+      title: 'Balance schedules for overtime hotspots',
+      description: 'Calculating overtime exposure…',
+      routerLink: '/dashboard/schedule-grid'
+    },
+    {
+      icon: 'event_available',
+      title: 'Resolve pending PTO approvals',
+      description: 'Checking pending time-off requests…',
+      routerLink: '/dashboard/time-off-approvals'
+    },
+    {
+      icon: 'supervisor_account',
+      title: 'Coach frequent late arrivals',
+      description: 'Reviewing this week\'s attendance…',
+      routerLink: '/dashboard/people'
     }
   ];
 
@@ -194,7 +195,9 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private peopleService: PeopleService,
     private locationService: LocationService,
-    private shiftEventService: ShiftEventService
+    private shiftEventService: ShiftEventService,
+    private scheduleShiftService: ScheduleShiftService,
+    private timeOffRequestService: TimeOffRequestService
   ) {}
 
   ngOnInit(): void {
@@ -228,8 +231,10 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
     forkJoin({
       people: this.peopleService.getPeople(companyId, 1, 500).pipe(catchError(() => of([] as People[]))),
       locations: this.locationService.getLocations(companyId).pipe(catchError(() => of([] as Location[]))),
-      events: this.shiftEventService.getShiftEvents(companyId).pipe(catchError(() => of([] as ShiftEvent[])))
-    }).subscribe(({ people, locations, events }) => {
+      events: this.shiftEventService.getShiftEvents(companyId).pipe(catchError(() => of([] as ShiftEvent[]))),
+      scheduleShifts: this.scheduleShiftService.getScheduleShifts(companyId).pipe(catchError(() => of([] as ScheduleShift[]))),
+      pendingTimeOff: this.timeOffRequestService.getTimeOffRequests(companyId, undefined, 'Pending').pipe(catchError(() => of([] as TimeOffRequest[])))
+    }).subscribe(({ people, locations, events, scheduleShifts, pendingTimeOff }) => {
       const now = new Date();
       const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const todayEvents = events.filter(evt => {
@@ -255,6 +260,48 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
         eventsPerPerson.set(evt.personId, (eventsPerPerson.get(evt.personId) || 0) + 1);
       }
       const overtimeRiskCount = Array.from(eventsPerPerson.values()).filter(count => count >= 4).length;
+
+      const scheduleIndex = this.buildScheduleIndex(scheduleShifts);
+      const allClockIns = events.filter(evt => (evt.eventType || '').toLowerCase() === 'clockin');
+
+      const weekAgo = new Date(now);
+      weekAgo.setDate(now.getDate() - 7);
+      const twoWeeksAgo = new Date(now);
+      twoWeeksAgo.setDate(now.getDate() - 14);
+
+      const thisWeekClockIns = allClockIns.filter(evt => {
+        const date = new Date(evt.eventDate);
+        return !isNaN(date.getTime()) && date >= weekAgo && date <= now;
+      });
+      const lastWeekClockIns = allClockIns.filter(evt => {
+        const date = new Date(evt.eventDate);
+        return !isNaN(date.getTime()) && date >= twoWeeksAgo && date < weekAgo;
+      });
+
+      const lateCountByPerson = new Map<number, number>();
+      let thisWeekLateCount = 0;
+      for (const evt of thisWeekClockIns) {
+        if (this.isLateClockIn(evt, scheduleIndex)) {
+          thisWeekLateCount++;
+          lateCountByPerson.set(evt.personId, (lateCountByPerson.get(evt.personId) || 0) + 1);
+        }
+      }
+      const lastWeekLateCount = lastWeekClockIns.filter(evt => this.isLateClockIn(evt, scheduleIndex)).length;
+      const frequentLateEmployeeCount = Array.from(lateCountByPerson.values())
+        .filter(count => count >= FREQUENT_LATE_THRESHOLD).length;
+
+      const tomorrowStart = new Date(dayStart);
+      tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+      const tomorrowEnd = new Date(tomorrowStart);
+      tomorrowEnd.setDate(tomorrowEnd.getDate() + 1);
+      const pendingPtoImpactingTomorrow = pendingTimeOff.filter(req => {
+        const start = new Date(req.startDate);
+        const end = new Date(req.endDate);
+        return !isNaN(start.getTime()) && !isNaN(end.getTime()) && start < tomorrowEnd && end >= tomorrowStart;
+      }).length;
+
+      this.lateArrivalsTrend = this.buildLateTrendLabel(thisWeekLateCount, lastWeekLateCount);
+      this.recommendedActions = this.buildRecommendedActions(overtimeRiskCount, pendingPtoImpactingTomorrow, frequentLateEmployeeCount);
 
       this.kpis = [
         {
@@ -292,7 +339,7 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
       ];
 
       this.hourlyActivity = this.buildHourlyActivity(clockEvents);
-      this.locations = this.buildLocationHealth(locations, todayEvents);
+      this.locations = this.buildLocationHealth(locations, todayEvents, scheduleIndex);
       this.notifications = this.buildNotifications(gpsCompliance, overtimeRiskCount, clockEvents.length);
 
       this.loading = false;
@@ -336,29 +383,132 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
     });
   }
 
-  private buildLocationHealth(locations: Location[], events: ShiftEvent[]): LocationHealth[] {
-    const defaultLocations = this.locations;
+  private buildLocationHealth(locations: Location[], events: ShiftEvent[], scheduleIndex: Map<string, Date>): LocationHealth[] {
     const sourceLocations = locations.length ? locations.slice(0, 3) : [];
 
     if (!sourceLocations.length) {
-      return defaultLocations;
+      return [];
     }
 
-    return sourceLocations.map((loc, index) => {
+    return sourceLocations.map(loc => {
       const locEvents = events.filter(evt => this.eventBelongsToLocation(evt, loc));
-      const withGps = locEvents.filter(evt => !!(evt.geoLocation && evt.geoLocation.trim())).length;
-      const gpsCompliance = locEvents.length ? Math.round((withGps / locEvents.length) * 100) : 100;
-      const late = locEvents.filter(evt => (evt.eventType || '').toLowerCase() === 'late').length;
-      const breaches = Math.max(0, locEvents.length - withGps);
+      const clockEvents = locEvents.filter(evt => {
+        const type = (evt.eventType || '').toLowerCase();
+        return type === 'clockin' || type === 'clockout';
+      });
+      const withGps = clockEvents.filter(evt => !!(evt.geoLocation && evt.geoLocation.trim())).length;
+      const gpsCompliance = clockEvents.length ? Math.round((withGps / clockEvents.length) * 100) : 100;
+      const late = clockEvents.filter(evt => this.isLateClockIn(evt, scheduleIndex)).length;
+      const missingGps = Math.max(0, clockEvents.length - withGps);
 
       return {
         name: loc.name,
-        onShift: Math.max(0, Math.round(locEvents.length / 2) || (index + 1) * 4),
+        onShift: this.countCurrentlyOnShift(clockEvents),
         late,
         gpsCompliance,
-        geofenceBreaches: breaches
+        geofenceBreaches: missingGps
       };
     });
+  }
+
+  /** Builds a personId+day -> earliest scheduled start time lookup, used to detect late clock-ins. */
+  private buildScheduleIndex(scheduleShifts: ScheduleShift[]): Map<string, Date> {
+    const index = new Map<string, Date>();
+
+    for (const shift of scheduleShifts) {
+      const start = new Date(shift.startDate);
+      if (isNaN(start.getTime())) {
+        continue;
+      }
+
+      const key = `${shift.personId}_${start.toDateString()}`;
+      const existing = index.get(key);
+      if (!existing || start < existing) {
+        index.set(key, start);
+      }
+    }
+
+    return index;
+  }
+
+  /** A clock-in is late when it lands more than LATE_THRESHOLD_MINUTES after that person's scheduled start for the day. */
+  private isLateClockIn(event: ShiftEvent, scheduleIndex: Map<string, Date>): boolean {
+    if ((event.eventType || '').toLowerCase() !== 'clockin') {
+      return false;
+    }
+
+    const clockInTime = new Date(event.eventDate);
+    if (isNaN(clockInTime.getTime())) {
+      return false;
+    }
+
+    const scheduledStart = scheduleIndex.get(`${event.personId}_${clockInTime.toDateString()}`);
+    if (!scheduledStart) {
+      return false;
+    }
+
+    const minutesLate = (clockInTime.getTime() - scheduledStart.getTime()) / 60000;
+    return minutesLate > LATE_THRESHOLD_MINUTES;
+  }
+
+  /** Counts people whose most recent clock event today is a clock-in with no matching clock-out yet. */
+  private countCurrentlyOnShift(clockEvents: ShiftEvent[]): number {
+    const lastEventByPerson = new Map<number, ShiftEvent>();
+    const sorted = [...clockEvents].sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
+
+    for (const evt of sorted) {
+      lastEventByPerson.set(evt.personId, evt);
+    }
+
+    return Array.from(lastEventByPerson.values())
+      .filter(evt => (evt.eventType || '').toLowerCase() === 'clockin').length;
+  }
+
+  private buildLateTrendLabel(thisWeekLate: number, lastWeekLate: number): string {
+    if (thisWeekLate === 0 && lastWeekLate === 0) {
+      return 'No late arrivals recorded in the last two weeks';
+    }
+
+    if (lastWeekLate === 0) {
+      return `${thisWeekLate} late arrival${thisWeekLate === 1 ? '' : 's'} this week`;
+    }
+
+    const changePercent = Math.round(((thisWeekLate - lastWeekLate) / lastWeekLate) * 100);
+    if (changePercent === 0) {
+      return `Late arrivals steady at ${thisWeekLate} compared to last week`;
+    }
+
+    const direction = changePercent < 0 ? 'dropped' : 'increased';
+    return `Late arrivals ${direction} ${Math.abs(changePercent)}% compared to last week`;
+  }
+
+  private buildRecommendedActions(overtimeRiskCount: number, pendingPtoImpactingTomorrow: number, frequentLateEmployeeCount: number): RecommendedAction[] {
+    return [
+      {
+        icon: 'view_comfy',
+        title: 'Balance schedules for overtime hotspots',
+        description: overtimeRiskCount > 0
+          ? `${overtimeRiskCount} employee${overtimeRiskCount === 1 ? '' : 's'} approaching overtime today.`
+          : 'No employees are approaching overtime today.',
+        routerLink: '/dashboard/schedule-grid'
+      },
+      {
+        icon: 'event_available',
+        title: 'Resolve pending PTO approvals',
+        description: pendingPtoImpactingTomorrow > 0
+          ? `${pendingPtoImpactingTomorrow} request${pendingPtoImpactingTomorrow === 1 ? '' : 's'} impacting coverage tomorrow.`
+          : 'No pending PTO requests affect tomorrow\'s coverage.',
+        routerLink: '/dashboard/time-off-approvals'
+      },
+      {
+        icon: 'supervisor_account',
+        title: 'Coach frequent late arrivals',
+        description: frequentLateEmployeeCount > 0
+          ? `${frequentLateEmployeeCount} employee${frequentLateEmployeeCount === 1 ? '' : 's'} exceeded the lateness threshold this week.`
+          : 'No employees have repeat late arrivals this week.',
+        routerLink: '/dashboard/people'
+      }
+    ];
   }
 
   private eventBelongsToLocation(event: ShiftEvent, location: Location): boolean {

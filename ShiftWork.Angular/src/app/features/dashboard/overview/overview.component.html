@@ -72,7 +72,7 @@
 
       <div class="activity-footer">
         <span><strong i18n="@@overview.peak_label">Peak:</strong> {{ maxActivityCount }} <ng-container i18n="@@overview.checkins_hour">check-ins/hour</ng-container></span>
-        <span><strong i18n="@@overview.trend_label">Trend:</strong> <ng-container i18n="@@overview.late_dropped">Late arrivals dropped 9% compared to last week</ng-container></span>
+        <span><strong i18n="@@overview.trend_label">Trend:</strong> {{ lateArrivalsTrend }}</span>
       </div>
     </article>
 
@@ -123,7 +123,7 @@
             <div class="location-stats">
               <span><mat-icon>badge</mat-icon> {{ location.onShift }} <ng-container i18n="@@overview.on_shift">on shift</ng-container></span>
               <span><mat-icon>alarm</mat-icon> {{ location.late }} <ng-container i18n="@@overview.late_label">late</ng-container></span>
-              <span><mat-icon>report_problem</mat-icon> {{ location.geofenceBreaches }} <ng-container i18n="@@overview.breaches">breaches</ng-container></span>
+              <span><mat-icon>gps_off</mat-icon> {{ location.geofenceBreaches }} <ng-container i18n="@@overview.no_gps">missing GPS</ng-container></span>
             </div>
           </div>
 
@@ -132,6 +132,10 @@
             <small i18n="@@overview.gps_ring">GPS</small>
           </div>
         </article>
+
+        <p class="empty-state" *ngIf="!locations.length" i18n="@@overview.no_locations">
+          {{ loading ? 'Loading location health…' : 'No locations configured yet.' }}
+        </p>
       </div>
     </article>
 
@@ -144,27 +148,11 @@
       </div>
 
       <div class="actions-list">
-        <a class="action-link" routerLink="/dashboard/schedule-grid">
-          <mat-icon>view_comfy</mat-icon>
+        <a class="action-link" *ngFor="let action of recommendedActions" [routerLink]="action.routerLink">
+          <mat-icon>{{ action.icon }}</mat-icon>
           <div>
-            <h3 i18n="@@overview.action_balance">Balance schedules for overtime hotspots</h3>
-            <p i18n="@@overview.action_balance_desc">Auto-reassign 5 shifts with one-click optimization.</p>
-          </div>
-        </a>
-
-        <a class="action-link" routerLink="/dashboard/time-off-approvals">
-          <mat-icon>event_available</mat-icon>
-          <div>
-            <h3 i18n="@@overview.action_pto">Resolve pending PTO approvals</h3>
-            <p i18n="@@overview.action_pto_desc">3 requests are impacting coverage for tomorrow morning.</p>
-          </div>
-        </a>
-
-        <a class="action-link" routerLink="/dashboard/people">
-          <mat-icon>supervisor_account</mat-icon>
-          <div>
-            <h3 i18n="@@overview.action_coach">Coach frequent late arrivals</h3>
-            <p i18n="@@overview.action_coach_desc">4 employees exceeded lateness threshold this week.</p>
+            <h3>{{ action.title }}</h3>
+            <p>{{ action.description }}</p>
           </div>
         </a>
       </div>
