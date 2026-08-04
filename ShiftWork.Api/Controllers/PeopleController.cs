@@ -182,6 +182,7 @@ namespace ShiftWork.Api.Controllers
         [Authorize(Policy = "people.create")]
         [ProducesResponseType(typeof(PersonDto), 201)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<PersonDto>> PostPerson(string companyId, [FromBody] PersonDto personDto)
         {
@@ -192,6 +193,39 @@ namespace ShiftWork.Api.Controllers
 
             try
             {
+                var company = await _context.Companies.FindAsync(companyId);
+                if (company == null)
+                {
+                    return NotFound($"Company {companyId} not found.");
+                }
+
+                // Check if trial has expired and auto-downgrade
+                if (company.Plan != "Free" && company.PlanExpiresAt != null && DateTime.UtcNow > company.PlanExpiresAt)
+                {
+                    company.Plan = "Free";
+                    company.StripeSubscriptionId = null;
+                    _context.Companies.Update(company);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Company {CompanyId} auto-downgraded to Free plan after trial expiration.", companyId);
+                }
+
+                // Check usage limits
+                var employeeCount = await _context.Persons.CountAsync(p => p.CompanyId == companyId && p.Status == "Active");
+                var maxEmployees = ShiftWork.Api.Helpers.PlanLimits.GetMaxEmployeesForPlan(company.Plan);
+
+                if (employeeCount >= maxEmployees)
+                {
+                    var plan = company.Plan ?? "Free";
+                    return StatusCode(403, new
+                    {
+                        error = "plan_limit_exceeded",
+                        message = $"Your {plan} plan supports up to {maxEmployees} employees. Please upgrade to add more.",
+                        currentCount = employeeCount,
+                        limit = maxEmployees,
+                        plan = plan
+                    });
+                }
+
                 var person = _mapper.Map<Person>(personDto);
                 if (!string.IsNullOrEmpty(personDto.Pin))
                 {

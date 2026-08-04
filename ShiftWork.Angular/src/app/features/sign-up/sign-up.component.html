@@ -1,48 +1,226 @@
 <div class="container">
   <div class="card">
     <div class="card-body">
-      <h3 class="card-title text-center" i18n="@@auth.register.sign_up">Sign Up</h3>
+      <h3 class="card-title text-center">Create your ShiftWork account</h3>
+      <p class="text-center text-muted mb-4">Start your 14-day free trial — no credit card required</p>
+
       <form [formGroup]="signUpForm" (ngSubmit)="signUp()">
-        <div class="form-group">
-          <label for="email" i18n="@@auth.login.email_label">Email address</label>
-          <input
-            type="email"
-            class="form-control"
-            id="email"
-            formControlName="email"
-            [ngClass]="{ 'is-invalid': signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid }"
-          />
-          <div *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid" class="invalid-feedback">
-            <div *ngIf="signUpForm.get('email')?.errors?.['required']" i18n="@@auth.login.email_required">Email is required.</div>
-            <div *ngIf="signUpForm.get('email')?.errors?.['email']" i18n="@@auth.login.email_invalid">Please enter a valid email address.</div>
+
+        <!-- Your Account Section -->
+        <div class="section-divider">
+          <h6>Your Account</h6>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="email">Email address *</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              formControlName="email"
+              placeholder="you@company.com"
+              [ngClass]="{ 'is-invalid': signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid }"
+            />
+            <div class="invalid-feedback" *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid">
+              <div *ngIf="signUpForm.get('email')?.errors?.['required']">Email is required.</div>
+              <div *ngIf="signUpForm.get('email')?.errors?.['email']">Please enter a valid email address.</div>
+            </div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="displayName">Your name *</label>
+            <input
+              type="text"
+              class="form-control"
+              id="displayName"
+              formControlName="displayName"
+              placeholder="Jane Smith"
+              [ngClass]="{ 'is-invalid': signUpForm.get('displayName')?.touched && signUpForm.get('displayName')?.invalid }"
+            />
+            <div class="invalid-feedback" *ngIf="signUpForm.get('displayName')?.touched && signUpForm.get('displayName')?.invalid">
+              <div *ngIf="signUpForm.get('displayName')?.errors?.['required']">Name is required.</div>
+              <div *ngIf="signUpForm.get('displayName')?.errors?.['minlength']">Name must be at least 2 characters.</div>
+            </div>
           </div>
         </div>
-        <div class="form-group">
-          <label for="password" i18n="@@auth.login.password_label">Password</label>
-          <input
-            type="password"
-            class="form-control"
-            id="password"
-            formControlName="password"
-            [ngClass]="{ 'is-invalid': signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid }"
-          />
-          <div *ngIf="signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid" class="invalid-feedback">
-            <div *ngIf="signUpForm.get('password')?.errors?.['required']" i18n="@@auth.login.password_required">Password is required.</div>
-            <div *ngIf="signUpForm.get('password')?.errors?.['minlength']" i18n="@@auth.register.password_short_6">Password must be at least 6 characters long.</div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="password">Password *</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              formControlName="password"
+              placeholder="••••••••"
+              [ngClass]="{ 'is-invalid': signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid }"
+            />
+            <small class="form-text text-muted">Must be at least 8 characters</small>
+            <div class="invalid-feedback" *ngIf="signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid">
+              <div *ngIf="signUpForm.get('password')?.errors?.['required']">Password is required.</div>
+              <div *ngIf="signUpForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters.</div>
+            </div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="confirmPassword">Confirm password *</label>
+            <input
+              type="password"
+              class="form-control"
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              placeholder="••••••••"
+              [ngClass]="{ 'is-invalid': (signUpForm.get('confirmPassword')?.touched || signUpForm.touched) && (signUpForm.get('confirmPassword')?.invalid || signUpForm.errors?.['passwordMismatch']) }"
+            />
+            <div class="invalid-feedback" *ngIf="(signUpForm.get('confirmPassword')?.touched || signUpForm.touched) && (signUpForm.get('confirmPassword')?.invalid || signUpForm.errors?.['passwordMismatch'])">
+              <div *ngIf="signUpForm.errors?.['passwordMismatch']">Passwords do not match.</div>
+              <div *ngIf="signUpForm.get('confirmPassword')?.errors?.['required']">Please confirm your password.</div>
+            </div>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-block" [disabled]="!signUpForm.valid" i18n="@@auth.register.sign_up">Sign Up</button>
+
+        <!-- Company Section -->
+        <div class="section-divider mt-4">
+          <h6>Your Company</h6>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="companyName">Company name *</label>
+            <input
+              type="text"
+              class="form-control"
+              id="companyName"
+              formControlName="companyName"
+              placeholder="Acme Builders"
+              [ngClass]="{ 'is-invalid': signUpForm.get('companyName')?.touched && signUpForm.get('companyName')?.invalid }"
+            />
+            <div class="invalid-feedback" *ngIf="signUpForm.get('companyName')?.touched && signUpForm.get('companyName')?.invalid">
+              <div *ngIf="signUpForm.get('companyName')?.errors?.['required']">Company name is required.</div>
+              <div *ngIf="signUpForm.get('companyName')?.errors?.['minlength']">Company name must be at least 2 characters.</div>
+            </div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="companyEmail">Company email *</label>
+            <input
+              type="email"
+              class="form-control"
+              id="companyEmail"
+              formControlName="companyEmail"
+              placeholder="billing@company.com"
+              [ngClass]="{ 'is-invalid': signUpForm.get('companyEmail')?.touched && signUpForm.get('companyEmail')?.invalid }"
+            />
+            <div class="invalid-feedback" *ngIf="signUpForm.get('companyEmail')?.touched && signUpForm.get('companyEmail')?.invalid">
+              <div *ngIf="signUpForm.get('companyEmail')?.errors?.['required']">Company email is required.</div>
+              <div *ngIf="signUpForm.get('companyEmail')?.errors?.['email']">Please enter a valid email address.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="companyPhone">Phone (optional)</label>
+            <input
+              type="tel"
+              class="form-control"
+              id="companyPhone"
+              formControlName="companyPhone"
+              placeholder="(555) 000-1234"
+              [ngClass]="{ 'is-invalid': signUpForm.get('companyPhone')?.touched && signUpForm.get('companyPhone')?.invalid }"
+            />
+            <div class="invalid-feedback" *ngIf="signUpForm.get('companyPhone')?.touched && signUpForm.get('companyPhone')?.invalid">
+              <div *ngIf="signUpForm.get('companyPhone')?.errors?.['pattern']">Please enter a valid phone number.</div>
+            </div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="timeZone">Time zone *</label>
+            <select
+              class="form-control"
+              id="timeZone"
+              formControlName="timeZone"
+              [ngClass]="{ 'is-invalid': signUpForm.get('timeZone')?.touched && signUpForm.get('timeZone')?.invalid }"
+            >
+              <option value="UTC">UTC</option>
+              <option value="America/New_York">Eastern Time</option>
+              <option value="America/Chicago">Central Time</option>
+              <option value="America/Denver">Mountain Time</option>
+              <option value="America/Los_Angeles">Pacific Time</option>
+              <option value="Europe/London">London (GMT)</option>
+              <option value="Europe/Paris">Central European Time</option>
+              <option value="Asia/Tokyo">Japan Standard Time</option>
+              <option value="Australia/Sydney">Sydney (AEDT)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Terms -->
+        <div class="form-group mt-4">
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="agreeToTerms"
+              formControlName="agreeToTerms"
+              [ngClass]="{ 'is-invalid': signUpForm.get('agreeToTerms')?.touched && signUpForm.get('agreeToTerms')?.invalid }"
+            />
+            <label class="form-check-label" for="agreeToTerms">
+              I agree to the Terms of Service and Privacy Policy *
+            </label>
+            <div class="invalid-feedback" *ngIf="signUpForm.get('agreeToTerms')?.touched && signUpForm.get('agreeToTerms')?.invalid">
+              You must agree to the terms to continue.
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="btn btn-primary btn-block mt-4"
+          [disabled]="!signUpForm.valid || isLoading"
+        >
+          <span *ngIf="!isLoading">Create Account & Start Free Trial</span>
+          <span *ngIf="isLoading">
+            <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+            Creating account...
+          </span>
+        </button>
       </form>
-      <div class="or-separator">
-        <span class="or-text" i18n="@@common.or">Or</span>
-      </div>
-      <button type="button" class="btn btn-google btn-block" (click)="googleSignIn()">
-        <i class="fa fa-google-plus-g"></i>
-        <ng-container i18n="@@auth.register.google">Continue with Google</ng-container>
-      </button>
+
       <div class="text-center mt-3">
-        <span i18n="@@auth.register.already_account">Already have an account? <a routerLink="/sign-in">Log In</a></span>
+        <span>Already have an account? <a routerLink="/sign-in">Log In</a></span>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+.section-divider {
+  border-top: 1px solid #ddd;
+  margin: 1.5rem 0 1rem 0;
+  padding-top: 1rem;
+}
+
+.section-divider h6 {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #333;
+  margin: 0;
+}
+
+.form-row {
+  display: flex;
+  margin-right: -5px;
+  margin-left: -5px;
+}
+
+.form-row > .form-group {
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+@media (max-width: 576px) {
+  .form-row > .col-md-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+</style>

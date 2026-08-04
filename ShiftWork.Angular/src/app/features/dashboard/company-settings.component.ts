@@ -9,6 +9,7 @@ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { Company } from 'src/app/core/models/company.model';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CompanySettingsService } from 'src/app/core/services/company-settings.service';
+import { BillingService } from 'src/app/core/services/billing.service';
 import { CompanySettings } from 'src/app/core/models/company-settings.model';
 import { TIMEZONES } from 'src/app/core/data/timezones';
 import { Timezone } from 'src/app/core/models/timezone.model';
@@ -45,6 +46,7 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
   constructor(
     private settingsService: CompanySettingsService,
     private kioskService: KioskService,
+    private billingService: BillingService,
     private store: Store<AppState>,
     private snackBar: MatSnackBar
   ) {
@@ -244,5 +246,15 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
       isActive: true,
       displayOrder: 0,
     };
+  }
+
+  openBillingPortal(): void {
+    if (!this.companyId) {
+      this.snackBar.open('No company selected', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const currentUrl = window.location.origin + '/dashboard/company-settings';
+    this.billingService.openBillingPortal(this.companyId, currentUrl);
   }
 }

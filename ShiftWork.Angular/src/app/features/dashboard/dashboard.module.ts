@@ -28,6 +28,10 @@ import { AuditHistoryFiltersComponent } from '../kiosk/audit-history/audit-histo
 // Guided tour
 import { TourOverlayComponent } from 'src/app/shared/tour/tour-overlay.component';
 
+// Billing components
+import { TrialBadgeComponent } from './trial-badge.component';
+import { EmployeeQuotaComponent } from './employee-quota.component';
+
 
 const routes: Routes = [
   {
@@ -49,6 +53,7 @@ const routes: Routes = [
       { path: 'clock-shift', loadComponent: () => import('./clock-shift/clock-shift.component').then(m => m.ClockShiftComponent) },
       { path: 'shiftsummaries', loadComponent: () => import('./shiftsummaries/shiftsummaries.component').then(m => m.ShiftsummariesComponent) },
       { path: 'company-settings', loadComponent: () => import('./company-settings.component').then(m => m.CompanySettingsComponent) },
+      { path: 'upgrade', loadComponent: () => import('../upgrade/upgrade.component').then(m => m.UpgradeComponent) },
       { path: 'bulletins', loadChildren: () => import('./bulletins/bulletins.module').then(m => m.BulletinsModule) },
       { path: 'daily-reports', loadChildren: () => import('./daily-reports/daily-reports.module').then(m => m.DailyReportsModule) },
       { path: 'documents', loadChildren: () => import('./documents/documents.module').then(m => m.DocumentsModule) },
@@ -81,6 +86,9 @@ const routes: Routes = [
     AuditHistoryFiltersComponent,
     // Guided tour (standalone)
     TourOverlayComponent,
+    // Billing components (standalone)
+    TrialBadgeComponent,
+    EmployeeQuotaComponent,
     // TODO: ProfilesComponent is standalone, and cannot be declared in an NgModule. Did you mean to import it instead?
   ],
   providers: [

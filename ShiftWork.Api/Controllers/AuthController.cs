@@ -174,10 +174,10 @@ namespace ShiftWork.Api.Controllers
         public async Task<ActionResult<CompanyRegistrationResponse>> Register(
             [FromBody] CompanyRegistrationRequest request)
         {
-            // Self-registration is disabled. Users must be invited by a company admin.
-            return StatusCode(403, new { message = "Self-registration is disabled. Please contact a company administrator to receive an invitation." });
+            // Extract Firebase UID from JWT "sub" claim
+            var tokenUid = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? User.FindFirstValue("sub");
 
-            /* Original registration logic preserved for reference:
             if (string.IsNullOrEmpty(tokenUid))
                 return Unauthorized("A valid Firebase Bearer token is required.");
             if (tokenUid != request.FirebaseUid)
@@ -200,7 +200,7 @@ namespace ShiftWork.Api.Controllers
             {
                 _logger.LogInformation("{EventName} {Email}", FunnelEventNames.RegistrationStarted, request.UserEmail);
 
-                // 1. Create Company
+                // 1. Create Company (with 14-day trial)
                 var companyId = Guid.NewGuid().ToString();
                 var company = new Company
                 {
@@ -211,6 +211,7 @@ namespace ShiftWork.Api.Controllers
                     Address = string.Empty,
                     TimeZone = request.TimeZone,
                     Plan = "Free",
+                    PlanExpiresAt = DateTime.UtcNow.AddDays(14),
                     OnboardingStatus = "Pending"
                 };
                 _context.Companies.Add(company);
@@ -276,7 +277,6 @@ namespace ShiftWork.Api.Controllers
                 _logger.LogError(ex, "Registration failed for {Email}", request.UserEmail);
                 return StatusCode(500, "Registration failed. Please try again.");
             }
-            */
         }
 
         // ── API-based authentication (Firebase auth disabled for mobile) ──────────

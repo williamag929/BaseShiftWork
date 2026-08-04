@@ -19,6 +19,10 @@ namespace ShiftWork.Api.Services
         Task CreateCompanyAsync(Company company);
         Task<bool> UpdateCompanyAsync(Company company);
         Task<bool> DeleteCompanyAsync(string id);
+        Task<int> GetTrialDaysRemainingAsync(string companyId);
+        Task<bool> IsTrialExpiredAsync(string companyId);
+        Task<int> GetEmployeeCountAsync(string companyId);
+        Task<bool> AutoDowngradePlanIfTrialExpiredAsync(string companyId);
     }
 
     /// <summary>
@@ -125,6 +129,48 @@ namespace ShiftWork.Api.Services
         private async Task<bool> CompanyExists(string id)
         {
             return await _context.Companies.AnyAsync(e => e.CompanyId == id);
+        }
+
+        public async Task<int> GetTrialDaysRemainingAsync(string companyId)
+        {
+            var company = await _context.Companies.FindAsync(companyId);
+            if (company?.PlanExpiresAt == null)
+                return 0;
+
+            var daysRemaining = (int)(company.PlanExpiresAt.Value - DateTime.UtcNow).TotalDays;
+            return Math.Max(0, daysRemaining);
+        }
+
+        public async Task<bool> IsTrialExpiredAsync(string companyId)
+        {
+            var company = await _context.Companies.FindAsync(companyId);
+            if (company?.PlanExpiresAt == null)
+                return false;
+
+            return DateTime.UtcNow > company.PlanExpiresAt;
+        }
+
+        public async Task<int> GetEmployeeCountAsync(string companyId)
+        {
+            return await _context.Persons.CountAsync(p => p.CompanyId == companyId && p.Status == "Active");
+        }
+
+        public async Task<bool> AutoDowngradePlanIfTrialExpiredAsync(string companyId)
+        {
+            var company = await _context.Companies.FindAsync(companyId);
+            if (company == null)
+                return false;
+
+            if (company.Plan != "Free" && company.PlanExpiresAt != null && DateTime.UtcNow > company.PlanExpiresAt)
+            {
+                company.Plan = "Free";
+                company.StripeSubscriptionId = null;
+                await UpdateCompanyAsync(company);
+                _logger.LogInformation("Company {CompanyId} auto-downgraded to Free plan after trial expiration.", companyId);
+                return true;
+            }
+
+            return false;
         }
     }
 }

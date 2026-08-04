@@ -7,6 +7,7 @@ using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Helpers;
 using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -258,6 +259,96 @@ namespace ShiftWork.Api.Controllers
             {
                 _logger.LogError(ex, "{EventName} {CompanyId} {TargetPlan}",
                     "plan_upgrade_failed", companyId, request.TargetPlan);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Creates a Stripe Billing Portal session for self-serve subscription management.
+        /// Customer can view/download invoices, change payment method, cancel subscription, etc.
+        /// </summary>
+        [HttpPost("{companyId}/billing-portal-session")]
+        [Authorize]
+        [ProducesResponseType(typeof(BillingPortalSessionResponse), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<BillingPortalSessionResponse>> CreateBillingPortalSession(
+            string companyId,
+            [FromBody] BillingPortalSessionRequest request)
+        {
+            try
+            {
+                var company = await _companyService.GetCompanyByIdAsync(companyId);
+                if (company == null)
+                    return NotFound($"Company {companyId} not found.");
+
+                if (string.IsNullOrWhiteSpace(company.StripeCustomerId))
+                    return BadRequest("Company does not have an active Stripe subscription.");
+
+                if (string.IsNullOrWhiteSpace(StripeConfiguration.ApiKey))
+                    return BadRequest("Stripe is not configured on this server.");
+
+                var stripeGateway = HttpContext.RequestServices.GetRequiredService<IStripeGateway>();
+                var portalUrl = await stripeGateway.CreateBillingPortalSessionAsync(
+                    company.StripeCustomerId,
+                    request.ReturnUrl);
+
+                _logger.LogInformation(
+                    "Billing portal session created for company {CompanyId}.",
+                    companyId);
+
+                return Ok(new BillingPortalSessionResponse { PortalUrl = portalUrl });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating billing portal session for company {CompanyId}.", companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves billing information for a company (plan, trial status, employee count).
+        /// </summary>
+        [HttpGet("{companyId}/billing")]
+        [Authorize]
+        [ProducesResponseType(typeof(CompanyBillingInfoDto), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<CompanyBillingInfoDto>> GetBillingInfo(string companyId)
+        {
+            try
+            {
+                var company = await _companyService.GetCompanyByIdAsync(companyId);
+                if (company == null)
+                    return NotFound($"Company {companyId} not found.");
+
+                var employeeCount = await _context.Persons.CountAsync(p => p.CompanyId == companyId && p.Status == "Active");
+                var maxEmployees = PlanLimits.GetMaxEmployeesForPlan(company.Plan ?? "Free");
+                var trialDaysRemaining = 0;
+                var isTrialExpired = false;
+
+                if (company.PlanExpiresAt.HasValue)
+                {
+                    trialDaysRemaining = Math.Max(0, (int)(company.PlanExpiresAt.Value - DateTime.UtcNow).TotalDays);
+                    isTrialExpired = DateTime.UtcNow > company.PlanExpiresAt;
+                }
+
+                return Ok(new CompanyBillingInfoDto
+                {
+                    CompanyId = company.CompanyId,
+                    Name = company.Name,
+                    Plan = company.Plan ?? "Free",
+                    TrialDaysRemaining = trialDaysRemaining,
+                    PlanExpiresAt = company.PlanExpiresAt,
+                    EmployeeCount = employeeCount,
+                    EmployeeLimit = maxEmployees,
+                    IsTrialExpired = isTrialExpired
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving billing info for company {CompanyId}.", companyId);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }

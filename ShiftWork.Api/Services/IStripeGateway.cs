@@ -17,6 +17,12 @@ namespace ShiftWork.Api.Services
             string customerName,
             string paymentMethodId,
             string priceId);
+
+        /// <summary>
+        /// Creates a Stripe Billing Portal session URL for a customer to manage their subscription.
+        /// Customer can view invoices, change payment method, cancel subscription, etc.
+        /// </summary>
+        Task<string> CreateBillingPortalSessionAsync(string customerId, string returnUrl);
     }
 
     /// <summary>Result of creating/attaching a Stripe subscription.</summary>

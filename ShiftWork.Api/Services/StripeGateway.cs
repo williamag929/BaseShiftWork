@@ -74,5 +74,22 @@ namespace ShiftWork.Api.Services
 
             return new StripeSubscriptionResult(customer.Id, subscription.Id, subscription.Status, periodEnd);
         }
+
+        /// <inheritdoc />
+        public async Task<string> CreateBillingPortalSessionAsync(string customerId, string returnUrl)
+        {
+            var billingPortalSessionService = new Stripe.BillingPortal.SessionService();
+            var session = await billingPortalSessionService.CreateAsync(new Stripe.BillingPortal.SessionCreateOptions
+            {
+                Customer = customerId,
+                ReturnUrl = returnUrl
+            });
+
+            _logger.LogInformation(
+                "Billing portal session {SessionId} created for customer {CustomerId}.",
+                session.Id, customerId);
+
+            return session.Url;
+        }
     }
 }

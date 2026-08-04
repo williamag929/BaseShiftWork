@@ -65,6 +65,13 @@
       i18n="@@settings.tab_kiosk">
       Kiosk
     </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'billing'"
+      (click)="setActiveTab('billing')"
+      i18n="@@settings.tab_billing">
+      Billing
+    </button>
   </div>
 
   <!-- Tab Content -->
@@ -550,6 +557,21 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- Billing Settings -->
+    <div *ngIf="activeTab === 'billing'" class="settings-section">
+      <h2 i18n="@@settings.billing_heading">Billing & Subscription</h2>
+
+      <div class="billing-info">
+        <p i18n="@@settings.billing_description">
+          Manage your subscription, view invoices, update payment method, and access billing history.
+        </p>
+
+        <button class="btn-primary" (click)="openBillingPortal()" type="button" i18n="@@settings.manage_subscription">
+          💳 Manage Subscription
+        </button>
+      </div>
     </div>
 
   </div>

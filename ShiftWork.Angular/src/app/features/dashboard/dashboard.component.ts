@@ -10,6 +10,7 @@ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { PermissionService } from 'src/app/core/services/permission.service';
+import { BillingService, CompanyBillingInfo } from 'src/app/core/services/billing.service';
 import { environment } from 'src/environments/environment';
 import { TourService } from 'src/app/shared/tour/tour.service';
 
@@ -23,6 +24,7 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
   activeCompany$: Observable<any>;
+  billingInfo$: Observable<CompanyBillingInfo | null>;
   private routerSubscription: Subscription = Subscription.EMPTY;
   private statusRefreshSub: Subscription = Subscription.EMPTY;
 
@@ -46,10 +48,26 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
     private router: Router,
     private peopleService: PeopleService,
     public tourService: TourService,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private billingService: BillingService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
     this.user$ = this.authService.user$;
+    this.billingInfo$ = this.billingService.billingInfo$;
+
+    // Load billing info when company changes
+    this.activeCompany$.pipe(
+      filter(company => !!company),
+      switchMap(company => this.billingService.getBillingInfo(company.companyId)),
+      catchError(error => {
+        console.error('Failed to load billing info:', error);
+        return of(null);
+      })
+    ).subscribe(info => {
+      if (info) {
+        this.billingService.billingInfoSubject.next(info);
+      }
+    });
 
     // Combine active company, user, and refresh trigger to load live person status
     this.personStatus$ = combineLatest([

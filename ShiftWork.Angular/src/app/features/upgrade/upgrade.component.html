@@ -1,76 +1,126 @@
 <div class="upgrade-container">
-  <div class="upgrade-card">
-    <h1 i18n="@@upgrade.title">Upgrade to Pro</h1>
-    <p class="subtitle" i18n="@@upgrade.subtitle_web">Unlock the full power of Loqzen for your team.</p>
 
-    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
-    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+  <!-- Header -->
+  <div class="pricing-header">
+    <h2>Upgrade to Pro</h2>
+    <p>Unlock advanced scheduling, PTO management, and team features</p>
+  </div>
 
-    <!-- Plan Comparison Table -->
-    <div class="plan-comparison">
-      <table class="comparison-table">
-        <thead>
-          <tr>
-            <th i18n="@@upgrade.col_feature">Feature</th>
-            <th class="plan-col plan-free" i18n="@@upgrade.plan_free">Free</th>
-            <th class="plan-col plan-pro" i18n="@@upgrade.plan_pro">Pro ⭐</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td i18n="@@upgrade.feat_kiosk">Kiosk Clock-In / Out</td>
-            <td>✅</td>
-            <td>✅</td>
-          </tr>
-          <tr>
-            <td i18n="@@upgrade.feat_basic_schedule">Basic Scheduling</td>
-            <td>✅</td>
-            <td>✅</td>
-          </tr>
-          <tr>
-            <td i18n="@@upgrade.feat_sandbox">Sandbox Demo Data</td>
-            <td>✅</td>
-            <td>✅</td>
-          </tr>
-          <tr>
-            <td i18n="@@upgrade.feat_remove_sandbox">Remove Sandbox Data</td>
-            <td>❌</td>
-            <td>✅</td>
-          </tr>
-          <tr>
-            <td i18n="@@upgrade.feat_advanced">Advanced Scheduling</td>
-            <td>❌</td>
-            <td>✅</td>
-          </tr>
-          <tr>
-            <td i18n="@@upgrade.feat_analytics">Analytics &amp; Reports</td>
-            <td>❌</td>
-            <td>✅</td>
-          </tr>
-          <tr>
-            <td i18n="@@upgrade.feat_multilocation">Multi-Location Support</td>
-            <td>❌</td>
-            <td>✅</td>
-          </tr>
-          <tr>
-            <td i18n="@@upgrade.feat_export">Data Export</td>
-            <td>❌</td>
-            <td>✅</td>
-          </tr>
-        </tbody>
-      </table>
+  <!-- Plan Comparison -->
+  <div class="plan-comparison">
+    <div class="plan-box current">
+      <div class="plan-label">Your Current Plan</div>
+      <div class="plan-price">{{ currentPlan || 'Free' }}</div>
+      <ul class="plan-features">
+        <li>✓ Up to 50 employees</li>
+        <li>✓ Basic scheduling</li>
+        <li>✓ Email support</li>
+      </ul>
     </div>
 
-    <div class="upgrade-cta">
-      <p class="price-info" i18n="@@upgrade.price_info">Pro plan — contact sales for pricing</p>
-      <button
-        class="btn btn-primary btn-lg"
-        (click)="upgradeToPro()"
-        [disabled]="isLoading">
-        <ng-container *ngIf="isLoading" i18n="@@upgrade.processing">Processing…</ng-container>
-        <ng-container *ngIf="!isLoading" i18n="@@upgrade.submit">Upgrade to Pro Now</ng-container>
-      </button>
-      <p class="back-link"><a routerLink="/dashboard" i18n="@@upgrade.back_dashboard">← Back to Dashboard</a></p>
+    <div class="plan-box target">
+      <div class="plan-label">Pro Plan</div>
+      <div class="plan-price">${{ proPricePerMonth }}<small>/employee/mo</small></div>
+      <ul class="plan-features">
+        <li>✓ Unlimited employees</li>
+        <li>✓ PTO & time-off tracking</li>
+        <li>✓ Advanced analytics</li>
+        <li>✓ Priority support</li>
+      </ul>
     </div>
   </div>
+
+  <!-- Alerts -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Payment Form -->
+  <form [formGroup]="upgradeForm" (ngSubmit)="upgradeToPro()" class="card-section">
+
+    <h4>💳 Payment Details</h4>
+
+    <!-- Cardholder Name -->
+    <div class="form-group">
+      <label for="cardholderName">Cardholder Name *</label>
+      <input
+        type="text"
+        id="cardholderName"
+        formControlName="cardholderName"
+        placeholder="Jane Smith"
+        [class.error]="upgradeForm.get('cardholderName')?.touched && upgradeForm.get('cardholderName')?.invalid"
+      />
+      <div class="form-error" *ngIf="upgradeForm.get('cardholderName')?.touched && upgradeForm.get('cardholderName')?.invalid">
+        <div *ngIf="upgradeForm.get('cardholderName')?.errors?.['required']">Cardholder name is required.</div>
+        <div *ngIf="upgradeForm.get('cardholderName')?.errors?.['minlength']">Name must be at least 2 characters.</div>
+      </div>
+    </div>
+
+    <!-- Cardholder Email -->
+    <div class="form-group">
+      <label for="cardholderEmail">Email Address *</label>
+      <input
+        type="email"
+        id="cardholderEmail"
+        formControlName="cardholderEmail"
+        placeholder="jane@company.com"
+        [class.error]="upgradeForm.get('cardholderEmail')?.touched && upgradeForm.get('cardholderEmail')?.invalid"
+      />
+      <div class="form-error" *ngIf="upgradeForm.get('cardholderEmail')?.touched && upgradeForm.get('cardholderEmail')?.invalid">
+        <div *ngIf="upgradeForm.get('cardholderEmail')?.errors?.['required']">Email is required.</div>
+        <div *ngIf="upgradeForm.get('cardholderEmail')?.errors?.['email']">Please enter a valid email address.</div>
+      </div>
+    </div>
+
+    <!-- Stripe Card Element -->
+    <div class="form-group">
+      <label>Card Details *</label>
+      <div #cardElement id="card-element"></div>
+      <div class="form-error" *ngIf="errorMessage && isProcessing">{{ errorMessage }}</div>
+    </div>
+
+    <!-- Terms Checkbox -->
+    <div class="checkbox-group">
+      <input
+        type="checkbox"
+        id="agreeToTerms"
+        formControlName="agreeToTerms"
+      />
+      <label for="agreeToTerms">
+        I agree to the terms and authorize this charge to my payment method.
+      </label>
+    </div>
+
+    <!-- Security Note -->
+    <div class="security-note">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </svg>
+      Your payment information is secure and encrypted by Stripe.
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="button-group">
+      <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="isProcessing">
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="!upgradeForm.valid || isProcessing">
+        <span *ngIf="!isProcessing">
+          Complete Upgrade
+        </span>
+        <span *ngIf="isProcessing">
+          <span class="spinner-border"></span>
+          Processing...
+        </span>
+      </button>
+    </div>
+  </form>
+
+  <!-- Payment Assured Notice -->
+  <p style="text-align: center; color: #999; font-size: 0.85rem; margin-top: 2rem;">
+    Your upgrade will be effective immediately. You can manage your subscription anytime from your dashboard settings.
+  </p>
 </div>

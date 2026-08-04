@@ -302,6 +302,9 @@
     <!-- Main Content Area -->
     <mat-sidenav-content class="main-content">
       <div class="content-wrapper">
+        <!-- Trial Badge -->
+        <app-trial-badge [billingInfo]="(billingInfo$ | async)"></app-trial-badge>
+
         <router-outlet></router-outlet>
       </div>
     </mat-sidenav-content>

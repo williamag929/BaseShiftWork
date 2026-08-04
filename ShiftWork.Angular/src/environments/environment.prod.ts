@@ -3,6 +3,7 @@ export const environment = {
   googleAnalyticsId: 'G-7X3Z5F6Y7Z',
   apiUrl : "http://77.93.152.248:5182/api", // <-- Important: Add your production API URL here
   mcpUrl: 'https://mcp.loqzen.com',
+  stripePublishableKey: process.env['STRIPE_PUBLISHABLE_KEY'] || '',
   // Kiosk auto-refresh interval for employee status (milliseconds)
   kioskStatusRefreshMs: 60000,
   firebase: {

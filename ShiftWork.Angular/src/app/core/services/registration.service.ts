@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { environment } from '../../../environments/environment';
+import { Observable } from 'rxjs';
 
 export interface CompanyRegistrationRequest {
   firebaseUid: string;
@@ -20,104 +21,49 @@ export interface CompanyRegistrationResponse {
   adminUser: any;
 }
 
-export interface SandboxStatusResponse {
-  hasSandboxData: boolean;
-  sandboxPersonCount: number;
-  sandboxAreaCount: number;
-  sandboxLocationCount: number;
-}
-
-export interface PlanUpgradeRequest {
-  stripePaymentMethodId: string;
-  targetPlan: string;
-}
-
-export interface PlanUpgradeResponse {
-  success: boolean;
-  plan: string;
-  stripeSubscriptionId?: string;
-  message: string;
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class RegistrationService {
-  private readonly apiUrl = environment.apiUrl;
+  private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
-
-  private jsonHeaders() {
-    return { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) };
-  }
+  constructor(
+    private http: HttpClient,
+    private afAuth: AngularFireAuth
+  ) {}
 
   /**
-   * POST /api/auth/register — public endpoint.
-   * `idToken` is the Firebase ID token for the newly-created account and is sent
-   * as the Authorization: Bearer header. Passing it explicitly avoids a race
-   * condition where the HttpInterceptor's authState observable hasn't yet
-   * received the freshly-created user and would omit the header entirely.
+   * Registers a new company. Caller must already have a Firebase user created.
+   * This method gets the Firebase ID token and sends it with the company info to the backend.
    */
-  register(request: CompanyRegistrationRequest, idToken: string): Observable<CompanyRegistrationResponse> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${idToken}`
+  async registerCompany(data: Omit<CompanyRegistrationRequest, 'firebaseUid'>): Promise<CompanyRegistrationResponse> {
+    const currentUser = await this.afAuth.currentUser;
+    if (!currentUser) {
+      throw new Error('No Firebase user found. Please sign up first.');
+    }
+
+    const idToken = await currentUser.getIdToken();
+    const firebaseUid = currentUser.uid;
+
+    const request: CompanyRegistrationRequest = {
+      firebaseUid,
+      ...data
+    };
+
+    return new Promise((resolve, reject) => {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`
+      };
+
+      this.http.post<CompanyRegistrationResponse>(
+        `${this.apiUrl}/auth/register`,
+        request,
+        { headers }
+      ).subscribe({
+        next: (response) => resolve(response),
+        error: (error) => reject(error)
+      });
     });
-    return this.http.post<CompanyRegistrationResponse>(
-      `${this.apiUrl}/auth/register`,
-      request,
-      { headers }
-    );
-  }
-
-  getSandboxStatus(companyId: string): Observable<SandboxStatusResponse> {
-    return this.http.get<SandboxStatusResponse>(
-      `${this.apiUrl}/companies/${companyId}/sandbox/status`
-    );
-  }
-
-  hideSandboxData(companyId: string, entityTypes: string[] = ['All']): Observable<void> {
-    return this.http.post<void>(
-      `${this.apiUrl}/companies/${companyId}/sandbox/hide`,
-      { entityTypes },
-      this.jsonHeaders()
-    );
-  }
-
-  resetSandboxData(companyId: string): Observable<void> {
-    return this.http.post<void>(
-      `${this.apiUrl}/companies/${companyId}/sandbox/reset`,
-      {},
-      this.jsonHeaders()
-    );
-  }
-
-  deleteSandboxData(companyId: string): Observable<void> {
-    return this.http.post<void>(
-      `${this.apiUrl}/companies/${companyId}/sandbox/delete`,
-      {},
-      this.jsonHeaders()
-    );
-  }
-
-  upgradePlan(companyId: string, request: PlanUpgradeRequest): Observable<PlanUpgradeResponse> {
-    return this.http.post<PlanUpgradeResponse>(
-      `${this.apiUrl}/companies/${companyId}/plan/upgrade`,
-      request,
-      this.jsonHeaders()
-    );
-  }
-
-  /**
-   * PATCH /api/companies/{companyId}/onboarding-status
-   * Sets OnboardingStatus ("Pending" | "Verified" | "Complete") on the company.
-   * Called client-side after Firebase email verification is confirmed.
-   */
-  patchOnboardingStatus(companyId: string, status: string): Observable<void> {
-    return this.http.patch<void>(
-      `${this.apiUrl}/companies/${companyId}/onboarding-status`,
-      { status },
-      this.jsonHeaders()
-    );
   }
 }
