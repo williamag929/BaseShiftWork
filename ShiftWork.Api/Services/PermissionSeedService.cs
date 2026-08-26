@@ -122,6 +122,10 @@ namespace ShiftWork.Api.Services
                 Create("shift-events.create", "Shift Events - Create", "Create shift events"),
                 Create("shift-events.update", "Shift Events - Update", "Update shift events"),
                 Create("shift-events.delete", "Shift Events - Delete", "Delete shift events"),
+                Create("shift-events.geofence-flags.review", "Shift Events - Review Geofence Flags", "Mark flagged out-of-geofence clock events as reviewed"),
+
+                // Active sites dashboard
+                Create("active-sites.view", "Active Sites - View", "View the active site roster dashboard"),
 
                 // Time off requests
                 Create("timeoff-requests.read", "Time Off - Read", "View time off requests"),

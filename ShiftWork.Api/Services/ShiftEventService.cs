@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
+using ShiftWork.Api.Helpers;
 using ShiftWork.Api.Models;
 using System;
 using System.Collections.Generic;
@@ -112,75 +113,8 @@ namespace ShiftWork.Api.Services
             _context.ShiftEvents.Add(shiftEvent);
             await _context.SaveChangesAsync();
 
-            // Update person status based on shift event
-            if (shiftEvent.PersonId > 0)
-            {
-                // Use an overlap check for "today" in UTC to avoid timezone date mismatches.
-                var nowUtc = shiftEvent.EventDate;
-                var startOfDayUtc = nowUtc.Date;
-                var endOfDayUtc = startOfDayUtc.AddDays(1);
-
-                var scheduleShift = await _context.ScheduleShifts
-                    .Include(ss => ss.Location)
-                    .Where(ss => ss.PersonId == shiftEvent.PersonId &&
-                                 ss.StartDate < endOfDayUtc &&
-                                 ss.EndDate > startOfDayUtc)
-                    .OrderBy(ss => ss.StartDate)
-                    .FirstOrDefaultAsync();
-
-                string status = "";
-                // Determine status based on shift event type and schedule shift
-                if (scheduleShift != null)
-                {
-                    if (string.Equals(shiftEvent.EventType, "clockin", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Schedule start is stored as UTC wall-clock; convert to a real UTC instant using company/location timezone.
-                        var companyTimeZone = await _context.Companies
-                            .Where(c => c.CompanyId == shiftEvent.CompanyId)
-                            .Select(c => c.TimeZone)
-                            .FirstOrDefaultAsync();
-                        var effectiveTimeZone = scheduleShift.Location?.TimeZone ?? companyTimeZone ?? "UTC";
-                        var scheduleStartUtcInstant = ConvertUtcWallClockToUtcInstant(scheduleShift.StartDate, effectiveTimeZone);
-                        var diffMinutes = (nowUtc - scheduleStartUtcInstant).TotalMinutes;
-                        string timing;
-                        if (diffMinutes > 5)
-                        {
-                            timing = "Late";
-                        }
-                        else if (diffMinutes < -5)
-                        {
-                            timing = "Early";
-                        }
-                        else
-                        {
-                            timing = "OnTime";
-                        }
-                        status = $"OnShift:{timing}";
-                    }
-                    else if (string.Equals(shiftEvent.EventType, "clockout", StringComparison.OrdinalIgnoreCase))
-                    {
-                        status = "OffShift";
-                    }
-                }
-                else
-                {
-                    if (string.Equals(shiftEvent.EventType, "clockin", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // No schedule found overlapping today; mark as OnShift with NoSchedule detail
-                        status = "OnShift:NoSchedule";
-                    }
-                    else if (string.Equals(shiftEvent.EventType, "clockout", StringComparison.OrdinalIgnoreCase))
-                    {
-                        status = "OffShift";
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(status))
-                {
-                    // Update ShiftWork status (kiosk-specific) instead of general person status
-                    await _peopleService.UpdatePersonStatusShiftWork(shiftEvent.PersonId, status);
-                }
-            }
+            // Update person status + geofence check based on shift event
+            await ApplyStatusAndGeofenceAsync(shiftEvent, shiftEventDto.LocationId);
 
             // Handle sick/timeoff events: open overlapping shifts for this person
             if (!string.IsNullOrEmpty(shiftEvent.EventType) &&
@@ -390,6 +324,137 @@ namespace ShiftWork.Api.Services
 
             await _peopleService.UpdatePersonStatusShiftWork(personId, "OffShift");
             return true;
+        }
+
+        public async Task ApplyStatusAndGeofenceAsync(ShiftEvent shiftEvent, int? explicitLocationId)
+        {
+            if (shiftEvent.PersonId <= 0)
+            {
+                return;
+            }
+
+            // Use an overlap check for "today" in UTC to avoid timezone date mismatches.
+            var nowUtc = shiftEvent.EventDate;
+            var startOfDayUtc = nowUtc.Date;
+            var endOfDayUtc = startOfDayUtc.AddDays(1);
+
+            var scheduleShift = await _context.ScheduleShifts
+                .Include(ss => ss.Location)
+                .Where(ss => ss.PersonId == shiftEvent.PersonId &&
+                             ss.StartDate < endOfDayUtc &&
+                             ss.EndDate > startOfDayUtc)
+                .OrderBy(ss => ss.StartDate)
+                .FirstOrDefaultAsync();
+
+            string status = "";
+            // Determine status based on shift event type and schedule shift
+            if (scheduleShift != null)
+            {
+                if (string.Equals(shiftEvent.EventType, "clockin", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Schedule start is stored as UTC wall-clock; convert to a real UTC instant using company/location timezone.
+                    var companyTimeZone = await _context.Companies
+                        .Where(c => c.CompanyId == shiftEvent.CompanyId)
+                        .Select(c => c.TimeZone)
+                        .FirstOrDefaultAsync();
+                    var effectiveTimeZone = scheduleShift.Location?.TimeZone ?? companyTimeZone ?? "UTC";
+                    var scheduleStartUtcInstant = ConvertUtcWallClockToUtcInstant(scheduleShift.StartDate, effectiveTimeZone);
+                    var diffMinutes = (nowUtc - scheduleStartUtcInstant).TotalMinutes;
+                    string timing;
+                    if (diffMinutes > 5)
+                    {
+                        timing = "Late";
+                    }
+                    else if (diffMinutes < -5)
+                    {
+                        timing = "Early";
+                    }
+                    else
+                    {
+                        timing = "OnTime";
+                    }
+                    status = $"OnShift:{timing}";
+                }
+                else if (string.Equals(shiftEvent.EventType, "clockout", StringComparison.OrdinalIgnoreCase))
+                {
+                    status = "OffShift";
+                }
+            }
+            else
+            {
+                if (string.Equals(shiftEvent.EventType, "clockin", StringComparison.OrdinalIgnoreCase))
+                {
+                    // No schedule found overlapping today; mark as OnShift with NoSchedule detail
+                    status = "OnShift:NoSchedule";
+                }
+                else if (string.Equals(shiftEvent.EventType, "clockout", StringComparison.OrdinalIgnoreCase))
+                {
+                    status = "OffShift";
+                }
+            }
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                // Update ShiftWork status (kiosk-specific) instead of general person status
+                await _peopleService.UpdatePersonStatusShiftWork(shiftEvent.PersonId, status);
+            }
+
+            // Geofence check: prefer an explicit target location (kiosk devices are enrolled to a
+            // fixed site), else fall back to the resolved schedule's location (mobile clock-ins,
+            // which don't send an explicit LocationId today).
+            Location? targetLocation;
+            if (explicitLocationId.HasValue)
+            {
+                targetLocation = explicitLocationId == scheduleShift?.LocationId
+                    ? scheduleShift?.Location
+                    : await _context.Locations.FindAsync(explicitLocationId.Value);
+            }
+            else
+            {
+                targetLocation = scheduleShift?.Location;
+            }
+
+            shiftEvent.LocationId = explicitLocationId ?? scheduleShift?.LocationId;
+
+            if (targetLocation != null)
+            {
+                var siteCoords = GeoUtils.ParseCoordinates(targetLocation.GeoCoordinates);
+                var deviceCoords = GeoUtils.ParseCoordinates(shiftEvent.GeoLocation);
+                if (siteCoords.HasValue && deviceCoords.HasValue)
+                {
+                    var distance = GeoUtils.DistanceMeters(
+                        siteCoords.Value.Lat, siteCoords.Value.Lon,
+                        deviceCoords.Value.Lat, deviceCoords.Value.Lon);
+                    shiftEvent.GeofenceDistanceMeters = distance;
+                    shiftEvent.GeofenceStatus = distance <= targetLocation.RatioMax ? "Inside" : "Outside";
+                }
+                else
+                {
+                    shiftEvent.GeofenceStatus = "Unknown";
+                }
+            }
+            else
+            {
+                shiftEvent.GeofenceStatus = "Unknown";
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<ShiftEvent?> ReviewGeofenceFlagAsync(string companyId, Guid eventLogId, int? reviewerPersonId)
+        {
+            var shiftEvent = await _context.ShiftEvents
+                .FirstOrDefaultAsync(e => e.EventLogId == eventLogId && e.CompanyId == companyId);
+            if (shiftEvent == null)
+            {
+                return null;
+            }
+
+            shiftEvent.GeofenceReviewedAt = DateTime.UtcNow;
+            shiftEvent.GeofenceReviewedByPersonId = reviewerPersonId;
+
+            await _context.SaveChangesAsync();
+            return shiftEvent;
         }
     }
 }

@@ -79,6 +79,29 @@ namespace ShiftWork.Api.Controllers
         }
 
         /// <summary>
+        /// Live "who's on site" roster per active location (Active Sites dashboard). Not cached —
+        /// unlike <see cref="GetLocations"/>, this view needs to reflect the current shift, not a
+        /// 5-minute-stale snapshot.
+        /// </summary>
+        [HttpGet("active-status")]
+        [Authorize(Policy = "active-sites.view")]
+        [ProducesResponseType(typeof(List<ActiveSiteStatusDto>), 200)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<List<ActiveSiteStatusDto>>> GetActiveSiteStatus(string companyId)
+        {
+            try
+            {
+                var status = await _locationService.GetActiveSiteStatusAsync(companyId);
+                return Ok(status);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving active site status for company {CompanyId}.", companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
         /// Retrieves a specific location by its ID.
         /// </summary>
         [HttpGet("{locationId}")]

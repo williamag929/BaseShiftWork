@@ -20,6 +20,16 @@ namespace ShiftWork.Api.Models
         public string? KioskDevice { get; set; }
         public string? GeoLocation { get; set; }
         public string? PhotoUrl { get; set; }
+
+        /// <summary>Job site this event was checked against for geofencing. Null if none could be resolved.</summary>
+        public int? LocationId { get; set; }
+        public Location? Location { get; set; }
+        /// <summary>"Inside" | "Outside" | "Unknown" (missing/unparseable coordinates on either side).</summary>
+        public string? GeofenceStatus { get; set; }
+        public double? GeofenceDistanceMeters { get; set; }
+        public DateTime? GeofenceReviewedAt { get; set; }
+        public int? GeofenceReviewedByPersonId { get; set; }
+
         public Person? Person { get; set; }
         public Company? Company { get; set; }
     }

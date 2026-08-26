@@ -81,7 +81,8 @@ export const shiftEventService = {
     personId: number,
     geoLocation?: string,
     photoUrl?: string,
-    kioskDevice?: string
+    kioskDevice?: string,
+    locationId?: number
   ): Promise<ShiftEventDto> {
     return this.createShiftEvent(companyId, {
       eventDate: new Date(),
@@ -91,6 +92,7 @@ export const shiftEventService = {
       geoLocation,
       photoUrl,
       kioskDevice,
+      locationId,
       description: 'Mobile clock in',
     });
   },
@@ -103,7 +105,8 @@ export const shiftEventService = {
     personId: number,
     geoLocation?: string,
     photoUrl?: string,
-    kioskDevice?: string
+    kioskDevice?: string,
+    locationId?: number
   ): Promise<ShiftEventDto> {
     return this.createShiftEvent(companyId, {
       eventDate: new Date(),
@@ -113,6 +116,7 @@ export const shiftEventService = {
       geoLocation,
       photoUrl,
       kioskDevice,
+      locationId,
       description: 'Mobile clock out',
     });
   },
