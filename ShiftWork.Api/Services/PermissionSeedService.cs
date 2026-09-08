@@ -191,6 +191,13 @@ namespace ShiftWork.Api.Services
                 Create("documents.delete",   "Documents - Delete",    "Archive documents"),
                 Create("documents.manage",   "Documents - Manage",    "View read compliance logs and manage access"),
 
+                // Credentials
+                Create("credentials.read",   "Credentials - Read",   "View employee credentials"),
+                Create("credentials.create", "Credentials - Create", "Add employee credentials"),
+                Create("credentials.update", "Credentials - Update", "Edit employee credentials"),
+                Create("credentials.delete", "Credentials - Delete", "Archive employee credentials"),
+                Create("credentials.track",  "Credentials - Track",  "View expiring/expired credential compliance"),
+
                 // Analytics & dynamic reports
                 Create("analytics.view",   "Analytics - View",   "View analytics dashboards and reports"),
                 Create("analytics.export", "Analytics - Export", "Export analytics data (CSV/PNG)"),

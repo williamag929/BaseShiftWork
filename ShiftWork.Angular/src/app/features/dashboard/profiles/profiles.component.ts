@@ -55,6 +55,7 @@ export class ProfilesComponent implements OnInit {
     'Bulletins':            ['bulletins.read', 'bulletins.create', 'bulletins.delete', 'bulletins.track-reads'],
     'Daily Reports':        ['reports.read', 'reports.submit', 'reports.approve', 'reports.export'],
     'Documents':            ['documents.read', 'documents.upload', 'documents.delete', 'documents.manage'],
+    'Credentials':          ['credentials.read', 'credentials.create', 'credentials.update', 'credentials.delete', 'credentials.track'],
     'Safety':               ['safety.read', 'safety.create', 'safety.delete', 'safety.acknowledge', 'safety.track'],
   };
   // Helper for iterating over object keys in the template

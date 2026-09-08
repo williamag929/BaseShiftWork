@@ -10,6 +10,7 @@ import { colors, spacing, radius } from '@/styles/tokens';
 import { useProfile } from '@/hooks/useProfile';
 import { ProfileHeader } from '@/components/screens/profile/ProfileHeader';
 import { ProfileInfoSection } from '@/components/screens/profile/ProfileInfoSection';
+import { CredentialsSection } from '@/components/screens/profile/CredentialsSection';
 import { SecuritySection } from '@/components/screens/profile/SecuritySection';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation, SupportedLocale } from '@/i18n';
@@ -74,6 +75,10 @@ export default function ProfileScreen() {
 
       <Animated.View entering={FadeInDown.delay(180).duration(350)}>
         <SecuritySection profile={profile} />
+      </Animated.View>
+
+      <Animated.View entering={FadeInDown.delay(200).duration(350)}>
+        <CredentialsSection companyId={companyId ?? undefined} personId={personId ?? undefined} />
       </Animated.View>
 
       {/* Language */}

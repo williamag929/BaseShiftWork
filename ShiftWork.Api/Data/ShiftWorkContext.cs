@@ -48,6 +48,7 @@ namespace ShiftWork.Api.Data
         public DbSet<DocumentReadLog> DocumentReadLogs { get; set; }
         public DbSet<SafetyContent> SafetyContents { get; set; }
         public DbSet<SafetyAcknowledgment> SafetyAcknowledgments { get; set; }
+        public DbSet<Credential> Credentials { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -72,6 +73,7 @@ namespace ShiftWork.Api.Data
             modelBuilder.Entity<RolePermission>().ToTable("RolePermissions");
             modelBuilder.Entity<UserRole>().ToTable("UserRoles");
             modelBuilder.Entity<CompanyUserProfile>().ToTable("CompanyUserProfiles");
+            modelBuilder.Entity<Credential>().ToTable("Credentials");
 
             modelBuilder.Entity<RolePermission>()
                 .HasKey(rp => new { rp.RoleId, rp.PermissionId });
