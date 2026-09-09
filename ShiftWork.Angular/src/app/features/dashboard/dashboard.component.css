@@ -297,6 +297,25 @@
   padding: 0.5rem;
 }
 
+.nav-badge {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.nav-badge-warn {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
 .nav-item mat-icon {
   color: #718096;
   margin-right: 0.75rem;

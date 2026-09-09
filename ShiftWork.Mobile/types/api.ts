@@ -73,6 +73,26 @@ export interface ShiftEventDto {
   geofenceDistanceMeters?: number;
 }
 
+export type CredentialExpiryStatus = 'Valid' | 'ExpiringSoon' | 'Expired';
+
+export interface CredentialDto {
+  credentialId: string;
+  companyId: string;
+  personId: number;
+  personName: string;
+  name: string;
+  type?: string;
+  issuingAuthority?: string;
+  credentialNumber?: string;
+  issueDate?: string;
+  expiryDate: string;
+  expiryStatus: CredentialExpiryStatus;
+  hasDocument: boolean;
+  status: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface LocationDto {
   locationId: number;
   companyId: string;

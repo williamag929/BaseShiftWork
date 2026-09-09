@@ -10,6 +10,7 @@ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { PermissionService } from 'src/app/core/services/permission.service';
+import { CredentialService } from 'src/app/core/services/credential.service';
 import { environment } from 'src/environments/environment';
 import { TourService } from 'src/app/shared/tour/tour.service';
 
@@ -39,6 +40,9 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
   private refreshTrigger$ = new BehaviorSubject<void>(undefined);
   private statusRefreshIntervalMs = environment.kioskStatusRefreshMs || 45000;
 
+  /** Expiring + expired credential count for the sidenav badge; null/0 renders no badge. */
+  expiringCredentialsCount$: Observable<number | null>;
+
   constructor(
     private breakpointObserver: BreakpointObserver,
     private authService: AuthService,
@@ -46,10 +50,22 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
     private router: Router,
     private peopleService: PeopleService,
     public tourService: TourService,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private credentialService: CredentialService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
     this.user$ = this.authService.user$;
+
+    this.expiringCredentialsCount$ = this.activeCompany$.pipe(
+      filter((company: any) => !!company && this.hasPermission('credentials.track')),
+      switchMap((company: any): Observable<number | null> =>
+        this.credentialService.getExpiring(company.companyId).pipe(
+          map(summary => summary.expiredCount + summary.expiringSoonCount),
+          catchError(() => of(null))
+        )
+      ),
+      startWith(null as number | null)
+    );
 
     // Combine active company, user, and refresh trigger to load live person status
     this.personStatus$ = combineLatest([

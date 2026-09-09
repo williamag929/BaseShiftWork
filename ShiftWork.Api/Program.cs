@@ -159,6 +159,7 @@ builder.Services.AddScoped<IBulletinService, BulletinService>();
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<IDailyReportService, DailyReportService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<ICredentialService, CredentialService>();
 builder.Services.AddScoped<ISafetyService, SafetyService>();
 builder.Services.AddHostedService<SafetyNotificationHostedService>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
@@ -407,6 +408,12 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("documents.upload", policy => policy.Requirements.Add(new PermissionRequirement("documents.upload")));
     options.AddPolicy("documents.delete", policy => policy.Requirements.Add(new PermissionRequirement("documents.delete")));
     options.AddPolicy("documents.manage", policy => policy.Requirements.Add(new PermissionRequirement("documents.manage")));
+
+    options.AddPolicy("credentials.read", policy => policy.Requirements.Add(new PermissionRequirement("credentials.read")));
+    options.AddPolicy("credentials.create", policy => policy.Requirements.Add(new PermissionRequirement("credentials.create")));
+    options.AddPolicy("credentials.update", policy => policy.Requirements.Add(new PermissionRequirement("credentials.update")));
+    options.AddPolicy("credentials.delete", policy => policy.Requirements.Add(new PermissionRequirement("credentials.delete")));
+    options.AddPolicy("credentials.track", policy => policy.Requirements.Add(new PermissionRequirement("credentials.track")));
 
     options.AddPolicy("reports.read", policy => policy.Requirements.Add(new PermissionRequirement("reports.read")));
     options.AddPolicy("reports.submit", policy => policy.Requirements.Add(new PermissionRequirement("reports.submit")));

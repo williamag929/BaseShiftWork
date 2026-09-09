@@ -53,6 +53,7 @@ const routes: Routes = [
       { path: 'bulletins', loadChildren: () => import('./bulletins/bulletins.module').then(m => m.BulletinsModule) },
       { path: 'daily-reports', loadChildren: () => import('./daily-reports/daily-reports.module').then(m => m.DailyReportsModule) },
       { path: 'documents', loadChildren: () => import('./documents/documents.module').then(m => m.DocumentsModule) },
+      { path: 'credentials', loadComponent: () => import('./credentials/credentials.component').then(m => m.CredentialsComponent) },
       { path: 'safety', loadChildren: () => import('./safety/safety.module').then(m => m.SafetyModule) },
     ]
   }

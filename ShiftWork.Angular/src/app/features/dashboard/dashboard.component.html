@@ -237,6 +237,14 @@
           </div>
         </a>
 
+        <a *ngIf="hasPermission('credentials.read')" mat-list-item routerLink="/dashboard/credentials" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>badge</mat-icon>
+            <span matListItemTitle i18n="@@nav.web_credentials">Credentials</span>
+            <span class="nav-badge nav-badge-warn" *ngIf="(expiringCredentialsCount$ | async) as count">{{ count }}</span>
+          </div>
+        </a>
+
         <a mat-list-item routerLink="/dashboard/safety" routerLinkActive="active-link" class="nav-item">
           <div class="nav-item-content">
             <mat-icon matListItemIcon>health_and_safety</mat-icon>

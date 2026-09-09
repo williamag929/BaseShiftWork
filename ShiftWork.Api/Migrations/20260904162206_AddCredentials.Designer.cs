@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShiftWork.Api.Data;
 
@@ -11,9 +12,11 @@ using ShiftWork.Api.Data;
 namespace ShiftWork.Api.Migrations
 {
     [DbContext(typeof(ShiftWorkContext))]
-    partial class ShiftWorkContextModelSnapshot : ModelSnapshot
+    [Migration("20260904162206_AddCredentials")]
+    partial class AddCredentials
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1714,23 +1717,8 @@ namespace ShiftWork.Api.Migrations
                     b.Property<string>("GeoLocation")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double?>("GeofenceDistanceMeters")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime?>("GeofenceReviewedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("GeofenceReviewedByPersonId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("GeofenceStatus")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("KioskDevice")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("LocationId")
-                        .HasColumnType("int");
 
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
@@ -1739,8 +1727,6 @@ namespace ShiftWork.Api.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("EventLogId");
-
-                    b.HasIndex("LocationId");
 
                     b.HasIndex("PersonId");
 
@@ -2387,10 +2373,6 @@ namespace ShiftWork.Api.Migrations
                         .WithMany()
                         .HasForeignKey("CompanyId");
 
-                    b.HasOne("ShiftWork.Api.Models.Location", "Location")
-                        .WithMany()
-                        .HasForeignKey("LocationId");
-
                     b.HasOne("ShiftWork.Api.Models.Person", "Person")
                         .WithMany()
                         .HasForeignKey("PersonId")
@@ -2398,8 +2380,6 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Company");
-
-                    b.Navigation("Location");
 
                     b.Navigation("Person");
                 });
