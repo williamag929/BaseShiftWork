@@ -12,10 +12,33 @@ Before this sprint, the API had:
 - No health-check endpoint at all — nothing to point an uptime monitor or load balancer at.
 - No dashboards, alerts, or on-call tooling connected to this repo.
 
-This doc specifies what to build; it does not stand up real dashboards, since this session has no
-authorized connection to an observability backend (Datadog, Grafana, etc. all require an
-interactive OAuth grant this environment can't perform). Treat the queries/thresholds below as the
-spec for whoever wires up the chosen tool.
+**Update:** this is now actually stood up — self-hosted Prometheus + Grafana, added to the root
+`docker-compose.yml` alongside `mssql`/`api`/`web`/`mcp` (the same compose file
+`.github/workflows/deploy.yml` already deploys to the real host). No SaaS OAuth grant was needed for
+this: the queries/thresholds below are implemented directly against ASP.NET Core's built-in
+`http.server.request.duration` metric (via `OpenTelemetry.Instrumentation.AspNetCore`, added to
+`ShiftWork.Api`) plus two custom counters in `Helpers/AppMetrics.cs` for the two signals that aren't
+naturally HTTP-request-shaped (§4, §5).
+
+### Running it
+
+```
+docker compose up -d --build api prometheus grafana   # (plus mssql if not already running)
+```
+- Grafana: `http://localhost:3000` (or your deploy host's port 3000) — login `admin` /
+  `$GRAFANA_ADMIN_PASSWORD`. All 3 dashboards below and all 5 alert rules are pre-provisioned on
+  first boot from `observability/grafana/provisioning/` — nothing to click through manually.
+- Prometheus: `http://localhost:9090` — `/targets` should show `shiftwork-api` as **UP**.
+- `/metrics` on the API requires a bearer token (`METRICS_SCRAPE_TOKEN` env var) — it's reachable on
+  the host-mapped port in production, so it's gated rather than left open; Prometheus reads the
+  token from a file it writes at container start (see `observability/prometheus/prometheus.yml`'s
+  comments — Prometheus doesn't expand `${ENV_VAR}` in its own config, so this isn't as simple as
+  templating the YAML directly).
+- Alert notifications go to `GRAFANA_ALERT_EMAIL` via the app's existing `SMTP_*` credentials — no
+  new notification channel was set up. Firing state is visible in Grafana's Alerting page regardless
+  of whether SMTP is configured.
+- New env vars, documented in `.env.example`: `METRICS_SCRAPE_TOKEN`, `GRAFANA_ADMIN_PASSWORD`,
+  `GRAFANA_ALERT_EMAIL`.
 
 ## What this sprint added
 
@@ -92,12 +115,19 @@ One dashboard per audience:
   `CLAUDE.md`'s env var table), broken down by trigger (bulletin publish, safety publish,
   schedule/shift publish).
 
-## Prerequisites to actually wire this up
+## Status of the 3 original prerequisites
 
-1. Pick a backend (Datadog is already listed as an available-but-unauthorized MCP connector for
-   this environment — `claude mcp` / `/mcp` in an interactive session to connect it).
-2. Add an OpenTelemetry exporter (`OpenTelemetry.Extensions.Hosting` +
-   `OpenTelemetry.Instrumentation.AspNetCore`) to `ShiftWork.Api` to get the request-duration/
-   status-code metrics referenced above without hand-rolling counters.
-3. Ship logs somewhere queryable (the current console-only sink means logs only exist in whatever
-   captures stdout — fine for local `dotnet run`, not sufficient for production alerting).
+1. ~~Pick a backend~~ — done: self-hosted Prometheus + Grafana, no SaaS OAuth needed.
+2. ~~Add an OpenTelemetry exporter~~ — done: `OpenTelemetry.Extensions.Hosting` +
+   `OpenTelemetry.Instrumentation.AspNetCore` + `OpenTelemetry.Exporter.Prometheus.AspNetCore` are
+   in `ShiftWork.Api.csproj`; wired in `Program.cs`.
+3. **Still open:** logs are still console-only (no Loki/ELK/similar). Not needed for the 5 alerts
+   here — §1-3 are HTTP-metric-based and §4-5 use the two custom counters instead of parsing logs —
+   but still true that logs themselves aren't shipped anywhere queryable if you need to grep them
+   during an incident rather than SSH into the host.
+
+Two real bugs were found and fixed while wiring this up, both exactly the visibility gaps this spec
+already called out: `KioskController` had no `ILogger` at all (its 3 catch blocks silently swallowed
+exceptions — including the exact post-clockout endpoint §5 needs signal from), and
+`PermissionAuthorizationHandler`/`AuthController.Login`'s auth-failure paths are still unlogged
+(noted, not fixed — §3's alert doesn't need it since it's HTTP-status-code-based).

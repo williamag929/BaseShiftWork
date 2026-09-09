@@ -1,0 +1,21 @@
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: shiftwork-ops-email
+    receivers:
+      - uid: shiftwork-ops-email-receiver
+        type: email
+        settings:
+          # $__env{...} is Grafana's documented provisioning-file env var expansion syntax
+          # (distinct from Prometheus's config, which has no such expansion — see prometheus.yml).
+          addresses: "$__env{GRAFANA_ALERT_EMAIL}"
+          singleEmail: true
+
+policies:
+  - orgId: 1
+    receiver: shiftwork-ops-email
+    group_by: ["alertname"]
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 4h

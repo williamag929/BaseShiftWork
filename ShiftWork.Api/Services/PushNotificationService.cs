@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using ShiftWork.Api.Data;
+using ShiftWork.Api.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace ShiftWork.Api.Services;
@@ -221,6 +222,7 @@ public class PushNotificationService
                 if (!response.IsSuccessStatusCode)
                 {
                     var error = await response.Content.ReadAsStringAsync();
+                    AppMetrics.PushNotificationFailures.Add(1);
                     _logger.LogError("Failed to send push notifications. Status: {Status}, Error: {Error}",
                         response.StatusCode, error);
                     continue;
@@ -268,6 +270,7 @@ public class PushNotificationService
         }
         catch (Exception ex)
         {
+            AppMetrics.PushNotificationFailures.Add(1);
             _logger.LogError(ex, "Error sending push notifications");
             return false;
         }

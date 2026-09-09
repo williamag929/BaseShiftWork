@@ -54,6 +54,8 @@ services:
       EXPO_PUSH_API_URL: "${EXPO_PUSH_API_URL:-https://exp.host/--/api/v2/push/send}"
       # Weather (daily reports)
       OPENWEATHER_API_KEY: "${OPENWEATHER_API_KEY}"
+      # Observability — must match prometheus's copy of the same var below, or every scrape 401s.
+      METRICS_SCRAPE_TOKEN: "${METRICS_SCRAPE_TOKEN}"
     ports:
       - "5000:80"
     depends_on:
@@ -109,8 +111,58 @@ services:
     networks:
       - shiftwork-net
 
+  # ── Prometheus ──────────────────────────────────────────────────────────────
+  # Not rebuilt by deploy.yml's `docker compose up -d --build mcp api web` (it doesn't need
+  # rebuilding on every API deploy) — starts once via the initial `docker compose up -d` and keeps
+  # running across subsequent deploys of the other services.
+  prometheus:
+    image: prom/prometheus:v3.0.1
+    container_name: shiftwork-prometheus
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "$$METRICS_SCRAPE_TOKEN" > /etc/prometheus/metrics_token
+        exec /bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus
+    environment:
+      METRICS_SCRAPE_TOKEN: "${METRICS_SCRAPE_TOKEN}"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - shiftwork-net
+
+  # ── Grafana ─────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:11.3.1
+    container_name: shiftwork-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_ADMIN_PASSWORD:-change-me}"
+      GF_SMTP_ENABLED: "${SMTP_HOST:+true}"
+      GF_SMTP_HOST: "${SMTP_HOST}:${SMTP_PORT:-587}"
+      GF_SMTP_USER: "${SMTP_USERNAME}"
+      GF_SMTP_PASSWORD: "${SMTP_PASSWORD}"
+      GF_SMTP_FROM_ADDRESS: "${SMTP_FROM}"
+      GRAFANA_ALERT_EMAIL: "${GRAFANA_ALERT_EMAIL:-ops@example.com}"
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - shiftwork-net
+
 volumes:
   mssql-data:
+  prometheus-data:
+  grafana-data:
 
 networks:
   shiftwork-net:
