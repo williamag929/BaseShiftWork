@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using ShiftWork.Api.Helpers;
 using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
 using ShiftWork.Api.DTOs;
@@ -24,6 +26,7 @@ namespace ShiftWork.Api.Controllers
         private readonly ILocationService _locationService;
         private readonly IBulletinService _bulletins;
         private readonly ISafetyService _safety;
+        private readonly ILogger<KioskController> _logger;
 
         public KioskController(
             IKioskService kioskService,
@@ -31,7 +34,8 @@ namespace ShiftWork.Api.Controllers
             ICompanySettingsService companySettingsService,
             ILocationService locationService,
             IBulletinService bulletins,
-            ISafetyService safety)
+            ISafetyService safety,
+            ILogger<KioskController> logger)
         {
             _kioskService = kioskService;
             _configuration = configuration;
@@ -39,6 +43,7 @@ namespace ShiftWork.Api.Controllers
             _locationService = locationService;
             _bulletins = bulletins;
             _safety = safety;
+            _logger = logger;
         }
 
         /// <summary>
@@ -203,6 +208,11 @@ namespace ShiftWork.Api.Controllers
             }
             catch (Exception ex)
             {
+                // This endpoint fails silently to the employee by design (Kiosk's 5s auto-advance
+                // fallback), which is exactly why it needs server-side visibility — see
+                // Docs/W6_DASHBOARDS_AND_ALERTS.md §5.
+                AppMetrics.KioskInterstitialFailures.Add(1);
+                _logger.LogError(ex, "Error getting post-clockout interstitial for Person {PersonId} at Company {CompanyId}", personId, companyId);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
@@ -219,8 +229,9 @@ namespace ShiftWork.Api.Controllers
                 await _bulletins.MarkAsReadAsync(bulletinId, companyId, personId);
                 return Ok();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Error marking bulletin {BulletinId} read for Person {PersonId} at Company {CompanyId}", bulletinId, personId, companyId);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
@@ -240,8 +251,9 @@ namespace ShiftWork.Api.Controllers
                 var success = await _safety.AcknowledgeAsync(safetyContentId, companyId, personId);
                 return success ? Ok() : NotFound();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Error acknowledging safety content {SafetyContentId} for Person {PersonId} at Company {CompanyId}", safetyContentId, personId, companyId);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }

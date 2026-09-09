@@ -18,6 +18,8 @@ using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Exporter;
 
 // Load environment variables from .env file
 Env.TraversePath().Load();
@@ -64,6 +66,15 @@ builder.Services.AddDbContext<ShiftWorkContext>((sp, options) =>
 
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "ready" });
+
+// Metrics: ASP.NET Core's built-in http.server.request.duration (error rate, p95 latency, 401/403/429
+// rate — see Docs/W6_DASHBOARDS_AND_ALERTS.md §1-3) plus the app's own counters (§4-5, see
+// Helpers/AppMetrics.cs), scraped by Prometheus via the token-gated /metrics endpoint below.
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddMeter("ShiftWork.Api")
+        .AddPrometheusExporter());
 
 // Add In-Memory Caching service, used by several controllers.
 builder.Services.AddMemoryCache();
@@ -473,6 +484,27 @@ app.UseRateLimiter();
 app.UseCors("ApiCorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
+
+// The Prometheus scrape endpoint is unauthenticated by design (Prometheus's scrape_configs can't do
+// the app's JWT dance), but the api container's port is host-mapped in docker-compose.yml, so it's
+// reachable from outside the docker network on the real deploy host. Gate it with a shared bearer
+// token instead — Prometheus's scrape_configs support `authorization.credentials` natively.
+var metricsScrapeToken = Environment.GetEnvironmentVariable("METRICS_SCRAPE_TOKEN");
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/metrics"))
+    {
+        var expected = $"Bearer {metricsScrapeToken}";
+        var provided = context.Request.Headers.Authorization.ToString();
+        if (string.IsNullOrEmpty(metricsScrapeToken) || provided != expected)
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return;
+        }
+    }
+    await next();
+});
+app.MapPrometheusScrapingEndpoint("/metrics");
 
 app.MapControllers();
 
