@@ -13,10 +13,12 @@ namespace ShiftWork.Api.Services
     public class KioskService : IKioskService
     {
         private readonly ShiftWorkContext _context;
+        private readonly IShiftEventService _shiftEventService;
 
-        public KioskService(ShiftWorkContext context)
+        public KioskService(ShiftWorkContext context, IShiftEventService shiftEventService)
         {
             _context = context;
+            _shiftEventService = shiftEventService;
         }
 
         // ── Helpers ──────────────────────────────────────────────────────────────
@@ -108,6 +110,12 @@ namespace ShiftWork.Api.Services
             }
 
             await _context.SaveChangesAsync();
+
+            // Kiosk devices are enrolled to a fixed site (request.LocationId), so this always
+            // resolves a geofence target; it also fixes StatusShiftWork, which previously never
+            // updated for kiosk clock-ins (see ShiftEventService.CreateShiftEventAsync for the
+            // mobile/API-direct equivalent of this same logic).
+            await _shiftEventService.ApplyStatusAndGeofenceAsync(shiftEvent, request.LocationId);
 
             return new KioskClockResponse
             {

@@ -66,6 +66,11 @@ export interface ShiftEventDto {
   metadata?: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
+  /** Job site checked against for geofencing. Resolved server-side from today's schedule if omitted. */
+  locationId?: number;
+  /** Output only: "Inside" | "Outside" | "Unknown". */
+  geofenceStatus?: string;
+  geofenceDistanceMeters?: number;
 }
 
 export interface LocationDto {

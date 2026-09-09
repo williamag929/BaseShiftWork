@@ -152,6 +152,13 @@
           </div>
         </a>
 
+        <a *ngIf="hasPermission('active-sites.view')" mat-list-item routerLink="/dashboard/active-sites" routerLinkActive="active-link" class="nav-item">
+          <div class="nav-item-content">
+            <mat-icon matListItemIcon>travel_explore</mat-icon>
+            <span matListItemTitle i18n="@@nav.web_active_sites">Active Sites</span>
+          </div>
+        </a>
+
         <a mat-list-item routerLink="/dashboard/tasks" routerLinkActive="active-link" class="nav-item">
           <div class="nav-item-content">
             <mat-icon matListItemIcon>check_box</mat-icon>

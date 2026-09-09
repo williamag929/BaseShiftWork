@@ -1,0 +1,92 @@
+<div class="active-sites-container" *ngIf="canView; else noAccess">
+  <div class="page-header">
+    <div class="header-text">
+      <h1 class="page-title">Active Sites</h1>
+      <p class="page-subtitle">Who's on shift right now, by job site</p>
+    </div>
+    <div class="header-actions">
+      <span class="last-refreshed" *ngIf="lastRefreshedAt">
+        Updated {{ lastRefreshedAt | date:'shortTime' }}
+      </span>
+      <button type="button" class="btn-refresh" (click)="refresh()" [disabled]="loading">
+        <i class="fa fa-refresh" [class.fa-spin]="loading"></i>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="error-state">
+    <i class="fa fa-exclamation-triangle"></i>
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading && sites.length === 0" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading active sites...</p>
+  </div>
+
+  <div *ngIf="!loading && sites.length === 0 && !error" class="empty-state">
+    <i class="fa fa-map-marker"></i>
+    <p>No one is currently clocked in.</p>
+  </div>
+
+  <div class="sites-grid">
+    <div class="site-card" *ngFor="let site of sites">
+      <div class="site-card-header">
+        <div>
+          <h3 class="site-name">{{ site.name }}</h3>
+          <p class="site-address" *ngIf="site.address">{{ site.address }}</p>
+        </div>
+        <span class="on-shift-count">{{ site.onShiftCount }} on shift</span>
+      </div>
+
+      <table class="roster-table" *ngIf="site.roster.length > 0">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Clocked in</th>
+            <th>Timing</th>
+            <th>Geofence</th>
+            <th *ngIf="canReview"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let entry of site.roster" [class.flagged-row]="isFlagged(entry)">
+            <td class="avatar-cell">
+              <img *ngIf="entry.photoUrl" [src]="entry.photoUrl" [alt]="entry.name" class="avatar" />
+              <div *ngIf="!entry.photoUrl" class="avatar avatar-placeholder">{{ entry.name.charAt(0) }}</div>
+            </td>
+            <td>{{ entry.name }}</td>
+            <td>{{ entry.roleName || '—' }}</td>
+            <td>{{ entry.clockInTime | date:'shortTime' }}</td>
+            <td><span [ngClass]="timingBadgeClass(entry)">{{ entry.timingStatus }}</span></td>
+            <td>
+              <span [ngClass]="geofenceBadgeClass(entry)">
+                {{ entry.geofenceStatus }}
+                <ng-container *ngIf="entry.geofenceStatus === 'Outside' && entry.geofenceDistanceMeters as d">
+                  &middot; {{ d | number:'1.0-0' }}m away
+                </ng-container>
+              </span>
+            </td>
+            <td *ngIf="canReview">
+              <button type="button" class="btn-review" *ngIf="isFlagged(entry)" (click)="markReviewed(site, entry)">
+                Mark reviewed
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="no-roster" *ngIf="site.roster.length === 0">No one currently clocked in here.</p>
+    </div>
+  </div>
+</div>
+
+<ng-template #noAccess>
+  <div class="no-access-state">
+    <i class="fa fa-lock"></i>
+    <p>You don't have permission to view this page.</p>
+  </div>
+</ng-template>

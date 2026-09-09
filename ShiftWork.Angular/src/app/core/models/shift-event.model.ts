@@ -9,4 +9,10 @@ export interface ShiftEvent {
   kioskDevice: string | null;
   geoLocation: string | null;
   photoUrl: string | null;
+  locationId?: number | null;
+  /** 'Inside' | 'Outside' | 'Unknown' */
+  geofenceStatus?: string | null;
+  geofenceDistanceMeters?: number | null;
+  geofenceReviewedAt?: string | null;
+  geofenceReviewedByPersonId?: number | null;
 }

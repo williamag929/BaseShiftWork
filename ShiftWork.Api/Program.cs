@@ -353,6 +353,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("shift-events.create", policy => policy.Requirements.Add(new PermissionRequirement("shift-events.create")));
     options.AddPolicy("shift-events.update", policy => policy.Requirements.Add(new PermissionRequirement("shift-events.update")));
     options.AddPolicy("shift-events.delete", policy => policy.Requirements.Add(new PermissionRequirement("shift-events.delete")));
+    options.AddPolicy("shift-events.geofence-flags.review", policy => policy.Requirements.Add(new PermissionRequirement("shift-events.geofence-flags.review")));
+
+    options.AddPolicy("active-sites.view", policy => policy.Requirements.Add(new PermissionRequirement("active-sites.view")));
 
     options.AddPolicy("timeoff-requests.read", policy => policy.Requirements.Add(new PermissionRequirement("timeoff-requests.read")));
     options.AddPolicy("timeoff-requests.create", policy => policy.Requirements.Add(new PermissionRequirement("timeoff-requests.create")));
