@@ -1,0 +1,42 @@
+<section class="billing" *ngIf="summary as s">
+  <h1 i18n="@@billing.title">Plan &amp; Billing</h1>
+
+  <mat-card class="current">
+    <mat-card-content>
+      <div class="current-plan">
+        <mat-icon>workspace_premium</mat-icon>
+        <div>
+          <div class="tier">{{ s.tier }}<span *ngIf="s.isTrial" class="trial-tag" i18n="@@billing.trial_tag"> trial</span></div>
+          <div class="sub" *ngIf="s.isTrial" i18n="@@billing.trial_days_left">{{ s.trialDaysRemaining }} days left in your free trial</div>
+          <div class="sub" *ngIf="s.hasSubscription && s.currentPeriodEnd" i18n="@@billing.renews_on">Renews on {{ s.currentPeriodEnd | date:'mediumDate' }}</div>
+          <div class="sub warn" *ngIf="s.subscriptionStatus === 'past_due'" i18n="@@billing.past_due">Payment failed. Update your card to keep your plan.</div>
+          <div class="sub" *ngIf="awaitingPayment" i18n="@@billing.activating">Activating your plan…</div>
+        </div>
+      </div>
+      <div class="usage">
+        <span i18n="@@billing.employees_label">Active employees</span>
+        <strong>{{ s.employeeCount }} / {{ s.employeeCap ?? '∞' }}</strong>
+        <mat-progress-bar *ngIf="s.employeeCap" mode="determinate" [value]="usagePercent"></mat-progress-bar>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <ng-container *ngIf="s.canManageBilling">
+    <button *ngIf="s.hasSubscription" data-test="manage-billing" mat-flat-button color="primary" class="cta"
+            [disabled]="busy" (click)="manage()" i18n="@@billing.manage">Manage billing</button>
+
+    <div class="tiers" *ngIf="!s.hasSubscription">
+      <mat-card *ngFor="let t of tiers" class="tier-card" [class.recommended]="t.tier === 'Pro'">
+        <mat-card-title>{{ t.tier }}</mat-card-title>
+        <mat-card-content>
+          <p class="cap"><span i18n="@@billing.up_to">Up to</span> {{ t.cap }} <span i18n="@@billing.employees">employees</span></p>
+          <p>{{ t.blurb }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-flat-button color="primary" [attr.data-test]="'choose-' + t.tier" [disabled]="busy"
+                  (click)="choose(t.tier)" i18n="@@billing.choose_plan">Choose plan</button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </ng-container>
+</section>

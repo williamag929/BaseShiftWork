@@ -1,0 +1,12 @@
+.billing { max-width: 960px; margin: 0 auto; padding: 16px; }
+.current-plan { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
+.tier { font-size: 1.5rem; font-weight: 600; }
+.trial-tag { font-size: 0.9rem; font-weight: 400; margin-left: 4px; }
+.sub { color: rgba(0, 0, 0, 0.6); }
+.warn { color: #b3261e; }
+.usage { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+.usage mat-progress-bar { grid-column: 1 / -1; }
+.tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+.tier-card.recommended { outline: 2px solid currentColor; }
+.cta, .tier-card button { min-height: 48px; min-width: 48px; }
+.cta { margin-top: 16px; }
