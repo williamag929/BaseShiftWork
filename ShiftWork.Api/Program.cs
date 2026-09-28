@@ -172,6 +172,7 @@ builder.Services.AddSingleton(StripeSettings.FromEnvironment());
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IStripeGateway, StripeGateway>();
 builder.Services.AddScoped<IBillingService, BillingService>();
+builder.Services.AddScoped<IStripeWebhookService, StripeWebhookService>();
 
 // Rate limiting: protect /api/auth/register from brute-force / account enumeration
 builder.Services.AddRateLimiter(options =>
