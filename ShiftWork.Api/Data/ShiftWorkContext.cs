@@ -49,11 +49,24 @@ namespace ShiftWork.Api.Data
         public DbSet<SafetyContent> SafetyContents { get; set; }
         public DbSet<SafetyAcknowledgment> SafetyAcknowledgments { get; set; }
         public DbSet<Credential> Credentials { get; set; }
+        public DbSet<StripeProcessedEvent> StripeProcessedEvents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ShiftEvent>().ToTable("ShiftEvents");
             modelBuilder.Entity<Company>().ToTable("Companies");
+            modelBuilder.Entity<Company>()
+                .HasIndex(c => c.StripeCustomerId)
+                .IsUnique()
+                .HasFilter("[StripeCustomerId] IS NOT NULL");
+
+            modelBuilder.Entity<StripeProcessedEvent>(e =>
+            {
+                e.ToTable("StripeProcessedEvents");
+                e.HasKey(x => x.EventId);
+                e.Property(x => x.EventId).HasMaxLength(255);
+                e.Property(x => x.Type).HasMaxLength(100);
+            });
             modelBuilder.Entity<Person>().ToTable("People");
             modelBuilder.Entity<Area>().ToTable("Areas");
             modelBuilder.Entity<CostCode>().ToTable("CostCodes");

@@ -213,6 +213,7 @@ namespace ShiftWork.Api.Controllers
                     Plan = "Free",
                     OnboardingStatus = "Pending"
                 };
+                PlanCatalog.StartTrial(company, DateTime.UtcNow);
                 _context.Companies.Add(company);
                 await _context.SaveChangesAsync();
 
@@ -264,6 +265,7 @@ namespace ShiftWork.Api.Controllers
                 {
                     CompanyId = companyId,
                     Plan = "Free",
+                    TrialEndsAt = company.TrialEndsAt,
                     OnboardingStatus = "Pending",
                     AdminUser = _mapper.Map<CompanyUserDto>(companyUser)
                 };

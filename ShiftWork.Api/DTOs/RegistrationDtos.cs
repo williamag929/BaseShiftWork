@@ -49,6 +49,7 @@ namespace ShiftWork.Api.DTOs
     {
         public string CompanyId { get; set; } = string.Empty;
         public string Plan { get; set; } = "Free";
+        public DateTime? TrialEndsAt { get; set; }
         public string OnboardingStatus { get; set; } = "Pending";
         public CompanyUserDto AdminUser { get; set; } = null!;
     }
