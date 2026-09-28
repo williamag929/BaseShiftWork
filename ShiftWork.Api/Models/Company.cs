@@ -17,11 +17,16 @@ namespace ShiftWork.Api.Models
         public string? Settings { get; set; }
 
         // Onboarding & plan fields (added for registration/onboarding feature)
-        public string? Plan { get; set; }                  // "Free" | "Pro" | "Trial"
-        public DateTime? PlanExpiresAt { get; set; }       // null = no expiry
+        public string? Plan { get; set; }                  // Paid tier from Stripe: "Free" | "Starter" | "Pro" | "Business"
+        [Obsolete("Replaced by TrialEndsAt / SubscriptionStatus. Dropped in a later release.")]
+        public DateTime? PlanExpiresAt { get; set; }
         public string? OnboardingStatus { get; set; }      // "Pending" | "Verified" | "Complete"
         public string? StripeCustomerId { get; set; }      // Stripe customer reference
         public string? StripeSubscriptionId { get; set; }  // Stripe subscription reference
+        public DateTime? TrialEndsAt { get; set; }
+        public string? SubscriptionStatus { get; set; }
+        // Display only ("renews on"); access decisions never read this.
+        public DateTime? CurrentPeriodEnd { get; set; }
         public ICollection<Location> Locations { get; set; }
         public ICollection<Person> People { get; set; }
         public ICollection<Role> Roles { get; set; }
