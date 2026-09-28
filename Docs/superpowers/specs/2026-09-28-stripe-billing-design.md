@@ -208,3 +208,11 @@ Annual billing; payments in the mobile or kiosk app; tax (Stripe Tax); per-seat 
 - **Existing companies that already have a real Stripe subscription** (if any were created manually) keep their current state until their next webhook. The runbook includes a one-off "resync all subscriptions" admin script.
 - **The Stripe.net API version must match the webhook endpoint's version.** It is pinned and documented in the runbook.
 - **Counting and inserting employees is not atomic.** Two admins adding people at the same instant could overshoot the cap by one. This is accepted, and the next add is blocked.
+
+## 13. Implementation notes (added after building)
+
+- **Migration.** `StripeBillingV2` resets every existing company to Free with a fresh 14-day trial and clears Stripe ids, because all data at the time was sample data. Section 4's finer backfill rules (Trial and Pro-without-subscription) were not needed. It also narrows `Companies.StripeCustomerId` to `nvarchar(450)`, which the unique index requires.
+- **Payment-failed email** goes to `Company.Email` (the registered address), not to each Admin user as section 7 said.
+- **`PlanLimitPromptService`** (web) owns the "Employee limit reached" toast and the redirect to Plan & Billing; `billingBannerFor()` owns the banner rule. Both were extracted so they can be unit tested.
+- **Web toasts** use plain strings, not `$localize`, because the app build does not declare the `@angular/localize` types. Template text keeps `i18n` ids.
+- **Runbook:** `Docs/STRIPE_BILLING_RUNBOOK.md`.
