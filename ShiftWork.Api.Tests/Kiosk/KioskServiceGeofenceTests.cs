@@ -33,7 +33,7 @@ public class KioskServiceGeofenceTests : IDisposable
             .Options;
         _context = new ShiftWorkContext(options);
 
-        var peopleService = new PeopleService(_context, NullLogger<PeopleService>.Instance);
+        var peopleService = new PeopleService(_context, NullLogger<PeopleService>.Instance, Mock.Of<IPlanEnforcementService>());
         var shiftEventService = new ShiftEventService(
             _context,
             new Mock<AutoMapper.IMapper>().Object,

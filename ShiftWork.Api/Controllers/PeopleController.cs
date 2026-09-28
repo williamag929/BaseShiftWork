@@ -6,6 +6,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
+using ShiftWork.Api.Helpers;
 using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
 using System;
@@ -183,6 +184,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(typeof(PersonDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
+        [ProducesResponseType(409)]
         public async Task<ActionResult<PersonDto>> PostPerson(string companyId, [FromBody] PersonDto personDto)
         {
             if (!ModelState.IsValid)
@@ -223,6 +225,10 @@ namespace ShiftWork.Api.Controllers
 
                 return CreatedAtAction(nameof(GetPerson), new { companyId, personId = createdPerson.PersonId }, createdPersonDto);
             }
+            catch (PlanLimitExceededException ex)
+            {
+                return Conflict(ex.ToResponseBody());
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating person for company {CompanyId}.", companyId);
@@ -239,6 +245,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
         [Authorize(Policy = "people.update")]
+        [ProducesResponseType(409)]
         public async Task<IActionResult> PutPerson(string companyId, int personId, [FromBody] PersonDto personDto)
         {
             if (personId != personDto.PersonId)
@@ -288,6 +295,10 @@ namespace ShiftWork.Api.Controllers
 
                 return Ok(updatedPersonDto);
             }
+            catch (PlanLimitExceededException ex)
+            {
+                return Conflict(ex.ToResponseBody());
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating person {PersonId} for company {CompanyId}.", personId, companyId);
@@ -302,6 +313,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(typeof(PersonDto), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [ProducesResponseType(409)]
         public async Task<ActionResult<PersonDto>> PatchPerson(string companyId, int personId, [FromBody] Dictionary<string, object> updates)
         {
             try
@@ -343,6 +355,10 @@ namespace ShiftWork.Api.Controllers
                 _memoryCache.Remove($"person_{companyId}_{personId}");
 
                 return Ok(_mapper.Map<PersonDto>(updatedPerson));
+            }
+            catch (PlanLimitExceededException ex)
+            {
+                return Conflict(ex.ToResponseBody());
             }
             catch (Exception ex)
             {
@@ -390,6 +406,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [ProducesResponseType(409)]
         public async Task<ActionResult<PersonDto>> UpdatePersonStatus(string companyId, int personId, [FromBody] UpdateStatusRequest request)
         {
             var status = request?.Status;
@@ -417,6 +434,10 @@ namespace ShiftWork.Api.Controllers
                 var updatedPersonDto = _mapper.Map<PersonDto>(updatedPerson);
 
                 return Ok(updatedPersonDto);
+            }
+            catch (PlanLimitExceededException ex)
+            {
+                return Conflict(ex.ToResponseBody());
             }
             catch (Exception ex)
             {
@@ -883,6 +904,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
         [ProducesResponseType(500)]
+        [ProducesResponseType(409)]
         public async Task<ActionResult<EmployeeUserResponse>> RegisterUser(string companyId, [FromBody] RegisterUserRequest request)
         {
             if (!ModelState.IsValid)
@@ -970,6 +992,10 @@ namespace ShiftWork.Api.Controllers
                     firebaseUid, createdPerson.PersonId, companyId);
 
                 return CreatedAtAction(nameof(GetPerson), new { companyId, personId = createdPerson.PersonId }, response);
+            }
+            catch (PlanLimitExceededException ex)
+            {
+                return Conflict(ex.ToResponseBody());
             }
             catch (Exception ex)
             {
@@ -1074,6 +1100,7 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(typeof(EmployeeUserResponse), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
+        [ProducesResponseType(409)]
         public async Task<ActionResult<EmployeeUserResponse>> CreateEmployeeWithUser(string companyId, [FromBody] CreateEmployeeWithUserRequest request)
         {
             if (!ModelState.IsValid)
@@ -1162,6 +1189,10 @@ namespace ShiftWork.Api.Controllers
                     createdPerson.PersonId, request.CreateUserAccount, companyId);
 
                 return CreatedAtAction(nameof(GetPerson), new { companyId, personId = createdPerson.PersonId }, response);
+            }
+            catch (PlanLimitExceededException ex)
+            {
+                return Conflict(ex.ToResponseBody());
             }
             catch (Exception ex)
             {

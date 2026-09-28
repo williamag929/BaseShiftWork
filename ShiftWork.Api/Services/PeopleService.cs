@@ -34,14 +34,16 @@ namespace ShiftWork.Api.Services
     {
         private readonly ShiftWorkContext _context;
         private readonly ILogger<PeopleService> _logger;
+        private readonly IPlanEnforcementService _planEnforcement;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PeopleService"/> class.
         /// </summary>
-        public PeopleService(ShiftWorkContext context, ILogger<PeopleService> logger)
+        public PeopleService(ShiftWorkContext context, ILogger<PeopleService> logger, IPlanEnforcementService planEnforcement)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _planEnforcement = planEnforcement ?? throw new ArgumentNullException(nameof(planEnforcement));
         }
 
         public async Task<IEnumerable<Person>> GetAll(string companyId, int pageNumber, int pageSize, string searchQuery)
@@ -63,6 +65,9 @@ namespace ShiftWork.Api.Services
 
         public async Task<Person> Add(Person person)
         {
+            if (!person.IsSandbox && PlanEnforcementService.IsActiveStatus(person.Status))
+                await _planEnforcement.EnsureCanActivateEmployeeAsync(person.CompanyId);
+
             _context.Persons.Add(person);
             await _context.SaveChangesAsync();
             _logger.LogInformation("Person with ID {PersonId} created.", person.PersonId);
@@ -79,6 +84,11 @@ namespace ShiftWork.Api.Services
             {
                 throw new InvalidOperationException($"Person with ID {person.PersonId} not found.");
             }
+
+            if (!existingPerson.IsSandbox
+                && !PlanEnforcementService.IsActiveStatus(existingPerson.Status)
+                && PlanEnforcementService.IsActiveStatus(person.Status))
+                await _planEnforcement.EnsureCanActivateEmployeeAsync(existingPerson.CompanyId);
 
             // Update properties individually so EF Core tracks which fields changed
             existingPerson.Name = person.Name;
@@ -144,6 +154,11 @@ namespace ShiftWork.Api.Services
             var person = await _context.Persons.FindAsync(personId);
             if (person != null)
             {
+                if (!person.IsSandbox
+                    && !PlanEnforcementService.IsActiveStatus(person.Status)
+                    && PlanEnforcementService.IsActiveStatus(status))
+                    await _planEnforcement.EnsureCanActivateEmployeeAsync(person.CompanyId);
+
                 person.Status = status;
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("Status for person with ID {PersonId} updated to {Status}.", person.PersonId, status);
