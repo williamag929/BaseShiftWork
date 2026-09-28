@@ -18,11 +18,11 @@ import { EmptyState, SectionHeader } from '@/components/ui';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PressableScale } from '@/components/ui/PressableScale';
 import { ShiftDetailModal } from '@/components/screens/schedule/ShiftDetailModal';
+import { useTranslation } from '@/i18n';
 import type { ScheduleShiftDto } from '@/types/api';
 
 type ViewMode = 'day' | 'week' | 'month';
 
-const MODE_LABELS: Record<ViewMode, string> = { day: 'Day', week: 'Week', month: 'Month' };
 const MODE_ICONS: Record<ViewMode, React.ComponentPropsWithRef<typeof Ionicons>['name']> = {
   day: 'today-outline', week: 'calendar-outline', month: 'calendar-number-outline',
 };
@@ -31,10 +31,17 @@ export default function ScheduleScreen() {
   const { companyId, personId, name: personName } = useAuthStore();
   const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [mode, setMode] = useState<ViewMode>('week');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [selectedShift, setSelectedShift] = useState<ScheduleShiftDto | null>(null);
+
+  const MODE_LABELS: Record<ViewMode, string> = {
+    day: t('schedule.mode_day'),
+    week: t('schedule.mode_week'),
+    month: t('schedule.mode_month'),
+  };
 
   const { from, to } = useMemo(() => {
     if (mode === 'day') return { from: getStartOfDay(selectedDate), to: getEndOfDay(selectedDate) };
@@ -70,11 +77,11 @@ export default function ScheduleScreen() {
       {/* Hero header */}
       <View style={[styles.hero, { paddingTop: insets.top + 16 }]}>
         <Animated.View entering={FadeIn.duration(350)}>
-          <Text style={styles.heroTitle}>Schedule</Text>
+          <Text style={styles.heroTitle}>{t('schedule.title')}</Text>
           {!isOnline && (
             <View style={styles.offlinePill}>
               <Ionicons name="cloud-offline-outline" size={12} color={colors.warning} />
-              <Text style={styles.offlineText}>Offline · cached data</Text>
+              <Text style={styles.offlineText}>{t('schedule.offline_cached')}</Text>
             </View>
           )}
         </Animated.View>
@@ -110,13 +117,13 @@ export default function ScheduleScreen() {
         {/* Shifts */}
         <View style={styles.section}>
           <SectionHeader
-            title={`Shifts · ${mode === 'day' ? formatDate(from) : `${formatDate(from)} – ${formatDate(to)}`}`}
+            title={`${t('schedule.shifts_label')} · ${mode === 'day' ? formatDate(from) : `${formatDate(from)} – ${formatDate(to)}`}`}
           />
           {loading && [0, 1, 2].map((i) => (
             <Skeleton key={i} width="100%" height={76} borderRadius={13} style={{ marginBottom: 10 }} />
           ))}
           {!loading && shifts.length === 0 && (
-            <EmptyState title="No shifts" message="No shifts scheduled for this period." icon="calendar-clear-outline" />
+            <EmptyState title={t('schedule.no_shifts')} message={t('schedule.no_shifts_msg')} icon="calendar-clear-outline" />
           )}
           {!loading && shifts.map((s, i) => (
             <Animated.View key={s.scheduleShiftId} entering={FadeInDown.delay(i * 60).duration(300)}>
@@ -131,7 +138,7 @@ export default function ScheduleScreen() {
                   <Text style={styles.cardTime}>
                     {formatScheduleTime(s.startDate, companyTimeZone ?? undefined)} – {formatScheduleTime(s.endDate, companyTimeZone ?? undefined)}
                   </Text>
-                  <Text style={styles.cardMeta}>Shift #{s.scheduleShiftId} · {s.status}</Text>
+                  <Text style={styles.cardMeta}>{t('schedule.shift_meta', { id: s.scheduleShiftId, status: s.status })}</Text>
                 </View>
                 <View style={[styles.statusDot, s.status === 'Confirmed' ? styles.dotGreen : styles.dotBlue]} />
               </PressableScale>
@@ -141,12 +148,12 @@ export default function ScheduleScreen() {
 
         {/* Events */}
         <View style={styles.section}>
-          <SectionHeader title="Clocked Events" />
+          <SectionHeader title={t('schedule.clocked_events')} />
           {loading && [0, 1].map((i) => (
             <Skeleton key={i} width="100%" height={60} borderRadius={13} style={{ marginBottom: 10 }} />
           ))}
           {!loading && events.length === 0 && (
-            <EmptyState title="No events" message="No events recorded for this period." icon="pulse-outline" />
+            <EmptyState title={t('schedule.no_events')} message={t('schedule.no_events_msg')} icon="pulse-outline" />
           )}
           {!loading && events.map((e, i) => (
             <Animated.View key={e.eventLogId} entering={FadeInDown.delay(i * 50).duration(280)}>
@@ -173,10 +180,10 @@ export default function ScheduleScreen() {
         <View style={styles.backdrop}>
           <View style={styles.sheet}>
             <View style={styles.handle} />
-            <Text style={styles.sheetTitle}>Schedule View</Text>
+            <Text style={styles.sheetTitle}>{t('schedule.view_title')}</Text>
 
             {/* Mode chips */}
-            <Text style={styles.sheetLabel}>View By</Text>
+            <Text style={styles.sheetLabel}>{t('schedule.view_by')}</Text>
             <View style={styles.chipRow}>
               {(['day', 'week', 'month'] as ViewMode[]).map((m) => (
                 <PressableScale
@@ -191,15 +198,15 @@ export default function ScheduleScreen() {
             </View>
 
             {/* Navigate */}
-            <Text style={styles.sheetLabel}>Navigate</Text>
+            <Text style={styles.sheetLabel}>{t('schedule.navigate')}</Text>
             <View style={styles.navRow}>
               <PressableScale style={styles.navBtn} onPress={() => shiftDate(-1)}>
                 <Ionicons name="chevron-back" size={18} color={colors.primary} />
-                <Text style={styles.navBtnText}>Prev</Text>
+                <Text style={styles.navBtnText}>{t('schedule.prev')}</Text>
               </PressableScale>
               <Text style={styles.selDate}>{formatDate(selectedDate)}</Text>
               <PressableScale style={styles.navBtn} onPress={() => shiftDate(1)}>
-                <Text style={styles.navBtnText}>Next</Text>
+                <Text style={styles.navBtnText}>{t('schedule.next_btn')}</Text>
                 <Ionicons name="chevron-forward" size={18} color={colors.primary} />
               </PressableScale>
             </View>
@@ -208,7 +215,7 @@ export default function ScheduleScreen() {
               style={styles.doneBtn}
               onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setPickerOpen(false); }}
             >
-              <Text style={styles.doneBtnText}>Done</Text>
+              <Text style={styles.doneBtnText}>{t('common.done')}</Text>
             </PressableScale>
           </View>
         </View>

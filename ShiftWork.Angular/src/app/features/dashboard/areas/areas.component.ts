@@ -11,6 +11,8 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { LocationService } from 'src/app/core/services/location.service';
 import { Location } from 'src/app/core/models/location.model';
+import { CostCodeService } from 'src/app/core/services/cost-code.service';
+import { CostCode } from 'src/app/core/models/cost-code.model';
 
 @Component({
   selector: 'app-areas',
@@ -25,6 +27,7 @@ export class AreasComponent implements OnInit, OnDestroy {
   activeCompany: any;
   selectedArea: Area | null = null;
   locations: Location[] = [];
+  costCodes: CostCode[] = [];
   areaForm!: FormGroup;
   loading = false;
   error: any = null;
@@ -36,6 +39,7 @@ export class AreasComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private toastr: ToastrService,
     private locationService: LocationService,
+    private costCodeService: CostCodeService,
     private store: Store<AppState>
   ) {
 
@@ -61,32 +65,36 @@ export class AreasComponent implements OnInit, OnDestroy {
       switchMap(company => {
         if (!company) {
           this.loading = false;
-          return of({ locations: [], areas: [] });
+          return of({ locations: [], areas: [], costCodes: [] });
         }
         return forkJoin({
           locations: this.locationService.getLocations(company.companyId),
-          areas: this.areaService.getAreas(company.companyId)
+          areas: this.areaService.getAreas(company.companyId),
+          costCodes: this.costCodeService.getCostCodes(company.companyId)
         }).pipe(
-          map(({ locations, areas }) => ({
+          map(({ locations, areas, costCodes }) => ({
             locations: locations.filter(l => l.companyId === company.companyId),
-            areas: areas.filter(a => a.companyId === company.companyId)
+            areas: areas.filter(a => a.companyId === company.companyId),
+            costCodes: costCodes.filter(c => c.companyId === company.companyId)
           })),
           catchError(error => {
             this.error = error;
             this.loading = false;
-            return of({ locations: [], areas: [] });
+            return of({ locations: [], areas: [], costCodes: [] });
           })
         );
       })
-    ).subscribe(({ locations, areas }) => {
+    ).subscribe(({ locations, areas, costCodes }) => {
       this.locations = locations;
       this.areas = areas;
+      this.costCodes = costCodes;
       this.loading = false;
     });
 
     this.areaForm = this.fb.group({
       name: ['', Validators.required],
       locationId: ['', Validators.required],
+      costCodeId: [''],
       status: ['Active', Validators.required]
     });
   }
@@ -98,7 +106,15 @@ export class AreasComponent implements OnInit, OnDestroy {
 
   editArea(area: Area): void {
     this.selectedArea = area;
-    this.areaForm.patchValue(area);
+    this.areaForm.patchValue({ ...area, costCodeId: area.costCodeId ?? '' });
+  }
+
+  getCostCodeLabel(costCodeId: number | null | undefined): string | null {
+    if (costCodeId === null || costCodeId === undefined) {
+      return null;
+    }
+    const cc = this.costCodes.find(c => c.costCodeId === costCodeId);
+    return cc ? `${cc.code} — ${cc.name}` : null;
   }
 
   getLocationName(locationId: string | number | undefined): string {
@@ -120,8 +136,15 @@ export class AreasComponent implements OnInit, OnDestroy {
     this.areaForm.reset({
       name: '',
       locationId: '',
+      costCodeId: '',
       status: 'Active'
     });
+  }
+
+  private withCostCode<T extends Area>(area: T): T {
+    const raw = this.areaForm.value.costCodeId;
+    area.costCodeId = raw === '' || raw === null || raw === undefined ? null : Number(raw);
+    return area;
   }
 
   saveArea(): void {
@@ -130,10 +153,10 @@ export class AreasComponent implements OnInit, OnDestroy {
     }
 
     if (this.selectedArea) {
-      const updatedArea: Area = {
+      const updatedArea: Area = this.withCostCode({
         ...this.selectedArea,
         ...this.areaForm.value
-      };
+      });
       this.areaService.updateArea(this.activeCompany.companyId, updatedArea.areaId, updatedArea).subscribe(
         (result) => {
           const index = this.areas.findIndex(a => a.areaId === result.areaId);
@@ -146,11 +169,11 @@ export class AreasComponent implements OnInit, OnDestroy {
         () => this.toastr.error('Failed to update area.')
       );
     } else {
-      const newArea: Area = {
+      const newArea: Area = this.withCostCode({
         areaId: 0, // Provide a temporary ID, the backend will assign the real one.
         ...this.areaForm.value,
         companyId: this.activeCompany.companyId
-      };
+      });
       this.areaService.createArea(newArea.companyId, newArea).subscribe(area => {
         this.areas.push(area);
         this.cancelEdit();

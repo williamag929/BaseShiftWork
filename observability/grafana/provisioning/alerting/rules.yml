@@ -1,0 +1,251 @@
+apiVersion: 1
+
+# Thresholds and endpoint sets here match Docs/W6_DASHBOARDS_AND_ALERTS.md exactly (W6-1-5) — keep
+# them in sync if that spec changes. Runbook cross-references are in Docs/W6_RUNBOOKS.md.
+
+groups:
+  - orgId: 1
+    name: shiftwork-error-rate
+    folder: ShiftWork
+    interval: 1m
+    rules:
+      - uid: shiftwork-5xx-warning
+        title: "W6-1 API 5xx error rate > 2% (warning)"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: shiftwork-prometheus
+            model:
+              refId: A
+              expr: >-
+                100 * sum(rate(http_server_request_duration_seconds_count{job="shiftwork-api", http_response_status_code=~"5.."}[5m]))
+                / sum(rate(http_server_request_duration_seconds_count{job="shiftwork-api"}[5m]))
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [2] }
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "API 5xx rate above 2% over 5m — see Docs/W6_RUNBOOKS.md Runbook 1 (degraded API)"
+
+      - uid: shiftwork-5xx-page
+        title: "W6-1 API 5xx error rate > 5% (page)"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: shiftwork-prometheus
+            model:
+              refId: A
+              expr: >-
+                100 * sum(rate(http_server_request_duration_seconds_count{job="shiftwork-api", http_response_status_code=~"5.."}[5m]))
+                / sum(rate(http_server_request_duration_seconds_count{job="shiftwork-api"}[5m]))
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [5] }
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "API 5xx rate above 5% over 5m — page. See Docs/W6_RUNBOOKS.md Runbook 1."
+
+  - orgId: 1
+    name: shiftwork-latency
+    folder: ShiftWork
+    interval: 1m
+    rules:
+      - uid: shiftwork-p95-warning
+        title: "W6-2 p95 latency > 1.5s on a priority endpoint (warning)"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: shiftwork-prometheus
+            model:
+              refId: A
+              expr: >-
+                histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_seconds_bucket{job="shiftwork-api",
+                http_route=~".*(bulletins|documents|safety|daily-reports|auth/login|kiosk.*clock).*"}[5m])))
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [1.5] }
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "p95 latency above 1.5s on a P0 (clocking/login) or list endpoint — see Docs/W6_RUNBOOKS.md Runbook 1"
+
+      - uid: shiftwork-p95-page
+        title: "W6-2 p95 latency > 3s on a priority endpoint (page)"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: shiftwork-prometheus
+            model:
+              refId: A
+              expr: >-
+                histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_seconds_bucket{job="shiftwork-api",
+                http_route=~".*(bulletins|documents|safety|daily-reports|auth/login|kiosk.*clock).*"}[5m])))
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [3] }
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "p95 latency above 3s on a P0 endpoint — page. Clocking/login is the P0 workflow per PROFESSIONAL_DAILY_USE_PLAN.md."
+
+  - orgId: 1
+    name: shiftwork-auth
+    folder: ShiftWork
+    interval: 1m
+    rules:
+      - uid: shiftwork-auth-failures-warning
+        title: "W6-3 401/403 rate > 10% (warning)"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: shiftwork-prometheus
+            model:
+              refId: A
+              expr: >-
+                100 * sum(rate(http_server_request_duration_seconds_count{job="shiftwork-api", http_response_status_code=~"401|403"}[5m]))
+                / sum(rate(http_server_request_duration_seconds_count{job="shiftwork-api"}[5m]))
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [10] }
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "401/403 rate above 10% over 5m — check for a deploy that rotated a signing key first"
+
+      - uid: shiftwork-auth-failures-spike
+        title: "W6-3 401/403 spike > 3x baseline (page)"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: shiftwork-prometheus
+            model:
+              refId: A
+              expr: >-
+                sum(rate(http_server_request_duration_seconds_count{job="shiftwork-api", http_response_status_code=~"401|403"}[5m]))
+                / (sum(rate(http_server_request_duration_seconds_count{job="shiftwork-api", http_response_status_code=~"401|403"}[5m] offset 1h)) > 0)
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [3] }
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "401/403 rate is 3x+ its rate 1h ago — possible credential-stuffing attack. See Docs/W6_RUNBOOKS.md."
+
+  - orgId: 1
+    name: shiftwork-notifications
+    folder: ShiftWork
+    interval: 1m
+    rules:
+      - uid: shiftwork-push-failures
+        title: "W6-4 Push notification send failure occurred (warning)"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: shiftwork-prometheus
+            model:
+              refId: A
+              expr: 'increase(shiftwork_push_notification_failures_total{job="shiftwork-api"}[5m])'
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [0] }
+        noDataState: NoData
+        execErrState: Error
+        for: 0m
+        labels: { severity: warning }
+        annotations:
+          summary: >-
+            Push notification send failure — Expo API itself is likely degraded. Don't page on this
+            alone if it correlates only with "no device tokens found" (mobile registration bug, not
+            an outage). See Docs/W6_RUNBOOKS.md Runbook 3.
+
+  - orgId: 1
+    name: shiftwork-kiosk
+    folder: ShiftWork
+    interval: 1m
+    rules:
+      - uid: shiftwork-kiosk-interstitial-errors
+        title: "W6-5 Kiosk post-clockout interstitial error rate > 1% over 15m (warning)"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: shiftwork-prometheus
+            model:
+              refId: A
+              expr: >-
+                100 * sum(rate(http_server_request_duration_seconds_count{job="shiftwork-api", http_route=~".*post-clockout.*",
+                http_response_status_code=~"5.."}[15m]))
+                / sum(rate(http_server_request_duration_seconds_count{job="shiftwork-api", http_route=~".*post-clockout.*"}[15m]))
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [1] }
+        noDataState: NoData
+        execErrState: Error
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: >-
+            Kiosk post-clockout interstitial is failing — this is silent to the employee by design
+            (5s auto-advance fallback), so this alert is the only visibility into it. Safety
+            acknowledgments silently not surfacing is a compliance risk. See W6_FAILURE_DRILLS.md Drill 4.

@@ -11,6 +11,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing } from '@/styles/tokens';
+import { useTranslation } from '@/i18n';
 
 const PIN_LENGTH = 4;
 const NUMPAD = [
@@ -22,6 +23,7 @@ const NUMPAD = [
 
 export default function PinVerifyScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
@@ -56,7 +58,7 @@ export default function PinVerifyScreen() {
 
     if (next.length === PIN_LENGTH) {
       // TODO: validate against API
-      setError('Invalid PIN. Please try again.');
+      setError(t('auth.pin_verify.error'));
       triggerShake();
       setTimeout(() => setPin(''), 600);
     }
@@ -70,8 +72,8 @@ export default function PinVerifyScreen() {
           <Ionicons name="lock-closed" size={32} color={colors.primary} />
         </View>
 
-        <Text style={styles.title}>Enter Your PIN</Text>
-        <Text style={styles.subtitle}>Enter your 4-digit PIN to continue</Text>
+        <Text style={styles.title}>{t('auth.pin_verify.title')}</Text>
+        <Text style={styles.subtitle}>{t('auth.pin_verify.subtitle')}</Text>
 
         {/* Dot indicators */}
         <Animated.View style={[styles.dotsRow, shakeStyle]}>
@@ -104,7 +106,7 @@ export default function PinVerifyScreen() {
                   onPress={() => handleDigit(key)}
                   disabled={key === ''}
                   accessible
-                  accessibilityLabel={key === 'del' ? 'Delete' : key}
+                  accessibilityLabel={key === 'del' ? t('auth.pin_verify.delete') : key}
                 >
                   {key === 'del' ? (
                     <Ionicons name="backspace-outline" size={22} color={colors.text} />

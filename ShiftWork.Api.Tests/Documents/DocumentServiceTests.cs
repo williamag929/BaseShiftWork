@@ -120,5 +120,59 @@ public class DocumentServiceTests : IDisposable
         Assert.Equal("Archived", saved!.Status);
     }
 
+    [Fact]
+    public async Task ArchiveAsync_ReturnsFalse_ForWrongCompany()
+    {
+        var doc = new Document { Title = "Old Manual", Type = "Manual", AccessLevel = "Public", MimeType = "application/pdf", FileSize = 100 };
+        var init = await _sut.InitiateUploadAsync(CompanyA, doc);
+        await _sut.ConfirmUploadAsync(init.DocumentId, CompanyA);
+
+        var result = await _sut.ArchiveAsync(init.DocumentId, CompanyB);
+
+        Assert.False(result);
+        var saved = await _context.Documents.FindAsync(init.DocumentId);
+        Assert.NotEqual("Archived", saved!.Status);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsNull_ForWrongCompany()
+    {
+        var doc = new Document { Title = "Manual", Type = "Manual", AccessLevel = "Public", MimeType = "application/pdf", FileSize = 100 };
+        var init = await _sut.InitiateUploadAsync(CompanyA, doc);
+        await _sut.ConfirmUploadAsync(init.DocumentId, CompanyA);
+
+        var result = await _sut.GetByIdAsync(init.DocumentId, CompanyB, requestingPersonId: 1);
+
+        Assert.Null(result);
+        var readLogCount = await _context.DocumentReadLogs.CountAsync(l => l.DocumentId == init.DocumentId);
+        Assert.Equal(0, readLogCount);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ReturnsNull_ForWrongCompany()
+    {
+        var doc = new Document { Title = "Manual", Type = "Manual", AccessLevel = "Public", MimeType = "application/pdf", FileSize = 100 };
+        var init = await _sut.InitiateUploadAsync(CompanyA, doc);
+
+        var result = await _sut.UpdateAsync(init.DocumentId, CompanyB, new Document { Title = "Hacked", Type = "Manual", AccessLevel = "Public", MimeType = "application/pdf", FileSize = 100 });
+
+        Assert.Null(result);
+        var saved = await _context.Documents.FindAsync(init.DocumentId);
+        Assert.Equal("Manual", saved!.Title);
+    }
+
+    [Fact]
+    public async Task GetReadLogsAsync_ReturnsEmpty_ForWrongCompany()
+    {
+        var doc = new Document { Title = "Manual", Type = "Manual", AccessLevel = "Public", MimeType = "application/pdf", FileSize = 100 };
+        var init = await _sut.InitiateUploadAsync(CompanyA, doc);
+        await _sut.ConfirmUploadAsync(init.DocumentId, CompanyA);
+        await _sut.GetByIdAsync(init.DocumentId, CompanyA, requestingPersonId: 1);
+
+        var logs = await _sut.GetReadLogsAsync(init.DocumentId, CompanyB);
+
+        Assert.Empty(logs);
+    }
+
     public void Dispose() => _context.Dispose();
 }

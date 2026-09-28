@@ -1,0 +1,19 @@
+# Prometheus config for the ShiftWork API. Note: Prometheus does NOT expand ${ENV_VAR} inside its
+# own config file, so the scrape token isn't templated here directly — it's read from a file that
+# the prometheus container writes at startup from METRICS_SCRAPE_TOKEN (see docker-compose.yml's
+# `prometheus` service entrypoint). Only the file *path* is committed, never the secret value.
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: shiftwork-api
+    scheme: http
+    metrics_path: /metrics
+    authorization:
+      credentials_file: /etc/prometheus/metrics_token
+    static_configs:
+      # Internal docker-network DNS name, not the host-mapped port — Prometheus talks to the API
+      # container directly, it never goes through the externally-reachable :5000 port.
+      - targets: ["api:80"]

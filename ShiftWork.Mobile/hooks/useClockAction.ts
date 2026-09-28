@@ -152,7 +152,9 @@ export const useClockAction = (): ClockActionData => {
     if (!companyId) { toast.error('Company ID is not set.'); return; }
     if (!personId) { toast.error('Please sign in to clock in/out.'); return; }
     try {
-      const result = await clockMutation.mutateAsync({ companyId, personId, isClockedIn, photoUri });
+      const result = await clockMutation.mutateAsync({
+        companyId, personId, isClockedIn, photoUri, locationId: todayShift?.locationId,
+      });
 
       // Submit captured question answers (best-effort; non-blocking on the UI)
       const answerEntries = Object.entries(answers);

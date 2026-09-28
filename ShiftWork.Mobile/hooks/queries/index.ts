@@ -147,6 +147,8 @@ export interface ClockMutationPayload {
   personId: number;
   isClockedIn: boolean;
   photoUri?: string | null;
+  /** Today's scheduled job site, if any — forwarded so the API can geofence-check this event. */
+  locationId?: number;
 }
 
 export function useClockMutation() {
@@ -158,6 +160,7 @@ export function useClockMutation() {
       personId,
       isClockedIn,
       photoUri,
+      locationId,
     }: ClockMutationPayload): Promise<ShiftEventDto> => {
       const geoLocation = await getCurrentLocation();
       const kioskDevice = Device.modelName || 'mobile-device';
@@ -165,8 +168,8 @@ export function useClockMutation() {
       if (photoUri) uploadedUrl = await uploadService.uploadPhoto(photoUri);
 
       const result = isClockedIn
-        ? await shiftEventService.clockOut(companyId, personId, geoLocation ?? undefined, uploadedUrl, kioskDevice)
-        : await shiftEventService.clockIn(companyId, personId, geoLocation ?? undefined, uploadedUrl, kioskDevice);
+        ? await shiftEventService.clockOut(companyId, personId, geoLocation ?? undefined, uploadedUrl, kioskDevice, locationId)
+        : await shiftEventService.clockIn(companyId, personId, geoLocation ?? undefined, uploadedUrl, kioskDevice, locationId);
 
       if (result.eventType === 'clockin') {
         await saveActiveClockInAt(new Date(result.eventDate).toISOString());

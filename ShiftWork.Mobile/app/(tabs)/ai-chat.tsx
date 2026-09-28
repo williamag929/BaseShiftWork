@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius } from '@/styles/theme';
 import { useAuthStore } from '@/store/authStore';
 import { mcpService, ChatMessage } from '@/services/mcp.service';
+import { useTranslation } from '@/i18n';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -56,6 +57,7 @@ const renderBold = (text: string) => {
 
 export default function AiChatScreen() {
   const { companyId, personId, name } = useAuthStore();
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -65,7 +67,6 @@ export default function AiChatScreen() {
   // ---------- Boot: health check + welcome message -------------------------
   useEffect(() => {
     const boot = async () => {
-      // Welcome message
       setMessages([
         makeMessage(
           'assistant',
@@ -73,7 +74,6 @@ export default function AiChatScreen() {
         ),
       ]);
 
-      // Check server health
       try {
         await mcpService.ping();
         setServerOnline(true);
@@ -109,7 +109,6 @@ export default function AiChatScreen() {
         return [...next, assistantMsg];
       });
 
-      // Update connectivity status on successful response
       setServerOnline(true);
     } catch (err: any) {
       setMessages((prev) => {
@@ -128,19 +127,18 @@ export default function AiChatScreen() {
   // ---------- Quick action chips --------------------------------------------
   const quickActions = useMemo(
     () => [
-      { label: '📅 My Schedule', msg: 'my schedule' },
-      { label: '🔧 Tools', msg: 'tools' },
-      { label: '📝 Unpublished', msg: 'unpublished schedules' },
-      { label: '🏓 Ping', msg: 'ping' },
+      { label: t('ai_chat.quick_schedule'), msg: 'my schedule' },
+      { label: t('ai_chat.quick_tools'), msg: 'tools' },
+      { label: t('ai_chat.quick_unpublished'), msg: 'unpublished schedules' },
+      { label: t('ai_chat.quick_ping'), msg: 'ping' },
     ],
-    [],
+    [t],
   );
 
   const tapQuick = useCallback(
     (msg: string) => {
       if (sending) return;
       setInput(msg);
-      // Small delay so RN updates the input before sending
       setTimeout(() => {
         setInput('');
         const userMsg = makeMessage('user', msg);
@@ -196,7 +194,7 @@ export default function AiChatScreen() {
           <View style={[styles.bubble, styles.bubbleAssistant]}>
             <View style={styles.typingRow}>
               <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={styles.typingText}>Thinking…</Text>
+              <Text style={styles.typingText}>{t('ai_chat.thinking')}</Text>
             </View>
           </View>
         );
@@ -231,7 +229,7 @@ export default function AiChatScreen() {
         </View>
       );
     },
-    [],
+    [t],
   );
 
   // ---------- Layout --------------------------------------------------------
@@ -245,7 +243,7 @@ export default function AiChatScreen() {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Ionicons name="chatbubble-ellipses" size={22} color="#fff" />
-          <Text style={styles.headerTitle}>AI Assistant</Text>
+          <Text style={styles.headerTitle}>{t('ai_chat.title')}</Text>
         </View>
         <View style={styles.headerRight}>
           <View
@@ -257,7 +255,11 @@ export default function AiChatScreen() {
             ]}
           />
           <Text style={styles.statusText}>
-            {serverOnline === true ? 'MCP Online' : serverOnline === false ? 'Offline' : 'Checking…'}
+            {serverOnline === true
+              ? t('ai_chat.mcp_online')
+              : serverOnline === false
+              ? t('ai_chat.offline')
+              : t('ai_chat.checking')}
           </Text>
         </View>
       </View>
@@ -292,7 +294,7 @@ export default function AiChatScreen() {
           style={styles.textInput}
           value={input}
           onChangeText={setInput}
-          placeholder="Ask me about schedules…"
+          placeholder={t('ai_chat.placeholder')}
           placeholderTextColor={colors.muted}
           returnKeyType="send"
           onSubmitEditing={send}

@@ -16,6 +16,10 @@ using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Exporter;
 
 // Load environment variables from .env file
 Env.TraversePath().Load();
@@ -60,6 +64,18 @@ builder.Services.AddDbContext<ShiftWorkContext>((sp, options) =>
     options.AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
 });
 
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "ready" });
+
+// Metrics: ASP.NET Core's built-in http.server.request.duration (error rate, p95 latency, 401/403/429
+// rate — see Docs/W6_DASHBOARDS_AND_ALERTS.md §1-3) plus the app's own counters (§4-5, see
+// Helpers/AppMetrics.cs), scraped by Prometheus via the token-gated /metrics endpoint below.
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddMeter("ShiftWork.Api")
+        .AddPrometheusExporter());
+
 // Add In-Memory Caching service, used by several controllers.
 builder.Services.AddMemoryCache();
 
@@ -98,6 +114,8 @@ else
 
 // Register your application's services
 builder.Services.AddScoped<IAreaService, AreaService>();
+builder.Services.AddScoped<ICostCodeService, CostCodeService>();
+builder.Services.AddScoped<IProcoreService, ProcoreService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IPeopleService, PeopleService>();
@@ -124,17 +142,24 @@ builder.Services.AddScoped<IKioskService, KioskService>();
 builder.Services.AddScoped<IPtoService, PtoService>();
 builder.Services.AddScoped<ICompanySettingsService, CompanySettingsService>();
 builder.Services.AddScoped<IScheduleValidationService, ScheduleValidationService>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<IAuditHistoryService, AuditHistoryService>();
+builder.Services.AddSingleton<NotificationLocalizer>();
 builder.Services.AddScoped<PushNotificationService>();
 builder.Services.AddScoped<IWebhookService, WebhookService>();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient("weather");
+builder.Services.AddHttpClient("procore", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
 
 // v2 Content & Communication services
 builder.Services.AddScoped<IBulletinService, BulletinService>();
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<IDailyReportService, DailyReportService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<ICredentialService, CredentialService>();
 builder.Services.AddScoped<ISafetyService, SafetyService>();
 builder.Services.AddHostedService<SafetyNotificationHostedService>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
@@ -329,6 +354,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("shift-events.create", policy => policy.Requirements.Add(new PermissionRequirement("shift-events.create")));
     options.AddPolicy("shift-events.update", policy => policy.Requirements.Add(new PermissionRequirement("shift-events.update")));
     options.AddPolicy("shift-events.delete", policy => policy.Requirements.Add(new PermissionRequirement("shift-events.delete")));
+    options.AddPolicy("shift-events.geofence-flags.review", policy => policy.Requirements.Add(new PermissionRequirement("shift-events.geofence-flags.review")));
+
+    options.AddPolicy("active-sites.view", policy => policy.Requirements.Add(new PermissionRequirement("active-sites.view")));
 
     options.AddPolicy("timeoff-requests.read", policy => policy.Requirements.Add(new PermissionRequirement("timeoff-requests.read")));
     options.AddPolicy("timeoff-requests.create", policy => policy.Requirements.Add(new PermissionRequirement("timeoff-requests.create")));
@@ -380,6 +408,12 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("documents.upload", policy => policy.Requirements.Add(new PermissionRequirement("documents.upload")));
     options.AddPolicy("documents.delete", policy => policy.Requirements.Add(new PermissionRequirement("documents.delete")));
     options.AddPolicy("documents.manage", policy => policy.Requirements.Add(new PermissionRequirement("documents.manage")));
+
+    options.AddPolicy("credentials.read", policy => policy.Requirements.Add(new PermissionRequirement("credentials.read")));
+    options.AddPolicy("credentials.create", policy => policy.Requirements.Add(new PermissionRequirement("credentials.create")));
+    options.AddPolicy("credentials.update", policy => policy.Requirements.Add(new PermissionRequirement("credentials.update")));
+    options.AddPolicy("credentials.delete", policy => policy.Requirements.Add(new PermissionRequirement("credentials.delete")));
+    options.AddPolicy("credentials.track", policy => policy.Requirements.Add(new PermissionRequirement("credentials.track")));
 
     options.AddPolicy("reports.read", policy => policy.Requirements.Add(new PermissionRequirement("reports.read")));
     options.AddPolicy("reports.submit", policy => policy.Requirements.Add(new PermissionRequirement("reports.submit")));
@@ -461,6 +495,39 @@ app.UseCors("ApiCorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 
+// The Prometheus scrape endpoint is unauthenticated by design (Prometheus's scrape_configs can't do
+// the app's JWT dance), but the api container's port is host-mapped in docker-compose.yml, so it's
+// reachable from outside the docker network on the real deploy host. Gate it with a shared bearer
+// token instead — Prometheus's scrape_configs support `authorization.credentials` natively.
+var metricsScrapeToken = Environment.GetEnvironmentVariable("METRICS_SCRAPE_TOKEN");
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/metrics"))
+    {
+        var expected = $"Bearer {metricsScrapeToken}";
+        var provided = context.Request.Headers.Authorization.ToString();
+        if (string.IsNullOrEmpty(metricsScrapeToken) || provided != expected)
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return;
+        }
+    }
+    await next();
+});
+app.MapPrometheusScrapingEndpoint("/metrics");
+
 app.MapControllers();
+
+// Liveness: process is up, no dependency checks.
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    Predicate = _ => false
+});
+
+// Readiness: dependency checks (DB connectivity) tagged "ready".
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
 
 app.Run();

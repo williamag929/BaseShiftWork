@@ -4,12 +4,41 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
 import { useDeviceStore } from '@/store/deviceStore';
 import { useSessionStore } from '@/store/sessionStore';
+import { kioskService } from '@/services/kiosk.service';
 import { colors, spacing, typography, zIndex } from '@/styles/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { useTranslation } from '@/i18n';
+
+function LanguageToggle() {
+  const { locale, setLocale } = useTranslation();
+
+  return (
+    <View style={styles.langToggle}>
+      {(['en', 'es'] as const).map((code) => (
+        <Pressable
+          key={code}
+          style={[styles.langBtn, locale === code && styles.langBtnActive]}
+          onPress={() => {
+            Haptics.selectionAsync();
+            setLocale(code);
+          }}
+          accessible
+          accessibilityRole="button"
+          accessibilityState={{ selected: locale === code }}
+        >
+          <Text style={[styles.langText, locale === code && styles.langTextActive]}>
+            {code.toUpperCase()}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
 
 function KioskHeader() {
   const router = useRouter();
+  const { t, locale } = useTranslation();
   const locationName = useDeviceStore((s) => s.locationName);
   const [time, setTime] = useState(new Date());
 
@@ -18,11 +47,11 @@ function KioskHeader() {
     return () => clearInterval(t);
   }, []);
 
-  const formattedTime = time.toLocaleTimeString([], {
+  const formattedTime = time.toLocaleTimeString(locale, {
     hour: '2-digit',
     minute: '2-digit',
   });
-  const formattedDate = time.toLocaleDateString([], {
+  const formattedDate = time.toLocaleDateString(locale, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -39,29 +68,45 @@ function KioskHeader() {
         {locationName}
       </Text>
 
-      <Pressable
-        style={({ pressed }) => [styles.adminBtn, pressed && styles.adminBtnPressed]}
-        onPress={async () => {
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          router.push('/(admin)');
-        }}
-        accessible
-        accessibilityRole="button"
-        accessibilityLabel="Admin settings"
-      >
-        <Ionicons name="settings-outline" size={22} color={colors.textSecondary} />
-      </Pressable>
+      <View style={styles.headerRight}>
+        <LanguageToggle />
+        <Pressable
+          style={({ pressed }) => [styles.adminBtn, pressed && styles.adminBtnPressed]}
+          onPress={async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push('/(admin)');
+          }}
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel={t('kiosk_app.admin_aria')}
+        >
+          <Ionicons name="settings-outline" size={22} color={colors.textSecondary} />
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 export default function KioskLayout() {
   const resetSession = useSessionStore((s) => s.reset);
+  const companyId = useDeviceStore((s) => s.companyId);
+  const { applyServerLocale } = useTranslation();
 
   // Reset the per-transaction session whenever we navigate back to this scope
   useEffect(() => {
     resetSession();
   }, [resetSession]);
+
+  // Seed the locale from CompanySettings.DefaultLanguage when no one has
+  // toggled the language on this device yet
+  useEffect(() => {
+    if (!companyId) return;
+    kioskService
+      .getDefaultLanguage(companyId)
+      .then(applyServerLocale)
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId]);
 
   return (
     <View style={styles.root}>
@@ -108,9 +153,30 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
   },
-  adminBtn: {
+  headerRight: {
     flex: 1,
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: spacing.md,
+  },
+  langToggle: {
+    flexDirection: 'row',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.separator,
+    overflow: 'hidden',
+  },
+  langBtn: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    minWidth: 44,
+    alignItems: 'center',
+  },
+  langBtnActive: { backgroundColor: colors.primary },
+  langText: { ...typography.label, color: colors.textMuted },
+  langTextActive: { color: colors.textOnPrimary },
+  adminBtn: {
     padding: spacing.sm,
   },
   adminBtnPressed: { opacity: 0.4 },

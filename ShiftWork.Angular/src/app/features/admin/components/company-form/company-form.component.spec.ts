@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
 import { CompanyFormComponent } from './company-form.component';
+import '../../admin.module';
 import { CompanyService } from 'src/app/core/services/company.service';
 
 describe('CompanyFormComponent', () => {

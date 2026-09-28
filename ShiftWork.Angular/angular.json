@@ -52,6 +52,11 @@
             ]
           },
           "configurations": {
+            "es-SP": {
+              "localize": ["es-SP"],
+              "baseHref": "/es/",
+              "outputPath": "dist/shift-workfrontend/es"
+            },
             "production": {
               "budgets": [
                 {
@@ -103,8 +108,11 @@
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular-builders/custom-webpack:karma",
           "options": {
+            "customWebpackConfig": {
+              "path": "custom-webpack.config.ts"
+            },
             "main": "src/test.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",

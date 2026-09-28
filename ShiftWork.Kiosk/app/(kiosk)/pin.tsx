@@ -15,11 +15,13 @@ import { PinPad } from '@/components/ui/PinPad';
 import { kioskService } from '@/services/kiosk.service';
 import { useSessionStore } from '@/store/sessionStore';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
+import { useTranslation } from '@/i18n';
 
 const KIOSK_TIMEOUT_MS = 30_000; // auto-return to home if idle for 30 s
 
 export default function PinScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const employee = useSessionStore((s) => s.employee);
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
@@ -71,20 +73,20 @@ export default function PinScreen() {
         } else {
           await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
           setError(true);
-          setErrorMsg('Incorrect PIN. Please try again.');
+          setErrorMsg(t('kiosk_app.pin_incorrect'));
           setPin('');
           resetTimeout();
         }
       } catch {
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         setError(true);
-        setErrorMsg('Verification failed. Check your connection.');
+        setErrorMsg(t('kiosk_app.pin_failed'));
         setPin('');
       } finally {
         setLoading(false);
       }
     },
-    [employee, loading, router, resetTimeout]
+    [employee, loading, router, resetTimeout, t]
   );
 
   if (!employee) return null;
@@ -111,7 +113,7 @@ export default function PinScreen() {
             )}
           </View>
           <Text style={styles.name}>{employee.name}</Text>
-          <Text style={styles.instruction}>Enter your PIN</Text>
+          <Text style={styles.instruction}>{t('kiosk_app.enter_pin')}</Text>
         </View>
 
         {/* PIN pad */}
@@ -132,7 +134,7 @@ export default function PinScreen() {
           style={({ pressed }) => [styles.cancelBtn, pressed && { opacity: 0.6 }]}
           onPress={() => router.replace('/(kiosk)')}
         >
-          <Text style={styles.cancelText}>Cancel</Text>
+          <Text style={styles.cancelText}>{t('kiosk_app.cancel')}</Text>
         </Pressable>
       </View>
     </SafeAreaView>

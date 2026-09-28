@@ -17,12 +17,14 @@ import { useQuery } from '@tanstack/react-query';
 import { kioskService } from '@/services/kiosk.service';
 import { useDeviceStore } from '@/store/deviceStore';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
+import { useTranslation } from '@/i18n';
 import type { KioskLocation } from '@/types';
 
 type AdminStep = 'password' | 'menu' | 'changeLocation';
 
 export default function AdminScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { companyId, locationName, kioskDeviceId, enroll, resetDevice } = useDeviceStore();
 
   const [step, setStep] = useState<AdminStep>('password');
@@ -51,13 +53,13 @@ export default function AdminScreen() {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setStep('menu');
     } catch {
-      setAuthError('Incorrect password.');
+      setAuthError(t('kiosk_app.incorrect_password'));
       setPassword('');
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setVerifying(false);
     }
-  }, [password, companyId]);
+  }, [password, companyId, t]);
 
   const handleChangeLocation = useCallback(async () => {
     if (!selectedLocation) return;
@@ -89,7 +91,7 @@ export default function AdminScreen() {
         <Pressable onPress={() => router.back()} style={styles.closeBtn}>
           <Ionicons name="close" size={28} color={colors.text} />
         </Pressable>
-        <Text style={styles.title}>Admin Settings</Text>
+        <Text style={styles.title}>{t('kiosk_app.admin_settings')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
@@ -98,10 +100,10 @@ export default function AdminScreen() {
         {step === 'password' && (
           <View style={styles.card}>
             <Ionicons name="lock-closed-outline" size={48} color={colors.primary} />
-            <Text style={styles.cardTitle}>Enter Admin Password</Text>
+            <Text style={styles.cardTitle}>{t('kiosk_app.enter_admin_password')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Admin password"
+              placeholder={t('kiosk_app.admin_password_ph')}
               placeholderTextColor={colors.textMuted}
               value={password}
               onChangeText={setPassword}
@@ -119,7 +121,7 @@ export default function AdminScreen() {
               {verifying ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.primaryBtnText}>Verify</Text>
+                <Text style={styles.primaryBtnText}>{t('kiosk_app.verify')}</Text>
               )}
             </Pressable>
           </View>
@@ -128,8 +130,8 @@ export default function AdminScreen() {
         {/* ── Step 2: Admin menu ── */}
         {step === 'menu' && (
           <View style={styles.menuContainer}>
-            <Text style={styles.cardTitle}>What would you like to do?</Text>
-            <Text style={styles.subtitle}>Current location: {locationName}</Text>
+            <Text style={styles.cardTitle}>{t('kiosk_app.admin_menu_title')}</Text>
+            <Text style={styles.subtitle}>{t('kiosk_app.current_location', { location: locationName })}</Text>
 
             <Pressable
               style={({ pressed }) => [styles.menuCard, pressed && { opacity: 0.85 }]}
@@ -137,8 +139,8 @@ export default function AdminScreen() {
             >
               <Ionicons name="location-outline" size={32} color={colors.primary} />
               <View style={styles.menuCardText}>
-                <Text style={styles.menuCardTitle}>Change Location</Text>
-                <Text style={styles.menuCardSub}>Assign this device to a different location</Text>
+                <Text style={styles.menuCardTitle}>{t('kiosk_app.change_location')}</Text>
+                <Text style={styles.menuCardSub}>{t('kiosk_app.change_location_sub')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
             </Pressable>
@@ -149,8 +151,8 @@ export default function AdminScreen() {
             >
               <Ionicons name="trash-outline" size={32} color={colors.danger} />
               <View style={styles.menuCardText}>
-                <Text style={[styles.menuCardTitle, { color: colors.danger }]}>Reset Device</Text>
-                <Text style={styles.menuCardSub}>Remove enrollment — re-setup required</Text>
+                <Text style={[styles.menuCardTitle, { color: colors.danger }]}>{t('kiosk_app.reset_device')}</Text>
+                <Text style={styles.menuCardSub}>{t('kiosk_app.reset_device_sub')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
             </Pressable>
@@ -162,9 +164,9 @@ export default function AdminScreen() {
           <View style={styles.menuContainer}>
             <Pressable style={styles.backLink} onPress={() => setStep('menu')}>
               <Ionicons name="arrow-back" size={18} color={colors.primary} />
-              <Text style={styles.backText}>Back</Text>
+              <Text style={styles.backText}>{t('kiosk_app.back_plain')}</Text>
             </Pressable>
-            <Text style={styles.cardTitle}>Select Location</Text>
+            <Text style={styles.cardTitle}>{t('kiosk_app.select_location')}</Text>
 
             {locationsLoading ? (
               <ActivityIndicator color={colors.primary} size="large" style={{ marginTop: spacing.xl }} />
@@ -207,7 +209,7 @@ export default function AdminScreen() {
                   {saving ? (
                     <ActivityIndicator color="#fff" />
                   ) : (
-                    <Text style={styles.primaryBtnText}>Save Location</Text>
+                    <Text style={styles.primaryBtnText}>{t('kiosk_app.save_location')}</Text>
                   )}
                 </Pressable>
               </>

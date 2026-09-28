@@ -11,6 +11,7 @@ import { dailyReportService, DailyReport, ReportMedia } from '@/services/daily-r
 import { locationService } from '@/services/location.service';
 import type { LocationDto } from '@/types/api';
 import { colors, spacing, radius } from '@/styles/tokens';
+import { useTranslation } from '@/i18n';
 
 const today = new Date().toISOString().split('T')[0];
 
@@ -23,6 +24,7 @@ const STATUS_COLOR: Record<string, string> = {
 export default function DailyReportScreen() {
   const insets = useSafeAreaInsets();
   const { companyId } = useAuthStore();
+  const { t } = useTranslation();
 
   const [locations, setLocations]       = useState<LocationDto[]>([]);
   const [locationId, setLocationId]     = useState<number | null>(null);
@@ -173,7 +175,7 @@ export default function DailyReportScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Daily Report</Text>
+        <Text style={styles.headerTitle}>{t('daily_report.title')}</Text>
         <Text style={styles.headerDate}>
           {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
         </Text>
@@ -204,20 +206,20 @@ export default function DailyReportScreen() {
       {noAccess ? (
         <View style={styles.centered}>
           <Ionicons name="lock-closed-outline" size={48} color={colors.muted} />
-          <Text style={styles.emptyText}>You don't have access to daily reports.</Text>
+          <Text style={styles.emptyText}>{t('daily_report.no_access')}</Text>
         </View>
       ) : loadError ? (
         <View style={styles.errorCard}>
           <Ionicons name="wifi-outline" size={28} color="#FF3B30" />
           <Text style={styles.errorText}>{loadError}</Text>
           <TouchableOpacity style={styles.retryBtn} onPress={loadReport}>
-            <Text style={styles.retryText}>Try Again</Text>
+            <Text style={styles.retryText}>{t('common.try_again')}</Text>
           </TouchableOpacity>
         </View>
       ) : !report ? (
         <View style={styles.centered}>
           <Ionicons name="clipboard-outline" size={48} color={colors.muted} />
-          <Text style={styles.emptyText}>No report found for this location.</Text>
+          <Text style={styles.emptyText}>{t('daily_report.not_found')}</Text>
         </View>
       ) : (
         <ScrollView contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + 100 }}>
@@ -230,13 +232,17 @@ export default function DailyReportScreen() {
           {/* Weather */}
           {weather && (
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>WEATHER</Text>
+              <Text style={styles.cardLabel}>{t('daily_report.weather')}</Text>
               <View style={styles.weatherRow}>
                 <Text style={styles.weatherTemp}>{Math.round(weather.temperature ?? 0)}°F</Text>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.weatherDesc}>{weather.description}</Text>
                   <Text style={styles.weatherMeta}>
-                    Feels {Math.round(weather.feelsLike ?? 0)}° · Wind {Math.round(weather.windSpeed ?? 0)} mph · {weather.humidity}% humidity
+                    {t('daily_report.weather_meta', {
+                      feels: Math.round(weather.feelsLike ?? 0),
+                      wind: Math.round(weather.windSpeed ?? 0),
+                      humidity: weather.humidity,
+                    })}
                   </Text>
                 </View>
               </View>
@@ -245,16 +251,16 @@ export default function DailyReportScreen() {
 
           {/* Attendance */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>ATTENDANCE</Text>
+            <Text style={styles.cardLabel}>{t('daily_report.attendance')}</Text>
             <View style={styles.statRow}>
               <View style={styles.statBox}>
                 <Text style={styles.statValue}>{report.totalEmployees}</Text>
-                <Text style={styles.statLabel}>Employees</Text>
+                <Text style={styles.statLabel}>{t('daily_report.employees')}</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statBox}>
                 <Text style={styles.statValue}>{report.totalHours.toFixed(1)}</Text>
-                <Text style={styles.statLabel}>Hours</Text>
+                <Text style={styles.statLabel}>{t('daily_report.hours')}</Text>
               </View>
             </View>
           </View>
@@ -262,7 +268,7 @@ export default function DailyReportScreen() {
           {/* Attachments */}
           <View style={styles.card}>
             <View style={styles.cardLabelRow}>
-              <Text style={styles.cardLabel}>ATTACHMENTS</Text>
+              <Text style={styles.cardLabel}>{t('daily_report.attachments')}</Text>
               <TouchableOpacity
                 style={styles.addBtn}
                 onPress={showAttachmentOptions}
@@ -272,7 +278,7 @@ export default function DailyReportScreen() {
                   ? <ActivityIndicator color={colors.primary} size="small" />
                   : <>
                       <Ionicons name="add" size={16} color={colors.primary} />
-                      <Text style={styles.addBtnText}>Add</Text>
+                      <Text style={styles.addBtnText}>{t('daily_report.add')}</Text>
                     </>
                 }
               </TouchableOpacity>
@@ -281,7 +287,7 @@ export default function DailyReportScreen() {
             {/* Photos */}
             {photos.length > 0 && (
               <>
-                <Text style={styles.attachSubLabel}>Photos ({photos.length})</Text>
+                <Text style={styles.attachSubLabel}>{t('daily_report.photos_count', { count: photos.length })}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
                   <View style={{ flexDirection: 'row', gap: 8 }}>
                     {photos.map(m => (
@@ -295,7 +301,7 @@ export default function DailyReportScreen() {
             {/* Note attachments */}
             {noteAttachments.length > 0 && (
               <>
-                <Text style={styles.attachSubLabel}>Notes ({noteAttachments.length})</Text>
+                <Text style={styles.attachSubLabel}>{t('daily_report.notes_count', { count: noteAttachments.length })}</Text>
                 <View style={{ gap: 8 }}>
                   {noteAttachments.map(m => (
                     <View key={m.mediaId} style={styles.noteCard}>
@@ -308,19 +314,19 @@ export default function DailyReportScreen() {
             )}
 
             {photos.length === 0 && noteAttachments.length === 0 && (
-              <Text style={styles.emptyAttach}>No attachments yet. Tap Add to include photos or notes.</Text>
+              <Text style={styles.emptyAttach}>{t('daily_report.empty_attachments')}</Text>
             )}
           </View>
 
           {/* Notes */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>SHIFT NOTES</Text>
+            <Text style={styles.cardLabel}>{t('daily_report.shift_notes')}</Text>
             <TextInput
               style={styles.notesInput}
               value={notes}
               onChangeText={setNotes}
               multiline
-              placeholder="Add shift notes, incidents, observations..."
+              placeholder={t('daily_report.notes_placeholder')}
               placeholderTextColor={colors.muted}
               textAlignVertical="top"
               editable={report.status !== 'Approved'}
@@ -331,14 +337,14 @@ export default function DailyReportScreen() {
           <View style={styles.actionRow}>
             {report.status !== 'Approved' && (
               <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={() => save()} disabled={saving}>
-                <Text style={styles.btnSecondaryText}>{saving ? 'Saving…' : 'Save Draft'}</Text>
+                <Text style={styles.btnSecondaryText}>{saving ? t('daily_report.saving') : t('daily_report.save_draft')}</Text>
               </TouchableOpacity>
             )}
             {report.status === 'Draft' && (
               <TouchableOpacity style={[styles.btn, styles.btnPrimary]} onPress={() => save('Submitted')} disabled={saving}>
                 {saving
                   ? <ActivityIndicator color="#fff" size="small" />
-                  : <Text style={styles.btnPrimaryText}>Submit Report</Text>
+                  : <Text style={styles.btnPrimaryText}>{t('daily_report.submit')}</Text>
                 }
               </TouchableOpacity>
             )}
@@ -346,7 +352,7 @@ export default function DailyReportScreen() {
               <TouchableOpacity style={[styles.btn, { backgroundColor: colors.success }]} onPress={() => save('Approved')} disabled={saving}>
                 {saving
                   ? <ActivityIndicator color="#fff" size="small" />
-                  : <Text style={styles.btnPrimaryText}>Approve</Text>
+                  : <Text style={styles.btnPrimaryText}>{t('daily_report.approve')}</Text>
                 }
               </TouchableOpacity>
             )}
@@ -359,13 +365,13 @@ export default function DailyReportScreen() {
         <View style={[styles.noteModal, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 }]}>
           <View style={styles.noteModalHeader}>
             <TouchableOpacity onPress={() => setNoteModalOpen(false)}>
-              <Text style={styles.noteModalCancel}>Cancel</Text>
+              <Text style={styles.noteModalCancel}>{t('common.cancel')}</Text>
             </TouchableOpacity>
-            <Text style={styles.noteModalTitle}>Add Note</Text>
+            <Text style={styles.noteModalTitle}>{t('daily_report.add_note')}</Text>
             <TouchableOpacity onPress={saveNote} disabled={!noteText.trim() || savingNote}>
               {savingNote
                 ? <ActivityIndicator color={colors.primary} size="small" />
-                : <Text style={[styles.noteModalSave, !noteText.trim() && styles.noteModalSaveDisabled]}>Save</Text>
+                : <Text style={[styles.noteModalSave, !noteText.trim() && styles.noteModalSaveDisabled]}>{t('common.save')}</Text>
               }
             </TouchableOpacity>
           </View>
@@ -375,7 +381,7 @@ export default function DailyReportScreen() {
             onChangeText={setNoteText}
             multiline
             autoFocus
-            placeholder="Enter note text..."
+            placeholder={t('daily_report.note_placeholder')}
             placeholderTextColor={colors.muted}
             textAlignVertical="top"
           />

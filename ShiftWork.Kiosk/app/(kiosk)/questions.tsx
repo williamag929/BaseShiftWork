@@ -17,10 +17,12 @@ import { kioskService } from '@/services/kiosk.service';
 import { useSessionStore } from '@/store/sessionStore';
 import { useDeviceStore } from '@/store/deviceStore';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
+import { useTranslation } from '@/i18n';
 import type { KioskAnswer, KioskQuestion } from '@/types';
 
 export default function QuestionsScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const employee = useSessionStore((s) => s.employee);
   const clockType = useSessionStore((s) => s.clockType);
   const capturedPhotoUri = useSessionStore((s) => s.capturedPhotoUri);
@@ -50,7 +52,7 @@ export default function QuestionsScreen() {
       .map((q) => q.questionText);
 
     if (missing.length > 0) {
-      setError(`Please answer: ${missing[0]}`);
+      setError(t('kiosk_app.please_answer', { question: missing[0] }));
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
@@ -78,12 +80,12 @@ export default function QuestionsScreen() {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace('/(kiosk)/success');
     } catch {
-      setError('Submission failed. Please try again.');
+      setError(t('kiosk_app.submit_failed'));
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setSubmitting(false);
     }
-  }, [employee, clockType, questions, answers, companyId, locationId, capturedPhotoUri, geoLocation, kioskDeviceId, router]);
+  }, [employee, clockType, questions, answers, companyId, locationId, capturedPhotoUri, geoLocation, kioskDeviceId, router, t]);
 
   if (isLoading) {
     return <View style={styles.center}><ActivityIndicator color={colors.primary} size="large" /></View>;
@@ -92,7 +94,7 @@ export default function QuestionsScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <Text style={styles.heading}>A few quick questions</Text>
+        <Text style={styles.heading}>{t('kiosk_app.questions_heading')}</Text>
 
         {questions.map((q, i) => (
           <View
@@ -106,7 +108,8 @@ export default function QuestionsScreen() {
 
             {q.questionType === 'yes_no' && (
               <View style={styles.yesNoRow}>
-                {['Yes', 'No'].map((opt) => (
+                {/* Stored answer value stays 'Yes'/'No' for the API; only the label is translated */}
+                {([['Yes', t('kiosk_app.yes')], ['No', t('kiosk_app.no')]] as const).map(([opt, label]) => (
                   <Pressable
                     key={opt}
                     style={({ pressed }) => [
@@ -122,7 +125,7 @@ export default function QuestionsScreen() {
                         answers[q.questionId] === opt && styles.yesNoTextSelected,
                       ]}
                     >
-                      {opt}
+                      {label}
                     </Text>
                   </Pressable>
                 ))}
@@ -157,7 +160,7 @@ export default function QuestionsScreen() {
             {q.questionType === 'text' && (
               <TextInput
                 style={styles.textInput}
-                placeholder="Your answer…"
+                placeholder={t('kiosk_app.answer_placeholder')}
                 placeholderTextColor={colors.textMuted}
                 value={answers[q.questionId] ?? ''}
                 onChangeText={(v) => handleAnswer(q.questionId, v)}
@@ -178,12 +181,12 @@ export default function QuestionsScreen() {
           {submitting ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.submitText}>Submit & Clock {clockType === 'ClockIn' ? 'In' : 'Out'}</Text>
+            <Text style={styles.submitText}>{clockType === 'ClockIn' ? t('kiosk_app.submit_clock_in') : t('kiosk_app.submit_clock_out')}</Text>
           )}
         </Pressable>
 
         <Pressable style={styles.cancelLink} onPress={() => router.replace('/(kiosk)')}>
-          <Text style={styles.cancelText}>Cancel</Text>
+          <Text style={styles.cancelText}>{t('kiosk_app.cancel')}</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>

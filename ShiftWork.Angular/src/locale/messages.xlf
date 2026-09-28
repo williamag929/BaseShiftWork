@@ -1,0 +1,4534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en-US" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="common.cancel" datatype="html">
+        <source>Cancel</source>
+      </trans-unit>
+      <trans-unit id="common.save" datatype="html">
+        <source>Save</source>
+      </trans-unit>
+      <trans-unit id="common.ok" datatype="html">
+        <source>OK</source>
+      </trans-unit>
+      <trans-unit id="common.back" datatype="html">
+        <source>Back</source>
+      </trans-unit>
+      <trans-unit id="common.continue" datatype="html">
+        <source>Continue</source>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Loading…</source>
+      </trans-unit>
+      <trans-unit id="common.error" datatype="html">
+        <source>Error</source>
+      </trans-unit>
+      <trans-unit id="common.try_again" datatype="html">
+        <source>Try again</source>
+      </trans-unit>
+      <trans-unit id="common.or" datatype="html">
+        <source>Or</source>
+      </trans-unit>
+      <trans-unit id="common.done" datatype="html">
+        <source>Done</source>
+      </trans-unit>
+      <trans-unit id="common.edit" datatype="html">
+        <source>Edit</source>
+      </trans-unit>
+      <trans-unit id="common.delete" datatype="html">
+        <source>Delete</source>
+      </trans-unit>
+      <trans-unit id="common.confirm" datatype="html">
+        <source>Confirm</source>
+      </trans-unit>
+      <trans-unit id="common.yes" datatype="html">
+        <source>Yes</source>
+      </trans-unit>
+      <trans-unit id="common.no" datatype="html">
+        <source>No</source>
+      </trans-unit>
+      <trans-unit id="common.retry" datatype="html">
+        <source>Retry</source>
+      </trans-unit>
+      <trans-unit id="common.archive" datatype="html">
+        <source>Archive</source>
+      </trans-unit>
+      <trans-unit id="common.name" datatype="html">
+        <source>Name</source>
+      </trans-unit>
+      <trans-unit id="common.active" datatype="html">
+        <source>Active</source>
+      </trans-unit>
+      <trans-unit id="common.inactive" datatype="html">
+        <source>Inactive</source>
+      </trans-unit>
+      <trans-unit id="common.status" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="common.loading_short" datatype="html">
+        <source>Loading...</source>
+      </trans-unit>
+      <trans-unit id="common.close_aria" datatype="html">
+        <source>Close</source>
+      </trans-unit>
+      <trans-unit id="auth.login.title" datatype="html">
+        <source>Sign In</source>
+      </trans-unit>
+      <trans-unit id="auth.login.subtitle" datatype="html">
+        <source>Sign in to your account</source>
+      </trans-unit>
+      <trans-unit id="auth.login.email_label" datatype="html">
+        <source>Email address</source>
+      </trans-unit>
+      <trans-unit id="auth.login.email_required" datatype="html">
+        <source>Email is required.</source>
+      </trans-unit>
+      <trans-unit id="auth.login.email_invalid" datatype="html">
+        <source>Please enter a valid email address.</source>
+      </trans-unit>
+      <trans-unit id="auth.login.password_label" datatype="html">
+        <source>Password</source>
+      </trans-unit>
+      <trans-unit id="auth.login.password_required" datatype="html">
+        <source>Password is required.</source>
+      </trans-unit>
+      <trans-unit id="auth.login.submit" datatype="html">
+        <source>Log in</source>
+      </trans-unit>
+      <trans-unit id="auth.login.submitting" datatype="html">
+        <source>Signing in…</source>
+      </trans-unit>
+      <trans-unit id="auth.login.google" datatype="html">
+        <source>Log in with Google</source>
+      </trans-unit>
+      <trans-unit id="auth.login.biometric" datatype="html">
+        <source>Sign in with <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/></source>
+      </trans-unit>
+      <trans-unit id="auth.login.or_continue" datatype="html">
+        <source>or continue with</source>
+      </trans-unit>
+      <trans-unit id="auth.login.forgot_password" datatype="html">
+        <source>Forgot Password?</source>
+      </trans-unit>
+      <trans-unit id="auth.login.no_account" datatype="html">
+        <source>Don&apos;t have an account?</source>
+      </trans-unit>
+      <trans-unit id="auth.login.sign_up_link" datatype="html">
+        <source>Sign Up</source>
+      </trans-unit>
+      <trans-unit id="auth.login.create_one" datatype="html">
+        <source>Create one</source>
+      </trans-unit>
+      <trans-unit id="auth.login.welcome" datatype="html">
+        <source>Welcome Back</source>
+      </trans-unit>
+      <trans-unit id="auth.login.welcome_subtitle" datatype="html">
+        <source>Sign in to continue to your account</source>
+      </trans-unit>
+      <trans-unit id="auth.login.email_placeholder" datatype="html">
+        <source>Enter your email</source>
+      </trans-unit>
+      <trans-unit id="auth.login.password_placeholder" datatype="html">
+        <source>Enter your password</source>
+      </trans-unit>
+      <trans-unit id="auth.login.or_divider" datatype="html">
+        <source>OR</source>
+      </trans-unit>
+      <trans-unit id="auth.login.signing_in" datatype="html">
+        <source>Signing in...</source>
+      </trans-unit>
+      <trans-unit id="auth.register.title" datatype="html">
+        <source>Create Account</source>
+      </trans-unit>
+      <trans-unit id="auth.register.subtitle" datatype="html">
+        <source>Join ShiftWork in 3 easy steps</source>
+      </trans-unit>
+      <trans-unit id="auth.register.step_account" datatype="html">
+        <source>Your Account</source>
+      </trans-unit>
+      <trans-unit id="auth.register.step_company" datatype="html">
+        <source>Your Company</source>
+      </trans-unit>
+      <trans-unit id="auth.register.step_review" datatype="html">
+        <source>Review &amp; Create</source>
+      </trans-unit>
+      <trans-unit id="auth.register.full_name" datatype="html">
+        <source>Full Name</source>
+      </trans-unit>
+      <trans-unit id="auth.register.email" datatype="html">
+        <source>Email</source>
+      </trans-unit>
+      <trans-unit id="auth.register.password" datatype="html">
+        <source>Password</source>
+      </trans-unit>
+      <trans-unit id="auth.register.password_hint" datatype="html">
+        <source>Min 8 characters</source>
+      </trans-unit>
+      <trans-unit id="auth.register.password_short" datatype="html">
+        <source>Password must be at least 8 characters long.</source>
+      </trans-unit>
+      <trans-unit id="auth.register.password_short_6" datatype="html">
+        <source>Password must be at least 6 characters long.</source>
+      </trans-unit>
+      <trans-unit id="auth.register.company_name" datatype="html">
+        <source>Company Name</source>
+      </trans-unit>
+      <trans-unit id="auth.register.company_email" datatype="html">
+        <source>Company Email</source>
+      </trans-unit>
+      <trans-unit id="auth.register.company_phone" datatype="html">
+        <source>Company Phone (optional)</source>
+      </trans-unit>
+      <trans-unit id="auth.register.submit" datatype="html">
+        <source>Create Account</source>
+      </trans-unit>
+      <trans-unit id="auth.register.creating" datatype="html">
+        <source>Creating…</source>
+      </trans-unit>
+      <trans-unit id="auth.register.free_plan_note" datatype="html">
+        <source>You&apos;ll start on the Free plan with sample data to explore.</source>
+      </trans-unit>
+      <trans-unit id="auth.register.already_account" datatype="html">
+        <source>Already have an account? Sign in</source>
+      </trans-unit>
+      <trans-unit id="auth.register.sign_up" datatype="html">
+        <source>Sign Up</source>
+      </trans-unit>
+      <trans-unit id="auth.register.google" datatype="html">
+        <source>Continue with Google</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.title" datatype="html">
+        <source>Welcome to <x id="INTERPOLATION" equiv-text="{{ appName }}"/>!</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.subtitle" datatype="html">
+        <source>Your account is ready. Let&apos;s get you started.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.account_setup" datatype="html">
+        <source>Your account is set up and ready to go.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.loading" datatype="html">
+        <source>Loading your workspace…</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_badge" datatype="html">
+        <source>Demo Data</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_title" datatype="html">
+        <source>Your account includes sample data</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_description" datatype="html">
+        <source>We&apos;ve added demo employees, a location, and an area so you can explore <x id="INTERPOLATION" equiv-text="{{ appName }}"/>.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.employees" datatype="html">
+        <source>Employees</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.locations" datatype="html">
+        <source>Locations</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.areas" datatype="html">
+        <source>Areas</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.hide_demo" datatype="html">
+        <source>Hide demo data</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.hiding" datatype="html">
+        <source>Hiding…</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.reset_demo" datatype="html">
+        <source>Reset to defaults</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.resetting" datatype="html">
+        <source>Resetting…</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.remove_demo" datatype="html">
+        <source>Remove permanently</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.removing" datatype="html">
+        <source>Removing…</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.workspace_clean" datatype="html">
+        <source>Your workspace is clean and ready for real data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_hidden_ok" datatype="html">
+        <source>Demo data hidden. Restore from Settings anytime.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_hidden_fail" datatype="html">
+        <source>Failed to hide demo data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_reset_ok" datatype="html">
+        <source>Demo data reset to defaults.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_reset_fail" datatype="html">
+        <source>Failed to reset demo data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_removed_ok" datatype="html">
+        <source>Demo data removed. Workspace is clean.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_removed_fail" datatype="html">
+        <source>Failed to delete demo data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_hidden_ok" datatype="html">
+        <source>Sandbox data has been hidden. You can restore it at any time from Settings.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_hidden_fail" datatype="html">
+        <source>Failed to hide sandbox data. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_reset_ok" datatype="html">
+        <source>Sandbox data has been reset to defaults.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_reset_fail" datatype="html">
+        <source>Failed to reset sandbox data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_removed_ok" datatype="html">
+        <source>Sandbox data removed. Your workspace is now clean for real data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.sandbox_removed_fail" datatype="html">
+        <source>Failed to delete sandbox data.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.free_plan" datatype="html">
+        <source>Free Plan</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.free_plan_heading" datatype="html">
+        <source>You&apos;re on the Free plan</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.upgrade_description" datatype="html">
+        <source>Upgrade to Pro to unlock advanced scheduling, analytics, multi-location support, and more.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.explore_pro" datatype="html">
+        <source>Explore Pro</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.go_dashboard" datatype="html">
+        <source>Go to Dashboard</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.title" datatype="html">
+        <source>Forgot Password</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.reset_title" datatype="html">
+        <source>Reset Password</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.subtitle" datatype="html">
+        <source>Enter your email to reset your password.</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.instruction" datatype="html">
+        <source>Please enter your email address to request a password reset.</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.email_label" datatype="html">
+        <source>Email address</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.submit" datatype="html">
+        <source>Send reset link</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.reset_submit" datatype="html">
+        <source>Reset Password</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.back_to_login" datatype="html">
+        <source>Back to Sign In</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.go_back_to" datatype="html">
+        <source>Go back to</source>
+      </trans-unit>
+      <trans-unit id="auth.forgot_password.sent" datatype="html">
+        <source>Reset link sent. Check your inbox.</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.invalid_title" datatype="html">
+        <source>Invalid Invite Link</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.invalid_description" datatype="html">
+        <source>This invite link is missing required information or has already been used.</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.ask_admin" datatype="html">
+        <source>Ask your administrator to send a new invite.</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.go_sign_in" datatype="html">
+        <source>Go to Sign In</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.success_title" datatype="html">
+        <source>You&apos;re All Set!</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.success_subtitle" datatype="html">
+        <source>Your account is ready. Log in with <x id="INTERPOLATION" equiv-text="{{ email }}"/>.</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.or_download" datatype="html">
+        <source>Or download the mobile app</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.coming_soon" datatype="html">
+        <source>Coming Soon</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.title" datatype="html">
+        <source>Accept Invitation</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.subtitle" datatype="html">
+        <source>Set a password to access the mobile app</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.create_password" datatype="html">
+        <source>Create Your Password</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.create_password_desc" datatype="html">
+        <source>Set up a secure password to access your account</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.password_placeholder" datatype="html">
+        <source>Enter your password (min 6 chars)</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.confirm_password" datatype="html">
+        <source>Confirm Password</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.confirm_placeholder" datatype="html">
+        <source>Confirm your password</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.password_min" datatype="html">
+        <source>Password must be at least 6 characters</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.password_mismatch" datatype="html">
+        <source>Passwords do not match</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.setting" datatype="html">
+        <source>Setting Password...</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.submit" datatype="html">
+        <source>Set Password &amp; Activate Account</source>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.title" datatype="html">
+        <source>Thank You for Registering</source>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.sent" datatype="html">
+        <source>We have sent a confirmation email to <x id="INTERPOLATION" equiv-text="{{ email }}"/>.</source>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.instruction" datatype="html">
+        <source>Please check your email and click on the link to verify your email address.</source>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.resend" datatype="html">
+        <source>Resend Verification Email</source>
+      </trans-unit>
+      <trans-unit id="auth.verify_email.back" datatype="html">
+        <source>Go back to Sign in</source>
+      </trans-unit>
+      <trans-unit id="registration.title" datatype="html">
+        <source>Create your <x id="INTERPOLATION" equiv-text="{{ appName }}"/> account</source>
+      </trans-unit>
+      <trans-unit id="registration.subtitle" datatype="html">
+        <source>Get started in just a few steps — it&apos;s free</source>
+      </trans-unit>
+      <trans-unit id="registration.step_account" datatype="html">
+        <source>Account</source>
+      </trans-unit>
+      <trans-unit id="registration.step_company" datatype="html">
+        <source>Company</source>
+      </trans-unit>
+      <trans-unit id="registration.step_confirm" datatype="html">
+        <source>Confirm</source>
+      </trans-unit>
+      <trans-unit id="registration.step1_section" datatype="html">
+        <source>Your Account Details</source>
+      </trans-unit>
+      <trans-unit id="registration.full_name_required" datatype="html">
+        <source>Name is required (min 2 characters).</source>
+      </trans-unit>
+      <trans-unit id="registration.email_required" datatype="html">
+        <source>A valid email is required.</source>
+      </trans-unit>
+      <trans-unit id="registration.password_min_8" datatype="html">
+        <source>Password must be at least 8 characters.</source>
+      </trans-unit>
+      <trans-unit id="registration.next_company" datatype="html">
+        <source>Next: Company Info</source>
+      </trans-unit>
+      <trans-unit id="registration.step2_section" datatype="html">
+        <source>Your Company Details</source>
+      </trans-unit>
+      <trans-unit id="registration.company_name_req" datatype="html">
+        <source>Company name is required.</source>
+      </trans-unit>
+      <trans-unit id="registration.company_email_req" datatype="html">
+        <source>A valid company email is required.</source>
+      </trans-unit>
+      <trans-unit id="registration.phone_label" datatype="html">
+        <source>Phone Number (optional)</source>
+      </trans-unit>
+      <trans-unit id="registration.time_zone" datatype="html">
+        <source>Time Zone</source>
+      </trans-unit>
+      <trans-unit id="registration.next_confirm" datatype="html">
+        <source>Next: Confirm</source>
+      </trans-unit>
+      <trans-unit id="registration.step3_section" datatype="html">
+        <source>Review &amp; Create Account</source>
+      </trans-unit>
+      <trans-unit id="registration.summary_company" datatype="html">
+        <source>Company</source>
+      </trans-unit>
+      <trans-unit id="registration.summary_timezone" datatype="html">
+        <source>Time Zone</source>
+      </trans-unit>
+      <trans-unit id="registration.notice" datatype="html">
+        <source>A verification email will be sent to your inbox. Your company will start on the Free plan with sandbox demo data so you can explore the app right away.</source>
+      </trans-unit>
+      <trans-unit id="registration.creating" datatype="html">
+        <source>Creating account…</source>
+      </trans-unit>
+      <trans-unit id="registration.sign_in_link" datatype="html">
+        <source>Already have an account? Sign in</source>
+      </trans-unit>
+      <trans-unit id="bulletins.page_subtitle" datatype="html">
+        <source>Company-wide announcements and updates</source>
+      </trans-unit>
+      <trans-unit id="bulletins.new_btn" datatype="html">
+        <source>New Bulletin</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_heading" datatype="html">
+        <source>New Bulletin</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_title" datatype="html">
+        <source>Title</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_title_ph" datatype="html">
+        <source>Enter bulletin title</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_content" datatype="html">
+        <source>Content</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_content_ph" datatype="html">
+        <source>Write your message...</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_type" datatype="html">
+        <source>Type</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_priority" datatype="html">
+        <source>Priority</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_location" datatype="html">
+        <source>Location Scope</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_all_locations" datatype="html">
+        <source>All locations</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_status" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_expires" datatype="html">
+        <source>Expires At</source>
+      </trans-unit>
+      <trans-unit id="bulletins.form_publish" datatype="html">
+        <source>Publish</source>
+      </trans-unit>
+      <trans-unit id="bulletins.filter_all" datatype="html">
+        <source>All</source>
+      </trans-unit>
+      <trans-unit id="bulletins.filter_unread" datatype="html">
+        <source>Unread</source>
+      </trans-unit>
+      <trans-unit id="bulletins.filter_urgent" datatype="html">
+        <source>Urgent</source>
+      </trans-unit>
+      <trans-unit id="bulletins.loading" datatype="html">
+        <source>Loading bulletins...</source>
+      </trans-unit>
+      <trans-unit id="bulletins.empty_all" datatype="html">
+        <source>No bulletins yet. Create the first one.</source>
+      </trans-unit>
+      <trans-unit id="bulletins.empty_unread" datatype="html">
+        <source>All caught up — no unread bulletins.</source>
+      </trans-unit>
+      <trans-unit id="bulletins.empty_urgent" datatype="html">
+        <source>No urgent bulletins right now.</source>
+      </trans-unit>
+      <trans-unit id="bulletins.no_bulletins" datatype="html">
+        <source>No bulletins</source>
+      </trans-unit>
+      <trans-unit id="bulletins.retry" datatype="html">
+        <source>Retry</source>
+      </trans-unit>
+      <trans-unit id="bulletins.unread_badge" datatype="html">
+        <source>unread</source>
+      </trans-unit>
+      <trans-unit id="bulletins.expires_card" datatype="html">
+        <source>Expires</source>
+      </trans-unit>
+      <trans-unit id="bulletins.unread_tooltip" datatype="html">
+        <source>Unread</source>
+      </trans-unit>
+      <trans-unit id="bulletins.read_tooltip" datatype="html">
+        <source>Read</source>
+      </trans-unit>
+      <trans-unit id="bulletins.reads_tooltip" datatype="html">
+        <source>Total reads</source>
+      </trans-unit>
+      <trans-unit id="documents.page_subtitle" datatype="html">
+        <source>Manuals, procedures, SDS sheets, and policies</source>
+      </trans-unit>
+      <trans-unit id="documents.upload_btn" datatype="html">
+        <source>Upload</source>
+      </trans-unit>
+      <trans-unit id="documents.form_heading" datatype="html">
+        <source>Upload Document</source>
+      </trans-unit>
+      <trans-unit id="documents.form_title" datatype="html">
+        <source>Title</source>
+      </trans-unit>
+      <trans-unit id="documents.form_title_ph" datatype="html">
+        <source>Document title</source>
+      </trans-unit>
+      <trans-unit id="documents.form_description" datatype="html">
+        <source>Description</source>
+      </trans-unit>
+      <trans-unit id="documents.form_description_ph" datatype="html">
+        <source>Optional description</source>
+      </trans-unit>
+      <trans-unit id="documents.form_type" datatype="html">
+        <source>Type</source>
+      </trans-unit>
+      <trans-unit id="documents.form_version" datatype="html">
+        <source>Version</source>
+      </trans-unit>
+      <trans-unit id="documents.form_access" datatype="html">
+        <source>Access Level</source>
+      </trans-unit>
+      <trans-unit id="documents.form_location" datatype="html">
+        <source>Location Scope</source>
+      </trans-unit>
+      <trans-unit id="documents.form_all_locations" datatype="html">
+        <source>All locations</source>
+      </trans-unit>
+      <trans-unit id="documents.choose_file" datatype="html">
+        <source>Choose File</source>
+      </trans-unit>
+      <trans-unit id="documents.no_file" datatype="html">
+        <source>No file selected</source>
+      </trans-unit>
+      <trans-unit id="documents.uploading" datatype="html">
+        <source>Uploading...</source>
+      </trans-unit>
+      <trans-unit id="documents.search_ph" datatype="html">
+        <source>Search by title...</source>
+      </trans-unit>
+      <trans-unit id="documents.filter_type" datatype="html">
+        <source>Type</source>
+      </trans-unit>
+      <trans-unit id="documents.filter_all_types" datatype="html">
+        <source>All Types</source>
+      </trans-unit>
+      <trans-unit id="documents.filter_location" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="documents.filter_all_locations" datatype="html">
+        <source>All Locations</source>
+      </trans-unit>
+      <trans-unit id="documents.loading" datatype="html">
+        <source>Loading document…</source>
+      </trans-unit>
+      <trans-unit id="documents.empty_no_docs" datatype="html">
+        <source>No documents found</source>
+      </trans-unit>
+      <trans-unit id="documents.empty_filter" datatype="html">
+        <source>Try adjusting your search filters.</source>
+      </trans-unit>
+      <trans-unit id="documents.empty_first" datatype="html">
+        <source>Upload the first document to get started.</source>
+      </trans-unit>
+      <trans-unit id="documents.retry" datatype="html">
+        <source>Retry</source>
+      </trans-unit>
+      <trans-unit id="documents.search_label" datatype="html">
+        <source>Search documents</source>
+      </trans-unit>
+      <trans-unit id="documents.location_hint" datatype="html">
+        <source>Required for LocationOnly access</source>
+      </trans-unit>
+      <trans-unit id="safety.page_subtitle" datatype="html">
+        <source>Trainings, toolbox talks, and mandatory acknowledgments</source>
+      </trans-unit>
+      <trans-unit id="safety.new_btn" datatype="html">
+        <source>New Content</source>
+      </trans-unit>
+      <trans-unit id="safety.form_heading" datatype="html">
+        <source>New Safety Content</source>
+      </trans-unit>
+      <trans-unit id="safety.form_title" datatype="html">
+        <source>Title</source>
+      </trans-unit>
+      <trans-unit id="safety.form_description" datatype="html">
+        <source>Description</source>
+      </trans-unit>
+      <trans-unit id="safety.form_text_content" datatype="html">
+        <source>Content Text</source>
+      </trans-unit>
+      <trans-unit id="safety.form_type" datatype="html">
+        <source>Type</source>
+      </trans-unit>
+      <trans-unit id="safety.form_status" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="safety.form_location" datatype="html">
+        <source>Location Scope</source>
+      </trans-unit>
+      <trans-unit id="safety.form_all_locations" datatype="html">
+        <source>All locations</source>
+      </trans-unit>
+      <trans-unit id="safety.form_scheduled" datatype="html">
+        <source>Scheduled For</source>
+      </trans-unit>
+      <trans-unit id="safety.form_require_ack" datatype="html">
+        <source>Require employee acknowledgment</source>
+      </trans-unit>
+      <trans-unit id="safety.form_publish" datatype="html">
+        <source>Publish</source>
+      </trans-unit>
+      <trans-unit id="safety.tab_all" datatype="html">
+        <source>All Content</source>
+      </trans-unit>
+      <trans-unit id="safety.tab_pending" datatype="html">
+        <source>Pending</source>
+      </trans-unit>
+      <trans-unit id="safety.loading" datatype="html">
+        <source>Loading safety content...</source>
+      </trans-unit>
+      <trans-unit id="safety.action_required" datatype="html">
+        <source>Action Required</source>
+      </trans-unit>
+      <trans-unit id="safety.ack_prompt" datatype="html">
+        <source>Please review and acknowledge this safety content before continuing.</source>
+      </trans-unit>
+      <trans-unit id="safety.i_acknowledge" datatype="html">
+        <source>I Acknowledge</source>
+      </trans-unit>
+      <trans-unit id="safety.view_content" datatype="html">
+        <source>View Content</source>
+      </trans-unit>
+      <trans-unit id="safety.hide_compliance" datatype="html">
+        <source>Hide Compliance</source>
+      </trans-unit>
+      <trans-unit id="safety.view_compliance" datatype="html">
+        <source>View Compliance</source>
+      </trans-unit>
+      <trans-unit id="safety.acknowledged_badge" datatype="html">
+        <source>Acknowledged</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_pending" datatype="html">
+        <source>All caught up!</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_pending_desc" datatype="html">
+        <source>No pending acknowledgments — great job.</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_all" datatype="html">
+        <source>No safety content yet</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_all_desc" datatype="html">
+        <source>Create your first toolbox talk or safety training.</source>
+      </trans-unit>
+      <trans-unit id="safety.retry" datatype="html">
+        <source>Retry</source>
+      </trans-unit>
+      <trans-unit id="safety.pending_badge" datatype="html">
+        <source>pending</source>
+      </trans-unit>
+      <trans-unit id="safety.scheduled_on" datatype="html">
+        <source>Scheduled</source>
+      </trans-unit>
+      <trans-unit id="safety.still_pending" datatype="html">
+        <source>Still pending:</source>
+      </trans-unit>
+      <trans-unit id="safety.compliance_acknowledged" datatype="html">
+        <source>acknowledged</source>
+      </trans-unit>
+      <trans-unit id="upgrade.title" datatype="html">
+        <source>Upgrade to Pro</source>
+      </trans-unit>
+      <trans-unit id="upgrade.subtitle" datatype="html">
+        <source>Unlock the full power of ShiftWork for your team.</source>
+      </trans-unit>
+      <trans-unit id="upgrade.col_feature" datatype="html">
+        <source>Feature</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_kiosk" datatype="html">
+        <source>Kiosk Clock-In / Out</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_basic_schedule" datatype="html">
+        <source>Basic Scheduling</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_sandbox" datatype="html">
+        <source>Sandbox Demo Data</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_remove_sandbox" datatype="html">
+        <source>Remove Sandbox Data</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_advanced" datatype="html">
+        <source>Advanced Scheduling</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_analytics" datatype="html">
+        <source>Analytics &amp; Reports</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_multilocation" datatype="html">
+        <source>Multi-Location Support</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feat_export" datatype="html">
+        <source>Data Export</source>
+      </trans-unit>
+      <trans-unit id="upgrade.price_info" datatype="html">
+        <source>Pro plan — contact sales for pricing</source>
+      </trans-unit>
+      <trans-unit id="upgrade.submit" datatype="html">
+        <source>Upgrade to Pro Now</source>
+      </trans-unit>
+      <trans-unit id="upgrade.processing" datatype="html">
+        <source>Processing…</source>
+      </trans-unit>
+      <trans-unit id="upgrade.back_dashboard" datatype="html">
+        <source>← Back to Dashboard</source>
+      </trans-unit>
+      <trans-unit id="upgrade.plan_free" datatype="html">
+        <source>Free</source>
+      </trans-unit>
+      <trans-unit id="upgrade.plan_pro" datatype="html">
+        <source>Pro ⭐</source>
+      </trans-unit>
+      <trans-unit id="upgrade.subtitle_web" datatype="html">
+        <source>Unlock the full power of Loqzen for your team.</source>
+      </trans-unit>
+      <trans-unit id="nav.home" datatype="html">
+        <source>Home</source>
+      </trans-unit>
+      <trans-unit id="nav.clock" datatype="html">
+        <source>Clock</source>
+      </trans-unit>
+      <trans-unit id="nav.schedule" datatype="html">
+        <source>Schedule</source>
+      </trans-unit>
+      <trans-unit id="nav.grid" datatype="html">
+        <source>Grid</source>
+      </trans-unit>
+      <trans-unit id="nav.profile" datatype="html">
+        <source>Profile</source>
+      </trans-unit>
+      <trans-unit id="nav.ai" datatype="html">
+        <source>AI</source>
+      </trans-unit>
+      <trans-unit id="nav.documents" datatype="html">
+        <source>Docs</source>
+      </trans-unit>
+      <trans-unit id="nav.bulletins" datatype="html">
+        <source>Bulletins</source>
+      </trans-unit>
+      <trans-unit id="nav.safety" datatype="html">
+        <source>Safety</source>
+      </trans-unit>
+      <trans-unit id="nav.report" datatype="html">
+        <source>Report</source>
+      </trans-unit>
+      <trans-unit id="nav.time_off" datatype="html">
+        <source>Time Off</source>
+      </trans-unit>
+      <trans-unit id="nav.weekly_schedule" datatype="html">
+        <source>Weekly Schedule</source>
+      </trans-unit>
+      <trans-unit id="nav.upgrade" datatype="html">
+        <source>Upgrade to Pro</source>
+      </trans-unit>
+      <trans-unit id="nav.web_overview" datatype="html">
+        <source>Overview</source>
+      </trans-unit>
+      <trans-unit id="nav.web_schedule_grid" datatype="html">
+        <source>Schedule Grid</source>
+      </trans-unit>
+      <trans-unit id="nav.web_shift_summaries" datatype="html">
+        <source>Shift Summaries</source>
+      </trans-unit>
+      <trans-unit id="nav.web_people" datatype="html">
+        <source>People</source>
+      </trans-unit>
+      <trans-unit id="nav.web_areas" datatype="html">
+        <source>Areas</source>
+      </trans-unit>
+      <trans-unit id="nav.web_locations" datatype="html">
+        <source>Locations</source>
+      </trans-unit>
+      <trans-unit id="nav.web_tasks" datatype="html">
+        <source>Tasks</source>
+      </trans-unit>
+      <trans-unit id="nav.web_crews" datatype="html">
+        <source>Crews</source>
+      </trans-unit>
+      <trans-unit id="nav.web_user_profiles" datatype="html">
+        <source>User Profiles</source>
+      </trans-unit>
+      <trans-unit id="nav.web_analytics" datatype="html">
+        <source>Analytics</source>
+      </trans-unit>
+      <trans-unit id="nav.web_pto_management" datatype="html">
+        <source>PTO Management</source>
+      </trans-unit>
+      <trans-unit id="nav.web_time_off_approvals" datatype="html">
+        <source>Time-Off Approvals</source>
+      </trans-unit>
+      <trans-unit id="nav.web_kiosks" datatype="html">
+        <source>Kiosks</source>
+      </trans-unit>
+      <trans-unit id="nav.web_daily_reports" datatype="html">
+        <source>Daily Reports</source>
+      </trans-unit>
+      <trans-unit id="nav.web_documents" datatype="html">
+        <source>Documents</source>
+      </trans-unit>
+      <trans-unit id="nav.web_safety" datatype="html">
+        <source>Safety</source>
+      </trans-unit>
+      <trans-unit id="nav.web_settings" datatype="html">
+        <source>Settings</source>
+      </trans-unit>
+      <trans-unit id="nav.web_company_users" datatype="html">
+        <source>Company Users</source>
+      </trans-unit>
+      <trans-unit id="nav.web_help" datatype="html">
+        <source>Help</source>
+      </trans-unit>
+      <trans-unit id="nav.web_more_options" datatype="html">
+        <source>More Options</source>
+      </trans-unit>
+      <trans-unit id="nav.web_section_main" datatype="html">
+        <source>Main Menu</source>
+      </trans-unit>
+      <trans-unit id="nav.web_section_mgmt" datatype="html">
+        <source>Management</source>
+      </trans-unit>
+      <trans-unit id="nav.web_section_pto" datatype="html">
+        <source>PTO</source>
+      </trans-unit>
+      <trans-unit id="nav.web_section_kiosks" datatype="html">
+        <source>Kiosks</source>
+      </trans-unit>
+      <trans-unit id="nav.web_section_comms" datatype="html">
+        <source>Field Communications</source>
+      </trans-unit>
+      <trans-unit id="nav.web_section_resources" datatype="html">
+        <source>Resources</source>
+      </trans-unit>
+      <trans-unit id="nav.web_my_profile" datatype="html">
+        <source>My Profile</source>
+      </trans-unit>
+      <trans-unit id="nav.web_logout" datatype="html">
+        <source>Logout</source>
+      </trans-unit>
+      <trans-unit id="nav.web_help_tour" datatype="html">
+        <source>Help tour</source>
+      </trans-unit>
+      <trans-unit id="nav.web_refresh_status" datatype="html">
+        <source>Refresh status</source>
+      </trans-unit>
+      <trans-unit id="nav.web_status_prefix" datatype="html">
+        <source>Status:</source>
+      </trans-unit>
+      <trans-unit id="nav.web_updated_prefix" datatype="html">
+        <source>Updated:</source>
+      </trans-unit>
+      <trans-unit id="clock.title" datatype="html">
+        <source>Clock</source>
+      </trans-unit>
+      <trans-unit id="clock.status_on" datatype="html">
+        <source>You are on the clock</source>
+      </trans-unit>
+      <trans-unit id="clock.status_off" datatype="html">
+        <source>Ready to start?</source>
+      </trans-unit>
+      <trans-unit id="clock.badge_on" datatype="html">
+        <source>On Clock</source>
+      </trans-unit>
+      <trans-unit id="clock.badge_off" datatype="html">
+        <source>Off Clock</source>
+      </trans-unit>
+      <trans-unit id="clock.location_captured" datatype="html">
+        <source>Location captured</source>
+      </trans-unit>
+      <trans-unit id="clock.photo_optional" datatype="html">
+        <source>Photo optional</source>
+      </trans-unit>
+      <trans-unit id="clock.device_recorded" datatype="html">
+        <source>Device recorded</source>
+      </trans-unit>
+      <trans-unit id="clock.clock_in" datatype="html">
+        <source>Clock In</source>
+      </trans-unit>
+      <trans-unit id="clock.clock_out" datatype="html">
+        <source>Clock Out</source>
+      </trans-unit>
+      <trans-unit id="clock.add_photo" datatype="html">
+        <source>Add Photo (optional)</source>
+      </trans-unit>
+      <trans-unit id="clock.retake_photo" datatype="html">
+        <source>Retake Photo</source>
+      </trans-unit>
+      <trans-unit id="clock.remove_photo" datatype="html">
+        <source>Remove photo</source>
+      </trans-unit>
+      <trans-unit id="clock.offline_warning" datatype="html">
+        <source>Offline · showing cached data</source>
+      </trans-unit>
+      <trans-unit id="clock.todays_schedule" datatype="html">
+        <source>Today&apos;s Schedule</source>
+      </trans-unit>
+      <trans-unit id="clock.location_label" datatype="html">
+        <source>Location:</source>
+      </trans-unit>
+      <trans-unit id="clock.start_time_label" datatype="html">
+        <source>Start Time:</source>
+      </trans-unit>
+      <trans-unit id="clock.end_time_label" datatype="html">
+        <source>End Time:</source>
+      </trans-unit>
+      <trans-unit id="clock.shift_updated" datatype="html">
+        <source>Shift updated thanks!</source>
+      </trans-unit>
+      <trans-unit id="clock.countdown" datatype="html">
+        <source>Capturing photo in <x id="INTERPOLATION" equiv-text="{{ count }}"/> seconds...</source>
+      </trans-unit>
+      <trans-unit id="clock.start_shift" datatype="html">
+        <source>Start Shift</source>
+      </trans-unit>
+      <trans-unit id="clock.end_shift" datatype="html">
+        <source>End Shift</source>
+      </trans-unit>
+      <trans-unit id="clock.start_break" datatype="html">
+        <source>Start Break</source>
+      </trans-unit>
+      <trans-unit id="clock.end_break" datatype="html">
+        <source>End Break</source>
+      </trans-unit>
+      <trans-unit id="clock.please_login" datatype="html">
+        <source>Please log in to continue</source>
+      </trans-unit>
+      <trans-unit id="overview.eyebrow" datatype="html">
+        <source>Operations Command</source>
+      </trans-unit>
+      <trans-unit id="overview.title" datatype="html">
+        <source>Workforce Intelligence Dashboard</source>
+      </trans-unit>
+      <trans-unit id="overview.subtitle" datatype="html">
+        <source>real-time visibility of attendance, GPS compliance, labor health, and location-level exceptions.</source>
+      </trans-unit>
+      <trans-unit id="overview.live_sync" datatype="html">
+        <source>Live Sync</source>
+      </trans-unit>
+      <trans-unit id="overview.refreshing" datatype="html">
+        <source>Refreshing data...</source>
+      </trans-unit>
+      <trans-unit id="overview.shift_pulse" datatype="html">
+        <source>Shift Pulse</source>
+      </trans-unit>
+      <trans-unit id="overview.clock_activity" datatype="html">
+        <source>Clock-in Activity</source>
+      </trans-unit>
+      <trans-unit id="overview.open_summaries" datatype="html">
+        <source>Open Shift Summaries</source>
+      </trans-unit>
+      <trans-unit id="overview.peak_label" datatype="html">
+        <source>Peak:</source>
+      </trans-unit>
+      <trans-unit id="overview.trend_label" datatype="html">
+        <source>Trend:</source>
+      </trans-unit>
+      <trans-unit id="overview.checkins_hour" datatype="html">
+        <source>check-ins/hour</source>
+      </trans-unit>
+      <trans-unit id="overview.late_dropped" datatype="html">
+        <source>Late arrivals dropped 9% compared to last week</source>
+      </trans-unit>
+      <trans-unit id="overview.action_queue" datatype="html">
+        <source>Action Queue</source>
+      </trans-unit>
+      <trans-unit id="overview.alerts_title" datatype="html">
+        <source>Operational Alerts</source>
+      </trans-unit>
+      <trans-unit id="overview.notifications_open" datatype="html">
+        <source>open</source>
+      </trans-unit>
+      <trans-unit id="overview.review_team" datatype="html">
+        <source>Review Team Impact</source>
+      </trans-unit>
+      <trans-unit id="overview.by_location" datatype="html">
+        <source>By Location</source>
+      </trans-unit>
+      <trans-unit id="overview.gps_compliance" datatype="html">
+        <source>GPS and Attendance Compliance</source>
+      </trans-unit>
+      <trans-unit id="overview.manage_locations" datatype="html">
+        <source>Manage Locations</source>
+      </trans-unit>
+      <trans-unit id="overview.on_shift" datatype="html">
+        <source>on shift</source>
+      </trans-unit>
+      <trans-unit id="overview.late_label" datatype="html">
+        <source>late</source>
+      </trans-unit>
+      <trans-unit id="overview.breaches" datatype="html">
+        <source>breaches</source>
+      </trans-unit>
+      <trans-unit id="overview.gps_ring" datatype="html">
+        <source>GPS</source>
+      </trans-unit>
+      <trans-unit id="overview.next_moves" datatype="html">
+        <source>Next Moves</source>
+      </trans-unit>
+      <trans-unit id="overview.recommended_actions" datatype="html">
+        <source>Recommended Actions</source>
+      </trans-unit>
+      <trans-unit id="overview.action_balance" datatype="html">
+        <source>Balance schedules for overtime hotspots</source>
+      </trans-unit>
+      <trans-unit id="overview.action_balance_desc" datatype="html">
+        <source>Auto-reassign 5 shifts with one-click optimization.</source>
+      </trans-unit>
+      <trans-unit id="overview.action_pto" datatype="html">
+        <source>Resolve pending PTO approvals</source>
+      </trans-unit>
+      <trans-unit id="overview.action_pto_desc" datatype="html">
+        <source>3 requests are impacting coverage for tomorrow morning.</source>
+      </trans-unit>
+      <trans-unit id="overview.action_coach" datatype="html">
+        <source>Coach frequent late arrivals</source>
+      </trans-unit>
+      <trans-unit id="overview.action_coach_desc" datatype="html">
+        <source>4 employees exceeded lateness threshold this week.</source>
+      </trans-unit>
+      <trans-unit id="overview.roadmap" datatype="html">
+        <source>Roadmap</source>
+      </trans-unit>
+      <trans-unit id="overview.next_features" datatype="html">
+        <source>Recommended Features For Next Version</source>
+      </trans-unit>
+      <trans-unit id="overview.expected_impact" datatype="html">
+        <source>Expected impact:</source>
+      </trans-unit>
+      <trans-unit id="dashboard.greeting_morning" datatype="html">
+        <source>Good morning</source>
+      </trans-unit>
+      <trans-unit id="dashboard.greeting_afternoon" datatype="html">
+        <source>Good afternoon</source>
+      </trans-unit>
+      <trans-unit id="dashboard.greeting_evening" datatype="html">
+        <source>Good evening</source>
+      </trans-unit>
+      <trans-unit id="dashboard.status_live" datatype="html">
+        <source>Live</source>
+      </trans-unit>
+      <trans-unit id="dashboard.status_offline" datatype="html">
+        <source>Offline</source>
+      </trans-unit>
+      <trans-unit id="dashboard.on_clock" datatype="html">
+        <source>On clock</source>
+      </trans-unit>
+      <trans-unit id="dashboard.updated_at" datatype="html">
+        <source>Updated <x id="INTERPOLATION" equiv-text="{{ time }}"/></source>
+      </trans-unit>
+      <trans-unit id="dashboard.quick_clock_in" datatype="html">
+        <source>Clock In</source>
+      </trans-unit>
+      <trans-unit id="dashboard.quick_clock_out" datatype="html">
+        <source>Clock Out</source>
+      </trans-unit>
+      <trans-unit id="dashboard.quick_schedule" datatype="html">
+        <source>Schedule</source>
+      </trans-unit>
+      <trans-unit id="dashboard.quick_time_off" datatype="html">
+        <source>Time Off</source>
+      </trans-unit>
+      <trans-unit id="profile.title" datatype="html">
+        <source>Profile</source>
+      </trans-unit>
+      <trans-unit id="profile.security_section" datatype="html">
+        <source>Security</source>
+      </trans-unit>
+      <trans-unit id="profile.biometric_label" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ biometricType }}"/> Login</source>
+      </trans-unit>
+      <trans-unit id="profile.biometric_desc" datatype="html">
+        <source>Use <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/> to sign in quickly</source>
+      </trans-unit>
+      <trans-unit id="profile.change_pin" datatype="html">
+        <source>Change PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.change_pin_desc" datatype="html">
+        <source>Update your 4-digit PIN for kiosk access</source>
+      </trans-unit>
+      <trans-unit id="profile.current_pin" datatype="html">
+        <source>Current PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.new_pin" datatype="html">
+        <source>New PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.confirm_pin" datatype="html">
+        <source>Confirm New PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.current_pin_placeholder" datatype="html">
+        <source>Enter current PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.new_pin_placeholder" datatype="html">
+        <source>Enter new 4-digit PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.confirm_pin_placeholder" datatype="html">
+        <source>Re-enter new PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.update_pin" datatype="html">
+        <source>Update PIN</source>
+      </trans-unit>
+      <trans-unit id="profile.sign_out" datatype="html">
+        <source>Sign Out</source>
+      </trans-unit>
+      <trans-unit id="profile.language" datatype="html">
+        <source>Language</source>
+      </trans-unit>
+      <trans-unit id="profile.language_en" datatype="html">
+        <source>English</source>
+      </trans-unit>
+      <trans-unit id="profile.language_es" datatype="html">
+        <source>Spanish</source>
+      </trans-unit>
+      <trans-unit id="bulletins.title" datatype="html">
+        <source>Bulletins</source>
+      </trans-unit>
+      <trans-unit id="bulletins.empty" datatype="html">
+        <source>No bulletins yet.</source>
+      </trans-unit>
+      <trans-unit id="bulletins.unread_one" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unread bulletin</source>
+      </trans-unit>
+      <trans-unit id="bulletins.unread_other" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unread bulletins</source>
+      </trans-unit>
+      <trans-unit id="bulletins.mark_read" datatype="html">
+        <source>Mark as read</source>
+      </trans-unit>
+      <trans-unit id="bulletins.acknowledge" datatype="html">
+        <source>Acknowledge</source>
+      </trans-unit>
+      <trans-unit id="documents.title" datatype="html">
+        <source>Documents</source>
+      </trans-unit>
+      <trans-unit id="documents.empty" datatype="html">
+        <source>No documents available.</source>
+      </trans-unit>
+      <trans-unit id="documents.download" datatype="html">
+        <source>Download</source>
+      </trans-unit>
+      <trans-unit id="documents.open" datatype="html">
+        <source>Open</source>
+      </trans-unit>
+      <trans-unit id="safety.title" datatype="html">
+        <source>Safety</source>
+      </trans-unit>
+      <trans-unit id="safety.empty" datatype="html">
+        <source>No safety content.</source>
+      </trans-unit>
+      <trans-unit id="safety.acknowledge" datatype="html">
+        <source>I Acknowledge</source>
+      </trans-unit>
+      <trans-unit id="safety.required" datatype="html">
+        <source>Required</source>
+      </trans-unit>
+      <trans-unit id="safety.acknowledged" datatype="html">
+        <source>Acknowledged</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.page_title" datatype="html">
+        <source>Daily Reports</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.page_subtitle" datatype="html">
+        <source>Location-level shift summary, weather, and approvals</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.location_label" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.prev_day" datatype="html">
+        <source>Previous day</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.next_day" datatype="html">
+        <source>Next day</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.date_label" datatype="html">
+        <source>Date</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.select_location" datatype="html">
+        <source>Select a location</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.select_location_desc" datatype="html">
+        <source>Choose a location above to view its daily report.</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.access_denied" datatype="html">
+        <source>Access denied</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.access_denied_desc" datatype="html">
+        <source>You don&apos;t have permission to view daily reports. Contact your administrator.</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.loading" datatype="html">
+        <source>Loading report...</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.report_for" datatype="html">
+        <source>— report for</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.save_draft" datatype="html">
+        <source>Save Draft</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.submit" datatype="html">
+        <source>Submit</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.approve" datatype="html">
+        <source>Approve</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.employees" datatype="html">
+        <source>Employees</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.total_hours" datatype="html">
+        <source>Total Hours</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.supervisor_notes" datatype="html">
+        <source>Supervisor Notes</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.notes_label" datatype="html">
+        <source>Notes for this shift</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.notes_placeholder" datatype="html">
+        <source>Add shift notes, incidents, or observations...</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.photos_media" datatype="html">
+        <source>Photos &amp; Media</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.no_report" datatype="html">
+        <source>No report for this date</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.no_report_desc" datatype="html">
+        <source>No daily report was found for the selected location and date.</source>
+      </trans-unit>
+      <trans-unit id="daily_reports.retry" datatype="html">
+        <source>Retry</source>
+      </trans-unit>
+      <trans-unit id="people.page_title" datatype="html">
+        <source>People Management</source>
+      </trans-unit>
+      <trans-unit id="people.page_subtitle" datatype="html">
+        <source>Manage your team members and their information</source>
+      </trans-unit>
+      <trans-unit id="people.team_members" datatype="html">
+        <source>Team Members</source>
+      </trans-unit>
+      <trans-unit id="people.loading" datatype="html">
+        <source>Loading people...</source>
+      </trans-unit>
+      <trans-unit id="people.error" datatype="html">
+        <source>Error loading people. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="people.empty_title" datatype="html">
+        <source>No people found</source>
+      </trans-unit>
+      <trans-unit id="people.empty_desc" datatype="html">
+        <source>Create your first team member to get started</source>
+      </trans-unit>
+      <trans-unit id="people.form_edit" datatype="html">
+        <source>Edit Person</source>
+      </trans-unit>
+      <trans-unit id="people.form_create" datatype="html">
+        <source>Create New Person</source>
+      </trans-unit>
+      <trans-unit id="people.section_personal" datatype="html">
+        <source>Personal Information</source>
+      </trans-unit>
+      <trans-unit id="people.section_address" datatype="html">
+        <source>Address Information</source>
+      </trans-unit>
+      <trans-unit id="people.section_additional" datatype="html">
+        <source>Additional Information</source>
+      </trans-unit>
+      <trans-unit id="people.full_name" datatype="html">
+        <source>Full Name</source>
+      </trans-unit>
+      <trans-unit id="people.name_required" datatype="html">
+        <source>Name is required</source>
+      </trans-unit>
+      <trans-unit id="people.email_address" datatype="html">
+        <source>Email Address</source>
+      </trans-unit>
+      <trans-unit id="people.email_required" datatype="html">
+        <source>Email is required</source>
+      </trans-unit>
+      <trans-unit id="people.phone_number" datatype="html">
+        <source>Phone Number</source>
+      </trans-unit>
+      <trans-unit id="people.pin_code" datatype="html">
+        <source>PIN Code</source>
+      </trans-unit>
+      <trans-unit id="people.street_address" datatype="html">
+        <source>Street Address</source>
+      </trans-unit>
+      <trans-unit id="people.city" datatype="html">
+        <source>City</source>
+      </trans-unit>
+      <trans-unit id="people.state" datatype="html">
+        <source>State</source>
+      </trans-unit>
+      <trans-unit id="people.status" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="people.photo_url" datatype="html">
+        <source>Photo URL</source>
+      </trans-unit>
+      <trans-unit id="people.active" datatype="html">
+        <source>Active</source>
+      </trans-unit>
+      <trans-unit id="people.inactive" datatype="html">
+        <source>Inactive</source>
+      </trans-unit>
+      <trans-unit id="people.update_btn" datatype="html">
+        <source>Update Person</source>
+      </trans-unit>
+      <trans-unit id="people.create_btn" datatype="html">
+        <source>Create Person</source>
+      </trans-unit>
+      <trans-unit id="people.select_roles" datatype="html">
+        <source>Select Roles</source>
+      </trans-unit>
+      <trans-unit id="people.sending" datatype="html">
+        <source>Sending...</source>
+      </trans-unit>
+      <trans-unit id="people.required_badge" datatype="html">
+        <source>Required</source>
+      </trans-unit>
+      <trans-unit id="people.inactive_badge" datatype="html">
+        <source>Inactive</source>
+      </trans-unit>
+      <trans-unit id="settings.page_title" datatype="html">
+        <source>Company Settings</source>
+      </trans-unit>
+      <trans-unit id="settings.saving" datatype="html">
+        <source>Saving...</source>
+      </trans-unit>
+      <trans-unit id="settings.save_btn" datatype="html">
+        <source>Save Settings</source>
+      </trans-unit>
+      <trans-unit id="settings.loading" datatype="html">
+        <source>Loading settings...</source>
+      </trans-unit>
+      <trans-unit id="settings.no_company" datatype="html">
+        <source>Select a company to view and edit its settings.</source>
+      </trans-unit>
+      <trans-unit id="settings.tab_time_regional" datatype="html">
+        <source>Time &amp; Regional</source>
+      </trans-unit>
+      <trans-unit id="settings.tab_pay_overtime" datatype="html">
+        <source>Pay &amp; Overtime</source>
+      </trans-unit>
+      <trans-unit id="settings.tab_pto_leave" datatype="html">
+        <source>PTO &amp; Leave</source>
+      </trans-unit>
+      <trans-unit id="settings.tab_scheduling" datatype="html">
+        <source>Scheduling</source>
+      </trans-unit>
+      <trans-unit id="settings.tab_clock_inout" datatype="html">
+        <source>Clock-In/Out</source>
+      </trans-unit>
+      <trans-unit id="settings.tab_notifications" datatype="html">
+        <source>Notifications</source>
+      </trans-unit>
+      <trans-unit id="settings.tab_system" datatype="html">
+        <source>System</source>
+      </trans-unit>
+      <trans-unit id="settings.tab_kiosk" datatype="html">
+        <source>Kiosk</source>
+      </trans-unit>
+      <trans-unit id="settings.time_regional_heading" datatype="html">
+        <source>Time &amp; Regional Settings</source>
+      </trans-unit>
+      <trans-unit id="settings.timezone" datatype="html">
+        <source>Default Time Zone</source>
+      </trans-unit>
+      <trans-unit id="settings.timezone_select" datatype="html">
+        <source>Select a Timezone</source>
+      </trans-unit>
+      <trans-unit id="settings.language" datatype="html">
+        <source>Default Language</source>
+      </trans-unit>
+      <trans-unit id="settings.lang_en" datatype="html">
+        <source>English</source>
+      </trans-unit>
+      <trans-unit id="settings.lang_es" datatype="html">
+        <source>Spanish</source>
+      </trans-unit>
+      <trans-unit id="settings.lang_fr" datatype="html">
+        <source>French</source>
+      </trans-unit>
+      <trans-unit id="settings.lang_de" datatype="html">
+        <source>German</source>
+      </trans-unit>
+      <trans-unit id="settings.lang_pt" datatype="html">
+        <source>Portuguese</source>
+      </trans-unit>
+      <trans-unit id="settings.first_day" datatype="html">
+        <source>First Day of Week</source>
+      </trans-unit>
+      <trans-unit id="settings.sunday" datatype="html">
+        <source>Sunday</source>
+      </trans-unit>
+      <trans-unit id="settings.monday" datatype="html">
+        <source>Monday</source>
+      </trans-unit>
+      <trans-unit id="settings.date_format" datatype="html">
+        <source>Date Format</source>
+      </trans-unit>
+      <trans-unit id="settings.time_format" datatype="html">
+        <source>Time Format</source>
+      </trans-unit>
+      <trans-unit id="settings.time_12h" datatype="html">
+        <source>12-hour</source>
+      </trans-unit>
+      <trans-unit id="settings.time_24h" datatype="html">
+        <source>24-hour</source>
+      </trans-unit>
+      <trans-unit id="settings.currency" datatype="html">
+        <source>Currency Symbol</source>
+      </trans-unit>
+      <trans-unit id="settings.pay_overtime_heading" datatype="html">
+        <source>Pay &amp; Overtime Settings</source>
+      </trans-unit>
+      <trans-unit id="settings.min_hourly_rate" datatype="html">
+        <source>Minimum Hourly Rate ($)</source>
+      </trans-unit>
+      <trans-unit id="settings.regular_ot_pct" datatype="html">
+        <source>Regular Overtime Percentage (%)</source>
+      </trans-unit>
+      <trans-unit id="settings.ot_pct_hint" datatype="html">
+        <source>e.g., 150 = 1.5x pay</source>
+      </trans-unit>
+      <trans-unit id="settings.night_ot_pct" datatype="html">
+        <source>Night Shift Overtime Percentage (%)</source>
+      </trans-unit>
+      <trans-unit id="settings.holiday_ot_pct" datatype="html">
+        <source>Holiday Overtime Percentage (%)</source>
+      </trans-unit>
+      <trans-unit id="settings.weekend_ot_pct" datatype="html">
+        <source>Weekend Overtime Percentage (%)</source>
+      </trans-unit>
+      <trans-unit id="settings.night_start" datatype="html">
+        <source>Night Shift Start Time</source>
+      </trans-unit>
+      <trans-unit id="settings.night_end" datatype="html">
+        <source>Night Shift End Time</source>
+      </trans-unit>
+      <trans-unit id="settings.daily_ot_threshold" datatype="html">
+        <source>Daily Overtime Threshold (hours)</source>
+      </trans-unit>
+      <trans-unit id="settings.weekly_ot_threshold" datatype="html">
+        <source>Weekly Overtime Threshold (hours)</source>
+      </trans-unit>
+      <trans-unit id="settings.pto_leave_heading" datatype="html">
+        <source>PTO &amp; Leave Settings</source>
+      </trans-unit>
+      <trans-unit id="settings.pto_accrual" datatype="html">
+        <source>Default PTO Accrual Rate (hours/month)</source>
+      </trans-unit>
+      <trans-unit id="settings.pto_max_balance" datatype="html">
+        <source>Maximum PTO Balance (hours)</source>
+      </trans-unit>
+      <trans-unit id="settings.pto_rollover" datatype="html">
+        <source>Allow PTO Rollover</source>
+      </trans-unit>
+      <trans-unit id="settings.pto_rollover_max" datatype="html">
+        <source>Maximum PTO Rollover (hours)</source>
+      </trans-unit>
+      <trans-unit id="settings.sick_accrual" datatype="html">
+        <source>Sick Leave Accrual Rate (hours/month)</source>
+      </trans-unit>
+      <trans-unit id="settings.sick_max_balance" datatype="html">
+        <source>Sick Leave Maximum Balance (hours)</source>
+      </trans-unit>
+      <trans-unit id="settings.require_mgr_pto" datatype="html">
+        <source>Require Manager Approval for PTO</source>
+      </trans-unit>
+      <trans-unit id="settings.min_notice_pto" datatype="html">
+        <source>Minimum Notice Days for PTO Request</source>
+      </trans-unit>
+      <trans-unit id="settings.scheduling_heading" datatype="html">
+        <source>Scheduling Settings</source>
+      </trans-unit>
+      <trans-unit id="settings.auto_approve_shifts" datatype="html">
+        <source>Auto-Approve Shifts</source>
+      </trans-unit>
+      <trans-unit id="settings.allow_swaps" datatype="html">
+        <source>Allow Employee Shift Swaps</source>
+      </trans-unit>
+      <trans-unit id="settings.require_mgr_swaps" datatype="html">
+        <source>Require Manager Approval for Swaps</source>
+      </trans-unit>
+      <trans-unit id="settings.max_consecutive_days" datatype="html">
+        <source>Maximum Consecutive Work Days</source>
+      </trans-unit>
+      <trans-unit id="settings.min_hours_between" datatype="html">
+        <source>Minimum Hours Between Shifts</source>
+      </trans-unit>
+      <trans-unit id="settings.max_daily_hours" datatype="html">
+        <source>Maximum Daily Hours</source>
+      </trans-unit>
+      <trans-unit id="settings.max_weekly_hours" datatype="html">
+        <source>Maximum Weekly Hours</source>
+      </trans-unit>
+      <trans-unit id="settings.allow_overlapping" datatype="html">
+        <source>Allow Overlapping Shifts</source>
+      </trans-unit>
+      <trans-unit id="settings.clock_inout_heading" datatype="html">
+        <source>Clock-In/Out Settings</source>
+      </trans-unit>
+      <trans-unit id="settings.grace_late" datatype="html">
+        <source>Grace Period for Late Clock-In (minutes)</source>
+      </trans-unit>
+      <trans-unit id="settings.auto_clock_out" datatype="html">
+        <source>Auto Clock-Out After (hours)</source>
+      </trans-unit>
+      <trans-unit id="settings.require_geo" datatype="html">
+        <source>Require Geo-Location for Clock-In</source>
+      </trans-unit>
+      <trans-unit id="settings.geo_fence_radius" datatype="html">
+        <source>Geo-Fence Radius (meters)</source>
+      </trans-unit>
+      <trans-unit id="settings.allow_early_clockin" datatype="html">
+        <source>Allow Early Clock-In (minutes before shift)</source>
+      </trans-unit>
+      <trans-unit id="settings.require_break_clocks" datatype="html">
+        <source>Require Break Clocks</source>
+      </trans-unit>
+      <trans-unit id="settings.min_break_duration" datatype="html">
+        <source>Minimum Break Duration (minutes)</source>
+      </trans-unit>
+      <trans-unit id="settings.notifications_heading" datatype="html">
+        <source>Notification Settings</source>
+      </trans-unit>
+      <trans-unit id="settings.email_notif" datatype="html">
+        <source>Enable Email Notifications</source>
+      </trans-unit>
+      <trans-unit id="settings.sms_notif" datatype="html">
+        <source>Enable SMS Notifications</source>
+      </trans-unit>
+      <trans-unit id="settings.push_notif" datatype="html">
+        <source>Enable Push Notifications</source>
+      </trans-unit>
+      <trans-unit id="settings.notif_triggers" datatype="html">
+        <source>Notification Triggers</source>
+      </trans-unit>
+      <trans-unit id="settings.notify_shift_assign" datatype="html">
+        <source>Notify on Shift Assignment</source>
+      </trans-unit>
+      <trans-unit id="settings.notify_shift_changes" datatype="html">
+        <source>Notify on Shift Changes</source>
+      </trans-unit>
+      <trans-unit id="settings.notify_pto_approval" datatype="html">
+        <source>Notify on Time-Off Approval/Denial</source>
+      </trans-unit>
+      <trans-unit id="settings.notify_replacement" datatype="html">
+        <source>Notify on Replacement Request</source>
+      </trans-unit>
+      <trans-unit id="settings.reminder_hours" datatype="html">
+        <source>Reminder Hours Before Shift</source>
+      </trans-unit>
+      <trans-unit id="settings.system_heading" datatype="html">
+        <source>System Settings</source>
+      </trans-unit>
+      <trans-unit id="settings.fiscal_year" datatype="html">
+        <source>Fiscal Year Start Month</source>
+      </trans-unit>
+      <trans-unit id="settings.payroll_period" datatype="html">
+        <source>Payroll Period</source>
+      </trans-unit>
+      <trans-unit id="settings.payroll_weekly" datatype="html">
+        <source>Weekly</source>
+      </trans-unit>
+      <trans-unit id="settings.payroll_biweekly" datatype="html">
+        <source>Bi-Weekly</source>
+      </trans-unit>
+      <trans-unit id="settings.payroll_semimonthly" datatype="html">
+        <source>Semi-Monthly</source>
+      </trans-unit>
+      <trans-unit id="settings.payroll_monthly" datatype="html">
+        <source>Monthly</source>
+      </trans-unit>
+      <trans-unit id="settings.employee_id_prefix" datatype="html">
+        <source>Employee ID Prefix</source>
+      </trans-unit>
+      <trans-unit id="settings.require_2fa" datatype="html">
+        <source>Require Two-Factor Authentication</source>
+      </trans-unit>
+      <trans-unit id="settings.session_timeout" datatype="html">
+        <source>Session Timeout (minutes)</source>
+      </trans-unit>
+      <trans-unit id="settings.password_expiration" datatype="html">
+        <source>Password Expiration (days)</source>
+      </trans-unit>
+      <trans-unit id="settings.password_never" datatype="html">
+        <source>0 = never expires</source>
+      </trans-unit>
+      <trans-unit id="settings.min_password_length" datatype="html">
+        <source>Minimum Password Length</source>
+      </trans-unit>
+      <trans-unit id="settings.kiosk_heading" datatype="html">
+        <source>Kiosk Settings</source>
+      </trans-unit>
+      <trans-unit id="settings.kiosk_mode_enabled" datatype="html">
+        <source>Enable Kiosk Mode</source>
+      </trans-unit>
+      <trans-unit id="settings.kiosk_pin_length" datatype="html">
+        <source>Kiosk PIN Length</source>
+      </trans-unit>
+      <trans-unit id="settings.require_photo_clockin" datatype="html">
+        <source>Require Photo on Clock-In</source>
+      </trans-unit>
+      <trans-unit id="settings.show_photos_kiosk" datatype="html">
+        <source>Show Employee Photos on Kiosk</source>
+      </trans-unit>
+      <trans-unit id="settings.kiosk_timeout" datatype="html">
+        <source>Kiosk Timeout (seconds)</source>
+      </trans-unit>
+      <trans-unit id="settings.allow_question_responses" datatype="html">
+        <source>Allow Question Responses on Clock-In</source>
+      </trans-unit>
+      <trans-unit id="settings.kiosk_admin_password" datatype="html">
+        <source>Kiosk Admin Password</source>
+      </trans-unit>
+      <trans-unit id="settings.kiosk_admin_ph" datatype="html">
+        <source>Leave blank to keep current password</source>
+      </trans-unit>
+      <trans-unit id="settings.kiosk_admin_hint" datatype="html">
+        <source>This password is required to change the kiosk device location. Leave blank to keep the current password unchanged.</source>
+      </trans-unit>
+      <trans-unit id="settings.survey_questions" datatype="html">
+        <source>Clock-Out Survey Questions</source>
+      </trans-unit>
+      <trans-unit id="settings.add_question" datatype="html">
+        <source>+ Add Question</source>
+      </trans-unit>
+      <trans-unit id="settings.questions_loading" datatype="html">
+        <source>Loading questions…</source>
+      </trans-unit>
+      <trans-unit id="settings.no_questions" datatype="html">
+        <source>No questions yet. Add one to collect employee responses at clock-out.</source>
+      </trans-unit>
+      <trans-unit id="settings.question_required_badge" datatype="html">
+        <source>Required</source>
+      </trans-unit>
+      <trans-unit id="settings.question_inactive_badge" datatype="html">
+        <source>Inactive</source>
+      </trans-unit>
+      <trans-unit id="settings.edit_question" datatype="html">
+        <source>Edit Question</source>
+      </trans-unit>
+      <trans-unit id="settings.new_question" datatype="html">
+        <source>New Question</source>
+      </trans-unit>
+      <trans-unit id="settings.question_text" datatype="html">
+        <source>Question Text</source>
+      </trans-unit>
+      <trans-unit id="settings.question_text_ph" datatype="html">
+        <source>Enter question…</source>
+      </trans-unit>
+      <trans-unit id="settings.question_type" datatype="html">
+        <source>Question Type</source>
+      </trans-unit>
+      <trans-unit id="settings.q_yes_no" datatype="html">
+        <source>Yes / No</source>
+      </trans-unit>
+      <trans-unit id="settings.q_multiple_choice" datatype="html">
+        <source>Multiple Choice</source>
+      </trans-unit>
+      <trans-unit id="settings.q_free_text" datatype="html">
+        <source>Free Text</source>
+      </trans-unit>
+      <trans-unit id="settings.options_label" datatype="html">
+        <source>Options</source>
+      </trans-unit>
+      <trans-unit id="settings.options_hint" datatype="html">
+        <source>(one per line)</source>
+      </trans-unit>
+      <trans-unit id="settings.options_ph" datatype="html">
+        <source>Option A
+Option B
+Option C</source>
+      </trans-unit>
+      <trans-unit id="settings.q_required" datatype="html">
+        <source>Required</source>
+      </trans-unit>
+      <trans-unit id="settings.q_active" datatype="html">
+        <source>Active</source>
+      </trans-unit>
+      <trans-unit id="settings.display_order" datatype="html">
+        <source>Display Order</source>
+      </trans-unit>
+      <trans-unit id="settings.update_btn" datatype="html">
+        <source>Update</source>
+      </trans-unit>
+      <trans-unit id="settings.create_btn" datatype="html">
+        <source>Create</source>
+      </trans-unit>
+      <trans-unit id="settings.saving_question" datatype="html">
+        <source>Saving…</source>
+      </trans-unit>
+      <trans-unit id="settings.cancel_question" datatype="html">
+        <source>Cancel</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.all_locations" datatype="html">
+        <source>All Locations (Grouped)</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.all_employees" datatype="html">
+        <source>All Employees</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.add_schedule_btn" datatype="html">
+        <source>Add Schedule</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.all_published" datatype="html">
+        <source>All shifts published</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.unpublished_shifts" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unpublished shifts</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.search_ph" datatype="html">
+        <source>Search</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.show_void" datatype="html">
+        <source>Show void records</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.select_all" datatype="html">
+        <source>Select All</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.clear_selection" datatype="html">
+        <source>Clear</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.copy" datatype="html">
+        <source>Copy</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.update_status" datatype="html">
+        <source>Update Status:</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.status_published" datatype="html">
+        <source>Published</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.status_unpublished" datatype="html">
+        <source>Unpublished</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.status_open" datatype="html">
+        <source>Open</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.status_locked" datatype="html">
+        <source>Locked</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.status_void" datatype="html">
+        <source>Void</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.stat_unpublished" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unpublished</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.stat_warnings" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> warnings</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.stat_open_shifts" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> open shifts</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.stat_empty" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> empty</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.stat_published" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> published</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.stat_req_confirm" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> require confirmation</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.stat_leave_pending" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> leave pending</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.stat_unavailable" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unavailable</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.loading" datatype="html">
+        <source>Loading schedule...</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.open_shifts_header" datatype="html">
+        <source>Open shifts</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.click_to_add" datatype="html">
+        <source>Click + to add</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.add_employee" datatype="html">
+        <source>Add employee</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.no_schedules" datatype="html">
+        <source>No schedules found. Select a location or add schedules to see grouped data.</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.filter_title" datatype="html">
+        <source>Filter and sort</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.filter_subtitle" datatype="html">
+        <source>Quickly narrow down your team list with the new filtering options, making it easier to schedule the right people.</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.sort_by" datatype="html">
+        <source>Sort by</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.sort_name" datatype="html">
+        <source>Name</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.sort_hours" datatype="html">
+        <source>Hours</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.sort_availability" datatype="html">
+        <source>Availability</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.shift_type" datatype="html">
+        <source>Shift type</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.training_filter" datatype="html">
+        <source>Training</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.clear_all" datatype="html">
+        <source>Clear all</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.done" datatype="html">
+        <source>Done</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.locked_badge" datatype="html">
+        <source>LOCKED</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.void_badge" datatype="html">
+        <source>VOID</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.unavailable" datatype="html">
+        <source>Unavailable</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.refresh" datatype="html">
+        <source>Refresh</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.share" datatype="html">
+        <source>Share</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.more_options" datatype="html">
+        <source>More options</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_builder" datatype="html">
+        <source>Bulk Schedule Builder</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_desc" datatype="html">
+        <source>Create multiple shifts for a location across a date range and assign people at once.</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_location" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_location_ph" datatype="html">
+        <source>Select a location</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_area" datatype="html">
+        <source>Area</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_area_ph" datatype="html">
+        <source>Select an area</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_start_date" datatype="html">
+        <source>Start Date</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_end_date" datatype="html">
+        <source>End Date</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_start_time" datatype="html">
+        <source>Start Time</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_end_time" datatype="html">
+        <source>End Time</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_people" datatype="html">
+        <source>People</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_select_all" datatype="html">
+        <source>Select all</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_clear" datatype="html">
+        <source>Clear</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_people_ph" datatype="html">
+        <source>Search people...</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_no_results" datatype="html">
+        <source>No people match your search.</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_crew" datatype="html">
+        <source>Crew</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_no_crew" datatype="html">
+        <source>— No crew —</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_new_crew" datatype="html">
+        <source>+ New crew</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_cancel_crew" datatype="html">
+        <source>✕ Cancel</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_crew_ph" datatype="html">
+        <source>Crew name</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_checking" datatype="html">
+        <source>Checking availability...</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_create_single" datatype="html">
+        <source>Create single shift now</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_creating" datatype="html">
+        <source>Creating...</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.bulk_create_shifts" datatype="html">
+        <source>Create shifts</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.avail_ok" datatype="html">
+        <source>Available</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.avail_conflict" datatype="html">
+        <source>Already scheduled</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.avail_timeoff" datatype="html">
+        <source>Has time off</source>
+      </trans-unit>
+      <trans-unit id="add_modal.edit_schedule" datatype="html">
+        <source>Edit Schedule</source>
+      </trans-unit>
+      <trans-unit id="add_modal.add_schedule" datatype="html">
+        <source>Add Schedule</source>
+      </trans-unit>
+      <trans-unit id="add_modal.select_person" datatype="html">
+        <source>Select Person</source>
+      </trans-unit>
+      <trans-unit id="add_modal.select_person_ph" datatype="html">
+        <source>-- Select a person --</source>
+      </trans-unit>
+      <trans-unit id="add_modal.location" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="add_modal.area" datatype="html">
+        <source>Area</source>
+      </trans-unit>
+      <trans-unit id="add_modal.area_ph" datatype="html">
+        <source>-- Select an area --</source>
+      </trans-unit>
+      <trans-unit id="add_modal.start_time" datatype="html">
+        <source>Start Time</source>
+      </trans-unit>
+      <trans-unit id="add_modal.end_time" datatype="html">
+        <source>End Time</source>
+      </trans-unit>
+      <trans-unit id="add_modal.repeat_tomorrow" datatype="html">
+        <source>Repeat for tomorrow</source>
+      </trans-unit>
+      <trans-unit id="add_modal.repeat_week" datatype="html">
+        <source>Repeat for rest of the week</source>
+      </trans-unit>
+      <trans-unit id="add_modal.repeat_specific" datatype="html">
+        <source>Repeat for specific days</source>
+      </trans-unit>
+      <trans-unit id="add_modal.confirm_days" datatype="html">
+        <source>Confirm days</source>
+      </trans-unit>
+      <trans-unit id="add_modal.repeat_pattern" datatype="html">
+        <source>Repeat for set pattern</source>
+      </trans-unit>
+      <trans-unit id="add_modal.request_time_off" datatype="html">
+        <source>Request time off</source>
+      </trans-unit>
+      <trans-unit id="add_modal.report_sick" datatype="html">
+        <source>Report sick</source>
+      </trans-unit>
+      <trans-unit id="add_modal.find_replacement" datatype="html">
+        <source>Find replacement</source>
+      </trans-unit>
+      <trans-unit id="add_modal.view_profile" datatype="html">
+        <source>View <x id="INTERPOLATION" equiv-text="{{ name }}"/>&apos;s profile</source>
+      </trans-unit>
+      <trans-unit id="add_modal.view_history" datatype="html">
+        <source>View shift history</source>
+      </trans-unit>
+      <trans-unit id="add_modal.delete_shift" datatype="html">
+        <source>Delete shift</source>
+      </trans-unit>
+      <trans-unit id="add_modal.save" datatype="html">
+        <source>Save</source>
+      </trans-unit>
+      <trans-unit id="sick_report.title" datatype="html">
+        <source>Report Sick</source>
+      </trans-unit>
+      <trans-unit id="sick_report.employee" datatype="html">
+        <source>Employee</source>
+      </trans-unit>
+      <trans-unit id="sick_report.sick_date" datatype="html">
+        <source>Sick Date</source>
+      </trans-unit>
+      <trans-unit id="sick_report.end_date" datatype="html">
+        <source>End Date</source>
+      </trans-unit>
+      <trans-unit id="sick_report.multiple_days" datatype="html">
+        <source>Multiple Days</source>
+      </trans-unit>
+      <trans-unit id="sick_report.symptoms" datatype="html">
+        <source>Symptoms (Optional)</source>
+      </trans-unit>
+      <trans-unit id="sick_report.symptoms_ph" datatype="html">
+        <source>e.g., Fever, Headache, Cough</source>
+      </trans-unit>
+      <trans-unit id="sick_report.doctor_note" datatype="html">
+        <source>Requires Doctor&apos;s Note</source>
+      </trans-unit>
+      <trans-unit id="sick_report.notes" datatype="html">
+        <source>Additional Notes (Optional)</source>
+      </trans-unit>
+      <trans-unit id="sick_report.notes_ph" datatype="html">
+        <source>Provide additional details...</source>
+      </trans-unit>
+      <trans-unit id="sick_report.info_msg" datatype="html">
+        <source>Reporting sick will automatically mark your scheduled shifts as &quot;open&quot; for the selected date(s).</source>
+      </trans-unit>
+      <trans-unit id="sick_report.submit" datatype="html">
+        <source>Report Sick</source>
+      </trans-unit>
+      <trans-unit id="sick_report.submitting" datatype="html">
+        <source>Submitting...</source>
+      </trans-unit>
+      <trans-unit id="time_off_modal.title" datatype="html">
+        <source>Request Time Off</source>
+      </trans-unit>
+      <trans-unit id="time_off_modal.employee" datatype="html">
+        <source>Employee</source>
+      </trans-unit>
+      <trans-unit id="time_off_modal.request_type" datatype="html">
+        <source>Request Type</source>
+      </trans-unit>
+      <trans-unit id="time_off_modal.start_date" datatype="html">
+        <source>Start Date</source>
+      </trans-unit>
+      <trans-unit id="time_off_modal.end_date" datatype="html">
+        <source>End Date</source>
+      </trans-unit>
+      <trans-unit id="time_off_modal.partial_day" datatype="html">
+        <source>Partial Day</source>
+      </trans-unit>
+      <trans-unit id="time_off_modal.start_time" datatype="html">
+        <source>Start Time</source>
+      </trans-unit>
+      <trans-unit id="time_off_modal.end_time" datatype="html">
+        <source>End Time</source>
+      </trans-unit>
+      <trans-unit id="time_off_modal.reason" datatype="html">
+        <source>Reason (Optional)</source>
+      </trans-unit>
+      <trans-unit id="time_off_modal.reason_ph" datatype="html">
+        <source>Provide additional details...</source>
+      </trans-unit>
+      <trans-unit id="time_off_modal.submit" datatype="html">
+        <source>Submit Request</source>
+      </trans-unit>
+      <trans-unit id="time_off_modal.submitting" datatype="html">
+        <source>Submitting...</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.title" datatype="html">
+        <source>Repeat Shift Pattern</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.employee" datatype="html">
+        <source>Employee</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.pattern_type" datatype="html">
+        <source>Pattern Type</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.daily" datatype="html">
+        <source>Daily</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.weekly" datatype="html">
+        <source>Weekly</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.biweekly" datatype="html">
+        <source>Bi-weekly (every 2 weeks)</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.monthly" datatype="html">
+        <source>Monthly</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.repeat_every" datatype="html">
+        <source>Repeat Every</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.days_unit" datatype="html">
+        <source>day(s)</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.months_unit" datatype="html">
+        <source>month(s)</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.repeat_on" datatype="html">
+        <source>Repeat On</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.end" datatype="html">
+        <source>End</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.after" datatype="html">
+        <source>After</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.occurrences" datatype="html">
+        <source>occurrence(s)</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.on_date" datatype="html">
+        <source>On</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.info_msg" datatype="html">
+        <source>This will create multiple shifts based on your pattern. Review them in the schedule grid.</source>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.create" datatype="html">
+        <source>Create Shifts</source>
+      </trans-unit>
+      <trans-unit id="replacement.title" datatype="html">
+        <source>Find Replacement</source>
+      </trans-unit>
+      <trans-unit id="replacement.notify_via" datatype="html">
+        <source>Notify via:</source>
+      </trans-unit>
+      <trans-unit id="replacement.push" datatype="html">
+        <source>Push</source>
+      </trans-unit>
+      <trans-unit id="replacement.sms" datatype="html">
+        <source>SMS</source>
+      </trans-unit>
+      <trans-unit id="replacement.email" datatype="html">
+        <source>Email</source>
+      </trans-unit>
+      <trans-unit id="replacement.loading" datatype="html">
+        <source>Finding candidates...</source>
+      </trans-unit>
+      <trans-unit id="replacement.no_candidates" datatype="html">
+        <source>No available candidates for this time window.</source>
+      </trans-unit>
+      <trans-unit id="replacement.no_candidates_help" datatype="html">
+        <source>All employees are either scheduled or have reported sick/time off.</source>
+      </trans-unit>
+      <trans-unit id="replacement.match_score" datatype="html">
+        <source>Match: <x id="INTERPOLATION" equiv-text="{{ score }}"/>%</source>
+      </trans-unit>
+      <trans-unit id="replacement.notify" datatype="html">
+        <source>Notify</source>
+      </trans-unit>
+      <trans-unit id="replacement.assign" datatype="html">
+        <source>Assign</source>
+      </trans-unit>
+      <trans-unit id="replacement.footer" datatype="html">
+        <source>Candidates are filtered by availability and conflicts.</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.bulk_title" datatype="html">
+        <source>Bulk Schedule — Partial Completion</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.conflict_title" datatype="html">
+        <source>Schedule Conflict</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.warning_title" datatype="html">
+        <source>Schedule Warning</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.bulk_subtitle" datatype="html">
+        <source>Some shifts were skipped — see details below</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.single_subtitle" datatype="html">
+        <source>Review the issues below before saving</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.created" datatype="html">
+        <source>created</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.skipped" datatype="html">
+        <source>skipped</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.skipped_shifts" datatype="html">
+        <source>Skipped shifts</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.requested_shift" datatype="html">
+        <source>Requested shift</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.conflicts_with" datatype="html">
+        <source>Conflicts with existing shift</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.policy_violations" datatype="html">
+        <source>Policy violations</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.error_badge" datatype="html">
+        <source>Error</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.warning_badge" datatype="html">
+        <source>Warning</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.hint_bulk" datatype="html">
+        <source>Skipped shifts were not created. Fix the conflicts in the grid and retry.</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.hint_errors" datatype="html">
+        <source>Adjust the shift times or resolve conflicts before saving.</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.hint_warnings" datatype="html">
+        <source>This shift exceeds policy thresholds. Saving it will create a warning record.</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.got_it" datatype="html">
+        <source>Got it</source>
+      </trans-unit>
+      <trans-unit id="conflict_modal.close" datatype="html">
+        <source>Close</source>
+      </trans-unit>
+      <trans-unit id="shift_history.title" datatype="html">
+        <source>Shift History</source>
+      </trans-unit>
+      <trans-unit id="shift_history.date_range" datatype="html">
+        <source>Date Range</source>
+      </trans-unit>
+      <trans-unit id="shift_history.past_week" datatype="html">
+        <source>Past Week</source>
+      </trans-unit>
+      <trans-unit id="shift_history.past_month" datatype="html">
+        <source>Past Month</source>
+      </trans-unit>
+      <trans-unit id="shift_history.past_3_months" datatype="html">
+        <source>Past 3 Months</source>
+      </trans-unit>
+      <trans-unit id="shift_history.past_year" datatype="html">
+        <source>Past Year</source>
+      </trans-unit>
+      <trans-unit id="shift_history.all_history" datatype="html">
+        <source>All History</source>
+      </trans-unit>
+      <trans-unit id="shift_history.status_filter" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="shift_history.all_status" datatype="html">
+        <source>All</source>
+      </trans-unit>
+      <trans-unit id="shift_history.completed" datatype="html">
+        <source>Completed</source>
+      </trans-unit>
+      <trans-unit id="shift_history.missed" datatype="html">
+        <source>Missed</source>
+      </trans-unit>
+      <trans-unit id="shift_history.sick" datatype="html">
+        <source>Sick</source>
+      </trans-unit>
+      <trans-unit id="shift_history.loading" datatype="html">
+        <source>Loading shift history...</source>
+      </trans-unit>
+      <trans-unit id="shift_history.no_data" datatype="html">
+        <source>No shift history found for the selected period</source>
+      </trans-unit>
+      <trans-unit id="shift_history.clock_in" datatype="html">
+        <source>Clock In:</source>
+      </trans-unit>
+      <trans-unit id="shift_history.clock_out" datatype="html">
+        <source>Clock Out:</source>
+      </trans-unit>
+      <trans-unit id="shift_history.duration" datatype="html">
+        <source>Duration:</source>
+      </trans-unit>
+      <trans-unit id="shift_history.edit_clock" datatype="html">
+        <source>Edit Clock Times</source>
+      </trans-unit>
+      <trans-unit id="shift_history.manual_clock_out" datatype="html">
+        <source>Manual Clock Out</source>
+      </trans-unit>
+      <trans-unit id="shift_history.clock_in_label" datatype="html">
+        <source>Clock In</source>
+      </trans-unit>
+      <trans-unit id="shift_history.clock_out_label" datatype="html">
+        <source>Clock Out</source>
+      </trans-unit>
+      <trans-unit id="shift_history.start" datatype="html">
+        <source>Start</source>
+      </trans-unit>
+      <trans-unit id="shift_history.end" datatype="html">
+        <source>End</source>
+      </trans-unit>
+      <trans-unit id="shift_history.edit_time" datatype="html">
+        <source>Edit Time</source>
+      </trans-unit>
+      <trans-unit id="shift_history.approve" datatype="html">
+        <source>Approve</source>
+      </trans-unit>
+      <trans-unit id="shift_history.approve_missed" datatype="html">
+        <source>Approve Missed</source>
+      </trans-unit>
+      <trans-unit id="shift_history.total_shifts" datatype="html">
+        <source>Total Shifts:</source>
+      </trans-unit>
+      <trans-unit id="shift_history.completed_stat" datatype="html">
+        <source>Completed:</source>
+      </trans-unit>
+      <trans-unit id="shift_history.missed_stat" datatype="html">
+        <source>Missed:</source>
+      </trans-unit>
+      <trans-unit id="shift_history.close" datatype="html">
+        <source>Close</source>
+      </trans-unit>
+      <trans-unit id="errors.something_wrong" datatype="html">
+        <source>Something went wrong</source>
+      </trans-unit>
+      <trans-unit id="errors.unexpected" datatype="html">
+        <source>An unexpected error occurred.</source>
+      </trans-unit>
+      <trans-unit id="errors.network" datatype="html">
+        <source>Network error. Please check your connection.</source>
+      </trans-unit>
+      <trans-unit id="errors.not_found" datatype="html">
+        <source>Not found.</source>
+      </trans-unit>
+      <trans-unit id="errors.unauthorized" datatype="html">
+        <source>You are not authorized to perform this action.</source>
+      </trans-unit>
+      <trans-unit id="errors.load_failed" datatype="html">
+        <source>Could not load data.</source>
+      </trans-unit>
+      <trans-unit id="errors.save_failed" datatype="html">
+        <source>Could not save changes.</source>
+      </trans-unit>
+      <trans-unit id="errors.sandbox_load" datatype="html">
+        <source>Could not load sandbox status.</source>
+      </trans-unit>
+      <trans-unit id="roles.page_title" datatype="html">
+        <source>Roles &amp; Permissions</source>
+      </trans-unit>
+      <trans-unit id="roles.page_subtitle" datatype="html">
+        <source>Manage user roles and configure access permissions</source>
+      </trans-unit>
+      <trans-unit id="roles.new_role_btn" datatype="html">
+        <source>New Role</source>
+      </trans-unit>
+      <trans-unit id="roles.form_edit" datatype="html">
+        <source>Edit Role</source>
+      </trans-unit>
+      <trans-unit id="roles.form_new" datatype="html">
+        <source>New Role</source>
+      </trans-unit>
+      <trans-unit id="roles.name_label" datatype="html">
+        <source>Role Name</source>
+      </trans-unit>
+      <trans-unit id="roles.name_placeholder" datatype="html">
+        <source>e.g., Manager, Employee, Admin</source>
+      </trans-unit>
+      <trans-unit id="roles.name_error" datatype="html">
+        <source>Role name is required</source>
+      </trans-unit>
+      <trans-unit id="roles.desc_label" datatype="html">
+        <source>Description</source>
+      </trans-unit>
+      <trans-unit id="roles.desc_placeholder" datatype="html">
+        <source>Describe the role&apos;s purpose</source>
+      </trans-unit>
+      <trans-unit id="roles.desc_error" datatype="html">
+        <source>Description is required</source>
+      </trans-unit>
+      <trans-unit id="roles.status_label" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="roles.perms_title" datatype="html">
+        <source>Permissions</source>
+      </trans-unit>
+      <trans-unit id="roles.update_btn" datatype="html">
+        <source>Update Role</source>
+      </trans-unit>
+      <trans-unit id="roles.create_btn" datatype="html">
+        <source>Create Role</source>
+      </trans-unit>
+      <trans-unit id="roles.list_title" datatype="html">
+        <source>Roles</source>
+      </trans-unit>
+      <trans-unit id="roles.loading" datatype="html">
+        <source>Loading roles...</source>
+      </trans-unit>
+      <trans-unit id="roles.error_title" datatype="html">
+        <source>Error loading roles</source>
+      </trans-unit>
+      <trans-unit id="roles.error_text" datatype="html">
+        <source>Please try again later</source>
+      </trans-unit>
+      <trans-unit id="roles.empty_title" datatype="html">
+        <source>No roles yet</source>
+      </trans-unit>
+      <trans-unit id="roles.empty_text" datatype="html">
+        <source>Create your first role using the form.</source>
+      </trans-unit>
+      <trans-unit id="roles.assign_users_tooltip" datatype="html">
+        <source>Assign users</source>
+      </trans-unit>
+      <trans-unit id="assign_users.title" datatype="html">
+        <source>Assign Users to <x id="INTERPOLATION" equiv-text="{{ roleName }}"/></source>
+      </trans-unit>
+      <trans-unit id="areas.page_title" datatype="html">
+        <source>Area Management</source>
+      </trans-unit>
+      <trans-unit id="areas.page_subtitle" datatype="html">
+        <source>Organize your locations into functional areas</source>
+      </trans-unit>
+      <trans-unit id="areas.list_title" datatype="html">
+        <source>Areas</source>
+      </trans-unit>
+      <trans-unit id="areas.loading" datatype="html">
+        <source>Loading areas...</source>
+      </trans-unit>
+      <trans-unit id="areas.error" datatype="html">
+        <source>Error loading areas. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="areas.empty_text" datatype="html">
+        <source>No areas found</source>
+      </trans-unit>
+      <trans-unit id="areas.empty_subtext" datatype="html">
+        <source>Create your first area to get started</source>
+      </trans-unit>
+      <trans-unit id="areas.form_edit" datatype="html">
+        <source>Edit Area</source>
+      </trans-unit>
+      <trans-unit id="areas.form_create" datatype="html">
+        <source>Create New Area</source>
+      </trans-unit>
+      <trans-unit id="areas.section_info" datatype="html">
+        <source>Area Information</source>
+      </trans-unit>
+      <trans-unit id="areas.name_label" datatype="html">
+        <source>Area Name</source>
+      </trans-unit>
+      <trans-unit id="areas.name_placeholder" datatype="html">
+        <source>e.g., Sales Floor, Warehouse, Kitchen</source>
+      </trans-unit>
+      <trans-unit id="areas.name_error" datatype="html">
+        <source>Area name is required</source>
+      </trans-unit>
+      <trans-unit id="areas.location_label" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="areas.location_ph" datatype="html">
+        <source>Select a Location</source>
+      </trans-unit>
+      <trans-unit id="areas.location_error" datatype="html">
+        <source>Location is required</source>
+      </trans-unit>
+      <trans-unit id="areas.location_hint" datatype="html">
+        <source>Select the location this area belongs to</source>
+      </trans-unit>
+      <trans-unit id="areas.status_label" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="areas.status_hint" datatype="html">
+        <source>Set to Inactive to temporarily disable this area</source>
+      </trans-unit>
+      <trans-unit id="areas.update_btn" datatype="html">
+        <source>Update Area</source>
+      </trans-unit>
+      <trans-unit id="areas.create_btn" datatype="html">
+        <source>Create Area</source>
+      </trans-unit>
+      <trans-unit id="locations.page_title" datatype="html">
+        <source>Location Management</source>
+      </trans-unit>
+      <trans-unit id="locations.page_subtitle" datatype="html">
+        <source>Manage your business locations and service areas</source>
+      </trans-unit>
+      <trans-unit id="locations.list_title" datatype="html">
+        <source>Locations</source>
+      </trans-unit>
+      <trans-unit id="locations.loading" datatype="html">
+        <source>Loading locations...</source>
+      </trans-unit>
+      <trans-unit id="locations.error" datatype="html">
+        <source>Error loading locations. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="locations.empty_text" datatype="html">
+        <source>No locations found</source>
+      </trans-unit>
+      <trans-unit id="locations.empty_subtext" datatype="html">
+        <source>Create your first location to get started</source>
+      </trans-unit>
+      <trans-unit id="locations.form_edit" datatype="html">
+        <source>Edit Location</source>
+      </trans-unit>
+      <trans-unit id="locations.form_create" datatype="html">
+        <source>Create New Location</source>
+      </trans-unit>
+      <trans-unit id="locations.map_btn_title" datatype="html">
+        <source>Set Location on Map</source>
+      </trans-unit>
+      <trans-unit id="locations.map_hint" datatype="html">
+        <source>Click to select location on map</source>
+      </trans-unit>
+      <trans-unit id="locations.basic_info" datatype="html">
+        <source>Basic Information</source>
+      </trans-unit>
+      <trans-unit id="locations.name_label" datatype="html">
+        <source>Location Name</source>
+      </trans-unit>
+      <trans-unit id="locations.name_placeholder" datatype="html">
+        <source>Enter location name</source>
+      </trans-unit>
+      <trans-unit id="locations.status_label" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="locations.address_section" datatype="html">
+        <source>Address Information</source>
+      </trans-unit>
+      <trans-unit id="locations.street_label" datatype="html">
+        <source>Street Address</source>
+      </trans-unit>
+      <trans-unit id="locations.street_placeholder" datatype="html">
+        <source>123 Main Street</source>
+      </trans-unit>
+      <trans-unit id="locations.city_label" datatype="html">
+        <source>City</source>
+      </trans-unit>
+      <trans-unit id="locations.state_label" datatype="html">
+        <source>State</source>
+      </trans-unit>
+      <trans-unit id="locations.zip_label" datatype="html">
+        <source>Zip Code</source>
+      </trans-unit>
+      <trans-unit id="locations.country_label" datatype="html">
+        <source>Country</source>
+      </trans-unit>
+      <trans-unit id="locations.geo_section" datatype="html">
+        <source>Geographic Coordinates</source>
+      </trans-unit>
+      <trans-unit id="locations.lat_label" datatype="html">
+        <source>Latitude</source>
+      </trans-unit>
+      <trans-unit id="locations.lng_label" datatype="html">
+        <source>Longitude</source>
+      </trans-unit>
+      <trans-unit id="locations.radius_label" datatype="html">
+        <source>Service Radius (meters)</source>
+      </trans-unit>
+      <trans-unit id="locations.radius_hint" datatype="html">
+        <source>Defines the service area around this location</source>
+      </trans-unit>
+      <trans-unit id="locations.timezone_label" datatype="html">
+        <source>Time Zone</source>
+      </trans-unit>
+      <trans-unit id="locations.timezone_ph" datatype="html">
+        <source>Select a Timezone</source>
+      </trans-unit>
+      <trans-unit id="locations.contact_section" datatype="html">
+        <source>Contact Information</source>
+      </trans-unit>
+      <trans-unit id="locations.email_label" datatype="html">
+        <source>Email</source>
+      </trans-unit>
+      <trans-unit id="locations.email_placeholder" datatype="html">
+        <source>location@example.com</source>
+      </trans-unit>
+      <trans-unit id="locations.phone_label" datatype="html">
+        <source>Phone Number</source>
+      </trans-unit>
+      <trans-unit id="locations.ext_code_label" datatype="html">
+        <source>External Code</source>
+      </trans-unit>
+      <trans-unit id="locations.ext_code_placeholder" datatype="html">
+        <source>LOC-001</source>
+      </trans-unit>
+      <trans-unit id="locations.ext_code_hint" datatype="html">
+        <source>Optional reference code for external systems</source>
+      </trans-unit>
+      <trans-unit id="locations.update_btn" datatype="html">
+        <source>Update Location</source>
+      </trans-unit>
+      <trans-unit id="locations.create_btn" datatype="html">
+        <source>Create Location</source>
+      </trans-unit>
+      <trans-unit id="locations.modal_title" datatype="html">
+        <source>Select Location</source>
+      </trans-unit>
+      <trans-unit id="locations.search_placeholder" datatype="html">
+        <source>Search for an address...</source>
+      </trans-unit>
+      <trans-unit id="locations.map_info_click" datatype="html">
+        <source>Click on the map to set location</source>
+      </trans-unit>
+      <trans-unit id="locations.map_info_drag" datatype="html">
+        <source>Drag the marker to adjust position</source>
+      </trans-unit>
+      <trans-unit id="locations.map_info_radius" datatype="html">
+        <source>Use radius field to set service area</source>
+      </trans-unit>
+      <trans-unit id="locations.coord_lat" datatype="html">
+        <source>Latitude:</source>
+      </trans-unit>
+      <trans-unit id="locations.coord_lng" datatype="html">
+        <source>Longitude:</source>
+      </trans-unit>
+      <trans-unit id="locations.coord_radius" datatype="html">
+        <source>Radius:</source>
+      </trans-unit>
+      <trans-unit id="locations.confirm_btn" datatype="html">
+        <source>Confirm Location</source>
+      </trans-unit>
+      <trans-unit id="crews.page_title" datatype="html">
+        <source>Crew Management</source>
+      </trans-unit>
+      <trans-unit id="crews.page_subtitle" datatype="html">
+        <source>Organise employees into crews for bulk scheduling</source>
+      </trans-unit>
+      <trans-unit id="crews.list_title" datatype="html">
+        <source>Crews</source>
+      </trans-unit>
+      <trans-unit id="crews.name_placeholder" datatype="html">
+        <source>Crew name</source>
+      </trans-unit>
+      <trans-unit id="crews.creating" datatype="html">
+        <source>Creating...</source>
+      </trans-unit>
+      <trans-unit id="crews.create_btn" datatype="html">
+        <source>Create</source>
+      </trans-unit>
+      <trans-unit id="crews.loading" datatype="html">
+        <source>Loading crews...</source>
+      </trans-unit>
+      <trans-unit id="crews.empty_text" datatype="html">
+        <source>No crews yet</source>
+      </trans-unit>
+      <trans-unit id="crews.no_selection" datatype="html">
+        <source>Select a crew from the list to manage it, or create a new one.</source>
+      </trans-unit>
+      <trans-unit id="crews.name_section" datatype="html">
+        <source>Crew Name</source>
+      </trans-unit>
+      <trans-unit id="crews.saving" datatype="html">
+        <source>Saving...</source>
+      </trans-unit>
+      <trans-unit id="crews.save_btn" datatype="html">
+        <source>Save</source>
+      </trans-unit>
+      <trans-unit id="crews.members_section" datatype="html">
+        <source>Members</source>
+      </trans-unit>
+      <trans-unit id="crews.add_person_ph" datatype="html">
+        <source>— Add a person —</source>
+      </trans-unit>
+      <trans-unit id="crews.add_btn" datatype="html">
+        <source>Add</source>
+      </trans-unit>
+      <trans-unit id="crews.no_members" datatype="html">
+        <source>No members yet. Add people above.</source>
+      </trans-unit>
+      <trans-unit id="crews.remove_tooltip" datatype="html">
+        <source>Remove from crew</source>
+      </trans-unit>
+      <trans-unit id="crews.delete_tooltip" datatype="html">
+        <source>Delete crew</source>
+      </trans-unit>
+      <trans-unit id="tasks.page_title" datatype="html">
+        <source>Task Management</source>
+      </trans-unit>
+      <trans-unit id="tasks.page_subtitle" datatype="html">
+        <source>Define and organize tasks for your team</source>
+      </trans-unit>
+      <trans-unit id="tasks.list_title" datatype="html">
+        <source>Tasks</source>
+      </trans-unit>
+      <trans-unit id="tasks.loading" datatype="html">
+        <source>Loading tasks...</source>
+      </trans-unit>
+      <trans-unit id="tasks.error" datatype="html">
+        <source>Error loading tasks. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="tasks.empty_text" datatype="html">
+        <source>No tasks found</source>
+      </trans-unit>
+      <trans-unit id="tasks.empty_subtext" datatype="html">
+        <source>Create your first task to get started</source>
+      </trans-unit>
+      <trans-unit id="tasks.form_edit" datatype="html">
+        <source>Edit Task</source>
+      </trans-unit>
+      <trans-unit id="tasks.form_create" datatype="html">
+        <source>Create New Task</source>
+      </trans-unit>
+      <trans-unit id="tasks.section_details" datatype="html">
+        <source>Task Details</source>
+      </trans-unit>
+      <trans-unit id="tasks.title_label" datatype="html">
+        <source>Task Title</source>
+      </trans-unit>
+      <trans-unit id="tasks.title_placeholder" datatype="html">
+        <source>e.g., Clean lobby area, Stock inventory</source>
+      </trans-unit>
+      <trans-unit id="tasks.title_error" datatype="html">
+        <source>Task title is required</source>
+      </trans-unit>
+      <trans-unit id="tasks.desc_label" datatype="html">
+        <source>Description</source>
+      </trans-unit>
+      <trans-unit id="tasks.desc_placeholder" datatype="html">
+        <source>Provide detailed instructions for completing this task...</source>
+      </trans-unit>
+      <trans-unit id="tasks.desc_error" datatype="html">
+        <source>Description is required</source>
+      </trans-unit>
+      <trans-unit id="tasks.location_section" datatype="html">
+        <source>Location &amp; Area</source>
+      </trans-unit>
+      <trans-unit id="tasks.location_label" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="tasks.location_ph" datatype="html">
+        <source>Select a Location</source>
+      </trans-unit>
+      <trans-unit id="tasks.location_error" datatype="html">
+        <source>Location is required</source>
+      </trans-unit>
+      <trans-unit id="tasks.area_label" datatype="html">
+        <source>Area</source>
+      </trans-unit>
+      <trans-unit id="tasks.area_ph" datatype="html">
+        <source>None (General task)</source>
+      </trans-unit>
+      <trans-unit id="tasks.area_hint" datatype="html">
+        <source>Optional: Assign to a specific area within the location</source>
+      </trans-unit>
+      <trans-unit id="tasks.assignment_section" datatype="html">
+        <source>Assignment</source>
+      </trans-unit>
+      <trans-unit id="tasks.person_label" datatype="html">
+        <source>Assigned Person</source>
+      </trans-unit>
+      <trans-unit id="tasks.person_ph" datatype="html">
+        <source>Unassigned</source>
+      </trans-unit>
+      <trans-unit id="tasks.person_hint" datatype="html">
+        <source>Optional: Assign this task to a specific team member</source>
+      </trans-unit>
+      <trans-unit id="tasks.status_label" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="tasks.status_hint" datatype="html">
+        <source>Set to Inactive to temporarily disable this task</source>
+      </trans-unit>
+      <trans-unit id="tasks.update_btn" datatype="html">
+        <source>Update Task</source>
+      </trans-unit>
+      <trans-unit id="tasks.create_btn" datatype="html">
+        <source>Create Task</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.page_title" datatype="html">
+        <source>Time-Off Approvals</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.page_subtitle" datatype="html">
+        <source>Review and manage employee time-off requests</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.filter_title" datatype="html">
+        <source>Filters</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.clear_btn" datatype="html">
+        <source>Clear</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.search_label" datatype="html">
+        <source>Search</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.search_ph" datatype="html">
+        <source>Search by name or reason...</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.status_label" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.employee_label" datatype="html">
+        <source>Employee</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.all_employees" datatype="html">
+        <source>All employees</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.start_date" datatype="html">
+        <source>Start Date</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.end_date" datatype="html">
+        <source>End Date</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.per_page" datatype="html">
+        <source>Per Page</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.loading" datatype="html">
+        <source>Loading time-off requests...</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.empty_text" datatype="html">
+        <source>No requests found</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.empty_subtext" datatype="html">
+        <source>Try adjusting your filters</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.requested" datatype="html">
+        <source>Requested <x id="INTERPOLATION" equiv-text="{{ date }}"/></source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.type_label" datatype="html">
+        <source>Type</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.duration_label" datatype="html">
+        <source>Duration</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.time_label" datatype="html">
+        <source>Time</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.hours_label" datatype="html">
+        <source>Hours</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.pto_balance" datatype="html">
+        <source>PTO Balance</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.insufficient" datatype="html">
+        <source>Insufficient</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.reason_label" datatype="html">
+        <source>Reason</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.notes_label" datatype="html">
+        <source>Notes (Optional)</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.notes_ph" datatype="html">
+        <source>Add notes for approval/denial...</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.approve_btn" datatype="html">
+        <source>Approve</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.deny_btn" datatype="html">
+        <source>Deny</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.prev_page" datatype="html">
+        <source>Previous</source>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.next_page" datatype="html">
+        <source>Next</source>
+      </trans-unit>
+      <trans-unit id="pto_config.title" datatype="html">
+        <source>Configure PTO for <x id="INTERPOLATION" equiv-text="{{ name }}"/></source>
+      </trans-unit>
+      <trans-unit id="pto_config.balance_label" datatype="html">
+        <source>Current PTO Balance:</source>
+      </trans-unit>
+      <trans-unit id="pto_config.accrual_label" datatype="html">
+        <source>Accrual Rate (hours per month)</source>
+      </trans-unit>
+      <trans-unit id="pto_config.accrual_placeholder" datatype="html">
+        <source>e.g., 10</source>
+      </trans-unit>
+      <trans-unit id="pto_config.accrual_hint" datatype="html">
+        <source>How many PTO hours this employee earns each month (e.g., 10 = 10 hours/month)</source>
+      </trans-unit>
+      <trans-unit id="pto_config.starting_label" datatype="html">
+        <source>Starting Balance (hours)</source>
+      </trans-unit>
+      <trans-unit id="pto_config.starting_placeholder" datatype="html">
+        <source>e.g., 40</source>
+      </trans-unit>
+      <trans-unit id="pto_config.starting_hint" datatype="html">
+        <source>Initial PTO balance when employee started or when accrual begins</source>
+      </trans-unit>
+      <trans-unit id="pto_config.start_date_label" datatype="html">
+        <source>Accrual Start Date</source>
+      </trans-unit>
+      <trans-unit id="pto_config.start_date_hint" datatype="html">
+        <source>Date when PTO accrual begins for this employee</source>
+      </trans-unit>
+      <trans-unit id="pto_config.how_it_works" datatype="html">
+        <source>How it works:</source>
+      </trans-unit>
+      <trans-unit id="pto_config.clear_btn" datatype="html">
+        <source>Clear</source>
+      </trans-unit>
+      <trans-unit id="pto_config.saving" datatype="html">
+        <source>Saving...</source>
+      </trans-unit>
+      <trans-unit id="pto_config.save_btn" datatype="html">
+        <source>Save Configuration</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.page_title" datatype="html">
+        <source>Shift Summaries</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.page_subtitle" datatype="html">
+        <source>Filter and view summarized shift activity by person, location, and date</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.filter_title" datatype="html">
+        <source>Filter Shifts</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.start_date" datatype="html">
+        <source>Start Date</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.end_date" datatype="html">
+        <source>End Date</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.all_locations" datatype="html">
+        <source>All Locations</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.person" datatype="html">
+        <source>Person</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.all_people" datatype="html">
+        <source>All People</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.apply_filters" datatype="html">
+        <source>Apply Filters</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.view_cards" datatype="html">
+        <source>Cards</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.view_table" datatype="html">
+        <source>Table</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.select_all" datatype="html">
+        <source>Select all</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.apply_bulk" datatype="html">
+        <source>Apply</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.export_approved" datatype="html">
+        <source>Export approved only</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.export_csv" datatype="html">
+        <source>Export CSV</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.loading" datatype="html">
+        <source>Loading shift summaries...</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.empty_text" datatype="html">
+        <source>No results</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.empty_subtext" datatype="html">
+        <source>Try a different date range or filters</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.col_day" datatype="html">
+        <source>Day</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.col_person" datatype="html">
+        <source>Person</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.col_location" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.col_area" datatype="html">
+        <source>Area</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.col_start" datatype="html">
+        <source>Start Time</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.col_end" datatype="html">
+        <source>End Time</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.col_break" datatype="html">
+        <source>Break (min)</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.col_hours" datatype="html">
+        <source>Total Hours</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.col_status" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.location_label" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.area_label" datatype="html">
+        <source>Area</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.break_label" datatype="html">
+        <source>Break Time</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.hours_label" datatype="html">
+        <source>Total Hours</source>
+      </trans-unit>
+      <trans-unit id="shift_summaries.status_label" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.page_title" datatype="html">
+        <source>People Management</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.page_subtitle" datatype="html">
+        <source>Manage employees, configure PTO, and track team information</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.search_title" datatype="html">
+        <source>Search Employees</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.search_label" datatype="html">
+        <source>Search by name or email</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.search_ph" datatype="html">
+        <source>Type to search...</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.loading" datatype="html">
+        <source>Loading employees...</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.empty_text" datatype="html">
+        <source>No employees found</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.empty_subtext" datatype="html">
+        <source>Try adjusting your search criteria</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.configure_pto" datatype="html">
+        <source>Configure PTO</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.email_label" datatype="html">
+        <source>Email</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.phone_label" datatype="html">
+        <source>Phone</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.no_contact" datatype="html">
+        <source>No contact information available</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.prev_btn" datatype="html">
+        <source>Previous</source>
+      </trans-unit>
+      <trans-unit id="people_mgmt.next_btn" datatype="html">
+        <source>Next</source>
+      </trans-unit>
+      <trans-unit id="schedule.title" datatype="html">
+        <source>Schedule</source>
+      </trans-unit>
+      <trans-unit id="schedule.all_locations" datatype="html">
+        <source>All Locations</source>
+      </trans-unit>
+      <trans-unit id="schedule.error" datatype="html">
+        <source>Error loading schedule.</source>
+      </trans-unit>
+      <trans-unit id="schedules.title" datatype="html">
+        <source>Schedules</source>
+      </trans-unit>
+      <trans-unit id="schedules.add_btn" datatype="html">
+        <source>Add Schedule</source>
+      </trans-unit>
+      <trans-unit id="schedules.error" datatype="html">
+        <source>Error loading schedules.</source>
+      </trans-unit>
+      <trans-unit id="schedules.col_person" datatype="html">
+        <source>Person</source>
+      </trans-unit>
+      <trans-unit id="schedules.col_location" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="schedules.col_area" datatype="html">
+        <source>Area</source>
+      </trans-unit>
+      <trans-unit id="schedules.col_start" datatype="html">
+        <source>Start Time</source>
+      </trans-unit>
+      <trans-unit id="schedules.col_end" datatype="html">
+        <source>End Time</source>
+      </trans-unit>
+      <trans-unit id="schedules.col_status" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="schedules.col_actions" datatype="html">
+        <source>Actions</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.title_edit" datatype="html">
+        <source>Edit Schedule</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.title_create" datatype="html">
+        <source>Create Schedule</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.title_add" datatype="html">
+        <source>Add Schedule</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.name_label" datatype="html">
+        <source>Name</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.area_placeholder" datatype="html">
+        <source>Select an Area</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.area_required" datatype="html">
+        <source>Area is required.</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.start_date_label" datatype="html">
+        <source>Start Date</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.end_date_label" datatype="html">
+        <source>End Date</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.description_label" datatype="html">
+        <source>Description</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.color_label" datatype="html">
+        <source>Color</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.person_label" datatype="html">
+        <source>Person</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.location_label" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.area_label" datatype="html">
+        <source>Area</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.start_label" datatype="html">
+        <source>Start Time</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.start_time_label" datatype="html">
+        <source>Start Time</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.end_label" datatype="html">
+        <source>End Time</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.end_time_label" datatype="html">
+        <source>End Time</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.status_label" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.pending" datatype="html">
+        <source>Pending</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.approved" datatype="html">
+        <source>Approved</source>
+      </trans-unit>
+      <trans-unit id="schedule_edit.rejected" datatype="html">
+        <source>Rejected</source>
+      </trans-unit>
+      <trans-unit id="kiosk.employee_kiosk" datatype="html">
+        <source>Employee Kiosk</source>
+      </trans-unit>
+      <trans-unit id="kiosk.label" datatype="html">
+        <source>Employee Kiosk</source>
+      </trans-unit>
+      <trans-unit id="kiosk.change_location_title" datatype="html">
+        <source>Change Location</source>
+      </trans-unit>
+      <trans-unit id="kiosk.change_location_aria" datatype="html">
+        <source>Change device location</source>
+      </trans-unit>
+      <trans-unit id="kiosk.footer_tracking" datatype="html">
+        <source>Secure Employee Time Tracking System</source>
+      </trans-unit>
+      <trans-unit id="kiosk.footer_system" datatype="html">
+        <source>Secure Employee Time Tracking System</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.search_ph" datatype="html">
+        <source>Search employees...</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.refresh_btn" datatype="html">
+        <source>Refresh</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.refreshing" datatype="html">
+        <source>Refreshing...</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.last_updated" datatype="html">
+        <source>Last updated:</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.legend_btn" datatype="html">
+        <source>Legend</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.legend_toggle_aria" datatype="html">
+        <source>Toggle timing legend visibility</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.legend_info_aria" datatype="html">
+        <source>Legend information</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.wake_lock_active_title" datatype="html">
+        <source>Screen wake lock active to prevent sleep</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.wake_lock_unsupported_title" datatype="html">
+        <source>Wake Lock not supported on this device</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.legend_aria" datatype="html">
+        <source>Timing legend</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.ontime_title" datatype="html">
+        <source>Arrived within 5 minutes of scheduled start</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.ontime" datatype="html">
+        <source>OnTime</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.early_title" datatype="html">
+        <source>Arrived before scheduled start</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.early" datatype="html">
+        <source>Early</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.late_title" datatype="html">
+        <source>Arrived more than 5 minutes after scheduled start</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.late" datatype="html">
+        <source>Late</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.refreshing_aria" datatype="html">
+        <source>Refreshing statuses</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.badge_ontime" datatype="html">
+        <source>OnTime</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.badge_early" datatype="html">
+        <source>Early</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.badge_late" datatype="html">
+        <source>Late</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.screen_locked" datatype="html">
+        <source>Screen Locked</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.screen_sleep" datatype="html">
+        <source>Screen May Sleep</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.screen_may_sleep" datatype="html">
+        <source>Screen May Sleep</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.wake_lock_unsupported" datatype="html">
+        <source>Wake Lock Unsupported</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.error" datatype="html">
+        <source>Error loading employees.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.empty" datatype="html">
+        <source>No employees found.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.timing_title" datatype="html">
+        <source>Shift arrival timing</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.on_shift_title" datatype="html">
+        <source>Currently on shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.on_shift_label" datatype="html">
+        <source>On Shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.on_shift" datatype="html">
+        <source>On Shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.pending_title" datatype="html">
+        <source>Has a pending schedule for today</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.pending_label" datatype="html">
+        <source>Pending today</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.pending_today" datatype="html">
+        <source>Pending today</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.start_shift_title" datatype="html">
+        <source>Start Shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.end_shift_title" datatype="html">
+        <source>End Shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.start_btn" datatype="html">
+        <source>Start</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.end_btn" datatype="html">
+        <source>End</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.todays_schedule" datatype="html">
+        <source>Today&apos;s Schedule</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.location_label" datatype="html">
+        <source>Location:</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.start_time_label" datatype="html">
+        <source>Start Time:</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.end_time_label" datatype="html">
+        <source>End Time:</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.start_label" datatype="html">
+        <source>Start Time:</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.end_label" datatype="html">
+        <source>End Time:</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.captured_alt" datatype="html">
+        <source>Captured photo</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.success" datatype="html">
+        <source>Shift updated thanks!</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.success_message" datatype="html">
+        <source>Shift updated thanks!</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.countdown" datatype="html">
+        <source>Capturing photo in <x id="INTERPOLATION" equiv-text="{{ count }}"/> seconds...</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.wake_lock_title" datatype="html">
+        <source>Screen wake lock active to prevent sleep</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.screen_locked" datatype="html">
+        <source>Screen Locked</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.screen_may_sleep" datatype="html">
+        <source>Screen May Sleep</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.start_shift" datatype="html">
+        <source>Start Shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.start_shift_btn" datatype="html">
+        <source>Start Shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.end_shift" datatype="html">
+        <source>End Shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.end_shift_btn" datatype="html">
+        <source>End Shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.start_break" datatype="html">
+        <source>Start Break</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.start_break_btn" datatype="html">
+        <source>Start Break</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.end_break" datatype="html">
+        <source>End Break</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.end_break_btn" datatype="html">
+        <source>End Break</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.no_employee" datatype="html">
+        <source>Please select an employee to continue</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.title" datatype="html">
+        <source>Enter PIN for <x id="INTERPOLATION" equiv-text="{{ name }}"/></source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.pin_label" datatype="html">
+        <source>PIN</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.pin_required" datatype="html">
+        <source>PIN is required.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.error_required" datatype="html">
+        <source>PIN is required.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.pin_length" datatype="html">
+        <source>PIN must be 4 digits.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.error_length" datatype="html">
+        <source>PIN must be 4 digits.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.submit" datatype="html">
+        <source>Submit</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.submit_btn" datatype="html">
+        <source>Submit</source>
+      </trans-unit>
+      <trans-unit id="kiosk_questions.title" datatype="html">
+        <source>Please answer the following questions</source>
+      </trans-unit>
+      <trans-unit id="kiosk_questions.yes" datatype="html">
+        <source>Yes</source>
+      </trans-unit>
+      <trans-unit id="kiosk_questions.no" datatype="html">
+        <source>No</source>
+      </trans-unit>
+      <trans-unit id="kiosk_questions.submit" datatype="html">
+        <source>Submit</source>
+      </trans-unit>
+      <trans-unit id="kiosk_questions.submit_btn" datatype="html">
+        <source>Submit</source>
+      </trans-unit>
+      <trans-unit id="kiosk_admin_pwd.title" datatype="html">
+        <source>Admin Password Required</source>
+      </trans-unit>
+      <trans-unit id="kiosk_admin_pwd.description" datatype="html">
+        <source>Enter administrator password to change device location assignment:</source>
+      </trans-unit>
+      <trans-unit id="kiosk_admin_pwd.pwd_label" datatype="html">
+        <source>Admin Password</source>
+      </trans-unit>
+      <trans-unit id="kiosk_admin_pwd.password_label" datatype="html">
+        <source>Admin Password</source>
+      </trans-unit>
+      <trans-unit id="kiosk_admin_pwd.verifying" datatype="html">
+        <source>Verifying...</source>
+      </trans-unit>
+      <trans-unit id="kiosk_admin_pwd.verify_btn" datatype="html">
+        <source>Verify</source>
+      </trans-unit>
+      <trans-unit id="kiosk_todo.loading" datatype="html">
+        <source>Loading...</source>
+      </trans-unit>
+      <trans-unit id="kiosk_todo.error" datatype="html">
+        <source>Error loading tasks.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_todo_detail.loading" datatype="html">
+        <source>Loading...</source>
+      </trans-unit>
+      <trans-unit id="kiosk_todo_detail.error" datatype="html">
+        <source>Error loading task.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_location.title" datatype="html">
+        <source>Select Location</source>
+      </trans-unit>
+      <trans-unit id="kiosk_location.label" datatype="html">
+        <source>Locations</source>
+      </trans-unit>
+      <trans-unit id="kiosk_location.locations_label" datatype="html">
+        <source>Locations</source>
+      </trans-unit>
+      <trans-unit id="kiosk_location.assign_device" datatype="html">
+        <source>Assign this location to this device permanently</source>
+      </trans-unit>
+      <trans-unit id="kiosk_location.select_btn" datatype="html">
+        <source>Select</source>
+      </trans-unit>
+      <trans-unit id="company_form.title_edit" datatype="html">
+        <source>Edit Company</source>
+      </trans-unit>
+      <trans-unit id="company_form.title_create" datatype="html">
+        <source>Create Company</source>
+      </trans-unit>
+      <trans-unit id="company_form.name_label" datatype="html">
+        <source>Name</source>
+      </trans-unit>
+      <trans-unit id="company_form.address_label" datatype="html">
+        <source>Address</source>
+      </trans-unit>
+      <trans-unit id="company_form.phone_label" datatype="html">
+        <source>Phone Number</source>
+      </trans-unit>
+      <trans-unit id="company_form.email_label" datatype="html">
+        <source>Email</source>
+      </trans-unit>
+      <trans-unit id="company_form.website_label" datatype="html">
+        <source>Website</source>
+      </trans-unit>
+      <trans-unit id="company_form.timezone_label" datatype="html">
+        <source>Timezone</source>
+      </trans-unit>
+      <trans-unit id="company_form.timezone_ph" datatype="html">
+        <source>Select a Timezone</source>
+      </trans-unit>
+      <trans-unit id="company_form.timezone_placeholder" datatype="html">
+        <source>Select a Timezone</source>
+      </trans-unit>
+      <trans-unit id="company_form.ext_code_label" datatype="html">
+        <source>External Code</source>
+      </trans-unit>
+      <trans-unit id="company_form.external_code_label" datatype="html">
+        <source>External Code</source>
+      </trans-unit>
+      <trans-unit id="company_form.currency_label" datatype="html">
+        <source>Currency</source>
+      </trans-unit>
+      <trans-unit id="company_form.logo_label" datatype="html">
+        <source>Logo URL</source>
+      </trans-unit>
+      <trans-unit id="company_form.logo_url_label" datatype="html">
+        <source>Logo URL</source>
+      </trans-unit>
+      <trans-unit id="company_form.update_btn" datatype="html">
+        <source>Update</source>
+      </trans-unit>
+      <trans-unit id="company_form.create_btn" datatype="html">
+        <source>Create</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.title" datatype="html">
+        <source>Company Users Management</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.subtitle" datatype="html">
+        <source>Manage user access across companies. Deactivate users to prevent login to a specific company.</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.select_label" datatype="html">
+        <source>Select Company</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.select_company" datatype="html">
+        <source>Select Company</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.refresh_btn" datatype="html">
+        <source>Refresh</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.loading" datatype="html">
+        <source>Loading users...</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.col_email" datatype="html">
+        <source>Email</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.col_name" datatype="html">
+        <source>Name</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.col_auth" datatype="html">
+        <source>Auth Type</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.col_auth_type" datatype="html">
+        <source>Auth Type</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.col_status" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.col_created" datatype="html">
+        <source>Created</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.col_actions" datatype="html">
+        <source>Actions</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.active" datatype="html">
+        <source>Active</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.inactive" datatype="html">
+        <source>Inactive</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.deactivate_tip" datatype="html">
+        <source>Deactivate user</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.activate_tip" datatype="html">
+        <source>Activate user</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.empty" datatype="html">
+        <source>No users found for this company.</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.title" datatype="html">
+        <source>Manage Companies</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.companies_title" datatype="html">
+        <source>Companies</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.companies_heading" datatype="html">
+        <source>Companies</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.create_btn" datatype="html">
+        <source>Create New</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.create_new_btn" datatype="html">
+        <source>Create New</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.manage_users" datatype="html">
+        <source>Manage Users</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.manage_users_btn" datatype="html">
+        <source>Manage Users</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.edit_btn" datatype="html">
+        <source>Edit</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.delete_btn" datatype="html">
+        <source>Delete</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.users_title" datatype="html">
+        <source>Users for <x id="INTERPOLATION" equiv-text="{{ companyName }}"/></source>
+      </trans-unit>
+      <trans-unit id="manage_companies.users_for" datatype="html">
+        <source>Users for <x id="INTERPOLATION" equiv-text="{{ selectedCompany.name }}"/></source>
+      </trans-unit>
+      <trans-unit id="manage_companies.in_company" datatype="html">
+        <source>In Company (<x id="INTERPOLATION" equiv-text="{{ companyMembers.length }}"/>)</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.available" datatype="html">
+        <source>Available Users (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.available_users" datatype="html">
+        <source>Available Users (<x id="INTERPOLATION" equiv-text="{{ availablePeople.length }}"/>)</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.deactivate" datatype="html">
+        <source>Deactivate</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.deactivate_btn" datatype="html">
+        <source>Deactivate</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.activate" datatype="html">
+        <source>Activate</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.activate_btn" datatype="html">
+        <source>Activate</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.remove" datatype="html">
+        <source>Remove</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.remove_btn" datatype="html">
+        <source>Remove</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.add" datatype="html">
+        <source>Add</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.add_btn" datatype="html">
+        <source>Add</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.no_members" datatype="html">
+        <source>No users in this company.</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.no_available" datatype="html">
+        <source>No available users to add.</source>
+      </trans-unit>
+      <trans-unit id="manage_companies.select_hint" datatype="html">
+        <source>Select a company to manage its users.</source>
+      </trans-unit>
+      <trans-unit id="company_switch.title" datatype="html">
+        <source>Select Your Company</source>
+      </trans-unit>
+      <trans-unit id="company_switch.subtitle" datatype="html">
+        <source>Choose a company to continue</source>
+      </trans-unit>
+      <trans-unit id="company_switch.loading" datatype="html">
+        <source>Loading companies...</source>
+      </trans-unit>
+      <trans-unit id="company_switch.error" datatype="html">
+        <source>Error loading companies. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="company_switch.empty" datatype="html">
+        <source>No companies available</source>
+      </trans-unit>
+      <trans-unit id="auth.company_select.loading" datatype="html">
+        <source>Loading your companies…</source>
+      </trans-unit>
+      <trans-unit id="auth.company_select.no_companies" datatype="html">
+        <source>No companies found</source>
+      </trans-unit>
+      <trans-unit id="auth.company_select.not_linked" datatype="html">
+        <source>Your account is not linked to any companies.</source>
+      </trans-unit>
+      <trans-unit id="auth.company_select.welcome" datatype="html">
+        <source>Welcome back!</source>
+      </trans-unit>
+      <trans-unit id="auth.company_select.select" datatype="html">
+        <source>Select a company to continue</source>
+      </trans-unit>
+      <trans-unit id="auth.pin_verify.title" datatype="html">
+        <source>Enter Your PIN</source>
+      </trans-unit>
+      <trans-unit id="auth.pin_verify.subtitle" datatype="html">
+        <source>Enter your 4-digit PIN to continue</source>
+      </trans-unit>
+      <trans-unit id="auth.pin_verify.error" datatype="html">
+        <source>Invalid PIN. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="auth.pin_verify.delete" datatype="html">
+        <source>Delete</source>
+      </trans-unit>
+      <trans-unit id="index.title" datatype="html">
+        <source>ShiftWork Mobile</source>
+      </trans-unit>
+      <trans-unit id="index.subtitle" datatype="html">
+        <source>Workforce Management</source>
+      </trans-unit>
+      <trans-unit id="index.get_started" datatype="html">
+        <source>Get Started</source>
+      </trans-unit>
+      <trans-unit id="index.info" datatype="html">
+        <source>Clock in/out • View Schedules • Track Hours</source>
+      </trans-unit>
+      <trans-unit id="index.version" datatype="html">
+        <source>Version 1.0.0</source>
+      </trans-unit>
+      <trans-unit id="clock.clock_out_hint" datatype="html">
+        <source>Clock out when done</source>
+      </trans-unit>
+      <trans-unit id="clock.clock_in_hint" datatype="html">
+        <source>Clock in to start your shift</source>
+      </trans-unit>
+      <trans-unit id="profile.footer" datatype="html">
+        <source>ShiftWork Mobile · v1.0.0</source>
+      </trans-unit>
+      <trans-unit id="schedule.offline_cached" datatype="html">
+        <source>Offline · cached data</source>
+      </trans-unit>
+      <trans-unit id="schedule.shifts_label" datatype="html">
+        <source>Shifts</source>
+      </trans-unit>
+      <trans-unit id="schedule.no_shifts" datatype="html">
+        <source>No shifts</source>
+      </trans-unit>
+      <trans-unit id="schedule.no_shifts_msg" datatype="html">
+        <source>No shifts scheduled for this period.</source>
+      </trans-unit>
+      <trans-unit id="schedule.shift_meta" datatype="html">
+        <source>Shift #<x id="INTERPOLATION" equiv-text="{{ id }}"/> · <x id="INTERPOLATION_1" equiv-text="{{ status }}"/></source>
+      </trans-unit>
+      <trans-unit id="schedule.clocked_events" datatype="html">
+        <source>Clocked Events</source>
+      </trans-unit>
+      <trans-unit id="schedule.no_events" datatype="html">
+        <source>No events</source>
+      </trans-unit>
+      <trans-unit id="schedule.no_events_msg" datatype="html">
+        <source>No events recorded for this period.</source>
+      </trans-unit>
+      <trans-unit id="schedule.view_title" datatype="html">
+        <source>Schedule View</source>
+      </trans-unit>
+      <trans-unit id="schedule.view_by" datatype="html">
+        <source>View By</source>
+      </trans-unit>
+      <trans-unit id="schedule.navigate" datatype="html">
+        <source>Navigate</source>
+      </trans-unit>
+      <trans-unit id="schedule.prev" datatype="html">
+        <source>Prev</source>
+      </trans-unit>
+      <trans-unit id="schedule.next_btn" datatype="html">
+        <source>Next</source>
+      </trans-unit>
+      <trans-unit id="schedule.mode_day" datatype="html">
+        <source>Day</source>
+      </trans-unit>
+      <trans-unit id="schedule.mode_week" datatype="html">
+        <source>Week</source>
+      </trans-unit>
+      <trans-unit id="schedule.mode_month" datatype="html">
+        <source>Month</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.title" datatype="html">
+        <source>My Weekly Schedule</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.pull_refresh" datatype="html">
+        <source>Pull to refresh</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.total_hours" datatype="html">
+        <source>Total Hours</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.days_scheduled" datatype="html">
+        <source>Days Scheduled</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.last_updated" datatype="html">
+        <source>Last updated: <x id="INTERPOLATION" equiv-text="{{ time }}"/></source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.syncing" datatype="html">
+        <source>🔄 Syncing...</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.loading" datatype="html">
+        <source>Loading schedule...</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.retry" datatype="html">
+        <source>Retry</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.no_shifts" datatype="html">
+        <source>No shifts</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.no_shifts_scheduled" datatype="html">
+        <source>No shifts scheduled</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.no_shifts_msg" datatype="html">
+        <source>Check back later or contact your manager.</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.shift_details" datatype="html">
+        <source>Shift Details</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.date" datatype="html">
+        <source>Date</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.time" datatype="html">
+        <source>Time</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.duration" datatype="html">
+        <source>Duration</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.notes" datatype="html">
+        <source>Notes</source>
+      </trans-unit>
+      <trans-unit id="weekly_schedule.close" datatype="html">
+        <source>Close</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.title" datatype="html">
+        <source>AI Assistant</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.mcp_online" datatype="html">
+        <source>MCP Online</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.offline" datatype="html">
+        <source>Offline</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.checking" datatype="html">
+        <source>Checking…</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.thinking" datatype="html">
+        <source>Thinking…</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.placeholder" datatype="html">
+        <source>Ask me about schedules…</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.quick_schedule" datatype="html">
+        <source>📅 My Schedule</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.quick_tools" datatype="html">
+        <source>🔧 Tools</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.quick_unpublished" datatype="html">
+        <source>📝 Unpublished</source>
+      </trans-unit>
+      <trans-unit id="ai_chat.quick_ping" datatype="html">
+        <source>🏓 Ping</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.unable_to_load" datatype="html">
+        <source>Unable to load</source>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.not_found" datatype="html">
+        <source>Bulletin not found.</source>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.go_back" datatype="html">
+        <source>Go Back</source>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.expires" datatype="html">
+        <source>Expires <x id="INTERPOLATION" equiv-text="{{ date }}"/></source>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.attachments" datatype="html">
+        <source>Attachments</source>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.attachment_label" datatype="html">
+        <source>Attachment <x id="INTERPOLATION" equiv-text="{{ number }}"/></source>
+      </trans-unit>
+      <trans-unit id="bulletin_detail.marked_read" datatype="html">
+        <source>Marked as read</source>
+      </trans-unit>
+      <trans-unit id="document_detail.back" datatype="html">
+        <source>Documents</source>
+      </trans-unit>
+      <trans-unit id="document_detail.open_btn" datatype="html">
+        <source>Open Document</source>
+      </trans-unit>
+      <trans-unit id="document_detail.description" datatype="html">
+        <source>DESCRIPTION</source>
+      </trans-unit>
+      <trans-unit id="document_detail.version" datatype="html">
+        <source>Version</source>
+      </trans-unit>
+      <trans-unit id="document_detail.file_size" datatype="html">
+        <source>File Size</source>
+      </trans-unit>
+      <trans-unit id="document_detail.uploaded_by" datatype="html">
+        <source>Uploaded By</source>
+      </trans-unit>
+      <trans-unit id="document_detail.added" datatype="html">
+        <source>Added</source>
+      </trans-unit>
+      <trans-unit id="document_detail.total_opens" datatype="html">
+        <source>Total Opens</source>
+      </trans-unit>
+      <trans-unit id="document_detail.access" datatype="html">
+        <source>Access</source>
+      </trans-unit>
+      <trans-unit id="document_detail.tags" datatype="html">
+        <source>TAGS</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.back" datatype="html">
+        <source>Safety</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.watch_video" datatype="html">
+        <source>Watch Video</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.open_document" datatype="html">
+        <source>Open Document</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.scroll_hint" datatype="html">
+        <source>Scroll to the bottom to enable acknowledgment</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.acknowledged" datatype="html">
+        <source>You have acknowledged this content.</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.scroll_prompt" datatype="html">
+        <source>Read to the end to enable acknowledgment</source>
+      </trans-unit>
+      <trans-unit id="safety_detail.i_acknowledge" datatype="html">
+        <source>I Acknowledge</source>
+      </trans-unit>
+      <trans-unit id="bulletins.check_back" datatype="html">
+        <source>Check back later for updates</source>
+      </trans-unit>
+      <trans-unit id="documents.search_placeholder" datatype="html">
+        <source>Search documents...</source>
+      </trans-unit>
+      <trans-unit id="documents.try_again" datatype="html">
+        <source>Try Again</source>
+      </trans-unit>
+      <trans-unit id="safety.try_again" datatype="html">
+        <source>Try Again</source>
+      </trans-unit>
+      <trans-unit id="auth.register.company_label" datatype="html">
+        <source>Company</source>
+      </trans-unit>
+      <trans-unit id="auth.register.already_account_prompt" datatype="html">
+        <source>Already have an account?</source>
+      </trans-unit>
+      <trans-unit id="auth.register.sign_in_link" datatype="html">
+        <source>Sign in</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.invalid_msg" datatype="html">
+        <source>Invalid invite link. Please use the link from your invitation email.</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.welcome" datatype="html">
+        <source>Welcome!</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.welcome_name" datatype="html">
+        <source>Welcome, <x id="INTERPOLATION" equiv-text="{{ name }}"/>!</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.activating" datatype="html">
+        <source>Activating...</source>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.activate_btn" datatype="html">
+        <source>Activate Account</source>
+      </trans-unit>
+      <trans-unit id="auth.company_select.contact_admin" datatype="html">
+        <source>Contact your administrator.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.demo_sample_title" datatype="html">
+        <source>Sample data included</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.upgrade_title" datatype="html">
+        <source>Upgrade for more power</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.explore_pro_features" datatype="html">
+        <source>Explore Pro Features</source>
+      </trans-unit>
+      <trans-unit id="clock.on_clock" datatype="html">
+        <source>You are on the clock</source>
+      </trans-unit>
+      <trans-unit id="clock.ready" datatype="html">
+        <source>Ready to start?</source>
+      </trans-unit>
+      <trans-unit id="clock.status_in" datatype="html">
+        <source>On Clock</source>
+      </trans-unit>
+      <trans-unit id="clock.status_out" datatype="html">
+        <source>Off Clock</source>
+      </trans-unit>
+      <trans-unit id="clock.info_location" datatype="html">
+        <source>Location captured</source>
+      </trans-unit>
+      <trans-unit id="clock.info_photo" datatype="html">
+        <source>Photo optional</source>
+      </trans-unit>
+      <trans-unit id="clock.info_device" datatype="html">
+        <source>Device recorded</source>
+      </trans-unit>
+      <trans-unit id="bulletins.filter_unread_count" datatype="html">
+        <source>Unread (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+      </trans-unit>
+      <trans-unit id="bulletins.empty_title" datatype="html">
+        <source>No bulletins</source>
+      </trans-unit>
+      <trans-unit id="bulletins.try_again" datatype="html">
+        <source>Try Again</source>
+      </trans-unit>
+      <trans-unit id="safety.tab_pending_count" datatype="html">
+        <source>Pending (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_pending_title" datatype="html">
+        <source>All caught up!</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_pending_msg" datatype="html">
+        <source>No pending acknowledgments</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_all_title" datatype="html">
+        <source>No safety content</source>
+      </trans-unit>
+      <trans-unit id="safety.empty_all_msg" datatype="html">
+        <source>Check back later</source>
+      </trans-unit>
+      <trans-unit id="daily_report.title" datatype="html">
+        <source>Daily Report</source>
+      </trans-unit>
+      <trans-unit id="daily_report.weather" datatype="html">
+        <source>WEATHER</source>
+      </trans-unit>
+      <trans-unit id="daily_report.weather_meta" datatype="html">
+        <source>Feels <x id="INTERPOLATION" equiv-text="{{ feels }}"/>° · Wind <x id="INTERPOLATION_1" equiv-text="{{ wind }}"/> mph · <x id="INTERPOLATION_2" equiv-text="{{ humidity }}"/>% humidity</source>
+      </trans-unit>
+      <trans-unit id="daily_report.attendance" datatype="html">
+        <source>ATTENDANCE</source>
+      </trans-unit>
+      <trans-unit id="daily_report.employees" datatype="html">
+        <source>Employees</source>
+      </trans-unit>
+      <trans-unit id="daily_report.hours" datatype="html">
+        <source>Hours</source>
+      </trans-unit>
+      <trans-unit id="daily_report.attachments" datatype="html">
+        <source>ATTACHMENTS</source>
+      </trans-unit>
+      <trans-unit id="daily_report.add" datatype="html">
+        <source>Add</source>
+      </trans-unit>
+      <trans-unit id="daily_report.photos_count" datatype="html">
+        <source>Photos (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+      </trans-unit>
+      <trans-unit id="daily_report.notes_count" datatype="html">
+        <source>Notes (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
+      </trans-unit>
+      <trans-unit id="daily_report.empty_attachments" datatype="html">
+        <source>No attachments yet. Tap Add to include photos or notes.</source>
+      </trans-unit>
+      <trans-unit id="daily_report.shift_notes" datatype="html">
+        <source>SHIFT NOTES</source>
+      </trans-unit>
+      <trans-unit id="daily_report.notes_placeholder" datatype="html">
+        <source>Add shift notes, incidents, observations...</source>
+      </trans-unit>
+      <trans-unit id="daily_report.saving" datatype="html">
+        <source>Saving…</source>
+      </trans-unit>
+      <trans-unit id="daily_report.save_draft" datatype="html">
+        <source>Save Draft</source>
+      </trans-unit>
+      <trans-unit id="daily_report.submit" datatype="html">
+        <source>Submit Report</source>
+      </trans-unit>
+      <trans-unit id="daily_report.approve" datatype="html">
+        <source>Approve</source>
+      </trans-unit>
+      <trans-unit id="daily_report.no_access" datatype="html">
+        <source>You don&apos;t have access to daily reports.</source>
+      </trans-unit>
+      <trans-unit id="daily_report.not_found" datatype="html">
+        <source>No report found for this location.</source>
+      </trans-unit>
+      <trans-unit id="daily_report.add_note" datatype="html">
+        <source>Add Note</source>
+      </trans-unit>
+      <trans-unit id="daily_report.note_placeholder" datatype="html">
+        <source>Enter note text...</source>
+      </trans-unit>
+      <trans-unit id="time_off.title" datatype="html">
+        <source>Request Time Off</source>
+      </trans-unit>
+      <trans-unit id="time_off.back" datatype="html">
+        <source>← Back</source>
+      </trans-unit>
+      <trans-unit id="time_off.balance_label" datatype="html">
+        <source>Available PTO Balance</source>
+      </trans-unit>
+      <trans-unit id="time_off.balance_hours" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ value }}"/> hours</source>
+      </trans-unit>
+      <trans-unit id="time_off.type_label" datatype="html">
+        <source>Type</source>
+      </trans-unit>
+      <trans-unit id="time_off.start_date" datatype="html">
+        <source>Start Date</source>
+      </trans-unit>
+      <trans-unit id="time_off.end_date" datatype="html">
+        <source>End Date</source>
+      </trans-unit>
+      <trans-unit id="time_off.estimated_hours" datatype="html">
+        <source>Estimated Hours</source>
+      </trans-unit>
+      <trans-unit id="time_off.business_days" datatype="html">
+        <source>Based on <x id="INTERPOLATION" equiv-text="{{ days }}"/> business days</source>
+      </trans-unit>
+      <trans-unit id="time_off.reason_label" datatype="html">
+        <source>Reason (Optional)</source>
+      </trans-unit>
+      <trans-unit id="time_off.reason_placeholder" datatype="html">
+        <source>Why are you requesting time off?</source>
+      </trans-unit>
+      <trans-unit id="time_off.submitting" datatype="html">
+        <source>Submitting...</source>
+      </trans-unit>
+      <trans-unit id="time_off.submit" datatype="html">
+        <source>Submit Request</source>
+      </trans-unit>
+      <trans-unit id="upgrade.feature" datatype="html">
+        <source>Feature</source>
+      </trans-unit>
+      <trans-unit id="upgrade.upgrade_btn" datatype="html">
+        <source>Upgrade to Pro Now</source>
+      </trans-unit>
+      <trans-unit id="upgrade.back" datatype="html">
+        <source>← Back</source>
+      </trans-unit>
+      <trans-unit id="documents.empty_title" datatype="html">
+        <source>No documents</source>
+      </trans-unit>
+      <trans-unit id="documents.empty_msg" datatype="html">
+        <source>No documents available for your account</source>
+      </trans-unit>
+      <trans-unit id="tabs.home" datatype="html">
+        <source>Home</source>
+      </trans-unit>
+      <trans-unit id="tabs.clock" datatype="html">
+        <source>Clock</source>
+      </trans-unit>
+      <trans-unit id="tabs.schedule" datatype="html">
+        <source>Schedule</source>
+      </trans-unit>
+      <trans-unit id="tabs.profile" datatype="html">
+        <source>Profile</source>
+      </trans-unit>
+      <trans-unit id="tabs.ai" datatype="html">
+        <source>AI</source>
+      </trans-unit>
+      <trans-unit id="tabs.docs" datatype="html">
+        <source>Docs</source>
+      </trans-unit>
+      <trans-unit id="tabs.bulletins" datatype="html">
+        <source>Bulletins</source>
+      </trans-unit>
+      <trans-unit id="tabs.safety" datatype="html">
+        <source>Safety</source>
+      </trans-unit>
+      <trans-unit id="tabs.report" datatype="html">
+        <source>Report</source>
+      </trans-unit>
+      <trans-unit id="tabs.upgrade" datatype="html">
+        <source>Upgrade to Pro</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.admin_aria" datatype="html">
+        <source>Admin settings</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_aria" datatype="html">
+        <source>Clock in or out for <x id="INTERPOLATION" equiv-text="{{ name }}"/></source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.on_shift" datatype="html">
+        <source>On Shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.load_employees_error" datatype="html">
+        <source>Could not load employees.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.retry" datatype="html">
+        <source>Retry</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.search_placeholder" datatype="html">
+        <source>Search employee…</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.tap_hint" datatype="html">
+        <source>Tap your name to clock in or out</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.no_employees" datatype="html">
+        <source>No employees found.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.enter_pin" datatype="html">
+        <source>Enter your PIN</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.pin_incorrect" datatype="html">
+        <source>Incorrect PIN. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.pin_failed" datatype="html">
+        <source>Verification failed. Check your connection.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.cancel" datatype="html">
+        <source>Cancel</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.camera_required" datatype="html">
+        <source>Camera access is required to clock in.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.grant_camera" datatype="html">
+        <source>Grant Camera Access</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.hello_prompt" datatype="html">
+        <source>Hello, <x id="INTERPOLATION" equiv-text="{{ name }}"/>.
+What would you like to do?</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_in" datatype="html">
+        <source>Clock In</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_in_sub" datatype="html">
+        <source>Start your shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_out" datatype="html">
+        <source>Clock Out</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_out_sub" datatype="html">
+        <source>End your shift</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.back" datatype="html">
+        <source>← Back</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.look_at_camera" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ action }}"/> — look at the camera</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.change" datatype="html">
+        <source>← Change</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.questions_heading" datatype="html">
+        <source>A few quick questions</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.please_answer" datatype="html">
+        <source>Please answer: <x id="INTERPOLATION" equiv-text="{{ question }}"/></source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.submit_failed" datatype="html">
+        <source>Submission failed. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.yes" datatype="html">
+        <source>Yes</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.no" datatype="html">
+        <source>No</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.answer_placeholder" datatype="html">
+        <source>Your answer…</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.submit_clock_in" datatype="html">
+        <source>Submit &amp; Clock In</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.submit_clock_out" datatype="html">
+        <source>Submit &amp; Clock Out</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.recording" datatype="html">
+        <source>Recording…</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clocked_in" datatype="html">
+        <source>Clocked In</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clocked_out" datatype="html">
+        <source>Clocked Out</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.employee_fallback" datatype="html">
+        <source>Employee</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.clock_record_error" datatype="html">
+        <source>Could not record your clock event. Please notify your manager.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.returning_in" datatype="html">
+        <source>Returning in <x id="INTERPOLATION" equiv-text="{{ count }}"/>s…</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.no_messages" datatype="html">
+        <source>No messages</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.all_set" datatype="html">
+        <source>You&apos;re all set. Have a great shift!</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.done" datatype="html">
+        <source>Done</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.skip_all" datatype="html">
+        <source>Skip all · Done</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.bulletin_badge" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ priority }}"/> BULLETIN</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.safety_badge" datatype="html">
+        <source>SAFETY · <x id="INTERPOLATION" equiv-text="{{ type }}"/></source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.got_it_done" datatype="html">
+        <source>Got it · Done</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.got_it_next" datatype="html">
+        <source>Got it · Next</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.ack_done" datatype="html">
+        <source>I Acknowledge · Done</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.ack_next" datatype="html">
+        <source>I Acknowledge · Next</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.noted_done" datatype="html">
+        <source>Noted · Done</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.noted_next" datatype="html">
+        <source>Noted · Next</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.setup_login_subtitle" datatype="html">
+        <source>Sign in to set up this kiosk</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.setup_company_subtitle" datatype="html">
+        <source>Connect this device to your company</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.setup_location_subtitle" datatype="html">
+        <source>Select the location for this kiosk</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.enter_email" datatype="html">
+        <source>Please enter your email.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.no_company_assigned" datatype="html">
+        <source>This account has no company assigned. Use manual Company ID instead.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.user_not_found" datatype="html">
+        <source>User not found. Check your email or enter the Company ID manually.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.enter_company_id" datatype="html">
+        <source>Please enter a Company ID.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.connect_failed" datatype="html">
+        <source>Could not connect. Check the Company ID and network.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.select_location_error" datatype="html">
+        <source>Please select a location.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.activate_failed" datatype="html">
+        <source>Failed to activate device. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.email_placeholder" datatype="html">
+        <source>Email address</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.sign_in" datatype="html">
+        <source>Sign In</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.manual_company_link" datatype="html">
+        <source>Enter Company ID manually →</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.company_id_placeholder" datatype="html">
+        <source>Company ID</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.connect" datatype="html">
+        <source>Connect</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.email_signin_link" datatype="html">
+        <source>← Sign in with email</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.available_locations" datatype="html">
+        <source>Available Locations</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.activate_kiosk" datatype="html">
+        <source>Activate Kiosk</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.start_over" datatype="html">
+        <source>← Start over</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.admin_settings" datatype="html">
+        <source>Admin Settings</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.enter_admin_password" datatype="html">
+        <source>Enter Admin Password</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.admin_password_ph" datatype="html">
+        <source>Admin password</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.incorrect_password" datatype="html">
+        <source>Incorrect password.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.verify" datatype="html">
+        <source>Verify</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.admin_menu_title" datatype="html">
+        <source>What would you like to do?</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.current_location" datatype="html">
+        <source>Current location: <x id="INTERPOLATION" equiv-text="{{ location }}"/></source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.change_location" datatype="html">
+        <source>Change Location</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.change_location_sub" datatype="html">
+        <source>Assign this device to a different location</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.reset_device" datatype="html">
+        <source>Reset Device</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.reset_device_sub" datatype="html">
+        <source>Remove enrollment — re-setup required</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.back_plain" datatype="html">
+        <source>Back</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.select_location" datatype="html">
+        <source>Select Location</source>
+      </trans-unit>
+      <trans-unit id="kiosk_app.save_location" datatype="html">
+        <source>Save Location</source>
+      </trans-unit>
+      <trans-unit id="analytics.preset_today" datatype="html">
+        <source>Today</source>
+      </trans-unit>
+      <trans-unit id="analytics.preset_week" datatype="html">
+        <source>This week</source>
+      </trans-unit>
+      <trans-unit id="analytics.preset_month" datatype="html">
+        <source>This month</source>
+      </trans-unit>
+      <trans-unit id="analytics.preset_last_month" datatype="html">
+        <source>Last month</source>
+      </trans-unit>
+      <trans-unit id="analytics.preset_custom" datatype="html">
+        <source>Custom</source>
+      </trans-unit>
+      <trans-unit id="analytics.from" datatype="html">
+        <source>From</source>
+      </trans-unit>
+      <trans-unit id="analytics.to" datatype="html">
+        <source>To</source>
+      </trans-unit>
+      <trans-unit id="analytics.location" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="analytics.all_locations" datatype="html">
+        <source>All locations</source>
+      </trans-unit>
+      <trans-unit id="analytics.area" datatype="html">
+        <source>Area</source>
+      </trans-unit>
+      <trans-unit id="analytics.all_areas" datatype="html">
+        <source>All areas</source>
+      </trans-unit>
+      <trans-unit id="analytics.person" datatype="html">
+        <source>Person</source>
+      </trans-unit>
+      <trans-unit id="analytics.all_people" datatype="html">
+        <source>All people</source>
+      </trans-unit>
+      <trans-unit id="analytics.group_day" datatype="html">
+        <source>Day</source>
+      </trans-unit>
+      <trans-unit id="analytics.group_week" datatype="html">
+        <source>Week</source>
+      </trans-unit>
+      <trans-unit id="analytics.group_month" datatype="html">
+        <source>Month</source>
+      </trans-unit>
+      <trans-unit id="analytics.export" datatype="html">
+        <source>Export</source>
+      </trans-unit>
+      <trans-unit id="analytics.export_csv" datatype="html">
+        <source>Export CSV</source>
+      </trans-unit>
+      <trans-unit id="analytics.export_hours_png" datatype="html">
+        <source>Hours trend (PNG)</source>
+      </trans-unit>
+      <trans-unit id="analytics.export_coverage_png" datatype="html">
+        <source>Coverage (PNG)</source>
+      </trans-unit>
+      <trans-unit id="analytics.export_all_csv" datatype="html">
+        <source>All rows (CSV)</source>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_worked" datatype="html">
+        <source>Worked hours</source>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_scheduled" datatype="html">
+        <source>Scheduled hours</source>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_on_time" datatype="html">
+        <source>On-time %</source>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_open_shifts" datatype="html">
+        <source>Open shifts</source>
+      </trans-unit>
+      <trans-unit id="analytics.no_change" datatype="html">
+        <source>no change</source>
+      </trans-unit>
+      <trans-unit id="analytics.chart_hours_trend" datatype="html">
+        <source>Hours trend</source>
+      </trans-unit>
+      <trans-unit id="analytics.chart_hours_location" datatype="html">
+        <source>Hours by location</source>
+      </trans-unit>
+      <trans-unit id="analytics.chart_attendance" datatype="html">
+        <source>Attendance</source>
+      </trans-unit>
+      <trans-unit id="analytics.chart_coverage" datatype="html">
+        <source>Coverage by location</source>
+      </trans-unit>
+      <trans-unit id="analytics.click_hint" datatype="html">
+        <source>Click a point to drill down</source>
+      </trans-unit>
+      <trans-unit id="analytics.empty_hours" datatype="html">
+        <source>No hours in this range</source>
+      </trans-unit>
+      <trans-unit id="analytics.empty_location" datatype="html">
+        <source>No location data</source>
+      </trans-unit>
+      <trans-unit id="analytics.empty_attendance" datatype="html">
+        <source>No attendance data</source>
+      </trans-unit>
+      <trans-unit id="analytics.empty_coverage" datatype="html">
+        <source>No coverage data</source>
+      </trans-unit>
+      <trans-unit id="analytics.series_worked" datatype="html">
+        <source>Worked</source>
+      </trans-unit>
+      <trans-unit id="analytics.series_scheduled" datatype="html">
+        <source>Scheduled</source>
+      </trans-unit>
+      <trans-unit id="analytics.series_filled" datatype="html">
+        <source>Filled</source>
+      </trans-unit>
+      <trans-unit id="analytics.series_open" datatype="html">
+        <source>Open</source>
+      </trans-unit>
+      <trans-unit id="analytics.drilldown_title" datatype="html">
+        <source>Underlying rows</source>
+      </trans-unit>
+      <trans-unit id="analytics.drilldown_empty" datatype="html">
+        <source>No rows for this selection.</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_day" datatype="html">
+        <source>Day</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_person" datatype="html">
+        <source>Person</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_location" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_scheduled" datatype="html">
+        <source>Scheduled</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_worked" datatype="html">
+        <source>Worked</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_variance" datatype="html">
+        <source>Variance</source>
+      </trans-unit>
+      <trans-unit id="analytics.col_status" datatype="html">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="analytics.status_on_time" datatype="html">
+        <source>On time</source>
+      </trans-unit>
+      <trans-unit id="analytics.status_late" datatype="html">
+        <source>Late</source>
+      </trans-unit>
+      <trans-unit id="analytics.status_no_show" datatype="html">
+        <source>No show</source>
+      </trans-unit>
+      <trans-unit id="analytics.status_open" datatype="html">
+        <source>Open</source>
+      </trans-unit>
+      <trans-unit id="analytics.status_unscheduled" datatype="html">
+        <source>Unscheduled</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

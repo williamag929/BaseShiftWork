@@ -135,23 +135,27 @@ Branch: `feature/professional-w3-tests` (commits `7d02952`–`89a8a57`)
 - `TestHelpers/FakePush` no-op wrapper for push in all API tests
 - **Also completed (alongside W3):** push + email notifications wired to schedule/shift publish; mobile device token lifecycle (register → store → remove on sign-out); EAS project linked (`531adbf1-53a0-48ca-9fc8-f65ae312365a`)
 
-### Week 4 - Security Hardening Sprint ⬜ NOT STARTED
-Branch: `feature/professional-w4-security` (to be created from W3)
-- Company scoping audit — cross-tenant rejection tests on all v2 endpoints
-- Auth middleware validation — Firebase JWT (web) vs. API JWT (mobile) applied correctly
-- S3 presigned URL audit — expiry (15 min), verb enforcement, bucket policy
-- Audit history review — confirm `AuditInterceptor` covers all v2 writes
-- `Docs/W4_SECURITY_CHECKLIST.md` — per-endpoint findings + signoff
+### Week 4 - Security Hardening Sprint ✅ COMPLETE
+Branch: `feature/professional-w4-security`
+- Company scoping audit — found and fixed 2 cross-tenant write bugs (`BulletinService.MarkAsReadAsync`, `DailyReportService.AddMediaAsync`/`RemoveMediaAsync` all ignored the `companyId` parameter); added 16 cross-tenant rejection tests across all 4 v2 services
+- Auth middleware validated — Firebase JWT (web) vs. API JWT (mobile) confirmed applied correctly; all v2 controllers policy-gated
+- S3 presigned URL audit — 15-min expiry and verb enforcement confirmed on GET/PUT
+- Audit history review — found `AuditInterceptor` silently skipped 4 child tables lacking `CompanyId` (`BulletinRead`, `SafetyAcknowledgment`, `DocumentReadLog`, `ReportMedia`); fixed via parent-lookup CompanyId resolution, added 5 regression tests
+- `Docs/W4_SECURITY_CHECKLIST.md` — per-endpoint findings + signoff (0 open high-severity findings)
 
-### Week 5 - Observability and Runbooks ⬜ NOT STARTED
-- Dashboards and alerts: API error rate, p95 latency, auth failures, push failures, kiosk failures
-- Runbooks: degraded API, S3 outage, push provider outage, emergency rollback
-- Failure simulation drills
+### Week 5 - Stabilization and Release Readiness ✅ COMPLETE
+Branch: `feature/professional-w5-stabilization`
+- Bug bash across all modules — found Angular's entire test suite was non-functional (0 tests ran; fixed karma builder + 6 components' unreachable NgModule scope), Mobile/Kiosk `node_modules` stale (`jest-expo` missing), Angular build missing packages. All fixed: API 87/87, Angular 99/99 (was 0), Mobile 57/57, Kiosk 8/8.
+- Also fixed real bugs surfaced once tests could run: `KioskComponent`'s stray `MatDialogModule` import shadowing the TestBed `MatDialog` mock, and several spec-only bugs (wrong `MAT_DIALOG_DATA` token, wrong tooltip attribute, missing mock fields).
+- Performance smoke tests — not run this sprint; flagged as a pre-release follow-up.
+- `Docs/W5_STABILIZATION_CHECKLIST.md` — full results + conditional go/no-go recommendation
 
-### Week 6 - Stabilization and Release Readiness ⬜ NOT STARTED
-- Bug bash across all modules.
-- Performance smoke tests.
-- Final go/no-go with measurable acceptance checklist.
+### Week 6 - Observability and Runbooks ✅ COMPLETE
+Branch: `feature/professional-w6-observability`
+- Added `/health` (liveness) and `/health/ready` (DB connectivity) endpoints to the API — there were no health checks at all before this sprint.
+- `Docs/W6_DASHBOARDS_AND_ALERTS.md` — metric definitions and alert thresholds for API error rate, p95 latency, auth failures, push failures, and kiosk interstitial failures, grounded in this codebase's actual logging. No dashboards were actually provisioned (Datadog/Grafana access requires an interactive OAuth grant not available this session) — this is the spec for whoever wires up the chosen backend.
+- `Docs/W6_RUNBOOKS.md` — degraded API, S3 outage, push provider outage, and emergency rollback, all grounded in the real `docker compose` deploy topology (`.github/workflows/deploy.yml`).
+- `Docs/W6_FAILURE_DRILLS.md` — 5 concrete drills to validate the runbooks/alerts actually work; none executed yet (staging-only, not run this sprint).
 
 ## Prioritization Rules
 1. Protect clocking and payroll-adjacent workflows first.

@@ -17,10 +17,12 @@ import { companyService, CompanySummary } from '@/services/company.service';
 import { useToast } from '@/hooks/useToast';
 import { logger } from '@/utils/logger';
 import { colors, spacing, radius } from '@/styles/tokens';
+import { useTranslation } from '@/i18n';
 
 export default function CompanySelectScreen() {
   const router = useRouter();
   const toast = useToast();
+  const { t } = useTranslation();
   const setCompanyId = useAuthStore((s) => s.setCompanyId);
 
   const [companies, setCompanies] = useState<CompanySummary[]>([]);
@@ -69,7 +71,7 @@ export default function CompanySelectScreen() {
       <View style={styles.centered}>
         <StatusBar style="light" />
         <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>Loading your companies…</Text>
+        <Text style={styles.loadingText}>{t('auth.company_select.loading')}</Text>
       </View>
     );
   }
@@ -78,10 +80,10 @@ export default function CompanySelectScreen() {
     return (
       <View style={styles.centered}>
         <StatusBar style="light" />
-        <Text style={styles.emptyTitle}>No companies found</Text>
+        <Text style={styles.emptyTitle}>{t('auth.company_select.no_companies')}</Text>
         <Text style={styles.emptySubtitle}>
-          Your account is not linked to any company yet.{'\n'}
-          Contact your administrator.
+          {t('auth.company_select.not_linked')}{'\n'}
+          {t('auth.company_select.contact_admin')}
         </Text>
       </View>
     );
@@ -92,8 +94,8 @@ export default function CompanySelectScreen() {
       <StatusBar style="light" />
 
       <View style={styles.header}>
-        <Text style={styles.greeting}>Welcome back!</Text>
-        <Text style={styles.subtitle}>Select a company to continue</Text>
+        <Text style={styles.greeting}>{t('auth.company_select.welcome')}</Text>
+        <Text style={styles.subtitle}>{t('auth.company_select.select')}</Text>
       </View>
 
       <FlatList

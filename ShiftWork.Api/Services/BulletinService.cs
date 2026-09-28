@@ -18,7 +18,7 @@ namespace ShiftWork.Api.Services
         Task<Bulletin> CreateAsync(string companyId, Bulletin bulletin);
         Task<Bulletin?> UpdateAsync(Guid bulletinId, string companyId, Bulletin updates);
         Task<bool> ArchiveAsync(Guid bulletinId, string companyId);
-        Task MarkAsReadAsync(Guid bulletinId, string companyId, int personId);
+        Task<bool> MarkAsReadAsync(Guid bulletinId, string companyId, int personId);
         Task<List<BulletinRead>> GetReadsAsync(Guid bulletinId, string companyId);
     }
 
@@ -148,12 +148,17 @@ namespace ShiftWork.Api.Services
             return true;
         }
 
-        public async Task MarkAsReadAsync(Guid bulletinId, string companyId, int personId)
+        public async Task<bool> MarkAsReadAsync(Guid bulletinId, string companyId, int personId)
         {
+            var belongsToCompany = await _context.Bulletins
+                .AnyAsync(b => b.BulletinId == bulletinId && b.CompanyId == companyId);
+
+            if (!belongsToCompany) return false;
+
             var exists = await _context.BulletinReads
                 .AnyAsync(r => r.BulletinId == bulletinId && r.PersonId == personId);
 
-            if (exists) return;
+            if (exists) return true;
 
             _context.BulletinReads.Add(new BulletinRead
             {
@@ -164,6 +169,7 @@ namespace ShiftWork.Api.Services
 
             await _context.SaveChangesAsync();
             _logger.LogInformation("Bulletin {BulletinId} marked read by Person {PersonId}", bulletinId, personId);
+            return true;
         }
 
         public async Task<List<BulletinRead>> GetReadsAsync(Guid bulletinId, string companyId)
@@ -184,18 +190,21 @@ namespace ShiftWork.Api.Services
         {
             try
             {
-                var title = bulletin.Priority == "Urgent" ? $"⚠ {bulletin.Title}" : bulletin.Title;
-                var body = $"New {bulletin.Type.ToLower()} bulletin posted";
+                var templateKey = bulletin.Priority == "Urgent" ? "bulletin_posted_urgent" : "bulletin_posted";
+                Dictionary<string, string> Vars(string lang) => new()
+                {
+                    { "title", bulletin.Title },
+                    { "type", bulletin.Type.ToLower() }
+                };
+                var data = new Dictionary<string, object> { { "type", "bulletin" }, { "bulletinId", bulletin.BulletinId } };
 
                 if (bulletin.LocationId.HasValue)
-                    await _push.SendNotificationToMultiplePeopleAsync(
+                    await _push.SendLocalizedNotificationAsync(
                         bulletin.CompanyId,
                         await GetPersonIdsAtLocationAsync(bulletin.CompanyId, bulletin.LocationId.Value),
-                        title, body,
-                        new Dictionary<string, object> { { "type", "bulletin" }, { "bulletinId", bulletin.BulletinId } });
+                        templateKey, Vars, data);
                 else
-                    await _push.SendNotificationToCompanyAsync(bulletin.CompanyId, title, body,
-                        new Dictionary<string, object> { { "type", "bulletin" }, { "bulletinId", bulletin.BulletinId } });
+                    await _push.SendLocalizedNotificationToCompanyAsync(bulletin.CompanyId, templateKey, Vars, data);
             }
             catch (Exception ex)
             {

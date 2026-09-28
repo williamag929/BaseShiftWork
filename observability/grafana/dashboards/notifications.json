@@ -1,0 +1,55 @@
+{
+  "title": "ShiftWork — Notifications",
+  "uid": "shiftwork-notifications",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "refresh": "30s",
+  "time": { "from": "now-24h", "to": "now" },
+  "tags": ["shiftwork"],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Push notification failures",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "shiftwork-prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(shiftwork_push_notification_failures_total{job=\"shiftwork-api\"}[15m]))",
+          "legendFormat": "failures/s"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Kiosk interstitial (post-clockout) failures",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "shiftwork-prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(shiftwork_kiosk_interstitial_failures_total{job=\"shiftwork-api\"}[15m]))",
+          "legendFormat": "failures/s"
+        }
+      ],
+      "fieldConfig": { "defaults": {} },
+      "thresholds": { "steps": [{ "value": 0, "color": "red" }] }
+    },
+    {
+      "id": 3,
+      "title": "Kiosk post-clockout endpoint error rate (%)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "shiftwork-prometheus" },
+      "targets": [
+        {
+          "expr": "100 * sum(rate(http_server_request_duration_seconds_count{job=\"shiftwork-api\", http_route=~\".*post-clockout.*\", http_response_status_code=~\"5..\"}[15m])) / sum(rate(http_server_request_duration_seconds_count{job=\"shiftwork-api\", http_route=~\".*post-clockout.*\"}[15m]))",
+          "legendFormat": "error %"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percent" } },
+      "thresholds": { "steps": [{ "value": 1, "color": "orange" }] }
+    }
+  ]
+}

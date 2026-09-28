@@ -52,7 +52,11 @@ describe('PhotoScheduleComponent local-day and UTC-wall-clock matching', () => {
   const toastrStub = { success: jasmine.createSpy('success'), error: jasmine.createSpy('error') };
   const dialogStub = { open: jasmine.createSpy('open') };
   const routerStub = { navigate: jasmine.createSpy('navigate') };
-  const wakeLockStub = { request: jasmine.createSpy('request'), release: jasmine.createSpy('release') };
+  const wakeLockStub = {
+    request: jasmine.createSpy('request'),
+    release: jasmine.createSpy('release'),
+    isSupported: () => false,
+  };
 
   beforeEach(async () => {
     shiftEvents = [];
@@ -104,6 +108,7 @@ describe('PhotoScheduleComponent local-day and UTC-wall-clock matching', () => {
       personId: 7,
       startDate: new Date(Date.UTC(localNow.getFullYear(), localNow.getMonth(), localNow.getDate(), 9, 0, 0)),
       endDate: new Date(Date.UTC(localNow.getFullYear(), localNow.getMonth(), localNow.getDate(), 17, 0, 0)),
+      location: { name: 'Test Location' },
     } as ScheduleDetail;
 
     selectedEmployee.scheduleDetails = [matchingSchedule];
@@ -123,6 +128,7 @@ describe('PhotoScheduleComponent local-day and UTC-wall-clock matching', () => {
       personId: 7,
       startDate: new Date(Date.UTC(localNow.getFullYear(), localNow.getMonth(), localNow.getDate() + 1, 9, 0, 0)),
       endDate: new Date(Date.UTC(localNow.getFullYear(), localNow.getMonth(), localNow.getDate() + 1, 17, 0, 0)),
+      location: { name: 'Test Location' },
     } as ScheduleDetail;
 
     selectedEmployee.scheduleDetails = [nextUtcDaySchedule];
@@ -160,6 +166,7 @@ describe('PhotoScheduleComponent local-day and UTC-wall-clock matching', () => {
         personId: 7,
         startDate: new Date(Date.UTC(localNow.getFullYear(), localNow.getMonth(), localNow.getDate(), 9, 0, 0)),
         endDate: new Date(Date.UTC(localNow.getFullYear(), localNow.getMonth(), localNow.getDate(), 17, 0, 0)),
+        location: { name: 'Test Location' },
       } as ScheduleDetail,
     ];
 

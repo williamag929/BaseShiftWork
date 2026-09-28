@@ -120,5 +120,53 @@ public class SafetyServiceTests : IDisposable
         Assert.Equal("Pending", pending[0].Title);
     }
 
+    [Fact]
+    public async Task GetByIdAsync_ReturnsNull_ForWrongCompany()
+    {
+        var content = await _sut.CreateAsync(CompanyA, new SafetyContent { Title = "T", Description = "Desc", Type = "ToolboxTalk", Status = "Published" });
+
+        var result = await _sut.GetByIdAsync(content.SafetyContentId, CompanyB);
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ReturnsNull_ForWrongCompany()
+    {
+        var content = await _sut.CreateAsync(CompanyA, new SafetyContent { Title = "T", Description = "Desc", Type = "ToolboxTalk", Status = "Draft" });
+
+        var result = await _sut.UpdateAsync(content.SafetyContentId, CompanyB, new SafetyContent { Title = "Hacked", Description = "Desc", Type = "ToolboxTalk", Status = "Draft" });
+
+        Assert.Null(result);
+        var saved = await _context.SafetyContents.FindAsync(content.SafetyContentId);
+        Assert.Equal("T", saved!.Title);
+    }
+
+    [Fact]
+    public async Task ArchiveAsync_ReturnsFalse_ForWrongCompany()
+    {
+        var content = await _sut.CreateAsync(CompanyA, new SafetyContent { Title = "T", Description = "Desc", Type = "ToolboxTalk", Status = "Published" });
+
+        var result = await _sut.ArchiveAsync(content.SafetyContentId, CompanyB);
+
+        Assert.False(result);
+        var saved = await _context.SafetyContents.FindAsync(content.SafetyContentId);
+        Assert.NotEqual("Archived", saved!.Status);
+    }
+
+    [Fact]
+    public async Task GetAcknowledgmentStatusAsync_ReturnsEmptyStatus_ForWrongCompany()
+    {
+        var content = await _sut.CreateAsync(CompanyA, new SafetyContent { Title = "T", Description = "Desc", Type = "ToolboxTalk", Status = "Published", IsAcknowledgmentRequired = true });
+        await _sut.AcknowledgeAsync(content.SafetyContentId, CompanyA, personId: 5);
+
+        var status = await _sut.GetAcknowledgmentStatusAsync(content.SafetyContentId, CompanyB);
+
+        Assert.Equal(0, status.TotalAssigned);
+        Assert.Equal(0, status.TotalCompleted);
+        Assert.Empty(status.Completed);
+        Assert.Empty(status.Pending);
+    }
+
     public void Dispose() => _context.Dispose();
 }

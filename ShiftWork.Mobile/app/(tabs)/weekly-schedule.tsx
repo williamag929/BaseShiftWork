@@ -23,6 +23,7 @@ import { notificationService } from '@/services/notification.service';
 import { Ionicons } from '@expo/vector-icons';
 import { Badge, EmptyState } from '@/components/ui';
 import { colors } from '@/styles/theme';
+import { useTranslation } from '@/i18n';
 
 interface DaySchedule {
   date: Date;
@@ -33,7 +34,8 @@ interface DaySchedule {
 export default function WeeklyScheduleScreen() {
   const { companyId, personId, name: personName } = useAuthStore();
   const setPersonProfile = useAuthStore((s) => s.setPersonProfile);
-  
+  const { t } = useTranslation();
+
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(getWeekStart(new Date()));
   const [weekSchedule, setWeekSchedule] = useState<DaySchedule[]>([]);
   const [loading, setLoading] = useState(false);
@@ -42,7 +44,7 @@ export default function WeeklyScheduleScreen() {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [silentRefreshing, setSilentRefreshing] = useState(false);
   const [selectedShift, setSelectedShift] = useState<ScheduleShiftDto | null>(null);
-  
+
   const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const notificationListenerRef = useRef<Notifications.Subscription | null>(null);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
@@ -51,7 +53,6 @@ export default function WeeklyScheduleScreen() {
     loadWeekSchedule();
   }, [currentWeekStart, companyId, personId]);
 
-  // Hydrate person name if missing
   useEffect(() => {
     (async () => {
       try {
@@ -68,11 +69,9 @@ export default function WeeklyScheduleScreen() {
     })();
   }, [companyId, personId]);
 
-  // Setup polling and notification listeners
   useEffect(() => {
     if (!companyId || !personId) return;
 
-    // Start background polling (every 5 minutes)
     const startPolling = () => {
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
@@ -83,19 +82,18 @@ export default function WeeklyScheduleScreen() {
           setSilentRefreshing(true);
           loadWeekSchedule(true).finally(() => {
             setTimeout(() => setSilentRefreshing(false), 1000);
-          }); // Silent refresh
+          });
         }
-      }, 5 * 60 * 1000); // 5 minutes
+      }, 5 * 60 * 1000);
     };
 
     startPolling();
 
-    // Listen for push notifications about schedule changes
     notificationListenerRef.current = notificationService.addNotificationReceivedListener(
       (notification) => {
         const data = notification.request.content.data;
-        if (data?.type === 'schedule_published' || 
-            data?.type === 'shift_assigned' || 
+        if (data?.type === 'schedule_published' ||
+            data?.type === 'shift_assigned' ||
             data?.type === 'shift_changed') {
           logger.log('[Schedule] Update notification received, refreshing...');
           setSilentRefreshing(true);
@@ -106,10 +104,8 @@ export default function WeeklyScheduleScreen() {
       }
     );
 
-    // Handle app state changes (foreground/background)
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (appStateRef.current.match(/inactive|background/) && nextAppState === 'active') {
-        // App came to foreground, refresh schedule
         logger.log('App resumed, refreshing schedule...');
         setSilentRefreshing(true);
         loadWeekSchedule(true).finally(() => {
@@ -133,7 +129,7 @@ export default function WeeklyScheduleScreen() {
   function getWeekStart(date: Date): Date {
     const d = new Date(date);
     const day = d.getDay();
-    const diff = d.getDate() - day; // Sunday as start of week
+    const diff = d.getDate() - day;
     const weekStart = new Date(d.setDate(diff));
     weekStart.setHours(0, 0, 0, 0);
     return weekStart;
@@ -149,7 +145,7 @@ export default function WeeklyScheduleScreen() {
   function getWeekDays(weekStart: Date): DaySchedule[] {
     const days: DaySchedule[] = [];
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    
+
     for (let i = 0; i < 7; i++) {
       const date = new Date(weekStart);
       date.setDate(weekStart.getDate() + i);
@@ -159,7 +155,7 @@ export default function WeeklyScheduleScreen() {
         shifts: [],
       });
     }
-    
+
     return days;
   }
 
@@ -173,8 +169,7 @@ export default function WeeklyScheduleScreen() {
 
     try {
       const weekEnd = getWeekEnd(currentWeekStart);
-      
-      // Fetch person shifts for this date range
+
       const personShifts = await scheduleService.getPersonShifts(
         companyId,
         personId,
@@ -182,26 +177,23 @@ export default function WeeklyScheduleScreen() {
         weekEnd.toISOString().split('T')[0]
       );
 
-      // Filter for published/approved shifts only
-      const publishedShifts = personShifts.filter((shift: ScheduleShiftDto) => 
-        shift.status && 
+      const publishedShifts = personShifts.filter((shift: ScheduleShiftDto) =>
+        shift.status &&
         (shift.status.toLowerCase() === 'published' || shift.status.toLowerCase() === 'approved')
       );
 
-      // Organize shifts by day
       const days = getWeekDays(currentWeekStart);
-      
+
       publishedShifts.forEach((shift: ScheduleShiftDto) => {
         const shiftDate = new Date(shift.startDate as Date);
-        
+
         const dayIndex = days.findIndex(day => {
           const d = new Date(day.date);
-          // Compare using UTC date components since schedule times are stored as wall-clock UTC
           return d.getFullYear() === shiftDate.getUTCFullYear()
             && d.getMonth() === shiftDate.getUTCMonth()
             && d.getDate() === shiftDate.getUTCDate();
         });
-        
+
         if (dayIndex >= 0) {
           days[dayIndex].shifts.push(shift);
         }
@@ -257,63 +249,63 @@ export default function WeeklyScheduleScreen() {
 
   const weekEnd = getWeekEnd(currentWeekStart);
   const totalHours = weekSchedule.reduce((total, day) => {
-    return total + day.shifts.reduce((dayTotal, shift) => 
+    return total + day.shifts.reduce((dayTotal, shift) =>
       dayTotal + calculateShiftHours(shift), 0
     );
   }, 0);
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
           tintColor={colors.primary}
-          title="Pull to refresh"
+          title={t('weekly_schedule.pull_refresh')}
         />
       }
     >
       <StatusBar style="light" />
 
       <View style={styles.header}>
-        <Text style={styles.title}>My Weekly Schedule</Text>
+        <Text style={styles.title}>{t('weekly_schedule.title')}</Text>
         <View style={styles.weekNav}>
           <TouchableOpacity onPress={goToPreviousWeek} style={styles.navButton}>
             <Text style={styles.navButtonText}>←</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity onPress={goToCurrentWeek} style={styles.weekDisplay}>
             <Text style={styles.weekText}>
               {formatDate(currentWeekStart)} - {formatDate(weekEnd)}
             </Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity onPress={goToNextWeek} style={styles.navButton}>
             <Text style={styles.navButtonText}>→</Text>
           </TouchableOpacity>
         </View>
-        
+
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
             <Text style={styles.statValue}>{totalHours.toFixed(1)}</Text>
-            <Text style={styles.statLabel}>Total Hours</Text>
+            <Text style={styles.statLabel}>{t('weekly_schedule.total_hours')}</Text>
           </View>
           <View style={styles.statBox}>
             <Text style={styles.statValue}>
               {weekSchedule.filter(d => d.shifts.length > 0).length}
             </Text>
-            <Text style={styles.statLabel}>Days Scheduled</Text>
+            <Text style={styles.statLabel}>{t('weekly_schedule.days_scheduled')}</Text>
           </View>
         </View>
         {lastUpdate && (
           <View style={styles.updateRow}>
             <Text style={styles.lastUpdateText}>
-              Last updated: {lastUpdate.toLocaleTimeString()}
+              {t('weekly_schedule.last_updated', { time: lastUpdate.toLocaleTimeString() })}
             </Text>
             {silentRefreshing && (
               <View style={styles.syncIndicator}>
-                <Text style={styles.syncText}>🔄 Syncing...</Text>
+                <Text style={styles.syncText}>{t('weekly_schedule.syncing')}</Text>
               </View>
             )}
           </View>
@@ -323,7 +315,7 @@ export default function WeeklyScheduleScreen() {
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading schedule...</Text>
+          <Text style={styles.loadingText}>{t('weekly_schedule.loading')}</Text>
         </View>
       )}
 
@@ -331,7 +323,7 @@ export default function WeeklyScheduleScreen() {
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity onPress={() => loadWeekSchedule()} style={styles.retryButton}>
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={styles.retryButtonText}>{t('weekly_schedule.retry')}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -364,7 +356,7 @@ export default function WeeklyScheduleScreen() {
               {day.shifts.length === 0 ? (
                 <View style={styles.noShifts}>
                   <Ionicons name="calendar-outline" size={18} color="#9AA6B2" />
-                  <Text style={styles.noShiftsText}>No shifts</Text>
+                  <Text style={styles.noShiftsText}>{t('weekly_schedule.no_shifts')}</Text>
                 </View>
               ) : (
                 <View style={styles.shifts}>
@@ -402,8 +394,8 @@ export default function WeeklyScheduleScreen() {
       )}
       {!loading && !error && weekSchedule.length === 0 && (
         <EmptyState
-          title="No shifts scheduled"
-          message="Check back later or contact your manager."
+          title={t('weekly_schedule.no_shifts_scheduled')}
+          message={t('weekly_schedule.no_shifts_msg')}
           icon="calendar-clear-outline"
         />
       )}
@@ -417,7 +409,7 @@ export default function WeeklyScheduleScreen() {
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Shift Details</Text>
+              <Text style={styles.modalTitle}>{t('weekly_schedule.shift_details')}</Text>
               <TouchableOpacity onPress={() => setSelectedShift(null)}>
                 <Ionicons name="close" size={20} color="#4A4A4A" />
               </TouchableOpacity>
@@ -426,24 +418,24 @@ export default function WeeklyScheduleScreen() {
             {selectedShift && (
               <View style={styles.modalBody}>
                 <View style={styles.modalRow}>
-                  <Text style={styles.modalLabel}>Date</Text>
+                  <Text style={styles.modalLabel}>{t('weekly_schedule.date')}</Text>
                   <Text style={styles.modalValue}>{formatDate(selectedShift.startDate)}</Text>
                 </View>
                 <View style={styles.modalRow}>
-                  <Text style={styles.modalLabel}>Time</Text>
+                  <Text style={styles.modalLabel}>{t('weekly_schedule.time')}</Text>
                   <Text style={styles.modalValue}>{formatScheduleTime(selectedShift.startDate)} - {formatScheduleTime(selectedShift.endDate)}</Text>
                 </View>
                 <View style={styles.modalRow}>
-                  <Text style={styles.modalLabel}>Duration</Text>
+                  <Text style={styles.modalLabel}>{t('weekly_schedule.duration')}</Text>
                   <Text style={styles.modalValue}>{calculateShiftHours(selectedShift)}h</Text>
                 </View>
                 <View style={styles.modalRow}>
-                  <Text style={styles.modalLabel}>Status</Text>
+                  <Text style={styles.modalLabel}>{t('common.status')}</Text>
                   <Text style={styles.modalValue}>{selectedShift.status}</Text>
                 </View>
                 {selectedShift.notes && (
                   <View style={styles.modalRowColumn}>
-                    <Text style={styles.modalLabel}>Notes</Text>
+                    <Text style={styles.modalLabel}>{t('weekly_schedule.notes')}</Text>
                     <Text style={styles.modalValue}>{selectedShift.notes}</Text>
                   </View>
                 )}
@@ -451,7 +443,7 @@ export default function WeeklyScheduleScreen() {
             )}
 
             <TouchableOpacity style={styles.modalClose} onPress={() => setSelectedShift(null)}>
-              <Text style={styles.modalCloseText}>Close</Text>
+              <Text style={styles.modalCloseText}>{t('weekly_schedule.close')}</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -2,27 +2,21 @@
 <div class="photo-schedule-container">
   <!-- Header -->
   <div class="d-flex justify-content-center mb-3" *ngIf="selectedEmployee">
-    <h2>
-      {{ selectedEmployee.name }}
-      <!--ng-container *ngIf="getTimingFromStatus(employeeStatus) as timing">
-        <span class="badge ms-2" [ngClass]="getTimingBadgeClass(timing)">{{ timing }}</span>
-      </ng-container-->
-    </h2>
+    <h2>{{ selectedEmployee.name }}</h2>
   </div>
-
 
   <!-- Schedule Info -->
   <div *ngIf="employeeSchedule" class="schedule-info text-center mb-3">
-    <h4>Today's Schedule</h4>
-    <p><strong>Location:</strong> {{ employeeSchedule.location.name }}</p>
-    <p><strong>Start Time:</strong> {{ employeeSchedule.startDate | date: 'shortTime' : 'UTC' }}</p>
-    <p><strong>End Time:</strong> {{ employeeSchedule.endDate | date: 'shortTime' : 'UTC' }}</p>
-  </div>  
+    <h4 i18n="@@kiosk_photo.todays_schedule">Today's Schedule</h4>
+    <p><strong i18n="@@kiosk_photo.location_label">Location:</strong> {{ employeeSchedule.location.name }}</p>
+    <p><strong i18n="@@kiosk_photo.start_time_label">Start Time:</strong> {{ employeeSchedule.startDate | date: 'shortTime' : 'UTC' }}</p>
+    <p><strong i18n="@@kiosk_photo.end_time_label">End Time:</strong> {{ employeeSchedule.endDate | date: 'shortTime' : 'UTC' }}</p>
+  </div>
 
   <!-- Webcam View -->
-  <webcam 
-    *ngIf="!webcamImage && selectedEmployee" 
-    [trigger]="triggerObservable$" 
+  <webcam
+    *ngIf="!webcamImage && selectedEmployee"
+    [trigger]="triggerObservable$"
     (imageCapture)="handleImage($event)"
     (initError)="handleInitError($event)"
     class="webcam-container">
@@ -30,19 +24,19 @@
 
   <!-- Captured Photo Display -->
   <div *ngIf="webcamImage && selectedEmployee" class="photo-result text-center">
-    <img 
-      [src]="flippedImage" 
-      alt="Captured photo" 
+    <img
+      [src]="flippedImage"
+      alt="Captured photo"
+      i18n-alt="@@kiosk_photo.captured_alt"
       class="captured-photo mb-3">
-    <h3 class="success-message">Shift updated thanks!</h3>
-    
+    <h3 class="success-message" i18n="@@kiosk_photo.success_message">Shift updated thanks!</h3>
   </div>
 
   <!-- Countdown Display -->
   <div *ngIf="countdown$ | async as count" class="countdown-container">
     <div *ngIf="count > 0" class="countdown-overlay">
       <div class="d-flex justify-content-center align-items-center h-100">
-        <h4 class="countdown-text">
+        <h4 class="countdown-text" i18n="@@kiosk_photo.countdown">
           Capturing photo in {{ count }} seconds...
         </h4>
       </div>
@@ -51,70 +45,71 @@
 
   <!-- Action Buttons -->
   <div *ngIf="!scheduling && selectedEmployee" class="action-buttons">
-    <div class="mb-2" *ngIf="wakeLock.isSupported()" title="Screen wake lock active to prevent sleep">
+    <div class="mb-2" *ngIf="wakeLock.isSupported()" i18n-title="@@kiosk_photo.wake_lock_title" title="Screen wake lock active to prevent sleep">
       <span class="badge bg-secondary" [class.bg-success]="wakeLock.isActive()">
-        {{ wakeLock.isActive() ? 'Screen Locked' : 'Screen May Sleep' }}
+        <ng-container *ngIf="wakeLock.isActive()" i18n="@@kiosk_employees.screen_locked">Screen Locked</ng-container>
+        <ng-container *ngIf="!wakeLock.isActive()" i18n="@@kiosk_employees.screen_sleep">Screen May Sleep</ng-container>
       </span>
     </div>
     <div class="button-group mb-3">
-      <button 
+      <button
         *ngIf="!webcamImage && canStartShift()"
         type="button"
         class="btn btn-success btn-lg me-2"
         (click)="triggerImage(ScheduleAction.START_SHIFT)"
         [disabled]="scheduling">
         <i class="fa fa-play" aria-hidden="true"></i>
-        Start Shift
+        <ng-container i18n="@@kiosk_photo.start_shift_btn">Start Shift</ng-container>
       </button>
-      
-      <button 
+
+      <button
         *ngIf="!webcamImage && canEndShift()"
         type="button"
         class="btn btn-danger btn-lg"
         (click)="triggerImage(ScheduleAction.END_SHIFT)"
         [disabled]="scheduling">
         <i class="fa fa-stop" aria-hidden="true"></i>
-        End Shift
+        <ng-container i18n="@@kiosk_photo.end_shift_btn">End Shift</ng-container>
       </button>
     </div>
 
     <div class="button-group mb-3">
-      <button 
+      <button
         *ngIf="!webcamImage && isOnShiftStatus(employeeStatus)"
         type="button"
         class="btn btn-primary btn-lg me-2"
         (click)="triggerImage(ScheduleAction.START_BREAK)"
         [disabled]="scheduling">
         <i class="fa fa-coffee" aria-hidden="true"></i>
-        Start Break
+        <ng-container i18n="@@kiosk_photo.start_break_btn">Start Break</ng-container>
       </button>
-      
-      <button 
+
+      <button
         *ngIf="!webcamImage && isOnShiftStatus(employeeStatus)"
         type="button"
         class="btn btn-warning btn-lg"
         (click)="triggerImage(ScheduleAction.END_BREAK)"
         [disabled]="scheduling">
         <i class="fa fa-play-circle" aria-hidden="true"></i>
-        End Break
+        <ng-container i18n="@@kiosk_photo.end_break_btn">End Break</ng-container>
       </button>
     </div>
 
     <div class="button-group">
-      <button 
+      <button
         *ngIf="!webcamImage"
         type="button"
         class="btn btn-secondary btn-lg"
         (click)="clearEmployee()"
         [disabled]="scheduling">
         <i class="fa fa-times" aria-hidden="true"></i>
-        Cancel
+        <ng-container i18n="@@common.cancel">Cancel</ng-container>
       </button>
     </div>
   </div>
 
   <!-- No Employee Selected Message -->
   <div *ngIf="!selectedEmployee" class="text-center">
-    <h3>Please select an employee to continue</h3>
+    <h3 i18n="@@kiosk_photo.no_employee">Please select an employee to continue</h3>
   </div>
 </div>

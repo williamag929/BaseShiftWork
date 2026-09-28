@@ -6,8 +6,8 @@
         <i class="fa fa-users"></i>
       </div>
       <div class="header-text">
-        <h1 class="page-title">People Management</h1>
-        <p class="page-subtitle">Manage your team members and their information</p>
+        <h1 class="page-title" i18n="@@people.page_title">People Management</h1>
+        <p class="page-subtitle" i18n="@@people.page_subtitle">Manage your team members and their information</p>
       </div>
     </div>
   </div>
@@ -19,7 +19,7 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="fa fa-list"></i>
-            Team Members
+            <ng-container i18n="@@people.team_members">Team Members</ng-container>
           </h3>
           <span class="badge">{{ people.length || 0 }}</span>
         </div>
@@ -28,19 +28,19 @@
           <!-- Loading State -->
           <div *ngIf="loading" class="loading-state">
             <div class="spinner"></div>
-            <p class="loading-text">Loading people...</p>
+            <p class="loading-text" i18n="@@people.loading">Loading people...</p>
           </div>
 
           <!-- Error State -->
           <div *ngIf="error" class="error-state">
             <i class="fa fa-exclamation-triangle error-icon"></i>
-            <p class="error-text">Error loading people. Please try again.</p>
+            <p class="error-text" i18n="@@people.error">Error loading people. Please try again.</p>
           </div>
 
           <!-- People List -->
           <div *ngIf="!loading && !error" class="people-list">
-            <div 
-              *ngFor="let person of people; let i = index" 
+            <div
+              *ngFor="let person of people; let i = index"
               class="person-item"
               [class.selected]="selectedPerson?.personId === person.personId"
               (click)="editPerson(person)"
@@ -78,8 +78,8 @@
             <!-- Empty State -->
             <div *ngIf="people.length === 0" class="empty-state">
               <i class="fa fa-users empty-icon"></i>
-              <p class="empty-text">No people found</p>
-              <p class="empty-subtext">Create your first team member to get started</p>
+              <p class="empty-text" i18n="@@people.empty_title">No people found</p>
+              <p class="empty-subtext" i18n="@@people.empty_desc">Create your first team member to get started</p>
             </div>
           </div>
         </div>
@@ -92,7 +92,8 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="fa" [class.fa-user-plus]="!selectedPerson" [class.fa-user-edit]="selectedPerson"></i>
-            {{ selectedPerson ? 'Edit Person' : 'Create New Person' }}
+            <ng-container *ngIf="selectedPerson" i18n="@@people.form_edit">Edit Person</ng-container>
+            <ng-container *ngIf="!selectedPerson" i18n="@@people.form_create">Create New Person</ng-container>
           </h3>
           <div class="header-actions">
             <app-audit-history-button
@@ -111,28 +112,28 @@
 
         <div class="card-body">
           <form [formGroup]="personForm" (ngSubmit)="savePerson()" class="person-form">
-            
+
             <!-- Personal Information Section -->
             <div class="form-section">
-              <h4 class="section-title">Personal Information</h4>
-              
+              <h4 class="section-title" i18n="@@people.section_personal">Personal Information</h4>
+
               <div class="form-row">
                 <div class="form-group full-width">
                   <label for="name" class="form-label">
                     <i class="fa fa-user"></i>
-                    Full Name <span class="required">*</span>
+                    <ng-container i18n="@@people.full_name">Full Name</ng-container> <span class="required">*</span>
                   </label>
-                  <input 
-                    type="text" 
-                    id="name" 
-                    class="form-input" 
+                  <input
+                    type="text"
+                    id="name"
+                    class="form-input"
                     formControlName="name"
                     placeholder="Enter full name"
                     [class.error]="personForm.get('name')?.touched && personForm.get('name')?.invalid">
-                  <div *ngIf="personForm.get('name')?.touched && personForm.get('name')?.errors?.['required']" 
+                  <div *ngIf="personForm.get('name')?.touched && personForm.get('name')?.errors?.['required']"
                        class="error-message">
                     <i class="fa fa-exclamation-circle"></i>
-                    Name is required
+                    <ng-container i18n="@@people.name_required">Name is required</ng-container>
                   </div>
                 </div>
               </div>
@@ -141,31 +142,31 @@
                 <div class="form-group">
                   <label for="email" class="form-label">
                     <i class="fa fa-envelope"></i>
-                    Email Address <span class="required">*</span>
+                    <ng-container i18n="@@people.email_address">Email Address</ng-container> <span class="required">*</span>
                   </label>
-                  <input 
-                    type="email" 
-                    id="email" 
-                    class="form-input" 
+                  <input
+                    type="email"
+                    id="email"
+                    class="form-input"
                     formControlName="email"
                     placeholder="name@example.com"
                     [class.error]="personForm.get('email')?.touched && personForm.get('email')?.invalid">
-                  <div *ngIf="personForm.get('email')?.touched && personForm.get('email')?.errors?.['required']" 
+                  <div *ngIf="personForm.get('email')?.touched && personForm.get('email')?.errors?.['required']"
                        class="error-message">
                     <i class="fa fa-exclamation-circle"></i>
-                    Email is required
+                    <ng-container i18n="@@people.email_required">Email is required</ng-container>
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label for="phone" class="form-label">
                     <i class="fa fa-phone"></i>
-                    Phone Number
+                    <ng-container i18n="@@people.phone_number">Phone Number</ng-container>
                   </label>
-                  <input 
-                    type="text" 
-                    id="phone" 
-                    class="form-input" 
+                  <input
+                    type="text"
+                    id="phone"
+                    class="form-input"
                     formControlName="phoneNumber"
                     placeholder="(123) 456-7890">
                 </div>
@@ -175,13 +176,13 @@
                 <div class="form-group">
                   <label for="pin" class="form-label">
                     <i class="fa fa-lock"></i>
-                    PIN Code
+                    <ng-container i18n="@@people.pin_code">PIN Code</ng-container>
                   </label>
-                  <input 
-                    type="text" 
-                    id="pin" 
-                    class="form-input" 
-                    formControlName="pin" 
+                  <input
+                    type="text"
+                    id="pin"
+                    class="form-input"
+                    formControlName="pin"
                     maxlength="4"
                     inputmode="numeric"
                     pattern="[0-9]*"
@@ -195,18 +196,18 @@
 
             <!-- Address Section -->
             <div class="form-section">
-              <h4 class="section-title">Address Information</h4>
-              
+              <h4 class="section-title" i18n="@@people.section_address">Address Information</h4>
+
               <div class="form-row">
                 <div class="form-group full-width">
                   <label for="address" class="form-label">
                     <i class="fa fa-map-marker"></i>
-                    Street Address
+                    <ng-container i18n="@@people.street_address">Street Address</ng-container>
                   </label>
-                  <input 
-                    type="text" 
-                    id="address" 
-                    class="form-input" 
+                  <input
+                    type="text"
+                    id="address"
+                    class="form-input"
                     formControlName="address"
                     placeholder="123 Main Street">
                 </div>
@@ -216,12 +217,12 @@
                 <div class="form-group">
                   <label for="city" class="form-label">
                     <i class="fa fa-building"></i>
-                    City
+                    <ng-container i18n="@@people.city">City</ng-container>
                   </label>
-                  <input 
-                    type="text" 
-                    id="city" 
-                    class="form-input" 
+                  <input
+                    type="text"
+                    id="city"
+                    class="form-input"
                     formControlName="city"
                     placeholder="New York">
                 </div>
@@ -229,12 +230,12 @@
                 <div class="form-group">
                   <label for="state" class="form-label">
                     <i class="fa fa-flag"></i>
-                    State
+                    <ng-container i18n="@@people.state">State</ng-container>
                   </label>
-                  <input 
-                    type="text" 
-                    id="state" 
-                    class="form-input" 
+                  <input
+                    type="text"
+                    id="state"
+                    class="form-input"
                     formControlName="state"
                     placeholder="NY">
                 </div>
@@ -243,29 +244,29 @@
 
             <!-- Additional Information -->
             <div class="form-section">
-              <h4 class="section-title">Additional Information</h4>
-              
+              <h4 class="section-title" i18n="@@people.section_additional">Additional Information</h4>
+
               <div class="form-row">
                 <div class="form-group">
                   <label for="status" class="form-label">
                     <i class="fa fa-toggle-on"></i>
-                    Status
+                    <ng-container i18n="@@people.status">Status</ng-container>
                   </label>
                   <select id="status" class="form-select" formControlName="status">
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
+                    <option value="Active" i18n="@@people.active">Active</option>
+                    <option value="Inactive" i18n="@@people.inactive">Inactive</option>
                   </select>
                 </div>
 
                 <div class="form-group">
                   <label for="photourl" class="form-label">
                     <i class="fa fa-image"></i>
-                    Photo URL
+                    <ng-container i18n="@@people.photo_url">Photo URL</ng-container>
                   </label>
-                  <input 
-                    type="text" 
-                    id="photourl" 
-                    class="form-input" 
+                  <input
+                    type="text"
+                    id="photourl"
+                    class="form-input"
                     formControlName="photoUrl"
                     placeholder="https://example.com/photo.jpg">
                 </div>
@@ -275,9 +276,9 @@
             <!-- Form Actions -->
             <div class="form-actions">
               <!-- Send / Resend / Reset Invite Button -->
-              <button 
-                type="button" 
-                class="btn-invite" 
+              <button
+                type="button"
+                class="btn-invite"
                 *ngIf="selectedPerson && selectedPerson.email"
                 [class.btn-invite-reset]="getInviteStatus(selectedPerson.personId)?.status === 'Active'"
                 (click)="openInviteDialog(selectedPerson); $event.stopPropagation()">
@@ -286,10 +287,20 @@
               </button>
               <button type="button" class="btn-cancel" *ngIf="selectedPerson" (click)="cancelEdit()">
                 <i class="fa fa-times"></i>
-                Cancel
+                <ng-container i18n="@@common.cancel">Cancel</ng-container>
               </button>
               <button type="submit" class="btn-submit" [disabled]="!personForm.valid">
-      
+                <i class="fa" [class.fa-save]="selectedPerson" [class.fa-plus]="!selectedPerson"></i>
+                <ng-container *ngIf="selectedPerson" i18n="@@people.update_btn">Update Person</ng-container>
+                <ng-container *ngIf="!selectedPerson" i18n="@@people.create_btn">Create Person</ng-container>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Invite Dialog -->
 <div class="invite-dialog-overlay" *ngIf="showInviteDialog" (click)="closeInviteDialog()">
@@ -324,10 +335,10 @@
       </div>
 
       <div class="role-selection" *ngIf="getInviteStatus(selectedPerson?.personId || 0)?.status !== 'Active'">
-        <h4 class="section-title">Select Roles</h4>
+        <h4 class="section-title" i18n="@@people.select_roles">Select Roles</h4>
         <div class="role-list">
-          <div 
-            *ngFor="let role of roles" 
+          <div
+            *ngFor="let role of roles"
             class="role-item"
             [class.selected]="isRoleSelected(role.roleId)"
             (click)="toggleRoleSelection(role.roleId)">
@@ -344,26 +355,18 @@
     </div>
 
     <div class="dialog-footer">
-      <button class="btn-cancel" (click)="closeInviteDialog()" [disabled]="sendingInvite">
+      <button class="btn-cancel" (click)="closeInviteDialog()" [disabled]="sendingInvite" i18n="@@common.cancel">
         Cancel
       </button>
-      <button 
-        class="btn-submit" 
-        (click)="sendInvite()" 
+      <button
+        class="btn-submit"
+        (click)="sendInvite()"
         [disabled]="sendingInvite || (getInviteStatus(selectedPerson?.personId || 0)?.status !== 'Active' && selectedRolesForInvite.length === 0)">
         <i class="fa fa-spinner fa-spin" *ngIf="sendingInvite"></i>
         <i class="fa fa-paper-plane" *ngIf="!sendingInvite"></i>
-        {{ sendingInvite ? 'Sending...' : getDialogSendLabel() }}
+        <ng-container *ngIf="sendingInvite" i18n="@@people.sending">Sending...</ng-container>
+        <ng-container *ngIf="!sendingInvite">{{ getDialogSendLabel() }}</ng-container>
       </button>
-    </div>
-  </div>
-</div>          <i class="fa" [class.fa-save]="selectedPerson" [class.fa-plus]="!selectedPerson"></i>
-                {{ selectedPerson ? 'Update Person' : 'Create Person' }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
     </div>
   </div>
 </div>

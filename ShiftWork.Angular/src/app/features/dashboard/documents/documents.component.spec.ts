@@ -5,6 +5,7 @@ import { of, throwError } from 'rxjs';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { ToastrService } from 'ngx-toastr';
 import { DocumentsComponent } from './documents.component';
+import './documents.module';
 import { DocumentService } from 'src/app/core/services/document.service';
 import { LocationService } from 'src/app/core/services/location.service';
 import { PermissionService } from 'src/app/core/services/permission.service';

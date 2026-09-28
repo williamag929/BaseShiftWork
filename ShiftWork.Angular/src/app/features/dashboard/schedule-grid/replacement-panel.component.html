@@ -1,37 +1,37 @@
 <div class="replacement-panel-backdrop" (click)="onClose()"></div>
 <div class="replacement-panel">
   <div class="panel-header">
-    <h3>Find Replacement</h3>
+    <h3 i18n="@@replacement.title">Find Replacement</h3>
     <button class="close-btn" (click)="onClose()">&times;</button>
   </div>
-  
+
   <div class="panel-body">
     <div class="channel-selector">
-      <label>Notify via:</label>
+      <label i18n="@@replacement.notify_via">Notify via:</label>
       <div class="channel-options">
         <label>
           <input type="radio" name="channel" [(ngModel)]="selectedChannel" value="push" />
-          Push
+          <ng-container i18n="@@replacement.push">Push</ng-container>
         </label>
         <label>
           <input type="radio" name="channel" [(ngModel)]="selectedChannel" value="sms" />
-          SMS
+          <ng-container i18n="@@replacement.sms">SMS</ng-container>
         </label>
         <label>
           <input type="radio" name="channel" [(ngModel)]="selectedChannel" value="email" />
-          Email
+          <ng-container i18n="@@replacement.email">Email</ng-container>
         </label>
       </div>
     </div>
 
     <div class="loading-indicator" *ngIf="loading">
       <div class="spinner"></div>
-      <p>Finding candidates...</p>
+      <p i18n="@@replacement.loading">Finding candidates...</p>
     </div>
 
     <div class="no-candidates" *ngIf="!loading && candidates.length === 0">
-      <p>No available candidates for this time window.</p>
-      <p class="help-text">All employees are either scheduled or have reported sick/time off.</p>
+      <p i18n="@@replacement.no_candidates">No available candidates for this time window.</p>
+      <p class="help-text" i18n="@@replacement.no_candidates_help">All employees are either scheduled or have reported sick/time off.</p>
     </div>
 
     <div class="candidates-list" *ngIf="!loading && candidates.length > 0">
@@ -41,16 +41,18 @@
           <div class="candidate-reasons" *ngIf="candidate.reasons && candidate.reasons.length > 0">
             <span class="reason-badge" *ngFor="let reason of candidate.reasons">{{ reason }}</span>
           </div>
-          <div class="candidate-score" *ngIf="candidate.score">
+          <div class="candidate-score" *ngIf="candidate.score" i18n="@@replacement.match_score">
             Match: {{ candidate.score }}%
           </div>
         </div>
         <div class="candidate-actions">
           <button class="btn-notify" (click)="onNotify(candidate.personId)" title="Send notification">
-            <i class="bi bi-bell"></i> Notify
+            <i class="bi bi-bell"></i>
+            <ng-container i18n="@@replacement.notify">Notify</ng-container>
           </button>
           <button class="btn-assign" (click)="onAssign(candidate.personId)" title="Assign to shift">
-            <i class="bi bi-check-circle"></i> Assign
+            <i class="bi bi-check-circle"></i>
+            <ng-container i18n="@@replacement.assign">Assign</ng-container>
           </button>
         </div>
       </div>
@@ -58,6 +60,6 @@
   </div>
 
   <div class="panel-footer">
-    <p class="footer-note">Candidates are filtered by availability and conflicts.</p>
+    <p class="footer-note" i18n="@@replacement.footer">Candidates are filtered by availability and conflicts.</p>
   </div>
 </div>

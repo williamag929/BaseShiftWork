@@ -15,7 +15,7 @@ namespace ShiftWork.Api.Services
         Task<List<LocationDailyReport>> GetReportsAsync(string companyId, int locationId, DateOnly? startDate = null, DateOnly? endDate = null, string? status = null);
         Task<LocationDailyReport> GetOrCreateAsync(string companyId, int locationId, DateOnly date);
         Task<LocationDailyReport?> UpdateAsync(Guid reportId, string companyId, string? notes, string status, int submittedByPersonId);
-        Task<ReportMedia> AddMediaAsync(Guid reportId, string companyId, int personId, string mediaType, string mediaUrl, string? caption, Guid? shiftEventId = null);
+        Task<ReportMedia?> AddMediaAsync(Guid reportId, string companyId, int personId, string mediaType, string mediaUrl, string? caption, Guid? shiftEventId = null);
         Task<bool> RemoveMediaAsync(Guid mediaId, Guid reportId, string companyId);
     }
 
@@ -23,12 +23,14 @@ namespace ShiftWork.Api.Services
     {
         private readonly ShiftWorkContext _context;
         private readonly IWeatherService _weather;
+        private readonly IProcoreService _procore;
         private readonly ILogger<DailyReportService> _logger;
 
-        public DailyReportService(ShiftWorkContext context, IWeatherService weather, ILogger<DailyReportService> logger)
+        public DailyReportService(ShiftWorkContext context, IWeatherService weather, IProcoreService procore, ILogger<DailyReportService> logger)
         {
             _context = context;
             _weather = weather;
+            _procore = procore;
             _logger = logger;
         }
 
@@ -102,6 +104,7 @@ namespace ShiftWork.Api.Services
             report.Notes = notes;
             report.UpdatedAt = DateTime.UtcNow;
 
+            var newlySubmitted = false;
             if (status == "Submitted" && report.Status == "Draft")
             {
                 // Snapshot live totals before locking the report
@@ -110,6 +113,7 @@ namespace ShiftWork.Api.Services
                 report.TotalHours = hours;
                 report.Status = "Submitted";
                 report.SubmittedByPersonId = submittedByPersonId;
+                newlySubmitted = true;
             }
             else if (status == "Approved" && report.Status == "Submitted")
             {
@@ -123,11 +127,41 @@ namespace ShiftWork.Api.Services
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("Report {ReportId} status changed to {Status} by Person {PersonId} at Company {CompanyId}", reportId, status, submittedByPersonId, companyId);
+
+            // Auto-push manpower to Procore on submit. Non-fatal: never block report submission on the integration.
+            if (newlySubmitted)
+            {
+                try
+                {
+                    var connection = await _procore.GetConnectionAsync(companyId);
+                    if (connection != null && connection.Enabled && connection.AutoPushOnSubmit)
+                    {
+                        var result = await _procore.PushDailyReportManpowerAsync(companyId, reportId);
+                        _logger.LogInformation("Procore manpower auto-push for report {ReportId}: {Status} — {Message}", reportId, result.Status, result.Message);
+
+                        if (connection.TimesheetSyncEnabled)
+                        {
+                            var tsResult = await _procore.PushDailyReportTimesheetsAsync(companyId, reportId);
+                            _logger.LogInformation("Procore timesheet auto-push for report {ReportId}: {Status} — {Message}", reportId, tsResult.Status, tsResult.Message);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Procore auto-push failed for report {ReportId} (company {CompanyId}).", reportId, companyId);
+                }
+            }
+
             return report;
         }
 
-        public async Task<ReportMedia> AddMediaAsync(Guid reportId, string companyId, int personId, string mediaType, string mediaUrl, string? caption, Guid? shiftEventId = null)
+        public async Task<ReportMedia?> AddMediaAsync(Guid reportId, string companyId, int personId, string mediaType, string mediaUrl, string? caption, Guid? shiftEventId = null)
         {
+            var belongsToCompany = await _context.LocationDailyReports
+                .AnyAsync(r => r.ReportId == reportId && r.CompanyId == companyId);
+
+            if (!belongsToCompany) return null;
+
             var media = new ReportMedia
             {
                 ReportId = reportId,
@@ -146,6 +180,11 @@ namespace ShiftWork.Api.Services
 
         public async Task<bool> RemoveMediaAsync(Guid mediaId, Guid reportId, string companyId)
         {
+            var belongsToCompany = await _context.LocationDailyReports
+                .AnyAsync(r => r.ReportId == reportId && r.CompanyId == companyId);
+
+            if (!belongsToCompany) return false;
+
             var media = await _context.ReportMedia
                 .FirstOrDefaultAsync(m => m.MediaId == mediaId && m.ReportId == reportId);
 

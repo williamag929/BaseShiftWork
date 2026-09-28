@@ -186,8 +186,8 @@ namespace ShiftWork.Api.Controllers
         {
             try
             {
-                await _bulletins.MarkAsReadAsync(bulletinId, companyId, GetPersonId());
-                return Ok();
+                var success = await _bulletins.MarkAsReadAsync(bulletinId, companyId, GetPersonId());
+                return success ? Ok() : NotFound();
             }
             catch (Exception ex)
             {

@@ -1,3 +1,4 @@
+import '@angular/localize/init';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -18,6 +19,13 @@ export class OnboardingComponent implements OnInit {
   actionInProgress: 'hide' | 'reset' | 'delete' | null = null;
   successMessage = '';
   errorMessage = '';
+
+  readonly hideDemoLabel  = $localize`:@@auth.onboarding.hide_demo:Hide demo data`;
+  readonly hidingLabel    = $localize`:@@auth.onboarding.hiding:Hiding…`;
+  readonly resetDemoLabel = $localize`:@@auth.onboarding.reset_demo:Reset to defaults`;
+  readonly resettingLabel = $localize`:@@auth.onboarding.resetting:Resetting…`;
+  readonly removeDemoLabel = $localize`:@@auth.onboarding.remove_demo:Remove permanently`;
+  readonly removingLabel  = $localize`:@@auth.onboarding.removing:Removing…`;
 
   constructor(
     private registrationService: RegistrationService,
@@ -48,12 +56,12 @@ export class OnboardingComponent implements OnInit {
     this.actionInProgress = 'hide';
     this.registrationService.hideSandboxData(this.companyId, ['All']).subscribe({
       next: () => {
-        this.successMessage = 'Sandbox data has been hidden. You can restore it at any time from Settings.';
+        this.successMessage = $localize`:@@auth.onboarding.sandbox_hidden_ok:Sandbox data has been hidden. You can restore it at any time from Settings.`;
         this.actionInProgress = null;
         this.loadSandboxStatus();
       },
       error: (err) => {
-        this.errorMessage = 'Failed to hide sandbox data. Please try again.';
+        this.errorMessage = $localize`:@@auth.onboarding.sandbox_hidden_fail:Failed to hide sandbox data. Please try again.`;
         this.actionInProgress = null;
       }
     });
@@ -63,12 +71,12 @@ export class OnboardingComponent implements OnInit {
     this.actionInProgress = 'reset';
     this.registrationService.resetSandboxData(this.companyId).subscribe({
       next: () => {
-        this.successMessage = 'Sandbox data has been reset to defaults.';
+        this.successMessage = $localize`:@@auth.onboarding.sandbox_reset_ok:Sandbox data has been reset to defaults.`;
         this.actionInProgress = null;
         this.loadSandboxStatus();
       },
       error: () => {
-        this.errorMessage = 'Failed to reset sandbox data.';
+        this.errorMessage = $localize`:@@auth.onboarding.sandbox_reset_fail:Failed to reset sandbox data.`;
         this.actionInProgress = null;
       }
     });
@@ -78,12 +86,12 @@ export class OnboardingComponent implements OnInit {
     this.actionInProgress = 'delete';
     this.registrationService.deleteSandboxData(this.companyId).subscribe({
       next: () => {
-        this.successMessage = 'Sandbox data removed. Your workspace is now clean for real data.';
+        this.successMessage = $localize`:@@auth.onboarding.sandbox_removed_ok:Sandbox data removed. Your workspace is now clean for real data.`;
         this.sandboxStatus = { hasSandboxData: false, sandboxPersonCount: 0, sandboxAreaCount: 0, sandboxLocationCount: 0 };
         this.actionInProgress = null;
       },
       error: () => {
-        this.errorMessage = 'Failed to delete sandbox data.';
+        this.errorMessage = $localize`:@@auth.onboarding.sandbox_removed_fail:Failed to delete sandbox data.`;
         this.actionInProgress = null;
       }
     });

@@ -1,39 +1,42 @@
-<h1 mat-dialog-title>{{ data.schedule ? 'Edit' : 'Add' }} Schedule</h1>
+<h1 mat-dialog-title>
+  <ng-container *ngIf="data.schedule" i18n="@@schedule_edit.title_edit">Edit Schedule</ng-container>
+  <ng-container *ngIf="!data.schedule" i18n="@@schedule_edit.title_add">Add Schedule</ng-container>
+</h1>
 <div mat-dialog-content>
   <form [formGroup]="form">
     <mat-form-field>
-      <mat-label>Person</mat-label>
+      <mat-label i18n="@@schedule_edit.person_label">Person</mat-label>
       <mat-select formControlName="personId">
         <mat-option *ngFor="let person of people" [value]="person.personId">{{ person.name }}</mat-option>
       </mat-select>
     </mat-form-field>
 
     <mat-form-field>
-      <mat-label>Location</mat-label>
+      <mat-label i18n="@@schedule_edit.location_label">Location</mat-label>
       <mat-select formControlName="locationId">
         <mat-option *ngFor="let location of locations" [value]="location.locationId">{{ location.name }}</mat-option>
       </mat-select>
     </mat-form-field>
 
     <mat-form-field>
-      <mat-label>Area</mat-label>
+      <mat-label i18n="@@schedule_edit.area_label">Area</mat-label>
       <mat-select formControlName="areaId">
         <mat-option *ngFor="let area of areas" [value]="area.areaId">{{ area.name }}</mat-option>
       </mat-select>
     </mat-form-field>
 
     <mat-form-field>
-      <mat-label>Start Time</mat-label>
+      <mat-label i18n="@@schedule_edit.start_time_label">Start Time</mat-label>
       <input matInput type="datetime-local" formControlName="startTime">
     </mat-form-field>
 
     <mat-form-field>
-      <mat-label>End Time</mat-label>
+      <mat-label i18n="@@schedule_edit.end_time_label">End Time</mat-label>
       <input matInput type="datetime-local" formControlName="endTime">
     </mat-form-field>
 
     <mat-form-field>
-      <mat-label>Status</mat-label>
+      <mat-label i18n="@@schedule_edit.status_label">Status</mat-label>
       <mat-select formControlName="status">
         <mat-option value="pending">Pending</mat-option>
         <mat-option value="approved">Approved</mat-option>
@@ -43,6 +46,6 @@
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button (click)="close()">Cancel</button>
-  <button mat-button [mat-dialog-close]="form.value" (click)="save()" [disabled]="!form.valid">Save</button>
+  <button mat-button (click)="close()" i18n="@@common.cancel">Cancel</button>
+  <button mat-button [mat-dialog-close]="form.value" (click)="save()" [disabled]="!form.valid" i18n="@@common.save">Save</button>
 </div>

@@ -6,16 +6,16 @@
 
   <!-- Schedule Info -->
   <div *ngIf="employeeSchedule" class="schedule-info text-center mb-3">
-    <h4>Today's Schedule</h4>
-    <p><strong>Location:</strong> {{ employeeSchedule.location.name }}</p>
-    <p><strong>Start Time:</strong> {{ employeeSchedule.startDate | date: 'shortTime' }}</p>
-    <p><strong>End Time:</strong> {{ employeeSchedule.endDate | date: 'shortTime' }}</p>
-  </div>  
+    <h4 i18n="@@clock.todays_schedule">Today's Schedule</h4>
+    <p><strong i18n="@@clock.location_label">Location:</strong> {{ employeeSchedule.location.name }}</p>
+    <p><strong i18n="@@clock.start_time_label">Start Time:</strong> {{ employeeSchedule.startDate | date: 'shortTime' }}</p>
+    <p><strong i18n="@@clock.end_time_label">End Time:</strong> {{ employeeSchedule.endDate | date: 'shortTime' }}</p>
+  </div>
 
   <!-- Webcam View -->
-  <webcam 
-    *ngIf="!webcamImage && currentUser" 
-    [trigger]="triggerObservable$" 
+  <webcam
+    *ngIf="!webcamImage && currentUser"
+    [trigger]="triggerObservable$"
     (imageCapture)="handleImage($event)"
     (initError)="handleInitError($event)"
     class="webcam-container">
@@ -23,18 +23,18 @@
 
   <!-- Captured Photo Display -->
   <div *ngIf="webcamImage && currentUser" class="photo-result text-center">
-    <img 
-      [src]="flippedImage" 
-      alt="Captured photo" 
+    <img
+      [src]="flippedImage"
+      alt="Captured photo"
       class="captured-photo mb-3">
-    <h3 class="success-message">Shift updated thanks!</h3>
+    <h3 class="success-message" i18n="@@clock.shift_updated">Shift updated thanks!</h3>
   </div>
 
   <!-- Countdown Display -->
   <div *ngIf="countdown$ | async as count" class="countdown-container">
     <div *ngIf="count > 0" class="countdown-overlay">
       <div class="d-flex justify-content-center align-items-center h-100">
-        <h4 class="countdown-text">
+        <h4 class="countdown-text" i18n="@@clock.countdown">
           Capturing photo in {{ count }} seconds...
         </h4>
       </div>
@@ -44,52 +44,52 @@
   <!-- Action Buttons -->
   <div *ngIf="!scheduling && currentUser" class="action-buttons">
     <div class="button-group mb-3">
-      <button 
+      <button
         *ngIf="!webcamImage && (!employeeStatus || !(employeeStatus === 'OnShift' || employeeStatus === 'Late' || employeeStatus === 'Early' || employeeStatus === 'ShiftEventWithoutSchedule'))"
         type="button"
         class="btn btn-success btn-lg me-2"
         (click)="triggerImage(ScheduleAction.START_SHIFT)"
         [disabled]="scheduling">
         <i class="fa fa-play" aria-hidden="true"></i>
-        Start Shift
+        <ng-container i18n="@@clock.start_shift">Start Shift</ng-container>
       </button>
-      
-      <button 
+
+      <button
         *ngIf="!webcamImage && (employeeStatus === 'OnShift' || employeeStatus === 'Late' || employeeStatus === 'Early' || employeeStatus === 'ShiftEventWithoutSchedule' )"
         type="button"
         class="btn btn-danger btn-lg"
         (click)="triggerImage(ScheduleAction.END_SHIFT)"
         [disabled]="scheduling">
         <i class="fa fa-stop" aria-hidden="true"></i>
-        End Shift
+        <ng-container i18n="@@clock.end_shift">End Shift</ng-container>
       </button>
     </div>
 
     <div class="button-group mb-3">
-      <button 
+      <button
         *ngIf="!webcamImage && (employeeStatus === 'OnShift' || employeeStatus === 'Late' || employeeStatus === 'Early' || employeeStatus === 'ShiftEventWithoutSchedule' )"
         type="button"
         class="btn btn-primary btn-lg me-2"
         (click)="triggerImage(ScheduleAction.START_BREAK)"
         [disabled]="scheduling">
         <i class="fa fa-coffee" aria-hidden="true"></i>
-        Start Break
+        <ng-container i18n="@@clock.start_break">Start Break</ng-container>
       </button>
-      
-      <button 
+
+      <button
         *ngIf="!webcamImage && (employeeStatus === 'OnShift' || employeeStatus === 'Late' || employeeStatus === 'Early' || employeeStatus === 'ShiftEventWithoutSchedule' )"
         type="button"
         class="btn btn-warning btn-lg"
         (click)="triggerImage(ScheduleAction.END_BREAK)"
         [disabled]="scheduling">
         <i class="fa fa-play-circle" aria-hidden="true"></i>
-        End Break
+        <ng-container i18n="@@clock.end_break">End Break</ng-container>
       </button>
     </div>
   </div>
 
   <!-- No Employee Selected Message -->
   <div *ngIf="!currentUser" class="text-center">
-    <h3>Please log in to continue</h3>
+    <h3 i18n="@@clock.please_login">Please log in to continue</h3>
   </div>
 </div>

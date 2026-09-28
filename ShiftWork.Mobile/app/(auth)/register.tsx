@@ -1,4 +1,4 @@
-﻿import {
+import {
   View, Text, TextInput, Pressable, ScrollView, StyleSheet,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { colors, spacing, radius } from '@/styles/tokens';
 import { useRegister } from '@/hooks/useRegister';
+import { useTranslation } from '@/i18n';
 
 // Step indicator dots
 function StepDots({ total, current }: { total: number; current: number }) {
@@ -94,6 +95,7 @@ const field = StyleSheet.create({
 export default function RegisterScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const { step, setStep, loading, step1Form, step2Form, handleRegister } = useRegister();
   const totalSteps = 3;
   const s1 = step1Form;
@@ -113,27 +115,27 @@ export default function RegisterScreen() {
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join ShiftWork in 3 easy steps</Text>
+          <Text style={styles.title}>{t('auth.register.title')}</Text>
+          <Text style={styles.subtitle}>{t('auth.register.subtitle')}</Text>
           <StepDots total={totalSteps} current={step} />
         </View>
 
         {/* Step 1 — Account */}
         {step === 1 && (
           <Animated.View entering={FadeIn.duration(280)}>
-            <Text style={styles.stepTitle}>Your Account</Text>
+            <Text style={styles.stepTitle}>{t('auth.register.step_account')}</Text>
             <Controller control={s1.control} name="displayName" render={({ field: { value, onChange } }) => (
-              <Field label="Full Name" placeholder="Jane Doe" value={value} onChange={onChange}
+              <Field label={t('auth.register.full_name')} placeholder="Jane Doe" value={value} onChange={onChange}
                 error={s1.formState.errors.displayName?.message} icon="person-outline"
                 autoCapitalize="words" returnKeyType="next" />
             )} />
             <Controller control={s1.control} name="email" render={({ field: { value, onChange } }) => (
-              <Field label="Email" placeholder="jane@company.com" value={value} onChange={onChange}
+              <Field label={t('auth.register.email')} placeholder="jane@company.com" value={value} onChange={onChange}
                 error={s1.formState.errors.email?.message} icon="mail-outline"
                 keyboardType="email-address" autoCapitalize="none" returnKeyType="next" />
             )} />
             <Controller control={s1.control} name="password" render={({ field: { value, onChange } }) => (
-              <Field label="Password" placeholder="Min 8 characters" value={value} onChange={onChange}
+              <Field label={t('auth.register.password')} placeholder={t('auth.register.password_hint')} value={value} onChange={onChange}
                 error={s1.formState.errors.password?.message} icon="lock-closed-outline"
                 secureTextEntry returnKeyType="done" />
             )} />
@@ -141,7 +143,7 @@ export default function RegisterScreen() {
               style={({ pressed }) => [styles.btnPrimary, pressed && { opacity: 0.82 }]}
               onPress={s1.handleSubmit(() => setStep(2))}
             >
-              <Text style={styles.btnPrimaryText}>Continue</Text>
+              <Text style={styles.btnPrimaryText}>{t('common.continue')}</Text>
               <Ionicons name="arrow-forward" size={18} color="#fff" />
             </Pressable>
           </Animated.View>
@@ -150,19 +152,19 @@ export default function RegisterScreen() {
         {/* Step 2 — Company */}
         {step === 2 && (
           <Animated.View entering={FadeIn.duration(280)}>
-            <Text style={styles.stepTitle}>Your Company</Text>
+            <Text style={styles.stepTitle}>{t('auth.register.step_company')}</Text>
             <Controller control={s2.control} name="companyName" render={({ field: { value, onChange } }) => (
-              <Field label="Company Name" placeholder="Acme Corp" value={value} onChange={onChange}
+              <Field label={t('auth.register.company_name')} placeholder="Acme Corp" value={value} onChange={onChange}
                 error={s2.formState.errors.companyName?.message} icon="business-outline"
                 returnKeyType="next" />
             )} />
             <Controller control={s2.control} name="companyEmail" render={({ field: { value, onChange } }) => (
-              <Field label="Company Email" placeholder="hello@acme.com" value={value} onChange={onChange}
+              <Field label={t('auth.register.company_email')} placeholder="hello@acme.com" value={value} onChange={onChange}
                 error={s2.formState.errors.companyEmail?.message} icon="mail-outline"
                 keyboardType="email-address" autoCapitalize="none" returnKeyType="next" />
             )} />
             <Controller control={s2.control} name="companyPhone" render={({ field: { value, onChange } }) => (
-              <Field label="Company Phone (optional)" placeholder="+1 555 000 0000" value={value ?? ''} onChange={onChange}
+              <Field label={t('auth.register.company_phone')} placeholder="+1 555 000 0000" value={value ?? ''} onChange={onChange}
                 icon="call-outline" keyboardType="phone-pad" returnKeyType="done" />
             )} />
             <View style={styles.btnRow}>
@@ -171,13 +173,13 @@ export default function RegisterScreen() {
                 onPress={() => setStep(1)}
               >
                 <Ionicons name="arrow-back" size={18} color={colors.primary} />
-                <Text style={styles.btnSecondaryText}>Back</Text>
+                <Text style={styles.btnSecondaryText}>{t('common.back')}</Text>
               </Pressable>
               <Pressable
                 style={({ pressed }) => [styles.btnPrimary, styles.btnFlex, pressed && { opacity: 0.82 }]}
                 onPress={s2.handleSubmit(() => setStep(3))}
               >
-                <Text style={styles.btnPrimaryText}>Continue</Text>
+                <Text style={styles.btnPrimaryText}>{t('common.continue')}</Text>
                 <Ionicons name="arrow-forward" size={18} color="#fff" />
               </Pressable>
             </View>
@@ -187,13 +189,13 @@ export default function RegisterScreen() {
         {/* Step 3 — Confirm */}
         {step === 3 && (
           <Animated.View entering={FadeIn.duration(280)}>
-            <Text style={styles.stepTitle}>Review & Create</Text>
+            <Text style={styles.stepTitle}>{t('auth.register.step_review')}</Text>
             <View style={styles.summaryCard}>
               {[
-                { icon: 'person-outline', label: 'Name', val: s1v.displayName },
-                { icon: 'mail-outline',   label: 'Email', val: s1v.email },
-                { icon: 'business-outline', label: 'Company', val: s2v.companyName },
-                { icon: 'mail-outline',   label: 'Company Email', val: s2v.companyEmail },
+                { icon: 'person-outline',   label: t('common.name'),                  val: s1v.displayName },
+                { icon: 'mail-outline',     label: t('auth.register.email'),           val: s1v.email },
+                { icon: 'business-outline', label: t('auth.register.company_label'),   val: s2v.companyName },
+                { icon: 'mail-outline',     label: t('auth.register.company_email'),   val: s2v.companyEmail },
               ].map(({ icon, label, val }) => (
                 <View key={label} style={styles.summaryRow}>
                   <Ionicons name={icon as any} size={16} color={colors.muted} style={{ width: 22 }} />
@@ -204,9 +206,7 @@ export default function RegisterScreen() {
             </View>
             <View style={styles.noticeRow}>
               <Ionicons name="information-circle-outline" size={16} color={colors.primary} />
-              <Text style={styles.noticeText}>
-                You'll start on the Free plan with sample data to explore.
-              </Text>
+              <Text style={styles.noticeText}>{t('auth.register.free_plan_note')}</Text>
             </View>
             <View style={styles.btnRow}>
               <Pressable
@@ -214,7 +214,7 @@ export default function RegisterScreen() {
                 onPress={() => setStep(2)}
               >
                 <Ionicons name="arrow-back" size={18} color={colors.primary} />
-                <Text style={styles.btnSecondaryText}>Back</Text>
+                <Text style={styles.btnSecondaryText}>{t('common.back')}</Text>
               </Pressable>
               <Pressable
                 style={({ pressed }) => [styles.btnPrimary, styles.btnSuccess, styles.btnFlex, pressed && { opacity: 0.82 }]}
@@ -222,10 +222,10 @@ export default function RegisterScreen() {
                 disabled={loading}
               >
                 {loading ? (
-                  <Text style={styles.btnPrimaryText}>Creating…</Text>
+                  <Text style={styles.btnPrimaryText}>{t('auth.register.creating')}</Text>
                 ) : (
                   <>
-                    <Text style={styles.btnPrimaryText}>Create Account</Text>
+                    <Text style={styles.btnPrimaryText}>{t('auth.register.submit')}</Text>
                     <Ionicons name="checkmark" size={18} color="#fff" />
                   </>
                 )}
@@ -239,7 +239,8 @@ export default function RegisterScreen() {
           style={({ pressed }) => [styles.signInLink, pressed && { opacity: 0.65 }]}
         >
           <Text style={styles.signInText}>
-            Already have an account? <Text style={styles.signInAccent}>Sign in</Text>
+            {t('auth.register.already_account_prompt')}{' '}
+            <Text style={styles.signInAccent}>{t('auth.register.sign_in_link')}</Text>
           </Text>
         </Pressable>
       </ScrollView>

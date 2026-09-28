@@ -10,11 +10,13 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { registrationService, SandboxStatusResponse } from '@/services/registration.service';
 import { colors, spacing, radius } from '@/styles/tokens';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n';
 
 export default function OnboardingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const toast = useToast();
+  const { t } = useTranslation();
   const [sandboxStatus, setSandboxStatus] = useState<SandboxStatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -89,6 +91,20 @@ export default function OnboardingScreen() {
     );
   }
 
+  const countItems = sandboxStatus?.hasSandboxData
+    ? [
+        { icon: 'people-outline' as const, count: sandboxStatus.sandboxPersonCount, label: t('auth.onboarding.employees') },
+        { icon: 'location-outline' as const, count: sandboxStatus.sandboxLocationCount, label: t('auth.onboarding.locations') },
+        { icon: 'grid-outline' as const, count: sandboxStatus.sandboxAreaCount, label: t('auth.onboarding.areas') },
+      ]
+    : [];
+
+  const demoActions = [
+    { id: 'hide',   label: t('auth.onboarding.hide_demo'),   color: colors.muted,    onPress: handleHide   },
+    { id: 'reset',  label: t('auth.onboarding.reset_demo'),  color: colors.warning,  onPress: handleReset  },
+    { id: 'remove', label: t('auth.onboarding.remove_demo'), color: colors.danger,   onPress: handleDelete },
+  ];
+
   return (
     <ScrollView
       style={styles.root}
@@ -102,8 +118,8 @@ export default function OnboardingScreen() {
         <View style={styles.heroIcon}>
           <Ionicons name="sparkles" size={36} color={colors.primary} />
         </View>
-        <Text style={styles.heroTitle}>Welcome to ShiftWork!</Text>
-        <Text style={styles.heroSub}>Your account is ready. Let's get you started.</Text>
+        <Text style={styles.heroTitle}>{t('auth.onboarding.title', { appName: 'ShiftWork' })}</Text>
+        <Text style={styles.heroSub}>{t('auth.onboarding.subtitle')}</Text>
       </Animated.View>
 
       {/* Sandbox section */}
@@ -111,9 +127,9 @@ export default function OnboardingScreen() {
         <Animated.View entering={FadeInDown.delay(100).duration(350)} style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={styles.demoBadge}>
-              <Text style={styles.demoBadgeText}>Demo Data</Text>
+              <Text style={styles.demoBadgeText}>{t('auth.onboarding.demo_badge')}</Text>
             </View>
-            <Text style={styles.cardTitle}>Sample data included</Text>
+            <Text style={styles.cardTitle}>{t('auth.onboarding.demo_sample_title')}</Text>
             <Text style={styles.cardBody}>
               We've added demo employees, a location, and an area so you can explore ShiftWork right away.
             </Text>
@@ -121,13 +137,9 @@ export default function OnboardingScreen() {
 
           {/* Count row */}
           <View style={styles.countRow}>
-            {[
-              { icon: 'people-outline', count: sandboxStatus.sandboxPersonCount, label: 'Employees' },
-              { icon: 'location-outline', count: sandboxStatus.sandboxLocationCount, label: 'Locations' },
-              { icon: 'grid-outline', count: sandboxStatus.sandboxAreaCount, label: 'Areas' },
-            ].map(({ icon, count, label }) => (
-              <View key={label} style={styles.countItem}>
-                <Ionicons name={icon as any} size={20} color={colors.primary} />
+            {countItems.map(({ icon, count, label }) => (
+              <View key={icon} style={styles.countItem}>
+                <Ionicons name={icon} size={20} color={colors.primary} />
                 <Text style={styles.countNum}>{count}</Text>
                 <Text style={styles.countLabel}>{label}</Text>
               </View>
@@ -137,13 +149,9 @@ export default function OnboardingScreen() {
           <View style={styles.divider} />
 
           {/* Actions */}
-          {([
-            { label: 'Hide demo data', color: colors.muted,    onPress: handleHide   },
-            { label: 'Reset to defaults', color: colors.warning, onPress: handleReset  },
-            { label: 'Remove permanently', color: colors.danger,  onPress: handleDelete },
-          ] as const).map(({ label, color, onPress }) => (
+          {demoActions.map(({ id, label, color, onPress }) => (
             <Pressable
-              key={label}
+              key={id}
               style={({ pressed }) => [styles.actionRow, pressed && { opacity: 0.65 }]}
               onPress={onPress}
               disabled={actionLoading}
@@ -158,16 +166,16 @@ export default function OnboardingScreen() {
       {sandboxStatus && !sandboxStatus.hasSandboxData && (
         <Animated.View entering={FadeInDown.delay(100).duration(350)} style={[styles.card, styles.cleanCard]}>
           <Ionicons name="checkmark-circle" size={24} color={colors.success} />
-          <Text style={styles.cleanText}>Your workspace is clean and ready for real data.</Text>
+          <Text style={styles.cleanText}>{t('auth.onboarding.workspace_clean')}</Text>
         </Animated.View>
       )}
 
       {/* Plan card */}
       <Animated.View entering={FadeInDown.delay(160).duration(350)} style={styles.card}>
         <View style={styles.planBadge}>
-          <Text style={styles.planBadgeText}>Free Plan</Text>
+          <Text style={styles.planBadgeText}>{t('auth.onboarding.free_plan')}</Text>
         </View>
-        <Text style={styles.cardTitle}>Upgrade for more power</Text>
+        <Text style={styles.cardTitle}>{t('auth.onboarding.upgrade_title')}</Text>
         <Text style={styles.cardBody}>
           Advanced scheduling, analytics, multi-location support, and more.
         </Text>
@@ -175,7 +183,7 @@ export default function OnboardingScreen() {
           style={({ pressed }) => [styles.outlineBtn, pressed && { opacity: 0.75 }]}
           onPress={() => router.push('/(tabs)/upgrade')}
         >
-          <Text style={styles.outlineBtnText}>Explore Pro Features</Text>
+          <Text style={styles.outlineBtnText}>{t('auth.onboarding.explore_pro_features')}</Text>
           <Ionicons name="arrow-forward" size={16} color={colors.primary} />
         </Pressable>
       </Animated.View>
@@ -186,7 +194,7 @@ export default function OnboardingScreen() {
           style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.85 }]}
           onPress={goToDashboard}
         >
-          <Text style={styles.primaryBtnText}>Go to Dashboard</Text>
+          <Text style={styles.primaryBtnText}>{t('auth.onboarding.go_dashboard')}</Text>
           <Ionicons name="arrow-forward" size={20} color="#fff" />
         </Pressable>
       </Animated.View>

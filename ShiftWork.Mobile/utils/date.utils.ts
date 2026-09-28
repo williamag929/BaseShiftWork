@@ -5,12 +5,22 @@ export const formatDateForApi = (date: Date): string => {
   return date.toISOString();
 };
 
+// Active display locale for date/time formatting. Set by the i18n LocaleProvider
+// whenever the app language changes; API-bound formatting is unaffected.
+let displayLocale = 'en-US';
+
+export const setDateLocale = (locale: 'en' | 'es'): void => {
+  displayLocale = locale === 'es' ? 'es' : 'en-US';
+};
+
+export const getDateLocale = (): string => displayLocale;
+
 /**
  * Format date for display
  */
 export const formatDate = (date: Date | string): string => {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleDateString('en-US', {
+  return d.toLocaleDateString(displayLocale, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -22,7 +32,7 @@ export const formatDate = (date: Date | string): string => {
  */
 export const formatTime = (date: Date | string): string => {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleTimeString('en-US', {
+  return d.toLocaleTimeString(displayLocale, {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,

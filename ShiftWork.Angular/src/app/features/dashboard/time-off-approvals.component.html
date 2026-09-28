@@ -6,8 +6,8 @@
         <i class="fa fa-calendar-check-o"></i>
       </div>
       <div class="header-text">
-        <h1 class="page-title">Time-Off Approvals</h1>
-        <p class="page-subtitle">Review and manage employee time-off requests</p>
+        <h1 class="page-title" i18n="@@time_off_approvals.page_title">Time-Off Approvals</h1>
+        <p class="page-subtitle" i18n="@@time_off_approvals.page_subtitle">Review and manage employee time-off requests</p>
       </div>
     </div>
   </div>
@@ -18,11 +18,11 @@
       <div class="card-header">
         <h3 class="card-title">
           <i class="fa fa-filter"></i>
-          Filters
+          <ng-container i18n="@@time_off_approvals.filter_title">Filters</ng-container>
         </h3>
         <button class="clear-btn" (click)="clearFilters()" title="Clear all filters">
           <i class="fa fa-refresh"></i>
-          Clear
+          <ng-container i18n="@@time_off_approvals.clear_btn">Clear</ng-container>
         </button>
       </div>
       <div class="card-body">
@@ -30,13 +30,14 @@
           <div class="filter-group">
             <label class="filter-label">
               <i class="fa fa-search"></i>
-              Search
+              <ng-container i18n="@@time_off_approvals.search_label">Search</ng-container>
             </label>
-            <input 
-              type="text" 
-              class="filter-input" 
-              placeholder="Search by name or reason..." 
-              [(ngModel)]="search" 
+            <input
+              type="text"
+              class="filter-input"
+              placeholder="Search by name or reason..."
+              i18n-placeholder="@@time_off_approvals.search_ph"
+              [(ngModel)]="search"
               (input)="loadRequests()"
             />
           </div>
@@ -44,7 +45,7 @@
           <div class="filter-group">
             <label class="filter-label">
               <i class="fa fa-info-circle"></i>
-              Status
+              <ng-container i18n="@@time_off_approvals.status_label">Status</ng-container>
             </label>
             <select class="filter-select" [(ngModel)]="status" (change)="loadRequests()">
               <option value="Pending">Pending</option>
@@ -57,10 +58,10 @@
           <div class="filter-group">
             <label class="filter-label">
               <i class="fa fa-user"></i>
-              Employee
+              <ng-container i18n="@@time_off_approvals.employee_label">Employee</ng-container>
             </label>
             <select class="filter-select" [(ngModel)]="personId" (change)="loadRequests()">
-              <option [ngValue]="undefined">All employees</option>
+              <option [ngValue]="undefined" i18n="@@time_off_approvals.all_employees">All employees</option>
               <option *ngFor="let p of people" [ngValue]="p.personId">{{ p.name }}</option>
             </select>
           </div>
@@ -68,12 +69,12 @@
           <div class="filter-group">
             <label class="filter-label">
               <i class="fa fa-calendar"></i>
-              Start Date
+              <ng-container i18n="@@time_off_approvals.start_date">Start Date</ng-container>
             </label>
-            <input 
-              type="date" 
-              class="filter-input" 
-              [(ngModel)]="startDate" 
+            <input
+              type="date"
+              class="filter-input"
+              [(ngModel)]="startDate"
               (change)="loadRequests()"
             />
           </div>
@@ -81,12 +82,12 @@
           <div class="filter-group">
             <label class="filter-label">
               <i class="fa fa-calendar"></i>
-              End Date
+              <ng-container i18n="@@time_off_approvals.end_date">End Date</ng-container>
             </label>
-            <input 
-              type="date" 
-              class="filter-input" 
-              [(ngModel)]="endDate" 
+            <input
+              type="date"
+              class="filter-input"
+              [(ngModel)]="endDate"
               (change)="loadRequests()"
             />
           </div>
@@ -94,7 +95,7 @@
           <div class="filter-group">
             <label class="filter-label">
               <i class="fa fa-list-ol"></i>
-              Per Page
+              <ng-container i18n="@@time_off_approvals.per_page">Per Page</ng-container>
             </label>
             <select class="filter-select" [(ngModel)]="pageSize" (change)="page=1">
               <option [ngValue]="10">10 / page</option>
@@ -109,7 +110,7 @@
     <!-- Loading State -->
     <div *ngIf="loading" class="loading-state">
       <div class="spinner"></div>
-      <p class="loading-text">Loading time-off requests...</p>
+      <p class="loading-text" i18n="@@time_off_approvals.loading">Loading time-off requests...</p>
     </div>
 
     <!-- Error State -->
@@ -121,19 +122,19 @@
     <!-- Empty State -->
     <div *ngIf="!loading && !error && requests.length === 0" class="empty-state">
       <i class="fa fa-inbox empty-icon"></i>
-      <p class="empty-text">No requests found</p>
-      <p class="empty-subtext">Try adjusting your filters</p>
+      <p class="empty-text" i18n="@@time_off_approvals.empty_text">No requests found</p>
+      <p class="empty-subtext" i18n="@@time_off_approvals.empty_subtext">Try adjusting your filters</p>
     </div>
 
     <!-- Requests List -->
     <div *ngIf="!loading && !error && requests.length > 0" class="requests-grid">
-      <div *ngFor="let r of pagedRequests; let i = index" 
-           class="request-card" 
+      <div *ngFor="let r of pagedRequests; let i = index"
+           class="request-card"
            [class.pending]="r.status==='Pending'"
            [class.approved]="r.status==='Approved'"
            [class.denied]="r.status==='Denied'"
            [style.animation-delay.ms]="i * 50">
-        
+
         <div class="card-header-row">
           <div class="employee-section">
             <div class="employee-avatar">
@@ -143,14 +144,14 @@
               <h4 class="employee-name">{{ r.personName || ('#' + r.personId) }}</h4>
               <p class="request-date">
                 <i class="fa fa-clock-o"></i>
-                Requested {{ formatDate(r.createdAt) }}
+                <ng-container i18n="@@time_off_approvals.requested">Requested {{ formatDate(r.createdAt) }}</ng-container>
               </p>
             </div>
           </div>
-          <div class="status-badge" [class.pending]="r.status==='Pending'" 
-               [class.approved]="r.status==='Approved'" 
+          <div class="status-badge" [class.pending]="r.status==='Pending'"
+               [class.approved]="r.status==='Approved'"
                [class.denied]="r.status==='Denied'">
-            <i class="fa" 
+            <i class="fa"
                [class.fa-clock-o]="r.status==='Pending'"
                [class.fa-check-circle]="r.status==='Approved'"
                [class.fa-times-circle]="r.status==='Denied'"></i>
@@ -165,7 +166,7 @@
             <div class="info-row">
               <span class="info-label">
                 <i class="fa fa-tag"></i>
-                Type
+                <ng-container i18n="@@time_off_approvals.type_label">Type</ng-container>
               </span>
               <span class="info-value type-badge">{{ r.type }}</span>
             </div>
@@ -173,7 +174,7 @@
             <div class="info-row">
               <span class="info-label">
                 <i class="fa fa-calendar-o"></i>
-                Duration
+                <ng-container i18n="@@time_off_approvals.duration_label">Duration</ng-container>
               </span>
               <span class="info-value">
                 {{ formatDate(r.startDate) }} → {{ formatDate(r.endDate) }}
@@ -183,7 +184,7 @@
             <div class="info-row" *ngIf="r.isPartialDay">
               <span class="info-label">
                 <i class="fa fa-clock-o"></i>
-                Time
+                <ng-container i18n="@@time_off_approvals.time_label">Time</ng-container>
               </span>
               <span class="info-value">{{ r.partialStartTime }} - {{ r.partialEndTime }}</span>
             </div>
@@ -191,7 +192,7 @@
             <div class="info-row" *ngIf="r.hoursRequested">
               <span class="info-label">
                 <i class="fa fa-hourglass-half"></i>
-                Hours
+                <ng-container i18n="@@time_off_approvals.hours_label">Hours</ng-container>
               </span>
               <span class="info-value">{{ r.hoursRequested }} hrs</span>
             </div>
@@ -199,13 +200,13 @@
             <div class="info-row pto-balance-row" *ngIf="(r.type === 'Vacation' || r.type === 'PTO') && getPtoBalance(r.personId) !== undefined">
               <span class="info-label">
                 <i class="fa fa-bank"></i>
-                PTO Balance
+                <ng-container i18n="@@time_off_approvals.pto_balance">PTO Balance</ng-container>
               </span>
               <span class="info-value">
                 <strong>{{ getPtoBalance(r.personId) }} hrs</strong>
                 <span class="insufficient-badge" *ngIf="r.hoursRequested && getPtoBalance(r.personId)! < r.hoursRequested">
                   <i class="fa fa-exclamation-triangle"></i>
-                  Insufficient
+                  <ng-container i18n="@@time_off_approvals.insufficient">Insufficient</ng-container>
                 </span>
               </span>
             </div>
@@ -213,7 +214,7 @@
             <div class="info-row" *ngIf="r.reason">
               <span class="info-label">
                 <i class="fa fa-comment"></i>
-                Reason
+                <ng-container i18n="@@time_off_approvals.reason_label">Reason</ng-container>
               </span>
               <span class="info-value reason-text">{{ r.reason }}</span>
             </div>
@@ -223,30 +224,31 @@
             <div class="notes-group">
               <label class="notes-label">
                 <i class="fa fa-pencil"></i>
-                Notes (Optional)
+                <ng-container i18n="@@time_off_approvals.notes_label">Notes (Optional)</ng-container>
               </label>
-              <textarea 
+              <textarea
                 class="notes-textarea"
-                [(ngModel)]="noteText[r.timeOffRequestId]" 
+                [(ngModel)]="noteText[r.timeOffRequestId]"
                 placeholder="Add notes for approval/denial..."
+                i18n-placeholder="@@time_off_approvals.notes_ph"
                 rows="3"
               ></textarea>
             </div>
 
             <div class="action-buttons">
-              <button 
-                class="btn btn-approve" 
-                (click)="approve(r)" 
+              <button
+                class="btn btn-approve"
+                (click)="approve(r)"
                 [disabled]="r.status!=='Pending'">
                 <i class="fa fa-check"></i>
-                Approve
+                <ng-container i18n="@@time_off_approvals.approve_btn">Approve</ng-container>
               </button>
-              <button 
-                class="btn btn-deny" 
-                (click)="deny(r)" 
+              <button
+                class="btn btn-deny"
+                (click)="deny(r)"
                 [disabled]="r.status!=='Pending'">
                 <i class="fa fa-times"></i>
-                Deny
+                <ng-container i18n="@@time_off_approvals.deny_btn">Deny</ng-container>
               </button>
             </div>
           </div>
@@ -258,7 +260,7 @@
     <div *ngIf="!loading && !error && requests.length > 0" class="pagination-card">
       <button class="pagination-btn" (click)="prevPage()" [disabled]="page===1">
         <i class="fa fa-chevron-left"></i>
-        Previous
+        <ng-container i18n="@@time_off_approvals.prev_page">Previous</ng-container>
       </button>
       <div class="pagination-info">
         <span class="page-number">Page {{ page }}</span>
@@ -266,7 +268,7 @@
         <span class="page-total">{{ totalPages }}</span>
       </div>
       <button class="pagination-btn" (click)="nextPage()" [disabled]="page===totalPages">
-        Next
+        <ng-container i18n="@@time_off_approvals.next_page">Next</ng-container>
         <i class="fa fa-chevron-right"></i>
       </button>
     </div>

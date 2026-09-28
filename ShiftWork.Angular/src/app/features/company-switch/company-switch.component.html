@@ -5,27 +5,27 @@
       <div class="logo-circle">
         <i class="fa fa-building"></i>
       </div>
-      <h2>Select Your Company</h2>
-      <p class="subtitle">Choose a company to continue</p>
+      <h2 i18n="@@company_switch.title">Select Your Company</h2>
+      <p class="subtitle" i18n="@@company_switch.subtitle">Choose a company to continue</p>
     </div>
 
     <!-- Loading State -->
     <div *ngIf="loading$ | async" class="loading-container">
       <mat-spinner diameter="50"></mat-spinner>
-      <p class="loading-text">Loading companies...</p>
+      <p class="loading-text" i18n="@@company_switch.loading">Loading companies...</p>
     </div>
 
     <!-- Error State -->
     <div *ngIf="error$ | async" class="error-container">
       <i class="fa fa-exclamation-circle error-icon"></i>
-      <p class="error-text">Error loading companies. Please try again.</p>
+      <p class="error-text" i18n="@@company_switch.error">Error loading companies. Please try again.</p>
     </div>
 
     <!-- Companies List -->
     <div *ngIf="(companies$ | async) && (companies$ | async)!.length > 0 && !(loading$ | async)" class="companies-list">
-      <div 
-        class="company-item" 
-        *ngFor="let company of companies$ | async; let i = index" 
+      <div
+        class="company-item"
+        *ngFor="let company of companies$ | async; let i = index"
         (click)="switchCompany(company)"
         [style.animation-delay.ms]="i * 50">
         <div class="company-icon">
@@ -43,7 +43,7 @@
     <!-- Empty State -->
     <div *ngIf="(companies$ | async)?.length === 0 && !(loading$ | async)" class="empty-state">
       <i class="fa fa-building-o empty-icon"></i>
-      <p class="empty-text">No companies available</p>
+      <p class="empty-text" i18n="@@company_switch.empty">No companies available</p>
     </div>
   </div>
 </div>

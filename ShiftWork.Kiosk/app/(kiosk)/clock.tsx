@@ -19,12 +19,14 @@ import { useDeviceStore } from '@/store/deviceStore';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
 import { kioskService } from '@/services/kiosk.service';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '@/i18n';
 import type { ClockEventType } from '@/types';
 
 const TIMEOUT_MS = 60_000;
 
 export default function ClockScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const employee = useSessionStore((s) => s.employee);
   const setCapturedPhoto = useSessionStore((s) => s.setCapturedPhoto);
   const setClockType = useSessionStore((s) => s.setClockType);
@@ -115,12 +117,12 @@ export default function ClockScreen() {
   if (!permission.granted) {
     return (
       <View style={styles.center}>
-        <Text style={styles.permText}>Camera access is required to clock in.</Text>
+        <Text style={styles.permText}>{t('kiosk_app.camera_required')}</Text>
         <Pressable style={styles.btn} onPress={requestPermission}>
-          <Text style={styles.btnText}>Grant Camera Access</Text>
+          <Text style={styles.btnText}>{t('kiosk_app.grant_camera')}</Text>
         </Pressable>
         <Pressable onPress={() => router.replace('/(kiosk)')}>
-          <Text style={styles.cancel}>Cancel</Text>
+          <Text style={styles.cancel}>{t('kiosk_app.cancel')}</Text>
         </Pressable>
       </View>
     );
@@ -133,7 +135,7 @@ export default function ClockScreen() {
         {!clockChoice ? (
           <View style={styles.choiceRow}>
             <Text style={styles.choiceLabel}>
-              Hello, {employee.name}.\nWhat would you like to do?
+              {t('kiosk_app.hello_prompt', { name: employee.name })}
             </Text>
             <View style={styles.buttons}>
               <Pressable
@@ -141,20 +143,20 @@ export default function ClockScreen() {
                 onPress={() => { setClockChoice('ClockIn'); resetIdle(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); }}
               >
                 <Ionicons name="log-in-outline" size={40} color="#fff" />
-                <Text style={styles.actionText}>Clock In</Text>
-                <Text style={styles.actionSubText}>Start your shift</Text>
+                <Text style={styles.actionText}>{t('kiosk_app.clock_in')}</Text>
+                <Text style={styles.actionSubText}>{t('kiosk_app.clock_in_sub')}</Text>
               </Pressable>
               <Pressable
                 style={({ pressed }) => [styles.actionBtn, styles.clockOutBtn, pressed && { opacity: 0.88 }]}
                 onPress={() => { setClockChoice('ClockOut'); resetIdle(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); }}
               >
                 <Ionicons name="log-out-outline" size={40} color="#fff" />
-                <Text style={styles.actionText}>Clock Out</Text>
-                <Text style={styles.actionSubText}>End your shift</Text>
+                <Text style={styles.actionText}>{t('kiosk_app.clock_out')}</Text>
+                <Text style={styles.actionSubText}>{t('kiosk_app.clock_out_sub')}</Text>
               </Pressable>
             </View>
             <Pressable onPress={() => router.replace('/(kiosk)')}>
-              <Text style={styles.cancel}>← Back</Text>
+              <Text style={styles.cancel}>{t('kiosk_app.back')}</Text>
             </Pressable>
           </View>
         ) : (
@@ -169,7 +171,9 @@ export default function ClockScreen() {
             <View style={styles.viewfinder} pointerEvents="none" />
             <View style={styles.cameraOverlay}>
               <Text style={styles.cameraLabel}>
-                {clockChoice === 'ClockIn' ? 'Clock In' : 'Clock Out'} — look at the camera
+                {t('kiosk_app.look_at_camera', {
+                  action: clockChoice === 'ClockIn' ? t('kiosk_app.clock_in') : t('kiosk_app.clock_out'),
+                })}
               </Text>
               <Pressable
                 style={({ pressed }) => [styles.captureBtn, pressed && { opacity: 0.8 }]}
@@ -183,7 +187,7 @@ export default function ClockScreen() {
                 )}
               </Pressable>
               <Pressable onPress={() => { setClockChoice(null); resetIdle(); }}>
-                <Text style={styles.cancel}>← Change</Text>
+                <Text style={styles.cancel}>{t('kiosk_app.change')}</Text>
               </Pressable>
             </View>
           </View>

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { CompanySwitchComponent } from './company-switch.component';
+import './company-switch.module';
 import { AppState } from 'src/app/store/app.state';
 import { loadCompanies, setActiveCompany } from 'src/app/store/company/company.actions';
 import { Company } from 'src/app/core/models/company.model';

@@ -10,11 +10,14 @@ const routes: Routes = [
       { path: '', redirectTo: 'clock-shift', pathMatch: 'full' },
       { path: 'clock-shift', loadChildren: () => import('./clock-shift/clock-shift.module').then(m => m.ClockShiftModule) },
       { path: 'areas', loadChildren: () => import('./areas/areas.module').then(m => m.AreasModule) },
+      { path: 'cost-codes', loadChildren: () => import('./cost-codes/cost-codes.module').then(m => m.CostCodesModule) },
+      { path: 'procore', loadChildren: () => import('./procore/procore.module').then(m => m.ProcoreModule) },
       { path: 'locations', loadChildren: () => import('./locations/locations.module').then(m => m.LocationsModule) },
       { path: 'people', loadChildren: () => import('./people/people.module').then(m => m.PeopleModule) },
       { path: 'roles', loadChildren: () => import('./roles/roles.module').then(m => m.RolesModule) },
       { path: 'schedules', loadChildren: () => import('./schedules/schedules.module').then(m => m.SchedulesModule) },
       { path: 'tasks', loadChildren: () => import('./tasks/tasks.module').then(m => m.TasksModule) },
+      { path: 'analytics', loadChildren: () => import('./analytics/analytics.module').then(m => m.AnalyticsModule) },
       
       
 

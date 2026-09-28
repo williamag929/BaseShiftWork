@@ -1,15 +1,15 @@
-<h1 mat-dialog-title>Please answer the following questions</h1>
+<h1 mat-dialog-title i18n="@@kiosk_questions.title">Please answer the following questions</h1>
 <div mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div *ngFor="let question of questions">
       <p>{{ question.questionText }}</p>
       <mat-radio-group [formControlName]="question.kioskQuestionId">
-        <mat-radio-button value="Yes">Yes</mat-radio-button>
-        <mat-radio-button value="No">No</mat-radio-button>
+        <mat-radio-button value="Yes" i18n="@@kiosk_questions.yes">Yes</mat-radio-button>
+        <mat-radio-button value="No" i18n="@@kiosk_questions.no">No</mat-radio-button>
       </mat-radio-group>
     </div>
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button (click)="onSubmit()" [disabled]="!form.valid">Submit</button>
+  <button mat-button (click)="onSubmit()" [disabled]="!form.valid" i18n="@@kiosk_questions.submit_btn">Submit</button>
 </div>

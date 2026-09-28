@@ -3,28 +3,30 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Schedules</h4>
-                    <button mat-raised-button color="primary" (click)="openScheduleDialog()">Add Schedule</button>
+                    <h4 class="card-title" i18n="@@schedules.title">Schedules</h4>
+                    <button mat-raised-button color="primary" (click)="openScheduleDialog()">
+                      <ng-container i18n="@@schedules.add_btn">Add Schedule</ng-container>
+                    </button>
                 </div>
                 <div class="card-body">
                     <div *ngIf="loading" class="text-center">
                         <div class="spinner-border" role="status">
-                            <span class="sr-only">Loading...</span>
+                            <span class="sr-only" i18n="@@common.loading_short">Loading...</span>
                         </div>
                     </div>
-                    <div *ngIf="error" class="alert alert-danger">
+                    <div *ngIf="error" class="alert alert-danger" i18n="@@schedules.error">
                         Error loading schedules.
                     </div>
                     <div *ngIf="!loading && !error" class="table-responsive">
                         <table class="table">
                             <thead class="text-primary">
-                                <th>Person</th>
-                                <th>Location</th>
-                                <th>Area</th>
-                                <th>Start Time</th>
-                                <th>End Time</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th i18n="@@schedules.col_person">Person</th>
+                                <th i18n="@@schedules.col_location">Location</th>
+                                <th i18n="@@schedules.col_area">Area</th>
+                                <th i18n="@@schedules.col_start">Start Time</th>
+                                <th i18n="@@schedules.col_end">End Time</th>
+                                <th i18n="@@schedules.col_status">Status</th>
+                                <th i18n="@@schedules.col_actions">Actions</th>
                             </thead>
                             <tbody>
                                 <tr *ngFor="let schedule of schedules">

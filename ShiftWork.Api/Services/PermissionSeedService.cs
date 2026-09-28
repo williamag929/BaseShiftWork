@@ -67,6 +67,17 @@ namespace ShiftWork.Api.Services
                 Create("areas.update", "Areas - Update", "Update areas"),
                 Create("areas.delete", "Areas - Delete", "Delete areas"),
 
+                // Cost Codes
+                Create("costcodes.read", "Cost Codes - Read", "View cost codes"),
+                Create("costcodes.create", "Cost Codes - Create", "Create cost codes"),
+                Create("costcodes.update", "Cost Codes - Update", "Update cost codes"),
+                Create("costcodes.delete", "Cost Codes - Delete", "Delete cost codes"),
+
+                // Procore integration
+                Create("procore.read", "Procore - Read", "View Procore connection"),
+                Create("procore.manage", "Procore - Manage", "Configure the Procore connection"),
+                Create("procore.sync", "Procore - Sync", "Push data to Procore"),
+
                 // Tasks
                 Create("tasks.read", "Tasks - Read", "View task shifts"),
                 Create("tasks.create", "Tasks - Create", "Create task shifts"),
@@ -111,6 +122,10 @@ namespace ShiftWork.Api.Services
                 Create("shift-events.create", "Shift Events - Create", "Create shift events"),
                 Create("shift-events.update", "Shift Events - Update", "Update shift events"),
                 Create("shift-events.delete", "Shift Events - Delete", "Delete shift events"),
+                Create("shift-events.geofence-flags.review", "Shift Events - Review Geofence Flags", "Mark flagged out-of-geofence clock events as reviewed"),
+
+                // Active sites dashboard
+                Create("active-sites.view", "Active Sites - View", "View the active site roster dashboard"),
 
                 // Time off requests
                 Create("timeoff-requests.read", "Time Off - Read", "View time off requests"),
@@ -179,6 +194,17 @@ namespace ShiftWork.Api.Services
                 Create("documents.read",     "Documents - Read",      "View and download documents"),
                 Create("documents.delete",   "Documents - Delete",    "Archive documents"),
                 Create("documents.manage",   "Documents - Manage",    "View read compliance logs and manage access"),
+
+                // Credentials
+                Create("credentials.read",   "Credentials - Read",   "View employee credentials"),
+                Create("credentials.create", "Credentials - Create", "Add employee credentials"),
+                Create("credentials.update", "Credentials - Update", "Edit employee credentials"),
+                Create("credentials.delete", "Credentials - Delete", "Archive employee credentials"),
+                Create("credentials.track",  "Credentials - Track",  "View expiring/expired credential compliance"),
+
+                // Analytics & dynamic reports
+                Create("analytics.view",   "Analytics - View",   "View analytics dashboards and reports"),
+                Create("analytics.export", "Analytics - Export", "Export analytics data (CSV/PNG)"),
 
                 // v2 Safety
                 Create("safety.create",      "Safety - Create",      "Create safety content"),

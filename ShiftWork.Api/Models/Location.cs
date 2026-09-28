@@ -18,6 +18,11 @@ namespace ShiftWork.Api.Models
         public string Country { get; set; }
         public string ZipCode { get; set; }
         public string GeoCoordinates { get; set; }
+        /// <summary>
+        /// Geofence radius in meters around <see cref="GeoCoordinates"/>. Used to flag clock-ins/outs
+        /// that occur outside the job site's service area. Name is legacy/misleading — kept as-is to
+        /// avoid an unrelated rename; the Angular admin form labels it "Service Radius (meters)".
+        /// </summary>
         public int RatioMax { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Email { get; set; }

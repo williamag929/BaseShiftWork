@@ -116,6 +116,51 @@ public class BulletinServiceTests : IDisposable
         Assert.Equal(1, readCount);
     }
 
+    [Fact]
+    public async Task MarkAsReadAsync_ReturnsFalse_ForWrongCompany()
+    {
+        var bulletin = await _sut.CreateAsync(CompanyA, new Bulletin { Title = "T", Content = "x", Type = "General", Priority = "Normal", Status = "Published" });
+
+        var result = await _sut.MarkAsReadAsync(bulletin.BulletinId, CompanyB, 1);
+
+        Assert.False(result);
+        var readCount = await _context.BulletinReads.CountAsync(r => r.BulletinId == bulletin.BulletinId);
+        Assert.Equal(0, readCount);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsNull_ForWrongCompany()
+    {
+        var bulletin = await _sut.CreateAsync(CompanyA, new Bulletin { Title = "T", Content = "x", Type = "General", Priority = "Normal", Status = "Published" });
+
+        var result = await _sut.GetByIdAsync(bulletin.BulletinId, CompanyB);
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ReturnsNull_ForWrongCompany()
+    {
+        var bulletin = await _sut.CreateAsync(CompanyA, new Bulletin { Title = "T", Content = "x", Type = "General", Priority = "Normal", Status = "Draft" });
+
+        var result = await _sut.UpdateAsync(bulletin.BulletinId, CompanyB, new Bulletin { Title = "Hacked", Content = "x", Type = "General", Priority = "Normal", Status = "Draft" });
+
+        Assert.Null(result);
+        var saved = await _context.Bulletins.FindAsync(bulletin.BulletinId);
+        Assert.Equal("T", saved!.Title);
+    }
+
+    [Fact]
+    public async Task GetReadsAsync_ReturnsEmpty_ForWrongCompany()
+    {
+        var bulletin = await _sut.CreateAsync(CompanyA, new Bulletin { Title = "T", Content = "x", Type = "General", Priority = "Normal", Status = "Published" });
+        await _sut.MarkAsReadAsync(bulletin.BulletinId, CompanyA, 1);
+
+        var reads = await _sut.GetReadsAsync(bulletin.BulletinId, CompanyB);
+
+        Assert.Empty(reads);
+    }
+
     // ── ArchiveAsync ──────────────────────────────────────────────────────────
 
     [Fact]

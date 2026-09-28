@@ -169,6 +169,33 @@ namespace ShiftWork.Api.Controllers
             }
         }
 
+        /// <summary>
+        /// Marks a geofence-flagged clock event as reviewed by a manager. Does not change the event's
+        /// GeofenceStatus (still "Outside") — only records that it was looked at.
+        /// </summary>
+        [HttpPatch("{eventLogId}/review-geofence")]
+        [Authorize(Policy = "shift-events.geofence-flags.review")]
+        [ProducesResponseType(typeof(ShiftEventDto), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<ShiftEventDto>> ReviewGeofenceFlag(string companyId, Guid eventLogId, [FromQuery] int? reviewerPersonId = null)
+        {
+            try
+            {
+                var updated = await _shiftEventService.ReviewGeofenceFlagAsync(companyId, eventLogId, reviewerPersonId);
+                if (updated == null)
+                {
+                    return NotFound();
+                }
+                return Ok(_mapper.Map<ShiftEventDto>(updated));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error reviewing geofence flag for shift event {EventLogId}", eventLogId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
         [HttpDelete("{eventLogId}")]
         [Authorize(Policy = "shift-events.delete")]
         [ProducesResponseType(204)]

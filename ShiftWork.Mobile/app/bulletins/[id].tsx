@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@/store/authStore';
 import { bulletinService, Bulletin } from '@/services/bulletin.service';
 import { colors, spacing, radius } from '@/styles/tokens';
+import { useTranslation } from '@/i18n';
 
 const PRIORITY_COLOR: Record<string, string> = {
   Critical: '#FF3B30',
@@ -21,6 +22,7 @@ export default function BulletinDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { companyId } = useAuthStore();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const [bulletin, setBulletin] = useState<Bulletin | null>(null);
   const [loading, setLoading]   = useState(true);
@@ -42,7 +44,7 @@ export default function BulletinDetailScreen() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <Stack.Screen options={{ title: 'Bulletin' }} />
+        <Stack.Screen options={{ title: t('bulletins.title') }} />
         <ActivityIndicator color={colors.primary} />
       </View>
     );
@@ -51,10 +53,10 @@ export default function BulletinDetailScreen() {
   if (!bulletin) {
     return (
       <View style={styles.centered}>
-        <Stack.Screen options={{ title: 'Bulletin' }} />
-        <Text style={styles.errorText}>Bulletin not found.</Text>
+        <Stack.Screen options={{ title: t('bulletins.title') }} />
+        <Text style={styles.errorText}>{t('bulletin_detail.not_found')}</Text>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backBtnText}>Go Back</Text>
+          <Text style={styles.backBtnText}>{t('bulletin_detail.go_back')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -93,7 +95,7 @@ export default function BulletinDetailScreen() {
               <>
                 <Text style={styles.metaDot}>·</Text>
                 <Text style={[styles.metaText, styles.expires]}>
-                  Expires {new Date(bulletin.expiresAt).toLocaleDateString()}
+                  {t('bulletin_detail.expires', { date: new Date(bulletin.expiresAt).toLocaleDateString() })}
                 </Text>
               </>
             )}
@@ -104,11 +106,11 @@ export default function BulletinDetailScreen() {
           {/* Attachments */}
           {bulletin.attachmentUrls && bulletin.attachmentUrls.length > 0 && (
             <View style={styles.attachments}>
-              <Text style={styles.attachTitle}>Attachments</Text>
+              <Text style={styles.attachTitle}>{t('bulletin_detail.attachments')}</Text>
               {bulletin.attachmentUrls.map((url, i) => (
                 <TouchableOpacity key={i} style={styles.attachItem} onPress={() => Linking.openURL(url)}>
                   <Ionicons name="document-attach-outline" size={18} color={colors.primary} />
-                  <Text style={styles.attachUrl} numberOfLines={1}>Attachment {i + 1}</Text>
+                  <Text style={styles.attachUrl} numberOfLines={1}>{t('bulletin_detail.attachment_label', { number: i + 1 })}</Text>
                   <Ionicons name="open-outline" size={14} color={colors.muted} />
                 </TouchableOpacity>
               ))}
@@ -118,7 +120,7 @@ export default function BulletinDetailScreen() {
           {/* Read confirmation */}
           <View style={styles.readConfirm}>
             <Ionicons name="checkmark-circle" size={18} color="#34C759" />
-            <Text style={styles.readConfirmText}>Marked as read</Text>
+            <Text style={styles.readConfirmText}>{t('bulletin_detail.marked_read')}</Text>
           </View>
         </View>
       </ScrollView>

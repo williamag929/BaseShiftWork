@@ -6,6 +6,7 @@ import { registrationService } from '@/services/registration.service';
 import { useAuthStore } from '@/store/authStore';
 import { colors } from '@/styles/theme';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/i18n';
 
 const FEATURES = [
   { label: 'Kiosk Clock-In / Out', free: true, pro: true },
@@ -23,6 +24,7 @@ export default function UpgradeScreen() {
   const [loading, setLoading] = useState(false);
   const companyId = useAuthStore((s) => s.companyId);
   const toast = useToast();
+  const { t } = useTranslation();
 
   const handleUpgrade = () => {
     if (!companyId) {
@@ -75,15 +77,15 @@ export default function UpgradeScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <StatusBar style="dark" />
-      <Text style={styles.title}>Upgrade to Pro</Text>
-      <Text style={styles.subtitle}>Unlock the full power of ShiftWork for your team.</Text>
+      <Text style={styles.title}>{t('upgrade.title')}</Text>
+      <Text style={styles.subtitle}>{t('upgrade.subtitle')}</Text>
 
       {/* Feature comparison */}
       <View style={styles.tableCard}>
         <View style={[styles.tableRow, styles.tableHeader]}>
-          <Text style={[styles.tableCell, styles.tableCellFeature]}>Feature</Text>
-          <Text style={[styles.tableCell, styles.tableCellPlan]}>Free</Text>
-          <Text style={[styles.tableCell, styles.tableCellPlan, styles.proPlanHeader]}>Pro ⭐</Text>
+          <Text style={[styles.tableCell, styles.tableCellFeature]}>{t('upgrade.feature')}</Text>
+          <Text style={[styles.tableCell, styles.tableCellPlan]}>{t('upgrade.plan_free')}</Text>
+          <Text style={[styles.tableCell, styles.tableCellPlan, styles.proPlanHeader]}>{t('upgrade.plan_pro')}</Text>
         </View>
         {FEATURES.map((f) => (
           <View key={f.label} style={styles.tableRow}>
@@ -95,11 +97,11 @@ export default function UpgradeScreen() {
       </View>
 
       <TouchableOpacity style={styles.btnUpgrade} onPress={handleUpgrade} disabled={loading}>
-        <Text style={styles.btnUpgradeText}>{loading ? 'Processing…' : 'Upgrade to Pro Now'}</Text>
+        <Text style={styles.btnUpgradeText}>{loading ? t('upgrade.processing') : t('upgrade.upgrade_btn')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-        <Text style={styles.backBtnText}>← Back</Text>
+        <Text style={styles.backBtnText}>{t('upgrade.back')}</Text>
       </TouchableOpacity>
     </ScrollView>
   );

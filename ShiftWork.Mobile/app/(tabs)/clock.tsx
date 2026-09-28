@@ -10,16 +10,12 @@ import { ClockButton } from '@/components/screens/clock/ClockButton';
 import { ElapsedTimer } from '@/components/screens/clock/ElapsedTimer';
 import { SafetyQuestionnaire } from '@/components/screens/clock/SafetyQuestionnaire';
 import PhotoCapture from '@/components/PhotoCapture';
-
-const INFO_ITEMS = [
-  { icon: 'location' as const, text: 'Location captured' },
-  { icon: 'camera' as const, text: 'Photo optional' },
-  { icon: 'phone-portrait' as const, text: 'Device recorded' },
-];
+import { useTranslation } from '@/i18n';
 
 export default function ClockScreen() {
   const { name } = useAuthStore();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const {
     loading,
     initializing,
@@ -40,6 +36,12 @@ export default function ClockScreen() {
 
   const firstName = name ? name.split(' ')[0] : 'there';
 
+  const INFO_ITEMS = [
+    { icon: 'location' as const, text: t('clock.info_location') },
+    { icon: 'camera' as const, text: t('clock.info_photo') },
+    { icon: 'phone-portrait' as const, text: t('clock.info_device') },
+  ];
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -47,7 +49,7 @@ export default function ClockScreen() {
       {/* Hero header */}
       <View style={[styles.hero, { paddingTop: insets.top + 16 }]}>
         <Animated.View entering={FadeIn.duration(350)}>
-          <Text style={styles.heroGreeting}>{isClockedIn ? 'You are on the clock' : 'Ready to start?'}</Text>
+          <Text style={styles.heroGreeting}>{isClockedIn ? t('clock.on_clock') : t('clock.ready')}</Text>
           <Text style={styles.heroName}>{firstName}</Text>
         </Animated.View>
         <Animated.View
@@ -56,7 +58,7 @@ export default function ClockScreen() {
         >
           <View style={[styles.pillDot, { backgroundColor: isClockedIn ? colors.success : colors.muted }]} />
           <Text style={[styles.pillText, { color: isClockedIn ? colors.success : colors.muted }]}>
-            {isClockedIn ? 'On Clock' : 'Off Clock'}
+            {isClockedIn ? t('clock.status_in') : t('clock.status_out')}
           </Text>
         </Animated.View>
       </View>
@@ -108,11 +110,11 @@ export default function ClockScreen() {
         {!initializing && !error && (
           <Animated.View entering={FadeInDown.delay(200).duration(350)} style={styles.infoCard}>
             <Text style={styles.infoTitle}>
-              {isClockedIn ? 'Clock out when done' : `Clock in to start your shift`}
+              {isClockedIn ? t('clock.clock_out_hint') : t('clock.clock_in_hint')}
             </Text>
             <View style={styles.infoRows}>
               {INFO_ITEMS.map((item) => (
-                <View key={item.text} style={styles.infoRow}>
+                <View key={item.icon} style={styles.infoRow}>
                   <View style={styles.infoIconWrap}>
                     <Ionicons name={item.icon} size={15} color={colors.primary} />
                   </View>

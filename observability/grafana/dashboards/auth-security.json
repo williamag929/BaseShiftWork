@@ -1,0 +1,53 @@
+{
+  "title": "ShiftWork — Auth & Security",
+  "uid": "shiftwork-auth-security",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "tags": ["shiftwork"],
+  "panels": [
+    {
+      "id": 1,
+      "title": "401/403 rate (%)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "shiftwork-prometheus" },
+      "targets": [
+        {
+          "expr": "100 * sum(rate(http_server_request_duration_seconds_count{job=\"shiftwork-api\", http_response_status_code=~\"401|403\"}[5m])) / sum(rate(http_server_request_duration_seconds_count{job=\"shiftwork-api\"}[5m]))",
+          "legendFormat": "401/403 %"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percent" } },
+      "thresholds": { "steps": [{ "value": 10, "color": "orange" }] }
+    },
+    {
+      "id": 2,
+      "title": "429 (rate-limit) rejections",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "shiftwork-prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count{job=\"shiftwork-api\", http_response_status_code=\"429\"}[5m]))",
+          "legendFormat": "429/s"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Requests by status code class",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "shiftwork-prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (http_response_status_code) (rate(http_server_request_duration_seconds_count{job=\"shiftwork-api\"}[5m]))",
+          "legendFormat": "{{http_response_status_code}}"
+        }
+      ]
+    }
+  ]
+}

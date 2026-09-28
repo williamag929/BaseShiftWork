@@ -38,6 +38,14 @@ export const kioskService = {
     return data;
   },
 
+  /** Company default UI language ("en"/"es") for seeding the kiosk locale. */
+  async getDefaultLanguage(companyId: string): Promise<string> {
+    const { data } = await apiClient.get<{ defaultLanguage: string }>(
+      `/api/kiosk/${companyId}/language`
+    );
+    return data.defaultLanguage;
+  },
+
   async verifyPin(personId: number, pin: string): Promise<boolean> {
     const { data } = await apiClient.post<{ verified: boolean }>(
       '/api/auth/verify-pin',

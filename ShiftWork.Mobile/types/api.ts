@@ -8,6 +8,7 @@ export interface PersonDto {
   phoneNumber?: string;
   photoUrl?: string;
   pin?: string;
+  preferredLanguage?: string | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -65,6 +66,31 @@ export interface ShiftEventDto {
   metadata?: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
+  /** Job site checked against for geofencing. Resolved server-side from today's schedule if omitted. */
+  locationId?: number;
+  /** Output only: "Inside" | "Outside" | "Unknown". */
+  geofenceStatus?: string;
+  geofenceDistanceMeters?: number;
+}
+
+export type CredentialExpiryStatus = 'Valid' | 'ExpiringSoon' | 'Expired';
+
+export interface CredentialDto {
+  credentialId: string;
+  companyId: string;
+  personId: number;
+  personName: string;
+  name: string;
+  type?: string;
+  issuingAuthority?: string;
+  credentialNumber?: string;
+  issueDate?: string;
+  expiryDate: string;
+  expiryStatus: CredentialExpiryStatus;
+  hasDocument: boolean;
+  status: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface LocationDto {

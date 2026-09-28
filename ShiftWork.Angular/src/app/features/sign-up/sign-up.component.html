@@ -1,10 +1,10 @@
 <div class="container">
   <div class="card">
     <div class="card-body">
-      <h3 class="card-title text-center">Sign Up</h3>
+      <h3 class="card-title text-center" i18n="@@auth.register.sign_up">Sign Up</h3>
       <form [formGroup]="signUpForm" (ngSubmit)="signUp()">
         <div class="form-group">
-          <label for="email">Email address</label>
+          <label for="email" i18n="@@auth.login.email_label">Email address</label>
           <input
             type="email"
             class="form-control"
@@ -13,12 +13,12 @@
             [ngClass]="{ 'is-invalid': signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid }"
           />
           <div *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid" class="invalid-feedback">
-            <div *ngIf="signUpForm.get('email')?.errors?.['required']">Email is required.</div>
-            <div *ngIf="signUpForm.get('email')?.errors?.['email']">Please enter a valid email address.</div>
+            <div *ngIf="signUpForm.get('email')?.errors?.['required']" i18n="@@auth.login.email_required">Email is required.</div>
+            <div *ngIf="signUpForm.get('email')?.errors?.['email']" i18n="@@auth.login.email_invalid">Please enter a valid email address.</div>
           </div>
         </div>
         <div class="form-group">
-          <label for="password">Password</label>
+          <label for="password" i18n="@@auth.login.password_label">Password</label>
           <input
             type="password"
             class="form-control"
@@ -27,21 +27,21 @@
             [ngClass]="{ 'is-invalid': signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid }"
           />
           <div *ngIf="signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid" class="invalid-feedback">
-            <div *ngIf="signUpForm.get('password')?.errors?.['required']">Password is required.</div>
-            <div *ngIf="signUpForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters long.</div>
+            <div *ngIf="signUpForm.get('password')?.errors?.['required']" i18n="@@auth.login.password_required">Password is required.</div>
+            <div *ngIf="signUpForm.get('password')?.errors?.['minlength']" i18n="@@auth.register.password_short_6">Password must be at least 6 characters long.</div>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-block" [disabled]="!signUpForm.valid">Sign Up</button>
+        <button type="submit" class="btn btn-primary btn-block" [disabled]="!signUpForm.valid" i18n="@@auth.register.sign_up">Sign Up</button>
       </form>
       <div class="or-separator">
-        <span class="or-text">Or</span>
+        <span class="or-text" i18n="@@common.or">Or</span>
       </div>
       <button type="button" class="btn btn-google btn-block" (click)="googleSignIn()">
         <i class="fa fa-google-plus-g"></i>
-        Continue with Google
+        <ng-container i18n="@@auth.register.google">Continue with Google</ng-container>
       </button>
       <div class="text-center mt-3">
-        <span>Already have an account? <a routerLink="/sign-in">Log In</a></span>
+        <span i18n="@@auth.register.already_account">Already have an account? <a routerLink="/sign-in">Log In</a></span>
       </div>
     </div>
   </div>

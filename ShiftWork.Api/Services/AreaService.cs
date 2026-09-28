@@ -152,6 +152,7 @@ namespace ShiftWork.Api.Services
                 // Update properties individually so EF Core tracks which fields changed
                 existingArea.Name = area.Name;
                 existingArea.LocationId = area.LocationId;
+                existingArea.CostCodeId = area.CostCodeId;
 
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("Successfully updated area with ID {AreaId}", area.AreaId);

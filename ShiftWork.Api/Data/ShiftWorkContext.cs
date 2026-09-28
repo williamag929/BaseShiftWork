@@ -11,6 +11,8 @@ namespace ShiftWork.Api.Data
         }
 
         public DbSet<Area> Areas { get; set; }
+        public DbSet<CostCode> CostCodes { get; set; }
+        public DbSet<ProcoreConnection> ProcoreConnections { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Person> Persons { get; set; }
@@ -46,6 +48,7 @@ namespace ShiftWork.Api.Data
         public DbSet<DocumentReadLog> DocumentReadLogs { get; set; }
         public DbSet<SafetyContent> SafetyContents { get; set; }
         public DbSet<SafetyAcknowledgment> SafetyAcknowledgments { get; set; }
+        public DbSet<Credential> Credentials { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -53,6 +56,9 @@ namespace ShiftWork.Api.Data
             modelBuilder.Entity<Company>().ToTable("Companies");
             modelBuilder.Entity<Person>().ToTable("People");
             modelBuilder.Entity<Area>().ToTable("Areas");
+            modelBuilder.Entity<CostCode>().ToTable("CostCodes");
+            modelBuilder.Entity<ProcoreConnection>().ToTable("ProcoreConnections");
+            modelBuilder.Entity<ProcoreConnection>().HasIndex(p => p.CompanyId).IsUnique();
             modelBuilder.Entity<Location>().ToTable("Locations");
             modelBuilder.Entity<Role>().ToTable("Roles");
             modelBuilder.Entity<Schedule>().ToTable("Schedules");
@@ -67,6 +73,7 @@ namespace ShiftWork.Api.Data
             modelBuilder.Entity<RolePermission>().ToTable("RolePermissions");
             modelBuilder.Entity<UserRole>().ToTable("UserRoles");
             modelBuilder.Entity<CompanyUserProfile>().ToTable("CompanyUserProfiles");
+            modelBuilder.Entity<Credential>().ToTable("Credentials");
 
             modelBuilder.Entity<RolePermission>()
                 .HasKey(rp => new { rp.RoleId, rp.PermissionId });
@@ -100,6 +107,12 @@ namespace ShiftWork.Api.Data
 
             modelBuilder.Entity<UserRole>()
                 .HasIndex(ur => new { ur.CompanyId, ur.CompanyUserId });
+
+            // Analytics read paths scan by company + date; these indexes keep aggregation fast.
+            modelBuilder.Entity<ShiftEvent>()
+                .HasIndex(e => new { e.CompanyId, e.EventDate });
+            modelBuilder.Entity<ScheduleShift>()
+                .HasIndex(s => new { s.CompanyId, s.StartDate });
 
             modelBuilder.Entity<CompanyUserProfile>()
                 .HasKey(cup => cup.ProfileId);

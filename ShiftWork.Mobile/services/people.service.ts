@@ -8,6 +8,7 @@ export interface UpdatePersonDto {
   photoUrl?: string;
   pin?: string;
   currentPin?: string; // For PIN verification
+  preferredLanguage?: string;
 }
 
 export interface ChangePasswordDto {
