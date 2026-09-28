@@ -75,26 +75,6 @@ namespace ShiftWork.Api.DTOs
     }
 
     /// <summary>
-    /// Request body for POST /api/companies/{companyId}/plan/upgrade.
-    /// </summary>
-    public class PlanUpgradeRequest
-    {
-        public string StripePaymentMethodId { get; set; } = string.Empty;
-        public string TargetPlan { get; set; } = "Pro";
-    }
-
-    /// <summary>
-    /// Response from POST /api/companies/{companyId}/plan/upgrade.
-    /// </summary>
-    public class PlanUpgradeResponse
-    {
-        public bool Success { get; set; }
-        public string Plan { get; set; } = string.Empty;
-        public string? StripeSubscriptionId { get; set; }
-        public string Message { get; set; } = string.Empty;
-    }
-
-    /// <summary>
     /// Request body for PATCH /api/companies/{companyId}/onboarding-status.
     /// Valid values: "Pending", "Verified", "Complete".
     /// </summary>
