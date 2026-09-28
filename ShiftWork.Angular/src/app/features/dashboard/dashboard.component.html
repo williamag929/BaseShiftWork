@@ -324,6 +324,12 @@
     <!-- Main Content Area -->
     <mat-sidenav-content class="main-content">
       <div class="content-wrapper">
+        <div class="billing-banner" *ngIf="billingBanner$ | async as banner" role="status">
+          <mat-icon>{{ banner === 'limit' ? 'group_off' : 'schedule' }}</mat-icon>
+          <span *ngIf="banner === 'trial'" i18n="@@billing.banner_trial">Your free trial ends soon. Choose a plan to keep Pro features.</span>
+          <span *ngIf="banner === 'limit'" i18n="@@billing.banner_limit">You've reached your plan's employee limit.</span>
+          <a mat-flat-button color="primary" routerLink="/dashboard/billing" i18n="@@billing.banner_cta">See plans</a>
+        </div>
         <router-outlet></router-outlet>
       </div>
     </mat-sidenav-content>

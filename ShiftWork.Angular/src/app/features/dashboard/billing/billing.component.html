@@ -30,7 +30,11 @@
         <mat-card-title>{{ t.tier }}</mat-card-title>
         <mat-card-content>
           <p class="cap"><span i18n="@@billing.up_to">Up to</span> {{ t.cap }} <span i18n="@@billing.employees">employees</span></p>
-          <p>{{ t.blurb }}</p>
+          <p [ngSwitch]="t.tier">
+            <span *ngSwitchCase="'Starter'" i18n="@@billing.tier_starter_blurb">Small crews getting organized</span>
+            <span *ngSwitchCase="'Pro'" i18n="@@billing.tier_pro_blurb">Analytics, multi-location and exports</span>
+            <span *ngSwitchCase="'Business'" i18n="@@billing.tier_business_blurb">Unlimited employees</span>
+          </p>
         </mat-card-content>
         <mat-card-actions>
           <button mat-flat-button color="primary" [attr.data-test]="'choose-' + t.tier" [disabled]="busy"

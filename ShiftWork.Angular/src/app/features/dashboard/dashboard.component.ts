@@ -13,6 +13,8 @@ import { PermissionService } from 'src/app/core/services/permission.service';
 import { CredentialService } from 'src/app/core/services/credential.service';
 import { environment } from 'src/environments/environment';
 import { TourService } from 'src/app/shared/tour/tour.service';
+import { BillingService } from 'src/app/core/services/billing.service';
+import { BillingBanner, billingBannerFor } from 'src/app/core/models/billing.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,6 +28,8 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
   activeCompany$: Observable<any>;
   private routerSubscription: Subscription = Subscription.EMPTY;
   private statusRefreshSub: Subscription = Subscription.EMPTY;
+  private billingRefreshSub: Subscription = Subscription.EMPTY;
+  billingBanner$: Observable<BillingBanner | null>;
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
     .pipe(
@@ -51,10 +55,16 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
     private peopleService: PeopleService,
     public tourService: TourService,
     private permissionService: PermissionService,
-    private credentialService: CredentialService
+    private credentialService: CredentialService,
+    private billingService: BillingService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
     this.user$ = this.authService.user$;
+
+    this.billingRefreshSub = this.activeCompany$
+      .pipe(filter((c: any) => !!c?.companyId))
+      .subscribe((c: any) => this.billingService.refresh(c.companyId));
+    this.billingBanner$ = this.billingService.summary$.pipe(map(billingBannerFor));
 
     this.expiringCredentialsCount$ = this.activeCompany$.pipe(
       filter((company: any) => !!company && this.hasPermission('credentials.track')),
@@ -130,5 +140,6 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     this.routerSubscription.unsubscribe();
     this.statusRefreshSub.unsubscribe();
+    this.billingRefreshSub.unsubscribe();
   }
 }

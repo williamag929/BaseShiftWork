@@ -4,6 +4,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular
 import { Observable, throwError, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { PlanLimitError } from '../errors/plan-limit.error';
 
 @Injectable({
   providedIn: 'root'
@@ -117,6 +118,9 @@ export class PeopleService {
   }
 
   private handleError(error: HttpErrorResponse) {
+    const planLimit = PlanLimitError.from(error);
+    if (planLimit) return throwError(() => planLimit);
+
     let errorMessage = 'Unknown error!';
     if (error.error instanceof ErrorEvent) {
       // Client-side errors

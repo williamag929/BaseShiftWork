@@ -12,3 +12,13 @@ export interface BillingSummary {
   employeeCap: number | null;
   canManageBilling: boolean;
 }
+
+export type BillingBanner = 'trial' | 'limit';
+
+/** The cap warning wins: a full roster blocks work today, an ending trial only blocks it later. */
+export function billingBannerFor(s: BillingSummary | null): BillingBanner | null {
+  if (!s) return null;
+  if (s.employeeCap !== null && s.employeeCount >= s.employeeCap) return 'limit';
+  if (s.isTrial && s.trialDaysRemaining <= 3) return 'trial';
+  return null;
+}
