@@ -166,6 +166,7 @@ namespace ShiftWork.Api.Services
                 Create("companies.create", "Companies - Create", "Create companies"),
                 Create("companies.update", "Companies - Update", "Update companies"),
                 Create("companies.delete", "Companies - Delete", "Delete companies"),
+                Create("companies.billing", "Companies - Billing", "Manage subscription and billing"),
 
                 // S3
                 Create("s3.read", "S3 - Read", "Read objects from S3"),
