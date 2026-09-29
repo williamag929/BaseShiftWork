@@ -18,6 +18,7 @@ import { useSessionStore } from '@/store/sessionStore';
 import { useDeviceStore } from '@/store/deviceStore';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
+import { usePunchNavigator } from '@/hooks/usePunchNavigator';
 import type { KioskAnswer, KioskQuestion } from '@/types';
 
 export default function QuestionsScreen() {
@@ -25,9 +26,9 @@ export default function QuestionsScreen() {
   const { t } = useTranslation();
   const employee = useSessionStore((s) => s.employee);
   const clockType = useSessionStore((s) => s.clockType);
-  const capturedPhotoUri = useSessionStore((s) => s.capturedPhotoUri);
-  const geoLocation = useSessionStore((s) => s.geoLocation);
-  const { companyId, locationId, kioskDeviceId } = useDeviceStore();
+  const setSessionAnswers = useSessionStore((s) => s.setAnswers);
+  const { companyId } = useDeviceStore();
+  const goNext = usePunchNavigator();
 
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -67,25 +68,17 @@ export default function QuestionsScreen() {
           answerText: answers[q.questionId],
         }));
 
-      await kioskService.clock(companyId, {
-        personId: employee.personId,
-        eventType: clockType,
-        locationId: locationId || undefined,
-        photoUrl: capturedPhotoUri ?? undefined,
-        geoLocation: geoLocation ?? undefined,
-        kioskDevice: kioskDeviceId,
-        answers: answerList,
-      });
-
+      // The punch is recorded (and later sent) by the navigator, with these answers.
+      setSessionAnswers(answerList);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace('/(kiosk)/success');
+      await goNext('questions');
     } catch {
       setError(t('kiosk_app.submit_failed'));
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setSubmitting(false);
     }
-  }, [employee, clockType, questions, answers, companyId, locationId, capturedPhotoUri, geoLocation, kioskDeviceId, router, t]);
+  }, [employee, clockType, questions, answers, setSessionAnswers, goNext, t]);
 
   if (isLoading) {
     return <View style={styles.center}><ActivityIndicator color={colors.primary} size="large" /></View>;

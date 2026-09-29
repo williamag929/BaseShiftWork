@@ -14,6 +14,7 @@ import * as Haptics from 'expo-haptics';
 import { PinPad } from '@/components/ui/PinPad';
 import { kioskService } from '@/services/kiosk.service';
 import { useSessionStore } from '@/store/sessionStore';
+import { usePunchNavigator } from '@/hooks/usePunchNavigator';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
 
@@ -23,6 +24,8 @@ export default function PinScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const employee = useSessionStore((s) => s.employee);
+  const setSessionPin = useSessionStore((s) => s.setPin);
+  const goNext = usePunchNavigator();
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -69,7 +72,8 @@ export default function PinScreen() {
         const verified = await kioskService.verifyPin(employee.personId, submittedPin);
         if (verified) {
           await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          router.push('/(kiosk)/clock');
+          setSessionPin(submittedPin);
+          await goNext('pin');
         } else {
           await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
           setError(true);
@@ -86,7 +90,7 @@ export default function PinScreen() {
         setLoading(false);
       }
     },
-    [employee, loading, router, resetTimeout, t]
+    [employee, loading, router, resetTimeout, t, setSessionPin, goNext]
   );
 
   if (!employee) return null;

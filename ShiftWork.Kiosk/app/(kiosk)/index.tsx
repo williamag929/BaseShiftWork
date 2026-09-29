@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
 import { Image } from 'expo-image';
@@ -19,6 +18,11 @@ import * as Haptics from 'expo-haptics';
 import { kioskService } from '@/services/kiosk.service';
 import { useDeviceStore } from '@/store/deviceStore';
 import { useSessionStore } from '@/store/sessionStore';
+import { useConfigStore } from '@/store/configStore';
+import { usePunchNavigator } from '@/hooks/usePunchNavigator';
+import { nextEventType } from '@/services/punchFlow';
+import { applyPendingStatus } from '@/services/outbox.service';
+import { useOutboxStatus } from '@/services/outbox';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
 import type { KioskEmployee } from '@/types';
@@ -79,11 +83,15 @@ function EmployeeCard({
 }
 
 export default function EmployeeListScreen() {
-  const router = useRouter();
   const { t } = useTranslation();
   const companyId = useDeviceStore((s) => s.companyId);
-  const setEmployee = useSessionStore((s) => s.setEmployee);
+  const locationId = useDeviceStore((s) => s.locationId);
+  const startPunch = useSessionStore((s) => s.startPunch);
+  const refreshConfig = useConfigStore((s) => s.refresh);
+  const goNext = usePunchNavigator();
+  const { entries } = useOutboxStatus();
   const [search, setSearch] = useState('');
+  const busyRef = useRef(false);
 
   const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ['kiosk-employees', companyId],
@@ -92,17 +100,39 @@ export default function EmployeeListScreen() {
     staleTime: 30_000,
   });
 
-  const filtered = (data ?? []).filter((e) =>
+  // Keep the site's PIN/photo switches fresh on the same 45 s cadence.
+  useQuery({
+    queryKey: ['kiosk-config', companyId, locationId],
+    queryFn: async () => {
+      await refreshConfig(companyId, locationId);
+      return true;
+    },
+    refetchInterval: 45_000,
+    staleTime: 30_000,
+  });
+
+  // Server status with this tablet's own unsent punches applied, so In/Out stays right offline.
+  const employees = useMemo(() => applyPendingStatus(data ?? [], entries), [data, entries]);
+  const filtered = employees.filter((e) =>
     e.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleSelectEmployee = useCallback(
     async (employee: KioskEmployee) => {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      setEmployee(employee);
-      router.push('/(kiosk)/pin');
+      // A second tap while the first is still being processed must not punch twice.
+      if (busyRef.current) return;
+      busyRef.current = true;
+      try {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        startPunch(employee, nextEventType(employee.statusShiftWork));
+        await goNext('start');
+      } finally {
+        setTimeout(() => {
+          busyRef.current = false;
+        }, 1000);
+      }
     },
-    [router, setEmployee]
+    [startPunch, goNext]
   );
 
   if (isLoading) {
