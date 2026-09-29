@@ -70,6 +70,8 @@ export class Outbox {
   private entries: OutboxEntry[] = [];
   private listeners = new Set<() => void>();
   private draining = false;
+  /** Every save goes through this chain so an older, slower save can never land after a newer one. */
+  private saveChain: Promise<void> = Promise.resolve();
   private snapshot: OutboxSnapshot = { entries: [], pendingCount: 0, failedCount: 0, overCap: false };
 
   constructor(private readonly deps: OutboxDeps) {}
@@ -94,14 +96,16 @@ export class Outbox {
       nextAttemptAt: 0,
       createdAt: now,
     };
-    const next = [...this.entries, entry];
+    // Added synchronously so concurrent enqueue/undo/drain never work from a stale copy.
+    this.entries = [...this.entries, entry];
+    this.publish();
     try {
-      await this.deps.save(next);
+      await this.save();
     } catch {
+      this.entries = this.entries.filter((e) => e.eventLogId !== entry.eventLogId);
+      this.publish();
       throw new OutboxStorageError();
     }
-    this.entries = next;
-    this.publish();
     return { eventLogId: entry.eventLogId, eventDate: entry.eventDate };
   }
 
@@ -214,9 +218,16 @@ export class Outbox {
     this.publish();
   }
 
+  /** Queues a save of the latest entries; rejects if this save fails, later saves are unaffected. */
+  private save(): Promise<void> {
+    const run = this.saveChain.then(() => this.deps.save(this.entries));
+    this.saveChain = run.catch(() => undefined);
+    return run;
+  }
+
   private async persist(): Promise<void> {
     try {
-      await this.deps.save(this.entries);
+      await this.save();
     } catch {
       // The in-memory queue is still correct; the next successful save catches up.
     }

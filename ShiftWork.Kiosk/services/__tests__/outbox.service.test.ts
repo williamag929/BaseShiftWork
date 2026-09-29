@@ -162,12 +162,32 @@ describe('Outbox.drain', () => {
     expect(deps.clock.mock.calls[0][1].photoUrl).toBeUndefined();
   });
 
-  it('two overlapping drains never send the same punch twice', async () => {
+  it('a second drain while one is in flight does nothing (no out-of-order sends)', async () => {
+    const { outbox, punch, deps, advance } = setup();
+    await outbox.enqueue(punch({ personId: 1 }));
+    await outbox.enqueue(punch({ personId: 2 }));
+    advance(UNDO_HOLD_MS + 1);
+    let release!: () => void;
+    deps.clock.mockImplementationOnce(() => new Promise<void>((r) => { release = r; }));
+    const first = outbox.drain();
+    await new Promise((r) => setTimeout(r, 0));
+    await outbox.drain(); // must return immediately, not send person 2 ahead of person 1
+    expect(deps.clock).toHaveBeenCalledTimes(1);
+    release();
+    await first;
+    expect(deps.clock.mock.calls.map((c) => c[1].personId)).toEqual([1, 2]);
+  });
+
+  it.each([408, 429])('a %i is transient: kept pending and retried, not failed', async (status) => {
     const { outbox, punch, deps, advance } = setup();
     await outbox.enqueue(punch());
     advance(UNDO_HOLD_MS + 1);
-    await Promise.all([outbox.drain(), outbox.drain()]);
-    expect(deps.clock).toHaveBeenCalledTimes(1);
+    deps.clock.mockRejectedValueOnce(httpError(status));
+    await outbox.drain();
+    expect(outbox.getSnapshot()).toMatchObject({ pendingCount: 1, failedCount: 0 });
+    advance(61_000);
+    await outbox.drain();
+    expect(outbox.getSnapshot().entries).toHaveLength(0);
   });
 });
 
@@ -223,5 +243,72 @@ describe('applyPendingStatus', () => {
   });
   it('ignores failed punches and returns the same array when nothing is pending', () => {
     expect(applyPendingStatus(employees, [entry(1, 'ClockIn', '2026-09-28T10:00:00.000Z', 'failed')])).toBe(employees);
+  });
+});
+
+describe('Outbox concurrency (saves that really yield)', () => {
+  const tick = (ms = 0) => new Promise((r) => setTimeout(r, ms));
+
+  function slowSetup(delays: number[] = []) {
+    const ctx = setup();
+    let stored: OutboxEntry[] = [];
+    ctx.deps.save.mockImplementation(async (e: OutboxEntry[]) => {
+      await tick(delays.length ? (delays.shift() as number) : 2);
+      stored = e;
+    });
+    return { ...ctx, getStored: () => stored };
+  }
+  const ids = (es: OutboxEntry[]) => es.map((e) => e.eventLogId);
+
+  it('two concurrent enqueues both survive, in memory and in storage', async () => {
+    const { outbox, punch, getStored } = slowSetup();
+    await Promise.all([outbox.enqueue(punch({ personId: 1 })), outbox.enqueue(punch({ personId: 2 }))]);
+    expect(ids(outbox.getSnapshot().entries)).toEqual(['id-1', 'id-2']);
+    expect(ids(getStored())).toEqual(['id-1', 'id-2']);
+  });
+
+  it('undo while a later enqueue is saving keeps the undone punch gone', async () => {
+    const { outbox, punch, getStored } = slowSetup();
+    const { eventLogId: id1 } = await outbox.enqueue(punch({ personId: 1 }));
+    const p2 = outbox.enqueue(punch({ personId: 2 }));
+    expect(await outbox.undo(id1)).toBe(true);
+    await p2;
+    expect(ids(outbox.getSnapshot().entries)).toEqual(['id-2']);
+    expect(ids(getStored())).toEqual(['id-2']);
+  });
+
+  it('an enqueue during a drain does not resurrect the punch that was just sent', async () => {
+    const { outbox, punch, deps, advance, getStored } = slowSetup();
+    await outbox.enqueue(punch({ personId: 1 }));
+    advance(UNDO_HOLD_MS + 1);
+    let release!: () => void;
+    deps.clock.mockImplementationOnce(() => new Promise<void>((r) => { release = r; }));
+    const draining = outbox.drain();
+    await tick(5);
+    const p2 = outbox.enqueue(punch({ personId: 2 }));
+    release();
+    await Promise.all([draining, p2]);
+    const snap = outbox.getSnapshot();
+    expect(snap.entries.map((e) => [e.eventLogId, e.status])).toEqual([['id-2', 'pending']]);
+    expect(ids(getStored())).toEqual(['id-2']);
+  });
+
+  it('saves land in order: a slow older save cannot overwrite a newer one', async () => {
+    const { outbox, punch, getStored } = slowSetup([30, 1]);
+    await Promise.all([outbox.enqueue(punch({ personId: 1 })), outbox.enqueue(punch({ personId: 2 })), tick(60)]);
+    expect(ids(getStored())).toEqual(ids(outbox.getSnapshot().entries));
+    expect(getStored()).toHaveLength(2);
+  });
+
+  it('a failed save does not poison later saves, and only the failed enqueue is rolled back', async () => {
+    const { outbox, punch, deps, getStored } = slowSetup();
+    const real = deps.save.getMockImplementation() as (e: OutboxEntry[]) => Promise<void>;
+    deps.save.mockImplementationOnce(async () => { throw new Error('disk full'); });
+    const failing = outbox.enqueue(punch({ personId: 1 }));
+    await expect(failing).rejects.toBeInstanceOf(OutboxStorageError);
+    deps.save.mockImplementation(real);
+    await outbox.enqueue(punch({ personId: 2 }));
+    expect(ids(outbox.getSnapshot().entries)).toEqual(['id-2']);
+    expect(ids(getStored())).toEqual(['id-2']);
   });
 });
