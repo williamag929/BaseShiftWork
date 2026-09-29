@@ -25,6 +25,7 @@ export default function PinScreen() {
   const { t } = useTranslation();
   const employee = useSessionStore((s) => s.employee);
   const setSessionPin = useSessionStore((s) => s.setPin);
+  const resetSession = useSessionStore((s) => s.reset);
   const goNext = usePunchNavigator();
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
@@ -36,9 +37,10 @@ export default function PinScreen() {
   const resetTimeout = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
-      router.replace('/(kiosk)');
+      resetSession();
+      router.dismissTo('/(kiosk)');
     }, KIOSK_TIMEOUT_MS);
-  }, [router]);
+  }, [router, resetSession]);
 
   useEffect(() => {
     resetTimeout();
@@ -49,7 +51,7 @@ export default function PinScreen() {
 
   // No employee in session means the user navigated here directly — bounce back
   useEffect(() => {
-    if (!employee) router.replace('/(kiosk)');
+    if (!employee) router.dismissTo('/(kiosk)');
   }, [employee, router]);
 
   const handlePinChange = useCallback(
@@ -136,7 +138,10 @@ export default function PinScreen() {
 
         <Pressable
           style={({ pressed }) => [styles.cancelBtn, pressed && { opacity: 0.6 }]}
-          onPress={() => router.replace('/(kiosk)')}
+          onPress={() => {
+            resetSession();
+            router.dismissTo('/(kiosk)');
+          }}
         >
           <Text style={styles.cancelText}>{t('kiosk_app.cancel')}</Text>
         </Pressable>

@@ -27,6 +27,7 @@ export default function QuestionsScreen() {
   const employee = useSessionStore((s) => s.employee);
   const clockType = useSessionStore((s) => s.clockType);
   const setSessionAnswers = useSessionStore((s) => s.setAnswers);
+  const resetSession = useSessionStore((s) => s.reset);
   const { companyId } = useDeviceStore();
   const goNext = usePunchNavigator();
 
@@ -178,7 +179,10 @@ export default function QuestionsScreen() {
           )}
         </Pressable>
 
-        <Pressable style={styles.cancelLink} onPress={() => router.replace('/(kiosk)')}>
+        <Pressable style={styles.cancelLink} onPress={() => {
+          resetSession();
+          router.dismissTo('/(kiosk)');
+        }}>
           <Text style={styles.cancelText}>{t('kiosk_app.cancel')}</Text>
         </Pressable>
       </ScrollView>

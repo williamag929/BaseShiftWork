@@ -1548,6 +1548,7 @@ export default {
     "commit_error_title": "No se registró",
     "commit_error_body": "Esta tableta no pudo guardar tu marcación. Inténtalo de nuevo o avisa a tu supervisor.",
     "commit_error_ok": "Aceptar",
+    "camera_blocked": "El acceso a la cámara está bloqueado en esta tableta. Pide a un supervisor o administrador que lo permita.",
     "clocked_in": "Entrada registrada",
     "clocked_out": "Salida registrada",
     "employee_fallback": "Empleado",

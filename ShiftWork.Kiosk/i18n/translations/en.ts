@@ -1548,6 +1548,7 @@ export default {
     "commit_error_title": "Not recorded",
     "commit_error_body": "This tablet could not save your punch. Please try again or tell your manager.",
     "commit_error_ok": "OK",
+    "camera_blocked": "Camera access is blocked on this tablet. Please ask a manager or admin to allow it.",
     "clocked_in": "Clocked In",
     "clocked_out": "Clocked Out",
     "employee_fallback": "Employee",

@@ -29,6 +29,7 @@ export function usePunchNavigator() {
     queryFn: () => kioskService.getQuestions(companyId),
     staleTime: 5 * 60_000,
   });
+  // Note: if the questions query has not loaded yet, the questions step is skipped (accepted).
   const questionCount = useRef(0);
   questionCount.current = questions?.length ?? 0;
 
@@ -37,7 +38,7 @@ export function usePunchNavigator() {
       const session = useSessionStore.getState();
       const { employee, clockType } = session;
       if (!employee || !clockType) {
-        router.replace('/(kiosk)');
+        router.dismissTo('/(kiosk)');
         return;
       }
 
@@ -49,7 +50,9 @@ export function usePunchNavigator() {
       });
 
       if (step !== 'commit') {
-        router.push(ROUTES[step]);
+        // Only one flow screen may sit above the employee list: push from the list, swap after.
+        if (from === 'start') router.push(ROUTES[step]);
+        else router.replace(ROUTES[step]);
         return;
       }
 
@@ -66,7 +69,8 @@ export function usePunchNavigator() {
         // The punch could not be saved on this tablet (for example storage is full).
         session.setCommitError(true);
       }
-      router.replace('/(kiosk)/success');
+      if (from === 'start') router.push('/(kiosk)/success');
+      else router.replace('/(kiosk)/success');
     },
     [router]
   );

@@ -5,12 +5,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { outbox } from '@/services/outbox';
-import { UNDO_HOLD_MS } from '@/services/outbox.service';
+import { undoRemainingMs } from '@/services/outbox.service';
 import { forgetRecentPunch } from '@/services/punch.service';
 import { shouldShowInterstitial } from '@/services/punchFlow';
 import { useSessionStore } from '@/store/sessionStore';
 import { colors, spacing, radius, typography } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
+
+const MIN_SHOW_MS = 1500; // the confirmation is always visible at least this long
 
 /**
  * Shown right after a punch is recorded on this tablet (sending happens in the background).
@@ -32,9 +34,34 @@ export default function SuccessScreen() {
   );
   const scale = useRef(new Animated.Value(0)).current;
 
+  // Visible Undo window = what is left of this punch's hold, fixed when the screen opens.
+  const [remainingMs] = useState(() =>
+    undoRemainingMs(
+      outbox.getSnapshot().entries.find((e) => e.eventLogId === eventLogId),
+      Date.now()
+    )
+  );
+  const [canUndo, setCanUndo] = useState(remainingMs > 0);
+  const moveOnRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const undoneHomeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hideUndoRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearTimers = useCallback(() => {
+    for (const ref of [moveOnRef, undoneHomeRef, hideUndoRef]) {
+      if (ref.current) clearTimeout(ref.current);
+      ref.current = null;
+    }
+  }, []);
+
+  // A timer made for one punch must never reset/navigate for a later one.
+  const isCurrent = useCallback(
+    (id: string | null) => useSessionStore.getState().eventLogId === id,
+    []
+  );
+
   const goHome = useCallback(() => {
     resetSession();
-    router.replace('/(kiosk)');
+    router.dismissTo('/(kiosk)');
   }, [resetSession, router]);
 
   useEffect(() => {
@@ -45,32 +72,54 @@ export default function SuccessScreen() {
       Animated.delay(100),
       Animated.spring(scale, { toValue: 1, tension: 50, friction: 7, useNativeDriver: true }),
     ]).start();
+    return clearTimers;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // When the undo window closes, move on.
   useEffect(() => {
-    if (commitError || undone) return undefined;
-    const id = setTimeout(() => {
+    if (commitError) return undefined;
+    const createdFor = eventLogId;
+    moveOnRef.current = setTimeout(() => {
+      moveOnRef.current = null;
+      if (!isCurrent(createdFor)) return;
       const entries = outbox.getSnapshot().entries;
       if (employee && shouldShowInterstitial(clockType, entries)) {
         router.replace(`/(kiosk)/interstitial?personId=${employee.personId}` as any);
       } else {
         goHome();
       }
-    }, UNDO_HOLD_MS);
-    return () => clearTimeout(id);
-  }, [commitError, undone, clockType, employee, router, goHome]);
+    }, Math.max(remainingMs, MIN_SHOW_MS));
+    hideUndoRef.current = setTimeout(() => setCanUndo(false), remainingMs);
+    return () => {
+      if (moveOnRef.current) clearTimeout(moveOnRef.current);
+      if (hideUndoRef.current) clearTimeout(hideUndoRef.current);
+    };
+  // Runs once per screen: the window is fixed at mount.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleUndo = useCallback(async () => {
     if (!eventLogId || !employee) return;
+    // Stop the move-on timer first so it cannot fire while undo() is awaited.
+    if (moveOnRef.current) clearTimeout(moveOnRef.current);
+    moveOnRef.current = null;
     const removed = await outbox.undo(eventLogId);
-    if (!removed) return; // window already closed
+    if (!isCurrent(eventLogId)) return;
+    if (!removed) {
+      // Window already closed: carry on to the normal next screen.
+      goHome();
+      return;
+    }
     forgetRecentPunch(employee.personId);
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    setCanUndo(false);
     setUndone(true);
-    setTimeout(goHome, 1200);
-  }, [eventLogId, employee, goHome]);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    undoneHomeRef.current = setTimeout(() => {
+      undoneHomeRef.current = null;
+      if (isCurrent(eventLogId)) goHome();
+    }, 1200);
+  }, [eventLogId, employee, goHome, isCurrent]);
 
   if (commitError) {
     return (
@@ -104,6 +153,7 @@ export default function SuccessScreen() {
           <>
             <Text style={styles.label}>{label}</Text>
             <Text style={styles.time}>{eventTime}</Text>
+            {canUndo && (
             <Pressable
               style={({ pressed }) => [styles.undoBtn, pressed && { opacity: 0.7 }]}
               onPress={handleUndo}
@@ -111,6 +161,7 @@ export default function SuccessScreen() {
             >
               <Text style={styles.undoText}>{t('kiosk_app.undo')}</Text>
             </Pressable>
+            )}
           </>
         )}
       </View>

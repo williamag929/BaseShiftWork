@@ -53,6 +53,11 @@ export interface OutboxSnapshot {
   overCap: boolean;
 }
 
+/** Milliseconds left in an entry's Undo window (0 when closed or unknown). */
+export function undoRemainingMs(entry: { holdUntil: number } | undefined, now: number): number {
+  return entry ? Math.max(0, entry.holdUntil - now) : 0;
+}
+
 export class OutboxStorageError extends Error {
   constructor(message = 'Could not save the punch on this device') {
     super(message);

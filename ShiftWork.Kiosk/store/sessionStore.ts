@@ -40,7 +40,7 @@ export const useSessionStore = create<SessionState>((set) => ({
   setCapturedPhoto: (capturedPhotoUri) => set({ capturedPhotoUri }),
   setPin: (pin) => set({ pin }),
   setAnswers: (answers) => set({ answers }),
-  setCommitted: (eventLogId) => set({ eventLogId, commitError: false }),
+  setCommitted: (eventLogId) => set({ eventLogId, commitError: false, pin: null }),
   setCommitError: (commitError) => set({ commitError }),
   reset: () => set(initialState),
 }));

@@ -32,6 +32,7 @@ export default function PhotoScreen() {
   const employee = useSessionStore((s) => s.employee);
   const clockType = useSessionStore((s) => s.clockType);
   const setCapturedPhoto = useSessionStore((s) => s.setCapturedPhoto);
+  const resetSession = useSessionStore((s) => s.reset);
   const goNext = usePunchNavigator();
 
   const [permission, requestPermission] = useCameraPermissions();
@@ -47,14 +48,22 @@ export default function PhotoScreen() {
 
   // Idle timeout: back to the employee list if nothing happens.
   useEffect(() => {
-    timeoutRef.current = setTimeout(() => router.replace('/(kiosk)'), TIMEOUT_MS);
+    timeoutRef.current = setTimeout(() => {
+      resetSession();
+      router.dismissTo('/(kiosk)');
+    }, TIMEOUT_MS);
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [router]);
+  }, [router, resetSession]);
+
+  const cancel = useCallback(() => {
+    resetSession();
+    router.dismissTo('/(kiosk)');
+  }, [resetSession, router]);
 
   useEffect(() => {
-    if (!employee) router.replace('/(kiosk)');
+    if (!employee) router.dismissTo('/(kiosk)');
   }, [employee, router]);
 
   const capture = useCallback(async () => {
@@ -106,11 +115,17 @@ export default function PhotoScreen() {
   if (!permission.granted) {
     return (
       <View style={styles.center}>
-        <Text style={styles.permText}>{t('kiosk_app.camera_required')}</Text>
-        <Pressable style={styles.btn} onPress={requestPermission}>
-          <Text style={styles.btnText}>{t('kiosk_app.grant_camera')}</Text>
-        </Pressable>
-        <Pressable onPress={() => router.replace('/(kiosk)')}>
+        <Text style={styles.permText}>
+          {permission.canAskAgain
+            ? t('kiosk_app.camera_required')
+            : t('kiosk_app.camera_blocked')}
+        </Text>
+        {permission.canAskAgain && (
+          <Pressable style={styles.btn} onPress={requestPermission}>
+            <Text style={styles.btnText}>{t('kiosk_app.grant_camera')}</Text>
+          </Pressable>
+        )}
+        <Pressable onPress={cancel}>
           <Text style={styles.cancel}>{t('kiosk_app.cancel')}</Text>
         </Pressable>
       </View>
@@ -127,6 +142,7 @@ export default function PhotoScreen() {
           style={styles.camera}
           facing="front"
           onCameraReady={() => setCameraReady(true)}
+          onMountError={() => setFailed(true)}
         />
         <View style={styles.viewfinder} pointerEvents="none" />
         <View style={styles.cameraOverlay}>
@@ -149,7 +165,7 @@ export default function PhotoScreen() {
             </Text>
           )}
           {failed && <Text style={styles.cancel}>{t('kiosk_app.photo_retry')}</Text>}
-          <Pressable onPress={() => router.replace('/(kiosk)')}>
+          <Pressable onPress={cancel}>
             <Text style={styles.cancel}>{t('kiosk_app.cancel')}</Text>
           </Pressable>
         </View>

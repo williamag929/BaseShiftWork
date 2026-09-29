@@ -108,4 +108,20 @@ describe('commitPunch', () => {
     await commitPunch({ employee: ana, eventType: 'ClockOut' }, () => t);
     expect(enqueue).toHaveBeenCalledTimes(2);
   });
+
+  it('two overlapping calls for the same person record one punch and share the id', async () => {
+    const [a, b] = await Promise.all([
+      commitPunch({ employee: ana, eventType: 'ClockIn' }),
+      commitPunch({ employee: ana, eventType: 'ClockIn' }),
+    ]);
+    expect(enqueue).toHaveBeenCalledTimes(1);
+    expect(a.eventLogId).toBe(b.eventLogId);
+  });
+
+  it('a failed enqueue does not block a retry', async () => {
+    enqueue.mockRejectedValueOnce(new Error('disk full'));
+    await expect(commitPunch({ employee: ana, eventType: 'ClockIn' })).rejects.toThrow();
+    await commitPunch({ employee: ana, eventType: 'ClockIn' });
+    expect(enqueue).toHaveBeenCalledTimes(2);
+  });
 });
