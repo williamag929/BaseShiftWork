@@ -138,6 +138,14 @@ export class Outbox {
     }
   }
 
+  /** Re-evaluates clock-dependent state (overCap); notifies subscribers only if it changed. */
+  refresh(): void {
+    const before = this.snapshot;
+    this.publish(false);
+    if (this.snapshot.overCap !== before.overCap) this.listeners.forEach((l) => l());
+    else this.snapshot = before;
+  }
+
   getSnapshot(): OutboxSnapshot {
     return this.snapshot;
   }
@@ -233,7 +241,7 @@ export class Outbox {
     }
   }
 
-  private publish(): void {
+  private publish(notify = true): void {
     const now = this.deps.now();
     const oldest = this.entries.reduce((min, e) => Math.min(min, e.createdAt), Infinity);
     this.snapshot = {
@@ -242,7 +250,7 @@ export class Outbox {
       failedCount: this.entries.filter((e) => e.status === 'failed').length,
       overCap: this.entries.length > MAX_ENTRIES || (this.entries.length > 0 && now - oldest > MAX_AGE_MS),
     };
-    this.listeners.forEach((l) => l());
+    if (notify) this.listeners.forEach((l) => l());
   }
 }
 
