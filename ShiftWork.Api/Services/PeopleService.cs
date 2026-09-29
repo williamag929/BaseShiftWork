@@ -85,8 +85,11 @@ namespace ShiftWork.Api.Services
                 throw new InvalidOperationException($"Person with ID {person.PersonId} not found.");
             }
 
+            // Compare against the persisted status: callers such as PATCH mutate the tracked instance before calling Update,
+            // so existingPerson.Status may already carry the requested value.
+            var persistedStatus = _context.Entry(existingPerson).OriginalValues[nameof(Person.Status)] as string;
             if (!existingPerson.IsSandbox
-                && !PlanEnforcementService.IsActiveStatus(existingPerson.Status)
+                && !PlanEnforcementService.IsActiveStatus(persistedStatus)
                 && PlanEnforcementService.IsActiveStatus(person.Status))
                 await _planEnforcement.EnsureCanActivateEmployeeAsync(existingPerson.CompanyId);
 

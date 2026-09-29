@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
+using ShiftWork.Api.Helpers;
 using ShiftWork.Api.Models;
 using System;
 using System.Collections.Generic;
@@ -81,6 +82,12 @@ namespace ShiftWork.Api.Services
 
         public async Task CreateCompanyAsync(Company company)
         {
+            // Billing state is server-owned: every new company starts on the free trial, whatever the client sent.
+            company.StripeCustomerId = null;
+            company.StripeSubscriptionId = null;
+            company.SubscriptionStatus = null;
+            company.CurrentPeriodEnd = null;
+            PlanCatalog.StartTrial(company, DateTime.UtcNow);
             _context.Companies.Add(company);
             await _context.SaveChangesAsync();
             _logger.LogInformation("Company with ID {CompanyId} created.", company.CompanyId);
@@ -88,7 +95,12 @@ namespace ShiftWork.Api.Services
 
         public async Task<bool> UpdateCompanyAsync(Company company)
         {
-            _context.Entry(company).State = EntityState.Modified;
+            var entry = _context.Entry(company);
+            entry.State = EntityState.Modified;
+            // Billing state is written only by the Stripe webhook; a settings-page save must never touch it.
+            foreach (var name in new[] { nameof(Company.Plan), nameof(Company.StripeCustomerId), nameof(Company.StripeSubscriptionId),
+                         nameof(Company.SubscriptionStatus), nameof(Company.CurrentPeriodEnd), nameof(Company.TrialEndsAt) })
+                entry.Property(name).IsModified = false;
             try
             {
                 await _context.SaveChangesAsync();

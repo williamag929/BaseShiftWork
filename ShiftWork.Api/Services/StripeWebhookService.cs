@@ -72,9 +72,15 @@ namespace ShiftWork.Api.Services
             }
             catch (DbUpdateException ex)
             {
-                // A concurrent delivery of the same event won the insert race; its handler already applied the change.
-                _logger.LogWarning(ex, "Stripe event {EventId} raced a duplicate delivery; ignoring.", stripeEvent.Id);
-                return;
+                // Only a lost insert race against a concurrent delivery of the same event may be swallowed (its handler already
+                // applied the change). Any other failure (deadlock, timeout, unique-index violation) must surface as a 500 so Stripe retries.
+                _context.ChangeTracker.Clear();
+                if (await _context.StripeProcessedEvents.AsNoTracking().AnyAsync(e => e.EventId == stripeEvent.Id))
+                {
+                    _logger.LogWarning(ex, "Stripe event {EventId} raced a duplicate delivery; ignoring.", stripeEvent.Id);
+                    return;
+                }
+                throw;
             }
 
             if (paymentFailedEmail != null)

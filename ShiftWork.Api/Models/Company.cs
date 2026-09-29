@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace ShiftWork.Api.Models
 {
@@ -21,11 +22,15 @@ namespace ShiftWork.Api.Models
         [Obsolete("Replaced by TrialEndsAt / SubscriptionStatus. Dropped in a later release.")]
         public DateTime? PlanExpiresAt { get; set; }
         public string? OnboardingStatus { get; set; }      // "Pending" | "Verified" | "Complete"
+        [JsonIgnore] // billing identifiers are never exposed to API clients
         public string? StripeCustomerId { get; set; }      // Stripe customer reference
+        [JsonIgnore]
         public string? StripeSubscriptionId { get; set; }  // Stripe subscription reference
         public DateTime? TrialEndsAt { get; set; }
+        [JsonIgnore]
         public string? SubscriptionStatus { get; set; }
         // Display only ("renews on"); access decisions never read this.
+        [JsonIgnore]
         public DateTime? CurrentPeriodEnd { get; set; }
         public ICollection<Location> Locations { get; set; }
         public ICollection<Person> People { get; set; }
