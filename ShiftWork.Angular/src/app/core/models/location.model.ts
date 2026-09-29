@@ -21,4 +21,6 @@ export interface Location {
     externalCode?: string;
     timezone?: string;
     status: string;
+    requirePin?: boolean;
+    requirePhoto?: boolean;
  }

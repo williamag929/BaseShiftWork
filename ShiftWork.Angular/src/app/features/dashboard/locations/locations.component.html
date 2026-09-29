@@ -227,6 +227,22 @@
                 </div>
 
                 <div class="form-group">
+                  <label class="form-label">
+                    <i class="fa fa-lock"></i>
+                    <ng-container i18n="@@locations.kiosk_section">Kiosk</ng-container>
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="requirePin" formControlName="requirePin">
+                    <ng-container i18n="@@locations.require_pin">Require PIN at the kiosk</ng-container>
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="requirePhoto" formControlName="requirePhoto">
+                    <ng-container i18n="@@locations.require_photo">Require a photo at the kiosk</ng-container>
+                  </label>
+                  <small class="form-hint" i18n="@@locations.kiosk_hint">Turn both off for the fastest clock-in. Employees marked "No photo required" never see the camera.</small>
+                </div>
+
+                <div class="form-group">
                   <label for="timezone" class="form-label">
                     <i class="fa fa-clock-o"></i>
                     <ng-container i18n="@@locations.timezone_label">Time Zone</ng-container> <span class="required">*</span>

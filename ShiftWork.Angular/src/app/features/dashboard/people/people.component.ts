@@ -95,7 +95,8 @@ export class PeopleComponent implements OnInit {
       state: ['', Validators.required],
       externalCode: [''],
       status: ['Active', Validators.required],
-      photoUrl: ['']
+      photoUrl: [''],
+      photoExempt: [false]
     });
   }
 
@@ -120,6 +121,7 @@ export class PeopleComponent implements OnInit {
       externalCode: '',
       status: 'Active',
       photoUrl: '',
+      photoExempt: false,
     });
   }
 
