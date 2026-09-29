@@ -40,7 +40,7 @@ export default function PhotoScreen() {
   const [count, setCount] = useState(COUNTDOWN_SECONDS);
   const [capturing, setCapturing] = useState(false);
   const [failed, setFailed] = useState(false);
-  // Once a photo is taken this screen must never capture again (it stays mounted under the next step).
+  // Once a photo is taken this screen must never capture again (a late re-render must not retrigger it).
   const [captured, setCaptured] = useState(false);
   const busyRef = useRef(false);
   const cameraRef = useRef<CameraView>(null);

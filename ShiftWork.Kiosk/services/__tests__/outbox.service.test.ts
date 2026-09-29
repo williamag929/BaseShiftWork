@@ -1,6 +1,7 @@
 import {
   Outbox, OutboxDeps, OutboxEntry, NewPunch, OutboxStorageError,
   UNDO_HOLD_MS, MAX_ENTRIES, MAX_AGE_MS, applyPendingStatus,
+  RECENT_MARGIN_MS, RECENT_MAX_AGE_MS, RecentlySent,
 } from '../outbox.service';
 
 function httpError(status: number) {
@@ -310,5 +311,81 @@ describe('Outbox concurrency (saves that really yield)', () => {
     await outbox.enqueue(punch({ personId: 2 }));
     expect(ids(outbox.getSnapshot().entries)).toEqual(['id-2']);
     expect(ids(getStored())).toEqual(['id-2']);
+  });
+});
+
+describe('recently sent overlay', () => {
+  const emps = [{ personId: 7, name: 'Maria', statusShiftWork: 'OffShift' }] as any[];
+  const sent = (over: Partial<RecentlySent> = {}): RecentlySent => ({
+    eventLogId: 'a', personId: 7, eventType: 'ClockIn', eventDate: '2026-09-28T10:00:00.000Z', sentAt: 10_000, ...over,
+  });
+
+  it('persists after the send until fresher data arrives', () => {
+    const out = applyPendingStatus(emps, [], [sent()], 0, 20_000);
+    expect(out[0].statusShiftWork).toBe('OnShift');
+  });
+  it('older data (fetched before or within the margin of the send) does not remove it', () => {
+    expect(applyPendingStatus(emps, [], [sent()], 9_000, 20_000)[0].statusShiftWork).toBe('OnShift');
+    expect(applyPendingStatus(emps, [], [sent()], 10_000 + RECENT_MARGIN_MS, 20_000)[0].statusShiftWork).toBe('OnShift');
+  });
+  it('data fetched after sentAt + margin supersedes it', () => {
+    const out = applyPendingStatus(emps, [], [sent()], 10_000 + RECENT_MARGIN_MS + 1, 20_000);
+    expect(out[0].statusShiftWork).toBe('OffShift');
+  });
+  it('expires after the max age even without fresher data', () => {
+    const out = applyPendingStatus(emps, [], [sent()], 0, 10_000 + RECENT_MAX_AGE_MS);
+    expect(out[0].statusShiftWork).toBe('OffShift');
+  });
+
+  it('the outbox records a sent punch, and drops it after max age', async () => {
+    const { outbox, punch, advance } = setup();
+    await outbox.enqueue(punch());
+    advance(UNDO_HOLD_MS);
+    await outbox.drain();
+    expect(outbox.getSnapshot().recentSent).toHaveLength(1);
+    expect(outbox.getSnapshot().recentSent[0]).toMatchObject({ personId: 7, eventType: 'ClockIn' });
+    advance(RECENT_MAX_AGE_MS);
+    await outbox.enqueue(punch({ personId: 8 })); // any publish prunes
+    expect(outbox.getSnapshot().recentSent).toHaveLength(0);
+  });
+
+  it('an undone punch leaves no overlay', async () => {
+    const { outbox, punch } = setup();
+    const { eventLogId } = await outbox.enqueue(punch());
+    expect(await outbox.undo(eventLogId)).toBe(true);
+    expect(outbox.getSnapshot().recentSent).toHaveLength(0);
+  });
+  it('a failed (4xx) punch leaves no overlay', async () => {
+    const { outbox, punch, deps, advance } = setup();
+    deps.clock.mockRejectedValueOnce(httpError(400));
+    await outbox.enqueue(punch());
+    advance(UNDO_HOLD_MS);
+    await outbox.drain();
+    expect(outbox.getSnapshot().recentSent).toHaveLength(0);
+  });
+});
+
+describe('failed entries', () => {
+  it('drop the plaintext pin when marked failed', async () => {
+    const { outbox, punch, deps, advance, getStored } = setup();
+    deps.clock.mockRejectedValueOnce(httpError(400));
+    await outbox.enqueue(punch({ pin: '1234' }));
+    advance(UNDO_HOLD_MS);
+    await outbox.drain();
+    const e = outbox.getSnapshot().entries[0];
+    expect(e.status).toBe('failed');
+    expect(e.pin).toBeUndefined();
+    expect(getStored()[0].pin).toBeUndefined();
+  });
+  it('an old failed entry does not trip the 24 h overCap, but stays counted as failed', async () => {
+    const { outbox, punch, deps, advance } = setup();
+    deps.clock.mockRejectedValueOnce(httpError(400));
+    await outbox.enqueue(punch());
+    advance(UNDO_HOLD_MS);
+    await outbox.drain();
+    advance(MAX_AGE_MS + 1);
+    outbox.refresh();
+    expect(outbox.getSnapshot().overCap).toBe(false);
+    expect(outbox.getSnapshot().failedCount).toBe(1);
   });
 });

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -20,8 +20,8 @@ import { useDeviceStore } from '@/store/deviceStore';
 import { useSessionStore } from '@/store/sessionStore';
 import { useConfigStore } from '@/store/configStore';
 import { usePunchNavigator } from '@/hooks/usePunchNavigator';
-import { nextEventType } from '@/services/punchFlow';
-import { applyPendingStatus } from '@/services/outbox.service';
+import { nextEventType, shouldShowLoadError } from '@/services/punchFlow';
+import { applyPendingStatus, RECENT_MARGIN_MS } from '@/services/outbox.service';
 import { useOutboxStatus } from '@/services/outbox';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
@@ -89,11 +89,11 @@ export default function EmployeeListScreen() {
   const startPunch = useSessionStore((s) => s.startPunch);
   const refreshConfig = useConfigStore((s) => s.refresh);
   const goNext = usePunchNavigator();
-  const { entries } = useOutboxStatus();
+  const { entries, recentSent } = useOutboxStatus();
   const [search, setSearch] = useState('');
   const busyRef = useRef(false);
 
-  const { data, isLoading, error, refetch, isRefetching } = useQuery({
+  const { data, isLoading, error, refetch, isRefetching, dataUpdatedAt } = useQuery({
     queryKey: ['kiosk-employees', companyId],
     queryFn: () => kioskService.getEmployees(companyId),
     refetchInterval: 45_000, // auto-refresh every 45 s
@@ -112,7 +112,19 @@ export default function EmployeeListScreen() {
   });
 
   // Server status with this tablet's own unsent punches applied, so In/Out stays right offline.
-  const employees = useMemo(() => applyPendingStatus(data ?? [], entries), [data, entries]);
+  // Recently sent punches stay applied until the fetched list is newer than the send.
+  const employees = useMemo(
+    () => applyPendingStatus(data ?? [], entries, recentSent, dataUpdatedAt),
+    [data, entries, recentSent, dataUpdatedAt]
+  );
+
+  // After a send, refetch once the server has surely applied it (past the overlay margin).
+  const lastSentAt = recentSent.reduce((max, r) => Math.max(max, r.sentAt), 0);
+  useEffect(() => {
+    if (!lastSentAt) return undefined;
+    const id = setTimeout(() => void refetch(), RECENT_MARGIN_MS + 500);
+    return () => clearTimeout(id);
+  }, [lastSentAt, refetch]);
   const filtered = employees.filter((e) =>
     e.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -143,7 +155,7 @@ export default function EmployeeListScreen() {
     );
   }
 
-  if (error) {
+  if (shouldShowLoadError({ error, data })) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>{t('kiosk_app.load_employees_error')}</Text>

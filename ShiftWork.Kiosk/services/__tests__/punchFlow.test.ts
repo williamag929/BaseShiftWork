@@ -1,4 +1,4 @@
-import { nextEventType, nextStep, needsPhoto, shouldShowInterstitial, STRICT_DEFAULT_CONFIG } from '../punchFlow';
+import { nextEventType, nextStep, needsPhoto, shouldShowInterstitial, shouldShowLoadError, STRICT_DEFAULT_CONFIG } from '../punchFlow';
 import type { KioskConfig, KioskEmployee } from '@/types';
 
 const emp = (over: Partial<KioskEmployee> = {}): KioskEmployee => ({ personId: 1, name: 'Maria', ...over });
@@ -72,5 +72,26 @@ describe('shouldShowInterstitial', () => {
   });
   it('is skipped when any queued punch has already failed to send (kiosk looks offline)', () => {
     expect(shouldShowInterstitial('ClockOut', [{ attempts: 0 }, { attempts: 2 }])).toBe(false);
+  });
+});
+
+describe('shouldShowInterstitial with failed entries', () => {
+  it('ignores permanently failed entries', () => {
+    expect(shouldShowInterstitial('ClockOut', [{ attempts: 3, status: 'failed' }])).toBe(true);
+  });
+  it('still skips when a live entry is retrying', () => {
+    expect(shouldShowInterstitial('ClockOut', [{ attempts: 3, status: 'failed' }, { attempts: 1, status: 'pending' }])).toBe(false);
+  });
+});
+
+describe('shouldShowLoadError', () => {
+  it('shows only when there is an error and no data', () => {
+    expect(shouldShowLoadError({ error: new Error('x'), data: undefined })).toBe(true);
+  });
+  it('keeps the list when a refetch failed but data exists', () => {
+    expect(shouldShowLoadError({ error: new Error('x'), data: [] })).toBe(false);
+  });
+  it('no error, no screen', () => {
+    expect(shouldShowLoadError({ error: null, data: undefined })).toBe(false);
   });
 });

@@ -42,7 +42,15 @@ export function nextStep(from: 'start' | PunchStep, ctx: FlowContext): PunchStep
 /** The post-clock-out screen needs the network; skip it when the kiosk looks offline. */
 export function shouldShowInterstitial(
   eventType: ClockEventType | null,
-  entries: ReadonlyArray<{ attempts: number }>,
+  entries: ReadonlyArray<{ attempts: number; status?: string }>,
 ): boolean {
-  return eventType === 'ClockOut' && !entries.some((e) => e.attempts > 0);
+  return eventType === 'ClockOut' && !entries.some((e) => e.status !== 'failed' && e.attempts > 0);
+}
+
+/**
+ * The employee-list error screen is only for when there is nothing to show. A failed
+ * background refetch keeps the old data, and the list must stay usable (offline).
+ */
+export function shouldShowLoadError({ error, data }: { error: unknown; data: unknown }): boolean {
+  return Boolean(error) && !data;
 }

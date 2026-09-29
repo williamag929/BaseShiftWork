@@ -45,8 +45,25 @@ export interface OutboxDeps {
   newId(): string;
 }
 
+/** A punch that was sent but whose effect the cached employee list may not show yet. */
+export interface RecentlySent {
+  eventLogId: string;
+  personId: number;
+  eventType: ClockEventType;
+  eventDate: string;
+  /** Epoch ms when the server accepted it. */
+  sentAt: number;
+}
+
+/** How long a sent punch keeps overriding the cached status if no fresher data arrives. */
+export const RECENT_MAX_AGE_MS = 2 * 60_000;
+/** Employee data must be fetched this long after the send to be trusted over the overlay. */
+export const RECENT_MARGIN_MS = 5_000;
+
 export interface OutboxSnapshot {
   entries: OutboxEntry[];
+  /** In-memory only: punches sent recently, kept so In/Out does not flip back before a refetch. */
+  recentSent: RecentlySent[];
   pendingCount: number;
   failedCount: number;
   /** True when the queue holds more than MAX_ENTRIES or an entry older than MAX_AGE_MS. */
@@ -77,7 +94,8 @@ export class Outbox {
   private draining = false;
   /** Every save goes through this chain so an older, slower save can never land after a newer one. */
   private saveChain: Promise<void> = Promise.resolve();
-  private snapshot: OutboxSnapshot = { entries: [], pendingCount: 0, failedCount: 0, overCap: false };
+  private recentSent: RecentlySent[] = [];
+  private snapshot: OutboxSnapshot = { entries: [], recentSent: [], pendingCount: 0, failedCount: 0, overCap: false };
 
   constructor(private readonly deps: OutboxDeps) {}
 
@@ -119,6 +137,7 @@ export class Outbox {
     const entry = this.entries.find((e) => e.eventLogId === eventLogId);
     if (!entry || entry.status !== 'pending' || this.deps.now() >= entry.holdUntil) return false;
     this.entries = this.entries.filter((e) => e.eventLogId !== eventLogId);
+    this.recentSent = this.recentSent.filter((r) => r.eventLogId !== eventLogId);
     await this.persist();
     this.publish();
     return true;
@@ -199,12 +218,22 @@ export class Outbox {
         photoUrl: photoFailed ? undefined : photoUrl,
       });
       this.entries = this.entries.filter((e) => e.eventLogId !== entry.eventLogId);
+      this.recentSent = [
+        ...this.recentSent,
+        {
+          eventLogId: entry.eventLogId,
+          personId: entry.personId,
+          eventType: entry.eventType,
+          eventDate: entry.eventDate,
+          sentAt: this.deps.now(),
+        },
+      ];
       await this.persist();
       this.publish();
       return true;
     } catch (err) {
       if (isPermanentError(err)) {
-        this.patch(entry.eventLogId, { status: 'failed', lastError: errorMessage(err) });
+        this.patch(entry.eventLogId, { status: 'failed', lastError: errorMessage(err), pin: undefined });
         await this.persist();
         return true; // a permanently failed punch must not block the ones behind it
       }
@@ -248,12 +277,17 @@ export class Outbox {
 
   private publish(notify = true): void {
     const now = this.deps.now();
-    const oldest = this.entries.reduce((min, e) => Math.min(min, e.createdAt), Infinity);
+    // Failed punches are kept for the badge but must not, by age alone, keep the queue "over cap".
+    const oldest = this.entries
+      .filter((e) => e.status !== 'failed')
+      .reduce((min, e) => Math.min(min, e.createdAt), Infinity);
+    this.recentSent = this.recentSent.filter((r) => now - r.sentAt < RECENT_MAX_AGE_MS);
     this.snapshot = {
       entries: this.entries,
+      recentSent: this.recentSent,
       pendingCount: this.entries.filter((e) => e.status !== 'failed').length,
       failedCount: this.entries.filter((e) => e.status === 'failed').length,
-      overCap: this.entries.length > MAX_ENTRIES || (this.entries.length > 0 && now - oldest > MAX_AGE_MS),
+      overCap: this.entries.length > MAX_ENTRIES || (oldest !== Infinity && now - oldest > MAX_AGE_MS),
     };
     if (notify) this.listeners.forEach((l) => l());
   }
@@ -263,13 +297,30 @@ function errorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
-/** Server status for each person, with unsent local punches applied on top. */
-export function applyPendingStatus(employees: KioskEmployee[], entries: OutboxEntry[]): KioskEmployee[] {
-  const latest = new Map<number, OutboxEntry>();
+/**
+ * Server status for each person, with this tablet's own punches applied on top: unsent ones,
+ * and recently sent ones until the employee data is provably newer than the send
+ * (fetched after sentAt + RECENT_MARGIN_MS) or the overlay is older than RECENT_MAX_AGE_MS.
+ */
+export function applyPendingStatus(
+  employees: KioskEmployee[],
+  entries: OutboxEntry[],
+  recentSent: RecentlySent[] = [],
+  dataUpdatedAt = 0,
+  now: number = Date.now()
+): KioskEmployee[] {
+  const latest = new Map<number, { eventType: ClockEventType; eventDate: string }>();
+  const consider = (personId: number, eventType: ClockEventType, eventDate: string) => {
+    const cur = latest.get(personId);
+    if (!cur || eventDate > cur.eventDate) latest.set(personId, { eventType, eventDate });
+  };
   for (const e of entries) {
-    if (e.status === 'failed') continue;
-    const cur = latest.get(e.personId);
-    if (!cur || e.eventDate > cur.eventDate) latest.set(e.personId, e);
+    if (e.status !== 'failed') consider(e.personId, e.eventType, e.eventDate);
+  }
+  for (const r of recentSent) {
+    const superseded = dataUpdatedAt > r.sentAt + RECENT_MARGIN_MS;
+    const expired = now - r.sentAt >= RECENT_MAX_AGE_MS;
+    if (!superseded && !expired) consider(r.personId, r.eventType, r.eventDate);
   }
   if (latest.size === 0) return employees;
   return employees.map((emp) => {
