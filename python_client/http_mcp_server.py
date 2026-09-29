@@ -61,10 +61,10 @@ AUTH_TOKEN = os.environ.get("MCP_AUTH_TOKEN")
 API_AUTH_TOKEN = os.environ.get("API_AUTH_TOKEN")
 
 # CORS allowed origins (comma-separated). Default to localhost MCP server + production.
-_allowed = os.environ.get("ALLOWED_ORIGINS", "http://localhost:8080,https://mcp.joblogsmart.com")
+_allowed = os.environ.get("ALLOWED_ORIGINS", "http://localhost:8080,https://mcp.loqzen.com")
 ALLOWED_ORIGINS = [o.strip() for o in _allowed.split(",") if o.strip()]
 if len(ALLOWED_ORIGINS) == 0:
-    ALLOWED_ORIGINS = ["http://localhost:8080", "https://mcp.joblogsmart.com"]
+    ALLOWED_ORIGINS = ["http://localhost:8080", "https://mcp.loqzen.com"]
 logger.info(f"CORS Allowed Origins: {ALLOWED_ORIGINS}")
 
 # HTTPX client timeout and retry settings

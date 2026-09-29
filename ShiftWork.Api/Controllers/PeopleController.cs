@@ -627,13 +627,13 @@ namespace ShiftWork.Api.Controllers
 
                 // Build email — different copy for reset vs first invite
                 var emailSubject = isPasswordReset
-                    ? "Reset your JobLogSmart app password"
-                    : "You've been invited to JobLogSmart";
+                    ? "Reset your Loqzen app password"
+                    : "You've been invited to Loqzen";
 
-                var headline = isPasswordReset ? "Reset Your Password" : "Welcome to JobLogSmart!";
+                var headline = isPasswordReset ? "Reset Your Password" : "Welcome to Loqzen!";
                 var bodyIntro = isPasswordReset
-                    ? $"<p>Hi {person.Name},</p><p>A password reset was requested for your JobLogSmart account. Click the button below to set a new password and regain access to the app.</p>"
-                    : $"<p>Hi {person.Name},</p><p>You've been invited to join your team on JobLogSmart. Accept your invitation to start managing your shifts and time tracking.</p>";
+                    ? $"<p>Hi {person.Name},</p><p>A password reset was requested for your Loqzen account. Click the button below to set a new password and regain access to the app.</p>"
+                    : $"<p>Hi {person.Name},</p><p>You've been invited to join your team on Loqzen. Accept your invitation to start managing your shifts and time tracking.</p>";
                 var btnLabel = isPasswordReset ? "Reset Password" : "Accept Invitation";
 
                 var emailBody = $@"
@@ -665,7 +665,7 @@ namespace ShiftWork.Api.Controllers
                                 <p>If you did not request this, please contact your administrator.</p>
                             </div>
                             <div class='footer'>
-                                <p>&copy; 2026 JobLogSmart. All rights reserved.</p>
+                                <p>&copy; 2026 Loqzen. All rights reserved.</p>
                             </div>
                         </div>
                     </body>
