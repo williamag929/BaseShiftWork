@@ -38,5 +38,10 @@ namespace ShiftWork.Api.Models
         /// Default false — all existing records are unaffected.
         /// </summary>
         public bool IsSandbox { get; set; } = false;
+
+        /// <summary>When false, kiosks at this site skip the PIN screen. Default true (today's behavior).</summary>
+        public bool RequirePin { get; set; } = true;
+        /// <summary>When false, kiosks at this site skip the camera. Default true (today's behavior).</summary>
+        public bool RequirePhoto { get; set; } = true;
     }
 }

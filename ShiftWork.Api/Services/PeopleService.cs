@@ -97,6 +97,7 @@ namespace ShiftWork.Api.Services
             existingPerson.PhotoUrl = person.PhotoUrl;
             existingPerson.ExternalCode = person.ExternalCode;
             existingPerson.PreferredLanguage = person.PreferredLanguage;
+            existingPerson.PhotoExempt = person.PhotoExempt;
             existingPerson.RoleId = person.RoleId;
             existingPerson.PtoAccrualRatePerMonth = person.PtoAccrualRatePerMonth;
             existingPerson.PtoStartingBalance = person.PtoStartingBalance;
