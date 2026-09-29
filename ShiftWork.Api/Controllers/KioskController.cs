@@ -99,6 +99,24 @@ namespace ShiftWork.Api.Controllers
         }
 
         /// <summary>
+        /// Returns the PIN/photo switches for the site a kiosk is enrolled to.
+        /// Anonymous, like the other kiosk reads; only booleans are exposed.
+        /// </summary>
+        [HttpGet("{companyId}/config")]
+        [AllowAnonymous]
+        public async Task<ActionResult<KioskConfigDto>> GetKioskConfig(string companyId, [FromQuery] int locationId)
+        {
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest("companyId is required.");
+
+            var config = await _kioskService.GetKioskConfigAsync(companyId, locationId);
+            if (config == null)
+                return NotFound(new { message = $"Location {locationId} not found in company {companyId}." });
+
+            return Ok(config);
+        }
+
+        /// <summary>
         /// Returns active/inactive locations for kiosk setup.
         /// Anonymous endpoint so a new kiosk can enroll before authentication exists.
         /// </summary>

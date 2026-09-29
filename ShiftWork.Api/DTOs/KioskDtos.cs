@@ -63,6 +63,8 @@ namespace ShiftWork.Api.DTOs
         public string? PhotoUrl { get; set; }
         /// <summary>Current real-time shift status, e.g. "OnShift", "OffShift".</summary>
         public string? StatusShiftWork { get; set; }
+        /// <summary>True when this employee is never asked for a photo at a kiosk.</summary>
+        public bool PhotoExempt { get; set; }
     }
 
     /// <summary>
@@ -75,6 +77,17 @@ namespace ShiftWork.Api.DTOs
         public string Name { get; set; } = string.Empty;
         public string? Address { get; set; }
         public bool IsActive { get; set; }
+    }
+
+    /// <summary>
+    /// Per-site behavior switches a kiosk fetches at startup and on each refresh.
+    /// </summary>
+    public class KioskConfigDto
+    {
+        public bool RequirePin { get; set; } = true;
+        public bool RequirePhoto { get; set; } = true;
+        /// <summary>Kiosk questions are shown after a clock-out only.</summary>
+        public bool QuestionsOnClockOutOnly { get; set; } = true;
     }
 
     /// <summary>

@@ -70,8 +70,24 @@ namespace ShiftWork.Api.Services
                     Name = p.Name,
                     PhotoUrl = p.PhotoUrl,
                     StatusShiftWork = p.StatusShiftWork,
+                    PhotoExempt = p.PhotoExempt,
                 })
                 .ToListAsync();
+        }
+
+        public async Task<KioskConfigDto?> GetKioskConfigAsync(string companyId, int locationId)
+        {
+            var location = await _context.Locations
+                .AsNoTracking()
+                .FirstOrDefaultAsync(l => l.LocationId == locationId && l.CompanyId == companyId);
+            if (location == null) return null;
+
+            return new KioskConfigDto
+            {
+                RequirePin = location.RequirePin,
+                RequirePhoto = location.RequirePhoto,
+                QuestionsOnClockOutOnly = true,
+            };
         }
 
         public async Task<KioskClockResponse> ClockFromKioskAsync(string companyId, KioskClockRequest request)
