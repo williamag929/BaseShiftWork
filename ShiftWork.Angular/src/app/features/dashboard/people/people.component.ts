@@ -105,6 +105,7 @@ export class PeopleComponent implements OnInit {
     // Patch form with roleIds array only
     this.personForm.patchValue({
       ...person,
+      photoExempt: person.photoExempt ?? false,
     });
   }
 

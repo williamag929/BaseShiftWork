@@ -302,7 +302,9 @@ export class LocationsComponent implements OnInit {
     this.locationForm.patchValue({
       ...location,
       latitude: location.geoCoordinates?.latitude,
-      longitude: location.geoCoordinates?.longitude
+      longitude: location.geoCoordinates?.longitude,
+      requirePin: location.requirePin ?? true,
+      requirePhoto: location.requirePhoto ?? true
     });
 
     if (location.geoCoordinates) {
