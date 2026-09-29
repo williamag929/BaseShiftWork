@@ -19,7 +19,7 @@ import { useDeviceStore } from '@/store/deviceStore';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
 import { usePunchNavigator } from '@/hooks/usePunchNavigator';
-import type { KioskAnswer, KioskQuestion } from '@/types';
+import type { KioskAnswer } from '@/types';
 
 export default function QuestionsScreen() {
   const router = useRouter();

@@ -18,6 +18,7 @@ import { kioskService } from '@/services/kiosk.service';
 import { useDeviceStore } from '@/store/deviceStore';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
+import { OutboxStatusCard } from '@/components/OutboxStatusCard';
 import type { KioskLocation } from '@/types';
 
 type AdminStep = 'password' | 'menu' | 'changeLocation';
@@ -132,6 +133,7 @@ export default function AdminScreen() {
           <View style={styles.menuContainer}>
             <Text style={styles.cardTitle}>{t('kiosk_app.admin_menu_title')}</Text>
             <Text style={styles.subtitle}>{t('kiosk_app.current_location', { location: locationName })}</Text>
+            <OutboxStatusCard />
 
             <Pressable
               style={({ pressed }) => [styles.menuCard, pressed && { opacity: 0.85 }]}
