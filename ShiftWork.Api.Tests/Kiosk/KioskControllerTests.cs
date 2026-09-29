@@ -125,4 +125,29 @@ public class KioskControllerTests
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             times);
     }
+
+    [Fact]
+    public async Task ClockFromKiosk_ReturnsTheStatusOfARejectedPunch()
+    {
+        _kioskServiceMock
+            .Setup(s => s.ClockFromKioskAsync(CompanyId, It.IsAny<KioskClockRequest>()))
+            .ThrowsAsync(new KioskPunchRejectedException(403, "A valid PIN is required at this site."));
+
+        var result = await _sut.ClockFromKiosk(CompanyId, new KioskClockRequest { PersonId = 1, EventType = "ClockIn" });
+
+        var status = Assert.IsType<ObjectResult>(result.Result);
+        Assert.Equal(403, status.StatusCode);
+    }
+
+    [Fact]
+    public async Task ClockFromKiosk_ReturnsBadRequest_ForABadEventDate()
+    {
+        _kioskServiceMock
+            .Setup(s => s.ClockFromKioskAsync(CompanyId, It.IsAny<KioskClockRequest>()))
+            .ThrowsAsync(new ArgumentException("EventDate cannot be in the future."));
+
+        var result = await _sut.ClockFromKiosk(CompanyId, new KioskClockRequest { PersonId = 1, EventType = "ClockIn" });
+
+        Assert.IsType<BadRequestObjectResult>(result.Result);
+    }
 }

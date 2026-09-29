@@ -163,6 +163,10 @@ namespace ShiftWork.Api.Controllers
                 var result = await _kioskService.ClockFromKioskAsync(companyId, request);
                 return Ok(result);
             }
+            catch (KioskPunchRejectedException ex)
+            {
+                return StatusCode(ex.StatusCode, new { message = ex.Message });
+            }
             catch (ArgumentException ex)
             {
                 return BadRequest(new { message = ex.Message });

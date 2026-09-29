@@ -103,6 +103,12 @@ namespace ShiftWork.Api.DTOs
         public string? GeoLocation { get; set; }
         public string? KioskDevice { get; set; }
         public List<KioskAnswerRequest>? Answers { get; set; }
+        /// <summary>Client-generated id. A repeated id returns the original event instead of creating a second one.</summary>
+        public Guid? EventLogId { get; set; }
+        /// <summary>When the employee actually tapped (UTC). Defaults to server time. Max 7 days old, not in the future.</summary>
+        public DateTime? EventDate { get; set; }
+        /// <summary>The employee's PIN. Required at PIN sites once KioskSettings:EnforcePinOnClock is on.</summary>
+        public string? Pin { get; set; }
     }
 
     /// <summary>
