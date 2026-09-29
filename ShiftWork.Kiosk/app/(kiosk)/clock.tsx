@@ -47,15 +47,20 @@ export default function PhotoScreen() {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Idle timeout: back to the employee list if nothing happens.
-  useEffect(() => {
+  const armIdle = useCallback(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       resetSession();
       router.dismissTo('/(kiosk)');
     }, TIMEOUT_MS);
+  }, [router, resetSession]);
+
+  useEffect(() => {
+    armIdle();
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [router, resetSession]);
+  }, [armIdle]);
 
   const cancel = useCallback(() => {
     resetSession();
@@ -69,6 +74,8 @@ export default function PhotoScreen() {
   const capture = useCallback(async () => {
     if (!cameraRef.current || busyRef.current) return;
     busyRef.current = true;
+    // Capture -> commit must not be interrupted by the idle timer (re-armed if it fails).
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setCapturing(true);
     setFailed(false);
     try {
@@ -83,13 +90,14 @@ export default function PhotoScreen() {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       await goNext('photo');
     } catch {
+      armIdle();
       setFailed(true);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       busyRef.current = false;
       setCapturing(false);
     }
-  }, [setCapturedPhoto, goNext]);
+  }, [setCapturedPhoto, goNext, armIdle]);
 
   // Count down once the camera is live, then capture.
   useEffect(() => {

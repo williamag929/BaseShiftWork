@@ -42,6 +42,7 @@ export default function SuccessScreen() {
     )
   );
   const [canUndo, setCanUndo] = useState(remainingMs > 0);
+  const undoingRef = useRef(false);
   const moveOnRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const undoneHomeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideUndoRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -76,12 +77,9 @@ export default function SuccessScreen() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // When the undo window closes, move on.
-  useEffect(() => {
-    if (commitError) return undefined;
-    const createdFor = eventLogId;
-    moveOnRef.current = setTimeout(() => {
-      moveOnRef.current = null;
+  // Leave this screen: bulletins after an online clock-out, otherwise home.
+  const moveOn = useCallback(
+    (createdFor: string | null) => {
       if (!isCurrent(createdFor)) return;
       const entries = outbox.getSnapshot().entries;
       if (employee && shouldShowInterstitial(clockType, entries)) {
@@ -89,6 +87,17 @@ export default function SuccessScreen() {
       } else {
         goHome();
       }
+    },
+    [isCurrent, employee, clockType, router, goHome]
+  );
+
+  // When the undo window closes, move on.
+  useEffect(() => {
+    if (commitError) return undefined;
+    const createdFor = eventLogId;
+    moveOnRef.current = setTimeout(() => {
+      moveOnRef.current = null;
+      moveOn(createdFor);
     }, Math.max(remainingMs, MIN_SHOW_MS));
     hideUndoRef.current = setTimeout(() => setCanUndo(false), remainingMs);
     return () => {
@@ -100,26 +109,30 @@ export default function SuccessScreen() {
   }, []);
 
   const handleUndo = useCallback(async () => {
-    if (!eventLogId || !employee) return;
+    if (!eventLogId || !employee || undoingRef.current) return;
+    // Synchronous guard + hide the button before any await: a second tap is ignored.
+    undoingRef.current = true;
+    setCanUndo(false);
     // Stop the move-on timer first so it cannot fire while undo() is awaited.
     if (moveOnRef.current) clearTimeout(moveOnRef.current);
     moveOnRef.current = null;
     const removed = await outbox.undo(eventLogId);
+    // Whenever the punch was removed the employee must be able to punch again, even if
+    // this screen has since moved on.
+    if (removed) forgetRecentPunch(employee.personId);
     if (!isCurrent(eventLogId)) return;
     if (!removed) {
-      // Window already closed: carry on to the normal next screen.
-      goHome();
+      // Window already closed: carry on exactly as the timer would have.
+      moveOn(eventLogId);
       return;
     }
-    forgetRecentPunch(employee.personId);
-    setCanUndo(false);
     setUndone(true);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     undoneHomeRef.current = setTimeout(() => {
       undoneHomeRef.current = null;
       if (isCurrent(eventLogId)) goHome();
     }, 1200);
-  }, [eventLogId, employee, goHome, isCurrent]);
+  }, [eventLogId, employee, goHome, isCurrent, moveOn]);
 
   if (commitError) {
     return (
