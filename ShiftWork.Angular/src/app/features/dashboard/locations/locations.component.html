@@ -243,6 +243,39 @@
                 </div>
 
                 <div class="form-group">
+                  <label class="form-label">
+                    <i class="fa fa-wifi"></i>
+                    <ng-container i18n="@@locations.nfc_section">NFC tag</ng-container>
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="requireNfc" formControlName="requireNfc">
+                    <ng-container i18n="@@locations.require_nfc">Require an NFC tag tap to clock in or out from phones</ng-container>
+                  </label>
+                  <small class="form-hint" i18n="@@locations.require_nfc_hint">When on, employees can't use the phone's clock button at this site. Kiosks and manager entries still work.</small>
+
+                  <ng-container *ngIf="selectedLocation; else nfcAfterSave">
+                    <div class="nfc-tag" *ngIf="nfcTagUrl(selectedLocation) as tagUrl; else noNfcTag">
+                      <label for="nfcTagUrl" class="form-label" i18n="@@locations.nfc_tag_link">Tag link</label>
+                      <div class="nfc-tag-row">
+                        <input id="nfcTagUrl" class="form-input" type="text" [value]="tagUrl" readonly>
+                        <button type="button" class="btn-cancel" (click)="copyNfcTagUrl(tagUrl)" i18n="@@locations.nfc_copy">Copy</button>
+                        <button type="button" class="btn-cancel" (click)="regenerateNfcTag()" [disabled]="nfcBusy" i18n="@@locations.nfc_regenerate">Regenerate</button>
+                      </div>
+                      <small class="form-hint">
+                        <ng-container i18n="@@locations.nfc_last_tapped">Last tapped:</ng-container>
+                        {{ selectedLocation.nfcLastTappedAt ? (selectedLocation.nfcLastTappedAt | date:'medium') : '—' }}
+                      </small>
+                    </div>
+                    <ng-template #noNfcTag>
+                      <button type="button" class="btn-cancel" (click)="regenerateNfcTag()" [disabled]="nfcBusy" i18n="@@locations.nfc_create">Create tag link</button>
+                    </ng-template>
+                  </ng-container>
+                  <ng-template #nfcAfterSave>
+                    <small class="form-hint" i18n="@@locations.nfc_after_save">Save the location first, then create its tag link here.</small>
+                  </ng-template>
+                </div>
+
+                <div class="form-group">
                   <label for="timezone" class="form-label">
                     <i class="fa fa-clock-o"></i>
                     <ng-container i18n="@@locations.timezone_label">Time Zone</ng-container> <span class="required">*</span>

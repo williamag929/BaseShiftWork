@@ -984,3 +984,15 @@
   margin: 0.25rem 0;
   cursor: pointer;
 }
+
+.nfc-tag-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.nfc-tag-row .form-input {
+  flex: 1;
+  min-width: 0;
+  font-family: monospace;
+}

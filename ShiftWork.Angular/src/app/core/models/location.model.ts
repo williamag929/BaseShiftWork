@@ -23,4 +23,8 @@ export interface Location {
     status: string;
     requirePin?: boolean;
     requirePhoto?: boolean;
+    requireNfc?: boolean;
+    /** Server-owned; the tag link is https://t.loqzen.com/t/<nfcTagKey>. */
+    nfcTagKey?: string | null;
+    nfcLastTappedAt?: string | null;
  }
