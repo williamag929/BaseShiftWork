@@ -326,6 +326,49 @@ namespace ShiftWork.Api.Services
             return true;
         }
 
+        public async Task EnsureNfcNotRequiredAsync(ShiftEventDto shiftEventDto)
+        {
+            var isClockEvent =
+                string.Equals(shiftEventDto.EventType, "clockin", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(shiftEventDto.EventType, "clockout", StringComparison.OrdinalIgnoreCase);
+            if (!isClockEvent)
+            {
+                return;
+            }
+
+            var locationId = shiftEventDto.LocationId;
+            if (!locationId.HasValue)
+            {
+                var eventDate = shiftEventDto.EventDate == default ? DateTime.UtcNow : shiftEventDto.EventDate;
+                locationId = (await FindScheduleShiftForDayAsync(shiftEventDto.PersonId, eventDate))?.LocationId;
+            }
+            if (!locationId.HasValue)
+            {
+                return;
+            }
+
+            var location = await _context.Locations.AsNoTracking()
+                .FirstOrDefaultAsync(l => l.LocationId == locationId.Value);
+            if (location is { RequireNfc: true })
+            {
+                throw new NfcRequiredException(location.Name);
+            }
+        }
+
+        // "Today" is an overlap check on the UTC day to avoid timezone date mismatches.
+        private async Task<ScheduleShift?> FindScheduleShiftForDayAsync(int personId, DateTime eventDateUtc)
+        {
+            var startOfDayUtc = eventDateUtc.Date;
+            var endOfDayUtc = startOfDayUtc.AddDays(1);
+            return await _context.ScheduleShifts
+                .Include(ss => ss.Location)
+                .Where(ss => ss.PersonId == personId &&
+                             ss.StartDate < endOfDayUtc &&
+                             ss.EndDate > startOfDayUtc)
+                .OrderBy(ss => ss.StartDate)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task ApplyStatusAndGeofenceAsync(ShiftEvent shiftEvent, int? explicitLocationId)
         {
             if (shiftEvent.PersonId <= 0)
@@ -335,16 +378,7 @@ namespace ShiftWork.Api.Services
 
             // Use an overlap check for "today" in UTC to avoid timezone date mismatches.
             var nowUtc = shiftEvent.EventDate;
-            var startOfDayUtc = nowUtc.Date;
-            var endOfDayUtc = startOfDayUtc.AddDays(1);
-
-            var scheduleShift = await _context.ScheduleShifts
-                .Include(ss => ss.Location)
-                .Where(ss => ss.PersonId == shiftEvent.PersonId &&
-                             ss.StartDate < endOfDayUtc &&
-                             ss.EndDate > startOfDayUtc)
-                .OrderBy(ss => ss.StartDate)
-                .FirstOrDefaultAsync();
+            var scheduleShift = await FindScheduleShiftForDayAsync(shiftEvent.PersonId, nowUtc);
 
             string status = "";
             // Determine status based on shift event type and schedule shift
