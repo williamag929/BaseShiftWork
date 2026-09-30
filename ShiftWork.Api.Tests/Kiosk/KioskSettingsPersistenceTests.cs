@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
@@ -74,7 +75,7 @@ public class KioskSettingsPersistenceTests : IDisposable
             PersonId = 5, CompanyId = CompanyId, Name = "Ana", Email = "ana@example.com", Status = "Active",
         });
         await _context.SaveChangesAsync();
-        var service = new PeopleService(_context, NullLogger<PeopleService>.Instance);
+        var service = new PeopleService(_context, NullLogger<PeopleService>.Instance, Mock.Of<IPlanEnforcementService>());
 
         await service.Update(new Person
         {
