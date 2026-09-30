@@ -1,7 +1,7 @@
 # NFC Jobsite Punch — Design
 
 Date: 2026-09-30
-Status: Draft v2, awaiting review
+Status: Approved (v2, 2026-09-30)
 
 ## Goal
 
