@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Models;
@@ -14,12 +15,21 @@ namespace ShiftWork.Api.Services
     {
         private readonly ShiftWorkContext _context;
         private readonly IShiftEventService _shiftEventService;
+        private readonly IConfiguration? _configuration;
 
-        public KioskService(ShiftWorkContext context, IShiftEventService shiftEventService)
+        // Optional so existing tests and callers that build the service directly keep working.
+        public KioskService(ShiftWorkContext context, IShiftEventService shiftEventService, IConfiguration? configuration = null)
         {
             _context = context;
             _shiftEventService = shiftEventService;
+            _configuration = configuration;
         }
+
+        private static readonly TimeSpan MaxClockSkew = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan MaxPunchAge = TimeSpan.FromDays(7);
+
+        private bool EnforcePin =>
+            bool.TryParse(_configuration?["KioskSettings:EnforcePinOnClock"], out var enforce) && enforce;
 
         // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -70,8 +80,24 @@ namespace ShiftWork.Api.Services
                     Name = p.Name,
                     PhotoUrl = p.PhotoUrl,
                     StatusShiftWork = p.StatusShiftWork,
+                    PhotoExempt = p.PhotoExempt,
                 })
                 .ToListAsync();
+        }
+
+        public async Task<KioskConfigDto?> GetKioskConfigAsync(string companyId, int locationId)
+        {
+            var location = await _context.Locations
+                .AsNoTracking()
+                .FirstOrDefaultAsync(l => l.LocationId == locationId && l.CompanyId == companyId);
+            if (location == null) return null;
+
+            return new KioskConfigDto
+            {
+                RequirePin = location.RequirePin,
+                RequirePhoto = location.RequirePhoto,
+                QuestionsOnClockOutOnly = true,
+            };
         }
 
         public async Task<KioskClockResponse> ClockFromKioskAsync(string companyId, KioskClockRequest request)
@@ -81,8 +107,24 @@ namespace ShiftWork.Api.Services
             if (person == null)
                 throw new ArgumentException($"Person {request.PersonId} not found in company {companyId}.");
 
-            var eventId = Guid.NewGuid();
-            var eventDate = DateTime.UtcNow;
+            var eventId = request.EventLogId ?? Guid.NewGuid();
+
+            // A retried punch returns the original result instead of creating a second event.
+            if (request.EventLogId.HasValue)
+            {
+                var existing = await _context.ShiftEvents.AsNoTracking()
+                    .FirstOrDefaultAsync(e => e.EventLogId == eventId);
+                if (existing != null)
+                {
+                    if (existing.CompanyId != companyId || existing.PersonId != request.PersonId)
+                        throw new KioskPunchRejectedException(409, "This event id was already used for a different punch.");
+                    return ToClockResponse(existing, person);
+                }
+            }
+
+            var now = DateTime.UtcNow;
+            var eventDate = ResolveEventDate(request.EventDate, now);
+            await EnforcePinAsync(companyId, request, person);
 
             var shiftEvent = new ShiftEvent
             {
@@ -94,7 +136,7 @@ namespace ShiftWork.Api.Services
                 PhotoUrl = request.PhotoUrl,
                 GeoLocation = request.GeoLocation,
                 KioskDevice = request.KioskDevice,
-                CreatedAt = eventDate,
+                CreatedAt = now,
             };
             _context.ShiftEvents.Add(shiftEvent);
 
@@ -109,7 +151,19 @@ namespace ShiftWork.Api.Services
                 _context.KioskAnswers.AddRange(answers);
             }
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException) when (request.EventLogId.HasValue)
+            {
+                // A concurrent retry inserted the same event id first: return that one.
+                _context.ChangeTracker.Clear();
+                var winner = await _context.ShiftEvents.AsNoTracking().FirstOrDefaultAsync(e =>
+                    e.EventLogId == eventId && e.CompanyId == companyId && e.PersonId == request.PersonId);
+                if (winner != null) return ToClockResponse(winner, person);
+                throw;
+            }
 
             // Kiosk devices are enrolled to a fixed site (request.LocationId), so this always
             // resolves a geofence target; it also fixes StatusShiftWork, which previously never
@@ -117,13 +171,58 @@ namespace ShiftWork.Api.Services
             // mobile/API-direct equivalent of this same logic).
             await _shiftEventService.ApplyStatusAndGeofenceAsync(shiftEvent, request.LocationId);
 
-            return new KioskClockResponse
+            return ToClockResponse(shiftEvent, person);
+        }
+
+        private static KioskClockResponse ToClockResponse(ShiftEvent e, Person person) => new()
+        {
+            EventLogId = e.EventLogId,
+            EventType = e.EventType ?? string.Empty,
+            EventDate = e.EventDate,
+            PersonName = person.Name,
+        };
+
+        private static DateTime ResolveEventDate(DateTime? requested, DateTime nowUtc)
+        {
+            if (!requested.HasValue) return nowUtc;
+
+            var utc = requested.Value.Kind switch
             {
-                EventLogId = eventId,
-                EventType = request.EventType,
-                EventDate = eventDate,
-                PersonName = person.Name,
+                DateTimeKind.Utc => requested.Value,
+                DateTimeKind.Local => requested.Value.ToUniversalTime(),
+                _ => DateTime.SpecifyKind(requested.Value, DateTimeKind.Utc),
             };
+
+            if (utc > nowUtc + MaxClockSkew)
+                throw new ArgumentException("EventDate cannot be in the future.");
+            if (utc < nowUtc - MaxPunchAge)
+                throw new ArgumentException("EventDate is more than 7 days old.");
+            return utc;
+        }
+
+        /// <summary>
+        /// At PIN sites the punch must carry a valid PIN. Off by default (KioskSettings:EnforcePinOnClock)
+        /// until every tablet runs a build that sends it. An unknown site (no LocationId) is treated as PIN-required.
+        /// </summary>
+        private async Task EnforcePinAsync(string companyId, KioskClockRequest request, Person person)
+        {
+            if (!EnforcePin) return;
+
+            var requirePin = true;
+            if (request.LocationId.HasValue)
+            {
+                var location = await _context.Locations.AsNoTracking().FirstOrDefaultAsync(l =>
+                    l.LocationId == request.LocationId.Value && l.CompanyId == companyId);
+                if (location == null)
+                    throw new ArgumentException($"Location {request.LocationId} not found in company {companyId}.");
+                requirePin = location.RequirePin;
+            }
+
+            if (!requirePin) return;
+
+            if (string.IsNullOrEmpty(request.Pin) || string.IsNullOrEmpty(person.Pin) ||
+                !BCrypt.Net.BCrypt.Verify(request.Pin, person.Pin))
+                throw new KioskPunchRejectedException(403, "A valid PIN is required at this site.");
         }
 
         // ── Management CRUD ───────────────────────────────────────────────────────

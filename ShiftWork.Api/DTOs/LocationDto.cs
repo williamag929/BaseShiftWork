@@ -22,5 +22,7 @@ namespace ShiftWork.Api.DTOs
         public string ExternalCode { get; set; }
         public string TimeZone { get; set; }
         public string Status { get; set; }
+        public bool RequirePin { get; set; } = true;
+        public bool RequirePhoto { get; set; } = true;
     }
 }

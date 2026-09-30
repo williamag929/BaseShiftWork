@@ -19,6 +19,7 @@ export interface People {
     photoUrl?: string;
     phoneNumber?: string;
     roleId?: number;
+    photoExempt?: boolean;
     scheduleDetails?: ScheduleDetail[]; // Optional, if the person has associated schedule details
     
     // PTO configuration fields (optional)

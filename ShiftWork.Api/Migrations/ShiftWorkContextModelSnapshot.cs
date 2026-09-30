@@ -968,6 +968,12 @@ namespace ShiftWork.Api.Migrations
                     b.Property<int>("RatioMax")
                         .HasColumnType("int");
 
+                    b.Property<bool>("RequirePhoto")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RequirePin")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Region")
                         .HasColumnType("nvarchar(max)");
 
@@ -1169,6 +1175,9 @@ namespace ShiftWork.Api.Migrations
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhotoExempt")
+                        .HasColumnType("bit");
 
                     b.Property<string>("PhotoUrl")
                         .HasColumnType("nvarchar(max)");

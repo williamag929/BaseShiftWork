@@ -10,99 +10,105 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import * as Location from 'expo-location';
 import * as Haptics from 'expo-haptics';
-
-import { useQuery } from '@tanstack/react-query';
-import { useSessionStore } from '@/store/sessionStore';
-import { useDeviceStore } from '@/store/deviceStore';
-import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
-import { kioskService } from '@/services/kiosk.service';
 import { Ionicons } from '@expo/vector-icons';
+
+import { useSessionStore } from '@/store/sessionStore';
+import { usePunchNavigator } from '@/hooks/usePunchNavigator';
+import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
-import type { ClockEventType } from '@/types';
 
 const TIMEOUT_MS = 60_000;
+const COUNTDOWN_SECONDS = 1;
 
-export default function ClockScreen() {
+/**
+ * Photo step. Only opened when the site requires a photo and the employee is not exempt
+ * (see nextStep). Takes the picture by itself after a short countdown; a manual button
+ * appears only if that fails.
+ */
+export default function PhotoScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const employee = useSessionStore((s) => s.employee);
+  const clockType = useSessionStore((s) => s.clockType);
   const setCapturedPhoto = useSessionStore((s) => s.setCapturedPhoto);
-  const setClockType = useSessionStore((s) => s.setClockType);
-  const setGeoLocation = useSessionStore((s) => s.setGeoLocation);
-  const setNeedsClockSubmit = useSessionStore((s) => s.setNeedsClockSubmit);
-  const { companyId, locationId, kioskDeviceId } = useDeviceStore();
+  const resetSession = useSessionStore((s) => s.reset);
+  const goNext = usePunchNavigator();
 
   const [permission, requestPermission] = useCameraPermissions();
+  const [cameraReady, setCameraReady] = useState(false);
+  const [count, setCount] = useState(COUNTDOWN_SECONDS);
   const [capturing, setCapturing] = useState(false);
-  const [clockChoice, setClockChoice] = useState<ClockEventType | null>(null);
+  const [failed, setFailed] = useState(false);
+  // Once a photo is taken this screen must never capture again (a late re-render must not retrigger it).
+  const [captured, setCaptured] = useState(false);
+  const busyRef = useRef(false);
   const cameraRef = useRef<CameraView>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Fetch kiosk questions to decide if we need the questions screen
-  const { data: questions = [] } = useQuery({
-    queryKey: ['kiosk-questions', companyId],
-    queryFn: () => kioskService.getQuestions(companyId),
-    staleTime: 5 * 60_000,
-  });
-
-  const resetIdle = useCallback(() => {
+  // Idle timeout: back to the employee list if nothing happens.
+  const armIdle = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => router.replace('/(kiosk)'), TIMEOUT_MS);
-  }, [router]);
+    timeoutRef.current = setTimeout(() => {
+      resetSession();
+      router.dismissTo('/(kiosk)');
+    }, TIMEOUT_MS);
+  }, [router, resetSession]);
 
   useEffect(() => {
-    resetIdle();
-    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
-  }, [resetIdle]);
+    armIdle();
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [armIdle]);
+
+  const cancel = useCallback(() => {
+    resetSession();
+    router.dismissTo('/(kiosk)');
+  }, [resetSession, router]);
 
   useEffect(() => {
-    if (!employee) router.replace('/(kiosk)');
+    if (!employee) router.dismissTo('/(kiosk)');
   }, [employee, router]);
 
-  const handleCapture = useCallback(async () => {
-    if (!cameraRef.current || capturing || !clockChoice) return;
+  const capture = useCallback(async () => {
+    if (!cameraRef.current || busyRef.current) return;
+    busyRef.current = true;
+    // Capture -> commit must not be interrupted by the idle timer (re-armed if it fails).
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setCapturing(true);
-    resetIdle();
-
+    setFailed(false);
     try {
-      // Get location for geo tagging
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status === 'granted') {
-          const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-          setGeoLocation(`${loc.coords.latitude},${loc.coords.longitude}`);
-        }
-      } catch {
-        // geo is optional — do not block on failure
-      }
-
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.6,
         base64: false,
         skipProcessing: Platform.OS === 'android',
       });
-
       if (!photo) throw new Error('No photo captured');
       setCapturedPhoto(photo.uri);
-      setClockType(clockChoice);
-
+      setCaptured(true);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-      if (questions.length > 0) {
-        setNeedsClockSubmit(false);
-        router.push('/(kiosk)/questions');
-      } else {
-        setNeedsClockSubmit(true);
-        router.push('/(kiosk)/success');
-      }
+      await goNext('photo');
     } catch {
+      armIdle();
+      setFailed(true);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
+      busyRef.current = false;
       setCapturing(false);
     }
-  }, [capturing, clockChoice, setCapturedPhoto, setClockType, setGeoLocation, setNeedsClockSubmit, questions, router, resetIdle]);
+  }, [setCapturedPhoto, goNext, armIdle]);
+
+  // Count down once the camera is live, then capture.
+  useEffect(() => {
+    if (!cameraReady || failed || capturing || captured) return undefined;
+    if (count <= 0) {
+      void capture();
+      return undefined;
+    }
+    const id = setTimeout(() => setCount((c) => c - 1), 1000);
+    return () => clearTimeout(id);
+  }, [cameraReady, failed, capturing, captured, count, capture]);
 
   if (!employee) return null;
 
@@ -117,81 +123,60 @@ export default function ClockScreen() {
   if (!permission.granted) {
     return (
       <View style={styles.center}>
-        <Text style={styles.permText}>{t('kiosk_app.camera_required')}</Text>
-        <Pressable style={styles.btn} onPress={requestPermission}>
-          <Text style={styles.btnText}>{t('kiosk_app.grant_camera')}</Text>
-        </Pressable>
-        <Pressable onPress={() => router.replace('/(kiosk)')}>
+        <Text style={styles.permText}>
+          {permission.canAskAgain
+            ? t('kiosk_app.camera_required')
+            : t('kiosk_app.camera_blocked')}
+        </Text>
+        {permission.canAskAgain && (
+          <Pressable style={styles.btn} onPress={requestPermission}>
+            <Text style={styles.btnText}>{t('kiosk_app.grant_camera')}</Text>
+          </Pressable>
+        )}
+        <Pressable onPress={cancel}>
           <Text style={styles.cancel}>{t('kiosk_app.cancel')}</Text>
         </Pressable>
       </View>
     );
   }
 
+  const action = clockType === 'ClockOut' ? t('kiosk_app.clock_out') : t('kiosk_app.clock_in');
+
   return (
     <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
-      <View style={styles.container}>
-        {/* Clock-type selector */}
-        {!clockChoice ? (
-          <View style={styles.choiceRow}>
-            <Text style={styles.choiceLabel}>
-              {t('kiosk_app.hello_prompt', { name: employee.name })}
-            </Text>
-            <View style={styles.buttons}>
-              <Pressable
-                style={({ pressed }) => [styles.actionBtn, styles.clockInBtn, pressed && { opacity: 0.88 }]}
-                onPress={() => { setClockChoice('ClockIn'); resetIdle(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); }}
-              >
-                <Ionicons name="log-in-outline" size={40} color="#fff" />
-                <Text style={styles.actionText}>{t('kiosk_app.clock_in')}</Text>
-                <Text style={styles.actionSubText}>{t('kiosk_app.clock_in_sub')}</Text>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [styles.actionBtn, styles.clockOutBtn, pressed && { opacity: 0.88 }]}
-                onPress={() => { setClockChoice('ClockOut'); resetIdle(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); }}
-              >
-                <Ionicons name="log-out-outline" size={40} color="#fff" />
-                <Text style={styles.actionText}>{t('kiosk_app.clock_out')}</Text>
-                <Text style={styles.actionSubText}>{t('kiosk_app.clock_out_sub')}</Text>
-              </Pressable>
-            </View>
-            <Pressable onPress={() => router.replace('/(kiosk)')}>
-              <Text style={styles.cancel}>{t('kiosk_app.back')}</Text>
+      <View style={styles.cameraContainer}>
+        <CameraView
+          ref={cameraRef}
+          style={styles.camera}
+          facing="front"
+          onCameraReady={() => setCameraReady(true)}
+          onMountError={() => setFailed(true)}
+        />
+        <View style={styles.viewfinder} pointerEvents="none" />
+        <View style={styles.cameraOverlay}>
+          <Text style={styles.cameraLabel}>
+            {t('kiosk_app.look_at_camera', { action })}
+          </Text>
+          {failed ? (
+            <Pressable
+              style={({ pressed }) => [styles.captureBtn, pressed && { opacity: 0.8 }]}
+              onPress={capture}
+              disabled={capturing}
+            >
+              <Ionicons name="camera" size={40} color="#fff" />
             </Pressable>
-          </View>
-        ) : (
-          /* Camera preview */
-          <View style={styles.cameraContainer}>
-            <CameraView
-              ref={cameraRef}
-              style={styles.camera}
-              facing="front"
-            />
-            {/* Viewfinder oval guide */}
-            <View style={styles.viewfinder} pointerEvents="none" />
-            <View style={styles.cameraOverlay}>
-              <Text style={styles.cameraLabel}>
-                {t('kiosk_app.look_at_camera', {
-                  action: clockChoice === 'ClockIn' ? t('kiosk_app.clock_in') : t('kiosk_app.clock_out'),
-                })}
-              </Text>
-              <Pressable
-                style={({ pressed }) => [styles.captureBtn, pressed && { opacity: 0.8 }]}
-                onPress={handleCapture}
-                disabled={capturing}
-              >
-                {capturing ? (
-                  <ActivityIndicator color="#fff" size="large" />
-                ) : (
-                  <Ionicons name="camera" size={40} color="#fff" />
-                )}
-              </Pressable>
-              <Pressable onPress={() => { setClockChoice(null); resetIdle(); }}>
-                <Text style={styles.cancel}>{t('kiosk_app.change')}</Text>
-              </Pressable>
-            </View>
-          </View>
-        )}
+          ) : (
+            <Text style={styles.countdown}>
+              {capturing || count <= 0
+                ? t('kiosk_app.recording')
+                : t('kiosk_app.photo_countdown', { count })}
+            </Text>
+          )}
+          {failed && <Text style={styles.cancel}>{t('kiosk_app.photo_retry')}</Text>}
+          <Pressable onPress={cancel}>
+            <Text style={styles.cancel}>{t('kiosk_app.cancel')}</Text>
+          </Pressable>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -200,34 +185,6 @@ export default function ClockScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.lg, padding: spacing.xxl },
-  container: { flex: 1 },
-  choiceRow: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: spacing.xxxl,
-    padding: spacing.xxl,
-  },
-  choiceLabel: {
-    ...typography.h2,
-    color: colors.text,
-    textAlign: 'center',
-    lineHeight: 38,
-  },
-  buttons: { flexDirection: 'row', gap: spacing.xl },
-  actionBtn: {
-    width: 220,
-    height: 190,
-    borderRadius: radius.xl,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: spacing.sm,
-    ...shadow.raised,
-  },
-  clockInBtn: { backgroundColor: colors.clockIn },
-  clockOutBtn: { backgroundColor: colors.clockOut },
-  actionText: { ...typography.h3, color: '#fff' },
-  actionSubText: { ...typography.caption, color: 'rgba(255,255,255,0.7)', letterSpacing: 0.3 },
   cameraContainer: { flex: 1, position: 'relative' },
   camera: { flex: 1 },
   viewfinder: {
@@ -252,6 +209,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
   },
   cameraLabel: { ...typography.title, color: '#fff' },
+  countdown: { ...typography.h3, color: '#fff' },
   captureBtn: {
     width: 88,
     height: 88,

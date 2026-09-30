@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using ShiftWork.Api.Controllers;
+using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
 using Xunit;
@@ -78,6 +80,40 @@ public class KioskControllerTests
         VerifyLogError(Times.Once());
     }
 
+    [Fact]
+    public async Task GetKioskConfig_ReturnsOk_WithTheServiceConfig()
+    {
+        _kioskServiceMock
+            .Setup(s => s.GetKioskConfigAsync(CompanyId, 3))
+            .ReturnsAsync(new KioskConfigDto { RequirePin = false, RequirePhoto = true });
+
+        var result = await _sut.GetKioskConfig(CompanyId, 3);
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+        var dto = Assert.IsType<KioskConfigDto>(ok.Value);
+        Assert.False(dto.RequirePin);
+        Assert.True(dto.RequirePhoto);
+    }
+
+    [Fact]
+    public async Task GetKioskConfig_ReturnsNotFound_WhenLocationIsUnknown()
+    {
+        _kioskServiceMock
+            .Setup(s => s.GetKioskConfigAsync(CompanyId, 3))
+            .ReturnsAsync((KioskConfigDto?)null);
+
+        var result = await _sut.GetKioskConfig(CompanyId, 3);
+
+        Assert.IsType<NotFoundObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetKioskConfig_ReturnsBadRequest_WhenCompanyIsBlank()
+    {
+        var result = await _sut.GetKioskConfig(" ", 3);
+        Assert.IsType<BadRequestObjectResult>(result.Result);
+    }
+
     private void VerifyLogError(Times times)
     {
         _loggerMock.Verify(
@@ -88,5 +124,30 @@ public class KioskControllerTests
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             times);
+    }
+
+    [Fact]
+    public async Task ClockFromKiosk_ReturnsTheStatusOfARejectedPunch()
+    {
+        _kioskServiceMock
+            .Setup(s => s.ClockFromKioskAsync(CompanyId, It.IsAny<KioskClockRequest>()))
+            .ThrowsAsync(new KioskPunchRejectedException(403, "A valid PIN is required at this site."));
+
+        var result = await _sut.ClockFromKiosk(CompanyId, new KioskClockRequest { PersonId = 1, EventType = "ClockIn" });
+
+        var status = Assert.IsType<ObjectResult>(result.Result);
+        Assert.Equal(403, status.StatusCode);
+    }
+
+    [Fact]
+    public async Task ClockFromKiosk_ReturnsBadRequest_ForABadEventDate()
+    {
+        _kioskServiceMock
+            .Setup(s => s.ClockFromKioskAsync(CompanyId, It.IsAny<KioskClockRequest>()))
+            .ThrowsAsync(new ArgumentException("EventDate cannot be in the future."));
+
+        var result = await _sut.ClockFromKiosk(CompanyId, new KioskClockRequest { PersonId = 1, EventType = "ClockIn" });
+
+        Assert.IsType<BadRequestObjectResult>(result.Result);
     }
 }

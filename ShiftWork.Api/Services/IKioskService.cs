@@ -13,6 +13,8 @@ namespace ShiftWork.Api.Services
         Task PostAnswersAsync(List<KioskAnswer> answers);
         /// <summary>Returns lightweight employee list for display on a kiosk device.</summary>
         Task<List<KioskEmployeeDto>> GetKioskEmployeesAsync(string companyId);
+        /// <summary>Returns the site's PIN/photo switches, or null when the location is not in the company.</summary>
+        Task<KioskConfigDto?> GetKioskConfigAsync(string companyId, int locationId);
         /// <summary>Creates a shift event and optionally persists kiosk answers atomically.</summary>
         Task<KioskClockResponse> ClockFromKioskAsync(string companyId, KioskClockRequest request);
 

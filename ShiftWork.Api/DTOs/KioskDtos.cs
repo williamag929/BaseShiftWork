@@ -63,6 +63,8 @@ namespace ShiftWork.Api.DTOs
         public string? PhotoUrl { get; set; }
         /// <summary>Current real-time shift status, e.g. "OnShift", "OffShift".</summary>
         public string? StatusShiftWork { get; set; }
+        /// <summary>True when this employee is never asked for a photo at a kiosk.</summary>
+        public bool PhotoExempt { get; set; }
     }
 
     /// <summary>
@@ -78,6 +80,17 @@ namespace ShiftWork.Api.DTOs
     }
 
     /// <summary>
+    /// Per-site behavior switches a kiosk fetches at startup and on each refresh.
+    /// </summary>
+    public class KioskConfigDto
+    {
+        public bool RequirePin { get; set; } = true;
+        public bool RequirePhoto { get; set; } = true;
+        /// <summary>Kiosk questions are shown after a clock-out only.</summary>
+        public bool QuestionsOnClockOutOnly { get; set; } = true;
+    }
+
+    /// <summary>
     /// Request body for the anonymous kiosk clock-in/out endpoint.
     /// </summary>
     public class KioskClockRequest
@@ -90,6 +103,12 @@ namespace ShiftWork.Api.DTOs
         public string? GeoLocation { get; set; }
         public string? KioskDevice { get; set; }
         public List<KioskAnswerRequest>? Answers { get; set; }
+        /// <summary>Client-generated id. A repeated id returns the original event instead of creating a second one.</summary>
+        public Guid? EventLogId { get; set; }
+        /// <summary>When the employee actually tapped (UTC). Defaults to server time. Max 7 days old, not in the future.</summary>
+        public DateTime? EventDate { get; set; }
+        /// <summary>The employee's PIN. Required at PIN sites once KioskSettings:EnforcePinOnClock is on.</summary>
+        public string? Pin { get; set; }
     }
 
     /// <summary>

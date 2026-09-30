@@ -90,6 +90,8 @@ namespace ShiftWork.Api.Services
             existingLocation.TimeZone = location.TimeZone;
             existingLocation.Settings = location.Settings;
             existingLocation.Status = location.Status;
+            existingLocation.RequirePin = location.RequirePin;
+            existingLocation.RequirePhoto = location.RequirePhoto;
 
             // SaveChangesAsync will trigger the audit interceptor with proper change tracking
             await _context.SaveChangesAsync();

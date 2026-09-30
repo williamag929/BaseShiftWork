@@ -5,6 +5,7 @@ export interface KioskEmployee {
   name: string;
   photoUrl?: string;
   statusShiftWork?: string; // "OnShift" | "OffShift" | etc.
+  photoExempt?: boolean;
 }
 
 export interface KioskQuestion {
@@ -31,6 +32,13 @@ export interface KioskLocation {
   isActive: boolean;
 }
 
+/** Per-site switches fetched from GET /api/kiosk/{companyId}/config. */
+export interface KioskConfig {
+  requirePin: boolean;
+  requirePhoto: boolean;
+  questionsOnClockOutOnly: boolean;
+}
+
 export type ClockEventType = 'ClockIn' | 'ClockOut';
 
 export interface KioskClockRequest {
@@ -41,6 +49,12 @@ export interface KioskClockRequest {
   geoLocation?: string;
   kioskDevice: string;
   answers?: KioskAnswer[];
+  /** Client-generated GUID; a repeated id returns the original event. */
+  eventLogId?: string;
+  /** ISO timestamp of the real tap. */
+  eventDate?: string;
+  /** Sent at PIN sites so the server can enforce it. */
+  pin?: string;
 }
 
 export interface KioskClockResponse {

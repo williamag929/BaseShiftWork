@@ -1794,6 +1794,26 @@
         <source>Phone Number</source>
         <target state="translated">Número de teléfono</target>
       </trans-unit>
+      <trans-unit id="locations.kiosk_section" datatype="html">
+        <source>Kiosk</source>
+        <target state="translated">Kiosco</target>
+      </trans-unit>
+      <trans-unit id="locations.require_pin" datatype="html">
+        <source>Require PIN at the kiosk</source>
+        <target state="translated">Exigir PIN en el kiosco</target>
+      </trans-unit>
+      <trans-unit id="locations.require_photo" datatype="html">
+        <source>Require a photo at the kiosk</source>
+        <target state="translated">Exigir foto en el kiosco</target>
+      </trans-unit>
+      <trans-unit id="locations.kiosk_hint" datatype="html">
+        <source>Turn both off for the fastest clock-in. Employees marked "No photo required" never see the camera.</source>
+        <target state="translated">Desactiva ambos para una marcación más rápida. Los empleados marcados como "Sin foto" nunca ven la cámara.</target>
+      </trans-unit>
+      <trans-unit id="people.photo_exempt" datatype="html">
+        <source>No photo required at the kiosk</source>
+        <target state="translated">Sin foto en el kiosco</target>
+      </trans-unit>
       <trans-unit id="people.pin_code" datatype="html">
         <source>PIN Code</source>
         <target state="translated">Código PIN</target>

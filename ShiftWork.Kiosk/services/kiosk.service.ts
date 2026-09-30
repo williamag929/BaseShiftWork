@@ -1,5 +1,6 @@
 import apiClient from './api-client';
 import type {
+  KioskConfig,
   KioskEmployee,
   KioskQuestion,
   KioskClockRequest,
@@ -46,10 +47,33 @@ export const kioskService = {
     return data.defaultLanguage;
   },
 
+  /** Per-site PIN/photo switches for the enrolled location. */
+  async getConfig(companyId: string, locationId: number): Promise<KioskConfig> {
+    const { data } = await apiClient.get<KioskConfig>(
+      `/api/kiosk/${companyId}/config`,
+      { params: { locationId } }
+    );
+    return data;
+  },
+
+  /** Uploads a punch photo and returns its stored URL. */
+  async uploadPhoto(companyId: string, uri: string): Promise<string> {
+    const form = new FormData();
+    form.append('file', { uri, name: 'punch.jpg', type: 'image/jpeg' } as unknown as Blob);
+    const { data } = await apiClient.post<{ url: string }>(
+      `/api/kiosk/${companyId}/photo`,
+      form,
+      { headers: { 'Content-Type': 'multipart/form-data' }, timeout: 30_000 }
+    );
+    return data.url;
+  },
+
   async verifyPin(personId: number, pin: string): Promise<boolean> {
+    // Short timeout: with no connection the PIN screen must fail fast, not spin for 15 s.
     const { data } = await apiClient.post<{ verified: boolean }>(
       '/api/auth/verify-pin',
-      { personId, pin }
+      { personId, pin },
+      { timeout: 5_000 }
     );
     return data.verified;
   },

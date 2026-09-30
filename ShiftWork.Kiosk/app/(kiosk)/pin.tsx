@@ -14,6 +14,7 @@ import * as Haptics from 'expo-haptics';
 import { PinPad } from '@/components/ui/PinPad';
 import { kioskService } from '@/services/kiosk.service';
 import { useSessionStore } from '@/store/sessionStore';
+import { usePunchNavigator } from '@/hooks/usePunchNavigator';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
 
@@ -23,6 +24,9 @@ export default function PinScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const employee = useSessionStore((s) => s.employee);
+  const setSessionPin = useSessionStore((s) => s.setPin);
+  const resetSession = useSessionStore((s) => s.reset);
+  const goNext = usePunchNavigator();
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -33,9 +37,10 @@ export default function PinScreen() {
   const resetTimeout = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
-      router.replace('/(kiosk)');
+      resetSession();
+      router.dismissTo('/(kiosk)');
     }, KIOSK_TIMEOUT_MS);
-  }, [router]);
+  }, [router, resetSession]);
 
   useEffect(() => {
     resetTimeout();
@@ -46,7 +51,7 @@ export default function PinScreen() {
 
   // No employee in session means the user navigated here directly — bounce back
   useEffect(() => {
-    if (!employee) router.replace('/(kiosk)');
+    if (!employee) router.dismissTo('/(kiosk)');
   }, [employee, router]);
 
   const handlePinChange = useCallback(
@@ -69,7 +74,8 @@ export default function PinScreen() {
         const verified = await kioskService.verifyPin(employee.personId, submittedPin);
         if (verified) {
           await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          router.push('/(kiosk)/clock');
+          setSessionPin(submittedPin);
+          await goNext('pin');
         } else {
           await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
           setError(true);
@@ -86,7 +92,7 @@ export default function PinScreen() {
         setLoading(false);
       }
     },
-    [employee, loading, router, resetTimeout, t]
+    [employee, loading, router, resetTimeout, t, setSessionPin, goNext]
   );
 
   if (!employee) return null;
@@ -132,7 +138,10 @@ export default function PinScreen() {
 
         <Pressable
           style={({ pressed }) => [styles.cancelBtn, pressed && { opacity: 0.6 }]}
-          onPress={() => router.replace('/(kiosk)')}
+          onPress={() => {
+            resetSession();
+            router.dismissTo('/(kiosk)');
+          }}
         >
           <Text style={styles.cancelText}>{t('kiosk_app.cancel')}</Text>
         </Pressable>

@@ -96,6 +96,8 @@ export class LocationsComponent implements OnInit {
       phoneNumber: [''],
       externalCode: [''],
       status: ['Active', Validators.required],
+      requirePin: [true],
+      requirePhoto: [true],
     });
 
     this.mapOptions = {
@@ -130,6 +132,8 @@ export class LocationsComponent implements OnInit {
       phoneNumber: '',
       externalCode: '',
       status: 'Active',
+      requirePin: true,
+      requirePhoto: true,
     });
 
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -298,7 +302,9 @@ export class LocationsComponent implements OnInit {
     this.locationForm.patchValue({
       ...location,
       latitude: location.geoCoordinates?.latitude,
-      longitude: location.geoCoordinates?.longitude
+      longitude: location.geoCoordinates?.longitude,
+      requirePin: location.requirePin ?? true,
+      requirePhoto: location.requirePhoto ?? true
     });
 
     if (location.geoCoordinates) {

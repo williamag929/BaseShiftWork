@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
 import { Image } from 'expo-image';
@@ -19,6 +18,11 @@ import * as Haptics from 'expo-haptics';
 import { kioskService } from '@/services/kiosk.service';
 import { useDeviceStore } from '@/store/deviceStore';
 import { useSessionStore } from '@/store/sessionStore';
+import { useConfigStore } from '@/store/configStore';
+import { usePunchNavigator } from '@/hooks/usePunchNavigator';
+import { nextEventType, shouldShowLoadError } from '@/services/punchFlow';
+import { applyPendingStatus, RECENT_MARGIN_MS } from '@/services/outbox.service';
+import { useOutboxStatus } from '@/services/outbox';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
 import type { KioskEmployee } from '@/types';
@@ -79,30 +83,68 @@ function EmployeeCard({
 }
 
 export default function EmployeeListScreen() {
-  const router = useRouter();
   const { t } = useTranslation();
   const companyId = useDeviceStore((s) => s.companyId);
-  const setEmployee = useSessionStore((s) => s.setEmployee);
+  const locationId = useDeviceStore((s) => s.locationId);
+  const startPunch = useSessionStore((s) => s.startPunch);
+  const refreshConfig = useConfigStore((s) => s.refresh);
+  const goNext = usePunchNavigator();
+  const { entries, recentSent } = useOutboxStatus();
   const [search, setSearch] = useState('');
+  const busyRef = useRef(false);
 
-  const { data, isLoading, error, refetch, isRefetching } = useQuery({
+  const { data, isLoading, error, refetch, isRefetching, dataUpdatedAt } = useQuery({
     queryKey: ['kiosk-employees', companyId],
     queryFn: () => kioskService.getEmployees(companyId),
     refetchInterval: 45_000, // auto-refresh every 45 s
     staleTime: 30_000,
   });
 
-  const filtered = (data ?? []).filter((e) =>
+  // Keep the site's PIN/photo switches fresh on the same 45 s cadence.
+  useQuery({
+    queryKey: ['kiosk-config', companyId, locationId],
+    queryFn: async () => {
+      await refreshConfig(companyId, locationId);
+      return true;
+    },
+    refetchInterval: 45_000,
+    staleTime: 30_000,
+  });
+
+  // Server status with this tablet's own unsent punches applied, so In/Out stays right offline.
+  // Recently sent punches stay applied until the fetched list is newer than the send.
+  const employees = useMemo(
+    () => applyPendingStatus(data ?? [], entries, recentSent, dataUpdatedAt),
+    [data, entries, recentSent, dataUpdatedAt]
+  );
+
+  // After a send, refetch once the server has surely applied it (past the overlay margin).
+  const lastSentAt = recentSent.reduce((max, r) => Math.max(max, r.sentAt), 0);
+  useEffect(() => {
+    if (!lastSentAt) return undefined;
+    const id = setTimeout(() => void refetch(), RECENT_MARGIN_MS + 500);
+    return () => clearTimeout(id);
+  }, [lastSentAt, refetch]);
+  const filtered = employees.filter((e) =>
     e.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleSelectEmployee = useCallback(
     async (employee: KioskEmployee) => {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      setEmployee(employee);
-      router.push('/(kiosk)/pin');
+      // A second tap while the first is still being processed must not punch twice.
+      if (busyRef.current) return;
+      busyRef.current = true;
+      try {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        startPunch(employee, nextEventType(employee.statusShiftWork));
+        await goNext('start');
+      } finally {
+        setTimeout(() => {
+          busyRef.current = false;
+        }, 1000);
+      }
     },
-    [router, setEmployee]
+    [startPunch, goNext]
   );
 
   if (isLoading) {
@@ -113,7 +155,7 @@ export default function EmployeeListScreen() {
     );
   }
 
-  if (error) {
+  if (shouldShowLoadError({ error, data })) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>{t('kiosk_app.load_employees_error')}</Text>

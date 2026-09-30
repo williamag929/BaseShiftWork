@@ -40,7 +40,7 @@ export default function InterstitialScreen() {
   const goHome = useCallback(() => {
     if (autoRef.current) clearTimeout(autoRef.current);
     resetSession();
-    router.replace('/(kiosk)');
+    router.dismissTo('/(kiosk)');
   }, [resetSession, router]);
 
   const scheduleAuto = useCallback(() => {

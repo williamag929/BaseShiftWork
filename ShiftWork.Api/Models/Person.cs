@@ -48,6 +48,9 @@ namespace ShiftWork.Api.Models
         /// </summary>
         public bool IsSandbox { get; set; } = false;
 
+        /// <summary>When true, this employee is never asked for a photo at a kiosk, at any site.</summary>
+        public bool PhotoExempt { get; set; } = false;
+
         /// <summary>
         /// BCrypt-hashed password for direct API authentication (Firebase auth disabled).
         /// Null when the person has no API password set.

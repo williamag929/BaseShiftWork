@@ -1346,6 +1346,21 @@
       <trans-unit id="people.phone_number" datatype="html">
         <source>Phone Number</source>
       </trans-unit>
+      <trans-unit id="locations.kiosk_section" datatype="html">
+        <source>Kiosk</source>
+      </trans-unit>
+      <trans-unit id="locations.require_pin" datatype="html">
+        <source>Require PIN at the kiosk</source>
+      </trans-unit>
+      <trans-unit id="locations.require_photo" datatype="html">
+        <source>Require a photo at the kiosk</source>
+      </trans-unit>
+      <trans-unit id="locations.kiosk_hint" datatype="html">
+        <source>Turn both off for the fastest clock-in. Employees marked "No photo required" never see the camera.</source>
+      </trans-unit>
+      <trans-unit id="people.photo_exempt" datatype="html">
+        <source>No photo required at the kiosk</source>
+      </trans-unit>
       <trans-unit id="people.pin_code" datatype="html">
         <source>PIN Code</source>
       </trans-unit>
