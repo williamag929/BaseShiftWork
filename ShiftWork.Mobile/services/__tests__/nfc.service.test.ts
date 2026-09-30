@@ -83,3 +83,18 @@ describe('writeTagUrl', () => {
     expect(mocked.cancelTechnologyRequest).toHaveBeenCalled();
   });
 });
+
+describe('start retry', () => {
+  it('retries NfcManager.start after a failed start instead of caching the rejection', async () => {
+    jest.resetModules();
+    const fresh = require('react-native-nfc-manager').default;
+    const { nfcService: freshService } = require('../nfc.service');
+    fresh.isSupported.mockResolvedValue(true);
+    fresh.isEnabled.mockResolvedValue(true);
+    fresh.start.mockRejectedValueOnce(new Error('nfc stack not ready'));
+
+    expect(await freshService.getAvailability()).toBe('unsupported');
+    expect(await freshService.getAvailability()).toBe('ready');
+    expect(fresh.start).toHaveBeenCalledTimes(2);
+  });
+});

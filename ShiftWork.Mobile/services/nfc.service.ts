@@ -4,7 +4,11 @@ import { parseTagKey } from '@/utils/nfcTag';
 export type NfcAvailability = 'ready' | 'disabled' | 'unsupported';
 
 let starting: Promise<void> | null = null;
-const ensureStarted = () => (starting ??= NfcManager.start());
+const ensureStarted = () =>
+  (starting ??= NfcManager.start().catch((error) => {
+    starting = null;
+    throw error;
+  }));
 
 const endSession = () => NfcManager.cancelTechnologyRequest().catch(() => undefined);
 
