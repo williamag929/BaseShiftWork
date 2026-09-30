@@ -346,6 +346,7 @@ namespace ShiftWork.Api.Controllers
         /// Gets replacement candidates for a specific shift.
         /// </summary>
         [HttpGet("{shiftId}/replacement-candidates")]
+        [Authorize(Policy = "schedule-shifts.read")]
         [ProducesResponseType(typeof(IEnumerable<ReplacementCandidateDto>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -373,6 +374,7 @@ namespace ShiftWork.Api.Controllers
         /// Gets replacement candidates for an arbitrary time window.
         /// </summary>
         [HttpGet("replacement-candidates")]
+        [Authorize(Policy = "schedule-shifts.read")]
         [ProducesResponseType(typeof(IEnumerable<ReplacementCandidateDto>), 200)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<IEnumerable<ReplacementCandidateDto>>> GetReplacementCandidatesByWindow(

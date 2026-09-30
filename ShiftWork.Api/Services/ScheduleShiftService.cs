@@ -31,14 +31,18 @@ namespace ShiftWork.Api.Services
     {
         private readonly ShiftWorkContext _context;
         private readonly ILogger<ScheduleShiftService> _logger;
+        private readonly IAvailabilityService _availability;
+        private readonly ICompanyTimeZoneService _timeZones;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ScheduleShiftService"/> class.
         /// </summary>
-        public ScheduleShiftService(ShiftWorkContext context, ILogger<ScheduleShiftService> logger)
+        public ScheduleShiftService(ShiftWorkContext context, ILogger<ScheduleShiftService> logger, IAvailabilityService availability, ICompanyTimeZoneService timeZones)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _availability = availability ?? throw new ArgumentNullException(nameof(availability));
+            _timeZones = timeZones ?? throw new ArgumentNullException(nameof(timeZones));
         }
 
         public async Task<IEnumerable<ScheduleShift>> GetAll(string companyId)
@@ -132,38 +136,9 @@ namespace ShiftWork.Api.Services
 
         public async Task<IEnumerable<Person>> GetReplacementCandidatesByWindow(string companyId, DateTime startUtc, DateTime endUtc, int? locationId, int? areaId, int? excludePersonId)
         {
-            var peopleQuery = _context.Persons.Where(p => p.CompanyId == companyId);
-            if (excludePersonId.HasValue)
-            {
-                peopleQuery = peopleQuery.Where(p => p.PersonId != excludePersonId.Value);
-            }
-
-            // Exclude people who have overlapping scheduled shifts (any status, published or unpublished)
-            var overlappingPersonIds = await _context.ScheduleShifts
-                .Where(ss => ss.CompanyId == companyId && ss.StartDate < endUtc && ss.EndDate > startUtc)
-                .Select(ss => ss.PersonId)
-                .Distinct()
-                .ToListAsync();
-
-            // Exclude people with sick or timeoff events on the date
-            var offEventTypes = new[] { "sick", "timeoff" };
-            var dateOnly = startUtc.Date;
-            var offPersonIds = await _context.ShiftEvents
-                .Where(e => e.CompanyId == companyId && e.EventType != null && offEventTypes.Contains(e.EventType))
-                .Where(e => e.EventDate.Date == dateOnly)
-                .Select(e => e.PersonId)
-                .Distinct()
-                .ToListAsync();
-
-            var excluded = new HashSet<int>(overlappingPersonIds);
-            foreach (var pid in offPersonIds) excluded.Add(pid);
-
-            var candidates = await peopleQuery
-                .Where(p => !excluded.Contains(p.PersonId))
-                .OrderBy(p => p.Name)
-                .ToListAsync();
-
-            return candidates;
+            var tz = await _timeZones.GetAsync(companyId);
+            var result = await _availability.GetForWindowAsync(companyId, startUtc, endUtc, tz);
+            return result.Available.Where(p => !excludePersonId.HasValue || p.PersonId != excludePersonId.Value).ToList();
         }
     }
 }

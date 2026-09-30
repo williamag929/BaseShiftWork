@@ -17,7 +17,7 @@ internal static class CommitTestFactory
     public static LineupCommitService Create(ShiftWorkContext ctx, Func<IScheduleShiftService, IScheduleShiftService>? wrapShifts = null)
     {
         var settings = new CompanySettingsService(ctx);
-        IScheduleShiftService shifts = new ScheduleShiftService(ctx, NullLogger<ScheduleShiftService>.Instance);
+        IScheduleShiftService shifts = new ScheduleShiftService(ctx, NullLogger<ScheduleShiftService>.Instance, new AvailabilityService(ctx), new CompanyTimeZoneService(ctx));
         if (wrapShifts != null) shifts = wrapShifts(shifts);
         return new LineupCommitService(
             ctx,
