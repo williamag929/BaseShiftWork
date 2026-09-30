@@ -6,6 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { nfcPunchService } from '@/services/nfc-punch.service';
 import { getQuickLocation, saveActiveClockInAt, clearActiveClockInAt } from '@/utils';
 import { shiftEventsKey } from '@/hooks/queries';
+import { usePendingTagStore } from '@/store/pendingTagStore';
 import type { NfcPunchResult, ShiftEventDto } from '@/types/api';
 
 export type NfcPunchErrorKind = 'offline' | 'unknown_tag' | 'signed_out' | 'failed';
@@ -41,15 +42,16 @@ export function useNfcPunch(companyId: string | null, personId: number | null) {
   const punch = useCallback(async (tagKey: string) => {
     if (!companyId || !personId || inFlight.current) return;
     inFlight.current = true;
-    attempt.current ??= { eventLogId: Crypto.randomUUID(), eventDate: new Date().toISOString() };
+    // Captured locally: reset() may null the ref while we await the GPS fix.
+    const attemptNow = (attempt.current ??= { eventLogId: Crypto.randomUUID(), eventDate: new Date().toISOString() });
     setState({ status: 'sending' });
 
     try {
       const geoLocation = await getQuickLocation();
       const result = await nfcPunchService.punch(companyId, {
         tagKey,
-        eventLogId: attempt.current.eventLogId,
-        eventDate: attempt.current.eventDate,
+        eventLogId: attemptNow.eventLogId,
+        eventDate: attemptNow.eventDate,
         geoLocation: geoLocation ?? undefined,
         device: Device.modelName ?? 'mobile-device',
       });
@@ -77,7 +79,13 @@ export function useNfcPunch(companyId: string | null, personId: number | null) {
       setState({ status: 'success', result });
     } catch (error) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      setState({ status: 'error', kind: classifyNfcPunchError(error), message: (error as { message?: string })?.message });
+      const kind = classifyNfcPunchError(error);
+      if (kind === 'signed_out') {
+        // The api-client already signed out and redirected to login; keep the tap so the tabs layout resumes it.
+        usePendingTagStore.getState().setTagKey(tagKey);
+        attempt.current = null;
+      }
+      setState({ status: 'error', kind, message: (error as { message?: string })?.message });
     } finally {
       inFlight.current = false;
     }

@@ -20,6 +20,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Crypto from 'expo-crypto';
 import { nfcPunchService } from '@/services/nfc-punch.service';
 import { getQuickLocation, saveActiveClockInAt, clearActiveClockInAt } from '@/utils';
+import { usePendingTagStore } from '@/store/pendingTagStore';
 import { classifyNfcPunchError, useNfcPunch } from '../useNfcPunch';
 
 const punchMock = nfcPunchService.punch as jest.Mock;
@@ -43,6 +44,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   // mockReset, not just clear: leftover *Once values would leak between tests.
   punchMock.mockReset();
+  usePendingTagStore.getState().setTagKey(null);
   uuidMock.mockReset();
   (getQuickLocation as jest.Mock).mockResolvedValue('1,2');
   uuidMock.mockReturnValueOnce('uuid-A').mockReturnValueOnce('uuid-B');
@@ -115,6 +117,30 @@ it('ignores a second punch while one is in flight', async () => {
   await act(() => first);
 
   expect(punchMock).toHaveBeenCalledTimes(1);
+});
+
+it('a reset during the GPS wait does not crash the in-flight punch', async () => {
+  let resolveGps!: (v: string | null) => void;
+  (getQuickLocation as jest.Mock).mockReturnValue(new Promise((r) => { resolveGps = r; }));
+  punchMock.mockResolvedValue(result());
+  const { hook } = setup();
+
+  let first!: Promise<void>;
+  act(() => { first = hook.result.current.punch('KEY'); });
+  act(() => hook.result.current.reset());
+  resolveGps('1,2');
+  await act(() => first);
+
+  expect(punchMock.mock.calls[0][1].eventLogId).toBe('uuid-A');
+  expect(hook.result.current.state.status).toBe('success');
+});
+
+it('keeps the tag key for after sign-in when the token is expired (401)', async () => {
+  punchMock.mockRejectedValue({ statusCode: 401, message: 'Unauthorized' });
+  const { hook } = setup();
+  await act(() => hook.result.current.punch('KEY'));
+  expect(hook.result.current.state).toMatchObject({ status: 'error', kind: 'signed_out' });
+  expect(usePendingTagStore.getState().tagKey).toBe('KEY');
 });
 
 describe('classifyNfcPunchError', () => {
