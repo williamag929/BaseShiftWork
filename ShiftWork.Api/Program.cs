@@ -138,6 +138,7 @@ builder.Services.AddScoped<AuditInterceptor>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<ICompanyUserService, CompanyUserService>();
 builder.Services.AddScoped<IShiftEventService, ShiftEventService>();
+builder.Services.AddScoped<INfcPunchService, NfcPunchService>();
 builder.Services.AddScoped<IScheduleShiftSummaryService, ScheduleShiftSummaryService>();
 builder.Services.AddScoped<IKioskService, KioskService>();
 builder.Services.AddScoped<IPtoService, PtoService>();

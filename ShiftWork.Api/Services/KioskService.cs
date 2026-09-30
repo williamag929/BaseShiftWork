@@ -25,9 +25,6 @@ namespace ShiftWork.Api.Services
             _configuration = configuration;
         }
 
-        private static readonly TimeSpan MaxClockSkew = TimeSpan.FromMinutes(5);
-        private static readonly TimeSpan MaxPunchAge = TimeSpan.FromDays(7);
-
         private bool EnforcePin =>
             bool.TryParse(_configuration?["KioskSettings:EnforcePinOnClock"], out var enforce) && enforce;
 
@@ -123,7 +120,7 @@ namespace ShiftWork.Api.Services
             }
 
             var now = DateTime.UtcNow;
-            var eventDate = ResolveEventDate(request.EventDate, now);
+            var eventDate = PunchTime.Resolve(request.EventDate, now);
             await EnforcePinAsync(companyId, request, person);
 
             var shiftEvent = new ShiftEvent
@@ -181,24 +178,6 @@ namespace ShiftWork.Api.Services
             EventDate = e.EventDate,
             PersonName = person.Name,
         };
-
-        private static DateTime ResolveEventDate(DateTime? requested, DateTime nowUtc)
-        {
-            if (!requested.HasValue) return nowUtc;
-
-            var utc = requested.Value.Kind switch
-            {
-                DateTimeKind.Utc => requested.Value,
-                DateTimeKind.Local => requested.Value.ToUniversalTime(),
-                _ => DateTime.SpecifyKind(requested.Value, DateTimeKind.Utc),
-            };
-
-            if (utc > nowUtc + MaxClockSkew)
-                throw new ArgumentException("EventDate cannot be in the future.");
-            if (utc < nowUtc - MaxPunchAge)
-                throw new ArgumentException("EventDate is more than 7 days old.");
-            return utc;
-        }
 
         /// <summary>
         /// At PIN sites the punch must carry a valid PIN. Off by default (KioskSettings:EnforcePinOnClock)
