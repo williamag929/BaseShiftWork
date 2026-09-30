@@ -146,6 +146,7 @@ builder.Services.AddScoped<IScheduleValidationService, ScheduleValidationService
 builder.Services.AddScoped<ICompanyTimeZoneService, CompanyTimeZoneService>();
 builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 builder.Services.AddScoped<ILineupAccessService, LineupAccessService>();
+builder.Services.AddScoped<ILineupQueryService, LineupQueryService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<IAuditHistoryService, AuditHistoryService>();
 builder.Services.AddSingleton<NotificationLocalizer>();
