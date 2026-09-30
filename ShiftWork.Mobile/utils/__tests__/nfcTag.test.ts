@@ -1,4 +1,4 @@
-import { buildTagUrl, isValidTagKey, parseTagKey, NFC_TAG_URL_BASE } from '../nfcTag';
+import { buildTagUrl, isValidTagKey, isTagLaunchUrl, parseTagKey, NFC_TAG_URL_BASE } from '../nfcTag';
 
 const KEY = 'Ab3_-xyz0123456789ABCD';
 
@@ -41,5 +41,13 @@ describe('buildTagUrl / isValidTagKey', () => {
     expect(isValidTagKey(KEY)).toBe(true);
     expect(isValidTagKey('bad key')).toBe(false);
     expect(isValidTagKey('x'.repeat(65))).toBe(false);
+  });
+});
+
+describe('isTagLaunchUrl', () => {
+  it('is true for a tag link and false otherwise', () => {
+    expect(isTagLaunchUrl('https://t.loqzen.com/t/Ab3_-xyz0123456789ABCD')).toBe(true);
+    expect(isTagLaunchUrl('loqzen://dashboard')).toBe(false);
+    expect(isTagLaunchUrl(null)).toBe(false);
   });
 });

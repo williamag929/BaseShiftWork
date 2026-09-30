@@ -26,3 +26,8 @@ export function parseTagKey(url: string | null | undefined): string | null {
   }
   return isValidTagKey(key) ? key : null;
 }
+
+/** True when the app was opened by a tag link, so start-up must not navigate away from /t/<key>. */
+export function isTagLaunchUrl(url: string | null | undefined): boolean {
+  return parseTagKey(url) !== null;
+}
