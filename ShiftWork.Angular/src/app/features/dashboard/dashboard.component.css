@@ -503,3 +503,5 @@
 .nav-item:nth-child(6) { animation-delay: 0.3s; }
 .nav-item:nth-child(7) { animation-delay: 0.35s; }
 .nav-item:nth-child(8) { animation-delay: 0.4s; }
+.billing-banner { display: flex; align-items: center; gap: 12px; padding: 8px 16px; margin-bottom: 16px; border-radius: 8px; background: #fff4e5; }
+.billing-banner a { margin-left: auto; min-height: 48px; display: inline-flex; align-items: center; }

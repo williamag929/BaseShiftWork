@@ -1,0 +1,76 @@
+
+> shiftwork-mobile@1.0.0 test
+> node node_modules/jest-expo/bin/jest.js --passWithNoTests --ci
+
+PASS services/__tests__/safety.service.test.ts
+PASS services/__tests__/document.service.test.ts
+PASS services/__tests__/daily-report.service.test.ts
+PASS services/__tests__/bulletin.service.test.ts
+PASS services/__tests__/credential.service.test.ts
+PASS i18n/__tests__/parity.test.ts
+PASS services/__tests__/shift-event.service.test.ts
+PASS utils/__tests__/schemas.test.ts (6.696 s)
+PASS components/__tests__/LoginForm.test.tsx (8.472 s)
+PASS components/__tests__/ClockButton.test.tsx (9.837 s)
+PASS store/__tests__/authStore.test.ts (10.965 s)
+  ● Console
+
+    console.warn
+      expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Read more at https://docs.expo.dev/develop/development-builds/introduction/.
+
+    [0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mNotifications[39m [36mfrom[39m [32m'expo-notifications'[39m[33m;[39m
+     [90m   |[39m [31m[1m^[22m[39m
+     [90m 2 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mDevice[39m [36mfrom[39m [32m'expo-device'[39m[33m;[39m
+     [90m 3 |[39m [36mimport[39m [33mConstants[39m [36mfrom[39m [32m'expo-constants'[39m[33m;[39m
+     [90m 4 |[39m [36mimport[39m { [33mPlatform[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m[0m
+
+      at warn (node_modules/expo-notifications/src/warnOfExpoGoPushUsage.ts:14:15)
+      at addPushTokenListener (node_modules/expo-notifications/src/TokenEmitter.ts:44:24)
+      at Object.<anonymous> (node_modules/expo-notifications/src/DevicePushTokenAutoRegistration.fx.ts:86:23)
+      at Object.require (node_modules/expo-notifications/src/getExpoPushTokenAsync.ts:5:1)
+      at Object.require (node_modules/expo-notifications/src/index.ts:16:1)
+      at Object.require (services/notification.service.ts:1:1)
+      at Object.require (store/authStore.ts:6:1)
+      at Object.require (store/__tests__/authStore.test.ts:10:1)
+
+    console.log
+      [API] Base URL: http://localhost:5182
+
+      at Object.apply [as log] (utils/logger.ts:10:27)
+
+PASS hooks/__tests__/useClockAction.test.ts (11.38 s)
+  ● Console
+
+    console.log
+      [API] Base URL: http://localhost:5182
+
+      at Object.apply [as log] (utils/logger.ts:10:27)
+
+PASS services/__tests__/api-client.test.ts (11.577 s)
+  ● Console
+
+    console.warn
+      expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Read more at https://docs.expo.dev/develop/development-builds/introduction/.
+
+    [0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mNotifications[39m [36mfrom[39m [32m'expo-notifications'[39m[33m;[39m
+     [90m   |[39m [31m[1m^[22m[39m
+     [90m 2 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mDevice[39m [36mfrom[39m [32m'expo-device'[39m[33m;[39m
+     [90m 3 |[39m [36mimport[39m [33mConstants[39m [36mfrom[39m [32m'expo-constants'[39m[33m;[39m
+     [90m 4 |[39m [36mimport[39m { [33mPlatform[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m[0m
+
+      at warn (node_modules/expo-notifications/src/warnOfExpoGoPushUsage.ts:14:15)
+      at addPushTokenListener (node_modules/expo-notifications/src/TokenEmitter.ts:44:24)
+      at Object.<anonymous> (node_modules/expo-notifications/src/DevicePushTokenAutoRegistration.fx.ts:86:23)
+      at Object.require (node_modules/expo-notifications/src/getExpoPushTokenAsync.ts:5:1)
+      at Object.require (node_modules/expo-notifications/src/index.ts:16:1)
+      at Object.require (services/notification.service.ts:1:1)
+      at Object.require (store/authStore.ts:6:1)
+      at Object.require (services/api-client.ts:8:1)
+      at Object.require (services/__tests__/api-client.test.ts:10:1)
+
+
+Test Suites: 13 passed, 13 total
+Tests:       66 passed, 66 total
+Snapshots:   0 total
+Time:        14.192 s, estimated 96 s
+Ran all test suites.

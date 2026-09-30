@@ -16,6 +16,7 @@ export interface CompanyRegistrationRequest {
 export interface CompanyRegistrationResponse {
   companyId: string;
   plan: string;
+  trialEndsAt?: string | null;
   onboardingStatus: string;
   adminUser: any;
 }
@@ -25,18 +26,6 @@ export interface SandboxStatusResponse {
   sandboxPersonCount: number;
   sandboxAreaCount: number;
   sandboxLocationCount: number;
-}
-
-export interface PlanUpgradeRequest {
-  stripePaymentMethodId: string;
-  targetPlan: string;
-}
-
-export interface PlanUpgradeResponse {
-  success: boolean;
-  plan: string;
-  stripeSubscriptionId?: string;
-  message: string;
 }
 
 @Injectable({
@@ -96,14 +85,6 @@ export class RegistrationService {
     return this.http.post<void>(
       `${this.apiUrl}/companies/${companyId}/sandbox/delete`,
       {},
-      this.jsonHeaders()
-    );
-  }
-
-  upgradePlan(companyId: string, request: PlanUpgradeRequest): Observable<PlanUpgradeResponse> {
-    return this.http.post<PlanUpgradeResponse>(
-      `${this.apiUrl}/companies/${companyId}/plan/upgrade`,
-      request,
       this.jsonHeaders()
     );
   }

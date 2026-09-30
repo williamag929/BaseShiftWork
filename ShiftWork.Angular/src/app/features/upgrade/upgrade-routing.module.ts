@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { UpgradeComponent } from './upgrade.component';
 
+// Kept so existing links to /upgrade (e.g. onboarding) still land somewhere useful.
 const routes: Routes = [
-  { path: '', component: UpgradeComponent }
+  { path: '', redirectTo: '/dashboard/billing', pathMatch: 'full' }
 ];
 
 @NgModule({

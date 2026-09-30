@@ -49,6 +49,7 @@ namespace ShiftWork.Api.DTOs
     {
         public string CompanyId { get; set; } = string.Empty;
         public string Plan { get; set; } = "Free";
+        public DateTime? TrialEndsAt { get; set; }
         public string OnboardingStatus { get; set; } = "Pending";
         public CompanyUserDto AdminUser { get; set; } = null!;
     }
@@ -71,26 +72,6 @@ namespace ShiftWork.Api.DTOs
         public int SandboxPersonCount { get; set; }
         public int SandboxAreaCount { get; set; }
         public int SandboxLocationCount { get; set; }
-    }
-
-    /// <summary>
-    /// Request body for POST /api/companies/{companyId}/plan/upgrade.
-    /// </summary>
-    public class PlanUpgradeRequest
-    {
-        public string StripePaymentMethodId { get; set; } = string.Empty;
-        public string TargetPlan { get; set; } = "Pro";
-    }
-
-    /// <summary>
-    /// Response from POST /api/companies/{companyId}/plan/upgrade.
-    /// </summary>
-    public class PlanUpgradeResponse
-    {
-        public bool Success { get; set; }
-        public string Plan { get; set; } = string.Empty;
-        public string? StripeSubscriptionId { get; set; }
-        public string Message { get; set; } = string.Empty;
     }
 
     /// <summary>

@@ -54,6 +54,13 @@ services:
       EXPO_PUSH_API_URL: "${EXPO_PUSH_API_URL:-https://exp.host/--/api/v2/push/send}"
       # Weather (daily reports)
       OPENWEATHER_API_KEY: "${OPENWEATHER_API_KEY}"
+      # Stripe billing (test keys in dev; see Docs/STRIPE_BILLING_RUNBOOK.md)
+      STRIPE_SECRET_KEY: "${STRIPE_SECRET_KEY}"
+      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET}"
+      STRIPE_PRICE_STARTER: "${STRIPE_PRICE_STARTER}"
+      STRIPE_PRICE_PRO: "${STRIPE_PRICE_PRO}"
+      STRIPE_PRICE_BUSINESS: "${STRIPE_PRICE_BUSINESS}"
+      APP_BASE_URL: "${APP_BASE_URL:-http://localhost:4200}"
       # Observability — must match prometheus's copy of the same var below, or every scrape 401s.
       METRICS_SCRAPE_TOKEN: "${METRICS_SCRAPE_TOKEN}"
     ports:

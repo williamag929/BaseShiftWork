@@ -119,6 +119,7 @@ builder.Services.AddScoped<IProcoreService, ProcoreService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IPeopleService, PeopleService>();
+builder.Services.AddScoped<IPlanEnforcementService, PlanEnforcementService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
@@ -167,6 +168,11 @@ builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler
 // Registration & Onboarding feature services
 builder.Services.AddScoped<ISandboxService, SandboxService>();
 builder.Services.AddScoped<IPlanService, PlanService>();
+builder.Services.AddSingleton(StripeSettings.FromEnvironment());
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<IStripeGateway, StripeGateway>();
+builder.Services.AddScoped<IBillingService, BillingService>();
+builder.Services.AddScoped<IStripeWebhookService, StripeWebhookService>();
 
 // Rate limiting: protect /api/auth/register from brute-force / account enumeration
 builder.Services.AddRateLimiter(options =>
@@ -390,6 +396,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("companies.create", policy => policy.Requirements.Add(new PermissionRequirement("companies.create")));
     options.AddPolicy("companies.update", policy => policy.Requirements.Add(new PermissionRequirement("companies.update")));
     options.AddPolicy("companies.delete", policy => policy.Requirements.Add(new PermissionRequirement("companies.delete")));
+    options.AddPolicy("companies.billing", policy => policy.Requirements.Add(new PermissionRequirement("companies.billing")));
 
     options.AddPolicy("kiosk.admin", policy => policy.Requirements.Add(new PermissionRequirement("kiosk.admin")));
 

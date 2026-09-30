@@ -209,6 +209,9 @@ namespace ShiftWork.Api.Migrations
                     b.Property<string>("Currency")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("CurrentPeriodEnd")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -240,19 +243,29 @@ namespace ShiftWork.Api.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StripeCustomerId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("StripeSubscriptionId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubscriptionStatus")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TimeZone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("TrialEndsAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Website")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CompanyId");
+
+                    b.HasIndex("StripeCustomerId")
+                        .IsUnique()
+                        .HasFilter("[StripeCustomerId] IS NOT NULL");
 
                     b.ToTable("Companies", (string)null);
                 });
@@ -1787,6 +1800,25 @@ namespace ShiftWork.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("ShiftSummaryApprovals");
+                });
+
+            modelBuilder.Entity("ShiftWork.Api.Models.StripeProcessedEvent", b =>
+                {
+                    b.Property<string>("EventId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("ProcessedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("EventId");
+
+                    b.ToTable("StripeProcessedEvents", (string)null);
                 });
 
             modelBuilder.Entity("ShiftWork.Api.Models.TaskShift", b =>

@@ -1,0 +1,4266 @@
+﻿diff --git a/.gitignore b/.gitignore
+index 1002864..c2d9b28 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -55,20 +55,21 @@ nunit-*.xml
+ /ShiftWork.Angular/.angular
+ ShiftWork.Angular/.env
+ ShiftWork.Api/.env
+ /ShiftWork.Angular/node_modules
+ /node_modules
+ python_client/.env
+ /python_client/.venv
+ /python_client/env
+ # Python cache
+ __pycache__/
+ *.py[cod]
+ *$py.class
+ ShiftWork.Angular/yarn.lock
+ /ShiftWork.Angular/dist
+ docker-compose.yml
+ ShiftWork.Kiosk/.env
+ ShiftWork.Kiosk/node_modules
+ .env
+ .claude/settings.local.json
+ .claude/settings.local.json
++.env.example
+diff --git a/ShiftWork.Angular/src/app/core/guards/feature-access.guard.ts b/ShiftWork.Angular/src/app/core/guards/feature-access.guard.ts
+new file mode 100644
+index 0000000..f0e9124
+--- /dev/null
++++ b/ShiftWork.Angular/src/app/core/guards/feature-access.guard.ts
+@@ -0,0 +1,53 @@
++import { Injectable } from '@angular/core';
++import { Router, CanActivate, ActivatedRouteSnapshot } from '@angular/router';
++import { AuthService } from '../services/auth.service';
++import { BillingService } from '../services/billing.service';
++
++@Injectable({
++  providedIn: 'root'
++})
++export class FeatureAccessGuard implements CanActivate {
++  constructor(
++    private authService: AuthService,
++    private billingService: BillingService,
++    private router: Router
++  ) {}
++
++  async canActivate(route: ActivatedRouteSnapshot): Promise<boolean> {
++    const requiredPlan = route.data['requiredPlan'] as string | undefined;
++
++    if (!requiredPlan) {
++      return true;
++    }
++
++    const company = this.authService.activeCompany;
++    if (!company) {
++      this.router.navigate(['/sign-in']);
++      return false;
++    }
++
++    // Check if trial has expired
++    const billingInfo = this.billingService.getCurrentBillingInfo();
++    if (billingInfo?.isTrialExpired && billingInfo?.plan === 'Free') {
++      this.showUpgradeRequired('Trial expired', 'Your free trial has ended. Please upgrade to continue.');
++      return false;
++    }
++
++    if (requiredPlan === 'Pro' && company.plan !== 'Pro') {
++      this.showUpgradeRequired(
++        'Pro feature',
++        `This feature requires the Pro plan. Upgrade now to unlock it.`
++      );
++      return false;
++    }
++
++    return true;
++  }
++
++  private showUpgradeRequired(title: string, message: string): void {
++    // Store message in sessionStorage so the component can display it
++    sessionStorage.setItem('featureBlockedTitle', title);
++    sessionStorage.setItem('featureBlockedMessage', message);
++    this.router.navigate(['/dashboard/upgrade']);
++  }
++}
+diff --git a/ShiftWork.Angular/src/app/core/services/billing.service.ts b/ShiftWork.Angular/src/app/core/services/billing.service.ts
+new file mode 100644
+index 0000000..aa483db
+--- /dev/null
++++ b/ShiftWork.Angular/src/app/core/services/billing.service.ts
+@@ -0,0 +1,54 @@
++import { Injectable } from '@angular/core';
++import { HttpClient } from '@angular/common/http';
++import { environment } from '../../../environments/environment';
++import { BehaviorSubject, Observable } from 'rxjs';
++
++export interface CompanyBillingInfo {
++  companyId: string;
++  name: string;
++  plan: string;
++  trialDaysRemaining: number;
++  planExpiresAt: string | null;
++  employeeCount: number;
++  employeeLimit: number;
++  isTrialExpired: boolean;
++}
++
++@Injectable({
++  providedIn: 'root'
++})
++export class BillingService {
++  public billingInfoSubject = new BehaviorSubject<CompanyBillingInfo | null>(null);
++  public billingInfo$ = this.billingInfoSubject.asObservable();
++
++  constructor(private http: HttpClient) {}
++
++  getBillingInfo(companyId: string): Observable<CompanyBillingInfo> {
++    return this.http.get<CompanyBillingInfo>(
++      `${environment.apiUrl}/api/companies/${companyId}/billing`
++    );
++  }
++
++  refreshBillingInfo(companyId: string): void {
++    this.getBillingInfo(companyId).subscribe({
++      next: (info) => this.billingInfoSubject.next(info),
++      error: (error) => console.error('Failed to refresh billing info:', error)
++    });
++  }
++
++  getCurrentBillingInfo(): CompanyBillingInfo | null {
++    return this.billingInfoSubject.value;
++  }
++
++  openBillingPortal(companyId: string, returnUrl: string): void {
++    this.http.post<{ portalUrl: string }>(
++      `${environment.apiUrl}/api/companies/${companyId}/billing-portal-session`,
++      { returnUrl }
++    ).subscribe({
++      next: (response) => {
++        window.location.href = response.portalUrl;
++      },
++      error: (error) => console.error('Failed to open billing portal:', error)
++    });
++  }
++}
+diff --git a/ShiftWork.Angular/src/app/core/services/plan.service.ts b/ShiftWork.Angular/src/app/core/services/plan.service.ts
+new file mode 100644
+index 0000000..7914433
+--- /dev/null
++++ b/ShiftWork.Angular/src/app/core/services/plan.service.ts
+@@ -0,0 +1,32 @@
++import { Injectable } from '@angular/core';
++import { HttpClient } from '@angular/common/http';
++import { environment } from '../../../environments/environment';
++import { Observable } from 'rxjs';
++
++export interface PlanUpgradeRequest {
++  stripePaymentMethodId: string;
++  targetPlan: string;
++}
++
++export interface PlanUpgradeResponse {
++  success: boolean;
++  plan: string;
++  stripeSubscriptionId?: string;
++  message: string;
++}
++
++@Injectable({
++  providedIn: 'root'
++})
++export class PlanService {
++  private apiUrl = environment.apiUrl;
++
++  constructor(private http: HttpClient) {}
++
++  upgradePlan(companyId: string, request: PlanUpgradeRequest): Observable<PlanUpgradeResponse> {
++    return this.http.post<PlanUpgradeResponse>(
++      `${this.apiUrl}/companies/${companyId}/plan/upgrade`,
++      request
++    );
++  }
++}
+diff --git a/ShiftWork.Angular/src/app/core/services/registration.service.ts b/ShiftWork.Angular/src/app/core/services/registration.service.ts
+index 66828e9..8dd31ea 100644
+--- a/ShiftWork.Angular/src/app/core/services/registration.service.ts
++++ b/ShiftWork.Angular/src/app/core/services/registration.service.ts
+@@ -1,123 +1,69 @@
+ import { Injectable } from '@angular/core';
+-import { HttpClient, HttpHeaders } from '@angular/common/http';
+-import { Observable } from 'rxjs';
++import { HttpClient } from '@angular/common/http';
++import { AngularFireAuth } from '@angular/fire/compat/auth';
+ import { environment } from '../../../environments/environment';
++import { Observable } from 'rxjs';
+ 
+ export interface CompanyRegistrationRequest {
+   firebaseUid: string;
+   userEmail: string;
+   userDisplayName: string;
+   companyName: string;
+   companyEmail: string;
+   companyPhone?: string;
+   timeZone: string;
+ }
+ 
+ export interface CompanyRegistrationResponse {
+   companyId: string;
+   plan: string;
+   onboardingStatus: string;
+   adminUser: any;
+ }
+ 
+-export interface SandboxStatusResponse {
+-  hasSandboxData: boolean;
+-  sandboxPersonCount: number;
+-  sandboxAreaCount: number;
+-  sandboxLocationCount: number;
+-}
+-
+-export interface PlanUpgradeRequest {
+-  stripePaymentMethodId: string;
+-  targetPlan: string;
+-}
+-
+-export interface PlanUpgradeResponse {
+-  success: boolean;
+-  plan: string;
+-  stripeSubscriptionId?: string;
+-  message: string;
+-}
+-
+ @Injectable({
+   providedIn: 'root'
+ })
+ export class RegistrationService {
+-  private readonly apiUrl = environment.apiUrl;
++  private apiUrl = environment.apiUrl;
+ 
+-  constructor(private http: HttpClient) {}
+-
+-  private jsonHeaders() {
+-    return { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) };
+-  }
++  constructor(
++    private http: HttpClient,
++    private afAuth: AngularFireAuth
++  ) {}
+ 
+   /**
+-   * POST /api/auth/register ΓÇö public endpoint.
+-   * `idToken` is the Firebase ID token for the newly-created account and is sent
+-   * as the Authorization: Bearer header. Passing it explicitly avoids a race
+-   * condition where the HttpInterceptor's authState observable hasn't yet
+-   * received the freshly-created user and would omit the header entirely.
++   * Registers a new company. Caller must already have a Firebase user created.
++   * This method gets the Firebase ID token and sends it with the company info to the backend.
+    */
+-  register(request: CompanyRegistrationRequest, idToken: string): Observable<CompanyRegistrationResponse> {
+-    const headers = new HttpHeaders({
+-      'Content-Type': 'application/json',
+-      'Authorization': `Bearer ${idToken}`
+-    });
+-    return this.http.post<CompanyRegistrationResponse>(
+-      `${this.apiUrl}/auth/register`,
+-      request,
+-      { headers }
+-    );
+-  }
+-
+-  getSandboxStatus(companyId: string): Observable<SandboxStatusResponse> {
+-    return this.http.get<SandboxStatusResponse>(
+-      `${this.apiUrl}/companies/${companyId}/sandbox/status`
+-    );
+-  }
++  async registerCompany(data: Omit<CompanyRegistrationRequest, 'firebaseUid'>): Promise<CompanyRegistrationResponse> {
++    const currentUser = await this.afAuth.currentUser;
++    if (!currentUser) {
++      throw new Error('No Firebase user found. Please sign up first.');
++    }
+ 
+-  hideSandboxData(companyId: string, entityTypes: string[] = ['All']): Observable<void> {
+-    return this.http.post<void>(
+-      `${this.apiUrl}/companies/${companyId}/sandbox/hide`,
+-      { entityTypes },
+-      this.jsonHeaders()
+-    );
+-  }
++    const idToken = await currentUser.getIdToken();
++    const firebaseUid = currentUser.uid;
+ 
+-  resetSandboxData(companyId: string): Observable<void> {
+-    return this.http.post<void>(
+-      `${this.apiUrl}/companies/${companyId}/sandbox/reset`,
+-      {},
+-      this.jsonHeaders()
+-    );
+-  }
++    const request: CompanyRegistrationRequest = {
++      firebaseUid,
++      ...data
++    };
+ 
+-  deleteSandboxData(companyId: string): Observable<void> {
+-    return this.http.post<void>(
+-      `${this.apiUrl}/companies/${companyId}/sandbox/delete`,
+-      {},
+-      this.jsonHeaders()
+-    );
+-  }
++    return new Promise((resolve, reject) => {
++      const headers = {
++        'Content-Type': 'application/json',
++        'Authorization': `Bearer ${idToken}`
++      };
+ 
+-  upgradePlan(companyId: string, request: PlanUpgradeRequest): Observable<PlanUpgradeResponse> {
+-    return this.http.post<PlanUpgradeResponse>(
+-      `${this.apiUrl}/companies/${companyId}/plan/upgrade`,
+-      request,
+-      this.jsonHeaders()
+-    );
+-  }
+-
+-  /**
+-   * PATCH /api/companies/{companyId}/onboarding-status
+-   * Sets OnboardingStatus ("Pending" | "Verified" | "Complete") on the company.
+-   * Called client-side after Firebase email verification is confirmed.
+-   */
+-  patchOnboardingStatus(companyId: string, status: string): Observable<void> {
+-    return this.http.patch<void>(
+-      `${this.apiUrl}/companies/${companyId}/onboarding-status`,
+-      { status },
+-      this.jsonHeaders()
+-    );
++      this.http.post<CompanyRegistrationResponse>(
++        `${this.apiUrl}/auth/register`,
++        request,
++        { headers }
++      ).subscribe({
++        next: (response) => resolve(response),
++        error: (error) => reject(error)
++      });
++    });
+   }
+ }
+diff --git a/ShiftWork.Angular/src/app/features/dashboard/company-settings.component.css b/ShiftWork.Angular/src/app/features/dashboard/company-settings.component.css
+index 63022be..00c64a9 100644
+--- a/ShiftWork.Angular/src/app/features/dashboard/company-settings.component.css
++++ b/ShiftWork.Angular/src/app/features/dashboard/company-settings.component.css
+@@ -336,20 +336,57 @@
+   cursor: pointer;
+   font-size: 16px;
+   padding: 4px 6px;
+   border-radius: 4px;
+   transition: background 0.15s;
+ }
+ 
+ .btn-icon:hover { background: rgba(0,0,0,0.06); }
+ 
+ .question-form {
+   background: #f5f5f5;
+   border: 1px solid #ddd;
+   border-radius: 8px;
+   padding: 20px;
+   margin-top: 12px;
+ }
+ 
+ .question-form h4 { margin: 0 0 16px; font-size: 15px; color: #333; }
+ 
+ .form-actions { display: flex; gap: 10px; margin-top: 16px; }
++
++/* ΓöÇΓöÇ Billing ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
++.billing-info {
++  padding: 20px;
++  background-color: #f0f9ff;
++  border: 1px solid #b3e5fc;
++  border-radius: 6px;
++  margin-bottom: 20px;
++}
++
++.billing-info p {
++  margin: 0 0 15px 0;
++  color: #555;
++  font-size: 14px;
++  line-height: 1.5;
++}
++
++.btn-primary {
++  padding: 12px 28px;
++  background-color: #007bff;
++  color: white;
++  border: none;
++  border-radius: 4px;
++  font-size: 15px;
++  font-weight: 500;
++  cursor: pointer;
++  transition: background-color 0.3s;
++}
++
++.btn-primary:hover {
++  background-color: #0056b3;
++}
++
++.btn-primary:disabled {
++  background-color: #ccc;
++  cursor: not-allowed;
++}
+diff --git a/ShiftWork.Angular/src/app/features/dashboard/company-settings.component.html b/ShiftWork.Angular/src/app/features/dashboard/company-settings.component.html
+index 72b3cf6..ea24033 100644
+--- a/ShiftWork.Angular/src/app/features/dashboard/company-settings.component.html
++++ b/ShiftWork.Angular/src/app/features/dashboard/company-settings.component.html
+@@ -48,40 +48,47 @@
+       class="tab"
+       [class.active]="activeTab === 'notifications'"
+       (click)="setActiveTab('notifications')"
+       i18n="@@settings.tab_notifications">
+       Notifications
+     </button>
+     <button
+       class="tab"
+       [class.active]="activeTab === 'system'"
+       (click)="setActiveTab('system')"
+       i18n="@@settings.tab_system">
+       System
+     </button>
+     <button
+       class="tab"
+       [class.active]="activeTab === 'kiosk'"
+       (click)="setActiveTab('kiosk')"
+       i18n="@@settings.tab_kiosk">
+       Kiosk
+     </button>
++    <button
++      class="tab"
++      [class.active]="activeTab === 'billing'"
++      (click)="setActiveTab('billing')"
++      i18n="@@settings.tab_billing">
++      Billing
++    </button>
+   </div>
+ 
+   <!-- Tab Content -->
+   <div class="tab-content" *ngIf="!loading">
+ 
+     <!-- Time & Regional Settings -->
+     <div *ngIf="activeTab === 'time-regional'" class="settings-section">
+       <h2 i18n="@@settings.time_regional_heading">Time & Regional Settings</h2>
+ 
+       <div class="form-group">
+         <label for="defaultTimeZone" i18n="@@settings.timezone">Default Time Zone</label>
+         <select id="defaultTimeZone" [(ngModel)]="settings.defaultTimeZone">
+           <option value="" disabled i18n="@@settings.timezone_select">Select a Timezone</option>
+           <option *ngFor="let tz of timezones" [value]="tz.value">{{ tz.name }}</option>
+         </select>
+       </div>
+ 
+       <div class="form-group">
+         <label for="defaultLanguage" i18n="@@settings.language">Default Language</label>
+         <select id="defaultLanguage" [(ngModel)]="settings.defaultLanguage">
+@@ -535,31 +542,46 @@
+           </div>
+ 
+           <div class="form-group">
+             <label i18n="@@settings.display_order">Display Order</label>
+             <input type="number" [(ngModel)]="questionForm.displayOrder" min="0" step="1" style="width:80px">
+           </div>
+ 
+           <div class="form-actions">
+             <button class="btn-save" (click)="saveQuestion()" [disabled]="savingQuestion || !questionForm.questionText.trim()" type="button">
+               <ng-container *ngIf="savingQuestion" i18n="@@settings.saving_question">SavingΓÇª</ng-container>
+               <ng-container *ngIf="!savingQuestion && editingQuestion" i18n="@@settings.update_btn">Update</ng-container>
+               <ng-container *ngIf="!savingQuestion && !editingQuestion" i18n="@@settings.create_btn">Create</ng-container>
+             </button>
+             <button class="btn-cancel" (click)="cancelQuestionForm()" type="button" i18n="@@settings.cancel_question">Cancel</button>
+           </div>
+         </div>
+       </div>
+ 
+     </div>
+ 
++    <!-- Billing Settings -->
++    <div *ngIf="activeTab === 'billing'" class="settings-section">
++      <h2 i18n="@@settings.billing_heading">Billing & Subscription</h2>
++
++      <div class="billing-info">
++        <p i18n="@@settings.billing_description">
++          Manage your subscription, view invoices, update payment method, and access billing history.
++        </p>
++
++        <button class="btn-primary" (click)="openBillingPortal()" type="button" i18n="@@settings.manage_subscription">
++          ≡ƒÆ│ Manage Subscription
++        </button>
++      </div>
++    </div>
++
+   </div>
+ 
+   <div *ngIf="loading" class="loading-message" i18n="@@settings.loading">
+     Loading settings...
+   </div>
+ </div>
+ 
+ <!-- Empty state when no company is selected or settings not loaded -->
+ <div *ngIf="!loading && !settings" class="loading-message" i18n="@@settings.no_company">
+   Select a company to view and edit its settings.
+ </div>
+diff --git a/ShiftWork.Angular/src/app/features/dashboard/company-settings.component.ts b/ShiftWork.Angular/src/app/features/dashboard/company-settings.component.ts
+index c71db99..5048056 100644
+--- a/ShiftWork.Angular/src/app/features/dashboard/company-settings.component.ts
++++ b/ShiftWork.Angular/src/app/features/dashboard/company-settings.component.ts
+@@ -1,67 +1,69 @@
+ import { Component, OnDestroy, OnInit } from '@angular/core';
+ import { CommonModule } from '@angular/common';
+ import { FormsModule } from '@angular/forms';
+ import { Store } from '@ngrx/store';
+ import { Observable, Subject, of } from 'rxjs';
+ import { catchError, delay, retry, switchMap, takeUntil, tap } from 'rxjs/operators';
+ import { AppState } from 'src/app/store/app.state';
+ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
+ import { Company } from 'src/app/core/models/company.model';
+ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+ import { CompanySettingsService } from 'src/app/core/services/company-settings.service';
++import { BillingService } from 'src/app/core/services/billing.service';
+ import { CompanySettings } from 'src/app/core/models/company-settings.model';
+ import { TIMEZONES } from 'src/app/core/data/timezones';
+ import { Timezone } from 'src/app/core/models/timezone.model';
+ import { KioskService } from '../kiosk/core/services/kiosk.service';
+ import { KioskQuestion, CreateKioskQuestionDto } from '../kiosk/core/models/kiosk-question.model';
+ 
+ @Component({
+   selector: 'app-company-settings',
+   standalone: true,
+   imports: [CommonModule, FormsModule, MatSnackBarModule],
+   templateUrl: './company-settings.component.html',
+   styleUrls: ['./company-settings.component.css']
+ })
+ export class CompanySettingsComponent implements OnInit, OnDestroy {
+   settings: CompanySettings | null = null;
+   loading = false;
+   saving = false;
+   activeCompany: any;
+   activeTab: string = 'time-regional';
+   timezones: Timezone[] = TIMEZONES;
+   company$: Observable<Company | null>;
+   companyId: string | null = null;
+   private destroy$ = new Subject<void>();
+ 
+   // ΓöÇΓöÇ Kiosk question management ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+   kioskQuestions: KioskQuestion[] = [];
+   kioskQuestionsLoading = false;
+   showQuestionForm = false;
+   editingQuestion: KioskQuestion | null = null;
+   questionForm: CreateKioskQuestionDto = this.blankQuestionForm();
+   savingQuestion = false;
+   questionOptionsText = '';
+ 
+   constructor(
+     private settingsService: CompanySettingsService,
+     private kioskService: KioskService,
++    private billingService: BillingService,
+     private store: Store<AppState>,
+     private snackBar: MatSnackBar
+   ) {
+     this.company$ = this.store.select(selectActiveCompany);
+ 
+ 
+     this.company$.subscribe((company: any) => {
+       if (company) {
+         this.activeCompany = company;
+         console.log('Active company set:', this.activeCompany);
+       } else {
+         console.log('No active company found');
+       }
+     });
+ 
+   }
+ 
+   ngOnInit(): void {
+     this.company$
+       .pipe(
+@@ -228,21 +230,31 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
+ 
+     this.kioskService.deleteQuestion(this.companyId, q.kioskQuestionId).subscribe({
+       next: () => {
+         this.kioskQuestions = this.kioskQuestions.filter(x => x.kioskQuestionId !== q.kioskQuestionId);
+         this.snackBar.open('Question deleted', 'Close', { duration: 2000 });
+       },
+       error: () => this.snackBar.open('Failed to delete question', 'Close', { duration: 3000 })
+     });
+   }
+ 
+   private blankQuestionForm(): CreateKioskQuestionDto {
+     return {
+       questionText: '',
+       questionType: 'yes_no',
+       options: [],
+       isRequired: false,
+       isActive: true,
+       displayOrder: 0,
+     };
+   }
++
++  openBillingPortal(): void {
++    if (!this.companyId) {
++      this.snackBar.open('No company selected', 'Close', { duration: 3000 });
++      return;
++    }
++
++    const currentUrl = window.location.origin + '/dashboard/company-settings';
++    this.billingService.openBillingPortal(this.companyId, currentUrl);
++  }
+ }
+diff --git a/ShiftWork.Angular/src/app/features/dashboard/dashboard.component.html b/ShiftWork.Angular/src/app/features/dashboard/dashboard.component.html
+index 133bc1d..efc34b7 100644
+--- a/ShiftWork.Angular/src/app/features/dashboard/dashboard.component.html
++++ b/ShiftWork.Angular/src/app/features/dashboard/dashboard.component.html
+@@ -285,28 +285,31 @@
+                 <span matListItemTitle>Holidays</span>
+               </div>
+             </a>
+             -->
+ 
+             <a mat-list-item routerLink="/dashboard/help" routerLinkActive="active-link" class="nav-item sub-item">
+               <div class="nav-item-content">
+                 <mat-icon matListItemIcon>help_outline</mat-icon>
+                 <span matListItemTitle i18n="@@nav.web_help">Help</span>
+               </div>
+             </a>
+ 
+           </div>
+         </mat-expansion-panel>
+       </mat-nav-list>
+     </mat-sidenav>
+ 
+     <!-- Main Content Area -->
+     <mat-sidenav-content class="main-content">
+       <div class="content-wrapper">
++        <!-- Trial Badge -->
++        <app-trial-badge [billingInfo]="(billingInfo$ | async)"></app-trial-badge>
++
+         <router-outlet></router-outlet>
+       </div>
+     </mat-sidenav-content>
+   </mat-sidenav-container>
+ </div>
+ 
+ <!-- Guided tour overlay ΓÇö rendered outside main layout so z-index works -->
+ <app-tour-overlay></app-tour-overlay>
+diff --git a/ShiftWork.Angular/src/app/features/dashboard/dashboard.component.ts b/ShiftWork.Angular/src/app/features/dashboard/dashboard.component.ts
+index 24fc4f8..38cde62 100644
+--- a/ShiftWork.Angular/src/app/features/dashboard/dashboard.component.ts
++++ b/ShiftWork.Angular/src/app/features/dashboard/dashboard.component.ts
+@@ -1,72 +1,90 @@
+ import { Component, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
+ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+ import { Observable, Subscription, combineLatest, of, BehaviorSubject, interval } from 'rxjs';
+ import { map, shareReplay, withLatestFrom, filter, switchMap, startWith, catchError } from 'rxjs/operators';
+ import { MatSidenav } from '@angular/material/sidenav';
+ import { Router, NavigationEnd } from '@angular/router';
+ import { Store } from '@ngrx/store';
+ import { AppState } from 'src/app/store/app.state';
+ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
+ import { AuthService } from 'src/app/core/services/auth.service';
+ import { PeopleService } from 'src/app/core/services/people.service';
+ import { PermissionService } from 'src/app/core/services/permission.service';
++import { BillingService, CompanyBillingInfo } from 'src/app/core/services/billing.service';
+ import { environment } from 'src/environments/environment';
+ import { TourService } from 'src/app/shared/tour/tour.service';
+ 
+ @Component({
+   selector: 'app-dashboard',
+   templateUrl: './dashboard.component.html',
+   styleUrls: ['./dashboard.component.css'],
+   standalone: false
+ })
+ export class DashboardComponent implements OnDestroy, AfterViewInit {
+   @ViewChild('sidenav') sidenav!: MatSidenav;
+ 
+   activeCompany$: Observable<any>;
++  billingInfo$: Observable<CompanyBillingInfo | null>;
+   private routerSubscription: Subscription = Subscription.EMPTY;
+   private statusRefreshSub: Subscription = Subscription.EMPTY;
+ 
+   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
+     .pipe(
+       map(result => result.matches),
+       shareReplay()
+     );
+ 
+   user$: Observable<any>;
+   personStatus$: Observable<string | null> = of(null);
+   lastStatusUpdate: Date | null = null;
+   refreshing = false;
+   private refreshTrigger$ = new BehaviorSubject<void>(undefined);
+   private statusRefreshIntervalMs = environment.kioskStatusRefreshMs || 45000;
+ 
+   constructor(
+     private breakpointObserver: BreakpointObserver,
+     private authService: AuthService,
+     private store: Store<AppState>,
+     private router: Router,
+     private peopleService: PeopleService,
+     public tourService: TourService,
+-    private permissionService: PermissionService
++    private permissionService: PermissionService,
++    private billingService: BillingService
+   ) {
+     this.activeCompany$ = this.store.select(selectActiveCompany);
+     this.user$ = this.authService.user$;
++    this.billingInfo$ = this.billingService.billingInfo$;
++
++    // Load billing info when company changes
++    this.activeCompany$.pipe(
++      filter(company => !!company),
++      switchMap(company => this.billingService.getBillingInfo(company.companyId)),
++      catchError(error => {
++        console.error('Failed to load billing info:', error);
++        return of(null);
++      })
++    ).subscribe(info => {
++      if (info) {
++        this.billingService.billingInfoSubject.next(info);
++      }
++    });
+ 
+     // Combine active company, user, and refresh trigger to load live person status
+     this.personStatus$ = combineLatest([
+       this.activeCompany$, 
+       this.user$, 
+       this.refreshTrigger$
+     ]).pipe(
+       filter(([company, user]) => !!company && !!user?.personId),
+       switchMap(([company, user]: any) => {
+         this.refreshing = true;
+         return this.peopleService.getPersonStatus(company.companyId, user.personId).pipe(
+           map(status => {
+             this.refreshing = false;
+             this.lastStatusUpdate = new Date();
+             return status || user.statusShiftWork || null;
+           }),
+           catchError(() => {
+             this.refreshing = false;
+             this.lastStatusUpdate = new Date();
+             return of(user.statusShiftWork || null);
+diff --git a/ShiftWork.Angular/src/app/features/dashboard/dashboard.module.ts b/ShiftWork.Angular/src/app/features/dashboard/dashboard.module.ts
+index 6454880..2ee1517 100644
+--- a/ShiftWork.Angular/src/app/features/dashboard/dashboard.module.ts
++++ b/ShiftWork.Angular/src/app/features/dashboard/dashboard.module.ts
+@@ -11,82 +11,90 @@ import { ScheduleComponent } from './schedule/schedule.component';
+ import { TasksComponent } from './tasks/tasks.component';
+ import { CrewsComponent } from './crews/crews.component';
+ import { CalendarModule, DateAdapter } from 'angular-calendar';
+ import { FullCalendarModule } from '@fullcalendar/angular';
+ import { ReactiveFormsModule } from '@angular/forms';
+ import { share } from 'rxjs';
+ import { SharedModule } from 'src/app/shared/shared.module';
+ import { ScheduleGridComponent } from './schedule-grid/schedule-grid.component';
+ import { MatDialogModule } from '@angular/material/dialog';
+ import { DashboardOverviewComponent } from './overview/overview.component';
+ 
+ // Import Audit History Components
+ import { AuditHistoryButtonComponent } from '../kiosk/audit-history/audit-history-button.component';
+ import { AuditHistoryDialogComponent } from '../kiosk/audit-history/audit-history-dialog.component';
+ import { AuditHistoryTimelineComponent } from '../kiosk/audit-history/audit-history-timeline.component';
+ import { AuditHistoryFiltersComponent } from '../kiosk/audit-history/audit-history-filters.component';
+ 
+ // Guided tour
+ import { TourOverlayComponent } from 'src/app/shared/tour/tour-overlay.component';
+ 
++// Billing components
++import { TrialBadgeComponent } from './trial-badge.component';
++import { EmployeeQuotaComponent } from './employee-quota.component';
++
+ 
+ const routes: Routes = [
+   {
+     path: '',
+     component: DashboardComponent,
+     children: [
+       { path: '', component: DashboardOverviewComponent },
+       { path: 'overview', component: DashboardOverviewComponent },
+       { path: 'profiles', loadChildren: () => import('./profiles/profiles.module').then(m => m.ProfilesModule) },
+       { path: 'people', component: PeopleComponent },
+       { path: 'areas', component: AreasComponent },
+       { path: 'locations', component: LocationsComponent },
+       { path: 'schedule', component: ScheduleComponent },
+       { path: 'schedule-grid', component: ScheduleGridComponent },
+       { path: 'time-off-approvals', loadComponent: () => import('./time-off-approvals.component').then(m => m.TimeOffApprovalsComponent) },
+       { path: 'people-management', loadComponent: () => import('./people-management.component').then(m => m.PeopleManagementComponent) },
+       { path: 'tasks', component: TasksComponent },
+       { path: 'crews', component: CrewsComponent },
+       { path: 'clock-shift', loadComponent: () => import('./clock-shift/clock-shift.component').then(m => m.ClockShiftComponent) },
+       { path: 'shiftsummaries', loadComponent: () => import('./shiftsummaries/shiftsummaries.component').then(m => m.ShiftsummariesComponent) },
+       { path: 'company-settings', loadComponent: () => import('./company-settings.component').then(m => m.CompanySettingsComponent) },
++      { path: 'upgrade', loadComponent: () => import('../upgrade/upgrade.component').then(m => m.UpgradeComponent) },
+       { path: 'bulletins', loadChildren: () => import('./bulletins/bulletins.module').then(m => m.BulletinsModule) },
+       { path: 'daily-reports', loadChildren: () => import('./daily-reports/daily-reports.module').then(m => m.DailyReportsModule) },
+       { path: 'documents', loadChildren: () => import('./documents/documents.module').then(m => m.DocumentsModule) },
+       { path: 'safety', loadChildren: () => import('./safety/safety.module').then(m => m.SafetyModule) },
+     ]
+   }
+ ];
+ 
+ @NgModule({
+   declarations: [
+     AreasComponent,
+     //TasksComponent,
+     PeopleComponent,
+     LocationsComponent,
+     DashboardComponent,
+     CrewsComponent,
+     DashboardOverviewComponent
+   ],
+   imports: [
+     CommonModule,
+     FormsModule,
+     SharedModule,
+     FullCalendarModule,
+     RouterModule.forChild(routes),
+     MatDialogModule,
+     // Import Audit History Components (standalone)
+     AuditHistoryButtonComponent,
+     AuditHistoryDialogComponent,
+     AuditHistoryTimelineComponent,
+     AuditHistoryFiltersComponent,
+     // Guided tour (standalone)
+     TourOverlayComponent,
++    // Billing components (standalone)
++    TrialBadgeComponent,
++    EmployeeQuotaComponent,
+     // TODO: ProfilesComponent is standalone, and cannot be declared in an NgModule. Did you mean to import it instead?
+   ],
+   providers: [
+     // DateAdapter, // Uncomment if you need a custom date adapter
+   ],
+   bootstrap: [DashboardComponent]
+ 
+ })
+ export class DashboardModule { }
+diff --git a/ShiftWork.Angular/src/app/features/dashboard/employee-quota.component.ts b/ShiftWork.Angular/src/app/features/dashboard/employee-quota.component.ts
+new file mode 100644
+index 0000000..f499926
+--- /dev/null
++++ b/ShiftWork.Angular/src/app/features/dashboard/employee-quota.component.ts
+@@ -0,0 +1,166 @@
++import { Component, OnInit, Input } from '@angular/core';
++import { CommonModule } from '@angular/common';
++import { CompanyBillingInfo } from '../../core/services/billing.service';
++
++@Component({
++  standalone: true,
++  imports: [CommonModule],
++  selector: 'app-employee-quota',
++  template: `
++    <div *ngIf="billingInfo" class="quota-card">
++      <div class="quota-header">
++        <h4>Employee Quota</h4>
++        <span class="plan-badge" [ngClass]="billingInfo.plan.toLowerCase()">
++          {{ billingInfo.plan }}
++        </span>
++      </div>
++
++      <div class="quota-bar">
++        <div class="quota-fill" [style.width.%]="getQuotaPercentage()"></div>
++      </div>
++
++      <div class="quota-stats">
++        <div class="stat">
++          <span class="label">Current:</span>
++          <span class="value">{{ billingInfo.employeeCount }}</span>
++        </div>
++        <div class="stat">
++          <span class="label">Limit:</span>
++          <span class="value">
++            {{ billingInfo.employeeLimit === 2147483647 ? 'Unlimited' : billingInfo.employeeLimit }}
++          </span>
++        </div>
++      </div>
++
++      <div *ngIf="isQuotaFull()" class="quota-warning">
++        ΓÜá∩╕Å You've reached your employee limit. Upgrade to add more employees.
++      </div>
++
++      <div *ngIf="isQuotaNearFull()" class="quota-caution">
++        Γä╣∩╕Å {{ getRemainingSlots() }} employee slot{{ getRemainingSlots() !== 1 ? 's' : '' }} remaining.
++      </div>
++    </div>
++  `,
++  styles: [`
++    .quota-card {
++      background: white;
++      border: 1px solid #ddd;
++      border-radius: 4px;
++      padding: 1rem;
++      margin-bottom: 1.5rem;
++    }
++
++    .quota-header {
++      display: flex;
++      justify-content: space-between;
++      align-items: center;
++      margin-bottom: 1rem;
++    }
++
++    .quota-header h4 {
++      margin: 0;
++      font-size: 1rem;
++      font-weight: 600;
++      color: #333;
++    }
++
++    .plan-badge {
++      padding: 0.3rem 0.6rem;
++      border-radius: 3px;
++      font-size: 0.8rem;
++      font-weight: 600;
++      color: white;
++    }
++
++    .plan-badge.free {
++      background-color: #6c757d;
++    }
++
++    .plan-badge.pro {
++      background-color: #28a745;
++    }
++
++    .quota-bar {
++      height: 8px;
++      background-color: #e9ecef;
++      border-radius: 4px;
++      overflow: hidden;
++      margin-bottom: 1rem;
++    }
++
++    .quota-fill {
++      height: 100%;
++      background-color: #007bff;
++      transition: width 0.3s ease;
++    }
++
++    .quota-stats {
++      display: flex;
++      gap: 2rem;
++      margin-bottom: 1rem;
++    }
++
++    .stat {
++      display: flex;
++      flex-direction: column;
++      gap: 0.3rem;
++    }
++
++    .stat .label {
++      font-size: 0.85rem;
++      color: #666;
++      font-weight: 500;
++    }
++
++    .stat .value {
++      font-size: 1.3rem;
++      font-weight: 700;
++      color: #333;
++    }
++
++    .quota-warning {
++      padding: 0.75rem;
++      background-color: #f8d7da;
++      color: #721c24;
++      border: 1px solid #f5c6cb;
++      border-radius: 3px;
++      font-size: 0.9rem;
++    }
++
++    .quota-caution {
++      padding: 0.75rem;
++      background-color: #fff3cd;
++      color: #856404;
++      border: 1px solid #ffeeba;
++      border-radius: 3px;
++      font-size: 0.9rem;
++    }
++  `]
++})
++export class EmployeeQuotaComponent implements OnInit {
++  @Input() billingInfo: CompanyBillingInfo | null = null;
++
++  ngOnInit(): void {}
++
++  getQuotaPercentage(): number {
++    if (!this.billingInfo) return 0;
++    if (this.billingInfo.employeeLimit === 2147483647) return 0; // Unlimited
++    return Math.min(100, (this.billingInfo.employeeCount / this.billingInfo.employeeLimit) * 100);
++  }
++
++  isQuotaFull(): boolean {
++    if (!this.billingInfo) return false;
++    return this.billingInfo.employeeCount >= this.billingInfo.employeeLimit;
++  }
++
++  isQuotaNearFull(): boolean {
++    if (!this.billingInfo) return false;
++    const percentage = (this.billingInfo.employeeCount / this.billingInfo.employeeLimit) * 100;
++    return percentage >= 80 && percentage < 100;
++  }
++
++  getRemainingSlots(): number {
++    if (!this.billingInfo || this.billingInfo.employeeLimit === 2147483647) return 0;
++    return Math.max(0, this.billingInfo.employeeLimit - this.billingInfo.employeeCount);
++  }
++}
+diff --git a/ShiftWork.Angular/src/app/features/dashboard/trial-badge.component.ts b/ShiftWork.Angular/src/app/features/dashboard/trial-badge.component.ts
+new file mode 100644
+index 0000000..a0da4b8
+--- /dev/null
++++ b/ShiftWork.Angular/src/app/features/dashboard/trial-badge.component.ts
+@@ -0,0 +1,129 @@
++import { Component, OnInit, Input } from '@angular/core';
++import { CommonModule } from '@angular/common';
++import { RouterModule } from '@angular/router';
++import { BillingService, CompanyBillingInfo } from '../../core/services/billing.service';
++
++@Component({
++  standalone: true,
++  imports: [CommonModule, RouterModule],
++  selector: 'app-trial-badge',
++  template: `
++    <div *ngIf="billingInfo && shouldShowBadge()"
++         [ngClass]="getAlertClass()"
++         class="trial-badge">
++      <span class="badge-icon">ΓÅ░</span>
++      <span class="badge-text">
++        {{ billingInfo.trialDaysRemaining }} day{{ billingInfo.trialDaysRemaining !== 1 ? 's' : '' }} left in trial
++      </span>
++      <button *ngIf="billingInfo.plan === 'Free'"
++              class="badge-action"
++              routerLink="/dashboard/upgrade">
++        Upgrade Now
++      </button>
++    </div>
++  `,
++  styles: [`
++    .trial-badge {
++      display: flex;
++      align-items: center;
++      gap: 0.75rem;
++      padding: 0.75rem 1rem;
++      border-radius: 4px;
++      font-size: 0.9rem;
++      font-weight: 500;
++      margin-bottom: 1rem;
++    }
++
++    .trial-badge.info {
++      background-color: #d1ecf1;
++      color: #0c5460;
++      border: 1px solid #bee5eb;
++    }
++
++    .trial-badge.warning {
++      background-color: #fff3cd;
++      color: #856404;
++      border: 1px solid #ffeeba;
++    }
++
++    .trial-badge.danger {
++      background-color: #f8d7da;
++      color: #721c24;
++      border: 1px solid #f5c6cb;
++    }
++
++    .badge-icon {
++      font-size: 1.1rem;
++    }
++
++    .badge-text {
++      flex: 1;
++    }
++
++    .badge-action {
++      padding: 0.4rem 0.8rem;
++      background-color: #007bff;
++      color: white;
++      border: none;
++      border-radius: 3px;
++      cursor: pointer;
++      font-size: 0.85rem;
++      font-weight: 600;
++      transition: background-color 0.2s;
++    }
++
++    .badge-action:hover {
++      background-color: #0056b3;
++    }
++
++    .warning .badge-action {
++      background-color: #ffc107;
++      color: #333;
++    }
++
++    .warning .badge-action:hover {
++      background-color: #e0a800;
++    }
++
++    .danger .badge-action {
++      background-color: #dc3545;
++    }
++
++    .danger .badge-action:hover {
++      background-color: #c82333;
++    }
++  `]
++})
++export class TrialBadgeComponent implements OnInit {
++  @Input() billingInfo: CompanyBillingInfo | null = null;
++
++  constructor(private billingService: BillingService) {}
++
++  ngOnInit(): void {
++    if (!this.billingInfo) {
++      this.billingService.billingInfo$.subscribe(info => {
++        this.billingInfo = info;
++      });
++    }
++  }
++
++  shouldShowBadge(): boolean {
++    return !!this.billingInfo &&
++           this.billingInfo.plan === 'Free' &&
++           this.billingInfo.trialDaysRemaining > 0 &&
++           !this.billingInfo.isTrialExpired;
++  }
++
++  getAlertClass(): string {
++    if (!this.billingInfo) return '';
++
++    if (this.billingInfo.trialDaysRemaining <= 0) {
++      return 'danger';
++    } else if (this.billingInfo.trialDaysRemaining <= 3) {
++      return 'danger';
++    } else if (this.billingInfo.trialDaysRemaining <= 7) {
++      return 'warning';
++    }
++    return 'info';
++  }
++}
+diff --git a/ShiftWork.Angular/src/app/features/sign-up/sign-up.component.html b/ShiftWork.Angular/src/app/features/sign-up/sign-up.component.html
+index 88c4000..7f9e19b 100644
+--- a/ShiftWork.Angular/src/app/features/sign-up/sign-up.component.html
++++ b/ShiftWork.Angular/src/app/features/sign-up/sign-up.component.html
+@@ -1,48 +1,226 @@
+ <div class="container">
+   <div class="card">
+     <div class="card-body">
+-      <h3 class="card-title text-center" i18n="@@auth.register.sign_up">Sign Up</h3>
++      <h3 class="card-title text-center">Create your ShiftWork account</h3>
++      <p class="text-center text-muted mb-4">Start your 14-day free trial ΓÇö no credit card required</p>
++
+       <form [formGroup]="signUpForm" (ngSubmit)="signUp()">
+-        <div class="form-group">
+-          <label for="email" i18n="@@auth.login.email_label">Email address</label>
+-          <input
+-            type="email"
+-            class="form-control"
+-            id="email"
+-            formControlName="email"
+-            [ngClass]="{ 'is-invalid': signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid }"
+-          />
+-          <div *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid" class="invalid-feedback">
+-            <div *ngIf="signUpForm.get('email')?.errors?.['required']" i18n="@@auth.login.email_required">Email is required.</div>
+-            <div *ngIf="signUpForm.get('email')?.errors?.['email']" i18n="@@auth.login.email_invalid">Please enter a valid email address.</div>
++
++        <!-- Your Account Section -->
++        <div class="section-divider">
++          <h6>Your Account</h6>
++        </div>
++
++        <div class="form-row">
++          <div class="form-group col-md-6">
++            <label for="email">Email address *</label>
++            <input
++              type="email"
++              class="form-control"
++              id="email"
++              formControlName="email"
++              placeholder="you@company.com"
++              [ngClass]="{ 'is-invalid': signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid }"
++            />
++            <div class="invalid-feedback" *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid">
++              <div *ngIf="signUpForm.get('email')?.errors?.['required']">Email is required.</div>
++              <div *ngIf="signUpForm.get('email')?.errors?.['email']">Please enter a valid email address.</div>
++            </div>
++          </div>
++          <div class="form-group col-md-6">
++            <label for="displayName">Your name *</label>
++            <input
++              type="text"
++              class="form-control"
++              id="displayName"
++              formControlName="displayName"
++              placeholder="Jane Smith"
++              [ngClass]="{ 'is-invalid': signUpForm.get('displayName')?.touched && signUpForm.get('displayName')?.invalid }"
++            />
++            <div class="invalid-feedback" *ngIf="signUpForm.get('displayName')?.touched && signUpForm.get('displayName')?.invalid">
++              <div *ngIf="signUpForm.get('displayName')?.errors?.['required']">Name is required.</div>
++              <div *ngIf="signUpForm.get('displayName')?.errors?.['minlength']">Name must be at least 2 characters.</div>
++            </div>
+           </div>
+         </div>
+-        <div class="form-group">
+-          <label for="password" i18n="@@auth.login.password_label">Password</label>
+-          <input
+-            type="password"
+-            class="form-control"
+-            id="password"
+-            formControlName="password"
+-            [ngClass]="{ 'is-invalid': signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid }"
+-          />
+-          <div *ngIf="signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid" class="invalid-feedback">
+-            <div *ngIf="signUpForm.get('password')?.errors?.['required']" i18n="@@auth.login.password_required">Password is required.</div>
+-            <div *ngIf="signUpForm.get('password')?.errors?.['minlength']" i18n="@@auth.register.password_short_6">Password must be at least 6 characters long.</div>
++
++        <div class="form-row">
++          <div class="form-group col-md-6">
++            <label for="password">Password *</label>
++            <input
++              type="password"
++              class="form-control"
++              id="password"
++              formControlName="password"
++              placeholder="ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó"
++              [ngClass]="{ 'is-invalid': signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid }"
++            />
++            <small class="form-text text-muted">Must be at least 8 characters</small>
++            <div class="invalid-feedback" *ngIf="signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid">
++              <div *ngIf="signUpForm.get('password')?.errors?.['required']">Password is required.</div>
++              <div *ngIf="signUpForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters.</div>
++            </div>
++          </div>
++          <div class="form-group col-md-6">
++            <label for="confirmPassword">Confirm password *</label>
++            <input
++              type="password"
++              class="form-control"
++              id="confirmPassword"
++              formControlName="confirmPassword"
++              placeholder="ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó"
++              [ngClass]="{ 'is-invalid': (signUpForm.get('confirmPassword')?.touched || signUpForm.touched) && (signUpForm.get('confirmPassword')?.invalid || signUpForm.errors?.['passwordMismatch']) }"
++            />
++            <div class="invalid-feedback" *ngIf="(signUpForm.get('confirmPassword')?.touched || signUpForm.touched) && (signUpForm.get('confirmPassword')?.invalid || signUpForm.errors?.['passwordMismatch'])">
++              <div *ngIf="signUpForm.errors?.['passwordMismatch']">Passwords do not match.</div>
++              <div *ngIf="signUpForm.get('confirmPassword')?.errors?.['required']">Please confirm your password.</div>
++            </div>
++          </div>
++        </div>
++
++        <!-- Company Section -->
++        <div class="section-divider mt-4">
++          <h6>Your Company</h6>
++        </div>
++
++        <div class="form-row">
++          <div class="form-group col-md-6">
++            <label for="companyName">Company name *</label>
++            <input
++              type="text"
++              class="form-control"
++              id="companyName"
++              formControlName="companyName"
++              placeholder="Acme Builders"
++              [ngClass]="{ 'is-invalid': signUpForm.get('companyName')?.touched && signUpForm.get('companyName')?.invalid }"
++            />
++            <div class="invalid-feedback" *ngIf="signUpForm.get('companyName')?.touched && signUpForm.get('companyName')?.invalid">
++              <div *ngIf="signUpForm.get('companyName')?.errors?.['required']">Company name is required.</div>
++              <div *ngIf="signUpForm.get('companyName')?.errors?.['minlength']">Company name must be at least 2 characters.</div>
++            </div>
++          </div>
++          <div class="form-group col-md-6">
++            <label for="companyEmail">Company email *</label>
++            <input
++              type="email"
++              class="form-control"
++              id="companyEmail"
++              formControlName="companyEmail"
++              placeholder="billing@company.com"
++              [ngClass]="{ 'is-invalid': signUpForm.get('companyEmail')?.touched && signUpForm.get('companyEmail')?.invalid }"
++            />
++            <div class="invalid-feedback" *ngIf="signUpForm.get('companyEmail')?.touched && signUpForm.get('companyEmail')?.invalid">
++              <div *ngIf="signUpForm.get('companyEmail')?.errors?.['required']">Company email is required.</div>
++              <div *ngIf="signUpForm.get('companyEmail')?.errors?.['email']">Please enter a valid email address.</div>
++            </div>
+           </div>
+         </div>
+-        <button type="submit" class="btn btn-primary btn-block" [disabled]="!signUpForm.valid" i18n="@@auth.register.sign_up">Sign Up</button>
++
++        <div class="form-row">
++          <div class="form-group col-md-6">
++            <label for="companyPhone">Phone (optional)</label>
++            <input
++              type="tel"
++              class="form-control"
++              id="companyPhone"
++              formControlName="companyPhone"
++              placeholder="(555) 000-1234"
++              [ngClass]="{ 'is-invalid': signUpForm.get('companyPhone')?.touched && signUpForm.get('companyPhone')?.invalid }"
++            />
++            <div class="invalid-feedback" *ngIf="signUpForm.get('companyPhone')?.touched && signUpForm.get('companyPhone')?.invalid">
++              <div *ngIf="signUpForm.get('companyPhone')?.errors?.['pattern']">Please enter a valid phone number.</div>
++            </div>
++          </div>
++          <div class="form-group col-md-6">
++            <label for="timeZone">Time zone *</label>
++            <select
++              class="form-control"
++              id="timeZone"
++              formControlName="timeZone"
++              [ngClass]="{ 'is-invalid': signUpForm.get('timeZone')?.touched && signUpForm.get('timeZone')?.invalid }"
++            >
++              <option value="UTC">UTC</option>
++              <option value="America/New_York">Eastern Time</option>
++              <option value="America/Chicago">Central Time</option>
++              <option value="America/Denver">Mountain Time</option>
++              <option value="America/Los_Angeles">Pacific Time</option>
++              <option value="Europe/London">London (GMT)</option>
++              <option value="Europe/Paris">Central European Time</option>
++              <option value="Asia/Tokyo">Japan Standard Time</option>
++              <option value="Australia/Sydney">Sydney (AEDT)</option>
++            </select>
++          </div>
++        </div>
++
++        <!-- Terms -->
++        <div class="form-group mt-4">
++          <div class="form-check">
++            <input
++              type="checkbox"
++              class="form-check-input"
++              id="agreeToTerms"
++              formControlName="agreeToTerms"
++              [ngClass]="{ 'is-invalid': signUpForm.get('agreeToTerms')?.touched && signUpForm.get('agreeToTerms')?.invalid }"
++            />
++            <label class="form-check-label" for="agreeToTerms">
++              I agree to the Terms of Service and Privacy Policy *
++            </label>
++            <div class="invalid-feedback" *ngIf="signUpForm.get('agreeToTerms')?.touched && signUpForm.get('agreeToTerms')?.invalid">
++              You must agree to the terms to continue.
++            </div>
++          </div>
++        </div>
++
++        <!-- Submit -->
++        <button
++          type="submit"
++          class="btn btn-primary btn-block mt-4"
++          [disabled]="!signUpForm.valid || isLoading"
++        >
++          <span *ngIf="!isLoading">Create Account & Start Free Trial</span>
++          <span *ngIf="isLoading">
++            <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
++            Creating account...
++          </span>
++        </button>
+       </form>
+-      <div class="or-separator">
+-        <span class="or-text" i18n="@@common.or">Or</span>
+-      </div>
+-      <button type="button" class="btn btn-google btn-block" (click)="googleSignIn()">
+-        <i class="fa fa-google-plus-g"></i>
+-        <ng-container i18n="@@auth.register.google">Continue with Google</ng-container>
+-      </button>
++
+       <div class="text-center mt-3">
+-        <span i18n="@@auth.register.already_account">Already have an account? <a routerLink="/sign-in">Log In</a></span>
++        <span>Already have an account? <a routerLink="/sign-in">Log In</a></span>
+       </div>
+     </div>
+   </div>
+ </div>
++
++<style>
++.section-divider {
++  border-top: 1px solid #ddd;
++  margin: 1.5rem 0 1rem 0;
++  padding-top: 1rem;
++}
++
++.section-divider h6 {
++  font-weight: 600;
++  font-size: 0.9rem;
++  color: #333;
++  margin: 0;
++}
++
++.form-row {
++  display: flex;
++  margin-right: -5px;
++  margin-left: -5px;
++}
++
++.form-row > .form-group {
++  padding-right: 5px;
++  padding-left: 5px;
++}
++
++@media (max-width: 576px) {
++  .form-row > .col-md-6 {
++    flex: 0 0 100%;
++    max-width: 100%;
++  }
++}
++</style>
+diff --git a/ShiftWork.Angular/src/app/features/sign-up/sign-up.component.ts b/ShiftWork.Angular/src/app/features/sign-up/sign-up.component.ts
+index 6cf39c2..49235ba 100644
+--- a/ShiftWork.Angular/src/app/features/sign-up/sign-up.component.ts
++++ b/ShiftWork.Angular/src/app/features/sign-up/sign-up.component.ts
+@@ -1,36 +1,109 @@
+ import { Component, OnInit } from '@angular/core';
+ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
++import { Router } from '@angular/router';
++import { AngularFireAuth } from '@angular/fire/compat/auth';
++import { ToastrService } from 'ngx-toastr';
++import { RegistrationService } from '../../core/services/registration.service';
+ import { AuthService } from '../../core/services/auth.service';
+ 
+ @Component({
+   selector: 'app-sign-up',
+   templateUrl: './sign-up.component.html',
+   styleUrls: ['./sign-up.component.css']
+ })
+ export class SignUpComponent implements OnInit {
+   signUpForm: FormGroup;
++  isLoading = false;
+ 
+   constructor(
+     private fb: FormBuilder,
+-    public authService: AuthService
++    private afAuth: AngularFireAuth,
++    private registrationService: RegistrationService,
++    private authService: AuthService,
++    private router: Router,
++    private toastr: ToastrService
+   ) {
+     this.signUpForm = this.fb.group({
++      // User info
+       email: ['', [Validators.required, Validators.email]],
+-      password: ['', [Validators.required, Validators.minLength(6)]]
+-    });
++      displayName: ['', [Validators.required, Validators.minLength(2)]],
++      password: ['', [Validators.required, Validators.minLength(8)]],
++      confirmPassword: ['', Validators.required],
++
++      // Company info
++      companyName: ['', [Validators.required, Validators.minLength(2)]],
++      companyEmail: ['', [Validators.required, Validators.email]],
++      companyPhone: ['', Validators.pattern(/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$|^$/)],
++      timeZone: ['UTC', Validators.required],
++
++      // Terms
++      agreeToTerms: [false, Validators.requiredTrue]
++    }, { validators: this.passwordMatchValidator });
+   }
+ 
+   ngOnInit(): void {
+   }
+ 
+-  signUp() {
+-    if (this.signUpForm.valid) {
+-      const { email, password } = this.signUpForm.value;
+-      this.authService.signUp(email, password);
++  passwordMatchValidator(form: FormGroup) {
++    const password = form.get('password');
++    const confirmPassword = form.get('confirmPassword');
++    if (password && confirmPassword && password.value !== confirmPassword.value) {
++      confirmPassword.setErrors({ passwordMismatch: true });
++      return { passwordMismatch: true };
++    }
++    return null;
++  }
++
++  async signUp() {
++    if (this.signUpForm.invalid) {
++      this.toastr.error('Please fix all errors before submitting.');
++      return;
++    }
++
++    this.isLoading = true;
++    try {
++      const { email, password, displayName, companyName, companyEmail, companyPhone, timeZone } = this.signUpForm.value;
++
++      // Step 1: Create Firebase user
++      const userCredential = await this.afAuth.createUserWithEmailAndPassword(email, password);
++      if (!userCredential.user) {
++        throw new Error('Failed to create user account.');
++      }
++
++      // Step 2: Register company
++      const registration = await this.registrationService.registerCompany({
++        userEmail: email,
++        userDisplayName: displayName,
++        companyName,
++        companyEmail,
++        companyPhone,
++        timeZone
++      });
++
++      // Step 3: Send verification email
++      await userCredential.user.sendEmailVerification();
++      this.toastr.success('Account created! Verification email sent.');
++
++      // Step 4: Redirect to dashboard (auth guard will handle the rest)
++      this.router.navigate(['/dashboard']);
++
++    } catch (error: any) {
++      let errorMsg = 'Sign up failed. Please try again.';
++      if (error.code === 'auth/email-already-in-use') {
++        errorMsg = 'This email is already registered.';
++      } else if (error.code === 'auth/weak-password') {
++        errorMsg = 'Password is too weak. Use at least 8 characters.';
++      } else if (error.message) {
++        errorMsg = error.message;
++      }
++      this.toastr.error(errorMsg);
++      console.error('Sign up error:', error);
++    } finally {
++      this.isLoading = false;
+     }
+   }
+ 
+   googleSignIn() {
+     this.authService.googleSignIn();
+   }
+ }
+\ No newline at end of file
+diff --git a/ShiftWork.Angular/src/app/features/upgrade/upgrade.component.css b/ShiftWork.Angular/src/app/features/upgrade/upgrade.component.css
+new file mode 100644
+index 0000000..07a18be
+--- /dev/null
++++ b/ShiftWork.Angular/src/app/features/upgrade/upgrade.component.css
+@@ -0,0 +1,257 @@
++.upgrade-container {
++  max-width: 600px;
++  margin: 2rem auto;
++  padding: 0 1rem;
++}
++
++.pricing-header {
++  text-align: center;
++  margin-bottom: 2rem;
++}
++
++.pricing-header h2 {
++  margin-bottom: 0.5rem;
++  font-size: 1.5rem;
++  font-weight: 600;
++}
++
++.pricing-header p {
++  color: #666;
++  font-size: 0.95rem;
++}
++
++.plan-comparison {
++  display: grid;
++  grid-template-columns: 1fr 1fr;
++  gap: 1rem;
++  margin: 2rem 0;
++  background: #f9f9f9;
++  padding: 1.5rem;
++  border-radius: 8px;
++}
++
++.plan-box {
++  padding: 1rem;
++}
++
++.plan-box.current {
++  border-left: 3px solid #28a745;
++}
++
++.plan-box.target {
++  border-left: 3px solid #007bff;
++  background: #e7f0ff;
++}
++
++.plan-label {
++  font-size: 0.85rem;
++  font-weight: 600;
++  color: #666;
++  text-transform: uppercase;
++  margin-bottom: 0.5rem;
++}
++
++.plan-price {
++  font-size: 1.5rem;
++  font-weight: 700;
++  margin-bottom: 0.5rem;
++}
++
++.plan-price small {
++  font-size: 0.7rem;
++  color: #999;
++}
++
++.plan-features {
++  list-style: none;
++  padding: 0;
++  margin: 1rem 0 0 0;
++  font-size: 0.9rem;
++}
++
++.plan-features li {
++  padding: 0.3rem 0;
++  color: #666;
++}
++
++.card-section {
++  background: white;
++  padding: 2rem;
++  border: 1px solid #ddd;
++  border-radius: 8px;
++  margin: 2rem 0;
++}
++
++.card-section h4 {
++  margin-bottom: 1.5rem;
++  font-size: 1.1rem;
++  font-weight: 600;
++}
++
++.form-group {
++  margin-bottom: 1.5rem;
++}
++
++.form-group label {
++  display: block;
++  margin-bottom: 0.5rem;
++  font-weight: 500;
++  font-size: 0.95rem;
++}
++
++.form-group input {
++  width: 100%;
++  padding: 0.75rem;
++  border: 1px solid #ddd;
++  border-radius: 4px;
++  font-size: 1rem;
++}
++
++.form-group input:focus {
++  outline: none;
++  border-color: #007bff;
++  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
++}
++
++.form-group input.error {
++  border-color: #dc3545;
++}
++
++#card-element {
++  padding: 0.75rem;
++  border: 1px solid #ddd;
++  border-radius: 4px;
++  margin-bottom: 1rem;
++}
++
++.checkbox-group {
++  display: flex;
++  align-items: center;
++  margin: 1.5rem 0;
++}
++
++.checkbox-group input {
++  width: auto;
++  margin-right: 0.75rem;
++  accent-color: #007bff;
++}
++
++.checkbox-group label {
++  margin: 0;
++  font-weight: 400;
++  font-size: 0.95rem;
++  line-height: 1.5;
++}
++
++.form-error {
++  color: #dc3545;
++  font-size: 0.9rem;
++  margin-top: 0.25rem;
++}
++
++.alert {
++  padding: 1rem;
++  border-radius: 4px;
++  margin-bottom: 1.5rem;
++}
++
++.alert-success {
++  background: #d4edda;
++  color: #155724;
++  border: 1px solid #c3e6cb;
++}
++
++.alert-error {
++  background: #f8d7da;
++  color: #721c24;
++  border: 1px solid #f5c6cb;
++}
++
++.button-group {
++  display: flex;
++  gap: 1rem;
++  margin-top: 2rem;
++}
++
++.btn {
++  flex: 1;
++  padding: 0.75rem 1.5rem;
++  border: none;
++  border-radius: 4px;
++  font-size: 1rem;
++  font-weight: 600;
++  cursor: pointer;
++  transition: all 0.2s;
++}
++
++.btn-primary {
++  background: #007bff;
++  color: white;
++}
++
++.btn-primary:hover:not(:disabled) {
++  background: #0056b3;
++}
++
++.btn-secondary {
++  background: #6c757d;
++  color: white;
++}
++
++.btn-secondary:hover:not(:disabled) {
++  background: #545b62;
++}
++
++.btn:disabled {
++  opacity: 0.6;
++  cursor: not-allowed;
++}
++
++.spinner-border {
++  display: inline-block;
++  width: 1rem;
++  height: 1rem;
++  vertical-align: text-bottom;
++  border: 0.25em solid currentColor;
++  border-right-color: transparent;
++  border-radius: 50%;
++  animation: spinner-border 0.75s linear infinite;
++  margin-right: 0.5rem;
++}
++
++@keyframes spinner-border {
++  to {
++    transform: rotate(360deg);
++  }
++}
++
++.security-note {
++  display: flex;
++  align-items: center;
++  font-size: 0.85rem;
++  color: #666;
++  margin-top: 1rem;
++  padding-top: 1rem;
++  border-top: 1px solid #ddd;
++}
++
++.security-note svg {
++  width: 16px;
++  height: 16px;
++  margin-right: 0.5rem;
++  flex-shrink: 0;
++}
++
++@media (max-width: 600px) {
++  .plan-comparison {
++    grid-template-columns: 1fr;
++  }
++
++  .button-group {
++    flex-direction: column;
++  }
++
++  .card-section {
++    padding: 1.5rem;
++  }
++}
+diff --git a/ShiftWork.Angular/src/app/features/upgrade/upgrade.component.html b/ShiftWork.Angular/src/app/features/upgrade/upgrade.component.html
+index 0ee00d5..c1a0abd 100644
+--- a/ShiftWork.Angular/src/app/features/upgrade/upgrade.component.html
++++ b/ShiftWork.Angular/src/app/features/upgrade/upgrade.component.html
+@@ -1,76 +1,126 @@
+ <div class="upgrade-container">
+-  <div class="upgrade-card">
+-    <h1 i18n="@@upgrade.title">Upgrade to Pro</h1>
+-    <p class="subtitle" i18n="@@upgrade.subtitle_web">Unlock the full power of Loqzen for your team.</p>
+ 
+-    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+-    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
++  <!-- Header -->
++  <div class="pricing-header">
++    <h2>Upgrade to Pro</h2>
++    <p>Unlock advanced scheduling, PTO management, and team features</p>
++  </div>
+ 
+-    <!-- Plan Comparison Table -->
+-    <div class="plan-comparison">
+-      <table class="comparison-table">
+-        <thead>
+-          <tr>
+-            <th i18n="@@upgrade.col_feature">Feature</th>
+-            <th class="plan-col plan-free" i18n="@@upgrade.plan_free">Free</th>
+-            <th class="plan-col plan-pro" i18n="@@upgrade.plan_pro">Pro Γ¡É</th>
+-          </tr>
+-        </thead>
+-        <tbody>
+-          <tr>
+-            <td i18n="@@upgrade.feat_kiosk">Kiosk Clock-In / Out</td>
+-            <td>Γ£à</td>
+-            <td>Γ£à</td>
+-          </tr>
+-          <tr>
+-            <td i18n="@@upgrade.feat_basic_schedule">Basic Scheduling</td>
+-            <td>Γ£à</td>
+-            <td>Γ£à</td>
+-          </tr>
+-          <tr>
+-            <td i18n="@@upgrade.feat_sandbox">Sandbox Demo Data</td>
+-            <td>Γ£à</td>
+-            <td>Γ£à</td>
+-          </tr>
+-          <tr>
+-            <td i18n="@@upgrade.feat_remove_sandbox">Remove Sandbox Data</td>
+-            <td>Γ¥î</td>
+-            <td>Γ£à</td>
+-          </tr>
+-          <tr>
+-            <td i18n="@@upgrade.feat_advanced">Advanced Scheduling</td>
+-            <td>Γ¥î</td>
+-            <td>Γ£à</td>
+-          </tr>
+-          <tr>
+-            <td i18n="@@upgrade.feat_analytics">Analytics &amp; Reports</td>
+-            <td>Γ¥î</td>
+-            <td>Γ£à</td>
+-          </tr>
+-          <tr>
+-            <td i18n="@@upgrade.feat_multilocation">Multi-Location Support</td>
+-            <td>Γ¥î</td>
+-            <td>Γ£à</td>
+-          </tr>
+-          <tr>
+-            <td i18n="@@upgrade.feat_export">Data Export</td>
+-            <td>Γ¥î</td>
+-            <td>Γ£à</td>
+-          </tr>
+-        </tbody>
+-      </table>
++  <!-- Plan Comparison -->
++  <div class="plan-comparison">
++    <div class="plan-box current">
++      <div class="plan-label">Your Current Plan</div>
++      <div class="plan-price">{{ currentPlan || 'Free' }}</div>
++      <ul class="plan-features">
++        <li>Γ£ô Up to 50 employees</li>
++        <li>Γ£ô Basic scheduling</li>
++        <li>Γ£ô Email support</li>
++      </ul>
+     </div>
+ 
+-    <div class="upgrade-cta">
+-      <p class="price-info" i18n="@@upgrade.price_info">Pro plan ΓÇö contact sales for pricing</p>
+-      <button
+-        class="btn btn-primary btn-lg"
+-        (click)="upgradeToPro()"
+-        [disabled]="isLoading">
+-        <ng-container *ngIf="isLoading" i18n="@@upgrade.processing">ProcessingΓÇª</ng-container>
+-        <ng-container *ngIf="!isLoading" i18n="@@upgrade.submit">Upgrade to Pro Now</ng-container>
+-      </button>
+-      <p class="back-link"><a routerLink="/dashboard" i18n="@@upgrade.back_dashboard">ΓåÉ Back to Dashboard</a></p>
++    <div class="plan-box target">
++      <div class="plan-label">Pro Plan</div>
++      <div class="plan-price">${{ proPricePerMonth }}<small>/employee/mo</small></div>
++      <ul class="plan-features">
++        <li>Γ£ô Unlimited employees</li>
++        <li>Γ£ô PTO & time-off tracking</li>
++        <li>Γ£ô Advanced analytics</li>
++        <li>Γ£ô Priority support</li>
++      </ul>
+     </div>
+   </div>
++
++  <!-- Alerts -->
++  <div *ngIf="successMessage" class="alert alert-success">
++    {{ successMessage }}
++  </div>
++  <div *ngIf="errorMessage" class="alert alert-error">
++    {{ errorMessage }}
++  </div>
++
++  <!-- Payment Form -->
++  <form [formGroup]="upgradeForm" (ngSubmit)="upgradeToPro()" class="card-section">
++
++    <h4>≡ƒÆ│ Payment Details</h4>
++
++    <!-- Cardholder Name -->
++    <div class="form-group">
++      <label for="cardholderName">Cardholder Name *</label>
++      <input
++        type="text"
++        id="cardholderName"
++        formControlName="cardholderName"
++        placeholder="Jane Smith"
++        [class.error]="upgradeForm.get('cardholderName')?.touched && upgradeForm.get('cardholderName')?.invalid"
++      />
++      <div class="form-error" *ngIf="upgradeForm.get('cardholderName')?.touched && upgradeForm.get('cardholderName')?.invalid">
++        <div *ngIf="upgradeForm.get('cardholderName')?.errors?.['required']">Cardholder name is required.</div>
++        <div *ngIf="upgradeForm.get('cardholderName')?.errors?.['minlength']">Name must be at least 2 characters.</div>
++      </div>
++    </div>
++
++    <!-- Cardholder Email -->
++    <div class="form-group">
++      <label for="cardholderEmail">Email Address *</label>
++      <input
++        type="email"
++        id="cardholderEmail"
++        formControlName="cardholderEmail"
++        placeholder="jane@company.com"
++        [class.error]="upgradeForm.get('cardholderEmail')?.touched && upgradeForm.get('cardholderEmail')?.invalid"
++      />
++      <div class="form-error" *ngIf="upgradeForm.get('cardholderEmail')?.touched && upgradeForm.get('cardholderEmail')?.invalid">
++        <div *ngIf="upgradeForm.get('cardholderEmail')?.errors?.['required']">Email is required.</div>
++        <div *ngIf="upgradeForm.get('cardholderEmail')?.errors?.['email']">Please enter a valid email address.</div>
++      </div>
++    </div>
++
++    <!-- Stripe Card Element -->
++    <div class="form-group">
++      <label>Card Details *</label>
++      <div #cardElement id="card-element"></div>
++      <div class="form-error" *ngIf="errorMessage && isProcessing">{{ errorMessage }}</div>
++    </div>
++
++    <!-- Terms Checkbox -->
++    <div class="checkbox-group">
++      <input
++        type="checkbox"
++        id="agreeToTerms"
++        formControlName="agreeToTerms"
++      />
++      <label for="agreeToTerms">
++        I agree to the terms and authorize this charge to my payment method.
++      </label>
++    </div>
++
++    <!-- Security Note -->
++    <div class="security-note">
++      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
++        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
++      </svg>
++      Your payment information is secure and encrypted by Stripe.
++    </div>
++
++    <!-- Action Buttons -->
++    <div class="button-group">
++      <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="isProcessing">
++        Cancel
++      </button>
++      <button type="submit" class="btn btn-primary" [disabled]="!upgradeForm.valid || isProcessing">
++        <span *ngIf="!isProcessing">
++          Complete Upgrade
++        </span>
++        <span *ngIf="isProcessing">
++          <span class="spinner-border"></span>
++          Processing...
++        </span>
++      </button>
++    </div>
++  </form>
++
++  <!-- Payment Assured Notice -->
++  <p style="text-align: center; color: #999; font-size: 0.85rem; margin-top: 2rem;">
++    Your upgrade will be effective immediately. You can manage your subscription anytime from your dashboard settings.
++  </p>
+ </div>
+diff --git a/ShiftWork.Angular/src/app/features/upgrade/upgrade.component.ts b/ShiftWork.Angular/src/app/features/upgrade/upgrade.component.ts
+index 74600b4..c42f5e7 100644
+--- a/ShiftWork.Angular/src/app/features/upgrade/upgrade.component.ts
++++ b/ShiftWork.Angular/src/app/features/upgrade/upgrade.component.ts
+@@ -1,65 +1,202 @@
+-import { Component } from '@angular/core';
++import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+ import { CommonModule } from '@angular/common';
+-import { RouterModule } from '@angular/router';
+-import { Router } from '@angular/router';
+-import { RegistrationService, PlanUpgradeRequest } from '../../core/services/registration.service';
++import { RouterModule, Router } from '@angular/router';
++import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
++import { ToastrService } from 'ngx-toastr';
++import { PlanService, PlanUpgradeRequest } from '../../core/services/plan.service';
++import { BillingService, CompanyBillingInfo } from '../../core/services/billing.service';
+ import { AuthService } from '../../core/services/auth.service';
++import { environment } from '../../../environments/environment';
++
++// Type definitions for Stripe
++declare const Stripe: any;
+ 
+ @Component({
+   standalone: true,
+-  imports: [CommonModule, RouterModule],
++  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+   selector: 'app-upgrade',
+-  templateUrl: './upgrade.component.html'
++  templateUrl: './upgrade.component.html',
++  styleUrls: ['./upgrade.component.css']
+ })
+-export class UpgradeComponent {
++export class UpgradeComponent implements OnInit, AfterViewInit {
++  @ViewChild('cardElement') cardElement!: ElementRef;
++
++  upgradeForm: FormGroup;
+   isLoading = false;
++  isProcessing = false;
++  stripe: any;
++  elements: any;
++  cardElementInstance: any;
++
+   successMessage = '';
+   errorMessage = '';
++  featureBlockedTitle = '';
++  featureBlockedMessage = '';
++  companyId = '';
++  currentPlan = '';
++  billingInfo: CompanyBillingInfo | null = null;
+ 
+-  // For MVP: no live Stripe integration on this page.
+-  // The user confirms intent; the backend handles Stripe via PlanService.
+-  // A real Stripe.js integration would capture card details here.
+-  mockPaymentMethodId = 'pm_stub_upgrade';
++  proPricePerMonth = 5; // $ per employee per month
++  estimatedMonthly = 50; // Default estimate for 10 employees
+ 
+   constructor(
+-    private registrationService: RegistrationService,
++    private fb: FormBuilder,
++    private planService: PlanService,
++    private billingService: BillingService,
+     private authService: AuthService,
+-    private router: Router
+-  ) {}
++    private router: Router,
++    private toastr: ToastrService
++  ) {
++    this.upgradeForm = this.fb.group({
++      cardholderName: ['', [Validators.required, Validators.minLength(2)]],
++      cardholderEmail: ['', [Validators.required, Validators.email]],
++      agreeToTerms: [false, Validators.requiredTrue]
++    });
++  }
+ 
+-  upgradeToPro(): void {
+-    this.isLoading = true;
+-    this.successMessage = '';
+-    this.errorMessage = '';
++  ngOnInit(): void {
++    this.companyId = this.authService.activeCompany?.companyId || '';
++    this.currentPlan = this.authService.activeCompany?.plan || 'Free';
+ 
+-    // Get companyId from active session
+-    const companyId = this.authService.activeCompany?.companyId;
+-    if (!companyId) {
+-      this.errorMessage = 'No active company. Please sign in again.';
+-      this.isLoading = false;
++    if (!this.companyId) {
++      this.errorMessage = 'No active company found. Please sign in again.';
++      setTimeout(() => this.router.navigate(['/dashboard']), 2000);
+       return;
+     }
+ 
+-    const request: PlanUpgradeRequest = {
+-      stripePaymentMethodId: this.mockPaymentMethodId,
+-      targetPlan: 'Pro'
+-    };
+-
+-    this.registrationService.upgradePlan(companyId, request).subscribe({
+-      next: (response) => {
+-        if (response.success) {
+-          this.successMessage = 'Upgrade successful! Your plan is now ' + response.plan + '.';
+-          // Redirect to dashboard after 2 seconds
+-          setTimeout(() => this.router.navigate(['/dashboard']), 2000);
++    // Check for feature-blocked message from guard
++    this.featureBlockedTitle = sessionStorage.getItem('featureBlockedTitle') || '';
++    this.featureBlockedMessage = sessionStorage.getItem('featureBlockedMessage') || '';
++    sessionStorage.removeItem('featureBlockedTitle');
++    sessionStorage.removeItem('featureBlockedMessage');
++
++    if (this.featureBlockedTitle) {
++      this.errorMessage = this.featureBlockedMessage;
++    }
++
++    // Load billing info
++    this.billingService.getBillingInfo(this.companyId).subscribe({
++      next: (info) => {
++        this.billingInfo = info;
++        this.billingService.billingInfoSubject.next(info);
++      },
++      error: (error) => console.error('Failed to load billing info:', error)
++    });
++
++    // Initialize Stripe
++    this.initializeStripe();
++  }
++
++  ngAfterViewInit(): void {
++    this.mountCardElement();
++  }
++
++  private initializeStripe(): void {
++    const publishableKey = environment.stripePublishableKey;
++    if (!publishableKey) {
++      this.errorMessage = 'Stripe is not configured. Please contact support.';
++      return;
++    }
++
++    this.stripe = Stripe(publishableKey);
++    this.elements = this.stripe.elements();
++  }
++
++  private mountCardElement(): void {
++    if (!this.elements || !this.cardElement) return;
++
++    try {
++      this.cardElementInstance = this.elements.create('card', {
++        style: {
++          base: {
++            fontSize: '16px',
++            color: '#424770',
++            '::placeholder': { color: '#aab7c4' }
++          },
++          invalid: {
++            color: '#fa755a'
++          }
++        }
++      });
++      this.cardElementInstance.mount(this.cardElement.nativeElement);
++
++      // Handle real-time validation errors
++      this.cardElementInstance.addEventListener('change', (event: any) => {
++        if (event.error) {
++          this.errorMessage = event.error.message;
+         } else {
+-          this.errorMessage = response.message || 'Upgrade failed.';
++          this.errorMessage = '';
+         }
+-        this.isLoading = false;
+-      },
+-      error: () => {
+-        this.errorMessage = 'An error occurred during upgrade. Please try again.';
+-        this.isLoading = false;
++      });
++    } catch (error) {
++      console.error('Failed to mount card element:', error);
++      this.errorMessage = 'Failed to load payment form. Please refresh and try again.';
++    }
++  }
++
++  async upgradeToPro(): Promise<void> {
++    if (!this.upgradeForm.valid) {
++      this.toastr.error('Please fill out all required fields.');
++      return;
++    }
++
++    this.isProcessing = true;
++    this.errorMessage = '';
++    this.successMessage = '';
++
++    try {
++      // Step 1: Create payment method from card details
++      const { token, error } = await this.stripe.createToken(this.cardElementInstance, {
++        name: this.upgradeForm.get('cardholderName')?.value,
++        email: this.upgradeForm.get('cardholderEmail')?.value
++      });
++
++      if (error) {
++        this.errorMessage = error.message || 'Failed to process card.';
++        this.isProcessing = false;
++        return;
+       }
+-    });
++
++      if (!token) {
++        this.errorMessage = 'Failed to create payment token. Please try again.';
++        this.isProcessing = false;
++        return;
++      }
++
++      // Step 2: Call backend to create subscription
++      const request: PlanUpgradeRequest = {
++        stripePaymentMethodId: token.id,
++        targetPlan: 'Pro'
++      };
++
++      this.planService.upgradePlan(this.companyId, request).subscribe({
++        next: (response) => {
++          if (response.success) {
++            this.successMessage = '≡ƒÄë Upgrade successful! Your Pro plan is now active.';
++            this.toastr.success('Upgrade complete!');
++            // Redirect to dashboard after 3 seconds
++            setTimeout(() => this.router.navigate(['/dashboard']), 3000);
++          } else {
++            this.errorMessage = response.message || 'Upgrade failed. Please try again.';
++            this.toastr.error(this.errorMessage);
++          }
++          this.isProcessing = false;
++        },
++        error: (error) => {
++          console.error('Upgrade error:', error);
++          this.errorMessage = error.error?.message || 'An error occurred during upgrade. Please try again.';
++          this.toastr.error(this.errorMessage);
++          this.isProcessing = false;
++        }
++      });
++    } catch (error: any) {
++      console.error('Unexpected error:', error);
++      this.errorMessage = error.message || 'An unexpected error occurred.';
++      this.isProcessing = false;
++    }
++  }
++
++  cancel(): void {
++    this.router.navigate(['/dashboard']);
+   }
+ }
+diff --git a/ShiftWork.Angular/src/environments/environment.prod.ts b/ShiftWork.Angular/src/environments/environment.prod.ts
+index ba8d0ce..1428a56 100644
+--- a/ShiftWork.Angular/src/environments/environment.prod.ts
++++ b/ShiftWork.Angular/src/environments/environment.prod.ts
+@@ -1,17 +1,18 @@
+ export const environment = {
+   production: true,
+   googleAnalyticsId: 'G-7X3Z5F6Y7Z',
+   apiUrl : "http://77.93.152.248:5182/api", // <-- Important: Add your production API URL here
+   mcpUrl: 'https://mcp.loqzen.com',
++  stripePublishableKey: process.env['STRIPE_PUBLISHABLE_KEY'] || '',
+   // Kiosk auto-refresh interval for employee status (milliseconds)
+   kioskStatusRefreshMs: 60000,
+   firebase: {
+     apiKey: "AIzaSyBwL0YUb-yheFPml2qJ_Q4Js7dxgwAhrcM",
+     authDomain: "app.shift-clock.com",
+     projectId: "shift-maps-location",
+     storageBucket: "shift-maps-location.appspot.com",
+     messagingSenderId: "643515228422",
+     appId: "1:643515238422:web:29a3d9425f3f6e6dfe4d37"
+   }
+ };
+ 
+diff --git a/ShiftWork.Angular/src/environments/environment.ts b/ShiftWork.Angular/src/environments/environment.ts
+index 61601ea..33b4847 100644
+--- a/ShiftWork.Angular/src/environments/environment.ts
++++ b/ShiftWork.Angular/src/environments/environment.ts
+@@ -1,18 +1,19 @@
+ export const environment = {
+   production: false,
+   googleAnalyticsId: 'G-7X3Z5F6Y7Z',
+   apiUrl : process.env.API_URL,
+   mcpUrl: process.env.MCP_URL || 'http://localhost:8080',
++  stripePublishableKey: process.env['STRIPE_PUBLISHABLE_KEY'] || '',
+   // Kiosk auto-refresh interval for employee status (milliseconds)
+   kioskStatusRefreshMs: 45000,
+   firebase: {
+-    apiKey: process.env.FIREBASE_API_KEY,
+-    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+-    projectId: process.env.FIREBASE_PROJECT_ID,
+-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+-    appId: process.env.FIREBASE_APP_ID
++    apiKey: process.env['FIREBASE_API_KEY'],
++    authDomain: process.env['FIREBASE_AUTH_DOMAIN'],
++    projectId: process.env['FIREBASE_PROJECT_ID'],
++    storageBucket: process.env['FIREBASE_STORAGE_BUCKET'],
++    messagingSenderId: process.env['FIREBASE_MESSAGING_SENDER_ID'],
++    appId: process.env['FIREBASE_APP_ID']
+   }
+ };
+ 
+ 
+diff --git a/ShiftWork.Api.Tests/Plan/PlanServiceTests.cs b/ShiftWork.Api.Tests/Plan/PlanServiceTests.cs
+index d7d9669..d7c64ce 100644
+--- a/ShiftWork.Api.Tests/Plan/PlanServiceTests.cs
++++ b/ShiftWork.Api.Tests/Plan/PlanServiceTests.cs
+@@ -1,45 +1,62 @@
+ using Microsoft.EntityFrameworkCore;
+ using Microsoft.Extensions.Logging.Abstractions;
++using Moq;
+ using ShiftWork.Api.Data;
+ using ShiftWork.Api.Models;
+ using ShiftWork.Api.Services;
+ using Xunit;
+ 
+ namespace ShiftWork.Api.Tests.Plan;
+ 
++/// <summary>
++/// Groups tests that mutate the process-global STRIPE_SECRET_KEY / STRIPE_PRICE_PRO env vars
++/// so xUnit never runs them concurrently against each other (xUnit parallelizes across
++/// collections by default, and these vars aren't thread-local).
++/// </summary>
++[CollectionDefinition("StripeEnvVars", DisableParallelization = true)]
++public class StripeEnvVarsCollection { }
++
+ /// <summary>
+ /// Unit tests for PlanService.
+ /// Focuses on feature-gate logic and plan upgrade/query operations.
+ /// </summary>
++[Collection("StripeEnvVars")]
+ public class PlanServiceTests : IDisposable
+ {
+     private readonly ShiftWorkContext _context;
++    private readonly Mock<IStripeGateway> _stripeGatewayMock;
+     private readonly PlanService _svc;
+ 
+     public PlanServiceTests()
+     {
+         var options = new DbContextOptionsBuilder<ShiftWorkContext>()
+             .UseInMemoryDatabase(Guid.NewGuid().ToString())
+             .Options;
+         _context = new ShiftWorkContext(options);
+-        _svc = new PlanService(_context, NullLogger<PlanService>.Instance);
++        _stripeGatewayMock = new Mock<IStripeGateway>();
++        _svc = new PlanService(_context, NullLogger<PlanService>.Instance, _stripeGatewayMock.Object);
++
++        // Tests are responsible for setting/clearing these; start from a known-clean slate
++        // since these env vars are process-global and PlanService reads them directly.
++        Environment.SetEnvironmentVariable("STRIPE_SECRET_KEY", null);
++        Environment.SetEnvironmentVariable("STRIPE_PRICE_PRO", null);
+     }
+ 
+     // ΓöÇΓöÇ Helpers ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+ 
+     private async Task<string> CreateCompanyWithPlanAsync(string plan)
+     {
+         var companyId = Guid.NewGuid().ToString();
+         _context.Companies.Add(new Company
+         {
+             CompanyId = companyId,
+             Name = $"{plan} Corp",
+             Email = $"{companyId}@test.com",
+             PhoneNumber = string.Empty,
+             Address = string.Empty,
+             TimeZone = "UTC",
+             Plan = plan,
+             OnboardingStatus = "Pending"
+         });
+         await _context.SaveChangesAsync();
+         return companyId;
+@@ -125,62 +142,129 @@ public class PlanServiceTests : IDisposable
+     [InlineData("Free")]
+     [InlineData("Trial")]
+     [InlineData("Pro")]
+     public async Task GetCurrentPlan_ReturnsExpectedPlan(string plan)
+     {
+         var companyId = await CreateCompanyWithPlanAsync(plan);
+         var result = await _svc.GetCurrentPlanAsync(companyId);
+         Assert.Equal(plan, result);
+     }
+ 
+     [Fact]
+     public async Task GetCurrentPlan_MissingCompany_ReturnsFree()
+     {
+         var result = await _svc.GetCurrentPlanAsync("non-existent-id");
+         Assert.Equal("Free", result);
+     }
+ 
+     // ΓöÇΓöÇ UpgradePlanAsync ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+ 
+     [Fact]
+-    public async Task UpgradePlan_WithoutStripeKey_UpdatesPlanInDatabase()
++    public async Task UpgradePlan_WithoutStripeKey_UpdatesPlanDirectlyWithoutCallingStripe()
+     {
+         // When STRIPE_SECRET_KEY is absent the service should fall back to
+         // updating the Plan column directly without calling Stripe.
+         var companyId = await CreateCompanyWithPlanAsync("Free");
+-        Environment.SetEnvironmentVariable("STRIPE_SECRET_KEY", null); // ensure absent
+ 
+         var result = await _svc.UpgradePlanAsync(companyId, "pm_test_mock", "Pro");
+ 
+-        // Regardless of stripe success, plan should be updated in the DB
++        Assert.True(result);
+         var company = await _context.Companies.FindAsync(companyId);
+-        Assert.NotNull(company);
+-        // Either the upgrade succeeded (true) or it fell back gracefully
+-        // The important invariant is: no exception was thrown
+-        Assert.NotNull(result.ToString()); // trivially non-null but documents the call completed
++        Assert.Equal("Pro", company!.Plan);
++        _stripeGatewayMock.Verify(
++            g => g.CreateSubscriptionAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
++            Times.Never);
+     }
+ 
+     [Fact]
+     public async Task UpgradePlan_MissingCompany_ReturnsFalse()
+     {
+         var result = await _svc.UpgradePlanAsync("non-existent-id", "pm_test_mock", "Pro");
+         Assert.False(result);
+     }
+ 
++    [Fact]
++    public async Task UpgradePlan_WithStripeConfigured_ActiveSubscription_UpgradesPlanAndStoresStripeIds()
++    {
++        Environment.SetEnvironmentVariable("STRIPE_SECRET_KEY", "sk_test_mock");
++        Environment.SetEnvironmentVariable("STRIPE_PRICE_PRO", "price_pro_mock");
++
++        var companyId = await CreateCompanyWithPlanAsync("Free");
++        var periodEnd = DateTime.UtcNow.AddMonths(1);
++        _stripeGatewayMock
++            .Setup(g => g.CreateSubscriptionAsync(null, It.IsAny<string>(), It.IsAny<string>(), "pm_test_mock", "price_pro_mock"))
++            .ReturnsAsync(new StripeSubscriptionResult("cus_mock", "sub_mock", "active", periodEnd));
++
++        var result = await _svc.UpgradePlanAsync(companyId, "pm_test_mock", "Pro");
++
++        Assert.True(result);
++        var company = await _context.Companies.FindAsync(companyId);
++        Assert.Equal("Pro", company!.Plan);
++        Assert.Equal("cus_mock", company.StripeCustomerId);
++        Assert.Equal("sub_mock", company.StripeSubscriptionId);
++        Assert.Equal(periodEnd, company.PlanExpiresAt);
++    }
++
++    [Fact]
++    public async Task UpgradePlan_WithStripeConfigured_IncompleteSubscription_DoesNotUpgradePlanYet()
++    {
++        // A subscription can be created but stuck in "incomplete" when the first payment
++        // fails (e.g. 3DS required or a declined card). The plan must not flip to Pro until
++        // the webhook confirms the subscription actually became active.
++        Environment.SetEnvironmentVariable("STRIPE_SECRET_KEY", "sk_test_mock");
++        Environment.SetEnvironmentVariable("STRIPE_PRICE_PRO", "price_pro_mock");
++
++        var companyId = await CreateCompanyWithPlanAsync("Free");
++        _stripeGatewayMock
++            .Setup(g => g.CreateSubscriptionAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
++            .ReturnsAsync(new StripeSubscriptionResult("cus_mock", "sub_mock", "incomplete", null));
++
++        var result = await _svc.UpgradePlanAsync(companyId, "pm_test_mock", "Pro");
++
++        Assert.False(result);
++        var company = await _context.Companies.FindAsync(companyId);
++        Assert.Equal("Free", company!.Plan);
++        // Customer/subscription IDs are still captured so the webhook can finish the job later.
++        Assert.Equal("cus_mock", company.StripeCustomerId);
++        Assert.Equal("sub_mock", company.StripeSubscriptionId);
++    }
++
++    [Fact]
++    public async Task UpgradePlan_WithStripeConfigured_NoPriceMappedForPlan_ThrowsInvalidOperationException()
++    {
++        Environment.SetEnvironmentVariable("STRIPE_SECRET_KEY", "sk_test_mock");
++        // STRIPE_PRICE_PRO intentionally left unset.
++
++        var companyId = await CreateCompanyWithPlanAsync("Free");
++
++        await Assert.ThrowsAsync<InvalidOperationException>(
++            () => _svc.UpgradePlanAsync(companyId, "pm_test_mock", "Pro"));
++
++        _stripeGatewayMock.Verify(
++            g => g.CreateSubscriptionAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
++            Times.Never);
++    }
++
+     // ΓöÇΓöÇ Feature key case-insensitivity ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+ 
+     [Fact]
+     public async Task IsFeatureEnabled_KeyIsCaseInsensitive()
+     {
+         var companyId = await CreateCompanyWithPlanAsync("Pro");
+ 
+         var lower = await _svc.IsFeatureEnabledAsync(companyId, "sandbox.delete");
+         var upper = await _svc.IsFeatureEnabledAsync(companyId, "SANDBOX.DELETE");
+         var mixed = await _svc.IsFeatureEnabledAsync(companyId, "Sandbox.Delete");
+ 
+         Assert.True(lower);
+         Assert.True(upper);
+         Assert.True(mixed);
+     }
+ 
+-    public void Dispose() => _context.Dispose();
++    public void Dispose()
++    {
++        _context.Dispose();
++        // These are process-global; leaving them set would leak into other test classes.
++        Environment.SetEnvironmentVariable("STRIPE_SECRET_KEY", null);
++        Environment.SetEnvironmentVariable("STRIPE_PRICE_PRO", null);
++    }
+ }
+diff --git a/ShiftWork.Api.Tests/Plan/StripeWebhookServiceTests.cs b/ShiftWork.Api.Tests/Plan/StripeWebhookServiceTests.cs
+new file mode 100644
+index 0000000..8b0b5d9
+--- /dev/null
++++ b/ShiftWork.Api.Tests/Plan/StripeWebhookServiceTests.cs
+@@ -0,0 +1,201 @@
++using Microsoft.EntityFrameworkCore;
++using Microsoft.Extensions.Logging.Abstractions;
++using Moq;
++using ShiftWork.Api.Data;
++using ShiftWork.Api.Models;
++using ShiftWork.Api.Services;
++using Stripe;
++using Xunit;
++
++namespace ShiftWork.Api.Tests.Plan;
++
++/// <summary>
++/// Unit tests for StripeWebhookService. Constructs Stripe model objects directly rather than
++/// raw webhook JSON/signatures, since signature verification and JSON parsing are Stripe.net's
++/// responsibility (EventUtility) ΓÇö these tests focus on our own event -> Company mapping logic.
++/// </summary>
++[Collection("StripeEnvVars")]
++public class StripeWebhookServiceTests : IDisposable
++{
++    private readonly ShiftWorkContext _context;
++    private readonly Mock<INotificationService> _notificationServiceMock;
++    private readonly StripeWebhookService _svc;
++
++    private const string ProPriceId = "price_pro_mock";
++
++    public StripeWebhookServiceTests()
++    {
++        var options = new DbContextOptionsBuilder<ShiftWorkContext>()
++            .UseInMemoryDatabase(Guid.NewGuid().ToString())
++            .Options;
++        _context = new ShiftWorkContext(options);
++        _notificationServiceMock = new Mock<INotificationService>();
++        _svc = new StripeWebhookService(_context, NullLogger<StripeWebhookService>.Instance, _notificationServiceMock.Object);
++
++        Environment.SetEnvironmentVariable("STRIPE_PRICE_PRO", ProPriceId);
++    }
++
++    private async Task<Company> CreateCompanyAsync(string plan, string? stripeCustomerId, string? stripeSubscriptionId = null)
++    {
++        var company = new Company
++        {
++            CompanyId = Guid.NewGuid().ToString(),
++            Name = "Test Co",
++            Email = "billing@test.com",
++            PhoneNumber = string.Empty,
++            Address = string.Empty,
++            TimeZone = "UTC",
++            Plan = plan,
++            StripeCustomerId = stripeCustomerId,
++            StripeSubscriptionId = stripeSubscriptionId
++        };
++        _context.Companies.Add(company);
++        await _context.SaveChangesAsync();
++        return company;
++    }
++
++    private static Subscription BuildSubscription(string subscriptionId, string customerId, string status, string? priceId, DateTime? periodEnd)
++    {
++        var items = new StripeList<SubscriptionItem>
++        {
++            Data = new List<SubscriptionItem>()
++        };
++
++        if (priceId != null)
++        {
++            items.Data.Add(new SubscriptionItem
++            {
++                Price = new Price { Id = priceId },
++                CurrentPeriodEnd = periodEnd ?? DateTime.UtcNow
++            });
++        }
++
++        return new Subscription
++        {
++            Id = subscriptionId,
++            CustomerId = customerId,
++            Status = status,
++            Items = items
++        };
++    }
++
++    // ΓöÇΓöÇ HandleSubscriptionUpsertedAsync ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
++
++    [Fact]
++    public async Task SubscriptionUpserted_ActiveWithKnownPrice_UpgradesPlanAndSetsExpiry()
++    {
++        var company = await CreateCompanyAsync("Free", "cus_1");
++        var periodEnd = DateTime.UtcNow.AddMonths(1);
++        var subscription = BuildSubscription("sub_1", "cus_1", "active", ProPriceId, periodEnd);
++
++        await _svc.HandleSubscriptionUpsertedAsync(subscription);
++
++        var updated = await _context.Companies.FindAsync(company.CompanyId);
++        Assert.Equal("Pro", updated!.Plan);
++        Assert.Equal("sub_1", updated.StripeSubscriptionId);
++        Assert.Equal(periodEnd, updated.PlanExpiresAt);
++    }
++
++    [Fact]
++    public async Task SubscriptionUpserted_ActiveWithUnrecognizedPrice_LeavesPlanUnchanged()
++    {
++        var company = await CreateCompanyAsync("Free", "cus_2");
++        var subscription = BuildSubscription("sub_2", "cus_2", "active", "price_unknown", DateTime.UtcNow.AddMonths(1));
++
++        await _svc.HandleSubscriptionUpsertedAsync(subscription);
++
++        var updated = await _context.Companies.FindAsync(company.CompanyId);
++        Assert.Equal("Free", updated!.Plan);
++        // Subscription id is still recorded even though the price tier is unrecognized.
++        Assert.Equal("sub_2", updated.StripeSubscriptionId);
++    }
++
++    [Fact]
++    public async Task SubscriptionUpserted_CanceledStatus_DowngradesToFree()
++    {
++        var company = await CreateCompanyAsync("Pro", "cus_3", "sub_old");
++        var subscription = BuildSubscription("sub_old", "cus_3", "canceled", ProPriceId, null);
++
++        await _svc.HandleSubscriptionUpsertedAsync(subscription);
++
++        var updated = await _context.Companies.FindAsync(company.CompanyId);
++        Assert.Equal("Free", updated!.Plan);
++        Assert.Null(updated.StripeSubscriptionId);
++    }
++
++    [Fact]
++    public async Task SubscriptionUpserted_UnknownCustomer_DoesNotThrow()
++    {
++        var subscription = BuildSubscription("sub_x", "cus_does_not_exist", "active", ProPriceId, DateTime.UtcNow);
++
++        await _svc.HandleSubscriptionUpsertedAsync(subscription);
++        // No assertion needed beyond "did not throw" ΓÇö there's no company row to check.
++    }
++
++    // ΓöÇΓöÇ HandleSubscriptionDeletedAsync ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
++
++    [Fact]
++    public async Task SubscriptionDeleted_DowngradesToFreeAndClearsBillingFields()
++    {
++        var company = await CreateCompanyAsync("Pro", "cus_4", "sub_4");
++        company.PlanExpiresAt = DateTime.UtcNow.AddMonths(1);
++        await _context.SaveChangesAsync();
++
++        var subscription = BuildSubscription("sub_4", "cus_4", "canceled", ProPriceId, null);
++
++        await _svc.HandleSubscriptionDeletedAsync(subscription);
++
++        var updated = await _context.Companies.FindAsync(company.CompanyId);
++        Assert.Equal("Free", updated!.Plan);
++        Assert.Null(updated.StripeSubscriptionId);
++        Assert.Null(updated.PlanExpiresAt);
++    }
++
++    // ΓöÇΓöÇ HandleInvoicePaymentSucceededAsync ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
++
++    [Fact]
++    public async Task InvoicePaymentSucceeded_ExtendsPlanExpiresAt()
++    {
++        var company = await CreateCompanyAsync("Pro", "cus_5", "sub_5");
++        var periodEnd = DateTime.UtcNow.AddMonths(1);
++        var invoice = new Invoice { CustomerId = "cus_5", PeriodEnd = periodEnd };
++
++        await _svc.HandleInvoicePaymentSucceededAsync(invoice);
++
++        var updated = await _context.Companies.FindAsync(company.CompanyId);
++        Assert.Equal(periodEnd, updated!.PlanExpiresAt);
++    }
++
++    // ΓöÇΓöÇ HandleInvoicePaymentFailedAsync ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
++
++    [Fact]
++    public async Task InvoicePaymentFailed_SendsNotificationToCompanyEmail()
++    {
++        var company = await CreateCompanyAsync("Pro", "cus_6", "sub_6");
++        var invoice = new Invoice { CustomerId = "cus_6" };
++
++        await _svc.HandleInvoicePaymentFailedAsync(invoice);
++
++        _notificationServiceMock.Verify(
++            n => n.SendEmailAsync(company.Email, It.IsAny<string>(), It.IsAny<string>()),
++            Times.Once);
++    }
++
++    [Fact]
++    public async Task InvoicePaymentFailed_UnknownCustomer_DoesNotSendNotification()
++    {
++        var invoice = new Invoice { CustomerId = "cus_does_not_exist" };
++
++        await _svc.HandleInvoicePaymentFailedAsync(invoice);
++
++        _notificationServiceMock.Verify(
++            n => n.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
++            Times.Never);
++    }
++
++    public void Dispose()
++    {
++        _context.Dispose();
++        Environment.SetEnvironmentVariable("STRIPE_PRICE_PRO", null);
++    }
++}
+diff --git a/ShiftWork.Api/.env.example b/ShiftWork.Api/.env.example
+index 4098ec5..98f239c 100644
+--- a/ShiftWork.Api/.env.example
++++ b/ShiftWork.Api/.env.example
+@@ -34,20 +34,27 @@ Smtp__Port=587
+ Smtp__Username=no-reply@joblogsmart.com
+ Smtp__Password=your-zoho-password-here
+ Smtp__From=no-reply@joblogsmart.com
+ Email__From=no-reply@joblogsmart.com
+ 
+ # Notification Settings
+ ENABLE_EMAIL_NOTIFICATIONS=true
+ ENABLE_SMS_NOTIFICATIONS=false
+ ENABLE_PUSH_NOTIFICATIONS=false
+ 
+ # Twilio Configuration (Optional - for SMS)
+ TWILIO_ACCOUNT_SID=your-twilio-account-sid
+ TWILIO_AUTH_TOKEN=your-twilio-auth-token
+ TWILIO_PHONE_NUMBER=+1234567890
+ 
+ # AWS S3 Configuration (Optional - for photo uploads)
+ AWS_ACCESS_KEY_ID=your-aws-access-key
+ AWS_SECRET_ACCESS_KEY=your-aws-secret-key
+ AWS_S3_BUCKET_NAME=your-bucket-name
+ AWS_REGION=us-east-1
++
++# Stripe Billing (Optional - plan upgrades run in simulation mode when absent)
++STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
++STRIPE_PUBLISHABLE_KEY=pk_test_your-stripe-publishable-key
++STRIPE_WEBHOOK_SECRET=whsec_your-stripe-webhook-signing-secret
++# Stripe Price ID for the "Pro" plan (Stripe Dashboard -> Product catalog -> Prices)
++STRIPE_PRICE_PRO=price_your-pro-plan-price-id
+diff --git a/ShiftWork.Api/Controllers/AuthController.cs b/ShiftWork.Api/Controllers/AuthController.cs
+index 55edc54..1c2c67e 100644
+--- a/ShiftWork.Api/Controllers/AuthController.cs
++++ b/ShiftWork.Api/Controllers/AuthController.cs
+@@ -157,77 +157,78 @@ namespace ShiftWork.Api.Controllers
+         /// Registers a new customer: creates company, admin CompanyUser, and seeds sandbox data.
+         /// Caller MUST send a valid Firebase ID token as Authorization: Bearer {token}.
+         /// The FirebaseUid in the body MUST match the JWT sub claim.
+         /// Rate-limited: max 5 attempts per IP per hour.
+         /// 
+         /// DISABLED: Self-registration is no longer allowed. Users must be invited by a company admin.
+         /// </summary>
+         [HttpPost("register")]
+         [Authorize]
+         [EnableRateLimiting("registration-limit")]
+         [ProducesResponseType(typeof(CompanyRegistrationResponse), 201)]
+         [ProducesResponseType(400)]
+         [ProducesResponseType(401)]
+         [ProducesResponseType(403)]
+         [ProducesResponseType(409)]
+         [ProducesResponseType(429)]
+         [ProducesResponseType(500)]
+         public async Task<ActionResult<CompanyRegistrationResponse>> Register(
+             [FromBody] CompanyRegistrationRequest request)
+         {
+-            // Self-registration is disabled. Users must be invited by a company admin.
+-            return StatusCode(403, new { message = "Self-registration is disabled. Please contact a company administrator to receive an invitation." });
++            // Extract Firebase UID from JWT "sub" claim
++            var tokenUid = User.FindFirstValue(ClaimTypes.NameIdentifier)
++                ?? User.FindFirstValue("sub");
+ 
+-            /* Original registration logic preserved for reference:
+             if (string.IsNullOrEmpty(tokenUid))
+                 return Unauthorized("A valid Firebase Bearer token is required.");
+             if (tokenUid != request.FirebaseUid)
+                 return BadRequest("FirebaseUid does not match the authenticated token.");
+ 
+             // Duplicate UID check
+             var existingUser = await _context.CompanyUsers
+                 .FirstOrDefaultAsync(u => u.Uid == request.FirebaseUid);
+             if (existingUser != null)
+                 return Conflict("A user account with this Firebase UID already exists.");
+ 
+             // Duplicate company email check
+             var existingCompany = await _context.Companies
+                 .FirstOrDefaultAsync(c => c.Email == request.CompanyEmail);
+             if (existingCompany != null)
+                 return Conflict("A company with this email already exists.");
+ 
+             await using var transaction = await _context.Database.BeginTransactionAsync();
+             try
+             {
+                 _logger.LogInformation("{EventName} {Email}", FunnelEventNames.RegistrationStarted, request.UserEmail);
+ 
+-                // 1. Create Company
++                // 1. Create Company (with 14-day trial)
+                 var companyId = Guid.NewGuid().ToString();
+                 var company = new Company
+                 {
+                     CompanyId = companyId,
+                     Name = request.CompanyName,
+                     Email = request.CompanyEmail,
+                     PhoneNumber = request.CompanyPhone ?? string.Empty,
+                     Address = string.Empty,
+                     TimeZone = request.TimeZone,
+                     Plan = "Free",
++                    PlanExpiresAt = DateTime.UtcNow.AddDays(14),
+                     OnboardingStatus = "Pending"
+                 };
+                 _context.Companies.Add(company);
+                 await _context.SaveChangesAsync();
+ 
+                 // 2. Create Admin CompanyUser
+                 var companyUser = new CompanyUser
+                 {
+                     CompanyUserId = Guid.NewGuid().ToString(),
+                     Uid = request.FirebaseUid,
+                     Email = request.UserEmail,
+                     DisplayName = request.UserDisplayName,
+                     PhotoURL = string.Empty,
+                     CompanyId = companyId,
+                     EmailVerified = false
+                 };
+                 _context.CompanyUsers.Add(companyUser);
+                 await _context.SaveChangesAsync();
+ 
+                 // 3. Assign Owner role
+@@ -259,41 +260,40 @@ namespace ShiftWork.Api.Controllers
+                 await transaction.CommitAsync();
+ 
+                 _logger.LogInformation("{EventName} {CompanyId}", "registration_completed", companyId);
+ 
+                 var response = new CompanyRegistrationResponse
+                 {
+                     CompanyId = companyId,
+                     Plan = "Free",
+                     OnboardingStatus = "Pending",
+                     AdminUser = _mapper.Map<CompanyUserDto>(companyUser)
+                 };
+ 
+                 return CreatedAtAction(nameof(Register), response);
+             }
+             catch (Exception ex)
+             {
+                 await transaction.RollbackAsync();
+                 _logger.LogError(ex, "Registration failed for {Email}", request.UserEmail);
+                 return StatusCode(500, "Registration failed. Please try again.");
+             }
+-            */
+         }
+ 
+         // ΓöÇΓöÇ API-based authentication (Firebase auth disabled for mobile) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+ 
+         /// <summary>
+         /// Authenticates a Person with email and password, returns a signed JWT.
+         /// Firebase is NOT involved; use this from the mobile app when Firebase is disabled.
+         /// </summary>
+         [HttpPost("login")]
+         [AllowAnonymous]
+         [ProducesResponseType(200)]
+         [ProducesResponseType(401)]
+         public async Task<IActionResult> Login([FromBody] ApiLoginRequest request)
+         {
+             if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+                 return BadRequest("Email and password are required.");
+ 
+             var person = await _context.Persons.FirstOrDefaultAsync(p => p.Email == request.Email);
+             if (person == null || string.IsNullOrEmpty(person.PasswordHash))
+                 return Unauthorized(new { message = "Invalid email or password." });
+diff --git a/ShiftWork.Api/Controllers/CompanyController.cs b/ShiftWork.Api/Controllers/CompanyController.cs
+index 16a9ba7..0fb3044 100644
+--- a/ShiftWork.Api/Controllers/CompanyController.cs
++++ b/ShiftWork.Api/Controllers/CompanyController.cs
+@@ -1,29 +1,30 @@
+ using Microsoft.AspNetCore.Authorization;
+ using Microsoft.AspNetCore.Mvc;
+ using Microsoft.Extensions.Logging;
+ using Microsoft.EntityFrameworkCore;
+ using ShiftWork.Api.Data;
+ using ShiftWork.Api.DTOs;
+ using ShiftWork.Api.Helpers;
+ using ShiftWork.Api.Models;
+ using ShiftWork.Api.Services;
++using Stripe;
+ using System;
+ using System.Collections.Generic;
+ using System.Security.Claims;
+ using System.Threading.Tasks;
+ 
+ namespace ShiftWork.Api.Controllers
+ {
+     /// <summary>
+     /// API controller for managing companies.
+     /// </summary>
+     [ApiController]
+     [Authorize]
+     [Route("api/companies")]
+     public class CompanyController : ControllerBase
+     {
+         private readonly ICompanyService _companyService;
+         private readonly ILogger<CompanyController> _logger;
+         private readonly IPlanService _planService;
+         private readonly ShiftWorkContext _context;
+ 
+@@ -199,41 +200,41 @@ namespace ShiftWork.Api.Controllers
+             {
+                 var deleted = await _companyService.DeleteCompanyAsync(id);
+                 if (!deleted)
+                 {
+                     return NotFound($"Company with ID {id} not found.");
+                 }
+                 return NoContent();
+             }
+             catch (Exception ex)
+             {
+                 _logger.LogError(ex, "An error occurred while deleting company with ID {CompanyId}.", id);
+                 return StatusCode(500, "An internal server error occurred.");
+             }
+         }
+ 
+         /// <summary>
+         /// Upgrades the company plan (e.g. Free -> Pro).
+         /// Integrates Stripe when configured; falls back to simulation when STRIPE_SECRET_KEY is absent.
+         /// </summary>
+         [HttpPost("{companyId}/plan/upgrade")]
+-        [Authorize]
++        [Authorize(Policy = "companies.billing")]
+         [ProducesResponseType(typeof(PlanUpgradeResponse), 200)]
+         [ProducesResponseType(400)]
+         [ProducesResponseType(404)]
+         [ProducesResponseType(500)]
+         public async Task<ActionResult<PlanUpgradeResponse>> UpgradePlan(
+             string companyId,
+             [FromBody] PlanUpgradeRequest request)
+         {
+             if (!ModelState.IsValid)
+                 return BadRequest(ModelState);
+ 
+             if (string.IsNullOrWhiteSpace(request.TargetPlan))
+                 return BadRequest("TargetPlan is required.");
+ 
+             try
+             {
+                 _logger.LogInformation("{EventName} {CompanyId} {TargetPlan}",
+                     "plan_upgrade_attempt", companyId, request.TargetPlan);
+ 
+                 var success = await _planService.UpgradePlanAsync(
+@@ -245,40 +246,130 @@ namespace ShiftWork.Api.Controllers
+                     return NotFound($"Company {companyId} not found.");
+ 
+                 _logger.LogInformation("{EventName} {CompanyId} {TargetPlan}",
+                     "plan_upgrade_success", companyId, request.TargetPlan);
+ 
+                 return Ok(new PlanUpgradeResponse
+                 {
+                     Success = true,
+                     Plan = request.TargetPlan,
+                     Message = $"Plan upgraded to {request.TargetPlan} successfully."
+                 });
+             }
+             catch (Exception ex)
+             {
+                 _logger.LogError(ex, "{EventName} {CompanyId} {TargetPlan}",
+                     "plan_upgrade_failed", companyId, request.TargetPlan);
+                 return StatusCode(500, "An internal server error occurred.");
+             }
+         }
+ 
++        /// <summary>
++        /// Creates a Stripe Billing Portal session for self-serve subscription management.
++        /// Customer can view/download invoices, change payment method, cancel subscription, etc.
++        /// </summary>
++        [HttpPost("{companyId}/billing-portal-session")]
++        [Authorize]
++        [ProducesResponseType(typeof(BillingPortalSessionResponse), 200)]
++        [ProducesResponseType(400)]
++        [ProducesResponseType(404)]
++        [ProducesResponseType(500)]
++        public async Task<ActionResult<BillingPortalSessionResponse>> CreateBillingPortalSession(
++            string companyId,
++            [FromBody] BillingPortalSessionRequest request)
++        {
++            try
++            {
++                var company = await _companyService.GetCompanyByIdAsync(companyId);
++                if (company == null)
++                    return NotFound($"Company {companyId} not found.");
++
++                if (string.IsNullOrWhiteSpace(company.StripeCustomerId))
++                    return BadRequest("Company does not have an active Stripe subscription.");
++
++                if (string.IsNullOrWhiteSpace(StripeConfiguration.ApiKey))
++                    return BadRequest("Stripe is not configured on this server.");
++
++                var stripeGateway = HttpContext.RequestServices.GetRequiredService<IStripeGateway>();
++                var portalUrl = await stripeGateway.CreateBillingPortalSessionAsync(
++                    company.StripeCustomerId,
++                    request.ReturnUrl);
++
++                _logger.LogInformation(
++                    "Billing portal session created for company {CompanyId}.",
++                    companyId);
++
++                return Ok(new BillingPortalSessionResponse { PortalUrl = portalUrl });
++            }
++            catch (Exception ex)
++            {
++                _logger.LogError(ex, "Error creating billing portal session for company {CompanyId}.", companyId);
++                return StatusCode(500, "An internal server error occurred.");
++            }
++        }
++
++        /// <summary>
++        /// Retrieves billing information for a company (plan, trial status, employee count).
++        /// </summary>
++        [HttpGet("{companyId}/billing")]
++        [Authorize]
++        [ProducesResponseType(typeof(CompanyBillingInfoDto), 200)]
++        [ProducesResponseType(404)]
++        [ProducesResponseType(500)]
++        public async Task<ActionResult<CompanyBillingInfoDto>> GetBillingInfo(string companyId)
++        {
++            try
++            {
++                var company = await _companyService.GetCompanyByIdAsync(companyId);
++                if (company == null)
++                    return NotFound($"Company {companyId} not found.");
++
++                var employeeCount = await _context.Persons.CountAsync(p => p.CompanyId == companyId && p.Status == "Active");
++                var maxEmployees = PlanLimits.GetMaxEmployeesForPlan(company.Plan ?? "Free");
++                var trialDaysRemaining = 0;
++                var isTrialExpired = false;
++
++                if (company.PlanExpiresAt.HasValue)
++                {
++                    trialDaysRemaining = Math.Max(0, (int)(company.PlanExpiresAt.Value - DateTime.UtcNow).TotalDays);
++                    isTrialExpired = DateTime.UtcNow > company.PlanExpiresAt;
++                }
++
++                return Ok(new CompanyBillingInfoDto
++                {
++                    CompanyId = company.CompanyId,
++                    Name = company.Name,
++                    Plan = company.Plan ?? "Free",
++                    TrialDaysRemaining = trialDaysRemaining,
++                    PlanExpiresAt = company.PlanExpiresAt,
++                    EmployeeCount = employeeCount,
++                    EmployeeLimit = maxEmployees,
++                    IsTrialExpired = isTrialExpired
++                });
++            }
++            catch (Exception ex)
++            {
++                _logger.LogError(ex, "Error retrieving billing info for company {CompanyId}.", companyId);
++                return StatusCode(500, "An internal server error occurred.");
++            }
++        }
++
+         /// <summary>
+         /// Updates the OnboardingStatus of a company ("Pending" | "Verified" | "Complete").
+         /// Called by the client after Firebase email verification is confirmed.
+         /// </summary>
+         [HttpPatch("{companyId}/onboarding-status")]
+         [Authorize]
+         [ProducesResponseType(204)]
+         [ProducesResponseType(400)]
+         [ProducesResponseType(404)]
+         [ProducesResponseType(500)]
+         public async Task<IActionResult> PatchOnboardingStatus(
+             string companyId,
+             [FromBody] PatchOnboardingStatusRequest request)
+         {
+             if (!ModelState.IsValid)
+                 return BadRequest(ModelState);
+ 
+             var allowedStatuses = new[] { "Pending", "Verified", "Complete" };
+             if (!Array.Exists(allowedStatuses, s => s == request.Status))
+                 return BadRequest($"Status must be one of: {string.Join(", ", allowedStatuses)}");
+diff --git a/ShiftWork.Api/Controllers/PeopleController.cs b/ShiftWork.Api/Controllers/PeopleController.cs
+index 9d06548..397825b 100644
+--- a/ShiftWork.Api/Controllers/PeopleController.cs
++++ b/ShiftWork.Api/Controllers/PeopleController.cs
+@@ -165,50 +165,84 @@ namespace ShiftWork.Api.Controllers
+                 {
+                     _logger.LogInformation("Cache hit for person {PersonId} in company {CompanyId}", personId, companyId);
+                 }
+ 
+                 return Ok(_mapper.Map<PersonDto>(person));
+             }
+             catch (Exception ex)
+             {
+                 _logger.LogError(ex, "Error retrieving person {PersonId} for company {CompanyId}.", personId, companyId);
+                 return StatusCode(500, "An internal server error occurred.");
+             }
+         }
+ 
+         /// <summary>
+         /// Creates a new person.
+         /// </summary>
+         [HttpPost]
+         [Authorize(Policy = "people.create")]
+         [ProducesResponseType(typeof(PersonDto), 201)]
+         [ProducesResponseType(400)]
++        [ProducesResponseType(403)]
+         [ProducesResponseType(500)]
+         public async Task<ActionResult<PersonDto>> PostPerson(string companyId, [FromBody] PersonDto personDto)
+         {
+             if (!ModelState.IsValid)
+             {
+                 return BadRequest(ModelState);
+             }
+ 
+             try
+             {
++                var company = await _context.Companies.FindAsync(companyId);
++                if (company == null)
++                {
++                    return NotFound($"Company {companyId} not found.");
++                }
++
++                // Check if trial has expired and auto-downgrade
++                if (company.Plan != "Free" && company.PlanExpiresAt != null && DateTime.UtcNow > company.PlanExpiresAt)
++                {
++                    company.Plan = "Free";
++                    company.StripeSubscriptionId = null;
++                    _context.Companies.Update(company);
++                    await _context.SaveChangesAsync();
++                    _logger.LogInformation("Company {CompanyId} auto-downgraded to Free plan after trial expiration.", companyId);
++                }
++
++                // Check usage limits
++                var employeeCount = await _context.Persons.CountAsync(p => p.CompanyId == companyId && p.Status == "Active");
++                var maxEmployees = ShiftWork.Api.Helpers.PlanLimits.GetMaxEmployeesForPlan(company.Plan);
++
++                if (employeeCount >= maxEmployees)
++                {
++                    var plan = company.Plan ?? "Free";
++                    return StatusCode(403, new
++                    {
++                        error = "plan_limit_exceeded",
++                        message = $"Your {plan} plan supports up to {maxEmployees} employees. Please upgrade to add more.",
++                        currentCount = employeeCount,
++                        limit = maxEmployees,
++                        plan = plan
++                    });
++                }
++
+                 var person = _mapper.Map<Person>(personDto);
+                 if (!string.IsNullOrEmpty(personDto.Pin))
+                 {
+                     person.Pin = BCrypt.Net.BCrypt.HashPassword(personDto.Pin);
+                 }
+                 if (!string.IsNullOrEmpty(personDto.Password))
+                 {
+                     person.PasswordHash = BCrypt.Net.BCrypt.HashPassword(personDto.Password);
+                 }
+                 var createdPerson = await _peopleService.Add(person);
+ 
+                 if (createdPerson == null)
+                 {
+                     return BadRequest("Failed to create person.");
+                 }
+ 
+                 _memoryCache.Remove($"people_{companyId}");
+                 var createdPersonDto = _mapper.Map<PersonDto>(createdPerson);
+ 
+                 // Trigger webhook for employee.created event (non-blocking with timeout)
+diff --git a/ShiftWork.Api/Controllers/StripeWebhookController.cs b/ShiftWork.Api/Controllers/StripeWebhookController.cs
+new file mode 100644
+index 0000000..cf73390
+--- /dev/null
++++ b/ShiftWork.Api/Controllers/StripeWebhookController.cs
+@@ -0,0 +1,95 @@
++using System.IO;
++using Microsoft.AspNetCore.Authorization;
++using Microsoft.AspNetCore.Mvc;
++using ShiftWork.Api.Services;
++using Stripe;
++
++namespace ShiftWork.Api.Controllers
++{
++    /// <summary>
++    /// Receives Stripe subscription lifecycle events so Company.Plan stays in sync with the
++    /// customer's actual billing state (payment failures, cancellations, tier changes) even
++    /// when those happen outside the app (e.g. directly in the Stripe customer portal).
++    /// See Docs/WEBHOOK_INTEGRATION.md "Stripe Subscription Lifecycle Webhooks" for the spec.
++    /// Thin by design: signature verification + dispatch only. Business logic lives in
++    /// <see cref="IStripeWebhookService"/>.
++    /// </summary>
++    [ApiController]
++    [Route("api/webhooks/stripe")]
++    public class StripeWebhookController : ControllerBase
++    {
++        private readonly IStripeWebhookService _webhookService;
++        private readonly ILogger<StripeWebhookController> _logger;
++
++        public StripeWebhookController(IStripeWebhookService webhookService, ILogger<StripeWebhookController> logger)
++        {
++            _webhookService = webhookService;
++            _logger = logger;
++        }
++
++        [HttpPost]
++        [AllowAnonymous]
++        public async Task<IActionResult> HandleStripeEvent()
++        {
++            var webhookSecret = Environment.GetEnvironmentVariable("STRIPE_WEBHOOK_SECRET");
++            if (string.IsNullOrWhiteSpace(webhookSecret))
++            {
++                _logger.LogError("Stripe webhook received but STRIPE_WEBHOOK_SECRET is not configured.");
++                return StatusCode(500, "Webhook is not configured.");
++            }
++
++            var payload = await new StreamReader(Request.Body).ReadToEndAsync();
++            var signature = Request.Headers["Stripe-Signature"].ToString();
++
++            Event stripeEvent;
++            try
++            {
++                // Signature MUST be verified before trusting any payload data.
++                stripeEvent = EventUtility.ConstructEvent(payload, signature, webhookSecret);
++            }
++            catch (StripeException ex)
++            {
++                _logger.LogWarning(ex, "Stripe webhook signature verification failed.");
++                return BadRequest("Invalid Stripe webhook signature.");
++            }
++
++            switch (stripeEvent.Type)
++            {
++                case EventTypes.CustomerSubscriptionCreated:
++                case EventTypes.CustomerSubscriptionUpdated:
++                    if (stripeEvent.Data.Object is Subscription upsertedSubscription)
++                    {
++                        await _webhookService.HandleSubscriptionUpsertedAsync(upsertedSubscription);
++                    }
++                    break;
++
++                case EventTypes.CustomerSubscriptionDeleted:
++                    if (stripeEvent.Data.Object is Subscription deletedSubscription)
++                    {
++                        await _webhookService.HandleSubscriptionDeletedAsync(deletedSubscription);
++                    }
++                    break;
++
++                case EventTypes.InvoicePaymentSucceeded:
++                    if (stripeEvent.Data.Object is Invoice paidInvoice)
++                    {
++                        await _webhookService.HandleInvoicePaymentSucceededAsync(paidInvoice);
++                    }
++                    break;
++
++                case EventTypes.InvoicePaymentFailed:
++                    if (stripeEvent.Data.Object is Invoice failedInvoice)
++                    {
++                        await _webhookService.HandleInvoicePaymentFailedAsync(failedInvoice);
++                    }
++                    break;
++
++                default:
++                    _logger.LogInformation("Unhandled Stripe event type: {EventType}", stripeEvent.Type);
++                    break;
++            }
++
++            return Ok();
++        }
++    }
++}
+diff --git a/ShiftWork.Api/DTOs/BillingPortalSessionRequest.cs b/ShiftWork.Api/DTOs/BillingPortalSessionRequest.cs
+new file mode 100644
+index 0000000..3da782a
+--- /dev/null
++++ b/ShiftWork.Api/DTOs/BillingPortalSessionRequest.cs
+@@ -0,0 +1,7 @@
++namespace ShiftWork.Api.DTOs
++{
++    public class BillingPortalSessionRequest
++    {
++        public string ReturnUrl { get; set; }
++    }
++}
+diff --git a/ShiftWork.Api/DTOs/BillingPortalSessionResponse.cs b/ShiftWork.Api/DTOs/BillingPortalSessionResponse.cs
+new file mode 100644
+index 0000000..9028a52
+--- /dev/null
++++ b/ShiftWork.Api/DTOs/BillingPortalSessionResponse.cs
+@@ -0,0 +1,7 @@
++namespace ShiftWork.Api.DTOs
++{
++    public class BillingPortalSessionResponse
++    {
++        public string PortalUrl { get; set; }
++    }
++}
+diff --git a/ShiftWork.Api/DTOs/CompanyBillingInfoDto.cs b/ShiftWork.Api/DTOs/CompanyBillingInfoDto.cs
+new file mode 100644
+index 0000000..cf39456
+--- /dev/null
++++ b/ShiftWork.Api/DTOs/CompanyBillingInfoDto.cs
+@@ -0,0 +1,14 @@
++namespace ShiftWork.Api.DTOs
++{
++    public class CompanyBillingInfoDto
++    {
++        public string CompanyId { get; set; }
++        public string Name { get; set; }
++        public string Plan { get; set; }
++        public int TrialDaysRemaining { get; set; }
++        public DateTime? PlanExpiresAt { get; set; }
++        public int EmployeeCount { get; set; }
++        public int EmployeeLimit { get; set; }
++        public bool IsTrialExpired { get; set; }
++    }
++}
+diff --git a/ShiftWork.Api/Helpers/FunnelEventNames.cs b/ShiftWork.Api/Helpers/FunnelEventNames.cs
+index f7b4fa6..056bb88 100644
+--- a/ShiftWork.Api/Helpers/FunnelEventNames.cs
++++ b/ShiftWork.Api/Helpers/FunnelEventNames.cs
+@@ -14,21 +14,26 @@ public static class FunnelEventNames
+     public const string EmailVerified         = "email_verified";
+     public const string OnboardingCompleted   = "onboarding_completed";
+     public const string OnboardingStatusUpdated = "onboarding_status_updated";
+ 
+     // ΓöÇΓöÇ Sandbox ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+     public const string SandboxSeedStarted    = "sandbox_seed_started";
+     public const string SandboxSeedCompleted  = "sandbox_seed_completed";
+     public const string SandboxHide           = "sandbox_hide";
+     public const string SandboxReset          = "sandbox_reset";
+     public const string SandboxDelete         = "sandbox_delete";
+     public const string SandboxDeleteViaApi   = "sandbox_delete_via_api";
+     public const string SandboxDeleteDenied   = "sandbox_delete_denied";
+     public const string SandboxResetViaApi    = "sandbox_reset_via_api";
+     public const string SandboxHideViaApi     = "sandbox_hide_via_api";
+ 
+     // ΓöÇΓöÇ Plan upgrade ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+     public const string PlanUpgradeStarted    = "plan_upgrade_started";
+     public const string PlanUpgradeSuccess    = "plan_upgrade_success";
+     public const string PlanUpgradeFailure    = "plan_upgrade_failure";
+     public const string PlanUpgradeSimulated  = "plan_upgrade_simulated";
++
++    // ΓöÇΓöÇ Stripe billing webhooks ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
++    public const string PlanPaymentSuccess    = "plan_payment_success";
++    public const string PlanPaymentFailure    = "plan_payment_failure";
++    public const string PlanDowngraded        = "plan_downgraded_subscription_deleted";
+ }
+diff --git a/ShiftWork.Api/Helpers/PlanLimits.cs b/ShiftWork.Api/Helpers/PlanLimits.cs
+new file mode 100644
+index 0000000..a4d599f
+--- /dev/null
++++ b/ShiftWork.Api/Helpers/PlanLimits.cs
+@@ -0,0 +1,18 @@
++namespace ShiftWork.Api.Helpers
++{
++    public static class PlanLimits
++    {
++        public const int FreeMaxEmployees = 50;
++        public const int ProMaxEmployees = int.MaxValue;
++
++        public static int GetMaxEmployeesForPlan(string plan)
++        {
++            return plan switch
++            {
++                "Pro" => ProMaxEmployees,
++                "Free" => FreeMaxEmployees,
++                _ => 0
++            };
++        }
++    }
++}
+diff --git a/ShiftWork.Api/Helpers/StripePlanMapping.cs b/ShiftWork.Api/Helpers/StripePlanMapping.cs
+new file mode 100644
+index 0000000..c981f28
+--- /dev/null
++++ b/ShiftWork.Api/Helpers/StripePlanMapping.cs
+@@ -0,0 +1,33 @@
++namespace ShiftWork.Api.Helpers
++{
++    /// <summary>
++    /// Single source of truth mapping ShiftWork plan names to Stripe Price IDs.
++    /// Add one env var + one switch arm per paid plan tier.
++    /// </summary>
++    public static class StripePlanMapping
++    {
++        /// <summary>Returns the Stripe Price ID configured for a plan name, or null if the plan isn't Stripe-billed.</summary>
++        public static string? GetPriceIdForPlan(string plan) => plan switch
++        {
++            "Pro" => Environment.GetEnvironmentVariable("STRIPE_PRICE_PRO"),
++            _ => null
++        };
++
++        /// <summary>Reverse lookup: given a Stripe Price ID from a webhook event, returns the matching plan name, or null if unrecognized.</summary>
++        public static string? GetPlanForPriceId(string? priceId)
++        {
++            if (string.IsNullOrWhiteSpace(priceId))
++            {
++                return null;
++            }
++
++            var proPriceId = Environment.GetEnvironmentVariable("STRIPE_PRICE_PRO");
++            if (!string.IsNullOrWhiteSpace(proPriceId) && priceId == proPriceId)
++            {
++                return "Pro";
++            }
++
++            return null;
++        }
++    }
++}
+diff --git a/ShiftWork.Api/Program.cs b/ShiftWork.Api/Program.cs
+index 6b14992..5f363d8 100644
+--- a/ShiftWork.Api/Program.cs
++++ b/ShiftWork.Api/Program.cs
+@@ -19,40 +19,47 @@ using System.IdentityModel.Tokens.Jwt;
+ using Microsoft.Extensions.Diagnostics.HealthChecks;
+ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+ 
+ // Load environment variables from .env file
+ Env.TraversePath().Load();
+ //Env.Load();
+ 
+ var builder = WebApplication.CreateBuilder(args);
+ 
+ // Initialize Firebase Auth configuration
+ var firebaseProjectId = Environment.GetEnvironmentVariable("FIREBASE_PROJECT_ID");
+ var firebaseAuthDomain = Environment.GetEnvironmentVariable("FIREBASE_AUTH_DOMAIN");
+ var firebaseApiKey = Environment.GetEnvironmentVariable("FIREBASE_API_KEY");
+ 
+ if (string.IsNullOrEmpty(firebaseProjectId))
+ {
+     throw new InvalidOperationException("FIREBASE_PROJECT_ID is not set in the environment.");
+ }
+ //FirebaseApp.Create();
+ 
++// Stripe billing: absent key means PlanService falls back to simulation mode (no real charges).
++var stripeSecretKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
++if (!string.IsNullOrWhiteSpace(stripeSecretKey))
++{
++    Stripe.StripeConfiguration.ApiKey = stripeSecretKey;
++}
++
+ // The configuration builder automatically adds various sources, including environment variables.
+ // By calling Env.Load(), the variables from your .env file are loaded into the environment
+ // and become accessible to your application.
+ 
+ // Add services to the container.
+ 
+ // TODO: Refactor to use IConfiguration and the options pattern for connection strings and other settings.
+ // This will allow for more flexible configuration sources (e.g., appsettings.json, environment variables, Azure Key Vault).
+ // Example: var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+ // TODO: Refactor to use IConfiguration and the options pattern for connection strings and other settings.
+ // This will allow for more flexible configuration sources (e.g., appsettings.json, environment variables, Azure Key Vault).
+ // Example: var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+ // Configure DbContext using the connection string from the .env file.
+ var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+ if (string.IsNullOrEmpty(connectionString))
+ {
+     // You can provide a fallback or throw an exception if the connection string is not found.
+     throw new InvalidOperationException("DB_CONNECTION_STRING is not set in the environment.");
+ }
+ 
+@@ -137,40 +144,42 @@ builder.Services.AddSingleton<NotificationLocalizer>();
+ builder.Services.AddScoped<PushNotificationService>();
+ builder.Services.AddScoped<IWebhookService, WebhookService>();
+ builder.Services.AddHttpClient();
+ builder.Services.AddHttpClient("weather");
+ builder.Services.AddHttpClient("procore", client =>
+ {
+     client.Timeout = TimeSpan.FromSeconds(15);
+ });
+ 
+ // v2 Content & Communication services
+ builder.Services.AddScoped<IBulletinService, BulletinService>();
+ builder.Services.AddScoped<IWeatherService, WeatherService>();
+ builder.Services.AddScoped<IDailyReportService, DailyReportService>();
+ builder.Services.AddScoped<IDocumentService, DocumentService>();
+ builder.Services.AddScoped<ISafetyService, SafetyService>();
+ builder.Services.AddHostedService<SafetyNotificationHostedService>();
+ builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+ 
+ // Registration & Onboarding feature services
+ builder.Services.AddScoped<ISandboxService, SandboxService>();
++builder.Services.AddScoped<IStripeGateway, StripeGateway>();
++builder.Services.AddScoped<IStripeWebhookService, StripeWebhookService>();
+ builder.Services.AddScoped<IPlanService, PlanService>();
+ 
+ // Rate limiting: protect /api/auth/register from brute-force / account enumeration
+ builder.Services.AddRateLimiter(options =>
+ {
+     options.AddFixedWindowLimiter("registration-limit", opt =>
+     {
+         opt.Window = TimeSpan.FromHours(1);
+         opt.PermitLimit = 5;
+         opt.QueueLimit = 0;
+         opt.AutoReplenishment = true;
+     });
+     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+ });
+ 
+ 
+ // Your AuthController uses AutoMapper, so you need to add it and its DI package.
+ // Run: dotnet add package AutoMapper.Extensions.Microsoft.DependencyInjection
+ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+ 
+@@ -358,40 +367,41 @@ builder.Services.AddAuthorization(options =>
+     options.AddPolicy("crews.assign", policy => policy.Requirements.Add(new PermissionRequirement("crews.assign")));
+     options.AddPolicy("person-crews.read", policy => policy.Requirements.Add(new PermissionRequirement("person-crews.read")));
+     options.AddPolicy("person-crews.update", policy => policy.Requirements.Add(new PermissionRequirement("person-crews.update")));
+ 
+     options.AddPolicy("company-settings.read", policy => policy.Requirements.Add(new PermissionRequirement("company-settings.read")));
+     options.AddPolicy("company-settings.update", policy => policy.Requirements.Add(new PermissionRequirement("company-settings.update")));
+ 
+     options.AddPolicy("device-tokens.read", policy => policy.Requirements.Add(new PermissionRequirement("device-tokens.read")));
+     options.AddPolicy("device-tokens.create", policy => policy.Requirements.Add(new PermissionRequirement("device-tokens.create")));
+     options.AddPolicy("device-tokens.delete", policy => policy.Requirements.Add(new PermissionRequirement("device-tokens.delete")));
+ 
+     options.AddPolicy("replacement-requests.read", policy => policy.Requirements.Add(new PermissionRequirement("replacement-requests.read")));
+     options.AddPolicy("replacement-requests.create", policy => policy.Requirements.Add(new PermissionRequirement("replacement-requests.create")));
+     options.AddPolicy("replacement-requests.update", policy => policy.Requirements.Add(new PermissionRequirement("replacement-requests.update")));
+     options.AddPolicy("replacement-requests.delete", policy => policy.Requirements.Add(new PermissionRequirement("replacement-requests.delete")));
+ 
+     options.AddPolicy("companies.read", policy => policy.Requirements.Add(new PermissionRequirement("companies.read")));
+     options.AddPolicy("companies.create", policy => policy.Requirements.Add(new PermissionRequirement("companies.create")));
+     options.AddPolicy("companies.update", policy => policy.Requirements.Add(new PermissionRequirement("companies.update")));
+     options.AddPolicy("companies.delete", policy => policy.Requirements.Add(new PermissionRequirement("companies.delete")));
++    options.AddPolicy("companies.billing", policy => policy.Requirements.Add(new PermissionRequirement("companies.billing")));
+ 
+     options.AddPolicy("kiosk.admin", policy => policy.Requirements.Add(new PermissionRequirement("kiosk.admin")));
+ 
+     options.AddPolicy("s3.read", policy => policy.Requirements.Add(new PermissionRequirement("s3.read")));
+     options.AddPolicy("s3.write", policy => policy.Requirements.Add(new PermissionRequirement("s3.write")));
+     options.AddPolicy("s3.delete", policy => policy.Requirements.Add(new PermissionRequirement("s3.delete")));
+     options.AddPolicy("s3.manage", policy => policy.Requirements.Add(new PermissionRequirement("s3.manage")));
+ 
+     // V2 Content & Communication
+     options.AddPolicy("bulletins.read", policy => policy.Requirements.Add(new PermissionRequirement("bulletins.read")));
+     options.AddPolicy("bulletins.create", policy => policy.Requirements.Add(new PermissionRequirement("bulletins.create")));
+     options.AddPolicy("bulletins.delete", policy => policy.Requirements.Add(new PermissionRequirement("bulletins.delete")));
+     options.AddPolicy("bulletins.track-reads", policy => policy.Requirements.Add(new PermissionRequirement("bulletins.track-reads")));
+ 
+     options.AddPolicy("documents.read", policy => policy.Requirements.Add(new PermissionRequirement("documents.read")));
+     options.AddPolicy("documents.upload", policy => policy.Requirements.Add(new PermissionRequirement("documents.upload")));
+     options.AddPolicy("documents.delete", policy => policy.Requirements.Add(new PermissionRequirement("documents.delete")));
+     options.AddPolicy("documents.manage", policy => policy.Requirements.Add(new PermissionRequirement("documents.manage")));
+ 
+     options.AddPolicy("reports.read", policy => policy.Requirements.Add(new PermissionRequirement("reports.read")));
+diff --git a/ShiftWork.Api/Services/CompanyService.cs b/ShiftWork.Api/Services/CompanyService.cs
+index 2d12211..ea1d5b1 100644
+--- a/ShiftWork.Api/Services/CompanyService.cs
++++ b/ShiftWork.Api/Services/CompanyService.cs
+@@ -2,40 +2,44 @@ using Microsoft.Extensions.Logging;
+ using ShiftWork.Api.Data;
+ using ShiftWork.Api.Models;
+ using System;
+ using System.Collections.Generic;
+ using System.Threading.Tasks;
+ using Microsoft.EntityFrameworkCore;
+ 
+ namespace ShiftWork.Api.Services
+ {
+     /// <summary>
+     /// Defines the contract for the company service.
+     /// </summary>
+     public interface ICompanyService
+     {
+         Task<IEnumerable<Company>> GetAllCompanies();
+         Task<IEnumerable<Company>> GetCompaniesByUidAsync(string uid, string? email = null);
+         Task<Company> GetCompanyByIdAsync(string id);
+         Task CreateCompanyAsync(Company company);
+         Task<bool> UpdateCompanyAsync(Company company);
+         Task<bool> DeleteCompanyAsync(string id);
++        Task<int> GetTrialDaysRemainingAsync(string companyId);
++        Task<bool> IsTrialExpiredAsync(string companyId);
++        Task<int> GetEmployeeCountAsync(string companyId);
++        Task<bool> AutoDowngradePlanIfTrialExpiredAsync(string companyId);
+     }
+ 
+     /// <summary>
+     /// Service for managing companies.
+     /// </summary>
+     public class CompanyService : ICompanyService
+     {
+         private readonly ShiftWorkContext _context;
+         private readonly ILogger<CompanyService> _logger;
+ 
+         /// <summary>
+         /// Initializes a new instance of the <see cref="CompanyService"/> class.
+         /// </summary>
+         public CompanyService(ShiftWorkContext context, ILogger<CompanyService> logger)
+         {
+             _context = context ?? throw new ArgumentNullException(nameof(context));
+             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+         }
+ 
+         public async Task<IEnumerable<Company>> GetAllCompanies()
+@@ -109,22 +113,64 @@ namespace ShiftWork.Api.Services
+         }
+ 
+         public async Task<bool> DeleteCompanyAsync(string id)
+         {
+             var company = await _context.Companies.FindAsync(id);
+             if (company == null)
+             {
+                 return false;
+             }
+ 
+             _context.Companies.Remove(company);
+             await _context.SaveChangesAsync();
+             _logger.LogInformation("Company with ID {CompanyId} deleted.", id);
+             return true;
+         }
+ 
+         private async Task<bool> CompanyExists(string id)
+         {
+             return await _context.Companies.AnyAsync(e => e.CompanyId == id);
+         }
++
++        public async Task<int> GetTrialDaysRemainingAsync(string companyId)
++        {
++            var company = await _context.Companies.FindAsync(companyId);
++            if (company?.PlanExpiresAt == null)
++                return 0;
++
++            var daysRemaining = (int)(company.PlanExpiresAt.Value - DateTime.UtcNow).TotalDays;
++            return Math.Max(0, daysRemaining);
++        }
++
++        public async Task<bool> IsTrialExpiredAsync(string companyId)
++        {
++            var company = await _context.Companies.FindAsync(companyId);
++            if (company?.PlanExpiresAt == null)
++                return false;
++
++            return DateTime.UtcNow > company.PlanExpiresAt;
++        }
++
++        public async Task<int> GetEmployeeCountAsync(string companyId)
++        {
++            return await _context.Persons.CountAsync(p => p.CompanyId == companyId && p.Status == "Active");
++        }
++
++        public async Task<bool> AutoDowngradePlanIfTrialExpiredAsync(string companyId)
++        {
++            var company = await _context.Companies.FindAsync(companyId);
++            if (company == null)
++                return false;
++
++            if (company.Plan != "Free" && company.PlanExpiresAt != null && DateTime.UtcNow > company.PlanExpiresAt)
++            {
++                company.Plan = "Free";
++                company.StripeSubscriptionId = null;
++                await UpdateCompanyAsync(company);
++                _logger.LogInformation("Company {CompanyId} auto-downgraded to Free plan after trial expiration.", companyId);
++                return true;
++            }
++
++            return false;
++        }
+     }
+ }
+\ No newline at end of file
+diff --git a/ShiftWork.Api/Services/IStripeGateway.cs b/ShiftWork.Api/Services/IStripeGateway.cs
+new file mode 100644
+index 0000000..79e1341
+--- /dev/null
++++ b/ShiftWork.Api/Services/IStripeGateway.cs
+@@ -0,0 +1,34 @@
++namespace ShiftWork.Api.Services
++{
++    /// <summary>
++    /// Thin wrapper around the Stripe.net SDK so PlanService's billing logic can be unit tested
++    /// without making real network calls to Stripe.
++    /// </summary>
++    public interface IStripeGateway
++    {
++        /// <summary>
++        /// Ensures a Stripe customer exists, attaches the given payment method as its default,
++        /// and creates a subscription to the given price. Returns the resulting customer/subscription
++        /// state so the caller can persist it and decide whether the plan is active yet.
++        /// </summary>
++        Task<StripeSubscriptionResult> CreateSubscriptionAsync(
++            string? existingCustomerId,
++            string customerEmail,
++            string customerName,
++            string paymentMethodId,
++            string priceId);
++
++        /// <summary>
++        /// Creates a Stripe Billing Portal session URL for a customer to manage their subscription.
++        /// Customer can view invoices, change payment method, cancel subscription, etc.
++        /// </summary>
++        Task<string> CreateBillingPortalSessionAsync(string customerId, string returnUrl);
++    }
++
++    /// <summary>Result of creating/attaching a Stripe subscription.</summary>
++    public record StripeSubscriptionResult(
++        string CustomerId,
++        string SubscriptionId,
++        string Status,
++        DateTime? CurrentPeriodEnd);
++}
+diff --git a/ShiftWork.Api/Services/IStripeWebhookService.cs b/ShiftWork.Api/Services/IStripeWebhookService.cs
+new file mode 100644
+index 0000000..3f84092
+--- /dev/null
++++ b/ShiftWork.Api/Services/IStripeWebhookService.cs
+@@ -0,0 +1,17 @@
++using Stripe;
++
++namespace ShiftWork.Api.Services
++{
++    /// <summary>
++    /// Applies Stripe subscription lifecycle events to Company billing state.
++    /// The controller only verifies the webhook signature and dispatches by event type;
++    /// all business logic (which company, what plan, what to persist) lives here.
++    /// </summary>
++    public interface IStripeWebhookService
++    {
++        Task HandleSubscriptionUpsertedAsync(Subscription subscription);
++        Task HandleSubscriptionDeletedAsync(Subscription subscription);
++        Task HandleInvoicePaymentSucceededAsync(Invoice invoice);
++        Task HandleInvoicePaymentFailedAsync(Invoice invoice);
++    }
++}
+diff --git a/ShiftWork.Api/Services/PermissionSeedService.cs b/ShiftWork.Api/Services/PermissionSeedService.cs
+index 06c2dc7..4a3ee7d 100644
+--- a/ShiftWork.Api/Services/PermissionSeedService.cs
++++ b/ShiftWork.Api/Services/PermissionSeedService.cs
+@@ -145,40 +145,41 @@ namespace ShiftWork.Api.Services
+                 // Company settings
+                 Create("company-settings.read", "Company Settings - Read", "View company settings"),
+                 Create("company-settings.update", "Company Settings - Update", "Update company settings"),
+ 
+                 // Device tokens
+                 Create("device-tokens.read", "Device Tokens - Read", "View device tokens"),
+                 Create("device-tokens.create", "Device Tokens - Create", "Register device tokens"),
+                 Create("device-tokens.delete", "Device Tokens - Delete", "Delete device tokens"),
+ 
+                 // Replacement requests
+                 Create("replacement-requests.read", "Replacement Requests - Read", "View replacement requests"),
+                 Create("replacement-requests.create", "Replacement Requests - Create", "Create replacement requests"),
+                 Create("replacement-requests.update", "Replacement Requests - Update", "Update replacement requests"),
+                 Create("replacement-requests.delete", "Replacement Requests - Delete", "Cancel replacement requests"),
+ 
+                 // Companies
+                 Create("companies.read", "Companies - Read", "View companies"),
+                 Create("companies.create", "Companies - Create", "Create companies"),
+                 Create("companies.update", "Companies - Update", "Update companies"),
+                 Create("companies.delete", "Companies - Delete", "Delete companies"),
++                Create("companies.billing", "Companies - Billing", "Upgrade or manage the company's subscription plan"),
+ 
+                 // S3
+                 Create("s3.read", "S3 - Read", "Read objects from S3"),
+                 Create("s3.write", "S3 - Write", "Upload objects to S3"),
+                 Create("s3.delete", "S3 - Delete", "Delete buckets or objects"),
+                 Create("s3.manage", "S3 - Manage", "Create buckets and manage S3"),
+ 
+                 // Kiosk
+                 Create("kiosk.admin", "Kiosk - Admin", "Access kiosk admin-only endpoints"),
+                 Create("kiosk.questions.manage", "Kiosk - Questions Manage", "Create, edit and delete kiosk survey questions"),
+ 
+                 // v2 Bulletins
+                 Create("bulletins.create",      "Bulletins - Create",      "Create and edit bulletins"),
+                 Create("bulletins.read",         "Bulletins - Read",        "View bulletins"),
+                 Create("bulletins.delete",       "Bulletins - Delete",      "Archive bulletins"),
+                 Create("bulletins.track-reads",  "Bulletins - Track Reads", "View who has read a bulletin"),
+ 
+                 // v2 Daily Reports
+                 Create("reports.read",    "Reports - Read",    "View daily location reports"),
+                 Create("reports.submit",  "Reports - Submit",  "Create and submit daily location reports"),
+diff --git a/ShiftWork.Api/Services/PlanService.cs b/ShiftWork.Api/Services/PlanService.cs
+index e7a63b6..8c1b593 100644
+--- a/ShiftWork.Api/Services/PlanService.cs
++++ b/ShiftWork.Api/Services/PlanService.cs
+@@ -1,115 +1,142 @@
+ using Microsoft.EntityFrameworkCore;
+ using Microsoft.Extensions.Logging;
+ using ShiftWork.Api.Data;
+ using ShiftWork.Api.Helpers;
++using Stripe;
+ 
+ namespace ShiftWork.Api.Services
+ {
+     /// <inheritdoc />
+     public class PlanService : IPlanService
+     {
+         private readonly ShiftWorkContext _context;
+         private readonly ILogger<PlanService> _logger;
++        private readonly IStripeGateway _stripeGateway;
+ 
+         // Feature gates per plan. Add more keys as needed.
+         private static readonly Dictionary<string, HashSet<string>> PlanFeatures = new()
+         {
+             ["Free"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+             {
+                 "sandbox.hide",
+                 "sandbox.reset",
+                 "kiosk.clockin",
+                 "schedules.basic",
+             },
+             ["Trial"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+             {
+                 "sandbox.hide",
+                 "sandbox.reset",
+                 "sandbox.delete",
+                 "kiosk.clockin",
+                 "schedules.basic",
+                 "analytics",
+                 "advanced_scheduling",
+             },
+             ["Pro"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+             {
+                 "sandbox.hide",
+                 "sandbox.reset",
+                 "sandbox.delete",
+                 "kiosk.clockin",
+                 "schedules.basic",
+                 "analytics",
+                 "advanced_scheduling",
+                 "multi_location",
+                 "export",
+             },
+         };
+ 
+         private static bool IsStripeConfigured =>
+             !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY"));
+ 
+-        public PlanService(ShiftWorkContext context, ILogger<PlanService> logger)
++        public PlanService(ShiftWorkContext context, ILogger<PlanService> logger, IStripeGateway stripeGateway)
+         {
+             _context = context ?? throw new ArgumentNullException(nameof(context));
+             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
++            _stripeGateway = stripeGateway ?? throw new ArgumentNullException(nameof(stripeGateway));
+         }
+ 
+         /// <inheritdoc />
+         public async Task<bool> UpgradePlanAsync(string companyId, string stripePaymentMethodId, string targetPlan)
+         {
+             var company = await _context.Companies.FindAsync(companyId);
+             if (company == null)
+             {
+                 _logger.LogWarning("UpgradePlan: company {CompanyId} not found.", companyId);
+                 return false;
+             }
+ 
+             if (!IsStripeConfigured)
+             {
+                 // Graceful fallback: simulate upgrade (same pattern as NotificationService)
+                 _logger.LogInformation("{EventName} {CompanyId} {TargetPlan} stripe=simulated",
+                     FunnelEventNames.PlanUpgradeSimulated, companyId, targetPlan);
+                 company.Plan = targetPlan;
+                 await _context.SaveChangesAsync();
+                 return true;
+             }
+ 
+-            // TODO: integrate real Stripe SDK when STRIPE_SECRET_KEY is set.
+-            // 1. Create/retrieve Stripe customer for company.StripeCustomerId.
+-            // 2. Attach stripePaymentMethodId to the customer.
+-            // 3. Create a subscription for the Pro price ID.
+-            // 4. Store subscription.Id in company.StripeSubscriptionId.
++            var priceId = StripePlanMapping.GetPriceIdForPlan(targetPlan);
++            if (string.IsNullOrWhiteSpace(priceId))
++            {
++                _logger.LogWarning("UpgradePlan: no Stripe price is configured for plan {TargetPlan}.", targetPlan);
++                throw new InvalidOperationException($"No Stripe price is configured for plan '{targetPlan}'.");
++            }
++
+             _logger.LogInformation("{EventName} {CompanyId} {TargetPlan}",
+                 FunnelEventNames.PlanUpgradeStarted, companyId, targetPlan);
+ 
+             try
+             {
+-                company.Plan = targetPlan;
+-                // company.StripeCustomerId and StripeSubscriptionId to be set after Stripe calls.
++                var result = await _stripeGateway.CreateSubscriptionAsync(
++                    company.StripeCustomerId,
++                    company.Email,
++                    company.Name,
++                    stripePaymentMethodId,
++                    priceId);
++
++                company.StripeCustomerId = result.CustomerId;
++                company.StripeSubscriptionId = result.SubscriptionId;
++
++                // Only flip the plan if Stripe confirms the subscription is actually active/trialing.
++                // If the first payment failed (status "incomplete"), the plan stays as-is; the
++                // subscription lifecycle webhook will finalize the state once Stripe resolves it.
++                var isActive = result.Status is "active" or "trialing";
++                if (isActive)
++                {
++                    company.Plan = targetPlan;
++                    if (result.CurrentPeriodEnd.HasValue)
++                    {
++                        company.PlanExpiresAt = result.CurrentPeriodEnd;
++                    }
++                }
++
+                 await _context.SaveChangesAsync();
+ 
+-                _logger.LogInformation("{EventName} {CompanyId} {TargetPlan}",
+-                    FunnelEventNames.PlanUpgradeSuccess, companyId, targetPlan);
+-                return true;
++                _logger.LogInformation("{EventName} {CompanyId} {TargetPlan} stripeStatus={StripeStatus}",
++                    isActive ? FunnelEventNames.PlanUpgradeSuccess : FunnelEventNames.PlanUpgradeFailure,
++                    companyId, targetPlan, result.Status);
++                return isActive;
+             }
+-            catch (Exception ex)
++            catch (StripeException ex)
+             {
+                 _logger.LogError(ex, "{EventName} {CompanyId} {TargetPlan}",
+                     FunnelEventNames.PlanUpgradeFailure, companyId, targetPlan);
+                 throw;
+             }
+         }
+ 
+         /// <inheritdoc />
+         public async Task<string> GetCurrentPlanAsync(string companyId)
+         {
+             var company = await _context.Companies
+                 .AsNoTracking()
+                 .Where(c => c.CompanyId == companyId)
+                 .Select(c => new { c.Plan })
+                 .FirstOrDefaultAsync();
+ 
+             return company?.Plan ?? "Free";
+         }
+ 
+         /// <inheritdoc />
+diff --git a/ShiftWork.Api/Services/StripeGateway.cs b/ShiftWork.Api/Services/StripeGateway.cs
+new file mode 100644
+index 0000000..734fc90
+--- /dev/null
++++ b/ShiftWork.Api/Services/StripeGateway.cs
+@@ -0,0 +1,95 @@
++using Stripe;
++
++namespace ShiftWork.Api.Services
++{
++    /// <inheritdoc />
++    public class StripeGateway : IStripeGateway
++    {
++        private readonly ILogger<StripeGateway> _logger;
++
++        public StripeGateway(ILogger<StripeGateway> logger)
++        {
++            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
++        }
++
++        /// <inheritdoc />
++        public async Task<StripeSubscriptionResult> CreateSubscriptionAsync(
++            string? existingCustomerId,
++            string customerEmail,
++            string customerName,
++            string paymentMethodId,
++            string priceId)
++        {
++            var customerService = new CustomerService();
++            Customer customer;
++
++            if (!string.IsNullOrWhiteSpace(existingCustomerId))
++            {
++                customer = await customerService.GetAsync(existingCustomerId);
++            }
++            else
++            {
++                customer = await customerService.CreateAsync(new CustomerCreateOptions
++                {
++                    Email = customerEmail,
++                    Name = customerName
++                });
++            }
++
++            var paymentMethodService = new PaymentMethodService();
++            await paymentMethodService.AttachAsync(paymentMethodId, new PaymentMethodAttachOptions
++            {
++                Customer = customer.Id
++            });
++
++            await customerService.UpdateAsync(customer.Id, new CustomerUpdateOptions
++            {
++                InvoiceSettings = new CustomerInvoiceSettingsOptions
++                {
++                    DefaultPaymentMethod = paymentMethodId
++                }
++            });
++
++            var subscriptionService = new SubscriptionService();
++            var subscription = await subscriptionService.CreateAsync(new SubscriptionCreateOptions
++            {
++                Customer = customer.Id,
++                Items = new List<SubscriptionItemOptions>
++                {
++                    new() { Price = priceId }
++                },
++                DefaultPaymentMethod = paymentMethodId,
++                PaymentSettings = new SubscriptionPaymentSettingsOptions
++                {
++                    SaveDefaultPaymentMethod = "on_subscription"
++                },
++                Expand = new List<string> { "latest_invoice.payment_intent" }
++            });
++
++            var periodEnd = subscription.Items?.Data?.FirstOrDefault()?.CurrentPeriodEnd;
++
++            _logger.LogInformation(
++                "Stripe subscription {SubscriptionId} for customer {CustomerId} created with status {Status}.",
++                subscription.Id, customer.Id, subscription.Status);
++
++            return new StripeSubscriptionResult(customer.Id, subscription.Id, subscription.Status, periodEnd);
++        }
++
++        /// <inheritdoc />
++        public async Task<string> CreateBillingPortalSessionAsync(string customerId, string returnUrl)
++        {
++            var billingPortalSessionService = new Stripe.BillingPortal.SessionService();
++            var session = await billingPortalSessionService.CreateAsync(new Stripe.BillingPortal.SessionCreateOptions
++            {
++                Customer = customerId,
++                ReturnUrl = returnUrl
++            });
++
++            _logger.LogInformation(
++                "Billing portal session {SessionId} created for customer {CustomerId}.",
++                session.Id, customerId);
++
++            return session.Url;
++        }
++    }
++}
+diff --git a/ShiftWork.Api/Services/StripeWebhookService.cs b/ShiftWork.Api/Services/StripeWebhookService.cs
+new file mode 100644
+index 0000000..c829a4f
+--- /dev/null
++++ b/ShiftWork.Api/Services/StripeWebhookService.cs
+@@ -0,0 +1,145 @@
++using Microsoft.EntityFrameworkCore;
++using ShiftWork.Api.Data;
++using ShiftWork.Api.Helpers;
++using ShiftWork.Api.Models;
++using Stripe;
++
++namespace ShiftWork.Api.Services
++{
++    /// <inheritdoc />
++    public class StripeWebhookService : IStripeWebhookService
++    {
++        private readonly ShiftWorkContext _context;
++        private readonly ILogger<StripeWebhookService> _logger;
++        private readonly INotificationService _notificationService;
++
++        public StripeWebhookService(
++            ShiftWorkContext context,
++            ILogger<StripeWebhookService> logger,
++            INotificationService notificationService)
++        {
++            _context = context ?? throw new ArgumentNullException(nameof(context));
++            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
++            _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
++        }
++
++        /// <inheritdoc />
++        public async Task HandleSubscriptionUpsertedAsync(Subscription subscription)
++        {
++            var company = await FindCompanyByCustomerIdAsync(subscription.CustomerId);
++            if (company == null)
++            {
++                _logger.LogWarning("Stripe subscription event for unknown customer {CustomerId}.", subscription.CustomerId);
++                return;
++            }
++
++            company.StripeSubscriptionId = subscription.Id;
++
++            var item = subscription.Items?.Data?.FirstOrDefault();
++            var plan = StripePlanMapping.GetPlanForPriceId(item?.Price?.Id);
++
++            if (subscription.Status is "active" or "trialing")
++            {
++                if (plan != null)
++                {
++                    company.Plan = plan;
++                }
++                else
++                {
++                    _logger.LogWarning(
++                        "Stripe subscription {SubscriptionId} has an unrecognized price {PriceId}; plan left unchanged.",
++                        subscription.Id, item?.Price?.Id);
++                }
++
++                if (item != null)
++                {
++                    company.PlanExpiresAt = item.CurrentPeriodEnd;
++                }
++            }
++            else if (subscription.Status is "canceled" or "unpaid" or "incomplete_expired")
++            {
++                company.Plan = "Free";
++                company.StripeSubscriptionId = null;
++            }
++
++            await _context.SaveChangesAsync();
++            _logger.LogInformation(
++                "Stripe subscription {SubscriptionId} upserted for company {CompanyId}: status={Status}",
++                subscription.Id, company.CompanyId, subscription.Status);
++        }
++
++        /// <inheritdoc />
++        public async Task HandleSubscriptionDeletedAsync(Subscription subscription)
++        {
++            var company = await FindCompanyByCustomerIdAsync(subscription.CustomerId);
++            if (company == null)
++            {
++                _logger.LogWarning("Stripe subscription-deleted event for unknown customer {CustomerId}.", subscription.CustomerId);
++                return;
++            }
++
++            company.Plan = "Free";
++            company.StripeSubscriptionId = null;
++            company.PlanExpiresAt = null;
++            await _context.SaveChangesAsync();
++
++            _logger.LogInformation("{EventName} {CompanyId}", FunnelEventNames.PlanDowngraded, company.CompanyId);
++        }
++
++        /// <inheritdoc />
++        public async Task HandleInvoicePaymentSucceededAsync(Invoice invoice)
++        {
++            var company = await FindCompanyByCustomerIdAsync(invoice.CustomerId);
++            if (company == null)
++            {
++                _logger.LogWarning("Stripe invoice.payment_succeeded for unknown customer {CustomerId}.", invoice.CustomerId);
++                return;
++            }
++
++            company.PlanExpiresAt = invoice.PeriodEnd;
++            await _context.SaveChangesAsync();
++
++            _logger.LogInformation("{EventName} {CompanyId} {ExpiresAt}",
++                FunnelEventNames.PlanPaymentSuccess, company.CompanyId, invoice.PeriodEnd);
++        }
++
++        /// <inheritdoc />
++        public async Task HandleInvoicePaymentFailedAsync(Invoice invoice)
++        {
++            var company = await FindCompanyByCustomerIdAsync(invoice.CustomerId);
++            if (company == null)
++            {
++                _logger.LogWarning("Stripe invoice.payment_failed for unknown customer {CustomerId}.", invoice.CustomerId);
++                return;
++            }
++
++            _logger.LogWarning("{EventName} {CompanyId}", FunnelEventNames.PlanPaymentFailure, company.CompanyId);
++
++            if (!string.IsNullOrWhiteSpace(company.Email))
++            {
++                try
++                {
++                    await _notificationService.SendEmailAsync(
++                        company.Email,
++                        "Payment failed for your ShiftWork subscription",
++                        $"<p>We were unable to process your latest payment for {company.Name}. " +
++                        "Please update your payment method to avoid losing access to Pro features.</p>");
++                }
++                catch (Exception ex)
++                {
++                    _logger.LogWarning(ex, "Failed to send payment-failure notification for company {CompanyId}.", company.CompanyId);
++                }
++            }
++        }
++
++        private Task<Company?> FindCompanyByCustomerIdAsync(string? customerId)
++        {
++            if (string.IsNullOrWhiteSpace(customerId))
++            {
++                return Task.FromResult<Company?>(null);
++            }
++
++            return _context.Companies.FirstOrDefaultAsync(c => c.StripeCustomerId == customerId);
++        }
++    }
++}
+diff --git a/ShiftWork.Api/ShiftWork.Api.csproj b/ShiftWork.Api/ShiftWork.Api.csproj
+index c032c7b..293776f 100644
+--- a/ShiftWork.Api/ShiftWork.Api.csproj
++++ b/ShiftWork.Api/ShiftWork.Api.csproj
+@@ -17,28 +17,29 @@
+     <PackageReference Include="DotNetEnv" Version="3.1.1" />
+     <PackageReference Include="FirebaseAdmin" Version="3.3.0" />
+     <PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
+     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
+     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
+       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+       <PrivateAssets>all</PrivateAssets>
+     </PackageReference>
+     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.0" />
+     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+       <PrivateAssets>all</PrivateAssets>
+     </PackageReference>
+     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.0" />
+     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0" />
++    <PackageReference Include="Stripe.net" Version="52.2.0" />
+     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+   </ItemGroup>
+ 
+   <ItemGroup>
+     <Content Update="Resources\notifications.*.json" CopyToOutputDirectory="PreserveNewest" />
+   </ItemGroup>
+ 
+ </Project>
+diff --git a/docker-compose.yml b/docker-compose.yml
+index be1554f..4d54353 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -37,40 +37,45 @@ services:
+       DB_CONNECTION_STRING: "${DB_CONNECTION_STRING}"
+       # Firebase
+       FIREBASE_PROJECT_ID: "${FIREBASE_PROJECT_ID}"
+       FIREBASE_AUTH_DOMAIN: "${FIREBASE_AUTH_DOMAIN}"
+       FIREBASE_API_KEY: "${FIREBASE_API_KEY}"
+       # AWS S3
+       AWS_REGION: "${AWS_REGION}"
+       AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+       AWS_S3_BUCKET: "${AWS_S3_BUCKET}"
+       # Email (SMTP)
+       Smtp__Host: "${SMTP_HOST}"
+       Smtp__Port: "${SMTP_PORT:-587}"
+       Smtp__Username: "${SMTP_USERNAME}"
+       Smtp__Password: "${SMTP_PASSWORD}"
+       Smtp__From: "${SMTP_FROM}"
+       # Push notifications
+       EXPO_PUSH_API_URL: "${EXPO_PUSH_API_URL:-https://exp.host/--/api/v2/push/send}"
+       # Weather (daily reports)
+       OPENWEATHER_API_KEY: "${OPENWEATHER_API_KEY}"
++      # Stripe billing (optional; plan upgrades simulate when absent)
++      STRIPE_SECRET_KEY: "${STRIPE_SECRET_KEY}"
++      STRIPE_PUBLISHABLE_KEY: "${STRIPE_PUBLISHABLE_KEY}"
++      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET}"
++      STRIPE_PRICE_PRO: "${STRIPE_PRICE_PRO}"
+     ports:
+       - "5000:80"
+     depends_on:
+       mssql:
+         condition: service_healthy
+     networks:
+       - shiftwork-net
+     healthcheck:
+       test: ["CMD", "curl", "-sf", "http://localhost/health"]
+       interval: 30s
+       timeout: 5s
+       retries: 5
+       start_period: 30s
+ 
+   # ΓöÇΓöÇ Angular web (nginx) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+   web:
+     build:
+       context: ./ShiftWork.Angular
+       dockerfile: Dockerfile
+     image: shiftwork/web:local

@@ -11,6 +11,7 @@ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { Role } from 'src/app/core/models/role.model';
 import { RoleService } from 'src/app/core/services/role.service';
 import { InviteStatusResponse } from 'src/app/core/models/invite.model';
+import { PlanLimitPromptService } from 'src/app/core/services/plan-limit-prompt.service';
 
 @Component({
   selector: 'app-people',
@@ -40,7 +41,8 @@ export class PeopleComponent implements OnInit {
     private roleService: RoleService,
     private fb: FormBuilder,
     private toastr: ToastrService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private planLimitPrompt: PlanLimitPromptService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
 
@@ -143,7 +145,7 @@ export class PeopleComponent implements OnInit {
           this.toastr.success('Person updated successfully.');
           this.cancelEdit();
         },
-        () => this.toastr.error('Failed to update person.')
+        (err) => { if (!this.planLimitPrompt.handle(err)) this.toastr.error('Failed to update person.'); }
       );
     } else {
       const newPerson: People = {
@@ -151,10 +153,13 @@ export class PeopleComponent implements OnInit {
         companyId: this.activeCompany.companyId
         // roleIds removed: permissions now managed via CompanyUserProfiles
       };
-      this.peopleService.createPerson(newPerson.companyId, newPerson).subscribe(person => {
-        this.people.push(person);
-        this.cancelEdit();
-        this.toastr.success('Person created successfully');
+      this.peopleService.createPerson(newPerson.companyId, newPerson).subscribe({
+        next: person => {
+          this.people.push(person);
+          this.cancelEdit();
+          this.toastr.success('Person created successfully');
+        },
+        error: err => { if (!this.planLimitPrompt.handle(err)) this.toastr.error('Failed to create person.'); }
       });
     }
   }
