@@ -1,3 +1,5 @@
+using System;
+
 namespace ShiftWork.Api.DTOs
 {
     public class LocationDto
@@ -24,5 +26,8 @@ namespace ShiftWork.Api.DTOs
         public string Status { get; set; }
         public bool RequirePin { get; set; } = true;
         public bool RequirePhoto { get; set; } = true;
+        public bool RequireNfc { get; set; }
+        public string? NfcTagKey { get; set; }
+        public DateTime? NfcLastTappedAt { get; set; }
     }
 }

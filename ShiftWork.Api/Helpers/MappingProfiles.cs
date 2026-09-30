@@ -32,7 +32,10 @@ namespace ShiftWork.Api.Helpers
                         : null));
              CreateMap<LocationDto, Location>()
                 .ForMember(dest => dest.GeoCoordinates, opt => opt.MapFrom(src =>
-                    src.GeoCoordinates != null ? JsonSerializer.Serialize(src.GeoCoordinates, (JsonSerializerOptions)null) : null));
+                    src.GeoCoordinates != null ? JsonSerializer.Serialize(src.GeoCoordinates, (JsonSerializerOptions)null) : null))
+                // Server-owned: clients send the whole location back on save, but may never set these.
+                .ForMember(dest => dest.NfcTagKey, opt => opt.Ignore())
+                .ForMember(dest => dest.NfcLastTappedAt, opt => opt.Ignore());
             CreateMap<Person, PersonDto>();
              CreateMap<PersonDto, Person>();
             // Role.Permissions is an obsolete string field; RoleDto.Permissions is List<string>.
