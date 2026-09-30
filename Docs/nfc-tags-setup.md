@@ -17,9 +17,11 @@ employee in or out at that site. The API serves everything on `t.loqzen.com`.
      the "App signing key certificate" SHA-256 from Play Console → Setup → App integrity. List both.
    - `AppStoreUrl` / `PlayStoreUrl`: store links shown on the page for phones without the app.
 5. Check. Each must answer `200` with no redirect:
+   ```bash
    curl -sI https://t.loqzen.com/.well-known/apple-app-site-association
    curl -sI https://t.loqzen.com/.well-known/assetlinks.json
    curl -sI https://t.loqzen.com/t/test
+   ```
    Apple caches the file through its CDN, so also check
    `https://app-site-association.cdn-apple.com/a/v1/t.loqzen.com` (can take a few hours to refresh).
 
@@ -39,3 +41,44 @@ and `ShiftWork.Angular/.../locations.component.ts`.
 - iPhone behaviour: iPhone XS and later read the tag with the phone unlocked and show a "Open in Loqzen"
   banner; tapping it opens the punch. Older iPhones use the "Scan NFC tag" button on the Clock screen.
 - Android: with the screen unlocked, a tap opens the app straight into the punch.
+
+## 3. Writing tags
+
+- Tags: NTAG213 (enough for the link), NTAG215 or NTAG216 stickers or cards. For metal surfaces use
+  "on-metal" (anti-metal) tags.
+- In Loqzen (managers): Profile → "Write NFC tags for jobsites" → choose the site → "Create tag link" if it has
+  none → "Write tag" → hold a blank tag to the top of the phone. Turn on "Lock the tag" only for the final
+  tag on the wall; a locked tag can never be rewritten.
+- Backup: in the Angular admin, open the location and copy its tag link, then write it as a **URL/URI record**
+  with a free app such as NFC Tools (iOS/Android).
+- Regenerate (Angular location form) makes the old tag stop working immediately; write the new link.
+
+## 4. Device test checklist (development build)
+
+Phones: an NFC Android, an iPhone XS or later, and an older iPhone (scan button only).
+
+| # | Case | Expected |
+|---|------|----------|
+| 1 | Android, app closed, tap tag | App opens on "Clocked IN, <site> at <time>" |
+| 2 | iPhone XS+, app closed, tap tag | "Open in Loqzen" banner → tap → Clocked IN |
+| 3 | Tap again within a minute | "Already recorded a moment ago", no second punch |
+| 4 | Tap again after a minute | Clocked OUT |
+| 5 | Older iPhone: Clock tab → "Scan NFC tag" | Punch recorded |
+| 6 | Airplane mode, tap | "No connection…" + Try again; after reconnecting, Try again records once |
+| 7 | Location permission off | Punch recorded; admin shows geofence Unknown |
+| 8 | Tap far from the site (tag carried away) | Punch recorded and flagged Outside |
+| 9 | Signed out, tap | Sign in → punch completes |
+| 10 | RequireNfc site: Clock tab | Button replaced by "Tap the NFC tag at <site>…" |
+| 11 | RequireNfc site: old app build uses the clock button | Server refuses with "requires tapping the NFC tag" |
+| 12 | Regenerate in Angular, tap the old tag | "This tag isn't linked to a site in your company." |
+| 13 | Kiosk and Angular manager entry at a RequireNfc site | Work as before |
+
+## 5. Rollout order
+
+1. Deploy the API (the migration `AddNfcPunch` adds three Location columns and a filtered unique index).
+   Before deploying, run `dotnet ef migrations has-pending-model-changes` in `ShiftWork.Api`: it must say
+   there are no changes (the migration was written by hand).
+2. Set up the tag host (section 1) and the `NfcTags` settings; check the three URLs.
+3. Deploy Angular. Build the mobile app with EAS and install it on the test phones; run section 4.
+4. Create tag links and write tags. Turn on "Require NFC" per site only after its tag is on the wall and
+   employees have the new app version (older app versions can't punch at a RequireNfc site from the phone).

@@ -11,6 +11,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { ProfileHeader } from '@/components/screens/profile/ProfileHeader';
 import { ProfileInfoSection } from '@/components/screens/profile/ProfileInfoSection';
 import { CredentialsSection } from '@/components/screens/profile/CredentialsSection';
+import { NfcWriteTagEntry } from '@/components/screens/profile/NfcWriteTagEntry';
 import { SecuritySection } from '@/components/screens/profile/SecuritySection';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation, SupportedLocale } from '@/i18n';
@@ -79,6 +80,10 @@ export default function ProfileScreen() {
 
       <Animated.View entering={FadeInDown.delay(200).duration(350)}>
         <CredentialsSection companyId={companyId ?? undefined} personId={personId ?? undefined} />
+      </Animated.View>
+
+      <Animated.View entering={FadeInDown.delay(210).duration(350)}>
+        <NfcWriteTagEntry companyId={companyId ?? undefined} />
       </Animated.View>
 
       {/* Language */}
