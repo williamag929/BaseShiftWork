@@ -43,7 +43,7 @@ namespace ShiftWork.Api.Authorization
                 return;
             }
 
-            var uid = GetUserId(context.User);
+            var uid = UserClaims.GetUserId(context.User);
             if (string.IsNullOrWhiteSpace(uid))
             {
                 return;
@@ -82,15 +82,6 @@ namespace ShiftWork.Api.Authorization
             {
                 context.Succeed(requirement);
             }
-        }
-
-        private static string? GetUserId(ClaimsPrincipal user)
-        {
-            return user.FindFirstValue(ClaimTypes.NameIdentifier)
-                ?? user.FindFirstValue("user_id")
-                ?? user.FindFirstValue("uid")
-                ?? user.FindFirstValue(ClaimTypes.Name)
-                ?? user.FindFirstValue("sub");
         }
     }
 }
