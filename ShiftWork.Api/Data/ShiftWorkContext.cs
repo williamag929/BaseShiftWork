@@ -22,6 +22,7 @@ namespace ShiftWork.Api.Data
         public DbSet<TaskShift> TaskShifts { get; set; }
         public DbSet<Crew> Crews { get; set; }
         public DbSet<PersonCrew> PersonCrews { get; set; }
+        public DbSet<UserLocationScope> UserLocationScopes { get; set; }
 
         public DbSet<CompanyUser> CompanyUsers { get; set; }
         public DbSet<CompanyUserProfile> CompanyUserProfiles { get; set; }
@@ -158,6 +159,10 @@ namespace ShiftWork.Api.Data
             
             modelBuilder.Entity<AuditHistory>()
                 .HasIndex(a => new { a.CompanyId, a.ActionDate });
+
+            modelBuilder.Entity<UserLocationScope>()
+                .HasIndex(s => new { s.CompanyId, s.CompanyUserId, s.LocationId })
+                .IsUnique();
 
             modelBuilder.Entity<PersonCrew>()
                 .ToTable("PersonCrews")

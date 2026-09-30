@@ -143,6 +143,10 @@ namespace ShiftWork.Api.Services
                 Create("crews.update", "Crews - Update", "Update crews"),
                 Create("crews.delete", "Crews - Delete", "Delete crews"),
                 Create("crews.assign", "Crews - Assign", "Assign people to crews"),
+                // Lineup
+                Create("lineup.view", "Lineup - View", "View the daily lineup board"),
+                Create("lineup.edit", "Lineup - Edit", "Assign and remove people on the lineup board"),
+                Create("lineup.all-locations", "Lineup - All locations", "See every job site, not just assigned ones"),
                 Create("person-crews.read", "Person Crews - Read", "View person crew assignments"),
                 Create("person-crews.update", "Person Crews - Update", "Update person crew assignments"),
 

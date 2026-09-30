@@ -377,6 +377,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("crews.update", policy => policy.Requirements.Add(new PermissionRequirement("crews.update")));
     options.AddPolicy("crews.delete", policy => policy.Requirements.Add(new PermissionRequirement("crews.delete")));
     options.AddPolicy("crews.assign", policy => policy.Requirements.Add(new PermissionRequirement("crews.assign")));
+    options.AddPolicy("lineup.view", policy => policy.Requirements.Add(new PermissionRequirement("lineup.view")));
+    options.AddPolicy("lineup.edit", policy => policy.Requirements.Add(new PermissionRequirement("lineup.edit")));
+    options.AddPolicy("lineup.all-locations", policy => policy.Requirements.Add(new PermissionRequirement("lineup.all-locations")));
     options.AddPolicy("person-crews.read", policy => policy.Requirements.Add(new PermissionRequirement("person-crews.read")));
     options.AddPolicy("person-crews.update", policy => policy.Requirements.Add(new PermissionRequirement("person-crews.update")));
 
