@@ -62,6 +62,7 @@ namespace ShiftWork.Api.Services
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Lineup removal of shift {ShiftId} failed for company {CompanyId}.", shiftId, companyId);
+                    DetachPending();
                     results.Add(Rejected(shiftId: shiftId, error: "Could not remove this shift."));
                 }
             }
@@ -72,6 +73,7 @@ namespace ShiftWork.Api.Services
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Lineup assignment of person {PersonId} failed for company {CompanyId}.", a.PersonId, companyId);
+                    DetachPending();
                     results.Add(Rejected(a.PersonId, a.LocationId, error: "Could not assign this person."));
                 }
             }
@@ -174,11 +176,15 @@ namespace ShiftWork.Api.Services
                     Status = status, Type = "lineup", TimeZone = companyTz.Id,
                     CreatedBy = access.CompanyUserId, CreatedAt = nowUtc
                 };
-                _context.Schedules.Add(schedule);
-                await _context.SaveChangesAsync();
+                // Not saved separately: the shift's Add below writes Schedule and ScheduleShift in one SaveChanges,
+                // so a failure can't leave an empty committed Schedule behind.
+                candidate.Schedule = schedule;
+            }
+            else
+            {
+                candidate.ScheduleId = schedule.ScheduleId;
             }
 
-            candidate.ScheduleId = schedule.ScheduleId;
             candidate.CreatedBy = access.CompanyUserId;
             candidate.CreatedAt = nowUtc;
             var created = await _shifts.Add(candidate);
@@ -190,6 +196,14 @@ namespace ShiftWork.Api.Services
             }
 
             return new LineupCommitResultDto { Status = "created", PersonId = a.PersonId, LocationId = a.LocationId, ShiftId = created.ScheduleShiftId };
+        }
+
+        // A failed SaveChanges leaves the bad entities tracked; drop them so later items in the batch start clean.
+        private void DetachPending()
+        {
+            foreach (var e in _context.ChangeTracker.Entries()
+                         .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).ToList())
+                e.State = EntityState.Detached;
         }
 
         private static bool TryTime(string? text, out TimeOnly time)

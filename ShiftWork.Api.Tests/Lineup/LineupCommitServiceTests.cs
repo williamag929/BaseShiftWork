@@ -14,19 +14,44 @@ internal static class CommitTestFactory
 {
     public static readonly DateTimeOffset Now = new(2026, 9, 29, 12, 0, 0, TimeSpan.Zero);
 
-    public static LineupCommitService Create(ShiftWorkContext ctx)
+    public static LineupCommitService Create(ShiftWorkContext ctx, Func<IScheduleShiftService, IScheduleShiftService>? wrapShifts = null)
     {
         var settings = new CompanySettingsService(ctx);
+        IScheduleShiftService shifts = new ScheduleShiftService(ctx, NullLogger<ScheduleShiftService>.Instance);
+        if (wrapShifts != null) shifts = wrapShifts(shifts);
         return new LineupCommitService(
             ctx,
             new CompanyTimeZoneService(ctx),
-            new ScheduleShiftService(ctx, NullLogger<ScheduleShiftService>.Instance),
+            shifts,
             new ScheduleValidationService(ctx, settings),
             settings,
             FakePush.Create(ctx),
             new FakeTimeProvider(Now),
             NullLogger<LineupCommitService>.Instance);
     }
+}
+
+// Throws on the first Add, then behaves like the real service.
+internal sealed class ThrowOnceShiftService : IScheduleShiftService
+{
+    private readonly IScheduleShiftService _inner;
+    private bool _thrown;
+    public ThrowOnceShiftService(IScheduleShiftService inner) => _inner = inner;
+
+    public Task<ScheduleShift> Add(ScheduleShift scheduleShift)
+    {
+        if (!_thrown) { _thrown = true; throw new InvalidOperationException("boom"); }
+        return _inner.Add(scheduleShift);
+    }
+    public Task<IEnumerable<ScheduleShift>> GetAll(string companyId) => _inner.GetAll(companyId);
+    public Task<ScheduleShift> Get(string companyId, int shiftId) => _inner.Get(companyId, shiftId);
+    public Task<(IEnumerable<ScheduleShift> Items, int TotalCount)> GetPaged(string companyId, int? personId, int? locationId, int? areaId, DateTime? startDate, DateTime? endDate, int page, int pageSize) =>
+        _inner.GetPaged(companyId, personId, locationId, areaId, startDate, endDate, page, pageSize);
+    public Task<ScheduleShift> Update(ScheduleShift scheduleShift) => _inner.Update(scheduleShift);
+    public Task<bool> Delete(int shiftId) => _inner.Delete(shiftId);
+    public Task<IEnumerable<Person>> GetReplacementCandidatesForShift(string companyId, int shiftId) => _inner.GetReplacementCandidatesForShift(companyId, shiftId);
+    public Task<IEnumerable<Person>> GetReplacementCandidatesByWindow(string companyId, DateTime startUtc, DateTime endUtc, int? locationId, int? areaId, int? excludePersonId) =>
+        _inner.GetReplacementCandidatesByWindow(companyId, startUtc, endUtc, locationId, areaId, excludePersonId);
 }
 
 public class LineupCommitServiceTests
@@ -263,5 +288,25 @@ public class LineupCommitServiceTests
         await using var ctx = await SeedAsync();
         var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(1, 7, "seven", "15:30"), Boss());
         Assert.Equal("rejected", r.Results.Single().Status);
+    }
+
+    [Fact]
+    public async Task A_failing_item_does_not_poison_the_rest_or_leave_an_orphan_schedule()
+    {
+        await using var ctx = await SeedAsync();
+        var req = new LineupCommitRequest("2026-10-01", new()
+        {
+            new LineupAssignmentDto(1, 7, null, null, null, false),   // Add throws for this one
+            new LineupAssignmentDto(2, 7, null, null, null, false),
+        }, null);
+        var r = await CommitTestFactory.Create(ctx, inner => new ThrowOnceShiftService(inner))
+            .CommitAsync(Co, Day, req, Boss());
+
+        Assert.Equal(new[] { "rejected", "created" }, r.Results.Select(x => x.Status));
+        var shift = await ctx.ScheduleShifts.SingleAsync();
+        Assert.Equal(2, shift.PersonId);
+        var schedule = await ctx.Schedules.SingleAsync();   // none left over from person 1
+        Assert.Equal("2", schedule.PersonId);
+        Assert.Equal(schedule.ScheduleId, shift.ScheduleId);
     }
 }
