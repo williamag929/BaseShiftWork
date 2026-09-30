@@ -143,6 +143,8 @@ builder.Services.AddScoped<IKioskService, KioskService>();
 builder.Services.AddScoped<IPtoService, PtoService>();
 builder.Services.AddScoped<ICompanySettingsService, CompanySettingsService>();
 builder.Services.AddScoped<IScheduleValidationService, ScheduleValidationService>();
+builder.Services.AddScoped<ICompanyTimeZoneService, CompanyTimeZoneService>();
+builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<IAuditHistoryService, AuditHistoryService>();
 builder.Services.AddSingleton<NotificationLocalizer>();
