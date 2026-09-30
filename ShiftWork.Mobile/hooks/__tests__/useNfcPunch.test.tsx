@@ -148,6 +148,8 @@ describe('classifyNfcPunchError', () => {
     [{ statusCode: 0 }, 'offline'],
     [{ statusCode: 404 }, 'unknown_tag'],
     [{ statusCode: 401 }, 'signed_out'],
+    [{ statusCode: 400 }, 'rejected'],
+    [{ statusCode: 403 }, 'rejected'],
     [{ statusCode: 409 }, 'failed'],
     [new Error('x'), 'failed'],
     [undefined, 'failed'],

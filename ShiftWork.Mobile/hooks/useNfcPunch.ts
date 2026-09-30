@@ -9,7 +9,7 @@ import { shiftEventsKey } from '@/hooks/queries';
 import { usePendingTagStore } from '@/store/pendingTagStore';
 import type { NfcPunchResult, ShiftEventDto } from '@/types/api';
 
-export type NfcPunchErrorKind = 'offline' | 'unknown_tag' | 'signed_out' | 'failed';
+export type NfcPunchErrorKind = 'offline' | 'unknown_tag' | 'signed_out' | 'rejected' | 'failed';
 
 export type NfcPunchState =
   | { status: 'idle' }
@@ -23,6 +23,7 @@ export function classifyNfcPunchError(error: unknown): NfcPunchErrorKind {
   if (statusCode === 0) return 'offline';
   if (statusCode === 404) return 'unknown_tag';
   if (statusCode === 401) return 'signed_out';
+  if (statusCode === 400 || statusCode === 403) return 'rejected';
   return 'failed';
 }
 

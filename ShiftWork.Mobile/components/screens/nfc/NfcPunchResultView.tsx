@@ -9,6 +9,7 @@ const ERROR_TEXT: Record<NfcPunchErrorKind, string> = {
   offline: 'nfc.error_offline',
   unknown_tag: 'nfc.error_unknown_tag',
   signed_out: 'nfc.sign_in_first',
+  rejected: 'nfc.error_failed',
   failed: 'nfc.error_failed',
 };
 
@@ -51,7 +52,7 @@ export function NfcPunchResultView({ state, onRetry, onDone }: Props) {
     <View style={styles.center}>
       <Ionicons name="alert-circle-outline" size={96} color={colors.danger} />
       <Text style={styles.title}>{t(ERROR_TEXT[state.kind])}</Text>
-      {state.kind === 'failed' && !!state.message && <Text style={styles.note}>{state.message}</Text>}
+      {(state.kind === 'failed' || state.kind === 'rejected') && !!state.message && <Text style={styles.note}>{state.message}</Text>}
       {canRetry && <Button label={t('nfc.try_again')} onPress={onRetry} size="lg" fullWidth style={styles.button} />}
       <Button label={t('nfc.done')} onPress={onDone} variant="ghost" fullWidth style={styles.button} />
     </View>

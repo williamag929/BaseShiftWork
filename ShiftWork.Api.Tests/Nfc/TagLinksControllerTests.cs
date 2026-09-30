@@ -45,6 +45,13 @@ public class TagLinksControllerTests
     }
 
     [Fact]
+    public void AssetLinks_IsNotFound_WhenTheOnlyFingerprintIsBlank()
+    {
+        var settings = new Dictionary<string, string?> { ["NfcTags:AndroidCertFingerprints:0"] = " " };
+        Assert.IsType<NotFoundResult>(Sut(settings).AssetLinks());
+    }
+
+    [Fact]
     public void AssetLinks_ListsPackageAndFingerprint()
     {
         var result = Assert.IsType<ContentResult>(Sut(Configured).AssetLinks());

@@ -64,6 +64,22 @@ public class ShiftEventServiceNfcRequiredTests : IDisposable
     }
 
     [Fact]
+    public async Task ExplicitSiteOfAnotherCompany_IsIgnored()
+    {
+        const int otherCompanySiteId = 3;
+        _context.Locations.Add(new Location
+        {
+            LocationId = otherCompanySiteId, CompanyId = "other-co", Name = "Other Tenant Site",
+            Address = "", City = "", State = "", Country = "US", ZipCode = "00000",
+            GeoCoordinates = "40.758000,-73.985500", RatioMax = 150, Status = "Active", TimeZone = "UTC",
+            RequireNfc = true,
+        });
+        await _context.SaveChangesAsync();
+
+        await Sut().EnsureNfcNotRequiredAsync(Punch(locationId: otherCompanySiteId));
+    }
+
+    [Fact]
     public async Task ClockOut_AtAnNfcSite_AlsoThrows()
     {
         await Assert.ThrowsAsync<NfcRequiredException>(() => Sut().EnsureNfcNotRequiredAsync(Punch("clockout", NfcSiteId)));

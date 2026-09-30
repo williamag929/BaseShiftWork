@@ -92,3 +92,31 @@ it('explains when the phone cannot write tags', () => {
   const { getByText } = renderScreen();
   getByText('nfc.unsupported');
 });
+
+it('cancels a pending write when the screen unmounts', () => {
+  const { unmount } = renderScreen();
+  expect(nfcService.cancel).not.toHaveBeenCalled();
+  unmount();
+  expect(nfcService.cancel).toHaveBeenCalled();
+});
+
+it('cancels a write in progress from the Cancel button', async () => {
+  (nfcService.writeTagUrl as jest.Mock).mockReturnValue(new Promise(() => {}));
+  const { getByText } = renderScreen();
+  fireEvent.press(getByText('North Tower'));
+  await act(async () => { fireEvent.press(getByText('nfc.write_button')); });
+  fireEvent.press(getByText('common.cancel'));
+  expect(nfcService.cancel).toHaveBeenCalled();
+});
+
+it('resets the lock switch when another site is selected', () => {
+  (useNfcTagLinks as jest.Mock).mockReturnValue({
+    data: [links[0], { ...links[0], locationId: 3, name: 'Annex' }], isLoading: false, error: null,
+  });
+  const { getByText, getByRole } = renderScreen();
+  fireEvent.press(getByText('North Tower'));
+  fireEvent(getByRole('switch'), 'valueChange', true);
+  expect(getByRole('switch').props.value).toBe(true);
+  fireEvent.press(getByText('Annex'));
+  expect(getByRole('switch').props.value).toBe(false);
+});

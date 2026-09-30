@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -61,6 +62,7 @@ namespace ShiftWork.Api.Controllers
         public IActionResult AssetLinks()
         {
             var fingerprints = _configuration.GetSection("NfcTags:AndroidCertFingerprints").Get<string[]>() ?? Array.Empty<string>();
+            fingerprints = fingerprints.Where(f => !string.IsNullOrWhiteSpace(f)).Select(f => f.Trim()).ToArray();
             if (fingerprints.Length == 0)
             {
                 return NotFound();

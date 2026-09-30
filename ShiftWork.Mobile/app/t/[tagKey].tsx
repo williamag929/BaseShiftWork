@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { NfcPunchResultView } from '@/components/screens/nfc/NfcPunchResultView';
 import { useNfcPunch } from '@/hooks/useNfcPunch';
+import { useTagRelaunch } from '@/hooks/useTagRelaunch';
 import { usePendingTagStore } from '@/store/pendingTagStore';
 import { isValidTagKey } from '@/utils/nfcTag';
 import { getCompanyId, getToken, getUserData } from '@/utils/storage.utils';
@@ -40,6 +41,14 @@ export default function NfcTapScreen() {
     reset();
     punch(tagKey);
   }, [session, tagKey, punch, reset]);
+
+  // Same tag tapped again while this result is showing (end-of-day tap): the route and params are unchanged,
+  // so the effect above will not re-run. The server's repeat guard covers a genuine double dispatch.
+  useTagRelaunch(tagKey, () => {
+    if (!session || !tagKey) return;
+    reset();
+    punch(tagKey);
+  });
 
   const done = () => router.replace('/(tabs)/clock' as any);
 

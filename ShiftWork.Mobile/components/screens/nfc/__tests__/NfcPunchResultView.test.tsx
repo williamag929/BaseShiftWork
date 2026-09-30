@@ -59,3 +59,13 @@ it('shows the server message for other failures', () => {
   getByText('nfc.error_failed');
   getByText('Person is already OnShift.');
 });
+
+it('shows the server message and no Try again for a rejected punch', () => {
+  const { getByText, queryByText } = render(
+    <NfcPunchResultView state={{ status: 'error', kind: 'rejected', message: 'NFC_REQUIRED at North Tower' }} onRetry={jest.fn()} onDone={jest.fn()} />,
+  );
+  getByText('nfc.error_failed');
+  getByText('NFC_REQUIRED at North Tower');
+  expect(queryByText('nfc.try_again')).toBeNull();
+  getByText('nfc.done');
+});

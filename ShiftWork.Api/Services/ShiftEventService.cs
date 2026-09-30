@@ -348,7 +348,7 @@ namespace ShiftWork.Api.Services
             }
 
             var location = await _context.Locations.AsNoTracking()
-                .FirstOrDefaultAsync(l => l.LocationId == locationId.Value);
+                .FirstOrDefaultAsync(l => l.LocationId == locationId.Value && l.CompanyId == shiftEventDto.CompanyId);
             if (location is { RequireNfc: true })
             {
                 throw new NfcRequiredException(location.Name);

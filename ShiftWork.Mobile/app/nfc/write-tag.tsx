@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,6 +25,9 @@ export default function WriteTagScreen() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [lock, setLock] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  // Leaving the screen must disarm a pending write, or the next tag touched gets this site's link.
+  useEffect(() => () => { nfcService.cancel(); }, []);
 
   const selected = links?.find((l) => l.locationId === selectedId) ?? null;
   const forbidden = (error as { statusCode?: number } | null)?.statusCode === 403;
@@ -71,7 +74,7 @@ export default function WriteTagScreen() {
         {(links ?? []).map((link) => (
           <Pressable
             key={link.locationId}
-            onPress={() => setSelectedId(link.locationId)}
+            onPress={() => { setSelectedId(link.locationId); setLock(false); }}
             style={[styles.row, link.locationId === selectedId && styles.rowSelected]}
             accessibilityRole="radio"
             accessibilityState={{ selected: link.locationId === selectedId }}
@@ -101,6 +104,9 @@ export default function WriteTagScreen() {
               fullWidth
               style={styles.action}
             />
+            {busy && (
+              <Button label={t('common.cancel')} onPress={() => { nfcService.cancel(); }} variant="ghost" fullWidth style={styles.action} />
+            )}
           </>
         )}
       </>

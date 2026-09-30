@@ -119,6 +119,7 @@ export class LocationsComponent implements OnInit {
 
   cancelEdit(): void {
     this.selectedLocation = null;
+    this.nfcBusy = false;
     this.locationForm.reset({
       name: '',
       address: '',
@@ -230,7 +231,10 @@ export class LocationsComponent implements OnInit {
     this.locationService.regenerateNfcTag(this.activeCompany.companyId, current.locationId).subscribe({
       next: (updated) => {
         const merged = { ...current, nfcTagKey: updated.nfcTagKey, nfcLastTappedAt: updated.nfcLastTappedAt };
-        this.selectedLocation = merged;
+        // The user may have switched site or cancelled while this was in flight; don't overwrite that form.
+        if (this.selectedLocation?.locationId === current.locationId) {
+          this.selectedLocation = merged;
+        }
         const index = this.locations.findIndex(l => l.locationId === merged.locationId);
         if (index > -1) {
           this.locations[index] = { ...this.locations[index], nfcTagKey: merged.nfcTagKey, nfcLastTappedAt: merged.nfcLastTappedAt };
@@ -344,6 +348,7 @@ export class LocationsComponent implements OnInit {
 
   editLocation(location: Location): void {
     this.selectedLocation = location;
+    this.nfcBusy = false;
     this.locationForm.patchValue({
       ...location,
       latitude: location.geoCoordinates?.latitude,
