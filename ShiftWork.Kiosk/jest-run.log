@@ -1,0 +1,12 @@
+
+> shiftwork-kiosk@1.0.0 test
+> node node_modules/jest-expo/bin/jest.js --passWithNoTests --ci
+
+PASS services/__tests__/interstitial.service.test.ts
+PASS i18n/__tests__/parity.test.ts
+
+Test Suites: 2 passed, 2 total
+Tests:       12 passed, 12 total
+Snapshots:   0 total
+Time:        2.097 s, estimated 12 s
+Ran all test suites.
