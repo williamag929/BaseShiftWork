@@ -1,6 +1,8 @@
-# ShiftWork Project
+# Loqzen
 
-ShiftWork is a full-stack workforce management application for time tracking and employee scheduling.
+**Loqzen** ([loqzen.com](https://loqzen.com)) is a full-stack workforce management application for shift scheduling and time tracking.
+
+> **Naming note:** Loqzen was previously called JobLogSmart and, before that, ClockShift. The code base intentionally keeps its original internal names: folders, `.csproj` files, C# namespaces and the GitHub repository still use `ShiftWork.*` / `BaseShiftWork`. Renaming them would churn every file, break EF Core migrations and history, and gives users nothing. Only user-visible text, config values, bundle/package IDs and URLs use the Loqzen name. When you see "ShiftWork" in code, read it as "Loqzen".
 
 ## 📚 Documentation
 
@@ -26,11 +28,11 @@ ShiftWork is a full-stack workforce management application for time tracking and
 
 ## Technical Overview
 
-This document provides a technical overview of the ShiftWork project, intended for developers and AI agents.
+This document provides a technical overview of the Loqzen project (internal code name ShiftWork), intended for developers and AI agents.
 
 ## 1. Project Description
 
-ShiftWork is a full-stack web application designed for time tracking and employee management on job sites. It allows employees to clock in and out, and it captures time, geolocation data, and a photo for verification. The primary target industries are construction and hospitality (restaurants), but it is adaptable for other sectors requiring similar functionality.
+Loqzen is a full-stack web application designed for time tracking and employee management on job sites. It allows employees to clock in and out, and it captures time, geolocation data, and a photo for verification. The primary target industries are construction and hospitality (restaurants), but it is adaptable for other sectors requiring similar functionality.
 
 ## 2. System Architecture
 
@@ -173,7 +175,7 @@ In addition to the kiosk mode, the application provides personal clock-in/out fe
 
 ## 8. Audit History
 
-The audit history feature provides comprehensive tracking of all changes to entities within the ShiftWork application. This feature is crucial for compliance, debugging, and accountability.
+The audit history feature provides comprehensive tracking of all changes to entities within the Loqzen application. This feature is crucial for compliance, debugging, and accountability.
 
 ### Features:
 
