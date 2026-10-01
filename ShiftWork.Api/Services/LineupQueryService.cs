@@ -41,13 +41,26 @@ namespace ShiftWork.Api.Services
                 .ToList();
             var visibleIds = locations.Select(l => l.LocationId).ToList();
 
-            var shifts = await _context.ScheduleShifts.AsNoTracking()
+            // Zero-scope users see an empty lineup (no company-wide bench leak).
+            if (!access.AllLocations && access.LocationIds.Count == 0)
+                return new LineupDto(date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), tz.Id, access.CanEdit,
+                    new List<LineupLocationDto>(), new List<LineupPersonDto>(), new List<LineupUnavailableDto>(), new List<LineupCrewDto>());
+
+            // Cards come from Schedule rows (what the grid, mobile and kiosk write), not legacy ScheduleShift.
+            var scheduleRows = await _context.Schedules.AsNoTracking()
                 .Where(s => s.CompanyId == companyId
-                            && visibleIds.Contains(s.LocationId)
+                            && s.LocationId != null && visibleIds.Contains(s.LocationId.Value)
                             && s.Status.ToLower() != "void"
                             && s.StartDate < endWall && s.EndDate > startWall)
                 .OrderBy(s => s.StartDate)
                 .ToListAsync();
+
+            var shifts = new List<(ShiftWork.Api.Models.Schedule Row, int PersonId)>();
+            foreach (var row in scheduleRows)
+            {
+                if (int.TryParse(row.PersonId, NumberStyles.Integer, CultureInfo.InvariantCulture, out var pid))
+                    shifts.Add((row, pid));
+            }
 
             var shiftPersonIds = shifts.Select(s => s.PersonId).Distinct().ToList();
             var names = await _context.Persons.AsNoTracking()
@@ -70,9 +83,9 @@ namespace ShiftWork.Api.Services
                 l.LocationId,
                 l.Name,
                 ToDto(LocationDefaultShift.TryParse(l.Settings)),
-                shifts.Where(s => s.LocationId == l.LocationId)
-                      .Select(s => new LineupShiftDto(s.ScheduleShiftId, s.PersonId,
-                          names.TryGetValue(s.PersonId, out var n) ? n : "Unknown", s.StartDate, s.EndDate, s.Status))
+                shifts.Where(s => s.Row.LocationId == l.LocationId)
+                      .Select(s => new LineupShiftDto(s.Row.ScheduleId, s.PersonId,
+                          names.TryGetValue(s.PersonId, out var n) ? n : "Unknown", s.Row.StartDate, s.Row.EndDate, s.Row.Status))
                       .ToList())).ToList();
 
             var bench = avail.Available
@@ -84,7 +97,12 @@ namespace ShiftWork.Api.Services
             var unavailable = avail.Unavailable
                 .Where(u => !onCard.Contains(u.Person.PersonId))
                 .Select(u => new LineupUnavailableDto(u.Person.PersonId, u.Person.Name,
-                    u.Reason == UnavailableReason.TimeOff ? "Time off" : "Assigned to another site"))
+                    u.Reason switch
+                    {
+                        UnavailableReason.TimeOff => "Time off",
+                        UnavailableReason.Schedule => "Assigned to another site",
+                        _ => "Already scheduled"
+                    }))
                 .ToList();
 
             var known = bench.Select(b => b.PersonId).Concat(avail.Unavailable.Select(u => u.Person.PersonId)).ToHashSet();

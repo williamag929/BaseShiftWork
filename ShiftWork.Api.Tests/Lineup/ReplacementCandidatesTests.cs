@@ -14,7 +14,7 @@ public class ReplacementCandidatesTests
         new(ctx, NullLogger<ScheduleShiftService>.Instance, new AvailabilityService(ctx), new CompanyTimeZoneService(ctx));
 
     [Fact]
-    public async Task Excludes_busy_inactive_time_off_and_the_excluded_person()
+    public async Task Excludes_busy_schedule_busy_inactive_time_off_and_the_excluded_person()
     {
         await using var ctx = LineupTestData.NewContext();
         ctx.Companies.Add(LineupTestData.Company());
@@ -23,7 +23,9 @@ public class ReplacementCandidatesTests
             new Person { PersonId = 2, Name = "Busy", CompanyId = Co, Email = "2@x", Status = "Active" },
             new Person { PersonId = 3, Name = "Inactive", CompanyId = Co, Email = "3@x", Status = "Inactive" },
             new Person { PersonId = 4, Name = "Off", CompanyId = Co, Email = "4@x", Status = "Active" },
+            new Person { PersonId = 5, Name = "ScheduleBusy", CompanyId = Co, Email = "5@x", Status = "Active" },
             new Person { PersonId = 6, Name = "Requester", CompanyId = Co, Email = "6@x", Status = "Active" });
+        ctx.Schedules.Add(new Schedule { Name = "Shift", CompanyId = Co, PersonId = "5", LocationId = 7, AreaId = 1, StartDate = U(1, 12), EndDate = U(1, 20), Status = "Published", Type = "Shift" });
         ctx.ScheduleShifts.Add(new ScheduleShift { CompanyId = Co, PersonId = 2, LocationId = 7, AreaId = 1, StartDate = U(1, 12), EndDate = U(1, 20), Status = "Published" });
         ctx.TimeOffRequests.Add(new TimeOffRequest { CompanyId = Co, PersonId = 4, Status = "Approved", StartDate = new DateTime(2026, 10, 1), EndDate = new DateTime(2026, 10, 1) });
         await ctx.SaveChangesAsync();

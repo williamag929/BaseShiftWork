@@ -12,6 +12,9 @@ public class LineupQueryServiceTests
     // Shift times are floating wall-clock digits labelled UTC, so these seeds read as 11:00-19:00 on the day.
     private static DateTime U(int d, int h) => new(2026, 10, d, h, 0, 0, DateTimeKind.Utc);
 
+    private static Schedule Sched(int id, int person, int loc, DateTime start, DateTime end, int? area, string status = "Published") =>
+        new() { ScheduleId = id, Name = "Shift", CompanyId = Co, PersonId = person.ToString(), LocationId = loc, AreaId = area, StartDate = start, EndDate = end, Status = status, Type = "Shift" };
+
     private static async Task<(ShiftWorkContext, LineupQueryService)> ArrangeAsync()
     {
         var ctx = LineupTestData.NewContext();
@@ -26,11 +29,18 @@ public class LineupQueryServiceTests
             new Person { PersonId = 2, Name = "Elsewhere", CompanyId = Co, Email = "2@x", Status = "Active" },
             new Person { PersonId = 3, Name = "Bench", CompanyId = Co, Email = "3@x", Status = "Active" },
             new Person { PersonId = 4, Name = "OffDay", CompanyId = Co, Email = "4@x", Status = "Active" },
-            new Person { PersonId = 5, Name = "Foreign", CompanyId = "other-co", Email = "5@x", Status = "Active" });
-        ctx.ScheduleShifts.AddRange(
-            new ScheduleShift { ScheduleShiftId = 501, CompanyId = Co, PersonId = 1, LocationId = 7, AreaId = 12, StartDate = U(1, 11), EndDate = U(1, 19), Status = "Published" },
-            new ScheduleShift { ScheduleShiftId = 502, CompanyId = Co, PersonId = 2, LocationId = 8, AreaId = 13, StartDate = U(1, 11), EndDate = U(1, 19), Status = "Published" },
-            new ScheduleShift { ScheduleShiftId = 503, CompanyId = Co, PersonId = 3, LocationId = 7, AreaId = 12, StartDate = U(3, 11), EndDate = U(3, 19), Status = "Published" });
+            new Person { PersonId = 5, Name = "Foreign", CompanyId = "other-co", Email = "5@x", Status = "Active" },
+            new Person { PersonId = 6, Name = "Legacy", CompanyId = Co, Email = "6@x", Status = "Active" },
+            new Person { PersonId = 7, Name = "ClosedSite", CompanyId = Co, Email = "7@x", Status = "Active" },
+            new Person { PersonId = 8, Name = "Voided", CompanyId = Co, Email = "8@x", Status = "Active" });
+        ctx.Schedules.AddRange(
+            Sched(601, 1, 7, U(1, 11), U(1, 19), 12),
+            Sched(602, 2, 8, U(1, 11), U(1, 19), 13),
+            Sched(603, 3, 7, U(3, 11), U(3, 19), 12),                      // other day: not on today's card
+            Sched(604, 7, 9, U(1, 11), U(1, 19), null),                    // inactive location: never a card
+            Sched(605, 8, 7, U(1, 11), U(1, 19), 12, status: "void"));     // void: no card, person stays free
+        // Legacy ScheduleShift-only assignment (no Schedule row).
+        ctx.ScheduleShifts.Add(new ScheduleShift { ScheduleShiftId = 506, CompanyId = Co, PersonId = 6, LocationId = 8, AreaId = 13, StartDate = U(1, 11), EndDate = U(1, 19), Status = "Published" });
         ctx.TimeOffRequests.Add(new TimeOffRequest { CompanyId = Co, PersonId = 4, Status = "Approved", StartDate = new DateTime(2026, 10, 1), EndDate = new DateTime(2026, 10, 1) });
         var crew = new Crew { CrewId = 2, Name = "Alpha", CompanyId = Co };
         ctx.Crews.Add(crew);
@@ -53,7 +63,7 @@ public class LineupQueryServiceTests
         Assert.Equal("07:00", loc.DefaultShift!.Start);
         Assert.Equal(12, loc.DefaultShift.AreaId);
         var shift = Assert.Single(loc.Shifts);
-        Assert.Equal(501, shift.ShiftId);
+        Assert.Equal(601, shift.ShiftId);   // ShiftId carries the ScheduleId
         Assert.Equal("OnCard", shift.Name);
         Assert.Equal(U(1, 11), shift.Start);   // stored wall-clock value, unchanged
         await ctx.DisposeAsync();
@@ -75,14 +85,16 @@ public class LineupQueryServiceTests
         var (ctx, svc) = await ArrangeAsync();
         var r = await svc.GetAsync(Co, Day, Foreman());
 
-        Assert.Equal(new[] { 3 }, r.Bench.Select(p => p.PersonId));
-        Assert.Equal(new[] { 2 }, r.Bench.Single().CrewIds);
+        Assert.Equal(new[] { 3, 8 }, r.Bench.Select(p => p.PersonId).OrderBy(x => x));   // 8 has only a void schedule
+        Assert.Equal(new[] { 2 }, r.Bench.Single(b => b.PersonId == 3).CrewIds);
 
         var byId = r.Unavailable.ToDictionary(u => u.PersonId);
         Assert.False(byId.ContainsKey(1));                  // on a visible card
         Assert.Equal("Assigned to another site", byId[2].Reason);
         Assert.DoesNotContain("Secret", byId[2].Reason);
         Assert.Equal("Time off", byId[4].Reason);
+        Assert.Equal("Already scheduled", byId[6].Reason);          // legacy ScheduleShift only
+        Assert.Equal("Assigned to another site", byId[7].Reason);   // schedule at a hidden (inactive) site
         Assert.DoesNotContain(r.Unavailable, u => u.PersonId == 5);   // tenant isolation
 
         var crew = Assert.Single(r.Crews);
@@ -98,6 +110,31 @@ public class LineupQueryServiceTests
         Assert.Equal("2026-10-01", r.Date);
         Assert.Equal("America/New_York", r.TimeZone);
         Assert.False(r.CanEdit);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Void_and_inactive_location_schedules_are_not_cards()
+    {
+        var (ctx, svc) = await ArrangeAsync();
+        var r = await svc.GetAsync(Co, Day, Boss());
+        var cards = r.Locations.SelectMany(l => l.Shifts).Select(s => s.ShiftId).OrderBy(x => x);
+        Assert.Equal(new[] { 601, 602 }, cards);
+        Assert.DoesNotContain(r.Locations, l => l.LocationId == 9);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task User_with_no_location_scope_gets_an_empty_lineup()
+    {
+        var (ctx, svc) = await ArrangeAsync();
+        var r = await svc.GetAsync(Co, Day, new LineupAccess("cu", true, false, new HashSet<int>()));
+        Assert.Empty(r.Locations);
+        Assert.Empty(r.Bench);
+        Assert.Empty(r.Unavailable);
+        Assert.Empty(r.Crews);
+        Assert.Equal("2026-10-01", r.Date);
+        Assert.Equal("America/New_York", r.TimeZone);
         await ctx.DisposeAsync();
     }
 }

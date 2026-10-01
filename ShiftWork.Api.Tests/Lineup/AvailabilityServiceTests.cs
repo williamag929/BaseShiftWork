@@ -28,7 +28,16 @@ public class AvailabilityServiceTests
     private static ScheduleShift Shift(int person, DateTime s, DateTime e, string status = "Published", int loc = 10) =>
         new() { CompanyId = Co, PersonId = person, LocationId = loc, StartDate = s, EndDate = e, Status = status };
 
-    private static DateTime U(int y, int m, int d, int h) => new(y, m, d, h, 0, 0, DateTimeKind.Utc);
+    private static DateTime U(int y, int m, int d, int h, int min = 0) => new(y, m, d, h, min, 0, DateTimeKind.Utc);
+
+    private static Schedule Sched(int person, DateTime s, DateTime e, string status = "Published", int? loc = 10, string company = Co) =>
+        new() { Name = "Shift", CompanyId = company, PersonId = person.ToString(), LocationId = loc, StartDate = s, EndDate = e, Status = status, Type = "Shift" };
+
+    private static TimeOffRequest Off(int person, DateTime start, DateTime end, TimeSpan? ps = null, TimeSpan? pe = null) =>
+        new() { CompanyId = Co, PersonId = person, Status = "Approved", StartDate = start, EndDate = end, IsPartialDay = ps != null, PartialStartTime = ps, PartialEndTime = pe };
+
+    private static ShiftEvent Sick(int person, DateTime at) =>
+        new() { EventLogId = Guid.NewGuid(), CompanyId = Co, PersonId = person, EventType = "sick", EventDate = at };
 
     [Fact]
     public async Task Only_active_people_in_the_company_are_candidates()
@@ -172,6 +181,168 @@ public class AvailabilityServiceTests
         var (s, e) = LineupTime.WallDayWindow(Day);
         var r = await svc.GetForWindowAsync(Co, s, e, Ny);
         Assert.Equal(UnavailableReason.Shift, Assert.Single(r.Unavailable).Reason);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Schedule_overlap_blocks_with_location_and_schedule_reason()
+    {
+        var (ctx, svc) = await Arrange(c => c.Schedules.Add(Sched(2, U(2026, 10, 1, 7), U(2026, 10, 1, 15, 30), loc: 7)));
+        var (s, e) = LineupTime.WallDayWindow(Day);
+        var r = await svc.GetForWindowAsync(Co, s, e, Ny);
+        var busy = Assert.Single(r.Unavailable);
+        Assert.Equal(2, busy.Person.PersonId);
+        Assert.Equal(UnavailableReason.Schedule, busy.Reason);
+        Assert.Equal(7, busy.LocationId);
+        Assert.Equal(U(2026, 10, 1, 7), busy.StartUtc);
+        Assert.DoesNotContain(r.Available, p => p.PersonId == 2);
+        await ctx.DisposeAsync();
+    }
+
+    [Theory]
+    [InlineData("void")]
+    [InlineData("VOID")]
+    public async Task Void_schedule_does_not_block(string status)
+    {
+        var (ctx, svc) = await Arrange(c => c.Schedules.Add(Sched(2, U(2026, 10, 1, 7), U(2026, 10, 1, 15), status)));
+        var (s, e) = LineupTime.WallDayWindow(Day);
+        var r = await svc.GetForWindowAsync(Co, s, e, Ny);
+        Assert.Contains(r.Available, p => p.PersonId == 2);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Schedule_of_another_person_or_company_does_not_block()
+    {
+        var (ctx, svc) = await Arrange(c =>
+        {
+            c.Schedules.Add(Sched(1, U(2026, 10, 1, 7), U(2026, 10, 1, 15)));                    // another person
+            c.Schedules.Add(Sched(2, U(2026, 10, 1, 7), U(2026, 10, 1, 15), company: "other-co")); // another company
+        });
+        var (s, e) = LineupTime.WallDayWindow(Day);
+        var r = await svc.GetForWindowAsync(Co, s, e, Ny);
+        Assert.Contains(r.Available, p => p.PersonId == 2);
+        Assert.Contains(r.Unavailable, u => u.Person.PersonId == 1);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Schedule_ending_exactly_when_window_starts_does_not_block()
+    {
+        var (ctx, svc) = await Arrange(c => c.Schedules.Add(Sched(2, U(2026, 9, 30, 16), U(2026, 10, 1, 0))));
+        var (s, e) = LineupTime.WallDayWindow(Day);
+        var r = await svc.GetForWindowAsync(Co, s, e, Ny);
+        Assert.Contains(r.Available, p => p.PersonId == 2);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Schedule_beats_Shift_beats_TimeOff()
+    {
+        var (ctx, svc) = await Arrange(c =>
+        {
+            // person 1: all three; person 2: shift + time off
+            c.Schedules.Add(Sched(1, U(2026, 10, 1, 7), U(2026, 10, 1, 15)));
+            c.ScheduleShifts.Add(Shift(1, U(2026, 10, 1, 7), U(2026, 10, 1, 15)));
+            c.TimeOffRequests.Add(Off(1, new DateTime(2026, 10, 1), new DateTime(2026, 10, 1)));
+            c.ScheduleShifts.Add(Shift(2, U(2026, 10, 1, 7), U(2026, 10, 1, 15)));
+            c.TimeOffRequests.Add(Off(2, new DateTime(2026, 10, 1), new DateTime(2026, 10, 1)));
+        });
+        var (s, e) = LineupTime.WallDayWindow(Day);
+        var r = await svc.GetForWindowAsync(Co, s, e, Ny);
+        Assert.Equal(UnavailableReason.Schedule, r.Unavailable.Single(u => u.Person.PersonId == 1).Reason);
+        Assert.Equal(UnavailableReason.Shift, r.Unavailable.Single(u => u.Person.PersonId == 2).Reason);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Partial_day_time_off_blocks_only_when_the_window_overlaps_its_range()
+    {
+        var (ctx, svc) = await Arrange(c => c.TimeOffRequests.Add(
+            Off(2, new DateTime(2026, 10, 1), new DateTime(2026, 10, 1), TimeSpan.FromHours(13), TimeSpan.FromHours(15))));
+
+        var overlapping = await svc.GetForWindowAsync(Co, U(2026, 10, 1, 7), U(2026, 10, 1, 15, 30), Ny);
+        Assert.Equal(UnavailableReason.TimeOff, Assert.Single(overlapping.Unavailable).Reason);
+
+        var before = await svc.GetForWindowAsync(Co, U(2026, 10, 1, 7), U(2026, 10, 1, 12), Ny);
+        Assert.Contains(before.Available, p => p.PersonId == 2);
+
+        var (ds, de) = LineupTime.WallDayWindow(Day);
+        var fullDay = await svc.GetForWindowAsync(Co, ds, de, Ny);
+        Assert.Contains(fullDay.Unavailable, u => u.Person.PersonId == 2);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Partial_day_flag_without_times_blocks_like_a_full_day()
+    {
+        var (ctx, svc) = await Arrange(c => c.TimeOffRequests.Add(new TimeOffRequest
+        {
+            CompanyId = Co, PersonId = 2, Status = "Approved", IsPartialDay = true,
+            StartDate = new DateTime(2026, 10, 1), EndDate = new DateTime(2026, 10, 1)
+        }));
+        var r = await svc.GetForWindowAsync(Co, U(2026, 10, 1, 7), U(2026, 10, 1, 12), Ny);
+        Assert.Contains(r.Unavailable, u => u.Person.PersonId == 2);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Multi_day_time_off_spanning_the_window_edge_blocks()
+    {
+        var (ctx, svc) = await Arrange(c => c.TimeOffRequests.Add(Off(2, new DateTime(2026, 9, 28), new DateTime(2026, 10, 1))));
+        var (s, e) = LineupTime.WallDayWindow(Day);
+        var r = await svc.GetForWindowAsync(Co, s, e, Ny);
+        Assert.Contains(r.Unavailable, u => u.Person.PersonId == 2 && u.Reason == UnavailableReason.TimeOff);
+
+        var (ns, ne) = LineupTime.WallDayWindow(Day.AddDays(1));
+        var next = await svc.GetForWindowAsync(Co, ns, ne, Ny);
+        Assert.Contains(next.Available, p => p.PersonId == 2);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Early_morning_sick_event_blocks_a_later_shift_window_that_day()
+    {
+        // 09:30Z on Oct 1 is 05:30 in New York; the shift window starts at 07:00 wall.
+        var (ctx, svc) = await Arrange(c => c.ShiftEvents.Add(Sick(2, U(2026, 10, 1, 9, 30))));
+        var r = await svc.GetForWindowAsync(Co, U(2026, 10, 1, 7), U(2026, 10, 1, 15, 30), Ny);
+        Assert.Contains(r.Unavailable, u => u.Person.PersonId == 2 && u.Reason == UnavailableReason.TimeOff);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Sick_event_the_previous_local_evening_does_not_block_a_shift_window()
+    {
+        // 02:00Z on Oct 1 is 22:00 on Sep 30 in New York.
+        var (ctx, svc) = await Arrange(c => c.ShiftEvents.Add(Sick(2, U(2026, 10, 1, 2))));
+        var r = await svc.GetForWindowAsync(Co, U(2026, 10, 1, 7), U(2026, 10, 1, 15, 30), Ny);
+        Assert.Contains(r.Available, p => p.PersonId == 2);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task GetTimeOffPersonIds_combines_time_off_and_events()
+    {
+        var (ctx, svc) = await Arrange(c =>
+        {
+            c.TimeOffRequests.Add(Off(1, new DateTime(2026, 10, 1), new DateTime(2026, 10, 1)));
+            c.ShiftEvents.Add(Sick(2, U(2026, 10, 1, 15)));
+        });
+        var ids = await svc.GetTimeOffPersonIdsAsync(Co, U(2026, 10, 1, 7), U(2026, 10, 1, 15, 30), Ny);
+        Assert.Equal(new[] { 1, 2 }, ids.OrderBy(x => x));
+        await ctx.DisposeAsync();
+    }
+
+    [Theory]
+    [InlineData(2026, 11, 1)]   // fall-back day (25h)
+    [InlineData(2026, 3, 8)]    // spring-forward day (23h)
+    public async Task Dst_transition_days_do_not_throw_and_still_block_with_an_event(int y, int m, int d)
+    {
+        // 15:00Z is mid-day in New York on both dates.
+        var (ctx, svc) = await Arrange(c => c.ShiftEvents.Add(Sick(2, U(y, m, d, 15))));
+        var (s, e) = LineupTime.WallDayWindow(new DateOnly(y, m, d));
+        var r = await svc.GetForWindowAsync(Co, s, e, Ny);
+        Assert.Contains(r.Unavailable, u => u.Person.PersonId == 2 && u.Reason == UnavailableReason.TimeOff);
         await ctx.DisposeAsync();
     }
 }
