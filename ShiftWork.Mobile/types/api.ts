@@ -104,6 +104,10 @@ export interface LocationDto {
   latitude?: number;
   longitude?: number;
   isActive: boolean;
+  /** Phone punches at this site must come from an NFC tag tap. */
+  requireNfc?: boolean;
+  /** Set when the site has a tag link (https://t.loqzen.com/t/<nfcTagKey>). */
+  nfcTagKey?: string | null;
 }
 
 export interface AreaDto {
@@ -192,4 +196,34 @@ export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
   statusCode: number;
+}
+
+export interface NfcPunchRequest {
+  tagKey: string;
+  /** Client-generated; reused on retry so a saved punch is never recorded twice. */
+  eventLogId: string;
+  /** Tap time, ISO UTC. */
+  eventDate: string;
+  geoLocation?: string;
+  device?: string;
+}
+
+export interface NfcPunchResult {
+  eventLogId: string;
+  eventType: 'clockin' | 'clockout';
+  eventDate: string;
+  locationId: number;
+  locationName: string;
+  /** "Inside" | "Outside" | "Unknown" */
+  geofenceStatus: string;
+  /** True when the tap repeated a punch from the last minute and recorded nothing new. */
+  repeated: boolean;
+}
+
+export interface NfcTagLink {
+  locationId: number;
+  name: string;
+  requireNfc: boolean;
+  tagUrl: string | null;
+  nfcLastTappedAt: string | null;
 }

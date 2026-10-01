@@ -9,6 +9,14 @@ namespace ShiftWork.Api.Services
     public interface IShiftEventService
     {
         Task<ShiftEvent> CreateShiftEventAsync(ShiftEventDto shiftEventDto);
+
+        /// <summary>
+        /// Throws <see cref="NfcRequiredException"/> when a clock-in/out would land on a site with
+        /// RequireNfc (the DTO's LocationId, else the person's schedule for that day). Callers decide
+        /// who the rule applies to; the controller applies it to the employee's own phone punches only.
+        /// </summary>
+        Task EnsureNfcNotRequiredAsync(ShiftEventDto shiftEventDto);
+
     Task<ShiftEvent?> GetShiftEventByIdAsync(Guid id);
         Task<IEnumerable<ShiftEvent>> GetShiftEventsByPersonIdAsync(string companyId, int personId);
         Task<IEnumerable<ShiftEvent>> GetShiftEventsByCompanyIdAsync(string companyId);

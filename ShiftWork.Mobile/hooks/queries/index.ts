@@ -6,6 +6,8 @@
  *   ['scheduleShifts', companyId, personId, start, end]
  *   ['timeOffRequests', companyId, personId]
  *   ['locationName', companyId, locationId]
+ *   ['locationDetails', companyId, locationId]
+ *   ['nfcTagLinks', companyId]
  *   ['dashboard', companyId, personId]   ← wide query used by useDashboardData
  */
 
@@ -15,6 +17,7 @@ import { shiftEventService, dbService } from '@/services';
 import { scheduleService } from '@/services/schedule.service';
 import { locationService } from '@/services/location.service';
 import { timeOffRequestService } from '@/services/time-off-request.service';
+import { nfcPunchService } from '@/services/nfc-punch.service';
 import { uploadService } from '@/services/upload.service';
 import { companySettingsService } from '@/services/company-settings.service';
 import { getCurrentLocation, saveActiveClockInAt, clearActiveClockInAt } from '@/utils';
@@ -123,6 +126,32 @@ export function useLocationName(companyId?: string | null, locationId?: string |
     },
     enabled: !!companyId && !!locationId,
     staleTime: 5 * 60_000,
+  });
+}
+
+export const locationDetailsKey = (companyId: string, locationId: string | number) =>
+  ['locationDetails', companyId, String(locationId)] as const;
+
+/** Full location (incl. requireNfc / nfcTagKey) for today's shift site. */
+export function useLocationDetails(companyId?: string | null, locationId?: string | number | null) {
+  return useQuery({
+    queryKey: locationDetailsKey(companyId ?? '', locationId ?? ''),
+    queryFn: () => locationService.getLocationById(companyId!, Number(locationId!)),
+    enabled: !!companyId && !!locationId,
+    staleTime: 5 * 60_000,
+  });
+}
+
+export const nfcTagLinksKey = (companyId: string) => ['nfcTagLinks', companyId] as const;
+
+/** Managers only: a 403 (not an error to retry) means the user can't write tags. */
+export function useNfcTagLinks(companyId?: string | null) {
+  return useQuery({
+    queryKey: nfcTagLinksKey(companyId ?? ''),
+    queryFn: () => nfcPunchService.getTagLinks(companyId!),
+    enabled: !!companyId,
+    retry: false,
+    staleTime: 60_000,
   });
 }
 

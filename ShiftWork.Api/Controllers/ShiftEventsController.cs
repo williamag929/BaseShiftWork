@@ -7,6 +7,7 @@ using ShiftWork.Api.Models;
 using ShiftWork.Api.Services;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ShiftWork.Api.Controllers
@@ -26,6 +27,11 @@ namespace ShiftWork.Api.Controllers
             _mapper = mapper;
         }
 
+        // Only the Mobile app's API JWT carries a personId claim. Angular (Firebase) tokens don't, and
+        // kiosk punches use /api/kiosk, so manager entries and kiosks never reach the NFC rule.
+        private bool IsOwnPhonePunch(ShiftEventDto dto) =>
+            int.TryParse(User.FindFirstValue("personId"), out var callerPersonId) && callerPersonId == dto.PersonId;
+
         [HttpPost]
         [Authorize(Policy = "shift-events.create")]
         [ProducesResponseType(typeof(ShiftEventDto), 201)]
@@ -41,11 +47,20 @@ namespace ShiftWork.Api.Controllers
 
             try
             {
+                if (IsOwnPhonePunch(shiftEventDto))
+                {
+                    await _shiftEventService.EnsureNfcNotRequiredAsync(shiftEventDto);
+                }
+
                 var createdShiftEvent = await _shiftEventService.CreateShiftEventAsync(shiftEventDto);
                 var createdShiftEventDto = _mapper.Map<ShiftEventDto>(createdShiftEvent);
                 _logger.LogInformation("Shift event created: {EventLogId} PersonId={PersonId} Type={EventType}", createdShiftEventDto.EventLogId, createdShiftEventDto.PersonId, createdShiftEventDto.EventType);
                 return CreatedAtAction(nameof(GetShiftEvent), new { companyId, eventLogId = createdShiftEventDto.EventLogId }, createdShiftEventDto);
                 //return CreatedAtAction(nameof(GetShiftEvent), new { id = createdShiftEventDto.EventLogId }, createdShiftEventDto);
+            }
+            catch (NfcRequiredException ex)
+            {
+                return StatusCode(403, new { code = NfcRequiredException.Code, message = ex.Message });
             }
             catch (InvalidOperationException ex)
             {

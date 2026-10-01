@@ -1,3 +1,4 @@
+import '@angular/localize/init';
 import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Location } from 'src/app/core/models/location.model';
@@ -98,6 +99,7 @@ export class LocationsComponent implements OnInit {
       status: ['Active', Validators.required],
       requirePin: [true],
       requirePhoto: [true],
+      requireNfc: [false],
     });
 
     this.mapOptions = {
@@ -117,6 +119,7 @@ export class LocationsComponent implements OnInit {
 
   cancelEdit(): void {
     this.selectedLocation = null;
+    this.nfcBusy = false;
     this.locationForm.reset({
       name: '',
       address: '',
@@ -134,6 +137,7 @@ export class LocationsComponent implements OnInit {
       status: 'Active',
       requirePin: true,
       requirePhoto: true,
+      requireNfc: false,
     });
 
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -198,6 +202,51 @@ export class LocationsComponent implements OnInit {
         this.cancelEdit();
       });
     }
+  }
+
+  readonly nfcTagUrlBase = 'https://t.loqzen.com/t/';
+  nfcBusy = false;
+
+  nfcTagUrl(location: Location | null): string | null {
+    return location?.nfcTagKey ? this.nfcTagUrlBase + location.nfcTagKey : null;
+  }
+
+  copyNfcTagUrl(url: string): void {
+    navigator.clipboard.writeText(url).then(
+      () => this.toastr.success($localize`:@@locations.nfc_copied:Tag link copied.`),
+      () => this.toastr.error($localize`:@@locations.nfc_copy_failed:Could not copy. Select the link and copy it.`),
+    );
+  }
+
+  regenerateNfcTag(): void {
+    const current = this.selectedLocation;
+    if (!current || this.nfcBusy) {
+      return;
+    }
+    if (current.nfcTagKey && !window.confirm($localize`:@@locations.nfc_regenerate_confirm:Create a new tag link? The current tag stops working right away and must be written again.`)) {
+      return;
+    }
+
+    this.nfcBusy = true;
+    this.locationService.regenerateNfcTag(this.activeCompany.companyId, current.locationId).subscribe({
+      next: (updated) => {
+        const merged = { ...current, nfcTagKey: updated.nfcTagKey, nfcLastTappedAt: updated.nfcLastTappedAt };
+        // The user may have switched site or cancelled while this was in flight; don't overwrite that form.
+        if (this.selectedLocation?.locationId === current.locationId) {
+          this.selectedLocation = merged;
+        }
+        const index = this.locations.findIndex(l => l.locationId === merged.locationId);
+        if (index > -1) {
+          this.locations[index] = { ...this.locations[index], nfcTagKey: merged.nfcTagKey, nfcLastTappedAt: merged.nfcLastTappedAt };
+        }
+        this.toastr.success($localize`:@@locations.nfc_regenerated:New tag link ready. Write it to the tag.`);
+        this.nfcBusy = false;
+      },
+      error: () => {
+        this.toastr.error($localize`:@@locations.nfc_regenerate_failed:Could not create the tag link.`);
+        this.nfcBusy = false;
+      },
+    });
   }
 
   private setCurrentLocation(): void {
@@ -299,12 +348,14 @@ export class LocationsComponent implements OnInit {
 
   editLocation(location: Location): void {
     this.selectedLocation = location;
+    this.nfcBusy = false;
     this.locationForm.patchValue({
       ...location,
       latitude: location.geoCoordinates?.latitude,
       longitude: location.geoCoordinates?.longitude,
       requirePin: location.requirePin ?? true,
-      requirePhoto: location.requirePhoto ?? true
+      requirePhoto: location.requirePhoto ?? true,
+      requireNfc: location.requireNfc ?? false
     });
 
     if (location.geoCoordinates) {

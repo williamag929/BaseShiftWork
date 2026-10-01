@@ -962,11 +962,21 @@ namespace ShiftWork.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("NfcLastTappedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NfcTagKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RatioMax")
                         .HasColumnType("int");
+
+                    b.Property<bool>("RequireNfc")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("RequirePhoto")
                         .HasColumnType("bit");
@@ -1002,6 +1012,10 @@ namespace ShiftWork.Api.Migrations
                     b.HasKey("LocationId");
 
                     b.HasIndex("CompanyId");
+
+                    b.HasIndex("NfcTagKey")
+                        .IsUnique()
+                        .HasFilter("[NfcTagKey] IS NOT NULL");
 
                     b.ToTable("Locations", (string)null);
                 });

@@ -101,6 +101,51 @@ namespace ShiftWork.Api.Controllers
             }
         }
 
+        /// <summary>Active sites with their NFC tag links, for the Mobile "Write tag" screen (managers).</summary>
+        [HttpGet("nfc-tags")]
+        [Authorize(Policy = "locations.update")]
+        [ProducesResponseType(typeof(List<NfcTagLinkDto>), 200)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<List<NfcTagLinkDto>>> GetNfcTagLinks(string companyId)
+        {
+            try
+            {
+                return Ok(await _locationService.GetNfcTagLinksAsync(companyId));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error listing NFC tag links for company {CompanyId}.", companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>Creates a new tag key for the site. The previous tag link stops working immediately.</summary>
+        [HttpPost("{locationId}/nfc-tag/regenerate")]
+        [Authorize(Policy = "locations.update")]
+        [ProducesResponseType(typeof(LocationDto), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<LocationDto>> RegenerateNfcTag(string companyId, int locationId)
+        {
+            try
+            {
+                var location = await _locationService.RegenerateNfcTagAsync(companyId, locationId);
+                if (location == null)
+                {
+                    return NotFound($"Location with ID {locationId} not found.");
+                }
+
+                _memoryCache.Remove($"locations_{companyId}");
+                _memoryCache.Remove($"location_{companyId}_{locationId}");
+                return Ok(_mapper.Map<LocationDto>(location));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error regenerating NFC tag for location {LocationId} in company {CompanyId}.", locationId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
         /// <summary>
         /// Retrieves a specific location by its ID.
         /// </summary>

@@ -73,6 +73,8 @@ namespace ShiftWork.Api.Data
             modelBuilder.Entity<ProcoreConnection>().ToTable("ProcoreConnections");
             modelBuilder.Entity<ProcoreConnection>().HasIndex(p => p.CompanyId).IsUnique();
             modelBuilder.Entity<Location>().ToTable("Locations");
+            modelBuilder.Entity<Location>().Property(l => l.NfcTagKey).HasMaxLength(64);
+            modelBuilder.Entity<Location>().HasIndex(l => l.NfcTagKey).IsUnique();
             modelBuilder.Entity<Role>().ToTable("Roles");
             modelBuilder.Entity<Schedule>().ToTable("Schedules");
             modelBuilder.Entity<ScheduleShift>().ToTable("ScheduleShifts");
