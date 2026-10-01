@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
@@ -26,6 +27,7 @@ namespace ShiftWork.Api.Services
         private readonly ICompanySettingsService _settings;
         private readonly PushNotificationService _push;
         private readonly TimeProvider _time;
+        private readonly IMemoryCache _cache;
         private readonly ILogger<LineupCommitService> _logger;
 
         public LineupCommitService(
@@ -37,6 +39,7 @@ namespace ShiftWork.Api.Services
             ICompanySettingsService settings,
             PushNotificationService push,
             TimeProvider time,
+            IMemoryCache cache,
             ILogger<LineupCommitService> logger)
         {
             _context = context;
@@ -47,6 +50,7 @@ namespace ShiftWork.Api.Services
             _settings = settings;
             _push = push;
             _time = time;
+            _cache = cache;
             _logger = logger;
         }
 
@@ -89,8 +93,9 @@ namespace ShiftWork.Api.Services
         {
             var schedule = await _context.Schedules.AsNoTracking()
                 .FirstOrDefaultAsync(s => s.ScheduleId == scheduleId && s.CompanyId == companyId);
-            // Same answer for missing, foreign, site-less and out-of-scope so ids can't be probed.
-            if (schedule == null || !schedule.LocationId.HasValue || !access.CanSeeLocation(schedule.LocationId.Value))
+            // Same answer for missing, foreign, site-less, out-of-scope and void (void rows keep their audit trail) so ids can't be probed.
+            if (schedule == null || !schedule.LocationId.HasValue || !access.CanSeeLocation(schedule.LocationId.Value)
+                || string.Equals(schedule.Status, "void", StringComparison.OrdinalIgnoreCase))
                 return Rejected(shiftId: scheduleId, error: "Shift not found.");
 
             // Stored times are floating wall-clock; read them in the site's zone (company zone as fallback) to compare with the real instant "now".
@@ -99,13 +104,15 @@ namespace ShiftWork.Api.Services
                 .Where(l => l.LocationId == locationId && l.CompanyId == companyId)
                 .Select(l => l.TimeZone)
                 .FirstOrDefaultAsync();
-            var zoneId = string.IsNullOrWhiteSpace(locationZone) ? companyTz.Id : locationZone;
-            var startInstant = LineupTime.WallToInstantUtc(schedule.StartDate, LineupTime.Resolve(zoneId));
+            var startInstant = LineupTime.WallToInstantUtc(schedule.StartDate, ZoneOrCompany(locationZone, companyTz));
             if (startInstant <= now)
                 return Rejected(shiftId: scheduleId, error: "Only future shifts can be removed.");
 
             if (!await _schedules.Delete(scheduleId))
                 return Rejected(shiftId: scheduleId, error: "Shift not found.");
+            // The grid (SchedulesController) caches these keys; lineup writes bypass the controller, so clear them here.
+            _cache.Remove($"schedules_{companyId}");
+            _cache.Remove($"schedule_{companyId}_{scheduleId}");
 
             return new LineupCommitResultDto
             {
@@ -171,7 +178,7 @@ namespace ShiftWork.Api.Services
                 LocationId = a.LocationId, AreaId = areaId,
                 StartDate = startWall, EndDate = endWall,
                 Status = status, Type = "Shift",
-                TimeZone = string.IsNullOrWhiteSpace(location.TimeZone) ? companyTz.Id : location.TimeZone,
+                TimeZone = ZoneOrCompany(location.TimeZone, companyTz).Id,
                 CreatedBy = access.CompanyUserId, CreatedAt = now
             };
 
@@ -187,6 +194,7 @@ namespace ShiftWork.Api.Services
                 };
 
             var created = await _schedules.Add(candidate);
+            _cache.Remove($"schedules_{companyId}");
 
             if (status == "Published")
             {
@@ -194,10 +202,16 @@ namespace ShiftWork.Api.Services
                 // never has, so it would notify nobody. Notify the assigned person directly instead.
                 try { await _push.NotifyShiftAssignedAsync(companyId, a.PersonId, created.ScheduleId, created.StartDate); }
                 catch (Exception ex) { _logger.LogWarning(ex, "Push for lineup schedule {ScheduleId} failed.", created.ScheduleId); }
+                // The push service swallows its own failures (e.g. token cleanup) and may leave tracked changes behind.
+                finally { DetachPending(); }
             }
 
             return new LineupCommitResultDto { Status = "created", PersonId = a.PersonId, LocationId = a.LocationId, ShiftId = created.ScheduleId };
         }
+
+        // Site zone when it is a real zone id; otherwise (blank or unknown id) the company zone, never UTC.
+        private static TimeZoneInfo ZoneOrCompany(string? id, TimeZoneInfo companyTz) =>
+            LineupTime.TryResolve(id, out var tz) ? tz : companyTz;
 
         // A failed SaveChanges leaves the bad entities tracked; drop them so later items in the batch start clean.
         private void DetachPending()

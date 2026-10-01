@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using ShiftWork.Api.Data;
@@ -14,7 +15,7 @@ internal static class CommitTestFactory
 {
     public static readonly DateTimeOffset Now = new(2026, 9, 29, 12, 0, 0, TimeSpan.Zero);
 
-    public static LineupCommitService Create(ShiftWorkContext ctx, Func<IScheduleService, IScheduleService>? wrapSchedules = null)
+    public static LineupCommitService Create(ShiftWorkContext ctx, Func<IScheduleService, IScheduleService>? wrapSchedules = null, IMemoryCache? cache = null)
     {
         var settings = new CompanySettingsService(ctx);
         IScheduleService schedules = new ScheduleService(ctx, NullLogger<ScheduleService>.Instance);
@@ -28,6 +29,7 @@ internal static class CommitTestFactory
             settings,
             FakePush.Create(ctx),
             new FakeTimeProvider(Now),
+            cache ?? new MemoryCache(new MemoryCacheOptions()),
             NullLogger<LineupCommitService>.Instance);
     }
 }
@@ -346,6 +348,81 @@ public class LineupCommitServiceTests
         Assert.Equal("removed", res.Status);
         Assert.Equal(1, res.PersonId);
         Assert.Empty(ctx.Schedules);
+    }
+
+    [Theory]
+    [InlineData("void")]
+    [InlineData("VOID")]
+    public async Task A_void_schedule_is_never_removed_whatever_the_case(string status)
+    {
+        await using var ctx = await SeedAsync();
+        ctx.Schedules.Add(Sched(700, 1, 7, U(10, 1, 7), U(10, 1, 15, 30), status: status, area: 12));
+        await ctx.SaveChangesAsync();
+        var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Remove(700), Boss());
+        var res = r.Results.Single();
+        Assert.Equal("rejected", res.Status);
+        Assert.Equal(new[] { "Shift not found." }, res.Errors);
+        Assert.Equal(1, await ctx.Schedules.CountAsync());
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("Not/AZone")]
+    public async Task Removal_falls_back_to_the_company_zone_when_the_site_zone_is_blank_or_invalid(string tz)
+    {
+        await using var ctx = await SeedAsync();
+        ctx.Locations.Add(LineupTestData.Location(10, "BadTz", tz: tz));
+        // Wall 10:00 on Sep 29: in the company zone (New York) that is 14:00Z, after "now" (12:00Z); read as UTC it would be 10:00Z, already started.
+        ctx.Schedules.Add(Sched(701, 1, 10, U(9, 29, 10), U(9, 29, 14)));
+        await ctx.SaveChangesAsync();
+        var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Remove(701), Boss());
+        Assert.Equal("removed", r.Results.Single().Status);
+        Assert.Empty(ctx.Schedules);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("Not/AZone")]
+    public async Task Assignment_stamps_the_company_zone_when_the_site_zone_is_blank_or_invalid(string tz)
+    {
+        await using var ctx = await SeedAsync();
+        ctx.Locations.Add(LineupTestData.Location(10, "BadTz", tz: tz, settings: """{"defaultShift":{"start":"07:00","end":"15:30","areaId":15}}"""));
+        ctx.Areas.Add(new Area { AreaId = 15, Name = "A15", CompanyId = Co, LocationId = 10 });
+        await ctx.SaveChangesAsync();
+        var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(1, 10), Boss());
+        Assert.Equal("created", r.Results.Single().Status);
+        Assert.Equal("America/New_York", (await ctx.Schedules.SingleAsync()).TimeZone);
+    }
+
+    [Fact]
+    public async Task Successful_add_and_delete_invalidate_the_grid_cache_keys()
+    {
+        await using var ctx = await SeedAsync();
+        ctx.Schedules.Add(Sched(702, 1, 7, U(10, 1, 7), U(10, 1, 15, 30), area: 12));
+        await ctx.SaveChangesAsync();
+        var cache = new MemoryCache(new MemoryCacheOptions());
+        var svc = CommitTestFactory.Create(ctx, cache: cache);
+
+        cache.Set($"schedules_{Co}", "stale");
+        cache.Set($"schedule_{Co}_702", "stale");
+        await svc.CommitAsync(Co, Day, Remove(702), Boss());
+        Assert.False(cache.TryGetValue($"schedules_{Co}", out _));
+        Assert.False(cache.TryGetValue($"schedule_{Co}_702", out _));
+
+        cache.Set($"schedules_{Co}", "stale");
+        var r = await svc.CommitAsync(Co, Day, Assign(2, 7), Boss());
+        Assert.Equal("created", r.Results.Single().Status);
+        Assert.False(cache.TryGetValue($"schedules_{Co}", out _));
+    }
+
+    [Fact]
+    public async Task Rejected_removal_leaves_the_grid_cache_alone()
+    {
+        await using var ctx = await SeedAsync();
+        var cache = new MemoryCache(new MemoryCacheOptions());
+        cache.Set($"schedules_{Co}", "fresh");
+        await CommitTestFactory.Create(ctx, cache: cache).CommitAsync(Co, Day, Remove(9999), Boss());
+        Assert.True(cache.TryGetValue($"schedules_{Co}", out _));
     }
 
     [Fact]

@@ -12,6 +12,15 @@ namespace ShiftWork.Api.Services
             catch (InvalidTimeZoneException) { return TimeZoneInfo.Utc; }
         }
 
+        public static bool TryResolve(string? id, out TimeZoneInfo tz)
+        {
+            tz = TimeZoneInfo.Utc;
+            if (string.IsNullOrWhiteSpace(id)) return false;
+            try { tz = TimeZoneInfo.FindSystemTimeZoneById(id); return true; }
+            catch (TimeZoneNotFoundException) { return false; }
+            catch (InvalidTimeZoneException) { return false; }
+        }
+
         // Real instant for a local wall time in tz.
         public static DateTime ToUtc(DateOnly date, TimeOnly time, TimeZoneInfo tz)
         {

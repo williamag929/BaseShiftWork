@@ -37,7 +37,7 @@ Out of scope (v1):
 
 ## 3. Current state that shapes the design
 
-- **Crews are standing teams.** `Crew` and `PersonCrew` have no location and no per-day membership. A daily assignment is a `ScheduleShift` (person, location, area, times).
+- **Crews are standing teams.** `Crew` and `PersonCrew` have no location and no per-day membership. A daily assignment is a `Schedule` row (person, location, area, times); the lineup does not write `ScheduleShift` (Amendment H).
 - **Permissions** are evaluated by `PermissionAuthorizationHandler` through CompanyUser → UserRole → Role → RolePermission → Permission, and are company-wide only. There is no per-location scoping and no person/user-to-location link anywhere (only Area → Location).
 - **The mobile app cannot see permissions yet.** `UserClaimsDto` already exposes `Permissions`, but `authStore` does not store them.
 - **Shift creation** (`POST schedule-shifts`) creates one shift per call, requires `ScheduleId`, `AreaId`, and times, runs `ScheduleValidationService`, and rejects the request on any error **or warning**. If `CompanySettings.AutoApproveShifts` is on, it sets status "Published" and sends a push notification; otherwise the shift is "unpublished".
@@ -71,8 +71,8 @@ Typical roles: foreman = `lineup.view` + `lineup.edit` scoped to assigned sites.
 
 A single `IAvailabilityService` is the source of truth. A person is **available for a date** when they:
 1. have `Person.Status == "Active"`;
-2. have no `ScheduleShift` overlapping the day, excluding status "void";
-3. (removed — see Amendment A);
+2. have no `ScheduleShift` or `Schedule` row overlapping the day, excluding status "void" (Amendment H);
+3. (see Amendment H; Amendment A is superseded);
 4. have no approved `TimeOffRequest` overlapping the day;
 5. have no `ShiftEvent` of type sick or timeoff on that date.
 
@@ -145,12 +145,12 @@ Result statuses: `created`, `unchanged` (idempotent repeat), `needs-confirmation
 ## 7. Commit semantics
 
 - **Partial success.** Each assignment and removal is processed independently; one failure never blocks the others. There is no all-or-nothing transaction.
-- **Validation.** Each assignment runs `ScheduleValidationService.ValidateScheduleShift`. **Errors** (for example overlapping shift) are final: status `rejected`. **Warnings** (for example overtime) return `needs-confirmation`; the client may resend that assignment with `acceptWarnings: true`, which creates it despite warnings. Errors can never be overridden. This differs from `POST schedule-shifts`, which blocks on warnings.
+- **Validation.** Each assignment runs `ScheduleValidationService.ValidateSchedule`. **Errors** (for example overlapping shift) are final: status `rejected`. **Warnings** (for example overtime) return `needs-confirmation`; the client may resend that assignment with `acceptWarnings: true`, which creates it despite warnings. Errors can never be overridden. This differs from `POST schedule-shifts`, which blocks on warnings.
 - **Times.** An assignment without `start`/`end`/`areaId` uses the location's default shift. If the location has no default shift and none is supplied, the assignment is `rejected` with the error "No shift time set for this location".
-- **Schedule resolution.** Every `ScheduleShift` needs a `ScheduleId`. For each assignment, reuse an existing non-void `Schedule` for that person at that location whose window covers the shift; otherwise create a single-day `Schedule` for that person, location, and date (name "Lineup YYYY-MM-DD", status matching the shift status, type "lineup").
-- **Status and publishing.** Follows `CompanySettings.AutoApproveShifts`: on → "Published" and push notification via the existing push service; off → "unpublished".
+- **Unit of work.** Each assignment creates one `Schedule` row for that person, location, area and times (name "Lineup YYYY-MM-DD", type "Shift", status per below). No `ScheduleShift` is written (Amendment H). `shiftId` in the commit request and response is a `Schedule` id.
+- **Status and publishing.** Follows `CompanySettings.AutoApproveShifts`: on → "Published" and a push to the assigned person via `NotifyShiftAssignedAsync` (Amendment H); off → "unpublished".
 - **Idempotency.** An assignment for a person who already has a non-void shift at that location with the same start and end returns `unchanged`. A double-tap cannot create duplicates.
-- **Removals.** Only shifts within scope, belonging to the company, and starting in the future (start after now in UTC). Removing sets no special status: it deletes the shift (as `DELETE schedule-shifts` does today). Past or in-progress shifts return `rejected`.
+- **Removals.** Only shifts within scope, belonging to the company, and starting in the future (start after now in UTC). Removing sets no special status: it deletes the `Schedule` row. Void schedules are never removed ("Shift not found.", so the audit trail stays). Past or in-progress shifts return `rejected`.
 - **Default shift storage.** Stored in the existing `Location.Settings` JSON under the key `defaultShift` (`start`, `end`, `areaId`). Writers must merge into the JSON, never overwrite unrelated keys. Setting it requires `lineup.all-locations` and is exposed through the Angular admin; the mobile app never writes it.
 - **Tenant isolation.** Every query filters by `companyId`; scope checks use the caller's `CompanyUser` for that company.
 
@@ -214,10 +214,19 @@ Each step is shippable on its own.
 
 ## Amendments (2026-09-29, after approval; found while writing the API plan)
 
-- **A. Availability ignores `Schedule` rows.** §5 rule 3 is removed. A `Schedule` is a container that commit reuses or creates (§7); counting it as a busy signal contradicted that. A person is busy only through a non-void `ScheduleShift`, an approved `TimeOffRequest`, or a sick/timeoff `ShiftEvent`.
+- **A. (Superseded by H.) Availability ignores `Schedule` rows.** §5 rule 3 is removed. A `Schedule` is a container that commit reuses or creates (§7); counting it as a busy signal contradicted that. A person is busy only through a non-void `ScheduleShift`, an approved `TimeOffRequest`, or a sick/timeoff `ShiftEvent`.
 - **B. Only `Person.Status == "Active"` people appear** on the bench. Inactive people appear nowhere.
 - **C. Errors are final.** `acceptWarnings` overrides validation warnings only; errors (overlap, rest time, daily hours) never.
 - **D. Crew availability endpoint is not moved in the API plan.** It is off the lineup path; the switch to the shared service is a small follow-up. Until then it can disagree with lineup.
 - **E. Unavailable list names no sites.** Since people with a shift at a visible site sit on that card, `unavailable` only contains people busy elsewhere or on time off, with the generic reasons "Assigned to another site" and "Time off".
 - **F. Shift times are floating "UTC wall-clock".** Found during implementation: the Angular grid, kiosk and mobile all store a typed 08:00 as `…T08:00:00Z` and read the UTC hours back as the wall time; the backend does no zone conversion. The lineup therefore follows that convention instead of true UTC: §5 "Day boundaries" and §6/§7 example times change. A default shift 07:00–15:30 on 2026-10-01 is stored and returned as `2026-10-01T07:00:00Z`–`15:30:00Z` (not 11:00Z–19:30Z). The shift-overlap window for a date is `[date 00:00Z, date+1 00:00Z)`. Real instants are used only where the data is a real instant: `ShiftEvent.EventDate` (window = the company-time-zone day) and the "removal only for future shifts" check (the stored wall time is read as local time in the location's zone). Approved time off matches by calendar date. If the product later migrates to true UTC, only the `LineupTime.Wall*` helpers need to change back.
 - **G. Validator limits in tests.** `ScheduleValidationService` computes daily/weekly hours with `EF.Functions.DateDiffMinute`, which the EF InMemory provider cannot run, so commit tests null out those two limits and exercise the warning path through the consecutive-days rule. The daily/weekly limits are not covered by unit tests (SQL Server behaviour is unchanged).
+- **H. `Schedule` rows are the lineup's unit of work (supersedes A).** Commit creates and removes `Schedule` rows, not `ScheduleShift` rows, because that is what the Angular grid and the web app actually read and write. Consequences:
+  - Availability counts non-void `Schedule` rows **and** `ScheduleShift` rows (legacy writers) as busy, plus approved `TimeOffRequest`s and sick/timeoff `ShiftEvent`s.
+  - Partial-day time off is overlap-based: a request or event blocks a shift only when it overlaps the shift window, not the whole calendar day.
+  - The `ShiftEvent` window is widened to the whole company-time-zone day, so an event anywhere in that day is seen.
+  - Commit re-checks time off (final, never overridable by `acceptWarnings`) in addition to availability at read time.
+  - An explicit `start == end` is invalid ("Invalid shift time."); only a default or an end earlier than start is overnight.
+  - Push uses `NotifyShiftAssignedAsync`, because `NotifySchedulePublishedAsync` finds recipients through `ScheduleShift` rows and would notify nobody for a `Schedule`.
+  - Lineup writes clear the grid's `schedules_{companyId}` (and, on delete, `schedule_{companyId}_{id}`) cache keys. A site time zone that is blank or unknown falls back to the company zone, not UTC.
+- **I. Concurrent double-tap is not locked server-side.** Idempotency (same person, site and times, non-void, returns `unchanged`) covers sequential repeats only. Two simultaneous commits can both pass the check and create duplicates; there is no lock or unique index. The mobile app must disable the commit button while a request is in flight.
