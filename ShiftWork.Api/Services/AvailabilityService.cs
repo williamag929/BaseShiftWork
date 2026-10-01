@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -92,7 +93,7 @@ namespace ShiftWork.Api.Services
 
         public async Task<AvailabilityResult> GetForWindowAsync(string companyId, DateTime startWall, DateTime endWall, TimeZoneInfo tz)
         {
-            var people = await _context.Persons
+            var people = await _context.Persons.AsNoTracking()
                 .Where(p => p.CompanyId == companyId && p.Status == "Active")
                 .OrderBy(p => p.Name)
                 .ToListAsync();
@@ -103,11 +104,20 @@ namespace ShiftWork.Api.Services
                             && s.StartDate < endWall && s.EndDate > startWall)
                 .ToListAsync();
 
-            var shifts = await _context.ScheduleShifts
+            var shifts = await _context.ScheduleShifts.AsNoTracking()
                 .Where(s => s.CompanyId == companyId
                             && s.Status.ToLower() != "void"
                             && s.StartDate < endWall && s.EndDate > startWall)
                 .ToListAsync();
+
+            // Schedule.PersonId is a string: parse exactly as LineupQueryService does so a row that makes a card
+            // always makes the person unavailable; non-numeric ids are ignored.
+            var scheduleByPerson = new List<(Schedule Row, int PersonId)>();
+            foreach (var row in schedules)
+            {
+                if (int.TryParse(row.PersonId, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed))
+                    scheduleByPerson.Add((row, parsed));
+            }
 
             var timeOffIds = await GetTimeOffPersonIdsAsync(companyId, startWall, endWall, tz);
 
@@ -115,8 +125,7 @@ namespace ShiftWork.Api.Services
             var unavailable = new List<UnavailablePerson>();
             foreach (var p in people)
             {
-                var pid = p.PersonId.ToString();
-                var schedule = schedules.Where(s => s.PersonId == pid).OrderBy(s => s.StartDate).FirstOrDefault();
+                var schedule = scheduleByPerson.Where(s => s.PersonId == p.PersonId).Select(s => s.Row).OrderBy(r => r.StartDate).FirstOrDefault();
                 if (schedule != null)
                 {
                     unavailable.Add(new UnavailablePerson(p, UnavailableReason.Schedule, schedule.LocationId, schedule.StartDate, schedule.EndDate));

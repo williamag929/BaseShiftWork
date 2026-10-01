@@ -345,4 +345,75 @@ public class AvailabilityServiceTests
         Assert.Contains(r.Unavailable, u => u.Person.PersonId == 2 && u.Reason == UnavailableReason.TimeOff);
         await ctx.DisposeAsync();
     }
+
+    [Fact]
+    public async Task Schedule_person_id_is_parsed_like_the_query_service()
+    {
+        var (ctx, svc) = await Arrange(c =>
+        {
+            var padded = Sched(2, U(2026, 10, 1, 7), U(2026, 10, 1, 15));
+            padded.PersonId = "02";
+            var junk = Sched(1, U(2026, 10, 1, 7), U(2026, 10, 1, 15));
+            junk.PersonId = "abc";
+            c.Schedules.AddRange(padded, junk);
+        });
+        var (s, e) = LineupTime.WallDayWindow(Day);
+        var r = await svc.GetForWindowAsync(Co, s, e, Ny);
+        Assert.Equal(UnavailableReason.Schedule, r.Unavailable.Single(u => u.Person.PersonId == 2).Reason);
+        Assert.Contains(r.Available, p => p.PersonId == 1);   // non-numeric id ignored, no throw
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Partial_day_range_touching_the_window_boundary_does_not_block()
+    {
+        var (ctx, svc) = await Arrange(c => c.TimeOffRequests.Add(
+            Off(2, new DateTime(2026, 10, 1), new DateTime(2026, 10, 1), TimeSpan.FromHours(13), TimeSpan.FromHours(15))));
+        var after = await svc.GetForWindowAsync(Co, U(2026, 10, 1, 15), U(2026, 10, 1, 23), Ny);   // starts when range ends
+        Assert.Contains(after.Available, p => p.PersonId == 2);
+        var before = await svc.GetForWindowAsync(Co, U(2026, 10, 1, 7), U(2026, 10, 1, 13), Ny);   // ends when range starts
+        Assert.Contains(before.Available, p => p.PersonId == 2);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Multi_day_partial_request_applies_its_daily_range_on_each_day()
+    {
+        var (ctx, svc) = await Arrange(c => c.TimeOffRequests.Add(
+            Off(2, new DateTime(2026, 9, 30), new DateTime(2026, 10, 2), TimeSpan.FromHours(13), TimeSpan.FromHours(15))));
+        var overlapping = await svc.GetForWindowAsync(Co, U(2026, 10, 1, 14), U(2026, 10, 1, 16), Ny);
+        Assert.Contains(overlapping.Unavailable, u => u.Person.PersonId == 2 && u.Reason == UnavailableReason.TimeOff);
+        var morning = await svc.GetForWindowAsync(Co, U(2026, 10, 1, 7), U(2026, 10, 1, 12), Ny);
+        Assert.Contains(morning.Available, p => p.PersonId == 2);
+        await ctx.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Partial_day_request_on_another_day_does_not_block()
+    {
+        var (ctx, svc) = await Arrange(c => c.TimeOffRequests.Add(
+            Off(2, new DateTime(2026, 10, 2), new DateTime(2026, 10, 2), TimeSpan.FromHours(13), TimeSpan.FromHours(15))));
+        var r = await svc.GetForWindowAsync(Co, U(2026, 10, 1, 7), U(2026, 10, 1, 23), Ny);
+        Assert.Contains(r.Available, p => p.PersonId == 2);
+        await ctx.DisposeAsync();
+    }
+
+    // Shift window 07:00-15:30 wall. Company-zone calendar day Nov 1 is 04:00Z Nov 1 .. 05:00Z Nov 2 (EDT start, EST end, 25h);
+    // Mar 8 is 05:00Z Mar 8 .. 04:00Z Mar 9 (EST start, EDT end, 23h). End instants are exclusive.
+    [Theory]
+    [InlineData(2026, 11, 1, 2026, 11, 2, 4, 30, true)]    // 23:30 EST Nov 1: last half hour of the 25h day
+    [InlineData(2026, 11, 1, 2026, 11, 2, 5, 0, false)]    // 00:00 EST Nov 2: next day
+    [InlineData(2026, 3, 8, 2026, 3, 9, 3, 30, true)]      // 23:30 EDT Mar 8: last half hour of the 23h day
+    [InlineData(2026, 3, 8, 2026, 3, 9, 4, 0, false)]      // 00:00 EDT Mar 9: next day
+    public async Task Dst_day_boundary_events_block_only_inside_the_company_zone_day(
+        int y, int m, int d, int ey, int em, int ed, int eh, int emin, bool blocks)
+    {
+        var (ctx, svc) = await Arrange(c => c.ShiftEvents.Add(Sick(2, U(ey, em, ed, eh, emin))));
+        var r = await svc.GetForWindowAsync(Co, U(y, m, d, 7), U(y, m, d, 15, 30), Ny);
+        if (blocks)
+            Assert.Contains(r.Unavailable, u => u.Person.PersonId == 2 && u.Reason == UnavailableReason.TimeOff);
+        else
+            Assert.Contains(r.Available, p => p.PersonId == 2);
+        await ctx.DisposeAsync();
+    }
 }

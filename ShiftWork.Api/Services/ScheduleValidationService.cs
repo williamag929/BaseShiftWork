@@ -303,7 +303,7 @@ public class ScheduleValidationService : IScheduleValidationService
         var query = _context.Schedules
             .Where(s => s.CompanyId == companyId &&
                         s.PersonId == personId.ToString() &&
-                        s.Status != "void" &&
+                        s.Status.ToLower() != "void" &&
                         s.StartDate >= startOfDay &&
                         s.StartDate < endOfDay);
 
@@ -335,7 +335,7 @@ public class ScheduleValidationService : IScheduleValidationService
         var query = _context.Schedules
             .Where(s => s.CompanyId == companyId &&
                         s.PersonId == personId.ToString() &&
-                        s.Status != "void" &&
+                        s.Status.ToLower() != "void" &&
                         s.StartDate >= weekStart &&
                         s.StartDate < weekEnd);
 
@@ -367,7 +367,7 @@ public class ScheduleValidationService : IScheduleValidationService
             var query = _context.Schedules
                 .Where(s => s.CompanyId == companyId &&
                             s.PersonId == personId.ToString() &&
-                            s.Status != "void" &&
+                            s.Status.ToLower() != "void" &&
                             s.StartDate.Date == checkDate);
 
             if (ignoreScheduleId.HasValue)
@@ -401,7 +401,7 @@ public class ScheduleValidationService : IScheduleValidationService
         var query = _context.Schedules
             .Where(s => s.CompanyId == companyId &&
                         s.PersonId == personId.ToString() &&
-                        s.Status != "void" &&
+                        s.Status.ToLower() != "void" &&
                         s.EndDate < shiftStart);
 
         if (ignoreScheduleId.HasValue)
@@ -424,7 +424,7 @@ public class ScheduleValidationService : IScheduleValidationService
         var query = _context.Schedules
             .Where(s => s.CompanyId == companyId &&
                         s.PersonId == personId.ToString() &&
-                        s.Status != "void" &&
+                        s.Status.ToLower() != "void" &&
                         s.StartDate < shiftEnd && s.EndDate > shiftStart);
 
         if (ignoreScheduleId.HasValue)

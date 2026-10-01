@@ -137,4 +137,16 @@ public class LineupQueryServiceTests
         Assert.Equal("America/New_York", r.TimeZone);
         await ctx.DisposeAsync();
     }
+
+    [Fact]
+    public async Task Scoped_user_whose_only_sites_are_inactive_gets_an_empty_lineup()
+    {
+        var (ctx, svc) = await ArrangeAsync();
+        var r = await svc.GetAsync(Co, Day, new LineupAccess("cu", true, false, new HashSet<int> { 9 }));
+        Assert.Empty(r.Locations);
+        Assert.Empty(r.Bench);
+        Assert.Empty(r.Unavailable);
+        Assert.Empty(r.Crews);
+        await ctx.DisposeAsync();
+    }
 }

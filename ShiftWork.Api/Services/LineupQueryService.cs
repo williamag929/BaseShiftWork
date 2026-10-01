@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
+using ShiftWork.Api.Models;
 
 namespace ShiftWork.Api.Services
 {
@@ -42,7 +43,7 @@ namespace ShiftWork.Api.Services
             var visibleIds = locations.Select(l => l.LocationId).ToList();
 
             // Zero-scope users see an empty lineup (no company-wide bench leak).
-            if (!access.AllLocations && access.LocationIds.Count == 0)
+            if (!access.AllLocations && (access.LocationIds.Count == 0 || visibleIds.Count == 0))
                 return new LineupDto(date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), tz.Id, access.CanEdit,
                     new List<LineupLocationDto>(), new List<LineupPersonDto>(), new List<LineupUnavailableDto>(), new List<LineupCrewDto>());
 
@@ -55,7 +56,7 @@ namespace ShiftWork.Api.Services
                 .OrderBy(s => s.StartDate)
                 .ToListAsync();
 
-            var shifts = new List<(ShiftWork.Api.Models.Schedule Row, int PersonId)>();
+            var shifts = new List<(Schedule Row, int PersonId)>();
             foreach (var row in scheduleRows)
             {
                 if (int.TryParse(row.PersonId, NumberStyles.Integer, CultureInfo.InvariantCulture, out var pid))
