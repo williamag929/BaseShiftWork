@@ -14,7 +14,7 @@
 
 ## Spec amendments (recorded in the spec file's "Amendments" section)
 
-- **A. Availability ignores `Schedule` rows.** A person is unavailable only if they have a non-void `ScheduleShift` overlapping the window, or an approved `TimeOffRequest` covering the day. `Schedule` is a container that commit reuses or creates; it is not a busy signal. (Spec §5 listed schedule overlap; §7 reuses a covering schedule, which contradicted it.)
+- **A. (SUPERSEDED by Amendment H in the spec.) Availability ignores `Schedule` rows.** A person is unavailable only if they have a non-void `ScheduleShift` overlapping the window, or an approved `TimeOffRequest` covering the day. `Schedule` is a container that commit reuses or creates; it is not a busy signal. (Spec §5 listed schedule overlap; §7 reuses a covering schedule, which contradicted it.)
 - **B. Person status.** Only `Person.Status == "Active"` people appear on the bench. Inactive people appear nowhere.
 - **D. Crew availability is unchanged in this plan.** Spec §5 also moves `CrewsController`'s availability endpoint onto the shared service. That endpoint is not on the lineup path, so it is deferred to a small follow-up; until then it can disagree with lineup.
 - **C. Overlap error is final.** `acceptWarnings` only overrides validation *warnings*. Validation *errors* (overlap, rest time, daily hours) are never overridable.
@@ -27,7 +27,7 @@
 - Dates on the wire: `date=YYYY-MM-DD` interpreted in the **company** time zone (`Company.TimeZone`, fallback `CompanySettings.DefaultTimeZone`, fallback `UTC`). Instants on the wire are UTC ISO-8601.
 - Active site means `Location.Status == "Active"`.
 - Default shift lives in `Location.Settings` JSON as `{"defaultShift":{"start":"HH:mm","end":"HH:mm","areaId":int?}}`.
-- Shift status on create: `"Published"` when `CompanySettings.AutoApproveShifts`, else `"unpublished"`. Removal hard-deletes via `IScheduleShiftService.Delete` (as `DELETE schedule-shifts` does); only shifts in scope, in the company, whose `StartDate` is after now (UTC) may be removed. In one commit, removals are processed before assignments so a move between sites does not trip the overlap check.
+- Shift status on create: `"Published"` when `CompanySettings.AutoApproveShifts`, else `"unpublished"`. Removal hard-deletes via `IScheduleService.Delete (Schedule rows, per spec Amendment H)` (as `DELETE schedule-shifts` does); only shifts in scope, in the company, whose `StartDate` is after now (UTC) may be removed. In one commit, removals are processed before assignments so a move between sites does not trip the overlap check.
 - Comments only for non-obvious *why*.
 - **This plan's code was written without a .NET SDK available and has not been compiled.** Run `dotnet build` after each task and fix signature drift against the real source rather than guessing.
 

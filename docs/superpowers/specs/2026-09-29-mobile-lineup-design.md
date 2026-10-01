@@ -80,7 +80,7 @@ Unavailable people are returned with a human-readable reason, so nobody looks mi
 
 The lineup endpoints use this service. The replacement-candidates endpoints and crew availability are switched to it in the same phase, so the three can no longer disagree. (Note: this changes replacement-candidates behavior by excluding inactive people and honoring `TimeOffRequests`; call this out in release notes.)
 
-**Day boundaries.** "Date" is a calendar date in the company's time zone (`Company.TimeZone`, falling back to `CompanySettings.DefaultTimeZone`). The window `[00:00, 24:00)` in that zone is converted to UTC for all overlap queries. A location's default shift times are interpreted in that location's own `TimeZone` and converted to UTC when a shift is created. If a shift's end time is earlier than or equal to its start time, it is treated as an overnight shift ending the next calendar day. An overnight shift counts against availability on both calendar days it touches.
+**Day boundaries.** "Date" is a calendar date in the company's time zone (`Company.TimeZone`, falling back to `CompanySettings.DefaultTimeZone`). The window `[00:00, 24:00)` in that zone is used for all overlap queries; shift times are floating wall-clock values (Amendment F), compared directly. A location's default shift times are interpreted as wall-clock times when a schedule is created. If a shift's end time is earlier than or equal to its start time, it is treated as an overnight shift ending the next calendar day. An overnight shift counts against availability on both calendar days it touches.
 
 ## 6. API
 
@@ -187,7 +187,7 @@ State and data flow:
 API (`ShiftWork.Api.Tests`):
 - Availability: shift overlap, non-void `Schedule` overlap, approved time-off, sick/timeoff events, inactive person, void shifts excluded, cross-midnight and DST days, company-time-zone day boundaries.
 - Scope: foreman sees only scoped locations; `lineup.all-locations` sees all; out-of-scope commit rejected per assignment.
-- Commit: partial success, idempotent repeat returns `unchanged`, warning → `needs-confirmation` → `acceptWarnings` creates, error never overridable, schedule reuse versus create, publish versus unpublished per `AutoApproveShifts`, removal of past shift rejected.
+- Commit: partial success, idempotent repeat returns `unchanged`, warning → `needs-confirmation` → `acceptWarnings` creates, error never overridable, publish versus unpublished per `AutoApproveShifts`, removal of past shift rejected.
 - Tenant isolation by `companyId`.
 - `replacement-candidates` now requires a permission; behavior parity after moving to the shared service.
 
@@ -207,9 +207,9 @@ Each step is shippable on its own.
 
 1. **Warnings override.** Foremen can accept warnings (such as overtime) per person; errors are never overridable. (Alternative: a separate `lineup.override-warnings` permission.)
 2. **`lineup.edit` alone can create and remove shifts** through the lineup endpoint, without `schedule-shifts.create` or `.delete`.
-3. **Schedule resolution rule** in section 7 (reuse a covering schedule, else create a single-day one), which may create many small `Schedule` rows.
+3. ~~Schedule resolution rule~~ Superseded by Amendment H: the lineup creates and removes `Schedule` rows directly.
 4. **Availability consolidation** changes `replacement-candidates` behavior (excludes inactive people, honors `TimeOffRequests`).
-5. **Removals** delete the shift (as today) rather than voiding it.
+5. **Removals** delete the `Schedule` row (never a void one) (as today) rather than voiding it.
 
 
 ## Amendments (2026-09-29, after approval; found while writing the API plan)
@@ -223,7 +223,7 @@ Each step is shippable on its own.
 - **G. Validator limits in tests.** `ScheduleValidationService` computes daily/weekly hours with `EF.Functions.DateDiffMinute`, which the EF InMemory provider cannot run, so commit tests null out those two limits and exercise the warning path through the consecutive-days rule. The daily/weekly limits are not covered by unit tests (SQL Server behaviour is unchanged).
 - **H. `Schedule` rows are the lineup's unit of work (supersedes A).** Commit creates and removes `Schedule` rows, not `ScheduleShift` rows, because that is what the Angular grid and the web app actually read and write. Consequences:
   - Availability counts non-void `Schedule` rows **and** `ScheduleShift` rows (legacy writers) as busy, plus approved `TimeOffRequest`s and sick/timeoff `ShiftEvent`s.
-  - Partial-day time off is overlap-based: a request or event blocks a shift only when it overlaps the shift window, not the whole calendar day.
+  - Partial-day time off is overlap-based: a request blocks a shift only when it overlaps the shift window, not the whole calendar day.
   - The `ShiftEvent` window is widened to the whole company-time-zone day, so an event anywhere in that day is seen.
   - Commit re-checks time off (final, never overridable by `acceptWarnings`) in addition to availability at read time.
   - An explicit `start == end` is invalid ("Invalid shift time."); only a default or an end earlier than start is overnight.
