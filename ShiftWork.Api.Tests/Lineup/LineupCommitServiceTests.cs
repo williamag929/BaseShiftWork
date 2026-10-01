@@ -14,16 +14,17 @@ internal static class CommitTestFactory
 {
     public static readonly DateTimeOffset Now = new(2026, 9, 29, 12, 0, 0, TimeSpan.Zero);
 
-    public static LineupCommitService Create(ShiftWorkContext ctx, Func<IScheduleShiftService, IScheduleShiftService>? wrapShifts = null)
+    public static LineupCommitService Create(ShiftWorkContext ctx, Func<IScheduleService, IScheduleService>? wrapSchedules = null)
     {
         var settings = new CompanySettingsService(ctx);
-        IScheduleShiftService shifts = new ScheduleShiftService(ctx, NullLogger<ScheduleShiftService>.Instance, new AvailabilityService(ctx), new CompanyTimeZoneService(ctx));
-        if (wrapShifts != null) shifts = wrapShifts(shifts);
+        IScheduleService schedules = new ScheduleService(ctx, NullLogger<ScheduleService>.Instance);
+        if (wrapSchedules != null) schedules = wrapSchedules(schedules);
         return new LineupCommitService(
             ctx,
             new CompanyTimeZoneService(ctx),
-            shifts,
+            schedules,
             new ScheduleValidationService(ctx, settings),
+            new AvailabilityService(ctx),
             settings,
             FakePush.Create(ctx),
             new FakeTimeProvider(Now),
@@ -31,27 +32,51 @@ internal static class CommitTestFactory
     }
 }
 
-// Throws on the first Add, then behaves like the real service.
-internal sealed class ThrowOnceShiftService : IScheduleShiftService
+// Fails once, like a SaveChanges error would: it first TRACKS an entity in the shared context (an added Schedule for Add,
+// a removed Schedule for Delete) and then throws, so the service's DetachPending is what keeps the next item clean.
+internal sealed class ThrowOnceScheduleService : IScheduleService
 {
-    private readonly IScheduleShiftService _inner;
+    private readonly ShiftWorkContext _ctx;
+    private readonly IScheduleService _inner;
+    private readonly bool _onAdd;
     private bool _thrown;
-    public ThrowOnceShiftService(IScheduleShiftService inner) => _inner = inner;
 
-    public Task<ScheduleShift> Add(ScheduleShift scheduleShift)
+    public ThrowOnceScheduleService(ShiftWorkContext ctx, IScheduleService inner, bool onAdd = true)
     {
-        if (!_thrown) { _thrown = true; throw new InvalidOperationException("boom"); }
-        return _inner.Add(scheduleShift);
+        _ctx = ctx; _inner = inner; _onAdd = onAdd;
     }
-    public Task<IEnumerable<ScheduleShift>> GetAll(string companyId) => _inner.GetAll(companyId);
-    public Task<ScheduleShift> Get(string companyId, int shiftId) => _inner.Get(companyId, shiftId);
-    public Task<(IEnumerable<ScheduleShift> Items, int TotalCount)> GetPaged(string companyId, int? personId, int? locationId, int? areaId, DateTime? startDate, DateTime? endDate, int page, int pageSize) =>
-        _inner.GetPaged(companyId, personId, locationId, areaId, startDate, endDate, page, pageSize);
-    public Task<ScheduleShift> Update(ScheduleShift scheduleShift) => _inner.Update(scheduleShift);
-    public Task<bool> Delete(int shiftId) => _inner.Delete(shiftId);
-    public Task<IEnumerable<Person>> GetReplacementCandidatesForShift(string companyId, int shiftId) => _inner.GetReplacementCandidatesForShift(companyId, shiftId);
-    public Task<IEnumerable<Person>> GetReplacementCandidatesByWindow(string companyId, DateTime startUtc, DateTime endUtc, int? locationId, int? areaId, int? excludePersonId) =>
-        _inner.GetReplacementCandidatesByWindow(companyId, startUtc, endUtc, locationId, areaId, excludePersonId);
+
+    public Task<Schedule> Add(Schedule schedule)
+    {
+        if (_onAdd && !_thrown)
+        {
+            _thrown = true;
+            _ctx.Schedules.Add(schedule);
+            throw new InvalidOperationException("boom");
+        }
+        return _inner.Add(schedule);
+    }
+
+    public async Task<bool> Delete(int scheduleId)
+    {
+        if (!_onAdd && !_thrown)
+        {
+            _thrown = true;
+            var tracked = await _ctx.Schedules.FindAsync(scheduleId);
+            _ctx.Schedules.Remove(tracked!);
+            throw new InvalidOperationException("boom");
+        }
+        return await _inner.Delete(scheduleId);
+    }
+
+    public Task<IEnumerable<Schedule>> GetAll(string companyId) => _inner.GetAll(companyId);
+    public Task<Schedule> Get(string companyId, int scheduleId) => _inner.Get(companyId, scheduleId);
+    public Task<IEnumerable<Schedule>> GetSchedules(string companyId, int? personId, int? locationId, DateTime? startDate, DateTime? endDate, string searchQuery) =>
+        _inner.GetSchedules(companyId, personId, locationId, startDate, endDate, searchQuery);
+    public Task<(IEnumerable<Schedule> Items, int TotalCount)> GetSchedulesPaged(string companyId, int? personId, int? locationId, DateTime? startDate, DateTime? endDate, string searchQuery, int page, int pageSize, bool includeVoided = false) =>
+        _inner.GetSchedulesPaged(companyId, personId, locationId, startDate, endDate, searchQuery, page, pageSize, includeVoided);
+    public Task<Schedule> Update(Schedule schedule) => _inner.Update(schedule);
+    public Task<Schedule> VoidSchedule(int scheduleId, string voidedBy) => _inner.VoidSchedule(scheduleId, voidedBy);
 }
 
 public class LineupCommitServiceTests
@@ -59,11 +84,18 @@ public class LineupCommitServiceTests
     private const string Co = LineupTestData.CompanyId;
     private static readonly DateOnly Day = new(2026, 10, 1);
 
-    // Shift times are floating wall-clock stored with Kind=Utc (Ruling 3): 07:00 is stored as 07:00Z.
+    // Schedule times are floating wall-clock stored with Kind=Utc (Ruling 3): 07:00 is stored as 07:00Z.
     private static DateTime U(int m, int d, int h, int min = 0) => new(2026, m, d, h, min, 0, DateTimeKind.Utc);
 
     private static LineupAccess Boss() => new("cu", true, true, new HashSet<int>());
     private static LineupAccess OnlySite7() => new("cu", true, false, new HashSet<int> { 7 });
+
+    private static Schedule Sched(int id, int person, int? location, DateTime start, DateTime end,
+        string status = "Published", string company = Co, int? area = null) => new()
+    {
+        ScheduleId = id, Name = "Existing", CompanyId = company, PersonId = person.ToString(), LocationId = location,
+        AreaId = area, StartDate = start, EndDate = end, Status = status, Type = "Shift"
+    };
 
     // The daily/weekly-hours checks in ScheduleValidationService use EF.Functions.DateDiffMinute, which the
     // InMemory provider cannot translate, so the seed switches those two limits off. Everything else keeps
@@ -100,33 +132,41 @@ public class LineupCommitServiceTests
         int? area = null, bool accept = false) =>
         new("2026-10-01", new() { new LineupAssignmentDto(person, location, area, start, end, accept) }, null);
 
+    private static LineupCommitRequest Remove(params int[] ids) => new("2026-10-01", null, ids.ToList());
+
     [Fact]
-    public async Task Creates_shift_from_default_and_a_single_day_lineup_schedule()
+    public async Task Creates_a_schedule_row_from_the_site_default_and_no_schedule_shift()
     {
         await using var ctx = await SeedAsync();
         var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(1, 7), Boss());
 
         var res = Assert.Single(r.Results);
         Assert.Equal("created", res.Status);
-        var shift = await ctx.ScheduleShifts.SingleAsync();
-        Assert.Equal(U(10, 1, 7), shift.StartDate);
-        Assert.Equal(U(10, 1, 15, 30), shift.EndDate);
-        Assert.Equal(12, shift.AreaId);
-        Assert.Equal("unpublished", shift.Status);
-        Assert.Equal(res.ShiftId, shift.ScheduleShiftId);
-        var schedule = await ctx.Schedules.SingleAsync();
-        Assert.Equal(schedule.ScheduleId, shift.ScheduleId);
-        Assert.Equal("Lineup 2026-10-01", schedule.Name);
-        Assert.Equal("lineup", schedule.Type);
-        Assert.Equal("1", schedule.PersonId);
+        var s = await ctx.Schedules.SingleAsync();
+        Assert.Equal(U(10, 1, 7), s.StartDate);
+        Assert.Equal(U(10, 1, 15, 30), s.EndDate);
+        Assert.Equal("Shift", s.Type);
+        Assert.Equal("Lineup 2026-10-01", s.Name);
+        Assert.Equal("1", s.PersonId);
+        Assert.Equal(7, s.LocationId);
+        Assert.Equal(12, s.AreaId);
+        Assert.Equal("unpublished", s.Status);
+        Assert.Equal(Co, s.CompanyId);
+        Assert.Equal("America/New_York", s.TimeZone);
+        Assert.Equal("cu", s.CreatedBy);
+        Assert.Equal(CommitTestFactory.Now.UtcDateTime, s.CreatedAt);
+        Assert.Equal(s.ScheduleId, res.ShiftId);
+        Assert.Empty(ctx.ScheduleShifts);
     }
 
     [Fact]
     public async Task Auto_approve_publishes()
     {
         await using var ctx = await SeedAsync(autoApprove: true);
-        await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(1, 7), Boss());
-        Assert.Equal("Published", (await ctx.ScheduleShifts.SingleAsync()).Status);
+        var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(1, 7), Boss());
+        Assert.Equal("created", r.Results.Single().Status);
+        Assert.Equal("Published", (await ctx.Schedules.SingleAsync()).Status);
+        Assert.Empty(ctx.ScheduleShifts);
     }
 
     [Fact]
@@ -134,9 +174,9 @@ public class LineupCommitServiceTests
     {
         await using var ctx = await SeedAsync();
         await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(1, 7, "08:00", "12:00", 12), Boss());
-        var shift = await ctx.ScheduleShifts.SingleAsync();
-        Assert.Equal(U(10, 1, 8), shift.StartDate);
-        Assert.Equal(U(10, 1, 12), shift.EndDate);
+        var s = await ctx.Schedules.SingleAsync();
+        Assert.Equal(U(10, 1, 8), s.StartDate);
+        Assert.Equal(U(10, 1, 12), s.EndDate);
     }
 
     [Fact]
@@ -148,18 +188,6 @@ public class LineupCommitServiceTests
         var second = await svc.CommitAsync(Co, Day, Assign(1, 7), Boss());
         Assert.Equal("unchanged", second.Results.Single().Status);
         Assert.Equal(first.Results.Single().ShiftId, second.Results.Single().ShiftId);
-        Assert.Equal(1, await ctx.ScheduleShifts.CountAsync());
-    }
-
-    [Fact]
-    public async Task Reuses_a_covering_schedule_instead_of_creating_one()
-    {
-        await using var ctx = await SeedAsync();
-        ctx.Schedules.Add(new Schedule { ScheduleId = 900, Name = "Week", CompanyId = Co, PersonId = "1", LocationId = 7,
-            StartDate = U(9, 28, 0), EndDate = U(10, 5, 0), Status = "Published" });
-        await ctx.SaveChangesAsync();
-        await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(1, 7), Boss());
-        Assert.Equal(900, (await ctx.ScheduleShifts.SingleAsync()).ScheduleId);
         Assert.Equal(1, await ctx.Schedules.CountAsync());
     }
 
@@ -170,8 +198,8 @@ public class LineupCommitServiceTests
         var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(1, 8), Boss());
         var res = r.Results.Single();
         Assert.Equal("rejected", res.Status);
-        Assert.Contains("No shift time set for this location", res.Errors);
-        Assert.Empty(ctx.ScheduleShifts);
+        Assert.Equal(new[] { "No shift time set for this location" }, res.Errors);
+        Assert.Empty(ctx.Schedules);
     }
 
     [Fact]
@@ -185,7 +213,8 @@ public class LineupCommitServiceTests
         }, null);
         var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, req, OnlySite7());
         Assert.Equal(new[] { "rejected", "created" }, r.Results.Select(x => x.Status));
-        Assert.Equal(2, (await ctx.ScheduleShifts.SingleAsync()).PersonId);
+        Assert.Equal(new[] { "You can't edit this job site." }, r.Results[0].Errors);
+        Assert.Equal("2", (await ctx.Schedules.SingleAsync()).PersonId);
     }
 
     [Theory]
@@ -196,23 +225,74 @@ public class LineupCommitServiceTests
     {
         await using var ctx = await SeedAsync();
         var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(personId, 7), Boss());
-        Assert.Equal("rejected", r.Results.Single().Status);
-        Assert.Empty(ctx.ScheduleShifts);
+        var res = r.Results.Single();
+        Assert.Equal("rejected", res.Status);
+        Assert.Equal(new[] { "Person not available." }, res.Errors);
+        Assert.Empty(ctx.Schedules);
+    }
+
+    [Theory]
+    [InlineData("seven", "15:30")]
+    [InlineData("07:00", "07:00")]   // start == end
+    [InlineData("07:00", null)]      // only one of the two given
+    public async Task Bad_or_equal_times_are_rejected_not_thrown(string? start, string? end)
+    {
+        await using var ctx = await SeedAsync();
+        var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(1, 7, start, end), Boss());
+        var res = r.Results.Single();
+        Assert.Equal("rejected", res.Status);
+        Assert.Equal(new[] { "Invalid shift time." }, res.Errors);
+        Assert.Empty(ctx.Schedules);
     }
 
     [Fact] // Review Focus 4
-    public async Task Overlap_is_never_overridable_by_accept_warnings()
+    public async Task Overlap_with_a_schedule_at_another_site_is_never_overridable()
     {
         await using var ctx = await SeedAsync();
-        ctx.ScheduleShifts.Add(new ScheduleShift { CompanyId = Co, PersonId = 2, LocationId = 9, AreaId = 14,
-            StartDate = U(10, 1, 7), EndDate = U(10, 1, 15, 30), Status = "Published" });
+        ctx.Schedules.Add(Sched(610, 2, 9, U(10, 1, 7), U(10, 1, 15, 30), area: 14));
         await ctx.SaveChangesAsync();
 
         var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(2, 7, accept: true), Boss());
         var res = r.Results.Single();
         Assert.Equal("rejected", res.Status);
-        Assert.NotEmpty(res.Errors);
-        Assert.Equal(1, await ctx.ScheduleShifts.CountAsync());
+        Assert.Equal(new[] { "This shift overlaps with an existing shift" }, res.Errors);
+        Assert.Equal(1, await ctx.Schedules.CountAsync());
+    }
+
+    [Fact]
+    public async Task Approved_time_off_is_rejected_even_with_accept_warnings()
+    {
+        await using var ctx = await SeedAsync();
+        ctx.TimeOffRequests.Add(new TimeOffRequest
+        {
+            CompanyId = Co, PersonId = 2, Status = "Approved",
+            StartDate = new DateTime(2026, 10, 1), EndDate = new DateTime(2026, 10, 1)
+        });
+        await ctx.SaveChangesAsync();
+
+        var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(2, 7, accept: true), Boss());
+        var res = r.Results.Single();
+        Assert.Equal("rejected", res.Status);
+        Assert.Equal(new[] { "Time off" }, res.Errors);
+        Assert.Empty(ctx.Schedules);
+    }
+
+    [Fact]
+    public async Task A_sick_event_on_the_same_day_is_rejected_as_time_off()
+    {
+        await using var ctx = await SeedAsync();
+        // Real instant 09:30Z = 05:30 in New York on Oct 1, before the 07:00 shift.
+        ctx.ShiftEvents.Add(new ShiftEvent
+        {
+            EventLogId = Guid.NewGuid(), CompanyId = Co, PersonId = 2, EventType = "sick", EventDate = U(10, 1, 9, 30)
+        });
+        await ctx.SaveChangesAsync();
+
+        var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(2, 7, accept: true), Boss());
+        var res = r.Results.Single();
+        Assert.Equal("rejected", res.Status);
+        Assert.Equal(new[] { "Time off" }, res.Errors);
+        Assert.Empty(ctx.Schedules);
     }
 
     [Fact]
@@ -221,92 +301,116 @@ public class LineupCommitServiceTests
         // Person 1 already worked Sep 30 and the company allows 1 consecutive day, so Oct 1 is a warning
         // (8h rest is satisfied: Sep 30 15:30 -> Oct 1 07:00 is 15.5h).
         await using var ctx = await SeedAsync(maxConsecutiveDays: 1);
-        ctx.ScheduleShifts.Add(new ScheduleShift { ScheduleShiftId = 605, CompanyId = Co, PersonId = 1, LocationId = 7, AreaId = 12,
-            StartDate = U(9, 30, 7), EndDate = U(9, 30, 15, 30), Status = "Published" });
+        ctx.Schedules.Add(Sched(605, 1, 7, U(9, 30, 7), U(9, 30, 15, 30), area: 12));
         await ctx.SaveChangesAsync();
         var svc = CommitTestFactory.Create(ctx);
 
         var first = (await svc.CommitAsync(Co, Day, Assign(1, 7), Boss())).Results.Single();
         Assert.Equal("needs-confirmation", first.Status);
-        Assert.NotEmpty(first.Warnings);
-        Assert.Equal(1, await ctx.ScheduleShifts.CountAsync());
+        Assert.Single(first.Warnings);
+        Assert.Contains("consecutive work days", first.Warnings[0]);
+        Assert.Equal(1, await ctx.Schedules.CountAsync());
 
         var second = (await svc.CommitAsync(Co, Day, Assign(1, 7, accept: true), Boss())).Results.Single();
         Assert.Equal("created", second.Status);
-        Assert.Equal(2, await ctx.ScheduleShifts.CountAsync());
+        Assert.Equal(2, await ctx.Schedules.CountAsync());
     }
 
     [Fact] // Review Focus 3
     public async Task Moving_a_person_between_sites_in_one_commit_succeeds()
     {
         await using var ctx = await SeedAsync();
-        ctx.ScheduleShifts.Add(new ScheduleShift { ScheduleShiftId = 601, CompanyId = Co, PersonId = 2, LocationId = 9, AreaId = 14,
-            StartDate = U(10, 1, 7), EndDate = U(10, 1, 15, 30), Status = "Published" });
+        ctx.Schedules.Add(Sched(601, 2, 9, U(10, 1, 7), U(10, 1, 15, 30), area: 14));
         await ctx.SaveChangesAsync();
 
         var req = new LineupCommitRequest("2026-10-01", new() { new LineupAssignmentDto(2, 7, null, null, null, false) }, new() { 601 });
         var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, req, Boss());
 
         Assert.Equal(new[] { "removed", "created" }, r.Results.Select(x => x.Status));
-        var remaining = await ctx.ScheduleShifts.SingleAsync();
+        Assert.Equal(601, r.Results[0].ShiftId);
+        Assert.Equal(2, r.Results[0].PersonId);
+        Assert.Equal(9, r.Results[0].LocationId);
+        var remaining = await ctx.Schedules.SingleAsync();
         Assert.Equal(7, remaining.LocationId);
+        Assert.Equal("2", remaining.PersonId);
     }
 
     [Fact]
-    public async Task Past_or_started_shift_cannot_be_removed()
+    public async Task A_future_schedule_in_scope_can_be_removed()
+    {
+        await using var ctx = await SeedAsync();
+        ctx.Schedules.Add(Sched(606, 1, 7, U(10, 1, 7), U(10, 1, 15, 30), area: 12));
+        await ctx.SaveChangesAsync();
+        var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Remove(606), OnlySite7());
+        var res = r.Results.Single();
+        Assert.Equal("removed", res.Status);
+        Assert.Equal(1, res.PersonId);
+        Assert.Empty(ctx.Schedules);
+    }
+
+    [Fact]
+    public async Task Past_or_started_schedule_cannot_be_removed()
     {
         await using var ctx = await SeedAsync();
         // Wall 06:00 in New York on Sep 29 = 10:00Z, which is 2h before "now" (12:00Z).
-        ctx.ScheduleShifts.Add(new ScheduleShift { ScheduleShiftId = 602, CompanyId = Co, PersonId = 1, LocationId = 7, AreaId = 12,
-            StartDate = U(9, 29, 6), EndDate = U(9, 29, 14), Status = "Published" });
+        ctx.Schedules.Add(Sched(602, 1, 7, U(9, 29, 6), U(9, 29, 14), area: 12));
         await ctx.SaveChangesAsync();
-        var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, new("2026-10-01", null, new() { 602 }), Boss());
-        Assert.Equal("rejected", r.Results.Single().Status);
-        Assert.Contains("Only future shifts can be removed.", r.Results.Single().Errors);
-        Assert.Equal(1, await ctx.ScheduleShifts.CountAsync());
+        var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Remove(602), Boss());
+        var res = r.Results.Single();
+        Assert.Equal("rejected", res.Status);
+        Assert.Equal(new[] { "Only future shifts can be removed." }, res.Errors);
+        Assert.Equal(1, await ctx.Schedules.CountAsync());
     }
 
     [Fact]
-    public async Task Removal_respects_scope_and_tenant()
+    public async Task Removal_respects_scope_tenant_and_site_less_schedules()
     {
         await using var ctx = await SeedAsync();
-        ctx.ScheduleShifts.AddRange(
-            new ScheduleShift { ScheduleShiftId = 603, CompanyId = Co, PersonId = 1, LocationId = 9, AreaId = 14,
-                StartDate = U(10, 1, 11), EndDate = U(10, 1, 19), Status = "Published" },
-            new ScheduleShift { ScheduleShiftId = 604, CompanyId = "other-co", PersonId = 5, LocationId = 70, AreaId = 1,
-                StartDate = U(10, 1, 11), EndDate = U(10, 1, 19), Status = "Published" });
+        ctx.Schedules.AddRange(
+            Sched(603, 1, 9, U(10, 1, 11), U(10, 1, 19), area: 14),                              // site not in scope
+            Sched(604, 5, 70, U(10, 1, 11), U(10, 1, 19), company: "other-co"),                  // other tenant
+            Sched(607, 1, null, U(10, 1, 11), U(10, 1, 19)));                                    // no site
         await ctx.SaveChangesAsync();
-        var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, new("2026-10-01", null, new() { 603, 604, 9999 }), OnlySite7());
+        var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Remove(603, 604, 607, 9999), OnlySite7());
+        Assert.Equal(4, r.Results.Count);
         Assert.All(r.Results, x => Assert.Equal("rejected", x.Status));
-        Assert.All(r.Results, x => Assert.Contains("Shift not found.", x.Errors));
-        Assert.Equal(2, await ctx.ScheduleShifts.CountAsync());
+        Assert.All(r.Results, x => Assert.Equal(new[] { "Shift not found." }, x.Errors));
+        Assert.Equal(3, await ctx.Schedules.CountAsync());
     }
 
     [Fact]
-    public async Task Bad_time_text_is_rejected_not_thrown()
-    {
-        await using var ctx = await SeedAsync();
-        var r = await CommitTestFactory.Create(ctx).CommitAsync(Co, Day, Assign(1, 7, "seven", "15:30"), Boss());
-        Assert.Equal("rejected", r.Results.Single().Status);
-    }
-
-    [Fact]
-    public async Task A_failing_item_does_not_poison_the_rest_or_leave_an_orphan_schedule()
+    public async Task A_failing_assignment_does_not_poison_the_rest()
     {
         await using var ctx = await SeedAsync();
         var req = new LineupCommitRequest("2026-10-01", new()
         {
-            new LineupAssignmentDto(1, 7, null, null, null, false),   // Add throws for this one
+            new LineupAssignmentDto(1, 7, null, null, null, false),   // Add tracks the Schedule, then throws
             new LineupAssignmentDto(2, 7, null, null, null, false),
         }, null);
-        var r = await CommitTestFactory.Create(ctx, inner => new ThrowOnceShiftService(inner))
+        var r = await CommitTestFactory.Create(ctx, inner => new ThrowOnceScheduleService(ctx, inner))
             .CommitAsync(Co, Day, req, Boss());
 
         Assert.Equal(new[] { "rejected", "created" }, r.Results.Select(x => x.Status));
-        var shift = await ctx.ScheduleShifts.SingleAsync();
-        Assert.Equal(2, shift.PersonId);
-        var schedule = await ctx.Schedules.SingleAsync();   // none left over from person 1
-        Assert.Equal("2", schedule.PersonId);
-        Assert.Equal(schedule.ScheduleId, shift.ScheduleId);
+        Assert.Equal(new[] { "Could not assign this person." }, r.Results[0].Errors);
+        // Without DetachPending the failed candidate would still be tracked and the second SaveChanges would persist it.
+        var only = await ctx.Schedules.SingleAsync();
+        Assert.Equal("2", only.PersonId);
+        Assert.DoesNotContain(ctx.ChangeTracker.Entries<Schedule>(), e => e.Entity.PersonId == "1");
+    }
+
+    [Fact]
+    public async Task A_failing_removal_does_not_poison_the_rest()
+    {
+        await using var ctx = await SeedAsync();
+        ctx.Schedules.Add(Sched(608, 1, 7, U(10, 1, 7), U(10, 1, 15, 30), area: 12));
+        await ctx.SaveChangesAsync();
+        var req = new LineupCommitRequest("2026-10-01", new() { new LineupAssignmentDto(2, 7, null, null, null, false) }, new() { 608 });
+        var r = await CommitTestFactory.Create(ctx, inner => new ThrowOnceScheduleService(ctx, inner, onAdd: false))
+            .CommitAsync(Co, Day, req, Boss());
+
+        Assert.Equal(new[] { "rejected", "created" }, r.Results.Select(x => x.Status));
+        Assert.Equal(new[] { "Could not remove this shift." }, r.Results[0].Errors);
+        // The half-done removal was detached, so the later SaveChanges must not delete schedule 608.
+        Assert.Equal(new[] { "1", "2" }, (await ctx.Schedules.OrderBy(s => s.ScheduleId).ToListAsync()).Select(s => s.PersonId).OrderBy(x => x).ToArray());
     }
 }

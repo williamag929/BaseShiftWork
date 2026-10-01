@@ -20,8 +20,9 @@ namespace ShiftWork.Api.Services
     {
         private readonly ShiftWorkContext _context;
         private readonly ICompanyTimeZoneService _timeZones;
-        private readonly IScheduleShiftService _shifts;
+        private readonly IScheduleService _schedules;
         private readonly IScheduleValidationService _validation;
+        private readonly IAvailabilityService _availability;
         private readonly ICompanySettingsService _settings;
         private readonly PushNotificationService _push;
         private readonly TimeProvider _time;
@@ -30,8 +31,9 @@ namespace ShiftWork.Api.Services
         public LineupCommitService(
             ShiftWorkContext context,
             ICompanyTimeZoneService timeZones,
-            IScheduleShiftService shifts,
+            IScheduleService schedules,
             IScheduleValidationService validation,
+            IAvailabilityService availability,
             ICompanySettingsService settings,
             PushNotificationService push,
             TimeProvider time,
@@ -39,8 +41,9 @@ namespace ShiftWork.Api.Services
         {
             _context = context;
             _timeZones = timeZones;
-            _shifts = shifts;
+            _schedules = schedules;
             _validation = validation;
+            _availability = availability;
             _settings = settings;
             _push = push;
             _time = time;
@@ -56,20 +59,21 @@ namespace ShiftWork.Api.Services
             var status = settings.AutoApproveShifts ? "Published" : "unpublished";
 
             // Removals run first so a move (remove at one site, assign at another) validates against the post-removal state.
-            foreach (var shiftId in request.Removals ?? new List<int>())
+            // ShiftId in the request/response carries a Schedule id (the lineup's unit of work).
+            foreach (var scheduleId in request.Removals ?? new List<int>())
             {
-                try { results.Add(await RemoveAsync(companyId, shiftId, access, now)); }
+                try { results.Add(await RemoveAsync(companyId, scheduleId, access, now, companyTz)); }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Lineup removal of shift {ShiftId} failed for company {CompanyId}.", shiftId, companyId);
+                    _logger.LogError(ex, "Lineup removal of schedule {ScheduleId} failed for company {CompanyId}.", scheduleId, companyId);
                     DetachPending();
-                    results.Add(Rejected(shiftId: shiftId, error: "Could not remove this shift."));
+                    results.Add(Rejected(shiftId: scheduleId, error: "Could not remove this shift."));
                 }
             }
 
             foreach (var a in request.Assignments ?? new List<LineupAssignmentDto>())
             {
-                try { results.Add(await AssignAsync(companyId, date, a, access, status, companyTz)); }
+                try { results.Add(await AssignAsync(companyId, date, a, access, status, companyTz, now)); }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Lineup assignment of person {PersonId} failed for company {CompanyId}.", a.PersonId, companyId);
@@ -80,29 +84,38 @@ namespace ShiftWork.Api.Services
             return new LineupCommitResponse(results);
         }
 
-        private async Task<LineupCommitResultDto> RemoveAsync(string companyId, int shiftId, LineupAccess access, DateTime now)
+        private async Task<LineupCommitResultDto> RemoveAsync(
+            string companyId, int scheduleId, LineupAccess access, DateTime now, TimeZoneInfo companyTz)
         {
-            var shift = await _context.ScheduleShifts.AsNoTracking()
-                .FirstOrDefaultAsync(s => s.ScheduleShiftId == shiftId && s.CompanyId == companyId);
-            // Same answer for missing, foreign and out-of-scope so ids can't be probed.
-            if (shift == null || !access.CanSeeLocation(shift.LocationId))
-                return Rejected(shiftId: shiftId, error: "Shift not found.");
+            var schedule = await _context.Schedules.AsNoTracking()
+                .FirstOrDefaultAsync(s => s.ScheduleId == scheduleId && s.CompanyId == companyId);
+            // Same answer for missing, foreign, site-less and out-of-scope so ids can't be probed.
+            if (schedule == null || !schedule.LocationId.HasValue || !access.CanSeeLocation(schedule.LocationId.Value))
+                return Rejected(shiftId: scheduleId, error: "Shift not found.");
 
-            // Stored times are floating wall-clock; read them in the site's zone to compare with the real instant "now".
+            // Stored times are floating wall-clock; read them in the site's zone (company zone as fallback) to compare with the real instant "now".
+            var locationId = schedule.LocationId.Value;
             var locationZone = await _context.Locations.AsNoTracking()
-                .Where(l => l.LocationId == shift.LocationId && l.CompanyId == companyId)
+                .Where(l => l.LocationId == locationId && l.CompanyId == companyId)
                 .Select(l => l.TimeZone)
                 .FirstOrDefaultAsync();
-            var startInstant = LineupTime.WallToInstantUtc(shift.StartDate, LineupTime.Resolve(locationZone));
+            var zoneId = string.IsNullOrWhiteSpace(locationZone) ? companyTz.Id : locationZone;
+            var startInstant = LineupTime.WallToInstantUtc(schedule.StartDate, LineupTime.Resolve(zoneId));
             if (startInstant <= now)
-                return Rejected(shiftId: shiftId, error: "Only future shifts can be removed.");
+                return Rejected(shiftId: scheduleId, error: "Only future shifts can be removed.");
 
-            await _shifts.Delete(shiftId);
-            return new LineupCommitResultDto { Status = "removed", ShiftId = shiftId, PersonId = shift.PersonId, LocationId = shift.LocationId };
+            if (!await _schedules.Delete(scheduleId))
+                return Rejected(shiftId: scheduleId, error: "Shift not found.");
+
+            return new LineupCommitResultDto
+            {
+                Status = "removed", ShiftId = scheduleId, LocationId = locationId,
+                PersonId = int.TryParse(schedule.PersonId, NumberStyles.Integer, CultureInfo.InvariantCulture, out var pid) ? pid : null
+            };
         }
 
         private async Task<LineupCommitResultDto> AssignAsync(
-            string companyId, DateOnly date, LineupAssignmentDto a, LineupAccess access, string status, TimeZoneInfo companyTz)
+            string companyId, DateOnly date, LineupAssignmentDto a, LineupAccess access, string status, TimeZoneInfo companyTz, DateTime now)
         {
             var location = await _context.Locations.AsNoTracking()
                 .FirstOrDefaultAsync(l => l.LocationId == a.LocationId && l.CompanyId == companyId && l.Status == "Active");
@@ -117,7 +130,7 @@ namespace ShiftWork.Api.Services
             TimeOnly start, end;
             if (a.Start != null || a.End != null)
             {
-                if (!TryTime(a.Start, out start) || !TryTime(a.End, out end))
+                if (!TryTime(a.Start, out start) || !TryTime(a.End, out end) || start == end)
                     return Rejected(a.PersonId, a.LocationId, "Invalid shift time.");
             }
             else if (def != null) { start = def.Start; end = def.End; }
@@ -136,21 +149,33 @@ namespace ShiftWork.Api.Services
                 if (!areaId.HasValue) return Rejected(a.PersonId, a.LocationId, "No area set for this location.");
             }
 
-            // Floating wall-clock stored as Kind=Utc, exactly like every other writer of ScheduleShift (no zone conversion).
-            var (startUtc, endUtc) = LineupTime.WallShiftWindow(date, start, end);
+            // Floating wall-clock stored as Kind=Utc, exactly like every other writer of Schedule (no zone conversion).
+            var (startWall, endWall) = LineupTime.WallShiftWindow(date, start, end);
+            var personKey = a.PersonId.ToString(CultureInfo.InvariantCulture);
 
-            var existing = await _context.ScheduleShifts.AsNoTracking().FirstOrDefaultAsync(s =>
-                s.CompanyId == companyId && s.PersonId == a.PersonId && s.LocationId == a.LocationId
-                && s.StartDate == startUtc && s.EndDate == endUtc && s.Status.ToLower() != "void");
+            var existing = await _context.Schedules.AsNoTracking().FirstOrDefaultAsync(s =>
+                s.CompanyId == companyId && s.PersonId == personKey && s.LocationId == a.LocationId
+                && s.StartDate == startWall && s.EndDate == endWall && s.Status.ToLower() != "void");
             if (existing != null)
-                return new LineupCommitResultDto { Status = "unchanged", PersonId = a.PersonId, LocationId = a.LocationId, ShiftId = existing.ScheduleShiftId };
+                return new LineupCommitResultDto { Status = "unchanged", PersonId = a.PersonId, LocationId = a.LocationId, ShiftId = existing.ScheduleId };
 
-            var candidate = new ScheduleShift
+            // Time off (approved request or sick/timeoff clock event) is final and never overridable by acceptWarnings.
+            var timeOffPeople = await _availability.GetTimeOffPersonIdsAsync(companyId, startWall, endWall, companyTz);
+            if (timeOffPeople.Contains(a.PersonId))
+                return Rejected(a.PersonId, a.LocationId, "Time off");
+
+            var candidate = new Schedule
             {
-                CompanyId = companyId, PersonId = a.PersonId, LocationId = a.LocationId, AreaId = areaId.Value,
-                StartDate = startUtc, EndDate = endUtc, Status = status
+                Name = "Lineup " + date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                CompanyId = companyId, PersonId = personKey,
+                LocationId = a.LocationId, AreaId = areaId,
+                StartDate = startWall, EndDate = endWall,
+                Status = status, Type = "Shift",
+                TimeZone = string.IsNullOrWhiteSpace(location.TimeZone) ? companyTz.Id : location.TimeZone,
+                CreatedBy = access.CompanyUserId, CreatedAt = now
             };
-            var validation = await _validation.ValidateScheduleShift(companyId, candidate, a.PersonId);
+
+            var validation = await _validation.ValidateSchedule(companyId, candidate, a.PersonId);
             // Errors (including overlap) are never overridable; acceptWarnings only covers warnings.
             if (validation.Errors.Count > 0)
                 return RejectedMany(a.PersonId, a.LocationId, validation.Errors.ToArray());
@@ -161,41 +186,17 @@ namespace ShiftWork.Api.Services
                     Warnings = validation.Warnings.ToList()
                 };
 
-            var personKey = a.PersonId.ToString(CultureInfo.InvariantCulture);
-            var schedule = await _context.Schedules.FirstOrDefaultAsync(s =>
-                s.CompanyId == companyId && s.PersonId == personKey && s.LocationId == a.LocationId
-                && s.Status.ToLower() != "void" && s.StartDate <= startUtc && s.EndDate >= endUtc);
-            var nowUtc = _time.GetUtcNow().UtcDateTime;
-            if (schedule == null)
-            {
-                schedule = new Schedule
-                {
-                    Name = "Lineup " + date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                    CompanyId = companyId, PersonId = personKey,
-                    LocationId = a.LocationId, AreaId = areaId, StartDate = startUtc, EndDate = endUtc,
-                    Status = status, Type = "lineup", TimeZone = companyTz.Id,
-                    CreatedBy = access.CompanyUserId, CreatedAt = nowUtc
-                };
-                // Not saved separately: the shift's Add below writes Schedule and ScheduleShift in one SaveChanges,
-                // so a failure can't leave an empty committed Schedule behind.
-                candidate.Schedule = schedule;
-            }
-            else
-            {
-                candidate.ScheduleId = schedule.ScheduleId;
-            }
-
-            candidate.CreatedBy = access.CompanyUserId;
-            candidate.CreatedAt = nowUtc;
-            var created = await _shifts.Add(candidate);
+            var created = await _schedules.Add(candidate);
 
             if (status == "Published")
             {
-                try { await _push.NotifyShiftAssignedAsync(companyId, a.PersonId, created.ScheduleShiftId, created.StartDate); }
-                catch (Exception ex) { _logger.LogWarning(ex, "Push for lineup shift {ShiftId} failed.", created.ScheduleShiftId); }
+                // NotifySchedulePublishedAsync looks recipients up through ScheduleShift rows, which a lineup Schedule
+                // never has, so it would notify nobody. Notify the assigned person directly instead.
+                try { await _push.NotifyShiftAssignedAsync(companyId, a.PersonId, created.ScheduleId, created.StartDate); }
+                catch (Exception ex) { _logger.LogWarning(ex, "Push for lineup schedule {ScheduleId} failed.", created.ScheduleId); }
             }
 
-            return new LineupCommitResultDto { Status = "created", PersonId = a.PersonId, LocationId = a.LocationId, ShiftId = created.ScheduleShiftId };
+            return new LineupCommitResultDto { Status = "created", PersonId = a.PersonId, LocationId = a.LocationId, ShiftId = created.ScheduleId };
         }
 
         // A failed SaveChanges leaves the bad entities tracked; drop them so later items in the batch start clean.
