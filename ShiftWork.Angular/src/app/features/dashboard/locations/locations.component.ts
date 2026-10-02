@@ -58,6 +58,7 @@ export class LocationsComponent implements OnInit {
   // Default shift (existing locations only; separate from the main location form)
   defaultShiftForm!: FormGroup;
   areas: Area[] = [];
+  private areasLoaded = false;
   defaultShiftSaving = false;
   defaultShiftError: string | null = null;
 
@@ -79,7 +80,13 @@ export class LocationsComponent implements OnInit {
         this.activeCompany = company;
         this.loading = true;
         this.areaService.getAreas(company.companyId).subscribe({
-          next: areas => (this.areas = areas ?? []),
+          next: areas => {
+            this.areas = areas ?? [];
+            this.areasLoaded = true;
+            if (this.selectedLocation && this.defaultShiftForm.pristine) {
+              this.loadDefaultShift(this.selectedLocation);
+            }
+          },
           error: () => (this.areas = [])
         });
         this.locationService.getLocations(company.companyId).subscribe(locations => {
@@ -161,13 +168,15 @@ export class LocationsComponent implements OnInit {
 
   private loadDefaultShift(location: Location): void {
     const shift = location.defaultShift;
-    const ownsArea = shift?.areaId != null &&
-      this.areas.some(a => a.areaId === shift.areaId && Number(a.locationId) === Number(location.locationId));
+    // Only drop a saved area when areas are loaded and it does not belong to this location.
+    const keepArea = shift?.areaId != null && (!this.areasLoaded ||
+      this.areas.some(a => a.areaId === shift.areaId && Number(a.locationId) === Number(location.locationId)));
     this.defaultShiftError = null;
+    this.defaultShiftSaving = false;
     this.defaultShiftForm.reset({
       start: shift?.start?.slice(0, 5) ?? '',
       end: shift?.end?.slice(0, 5) ?? '',
-      areaId: ownsArea ? shift!.areaId : null
+      areaId: keepArea ? shift!.areaId : null
     });
   }
 
@@ -183,11 +192,13 @@ export class LocationsComponent implements OnInit {
     this.defaultShiftError = null;
     this.locationService.setDefaultShift(companyId, locationId, shift).subscribe({
       next: saved => {
-        this.defaultShiftSaving = false;
+        const same = this.selectedLocation?.locationId === locationId;
+        if (same) this.defaultShiftSaving = false;
         this.applyDefaultShift(locationId, saved ?? shift);
         this.toastr.success($localize`:@@locations.default_shift.saved:Default shift saved.`);
       },
       error: () => {
+        if (this.selectedLocation?.locationId !== locationId) return;
         this.defaultShiftSaving = false;
         this.defaultShiftError = $localize`:@@locations.default_shift.error_save:Could not save the default shift. Check the values and try again.`;
       }
@@ -204,12 +215,15 @@ export class LocationsComponent implements OnInit {
     this.defaultShiftError = null;
     this.locationService.clearDefaultShift(companyId, locationId).subscribe({
       next: () => {
-        this.defaultShiftSaving = false;
         this.applyDefaultShift(locationId, null);
-        this.defaultShiftForm.reset({ start: '', end: '', areaId: null });
+        if (this.selectedLocation?.locationId === locationId) {
+          this.defaultShiftSaving = false;
+          this.defaultShiftForm.reset({ start: '', end: '', areaId: null });
+        }
         this.toastr.success($localize`:@@locations.default_shift.cleared:Default shift cleared.`);
       },
       error: () => {
+        if (this.selectedLocation?.locationId !== locationId) return;
         this.defaultShiftSaving = false;
         this.defaultShiftError = $localize`:@@locations.default_shift.error_save:Could not save the default shift. Check the values and try again.`;
       }
@@ -227,6 +241,7 @@ export class LocationsComponent implements OnInit {
   cancelEdit(): void {
     this.selectedLocation = null;
     this.defaultShiftError = null;
+    this.defaultShiftSaving = false;
     this.defaultShiftForm?.reset({ start: '', end: '', areaId: null });
     this.locationForm.reset({
       name: '',

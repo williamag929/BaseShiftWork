@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { of, Subject, throwError } from 'rxjs';
+import { Observable, of, Subject, throwError } from 'rxjs';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { ToastrService } from 'ngx-toastr';
 import { LocationsComponent } from './locations.component';
@@ -27,6 +27,7 @@ describe('LocationsComponent default shift', () => {
   let locSvc: jasmine.SpyObj<LocationService>;
   let toastr: jasmine.SpyObj<ToastrService>;
   let location7: Location;
+  let areasSource: Observable<Area[]> | null;
   const areas = [
     { areaId: 12, name: 'Gate', companyId: 'co-1', locationId: '7' },
     { areaId: 13, name: 'Dock', companyId: 'co-1', locationId: 7 },
@@ -34,6 +35,7 @@ describe('LocationsComponent default shift', () => {
   ] as Area[];
 
   beforeEach(async () => {
+    areasSource = null;
     location7 = loc(7, { start: '07:00', end: '15:30', areaId: 12 });
     locSvc = jasmine.createSpyObj('LocationService', ['getLocations', 'updateLocation', 'createLocation', 'setDefaultShift', 'clearDefaultShift']);
     locSvc.getLocations.and.returnValue(of([location7, loc(8)]));
@@ -47,7 +49,7 @@ describe('LocationsComponent default shift', () => {
         provideMockStore({ initialState: {} }),
         { provide: LocationService, useValue: locSvc },
         { provide: AuthService, useValue: {} },
-        { provide: AreaService, useValue: { getAreas: () => of(areas) } },
+        { provide: AreaService, useValue: { getAreas: () => areasSource ?? of(areas) } },
         { provide: ToastrService, useValue: toastr },
       ],
     }).compileComponents();
@@ -153,5 +155,64 @@ describe('LocationsComponent default shift', () => {
     component.editLocation(location7);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.default-shift-section')).not.toBeNull();
+  });
+
+  it('keeps the saved areaId when the location is opened before areas load, then Save sends it', () => {
+    const pendingAreas = new Subject<Area[]>();
+    areasSource = pendingAreas;
+    fixture = TestBed.createComponent(LocationsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    component.editLocation(location7);
+    expect(component.defaultShiftForm.value.areaId).toBe(12);
+    pendingAreas.next(areas);
+    expect(component.defaultShiftForm.value).toEqual({ start: '07:00', end: '15:30', areaId: 12 });
+    locSvc.setDefaultShift.and.returnValue(of({ start: '07:00', end: '15:30', areaId: 12 }));
+    component.saveDefaultShift();
+    expect(locSvc.setDefaultShift).toHaveBeenCalledWith('co-1', 7, { start: '07:00', end: '15:30', areaId: 12 });
+  });
+
+  it('keeps the saved areaId when loading areas failed', () => {
+    areasSource = throwError(() => new Error('x'));
+    fixture = TestBed.createComponent(LocationsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    component.editLocation(location7);
+    expect(component.defaultShiftForm.value.areaId).toBe(12);
+  });
+
+  it('ignores a late response for a previously selected location and unsticks the buttons', () => {
+    const pending = new Subject<any>();
+    locSvc.setDefaultShift.and.returnValue(pending);
+    component.editLocation(location7);
+    component.saveDefaultShift();
+    component.editLocation(loc(8));
+    expect(component.defaultShiftSaving).toBeFalse();
+    pending.next({ start: '07:00', end: '15:30', areaId: 12 });
+    expect(component.defaultShiftForm.value).toEqual({ start: '', end: '', areaId: null });
+    expect(component.defaultShiftError).toBeNull();
+  });
+
+  it('a late error for a previous location does not set the error on the new one', () => {
+    const pending = new Subject<any>();
+    locSvc.setDefaultShift.and.returnValue(pending);
+    component.editLocation(location7);
+    component.saveDefaultShift();
+    component.editLocation(loc(8));
+    pending.error(new Error('boom'));
+    expect(component.defaultShiftError).toBeNull();
+    expect(component.defaultShiftSaving).toBeFalse();
+  });
+
+  it('main save after a default-shift save sends defaultShift populated', () => {
+    locSvc.setDefaultShift.and.returnValue(of({ start: '07:00', end: '15:30', areaId: 12 }));
+    locSvc.updateLocation.and.callFake((_c: string, _id: number, l: Location) => of(l));
+    component.editLocation(location7);
+    component.locationForm.patchValue({ name: 'N', address: 'A', latitude: 1, longitude: 2 });
+    component.saveDefaultShift();
+    component.saveLocation();
+    expect(locSvc.updateLocation).toHaveBeenCalled();
+    const sent = locSvc.updateLocation.calls.mostRecent().args[2] as Location;
+    expect(sent.defaultShift).toEqual({ start: '07:00', end: '15:30', areaId: 12 });
   });
 });
