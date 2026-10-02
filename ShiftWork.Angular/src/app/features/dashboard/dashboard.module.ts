@@ -27,6 +27,7 @@ import { AuditHistoryFiltersComponent } from '../kiosk/audit-history/audit-histo
 
 // Guided tour
 import { TourOverlayComponent } from 'src/app/shared/tour/tour-overlay.component';
+import { HasPermissionDirective } from 'src/app/core/directives/has-permission.directive';
 
 
 const routes: Routes = [
@@ -74,6 +75,7 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     SharedModule,
+    HasPermissionDirective,
     FullCalendarModule,
     RouterModule.forChild(routes),
     MatDialogModule,

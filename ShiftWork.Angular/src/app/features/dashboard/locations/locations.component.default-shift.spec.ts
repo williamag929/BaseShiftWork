@@ -3,11 +3,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Observable, of, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { ToastrService } from 'ngx-toastr';
 import { LocationsComponent } from './locations.component';
 import '../dashboard.module';
+import { HasPermissionDirective } from 'src/app/core/directives/has-permission.directive';
+import { PermissionService } from 'src/app/core/services/permission.service';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { AreaService } from 'src/app/core/services/area.service';
@@ -43,10 +45,11 @@ describe('LocationsComponent default shift', () => {
 
     await TestBed.configureTestingModule({
       declarations: [LocationsComponent],
-      imports: [CommonModule, ReactiveFormsModule],
+      imports: [CommonModule, ReactiveFormsModule, HasPermissionDirective],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         provideMockStore({ initialState: {} }),
+        { provide: PermissionService, useValue: { permissions$: new BehaviorSubject<string[]>(['locations.update']), hasAllPermissions: () => true } },
         { provide: LocationService, useValue: locSvc },
         { provide: AuthService, useValue: {} },
         { provide: AreaService, useValue: { getAreas: () => areasSource ?? of(areas) } },

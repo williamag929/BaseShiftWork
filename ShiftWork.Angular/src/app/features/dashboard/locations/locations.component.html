@@ -304,6 +304,7 @@
             </form>
 
             <!-- Default shift (existing locations only) -->
+            <ng-container *appHasPermission="'locations.update'">
             <form *ngIf="selectedLocation" class="default-shift-section" [formGroup]="defaultShiftForm"
               (ngSubmit)="saveDefaultShift()">
               <h4 class="section-title">
@@ -341,6 +342,7 @@
                 </button>
               </div>
             </form>
+            </ng-container>
           </div>
         </div>
       </div>
