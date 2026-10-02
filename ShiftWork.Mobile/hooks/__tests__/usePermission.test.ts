@@ -1,5 +1,6 @@
 jest.mock('firebase/auth', () => ({ signOut: jest.fn() }));
 jest.mock('@/config/firebase', () => ({ auth: {} }));
+jest.mock('@/services/notification.service', () => ({ notificationService: { removeDeviceToken: jest.fn() } }));
 jest.mock('@/utils/storage.utils', () => ({
   clearAllStorage: jest.fn().mockResolvedValue(undefined),
 }));

@@ -13,7 +13,7 @@ export function useClaimsSync(): void {
   const setPermissions = useAuthStore((s) => s.setPermissions);
 
   const { data } = useQuery({
-    queryKey: ['claims', companyId],
+    queryKey: ['claims', companyId, personId],
     queryFn: () => companyUserService.getMyClaims(companyId),
     enabled: !!personId && !!companyId,
     staleTime: 5 * 60 * 1000,
