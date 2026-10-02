@@ -57,6 +57,7 @@ export class ProfilesComponent implements OnInit {
     'Documents':            ['documents.read', 'documents.upload', 'documents.delete', 'documents.manage'],
     'Credentials':          ['credentials.read', 'credentials.create', 'credentials.update', 'credentials.delete', 'credentials.track'],
     'Safety':               ['safety.read', 'safety.create', 'safety.delete', 'safety.acknowledge', 'safety.track'],
+    'Lineup':               ['lineup.view', 'lineup.edit', 'lineup.all-locations'],
   };
   // Helper for iterating over object keys in the template
   objectKeys = Object.keys;
@@ -302,7 +303,8 @@ export class ProfilesComponent implements OnInit {
   /** Convert an API permission key like 'crews.assign' → 'Assign' */
   getPermissionLabel(key: string): string {
     const action = key.split('.').pop() ?? key;
-    return action.charAt(0).toUpperCase() + action.slice(1);
+    const label = action.replace(/-/g, ' ');
+    return label.charAt(0).toUpperCase() + label.slice(1);
   }
 
   /** Semantic icon class for a permission action */

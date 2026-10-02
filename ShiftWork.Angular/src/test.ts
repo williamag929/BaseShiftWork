@@ -34,3 +34,4 @@ import './app/core/services/company-users.service.location-scopes.spec';
 import './app/features/dashboard/locations/locations.component.default-shift.spec';
 import './app/features/admin/components/user-location-scope-dialog/user-location-scope-dialog.component.spec';
 import './app/features/admin/components/company-users-admin/company-users-admin.component.location-scope.spec';
+import './app/features/dashboard/profiles/profiles.component.lineup.spec';
