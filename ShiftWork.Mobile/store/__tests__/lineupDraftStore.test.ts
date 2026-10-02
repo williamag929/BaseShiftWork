@@ -1,6 +1,6 @@
 import { useLineupDraftStore } from '@/store/lineupDraftStore';
 
-const shift = { start: '2026-10-01T07:00:00Z', end: '2026-10-01T15:00:00Z', areaId: null };
+const shift = { start: '07:00', end: '15:00', areaId: null };
 const s = () => useLineupDraftStore.getState();
 
 beforeEach(() => {
@@ -68,6 +68,18 @@ describe('lineupDraftStore', () => {
     s().acceptWarnings([52]);
     expect(s().assignments[0].acceptWarnings).toBe(true);
     expect(s().feedback.p52).toBeUndefined();
+  });
+
+  it('assignMany dedupes personIds', () => {
+    s().assignMany([41, 41], 7, shift);
+    expect(s().assignments).toHaveLength(1);
+  });
+
+  it('created result leaves an assignment at a different site untouched', () => {
+    s().assign(41, 8, shift);
+    s().applyResults([{ status: 'created', personId: 41, locationId: 7, errors: [], warnings: [] }]);
+    expect(s().assignments).toHaveLength(1);
+    expect(s().assignments[0].locationId).toBe(8);
   });
 
   it('unchanged drops the assignment', () => {

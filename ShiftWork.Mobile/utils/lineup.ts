@@ -8,7 +8,10 @@ import type {
   LineupUnavailable,
 } from '@/types/lineup';
 
-export const wallTime = (iso: string): string => iso.split('T')[1].slice(0, 5);
+export const wallTime = (iso: string): string => {
+  const t = iso.includes('T') ? iso.split('T')[1] : iso;
+  return t.slice(0, 5);
+};
 
 const REASON_KEYS: Record<string, string> = {
   'Time off': 'lineup.reason.time_off',

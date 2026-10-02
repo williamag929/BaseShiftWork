@@ -1,7 +1,7 @@
 import { wallTime, reasonKey, mergeLineup, crewFill, buildCommitRequest, DraftState } from '@/utils/lineup';
 import type { Lineup } from '@/types/lineup';
 
-const shift = { start: '2026-10-01T07:00:00Z', end: '2026-10-01T15:00:00Z', areaId: null };
+const shift = { start: '07:00', end: '15:00', areaId: null };
 
 const server: Lineup = {
   date: '2026-10-01',
@@ -33,6 +33,7 @@ describe('wallTime', () => {
   it('slices HH:mm after T', () => {
     expect(wallTime('2026-10-01T07:00:00Z')).toBe('07:00');
     expect(wallTime('2026-10-01T23:30:00Z')).toBe('23:30');
+    expect(wallTime('07:00')).toBe('07:00');
   });
 });
 

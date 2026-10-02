@@ -42,14 +42,17 @@ export const useLineupDraftStore = create<LineupDraftState>((set) => ({
       assignments: [...s.assignments.filter((a) => a.personId !== personId), draftOf(personId, locationId, shift)],
       feedback: without(s.feedback, [`p${personId}`]),
     })),
-  assignMany: (personIds, locationId, shift) =>
-    set((s) => ({
+  assignMany: (rawIds, locationId, shift) =>
+    set((s) => {
+      const personIds = [...new Set(rawIds)];
+      return {
       assignments: [
         ...s.assignments.filter((a) => !personIds.includes(a.personId)),
         ...personIds.map((id) => draftOf(id, locationId, shift)),
       ],
       feedback: without(s.feedback, personIds.map((id) => `p${id}`)),
-    })),
+      };
+    }),
   unassign: (personId) =>
     set((s) => ({
       assignments: s.assignments.filter((a) => a.personId !== personId),
