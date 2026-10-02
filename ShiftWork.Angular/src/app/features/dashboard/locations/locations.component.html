@@ -302,6 +302,45 @@
                 </button>
               </div>
             </form>
+
+            <!-- Default shift (existing locations only) -->
+            <form *ngIf="selectedLocation" class="default-shift-section" [formGroup]="defaultShiftForm"
+              (ngSubmit)="saveDefaultShift()">
+              <h4 class="section-title">
+                <i class="fa fa-clock-o"></i>
+                <ng-container i18n="@@locations.default_shift.title">Default shift</ng-container>
+              </h4>
+              <p class="form-hint" i18n="@@locations.default_shift.help">Pre-fills the lineup for this location when no shift is scheduled.</p>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="defaultShiftStart" class="form-label" i18n="@@locations.default_shift.start">Start time</label>
+                  <input type="time" id="defaultShiftStart" class="form-input" formControlName="start">
+                </div>
+                <div class="form-group">
+                  <label for="defaultShiftEnd" class="form-label" i18n="@@locations.default_shift.end">End time</label>
+                  <input type="time" id="defaultShiftEnd" class="form-input" formControlName="end">
+                </div>
+                <div class="form-group">
+                  <label for="defaultShiftArea" class="form-label" i18n="@@locations.default_shift.area">Area</label>
+                  <select id="defaultShiftArea" class="form-input" formControlName="areaId">
+                    <option [ngValue]="null" i18n="@@locations.default_shift.area_none">No area</option>
+                    <option *ngFor="let area of defaultShiftAreas" [ngValue]="area.areaId">{{ area.name }}</option>
+                  </select>
+                </div>
+              </div>
+              <small class="form-hint error-text" *ngIf="defaultShiftForm.dirty && defaultShiftValidationError">{{ defaultShiftValidationError }}</small>
+              <small class="form-hint error-text" *ngIf="defaultShiftError">{{ defaultShiftError }}</small>
+              <div class="form-actions">
+                <button type="button" class="btn-cancel" [disabled]="defaultShiftSaving" (click)="clearDefaultShift()">
+                  <i class="fa fa-times"></i>
+                  <ng-container i18n="@@locations.default_shift.clear">Clear</ng-container>
+                </button>
+                <button type="submit" class="btn-submit" [disabled]="defaultShiftSaving || defaultShiftForm.invalid">
+                  <i class="fa fa-save"></i>
+                  <ng-container i18n="@@locations.default_shift.save">Save default shift</ng-container>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

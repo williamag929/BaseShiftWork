@@ -1000,6 +1000,21 @@ export default {
     "coord_lat": "Latitud:",
     "coord_lng": "Longitud:",
     "coord_radius": "Radio:",
+    "default_shift": {
+      "title": "Turno predeterminado",
+      "help": "Rellena la alineación de esta ubicación cuando no hay un turno programado.",
+      "start": "Hora de inicio",
+      "end": "Hora de fin",
+      "area": "Área",
+      "area_none": "Sin área",
+      "save": "Guardar turno predeterminado",
+      "clear": "Quitar",
+      "saved": "Turno predeterminado guardado.",
+      "cleared": "Turno predeterminado eliminado.",
+      "error_equal": "La hora de inicio y fin deben ser diferentes.",
+      "error_required": "Ingresa una hora de inicio y una de fin.",
+      "error_save": "No se pudo guardar el turno predeterminado. Revisa los valores e intenta de nuevo."
+    },
     "confirm_btn": "Confirmar ubicación"
   },
   "crews": {

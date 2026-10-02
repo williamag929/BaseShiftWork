@@ -4544,6 +4544,45 @@ What would you like to do?</source>
       <trans-unit id="analytics.status_unscheduled" datatype="html">
         <source>Unscheduled</source>
       </trans-unit>
+      <trans-unit id="locations.default_shift.title" datatype="html">
+        <source>Default shift</source>
+      </trans-unit>
+      <trans-unit id="locations.default_shift.help" datatype="html">
+        <source>Pre-fills the lineup for this location when no shift is scheduled.</source>
+      </trans-unit>
+      <trans-unit id="locations.default_shift.start" datatype="html">
+        <source>Start time</source>
+      </trans-unit>
+      <trans-unit id="locations.default_shift.end" datatype="html">
+        <source>End time</source>
+      </trans-unit>
+      <trans-unit id="locations.default_shift.area" datatype="html">
+        <source>Area</source>
+      </trans-unit>
+      <trans-unit id="locations.default_shift.area_none" datatype="html">
+        <source>No area</source>
+      </trans-unit>
+      <trans-unit id="locations.default_shift.save" datatype="html">
+        <source>Save default shift</source>
+      </trans-unit>
+      <trans-unit id="locations.default_shift.clear" datatype="html">
+        <source>Clear</source>
+      </trans-unit>
+      <trans-unit id="locations.default_shift.saved" datatype="html">
+        <source>Default shift saved.</source>
+      </trans-unit>
+      <trans-unit id="locations.default_shift.cleared" datatype="html">
+        <source>Default shift cleared.</source>
+      </trans-unit>
+      <trans-unit id="locations.default_shift.error_equal" datatype="html">
+        <source>Start and end times must be different.</source>
+      </trans-unit>
+      <trans-unit id="locations.default_shift.error_required" datatype="html">
+        <source>Enter both a start and an end time.</source>
+      </trans-unit>
+      <trans-unit id="locations.default_shift.error_save" datatype="html">
+        <source>Could not save the default shift. Check the values and try again.</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>

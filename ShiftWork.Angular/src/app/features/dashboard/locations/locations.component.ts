@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { Location } from 'src/app/core/models/location.model';
+import { Area } from 'src/app/core/models/area.model';
+import { AreaService } from 'src/app/core/services/area.service';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { GoogleMap, MapCircle } from '@angular/google-maps';
@@ -53,9 +55,16 @@ export class LocationsComponent implements OnInit {
   loading = false;
   error: any = null;
 
+  // Default shift (existing locations only; separate from the main location form)
+  defaultShiftForm!: FormGroup;
+  areas: Area[] = [];
+  defaultShiftSaving = false;
+  defaultShiftError: string | null = null;
+
   constructor(
     private locationService: LocationService,
     private authService: AuthService,
+    private areaService: AreaService,
     private fb: FormBuilder,
     private toastr: ToastrService,
     private store: Store<AppState>,
@@ -69,6 +78,10 @@ export class LocationsComponent implements OnInit {
       if (company) {
         this.activeCompany = company;
         this.loading = true;
+        this.areaService.getAreas(company.companyId).subscribe({
+          next: areas => (this.areas = areas ?? []),
+          error: () => (this.areas = [])
+        });
         this.locationService.getLocations(company.companyId).subscribe(locations => {
           this.locations = locations;
           this.loading = false;
@@ -100,6 +113,11 @@ export class LocationsComponent implements OnInit {
       requirePhoto: [true],
     });
 
+    this.defaultShiftForm = this.fb.group(
+      { start: [''], end: [''], areaId: [null as number | null] },
+      { validators: LocationsComponent.defaultShiftValidator }
+    );
+
     this.mapOptions = {
       center: { lat: 36.1699, lng: -115.1398 }, // Default to Las Vegas
       zoom: 12
@@ -115,8 +133,101 @@ export class LocationsComponent implements OnInit {
     }
   }
 
+  private static readonly TIME_RE = /^\d{2}:\d{2}$/;
+
+  // Overnight (end < start) is allowed; only equal or missing times are invalid.
+  private static defaultShiftValidator(group: AbstractControl): ValidationErrors | null {
+    const start = group.get('start')?.value;
+    const end = group.get('end')?.value;
+    if (!LocationsComponent.TIME_RE.test(start ?? '') || !LocationsComponent.TIME_RE.test(end ?? '')) {
+      return { required: true };
+    }
+    return start === end ? { equal: true } : null;
+  }
+
+  get defaultShiftValidationError(): string | null {
+    const errors = this.defaultShiftForm?.errors;
+    if (!errors) return null;
+    return errors['required']
+      ? $localize`:@@locations.default_shift.error_required:Enter both a start and an end time.`
+      : $localize`:@@locations.default_shift.error_equal:Start and end times must be different.`;
+  }
+
+  get defaultShiftAreas(): Area[] {
+    if (!this.selectedLocation) return [];
+    const id = Number(this.selectedLocation.locationId);
+    return this.areas.filter(a => Number(a.locationId) === id);
+  }
+
+  private loadDefaultShift(location: Location): void {
+    const shift = location.defaultShift;
+    const ownsArea = shift?.areaId != null &&
+      this.areas.some(a => a.areaId === shift.areaId && Number(a.locationId) === Number(location.locationId));
+    this.defaultShiftError = null;
+    this.defaultShiftForm.reset({
+      start: shift?.start?.slice(0, 5) ?? '',
+      end: shift?.end?.slice(0, 5) ?? '',
+      areaId: ownsArea ? shift!.areaId : null
+    });
+  }
+
+  saveDefaultShift(): void {
+    if (!this.selectedLocation || this.defaultShiftSaving || this.defaultShiftForm.invalid) {
+      return;
+    }
+    const companyId = this.activeCompany.companyId;
+    const locationId = this.selectedLocation.locationId;
+    const { start, end, areaId } = this.defaultShiftForm.value;
+    const shift = { start, end, areaId: areaId ?? null };
+    this.defaultShiftSaving = true;
+    this.defaultShiftError = null;
+    this.locationService.setDefaultShift(companyId, locationId, shift).subscribe({
+      next: saved => {
+        this.defaultShiftSaving = false;
+        this.applyDefaultShift(locationId, saved ?? shift);
+        this.toastr.success($localize`:@@locations.default_shift.saved:Default shift saved.`);
+      },
+      error: () => {
+        this.defaultShiftSaving = false;
+        this.defaultShiftError = $localize`:@@locations.default_shift.error_save:Could not save the default shift. Check the values and try again.`;
+      }
+    });
+  }
+
+  clearDefaultShift(): void {
+    if (!this.selectedLocation || this.defaultShiftSaving) {
+      return;
+    }
+    const companyId = this.activeCompany.companyId;
+    const locationId = this.selectedLocation.locationId;
+    this.defaultShiftSaving = true;
+    this.defaultShiftError = null;
+    this.locationService.clearDefaultShift(companyId, locationId).subscribe({
+      next: () => {
+        this.defaultShiftSaving = false;
+        this.applyDefaultShift(locationId, null);
+        this.defaultShiftForm.reset({ start: '', end: '', areaId: null });
+        this.toastr.success($localize`:@@locations.default_shift.cleared:Default shift cleared.`);
+      },
+      error: () => {
+        this.defaultShiftSaving = false;
+        this.defaultShiftError = $localize`:@@locations.default_shift.error_save:Could not save the default shift. Check the values and try again.`;
+      }
+    });
+  }
+
+  private applyDefaultShift(locationId: number, shift: Location['defaultShift']): void {
+    const target = this.locations.find(l => l.locationId === locationId);
+    if (target) target.defaultShift = shift;
+    if (this.selectedLocation?.locationId === locationId) {
+      this.selectedLocation.defaultShift = shift;
+    }
+  }
+
   cancelEdit(): void {
     this.selectedLocation = null;
+    this.defaultShiftError = null;
+    this.defaultShiftForm?.reset({ start: '', end: '', areaId: null });
     this.locationForm.reset({
       name: '',
       address: '',
@@ -299,6 +410,7 @@ export class LocationsComponent implements OnInit {
 
   editLocation(location: Location): void {
     this.selectedLocation = location;
+    this.loadDefaultShift(location);
     this.locationForm.patchValue({
       ...location,
       latitude: location.geoCoordinates?.latitude,

@@ -31,3 +31,4 @@ import './app/features/kiosk/kiosk.component.spec';
 import './app/features/kiosk/photo-schedule/photo-schedule.component.spec';
 import './app/core/services/location.service.default-shift.spec';
 import './app/core/services/company-users.service.location-scopes.spec';
+import './app/features/dashboard/locations/locations.component.default-shift.spec';

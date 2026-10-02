@@ -1000,6 +1000,21 @@ export default {
     "coord_lat": "Latitude:",
     "coord_lng": "Longitude:",
     "coord_radius": "Radius:",
+    "default_shift": {
+      "title": "Default shift",
+      "help": "Pre-fills the lineup for this location when no shift is scheduled.",
+      "start": "Start time",
+      "end": "End time",
+      "area": "Area",
+      "area_none": "No area",
+      "save": "Save default shift",
+      "clear": "Clear",
+      "saved": "Default shift saved.",
+      "cleared": "Default shift cleared.",
+      "error_equal": "Start and end times must be different.",
+      "error_required": "Enter both a start and an end time.",
+      "error_save": "Could not save the default shift. Check the values and try again."
+    },
     "confirm_btn": "Confirm Location"
   },
   "crews": {
