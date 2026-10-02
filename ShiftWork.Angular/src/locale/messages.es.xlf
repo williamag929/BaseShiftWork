@@ -6112,6 +6112,54 @@ What would you like to do?</source>
         <source>Could not save the default shift. Check the values and try again.</source>
         <target state="translated">No se pudo guardar el turno predeterminado. Revisa los valores e intenta de nuevo.</target>
       </trans-unit>
+      <trans-unit id="company_users_admin.scope.button" datatype="html">
+        <source>Locations</source>
+        <target state="translated">Ubicaciones</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.title" datatype="html">
+        <source>Job site access</source>
+        <target state="translated">Acceso a sitios de trabajo</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.help" datatype="html">
+        <source>Choose the job sites this user can see and edit in Lineup.</source>
+        <target state="translated">Elige los sitios de trabajo que este usuario puede ver y editar en la alineación.</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.help_all_locations" datatype="html">
+        <source>Users with the all-locations Lineup permission see every site regardless of this list.</source>
+        <target state="translated">Los usuarios con el permiso de alineación para todas las ubicaciones ven todos los sitios sin importar esta lista.</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.select_all" datatype="html">
+        <source>Select all</source>
+        <target state="translated">Seleccionar todo</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.clear" datatype="html">
+        <source>Clear</source>
+        <target state="translated">Quitar todo</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.none_warning" datatype="html">
+        <source>No sites selected. This user will see no sites in Lineup unless they have the all-locations permission.</source>
+        <target state="translated">No hay sitios seleccionados. Este usuario no verá ningún sitio en la alineación a menos que tenga el permiso de todas las ubicaciones.</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.inactive" datatype="html">
+        <source>(inactive)</source>
+        <target state="translated">(inactiva)</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.save" datatype="html">
+        <source>Save</source>
+        <target state="translated">Guardar</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.saved" datatype="html">
+        <source>Locations saved.</source>
+        <target state="translated">Ubicaciones guardadas.</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.error_load" datatype="html">
+        <source>Could not load locations. Close and try again.</source>
+        <target state="translated">No se pudieron cargar las ubicaciones. Cierra e intenta de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.error_save" datatype="html">
+        <source>Could not save the locations. Try again.</source>
+        <target state="translated">No se pudieron guardar las ubicaciones. Intenta de nuevo.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

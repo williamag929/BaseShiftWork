@@ -14,12 +14,18 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatListModule } from '@angular/material/list';
+import { HasPermissionDirective } from 'src/app/core/directives/has-permission.directive';
+import { UserLocationScopeDialogComponent } from './components/user-location-scope-dialog/user-location-scope-dialog.component';
 
 
 @NgModule({
   declarations: [
     CompanyFormComponent,
-    CompanyUsersAdminComponent
+    CompanyUsersAdminComponent,
+    UserLocationScopeDialogComponent
   ],
   imports: [
     CommonModule,
@@ -33,7 +39,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatTableModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDialogModule,
+    MatCheckboxModule,
+    MatListModule,
+    HasPermissionDirective
   ]
 })
 export class AdminModule { }

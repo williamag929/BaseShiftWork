@@ -1,0 +1,8 @@
+.user-name { display: block; font-size: 14px; font-weight: 400; opacity: 0.7; }
+.help { margin: 0 0 8px; font-size: 13px; opacity: 0.8; }
+.loading { display: flex; justify-content: center; padding: 16px; }
+.error { color: #b71c1c; margin: 8px 0; }
+.warning { background: #fff8e1; color: #6d4c00; padding: 8px 12px; border-radius: 4px; margin: 8px 0; font-size: 13px; }
+.bulk-actions { display: flex; gap: 8px; }
+.location-item.inactive { opacity: 0.65; }
+.inactive-tag { font-size: 12px; font-style: italic; }

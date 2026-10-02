@@ -84,6 +84,14 @@
                       [matTooltip]="user.isActive ? 'Deactivate user' : 'Activate user'">
                 <mat-icon>{{ user.isActive ? 'person_off' : 'person' }}</mat-icon>
               </button>
+              <button mat-icon-button
+                      *appHasPermission="'company-users.roles.update'"
+                      class="scope-btn"
+                      (click)="openScopeDialog(user)"
+                      i18n-matTooltip="@@company_users_admin.scope.button"
+                      matTooltip="Locations">
+                <mat-icon>place</mat-icon>
+              </button>
             </td>
           </ng-container>
 

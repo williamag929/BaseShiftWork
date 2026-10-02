@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { CompanyUser } from 'src/app/core/models/company-user.model';
@@ -8,6 +9,7 @@ import { selectCompanies } from 'src/app/store/company/company.selectors';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { AppState } from 'src/app/store/app.state';
 import { loadCompanies } from 'src/app/store/company/company.actions';
+import { UserLocationScopeDialogComponent } from '../user-location-scope-dialog/user-location-scope-dialog.component';
 
 @Component({
   selector: 'app-company-users-admin',
@@ -25,7 +27,8 @@ export class CompanyUsersAdminComponent implements OnInit {
   constructor(
     private companyUsersService: CompanyUsersService,
     private store: Store<AppState>,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -78,6 +81,17 @@ export class CompanyUsersAdminComponent implements OnInit {
       error: () => {
         this.toastr.error('Failed to update user status');
         this.togglingId = null;
+      }
+    });
+  }
+
+  openScopeDialog(user: CompanyUser): void {
+    this.dialog.open(UserLocationScopeDialogComponent, {
+      data: { companyId: this.selectedCompanyId, user },
+      width: '440px'
+    }).afterClosed().subscribe(saved => {
+      if (saved) {
+        this.toastr.success($localize`:@@company_users_admin.scope.saved:Locations saved.`);
       }
     });
   }

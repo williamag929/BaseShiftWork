@@ -1371,7 +1371,21 @@ export default {
     "inactive": "Inactivo",
     "deactivate_tip": "Desactivar usuario",
     "activate_tip": "Activar usuario",
-    "empty": "No se encontraron usuarios para esta empresa."
+    "empty": "No se encontraron usuarios para esta empresa.",
+    "scope": {
+      "button": "Ubicaciones",
+      "title": "Acceso a sitios de trabajo",
+      "help": "Elige los sitios de trabajo que este usuario puede ver y editar en la alineación.",
+      "help_all_locations": "Los usuarios con el permiso de alineación para todas las ubicaciones ven todos los sitios sin importar esta lista.",
+      "select_all": "Seleccionar todo",
+      "clear": "Quitar todo",
+      "none_warning": "No hay sitios seleccionados. Este usuario no verá ningún sitio en la alineación a menos que tenga el permiso de todas las ubicaciones.",
+      "inactive": "(inactiva)",
+      "save": "Guardar",
+      "saved": "Ubicaciones guardadas.",
+      "error_load": "No se pudieron cargar las ubicaciones. Cierra e intenta de nuevo.",
+      "error_save": "No se pudieron guardar las ubicaciones. Intenta de nuevo."
+    }
   },
   "manage_companies": {
     "title": "Gestionar empresas",

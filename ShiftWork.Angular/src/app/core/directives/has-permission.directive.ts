@@ -39,10 +39,11 @@ export class HasPermissionDirective implements OnInit, OnDestroy {
   }
 
   private updateView(): void {
+    // Clear first: updateView runs from the input setter and again on each emission,
+    // which would otherwise stack duplicate views.
+    this.viewContainer.clear();
     if (this.permissionService.hasAllPermissions(this.permissions)) {
       this.viewContainer.createEmbeddedView(this.templateRef);
-    } else {
-      this.viewContainer.clear();
     }
   }
 }

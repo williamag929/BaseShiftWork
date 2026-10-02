@@ -1,0 +1,37 @@
+<h2 mat-dialog-title>
+  <ng-container i18n="@@company_users_admin.scope.title">Job site access</ng-container>
+  <span class="user-name">{{ data.user.displayName || data.user.email }}</span>
+</h2>
+
+<mat-dialog-content>
+  <p class="help" i18n="@@company_users_admin.scope.help">Choose the job sites this user can see and edit in Lineup.</p>
+  <p class="help" i18n="@@company_users_admin.scope.help_all_locations">Users with the all-locations Lineup permission see every site regardless of this list.</p>
+
+  <div *ngIf="loading" class="loading"><mat-spinner diameter="32"></mat-spinner></div>
+
+  <div *ngIf="error" class="error" role="alert">{{ error }}</div>
+
+  <ng-container *ngIf="!loading && !loadFailed">
+    <div class="bulk-actions">
+      <button mat-button type="button" class="select-all" (click)="selectAll()" i18n="@@company_users_admin.scope.select_all">Select all</button>
+      <button mat-button type="button" class="clear" (click)="clear()" i18n="@@company_users_admin.scope.clear">Clear</button>
+    </div>
+
+    <div *ngIf="isEmpty" class="warning none-warning" role="status" i18n="@@company_users_admin.scope.none_warning">No sites selected. This user will see no sites in Lineup unless they have the all-locations permission.</div>
+
+    <mat-list class="location-list">
+      <mat-list-item *ngFor="let location of locations" class="location-item" [class.inactive]="isInactive(location)">
+        <mat-checkbox [checked]="isSelected(location.locationId)" (change)="toggle(location.locationId)">
+          {{ location.name }}
+          <span *ngIf="isInactive(location)" class="inactive-tag" i18n="@@company_users_admin.scope.inactive">(inactive)</span>
+        </mat-checkbox>
+      </mat-list-item>
+    </mat-list>
+  </ng-container>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" class="cancel" (click)="cancel()" i18n="@@common.cancel">Cancel</button>
+  <button mat-raised-button color="primary" type="button" class="save"
+          (click)="save()" [disabled]="loading || saving || loadFailed" i18n="@@company_users_admin.scope.save">Save</button>
+</mat-dialog-actions>

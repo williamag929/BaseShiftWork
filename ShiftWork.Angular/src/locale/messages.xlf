@@ -4583,6 +4583,42 @@ What would you like to do?</source>
       <trans-unit id="locations.default_shift.error_save" datatype="html">
         <source>Could not save the default shift. Check the values and try again.</source>
       </trans-unit>
+      <trans-unit id="company_users_admin.scope.button" datatype="html">
+        <source>Locations</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.title" datatype="html">
+        <source>Job site access</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.help" datatype="html">
+        <source>Choose the job sites this user can see and edit in Lineup.</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.help_all_locations" datatype="html">
+        <source>Users with the all-locations Lineup permission see every site regardless of this list.</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.select_all" datatype="html">
+        <source>Select all</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.clear" datatype="html">
+        <source>Clear</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.none_warning" datatype="html">
+        <source>No sites selected. This user will see no sites in Lineup unless they have the all-locations permission.</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.inactive" datatype="html">
+        <source>(inactive)</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.save" datatype="html">
+        <source>Save</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.saved" datatype="html">
+        <source>Locations saved.</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.error_load" datatype="html">
+        <source>Could not load locations. Close and try again.</source>
+      </trans-unit>
+      <trans-unit id="company_users_admin.scope.error_save" datatype="html">
+        <source>Could not save the locations. Try again.</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>

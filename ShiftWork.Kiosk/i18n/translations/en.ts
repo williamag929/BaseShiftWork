@@ -1371,7 +1371,21 @@ export default {
     "inactive": "Inactive",
     "deactivate_tip": "Deactivate user",
     "activate_tip": "Activate user",
-    "empty": "No users found for this company."
+    "empty": "No users found for this company.",
+    "scope": {
+      "button": "Locations",
+      "title": "Job site access",
+      "help": "Choose the job sites this user can see and edit in Lineup.",
+      "help_all_locations": "Users with the all-locations Lineup permission see every site regardless of this list.",
+      "select_all": "Select all",
+      "clear": "Clear",
+      "none_warning": "No sites selected. This user will see no sites in Lineup unless they have the all-locations permission.",
+      "inactive": "(inactive)",
+      "save": "Save",
+      "saved": "Locations saved.",
+      "error_load": "Could not load locations. Close and try again.",
+      "error_save": "Could not save the locations. Try again."
+    }
   },
   "manage_companies": {
     "title": "Manage Companies",
