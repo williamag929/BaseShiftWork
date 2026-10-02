@@ -1,6 +1,6 @@
 # ShiftWork.Website
 
-Marketing website for the **ShiftWork** platform — workforce scheduling and verified time tracking for construction, hospitality, and field-service teams.
+Marketing website for **Loqzen** (loqzen.com; the code folder keeps its historical ShiftWork name) — workforce scheduling and verified time tracking for construction, hospitality, and field-service teams.
 
 The site is a static, dependency-free HTML/CSS/JS bundle, so it can be hosted anywhere (S3 + CloudFront, GitHub Pages, Netlify, Azure Static Web Apps, or served by the existing API).
 
