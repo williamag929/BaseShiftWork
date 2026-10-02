@@ -4,7 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
 import { useServerLocale } from '@/hooks/useServerLocale';
-import { useClaimsSync } from '@/hooks/usePermission';
+import { useClaimsSync, usePermission } from '@/hooks/usePermission';
+import { lineupTabOptions } from '@/utils/lineup';
 
 /** Apple-style active tab icon — filled variant with tinted dot indicator */
 function TabIcon({
@@ -30,6 +31,7 @@ export default function TabsLayout() {
   const { t } = useTranslation();
   useServerLocale();
   useClaimsSync();
+  const canViewLineup = usePermission('lineup.view');
 
   return (
     <Tabs
@@ -101,6 +103,17 @@ export default function TabsLayout() {
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="calendar-outline" filled="calendar" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="lineup"
+        options={{
+          title: t('tabs.lineup'),
+          headerShown: false,
+          ...lineupTabOptions(canViewLineup),
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="people-outline" filled="people" color={color} size={size} />
           ),
         }}
       />

@@ -1507,7 +1507,28 @@ export default {
     "bulletins": "Boletines",
     "safety": "Seguridad",
     "report": "Reporte",
-    "upgrade": "Actualizar a Pro"
+    "upgrade": "Actualizar a Pro",
+    "lineup": "Alineación"
+  },
+  "lineup": {
+    "title": "Alineación del día",
+    "today": "Hoy",
+    "bench": "Disponibles",
+    "unavailable": "No disponibles",
+    "crews": "Cuadrillas",
+    "people_count": "{{count}} personas",
+    "empty_scope": "No hay obras en tu alcance para este día.",
+    "empty_bench": "No hay nadie disponible.",
+    "read_only": "Solo lectura. No puedes editar la alineación.",
+    "offline": "Sin conexión. Se muestra la última alineación cargada.",
+    "retry": "Reintentar",
+    "discard_title": "¿Descartar cambios?",
+    "discard_body": "Cambiar la fecha descarta tus cambios sin publicar.",
+    "reason": {
+      "time_off": "Tiempo libre",
+      "other_site": "Asignado a otra obra",
+      "already_scheduled": "Ya programado"
+    }
   },
   "kiosk_app": {
     "admin_aria": "Configuración de administrador",

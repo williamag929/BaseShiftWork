@@ -121,3 +121,19 @@ export function buildCommitRequest(date: string, draft: DraftState): LineupCommi
     removals: [...draft.removals],
   };
 }
+
+const pad2 = (n: number) => String(n).padStart(2, '0');
+
+/** Today's calendar date in the device's local time zone, as 'YYYY-MM-DD'. */
+export const localToday = (now: Date = new Date()): string =>
+  `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
+
+/** Pure calendar arithmetic on a 'YYYY-MM-DD' string (no time zone involved). */
+export const shiftDate = (date: string, days: number): string => {
+  const [y, m, d] = date.split('-').map(Number);
+  const u = new Date(Date.UTC(y, m - 1, d + days));
+  return `${u.getUTCFullYear()}-${pad2(u.getUTCMonth() + 1)}-${pad2(u.getUTCDate())}`;
+};
+
+/** Expo Router tab options gating the Lineup tab on the `lineup.view` permission. */
+export const lineupTabOptions = (hasView: boolean): { href?: null } => (hasView ? {} : { href: null });

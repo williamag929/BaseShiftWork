@@ -1507,7 +1507,28 @@ export default {
     "bulletins": "Boletines",
     "safety": "Seguridad",
     "report": "Reporte",
-    "upgrade": "Actualizar a Pro"
+    "upgrade": "Actualizar a Pro",
+    "lineup": "Alineación"
+  },
+  "lineup": {
+    "title": "Alineación del día",
+    "today": "Hoy",
+    "bench": "Disponibles",
+    "unavailable": "No disponibles",
+    "crews": "Cuadrillas",
+    "people_count": "{{count}} personas",
+    "empty_scope": "No hay obras en tu alcance para este día.",
+    "empty_bench": "No hay nadie disponible.",
+    "read_only": "Solo lectura. No puedes editar la alineación.",
+    "offline": "Sin conexión. Se muestra la última alineación cargada.",
+    "retry": "Reintentar",
+    "discard_title": "¿Descartar cambios?",
+    "discard_body": "Cambiar la fecha descarta tus cambios sin publicar.",
+    "reason": {
+      "time_off": "Tiempo libre",
+      "other_site": "Asignado a otra obra",
+      "already_scheduled": "Ya programado"
+    }
   },
   "kiosk_app": {
     "admin_aria": "Configuración de administrador",
@@ -1541,17 +1562,6 @@ export default {
     "submit_clock_in": "Enviar y marcar entrada",
     "submit_clock_out": "Enviar y marcar salida",
     "recording": "Registrando…",
-    "photo_countdown": "Tomando la foto en {{count}}…",
-    "photo_retry": "No se pudo tomar la foto. Toca la cámara para intentar de nuevo.",
-    "undo": "Deshacer",
-    "punch_cancelled": "Marcación cancelada",
-    "commit_error_title": "No se pudo guardar tu marcación",
-    "commit_error_body": "Este kiosco no pudo guardar tu marcación. Avisa a tu supervisor.",
-    "commit_error_ok": "Aceptar",
-    "sync_waiting": "{{count}} pendientes de sincronizar",
-    "sync_failed": "{{count}} no se pudieron enviar. Consulta a tu supervisor.",
-    "sync_over_cap": "Demasiadas marcaciones sin enviar. Conecta este kiosco a internet.",
-    "camera_blocked": "El acceso a la cámara está bloqueado en esta tableta. Pide a un supervisor o administrador que lo permita.",
     "clocked_in": "Entrada registrada",
     "clocked_out": "Salida registrada",
     "employee_fallback": "Empleado",

@@ -1507,7 +1507,28 @@ export default {
     "bulletins": "Bulletins",
     "safety": "Safety",
     "report": "Report",
-    "upgrade": "Upgrade to Pro"
+    "upgrade": "Upgrade to Pro",
+    "lineup": "Lineup"
+  },
+  "lineup": {
+    "title": "Lineup",
+    "today": "Today",
+    "bench": "Bench",
+    "unavailable": "Unavailable",
+    "crews": "Crews",
+    "people_count": "{{count}} people",
+    "empty_scope": "No job sites in your scope for this day.",
+    "empty_bench": "Nobody is available.",
+    "read_only": "View only. You can't edit the lineup.",
+    "offline": "You're offline. Showing the last loaded lineup.",
+    "retry": "Retry",
+    "discard_title": "Discard changes?",
+    "discard_body": "Changing the date discards your unpublished changes.",
+    "reason": {
+      "time_off": "Time off",
+      "other_site": "Assigned to another site",
+      "already_scheduled": "Already scheduled"
+    }
   },
   "kiosk_app": {
     "admin_aria": "Admin settings",
@@ -1541,17 +1562,6 @@ export default {
     "submit_clock_in": "Submit & Clock In",
     "submit_clock_out": "Submit & Clock Out",
     "recording": "Recording…",
-    "photo_countdown": "Taking photo in {{count}}…",
-    "photo_retry": "Could not take the photo. Tap the camera to try again.",
-    "undo": "Undo",
-    "punch_cancelled": "Punch cancelled",
-    "commit_error_title": "Could not save your punch",
-    "commit_error_body": "This kiosk could not save your punch. Tell your supervisor.",
-    "commit_error_ok": "OK",
-    "sync_waiting": "{{count}} waiting to sync",
-    "sync_failed": "{{count}} could not be sent. Check with your supervisor.",
-    "sync_over_cap": "Too many unsent punches. Connect this kiosk to the internet.",
-    "camera_blocked": "Camera access is blocked on this tablet. Please ask a manager or admin to allow it.",
     "clocked_in": "Clocked In",
     "clocked_out": "Clocked Out",
     "employee_fallback": "Employee",

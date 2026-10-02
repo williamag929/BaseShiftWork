@@ -1507,7 +1507,28 @@ export default {
     "bulletins": "Bulletins",
     "safety": "Safety",
     "report": "Report",
-    "upgrade": "Upgrade to Pro"
+    "upgrade": "Upgrade to Pro",
+    "lineup": "Lineup"
+  },
+  "lineup": {
+    "title": "Lineup",
+    "today": "Today",
+    "bench": "Bench",
+    "unavailable": "Unavailable",
+    "crews": "Crews",
+    "people_count": "{{count}} people",
+    "empty_scope": "No job sites in your scope for this day.",
+    "empty_bench": "Nobody is available.",
+    "read_only": "View only. You can't edit the lineup.",
+    "offline": "You're offline. Showing the last loaded lineup.",
+    "retry": "Retry",
+    "discard_title": "Discard changes?",
+    "discard_body": "Changing the date discards your unpublished changes.",
+    "reason": {
+      "time_off": "Time off",
+      "other_site": "Assigned to another site",
+      "already_scheduled": "Already scheduled"
+    }
   },
   "kiosk_app": {
     "admin_aria": "Admin settings",
