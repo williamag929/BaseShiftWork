@@ -1528,7 +1528,9 @@ export default {
       "time_off": "Time off",
       "other_site": "Assigned to another site",
       "already_scheduled": "Already scheduled"
-    }
+    },
+    "prev_day": "Previous day",
+    "next_day": "Next day"
   },
   "kiosk_app": {
     "admin_aria": "Admin settings",
@@ -1611,7 +1613,18 @@ export default {
     "reset_device_sub": "Remove enrollment — re-setup required",
     "back_plain": "Back",
     "select_location": "Select Location",
-    "save_location": "Save Location"
+    "save_location": "Save Location",
+    "photo_countdown": "Taking photo in {{count}}…",
+    "photo_retry": "Could not take the photo. Tap the camera to try again.",
+    "undo": "Undo",
+    "punch_cancelled": "Punch cancelled",
+    "commit_error_title": "Could not save your punch",
+    "commit_error_body": "This kiosk could not save your punch. Tell your supervisor.",
+    "commit_error_ok": "OK",
+    "sync_waiting": "{{count}} waiting to sync",
+    "sync_failed": "{{count}} could not be sent. Check with your supervisor.",
+    "sync_over_cap": "Too many unsent punches. Connect this kiosk to the internet.",
+    "camera_blocked": "Camera access is blocked on this tablet. Please ask a manager or admin to allow it."
   },
   "analytics": {
     "preset_today": "Today",

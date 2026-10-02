@@ -105,19 +105,27 @@ describe('LineupScreen', () => {
     expect(useLineupDraftStore.getState().date).toBe(today);
   });
 
-  it('refetches on focus', () => {
+  it('refetches on focus only once per mount, not on date change', () => {
     const refetch = jest.fn();
     mockUseLineup.mockReturnValue({ ...ok(lineup()), refetch });
     render(<LineupScreen />);
-    expect(refetch).toHaveBeenCalled();
+    expect(refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not refetch again when the date changes', () => {
+    const refetch = jest.fn();
+    mockUseLineup.mockReturnValue({ ...ok(lineup()), refetch });
+    const { getByTestId } = render(<LineupScreen />);
+    fireEvent.press(getByTestId('lineup-next-day'));
+    expect(refetch).toHaveBeenCalledTimes(1);
   });
 
   it('changing the date calls setDate (no confirmation when the draft is clean)', () => {
     mockUseLineup.mockReturnValue(ok(lineup()));
     const alert = jest.spyOn(Alert, 'alert');
-    const { getByLabelText } = render(<LineupScreen />);
+    const { getByTestId } = render(<LineupScreen />);
     const before = useLineupDraftStore.getState().date;
-    fireEvent.press(getByLabelText('next-day'));
+    fireEvent.press(getByTestId('lineup-next-day'));
     expect(alert).not.toHaveBeenCalled();
     expect(useLineupDraftStore.getState().date).not.toBe(before);
   });
@@ -127,8 +135,8 @@ describe('DateStrip', () => {
   it('asks for confirmation before changing the date when confirmDiscard is true', () => {
     const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
     const onChange = jest.fn();
-    const { getByLabelText } = render(<DateStrip date="2026-10-02" onChange={onChange} confirmDiscard />);
-    fireEvent.press(getByLabelText('next-day'));
+    const { getByTestId } = render(<DateStrip date="2026-10-02" onChange={onChange} confirmDiscard />);
+    fireEvent.press(getByTestId('lineup-next-day'));
     expect(alert).toHaveBeenCalledTimes(1);
     expect(alert.mock.calls[0][0]).toBe('lineup.discard_title');
     expect(alert.mock.calls[0][1]).toBe('lineup.discard_body');
@@ -141,11 +149,18 @@ describe('DateStrip', () => {
   it('calls onChange directly when confirmDiscard is false', () => {
     const alert = jest.spyOn(Alert, 'alert');
     const onChange = jest.fn();
-    const { getByLabelText } = render(<DateStrip date="2026-10-31" onChange={onChange} confirmDiscard={false} />);
-    fireEvent.press(getByLabelText('next-day'));
+    const { getByTestId } = render(<DateStrip date="2026-10-31" onChange={onChange} confirmDiscard={false} />);
+    fireEvent.press(getByTestId('lineup-next-day'));
     expect(alert).not.toHaveBeenCalled();
     expect(onChange).toHaveBeenCalledWith('2026-11-01');
-    fireEvent.press(getByLabelText('prev-day'));
+    fireEvent.press(getByTestId('lineup-prev-day'));
     expect(onChange).toHaveBeenCalledWith('2026-10-30');
+  });
+});
+
+describe('LineupScreen disabled query', () => {
+  it('shows a neutral empty state, not a skeleton, when there is no data and no loading/error', () => {
+    mockUseLineup.mockReturnValue({ data: undefined, isLoading: false, isError: false, error: null, refetch: jest.fn() });
+    expect(render(<LineupScreen />).getByText('lineup.empty_scope')).toBeTruthy();
   });
 });

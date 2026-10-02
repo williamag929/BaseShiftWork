@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -30,12 +30,16 @@ export default function LineupScreen() {
   const removals = useLineupDraftStore((s) => s.removals);
   const feedback = useLineupDraftStore((s) => s.feedback);
 
-  // Keep the draft store's date in step with the screen (also resets the draft on change).
+  // Keep the draft store's date in step with the screen.
+  useEffect(() => {
+    setDraftDate(date);
+  }, [date, setDraftDate]);
+
+  // Refetch on focus only; a date change already fetches through the query key.
   useFocusEffect(
     useCallback(() => {
-      setDraftDate(date);
       refetch();
-    }, [date, setDraftDate, refetch]),
+    }, [refetch]),
   );
 
   const view = useMemo(
@@ -64,6 +68,9 @@ export default function LineupScreen() {
         }
       />
     );
+  } else if (!isLoading && (!data || !view)) {
+    // Query disabled (no company) or no data: neutral state instead of an endless skeleton.
+    body = <EmptyState title={t('lineup.title')} message={t('lineup.empty_scope')} icon="people-outline" />;
   } else if (isLoading || !data || !view) {
     body = (
       <View>
@@ -106,8 +113,8 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   title: { fontSize: 28, fontWeight: '700', color: colors.text, letterSpacing: -0.5 },
   gap: { marginBottom: spacing.md },
-  banner: { backgroundColor: 'rgba(255,149,0,0.14)', borderRadius: radius.lg, padding: spacing.md, marginBottom: spacing.md },
-  bannerText: { fontSize: 14, color: '#B25000' },
+  banner: { backgroundColor: colors.warningLight, borderRadius: radius.lg, padding: spacing.md, marginBottom: spacing.md },
+  bannerText: { fontSize: 14, color: colors.warning },
   retry: { paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: radius.lg, backgroundColor: colors.primary },
-  retryText: { color: '#fff', fontWeight: '600', fontSize: 15 },
+  retryText: { color: colors.onPrimary, fontWeight: '600', fontSize: 15 },
 });

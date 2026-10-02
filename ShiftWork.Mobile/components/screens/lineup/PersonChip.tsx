@@ -15,7 +15,7 @@ export function PersonChip({ name, detail, muted }: Props) {
 const styles = StyleSheet.create({
   chip: {
     paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.lg,
-    backgroundColor: 'rgba(120,120,128,0.12)', marginRight: spacing.sm, marginBottom: spacing.sm,
+    backgroundColor: colors.fill, marginRight: spacing.sm, marginBottom: spacing.sm,
   },
   muted: { opacity: 0.6 },
   name: { fontSize: 15, fontWeight: '500', color: colors.text },

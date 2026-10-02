@@ -1528,7 +1528,9 @@ export default {
       "time_off": "Tiempo libre",
       "other_site": "Asignado a otra obra",
       "already_scheduled": "Ya programado"
-    }
+    },
+    "prev_day": "Día anterior",
+    "next_day": "Día siguiente"
   },
   "kiosk_app": {
     "admin_aria": "Configuración de administrador",
@@ -1611,7 +1613,18 @@ export default {
     "reset_device_sub": "Eliminar inscripción — requiere configurar de nuevo",
     "back_plain": "Atrás",
     "select_location": "Seleccionar ubicación",
-    "save_location": "Guardar ubicación"
+    "save_location": "Guardar ubicación",
+    "photo_countdown": "Tomando la foto en {{count}}…",
+    "photo_retry": "No se pudo tomar la foto. Toca la cámara para intentar de nuevo.",
+    "undo": "Deshacer",
+    "punch_cancelled": "Marcación cancelada",
+    "commit_error_title": "No se pudo guardar tu marcación",
+    "commit_error_body": "Este kiosco no pudo guardar tu marcación. Avisa a tu supervisor.",
+    "commit_error_ok": "Aceptar",
+    "sync_waiting": "{{count}} pendientes de sincronizar",
+    "sync_failed": "{{count}} no se pudieron enviar. Consulta a tu supervisor.",
+    "sync_over_cap": "Demasiadas marcaciones sin enviar. Conecta este kiosco a internet.",
+    "camera_blocked": "El acceso a la cámara está bloqueado en esta tableta. Pide a un supervisor o administrador que lo permita."
   },
   "analytics": {
     "preset_today": "Hoy",
