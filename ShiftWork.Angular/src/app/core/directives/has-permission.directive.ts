@@ -19,6 +19,7 @@ export class HasPermissionDirective implements OnInit, OnDestroy {
   }
 
   private permissions: string[] = [];
+  private hasView = false;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -39,11 +40,13 @@ export class HasPermissionDirective implements OnInit, OnDestroy {
   }
 
   private updateView(): void {
-    // Clear first: updateView runs from the input setter and again on each emission,
-    // which would otherwise stack duplicate views.
-    this.viewContainer.clear();
-    if (this.permissionService.hasAllPermissions(this.permissions)) {
+    const allowed = this.permissionService.hasAllPermissions(this.permissions);
+    if (allowed && !this.hasView) {
       this.viewContainer.createEmbeddedView(this.templateRef);
+      this.hasView = true;
+    } else if (!allowed && this.hasView) {
+      this.viewContainer.clear();
+      this.hasView = false;
     }
   }
 }

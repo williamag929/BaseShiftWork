@@ -25,10 +25,6 @@ export class UserLocationScopeDialogComponent implements OnInit {
   loadFailed = false;
   error: string | null = null;
 
-  // Saved scope ids that are not in the loaded locations list. The user cannot see
-  // or toggle them, so they are carried through a save unless the user clicks Clear.
-  private hiddenIds = new Set<number>();
-
   constructor(
     private dialogRef: MatDialogRef<UserLocationScopeDialogComponent, number[] | undefined>,
     @Inject(MAT_DIALOG_DATA) public data: UserLocationScopeDialogData,
@@ -43,10 +39,9 @@ export class UserLocationScopeDialogComponent implements OnInit {
     }).subscribe({
       next: ({ locations, scope }) => {
         this.locations = this.sortLocations(locations || []);
+        // Scope ids with no matching location are orphans (the server rejects them), so drop them.
         const known = new Set(this.locations.map(l => Number(l.locationId)));
-        const ids = (scope || []).map(Number);
-        this.selected = new Set(ids.filter(id => known.has(id)));
-        this.hiddenIds = new Set(ids.filter(id => !known.has(id)));
+        this.selected = new Set((scope || []).map(Number).filter(id => known.has(id)));
         this.loading = false;
       },
       error: () => {
@@ -66,7 +61,7 @@ export class UserLocationScopeDialogComponent implements OnInit {
   }
 
   get isEmpty(): boolean {
-    return this.selected.size === 0 && this.hiddenIds.size === 0;
+    return this.selected.size === 0;
   }
 
   toggle(id: number): void {
@@ -84,14 +79,13 @@ export class UserLocationScopeDialogComponent implements OnInit {
 
   clear(): void {
     this.selected.clear();
-    this.hiddenIds.clear();
   }
 
   save(): void {
     if (this.saving || this.loading || this.loadFailed) return;
     this.saving = true;
     this.error = null;
-    const ids = Array.from(new Set([...this.selected, ...this.hiddenIds])).sort((a, b) => a - b);
+    const ids = Array.from(this.selected).sort((a, b) => a - b);
     this.companyUsersService.setLocationScopes(this.data.companyId, this.data.user.uid, ids).subscribe({
       next: (saved) => {
         this.saving = false;

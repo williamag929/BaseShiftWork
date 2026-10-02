@@ -129,18 +129,17 @@ describe('UserLocationScopeDialogComponent', () => {
     expect(component.selected.size).toBe(0);
   });
 
-  it('preserves scoped ids that are not in the locations list, unless cleared', () => {
+  it('drops scoped ids that are not in the locations list from the PUT body (self-healing)', () => {
     create([1, 99]);
     expect(component.selected.has(99)).toBeFalse();
-    usersSvc.setLocationScopes.and.returnValue(of([1, 99]));
+    usersSvc.setLocationScopes.and.returnValue(of([1]));
     component.save();
-    expect(usersSvc.setLocationScopes).toHaveBeenCalledWith('co-1', 'u-1', [1, 99]);
+    expect(usersSvc.setLocationScopes).toHaveBeenCalledWith('co-1', 'u-1', [1]);
+  });
 
-    create([1, 99]);
-    usersSvc.setLocationScopes.calls.reset();
-    component.clear();
-    component.save();
-    expect(usersSvc.setLocationScopes).toHaveBeenCalledWith('co-1', 'u-1', []);
+  it('shows the empty warning when only a stale id was scoped', () => {
+    create([99]);
+    expect(component.isEmpty).toBeTrue();
   });
 
   it('cancel closes with undefined', () => {
