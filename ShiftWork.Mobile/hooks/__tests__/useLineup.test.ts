@@ -102,6 +102,42 @@ describe('useLineupCommit', () => {
     await waitFor(() => expect(result.current.isPending).toBe(false));
   });
 
+  it('rejects a commit for another date while one is in flight', async () => {
+    seed();
+    let resolve!: (v: unknown) => void;
+    mockCommit.mockReturnValue(new Promise((r) => { resolve = r; }));
+    const { wrapper } = setup();
+    const { result } = renderHook(() => useLineupCommit(), { wrapper });
+    let p1!: Promise<unknown>;
+    await act(async () => { p1 = result.current.commit(); });
+    act(() => {
+      const s = useLineupDraftStore.getState();
+      s.setDate('2026-10-02');
+      s.assign(8, 3, shift);
+    });
+    await act(async () => {
+      await expect(result.current.commit()).rejects.toThrow('A lineup commit for another date is still in progress');
+    });
+    expect(mockCommit).toHaveBeenCalledTimes(1);
+    await act(async () => { resolve({ results: [] }); await p1; });
+  });
+
+  it('rejects a commit for another company while one is in flight', async () => {
+    seed();
+    let resolve!: (v: unknown) => void;
+    mockCommit.mockReturnValue(new Promise((r) => { resolve = r; }));
+    const { wrapper } = setup();
+    const { result } = renderHook(() => useLineupCommit(), { wrapper });
+    let p1!: Promise<unknown>;
+    await act(async () => { p1 = result.current.commit(); });
+    act(() => { useAuthStore.setState({ companyId: 'co-2' }); });
+    await act(async () => {
+      await expect(result.current.commit()).rejects.toThrow('A lineup commit for another date is still in progress');
+    });
+    expect(mockCommit).toHaveBeenCalledTimes(1);
+    await act(async () => { resolve({ results: [] }); await p1; });
+  });
+
   it('populates results after success and reset clears them', async () => {
     seed();
     const r = { status: 'rejected', personId: 7, locationId: 3, errors: ['x'], warnings: [] };

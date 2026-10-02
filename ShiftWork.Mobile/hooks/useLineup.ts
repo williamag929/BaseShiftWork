@@ -25,8 +25,9 @@ export function useLineup(date: string) {
   });
 }
 
-// One commit at a time app-wide; survives hook remounts.
-let inFlight: Promise<LineupCommitResponse> | null = null;
+// One commit at a time app-wide; survives hook remounts. A never-settling request
+// relies on the axios timeout (30s) to clear the guard.
+let inFlight: { date: string | null; companyId: string | null; promise: Promise<LineupCommitResponse> } | null = null;
 export const resetLineupCommitGuard = () => {
   inFlight = null;
 };
@@ -59,14 +60,19 @@ export function useLineupCommit() {
 
   const { mutateAsync } = mutation;
   const commit = useCallback((): Promise<LineupCommitResponse> => {
-    if (inFlight) return inFlight;
-    const p = mutateAsync()
+    const date = useLineupDraftStore.getState().date;
+    const currentCompany = useAuthStore.getState().companyId;
+    if (inFlight) {
+      if (inFlight.date === date && inFlight.companyId === currentCompany) return inFlight.promise;
+      return Promise.reject(new Error('A lineup commit for another date is still in progress'));
+    }
+    const promise = mutateAsync()
       .then((o) => o.response)
       .finally(() => {
-        if (inFlight === p) inFlight = null;
+        if (inFlight?.promise === promise) inFlight = null;
       });
-    inFlight = p;
-    return p;
+    inFlight = { date, companyId: currentCompany, promise };
+    return promise;
   }, [mutateAsync]);
 
   const results: LineupCommitResult[] | null = mutation.data?.response.results ?? null;
