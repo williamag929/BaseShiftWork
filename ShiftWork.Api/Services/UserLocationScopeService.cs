@@ -59,7 +59,7 @@ namespace ShiftWork.Api.Services
             var keep = new HashSet<int>();
             foreach (var row in existing)
             {
-                // Drops rows that are no longer wanted and any duplicate rows left by earlier writers.
+                // Drops rows that are no longer wanted; the duplicate guard is defensive (the unique index does not exist on InMemory).
                 if (!wanted.Contains(row.LocationId) || !keep.Add(row.LocationId))
                     _context.UserLocationScopes.Remove(row);
             }
