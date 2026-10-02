@@ -1,5 +1,5 @@
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { CompanyUser } from '../models/company-user.model';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
@@ -66,6 +66,22 @@ export class CompanyUsersService {
     ).pipe(
       catchError(this.handleError)
     );
+  }
+
+  getLocationScopes(companyId: string, uid: string): Observable<number[]> {
+    return this.http.get<{ locationIds: number[] }>(`${this.apiUrl}/companies/${companyId}/users/${uid}/location-scopes`)
+      .pipe(
+        map(response => response.locationIds),
+        catchError(this.handleError)
+      );
+  }
+
+  setLocationScopes(companyId: string, uid: string, locationIds: number[]): Observable<number[]> {
+    return this.http.put<{ locationIds: number[] }>(`${this.apiUrl}/companies/${companyId}/users/${uid}/location-scopes`, { locationIds }, this.getHttpOptions())
+      .pipe(
+        map(response => response.locationIds),
+        catchError(this.handleError)
+      );
   }
 
   private handleError(error: HttpErrorResponse) {

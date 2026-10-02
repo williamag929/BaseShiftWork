@@ -1,5 +1,11 @@
 import { GeoCoordinate } from "./geo-coordinate.model";
 
+export interface DefaultShift {
+    start: string;
+    end: string;
+    areaId: number | null;
+}
+
 export interface Location {
     locationId: number;
     name: string;
@@ -23,4 +29,5 @@ export interface Location {
     status: string;
     requirePin?: boolean;
     requirePhoto?: boolean;
+    defaultShift?: DefaultShift | null;
  }

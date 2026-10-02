@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Location } from '../models/location.model';
+import { DefaultShift, Location } from '../models/location.model';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -52,6 +52,20 @@ export class LocationService {
 
   deleteLocation(companyId: string, id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/companies/${companyId}/locations/${id}`, this.getHttpOptions())
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  setDefaultShift(companyId: string, locationId: number, shift: DefaultShift): Observable<DefaultShift> {
+    return this.http.put<DefaultShift>(`${this.apiUrl}/companies/${companyId}/locations/${locationId}/default-shift`, shift, this.getHttpOptions())
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  clearDefaultShift(companyId: string, locationId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/companies/${companyId}/locations/${locationId}/default-shift`, this.getHttpOptions())
       .pipe(
         catchError(this.handleError)
       );
