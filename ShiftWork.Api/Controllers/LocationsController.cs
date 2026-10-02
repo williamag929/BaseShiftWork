@@ -246,6 +246,69 @@ namespace ShiftWork.Api.Controllers
         }
 
         /// <summary>
+        /// Sets the location's default shift (used to pre-fill the daily line-up).
+        /// </summary>
+        [HttpPut("{locationId}/default-shift")]
+        [Authorize(Policy = "locations.update")]
+        [ProducesResponseType(typeof(DefaultShiftDto), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> PutDefaultShift(string companyId, int locationId, [FromBody] DefaultShiftDto input)
+        {
+            try
+            {
+                var stored = await _locationService.SetDefaultShiftAsync(companyId, locationId, input);
+                if (stored == null)
+                {
+                    return NotFound($"Location with ID {locationId} not found.");
+                }
+
+                _memoryCache.Remove($"locations_{companyId}");
+                _memoryCache.Remove($"location_{companyId}_{locationId}");
+                return Ok(stored);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error setting default shift for location {LocationId} in company {CompanyId}.", locationId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
+        /// Clears the location's default shift.
+        /// </summary>
+        [HttpDelete("{locationId}/default-shift")]
+        [Authorize(Policy = "locations.update")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> DeleteDefaultShift(string companyId, int locationId)
+        {
+            try
+            {
+                var cleared = await _locationService.ClearDefaultShiftAsync(companyId, locationId);
+                if (!cleared)
+                {
+                    return NotFound($"Location with ID {locationId} not found.");
+                }
+
+                _memoryCache.Remove($"locations_{companyId}");
+                _memoryCache.Remove($"location_{companyId}_{locationId}");
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error clearing default shift for location {LocationId} in company {CompanyId}.", locationId, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        /// <summary>
         /// Deletes a location by its ID.
         /// </summary>
         [HttpDelete("{locationId}")]

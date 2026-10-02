@@ -24,5 +24,7 @@ namespace ShiftWork.Api.DTOs
         public string Status { get; set; }
         public bool RequirePin { get; set; } = true;
         public bool RequirePhoto { get; set; } = true;
+        /// <summary>Read-only: derived from Settings. Ignored on write; use PUT/DELETE .../default-shift.</summary>
+        public DefaultShiftDto? DefaultShift { get; set; }
     }
 }

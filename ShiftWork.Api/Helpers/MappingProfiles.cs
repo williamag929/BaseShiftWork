@@ -1,7 +1,9 @@
 using AutoMapper;
 using ShiftWork.Api.DTOs;
 using ShiftWork.Api.Models;
+using ShiftWork.Api.Services;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 
@@ -29,8 +31,10 @@ namespace ShiftWork.Api.Helpers
                 .ForMember(dest => dest.GeoCoordinates, opt => opt.MapFrom(src =>
                     !string.IsNullOrEmpty(src.GeoCoordinates)
                         ? JsonSerializer.Deserialize<GeoCoordinatesDto>(src.GeoCoordinates, (JsonSerializerOptions)null)
-                        : null));
+                        : null))
+                .ForMember(dest => dest.DefaultShift, opt => opt.MapFrom(src => MapDefaultShift(src.Settings)));
              CreateMap<LocationDto, Location>()
+                .ForMember(dest => dest.Settings, opt => opt.Ignore())
                 .ForMember(dest => dest.GeoCoordinates, opt => opt.MapFrom(src =>
                     src.GeoCoordinates != null ? JsonSerializer.Serialize(src.GeoCoordinates, (JsonSerializerOptions)null) : null));
             CreateMap<Person, PersonDto>();
@@ -59,6 +63,17 @@ namespace ShiftWork.Api.Helpers
             CreateMap<CompanySettingsDto, CompanySettings>();
             CreateMap<CompanyUserProfile, CompanyUserProfileDto>();
             CreateMap<CompanyUserProfileDto, CompanyUserProfile>();
+        }
+
+        private static DefaultShiftDto? MapDefaultShift(string? settings)
+        {
+            var d = LocationDefaultShift.TryParse(settings);
+            return d == null
+                ? null
+                : new DefaultShiftDto(
+                    d.Start.ToString("HH:mm", CultureInfo.InvariantCulture),
+                    d.End.ToString("HH:mm", CultureInfo.InvariantCulture),
+                    d.AreaId);
         }
     }
 }
