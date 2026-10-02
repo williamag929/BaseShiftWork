@@ -65,6 +65,7 @@ export default function LineupScreen() {
   const names = useMemo(() => {
     const m: Record<number, string> = {};
     data?.bench.forEach((p) => { m[p.personId] = p.name; });
+    data?.unavailable.forEach((p) => { m[p.personId] = p.name; });
     data?.locations.forEach((l) => l.shifts.forEach((s) => { m[s.personId] = s.name; }));
     return m;
   }, [data]);

@@ -54,7 +54,7 @@ export function LocationCard({
             key={`d${d.personId}`}
             testID={`drafted-chip-${d.personId}`}
             variant="drafted"
-            name={names[d.personId] ?? ''}
+            name={names[d.personId] || t('lineup.unknown_person')}
             detail={`${wallTime(d.start)}–${wallTime(d.end)}`}
             onPress={editable ? () => onUnassign?.(d.personId) : undefined}
           />
@@ -91,8 +91,8 @@ export function LocationCard({
 }
 
 const styles = StyleSheet.create({
-  card: { marginBottom: spacing.md, borderWidth: 2, borderColor: 'transparent' },
-  active: { borderColor: colors.primary },
+  card: { marginBottom: spacing.md },
+  active: { borderWidth: 2, borderColor: colors.primary },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm, minHeight: touchTarget.min },
   name: { fontSize: 17, fontWeight: '600', color: colors.text, flexShrink: 1 },
   count: { fontSize: 13, color: colors.muted },

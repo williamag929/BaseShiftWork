@@ -1535,6 +1535,7 @@ export default {
     "crew_added": "{{added}} of {{total}} added, {{busy}} busy",
     "no_default_shift_all": "This site has no default shift. Set one in the admin app.",
     "no_default_shift_foreman": "This site has no default shift. Ask an admin to set one.",
+    "unknown_person": "Unknown person",
     "pick_site_first": "Pick a job site first."
   },
   "kiosk_app": {

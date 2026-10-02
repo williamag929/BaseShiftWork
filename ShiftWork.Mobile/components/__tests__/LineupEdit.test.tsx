@@ -58,7 +58,7 @@ beforeEach(() => {
 
 describe('Lineup editing', () => {
   it('tapping a bench person assigns them to the active (first) site', () => {
-    const { getByText, queryByTestId, getByTestId } = render(ui());
+    const { queryByTestId, getByTestId } = render(ui());
     fireEvent.press(getByTestId('bench-chip-41'));
     expect(store().assignments).toEqual([expect.objectContaining({ personId: 41, locationId: 7, start: '07:00', end: '15:00' })]);
     expect(queryByTestId('bench-chip-41')).toBeNull();
@@ -113,10 +113,9 @@ describe('Lineup editing', () => {
     const d = lineup();
     d.locations[0].defaultShift = null;
     mockUseLineup.mockReturnValue(ok(d));
-    const { getByTestId, getByText } = render(ui());
+    const { getByTestId } = render(ui());
     fireEvent.press(getByTestId('bench-chip-41'));
     expect(store().assignments).toEqual([]);
-    expect(toasts().some((m) => m.length > 0)).toBe(true);
     expect(toasts()[0]).toBe(
       key === 'lineup.no_default_shift_all'
         ? 'This site has no default shift. Set one in the admin app.'
@@ -167,5 +166,26 @@ describe('Lineup editing', () => {
     rerender(ui());
     fireEvent.press(getByTestId('bench-chip-41'));
     expect(store().assignments[0].locationId).toBe(7);
+  });
+
+  it('keeps the drafted person labelled when a refetch moves them to unavailable', () => {
+    const { getByTestId, rerender } = render(ui());
+    fireEvent.press(getByTestId('bench-chip-41'));
+    const d = lineup();
+    d.bench = d.bench.filter((p) => p.personId !== 41);
+    d.unavailable = [{ personId: 41, name: 'Luis Vega', reason: 'Time off' }];
+    mockUseLineup.mockReturnValue(ok(d));
+    rerender(ui());
+    expect(within(getByTestId('drafted-chip-41')).getByText('Luis Vega')).toBeTruthy();
+  });
+
+  it('shows a placeholder when the drafted person is no longer anywhere in the data', () => {
+    const { getByTestId, rerender } = render(ui());
+    fireEvent.press(getByTestId('bench-chip-41'));
+    const d = lineup();
+    d.bench = d.bench.filter((p) => p.personId !== 41);
+    mockUseLineup.mockReturnValue(ok(d));
+    rerender(ui());
+    expect(within(getByTestId('drafted-chip-41')).getByText('Unknown person')).toBeTruthy();
   });
 });

@@ -1535,6 +1535,7 @@ export default {
     "crew_added": "{{added}} de {{total}} agregados, {{busy}} ocupados",
     "no_default_shift_all": "Esta obra no tiene turno predeterminado. Configúralo en la app de administración.",
     "no_default_shift_foreman": "Esta obra no tiene turno predeterminado. Pide a un administrador que lo configure.",
+    "unknown_person": "Persona desconocida",
     "pick_site_first": "Elige una obra primero."
   },
   "kiosk_app": {
