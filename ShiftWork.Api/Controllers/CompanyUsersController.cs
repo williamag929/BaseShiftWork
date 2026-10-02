@@ -22,9 +22,11 @@ namespace ShiftWork.Api.Controllers
         private readonly ICompanyUserProfileService _companyUserProfileService;
         private readonly ILogger<CompanyUsersController> _logger;
         private readonly IMapper _mapper;
+        private readonly IUserLocationScopeService _locationScopeService;
 
-        public CompanyUsersController(ICompanyUserService companyUserService, IUserRoleService userRoleService, ICompanyUserProfileService companyUserProfileService, ILogger<CompanyUsersController> logger, IMapper mapper)
+        public CompanyUsersController(ICompanyUserService companyUserService, IUserRoleService userRoleService, ICompanyUserProfileService companyUserProfileService, ILogger<CompanyUsersController> logger, IMapper mapper, IUserLocationScopeService locationScopeService)
         {
+            _locationScopeService = locationScopeService ?? throw new ArgumentNullException(nameof(locationScopeService));
             _companyUserService = companyUserService ?? throw new ArgumentNullException(nameof(companyUserService));
             _userRoleService = userRoleService ?? throw new ArgumentNullException(nameof(userRoleService));
             _companyUserProfileService = companyUserProfileService ?? throw new ArgumentNullException(nameof(companyUserProfileService));
@@ -268,6 +270,59 @@ namespace ShiftWork.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating roles for user {Uid} in company {CompanyId}.", uid, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        [HttpGet("{uid}/location-scopes")]
+        [Authorize(Policy = "company-users.read")]
+        [ProducesResponseType(typeof(UserLocationScopeDto), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<UserLocationScopeDto>> GetLocationScopes(string companyId, string uid)
+        {
+            try
+            {
+                var ids = await _locationScopeService.GetAsync(companyId, uid);
+                if (ids == null)
+                {
+                    return NotFound($"User with UID {uid} not found.");
+                }
+
+                return Ok(new UserLocationScopeDto(ids));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving location scopes for user {Uid} in company {CompanyId}.", uid, companyId);
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        [HttpPut("{uid}/location-scopes")]
+        [Authorize(Policy = "company-users.roles.update")]
+        [ProducesResponseType(typeof(UserLocationScopeDto), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<UserLocationScopeDto>> PutLocationScopes(string companyId, string uid, [FromBody] UserLocationScopeDto dto)
+        {
+            try
+            {
+                var ids = await _locationScopeService.ReplaceAsync(companyId, uid, dto?.LocationIds ?? new List<int>());
+                if (ids == null)
+                {
+                    return NotFound($"User with UID {uid} not found.");
+                }
+
+                return Ok(new UserLocationScopeDto(ids));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating location scopes for user {Uid} in company {CompanyId}.", uid, companyId);
                 return StatusCode(500, "An internal server error occurred.");
             }
         }

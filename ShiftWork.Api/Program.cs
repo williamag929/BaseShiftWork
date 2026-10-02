@@ -148,6 +148,7 @@ builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 builder.Services.AddScoped<ILineupAccessService, LineupAccessService>();
 builder.Services.AddScoped<ILineupQueryService, LineupQueryService>();
 builder.Services.AddScoped<ILineupCommitService, LineupCommitService>();
+builder.Services.AddScoped<IUserLocationScopeService, UserLocationScopeService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<IAuditHistoryService, AuditHistoryService>();
 builder.Services.AddSingleton<NotificationLocalizer>();
