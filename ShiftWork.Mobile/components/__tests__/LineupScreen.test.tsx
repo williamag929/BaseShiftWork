@@ -10,7 +10,11 @@ jest.mock('expo-router', () => {
     },
   };
 });
-jest.mock('@/hooks/useLineup', () => ({ useLineup: jest.fn() }));
+jest.mock('@/hooks/useLineup', () => ({
+  useLineup: jest.fn(),
+  useLineupCommit: () => ({ commit: jest.fn(), isPending: false, results: null, reset: jest.fn() }),
+}));
+jest.mock('@/hooks/useNetworkStatus', () => ({ useIsOffline: () => false }));
 
 import React from 'react';
 import { Alert } from 'react-native';

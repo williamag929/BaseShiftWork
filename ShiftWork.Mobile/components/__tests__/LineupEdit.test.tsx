@@ -6,7 +6,11 @@ jest.mock('expo-router', () => {
   const React = require('react');
   return { useFocusEffect: (cb: () => void) => { React.useEffect(() => cb(), []); } }; // eslint-disable-line
 });
-jest.mock('@/hooks/useLineup', () => ({ useLineup: jest.fn() }));
+jest.mock('@/hooks/useLineup', () => ({
+  useLineup: jest.fn(),
+  useLineupCommit: () => ({ commit: jest.fn(), isPending: false, results: null, reset: jest.fn() }),
+}));
+jest.mock('@/hooks/useNetworkStatus', () => ({ useIsOffline: () => false }));
 jest.mock('@/hooks/usePermission', () => ({ usePermission: jest.fn() }));
 
 import React from 'react';

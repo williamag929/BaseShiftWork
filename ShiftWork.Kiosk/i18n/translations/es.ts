@@ -1536,7 +1536,17 @@ export default {
     "no_default_shift_all": "Esta obra no tiene turno predeterminado. Configúralo en la app de administración.",
     "no_default_shift_foreman": "Esta obra no tiene turno predeterminado. Pide a un administrador que lo configure.",
     "unknown_person": "Persona desconocida",
-    "pick_site_first": "Elige una obra primero."
+    "pick_site_first": "Elige una obra primero.",
+    "publish": "Publicar {{count}} cambios",
+    "results_title": "Resultados de la publicación",
+    "created": "{{count}} agregados",
+    "removed": "{{count}} quitados",
+    "unchanged": "{{count}} sin cambios",
+    "rejected": "Rechazados",
+    "needs_confirmation": "Requiere confirmación",
+    "confirm": "Confirmar",
+    "commit_failed": "No se pudo publicar la alineación. Tus cambios se conservan. Inténtalo de nuevo.",
+    "unknown_shift": "Turno #{{id}}"
   },
   "kiosk_app": {
     "admin_aria": "Configuración de administrador",

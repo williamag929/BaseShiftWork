@@ -7,8 +7,11 @@ import { PressableScale } from '@/components/ui/PressableScale';
 import { DateStrip } from '@/components/screens/lineup/DateStrip';
 import { LocationCard } from '@/components/screens/lineup/LocationCard';
 import { Bench } from '@/components/screens/lineup/Bench';
+import { CommitBar } from '@/components/screens/lineup/CommitBar';
+import { ResultsSheet } from '@/components/screens/lineup/ResultsSheet';
 import { UnavailableList } from '@/components/screens/lineup/UnavailableList';
-import { useLineup } from '@/hooks/useLineup';
+import { useLineup, useLineupCommit } from '@/hooks/useLineup';
+import { useIsOffline } from '@/hooks/useNetworkStatus';
 import { usePermission } from '@/hooks/usePermission';
 import { useToast } from '@/hooks/useToast';
 import { useLineupDraftStore } from '@/store/lineupDraftStore';
@@ -32,7 +35,10 @@ export default function LineupScreen() {
   const assignments = useLineupDraftStore((s) => s.assignments);
   const removals = useLineupDraftStore((s) => s.removals);
   const feedback = useLineupDraftStore((s) => s.feedback);
-  const { assign, assignMany, unassign, removeShift, undoRemoval } = useLineupDraftStore.getState();
+  const { assign, assignMany, unassign, removeShift, undoRemoval, acceptWarnings } = useLineupDraftStore.getState();
+  const { commit, isPending, results, reset } = useLineupCommit();
+  const offline = useIsOffline();
+  const [sheetOpen, setSheetOpen] = useState(false);
   const toast = useToast();
   const hasEditPerm = usePermission('lineup.edit');
   const hasAllLocations = usePermission('lineup.all-locations');
@@ -55,7 +61,9 @@ export default function LineupScreen() {
     [data, assignments, removals, feedback],
   );
 
-  const editable = !!data?.canEdit && hasEditPerm;
+  const canEditNow = !!data?.canEdit && hasEditPerm;
+  // Every draft edit is locked while a commit is in flight so the request cannot diverge from the draft.
+  const editable = canEditNow && !isPending;
   const firstId = view?.locations[0]?.locationId ?? null;
   // Fall back to the first site when the active one disappears (e.g. after a refetch).
   const effectiveId =
@@ -69,6 +77,30 @@ export default function LineupScreen() {
     data?.locations.forEach((l) => l.shifts.forEach((s) => { m[s.personId] = s.name; }));
     return m;
   }, [data]);
+  const nameFor = (personId: number): string => names[personId] || t('lineup.unknown_person');
+  const shiftNameFor = (shiftId: number): string => {
+    for (const l of data?.locations ?? []) {
+      const s = l.shifts.find((x) => x.shiftId === shiftId);
+      if (s?.name) return s.name;
+    }
+    return '';
+  };
+
+  const runCommit = async () => {
+    if (offline || isPending) return;
+    try {
+      await commit();
+      setSheetOpen(true);
+    } catch {
+      // Network/server failure: the draft is untouched so the user can retry.
+      toast.error(t('lineup.commit_failed'));
+    }
+  };
+
+  const onConfirm = (personIds: number[]) => {
+    acceptWarnings(personIds);
+    runCommit();
+  };
 
   const noDefaultShift = () =>
     toast.warning(t(hasAllLocations ? 'lineup.no_default_shift_all' : 'lineup.no_default_shift_foreman'));
@@ -101,6 +133,9 @@ export default function LineupScreen() {
   };
 
   const changeDate = (next: string) => {
+    if (isPending) return;
+    reset();
+    setSheetOpen(false);
     setDraftDate(next);
     setDate(next);
   };
@@ -165,19 +200,40 @@ export default function LineupScreen() {
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={{ paddingTop: insets.top + spacing.md, paddingHorizontal: spacing.lg, paddingBottom: spacing.xxxl }}
-    >
-      <Text style={styles.title}>{t('lineup.title')}</Text>
-      <DateStrip date={date} onChange={changeDate} confirmDiscard={(view?.changeCount ?? 0) > 0} />
-      {body}
-    </ScrollView>
+    <View style={styles.screen}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={{ paddingTop: insets.top + spacing.md, paddingHorizontal: spacing.lg, paddingBottom: spacing.xxxl }}
+      >
+        <Text style={styles.title}>{t('lineup.title')}</Text>
+        {offline && (
+          <View style={styles.banner}>
+            <Text style={styles.bannerText}>{t('lineup.offline')}</Text>
+          </View>
+        )}
+        <DateStrip date={date} onChange={changeDate} confirmDiscard={(view?.changeCount ?? 0) > 0} disabled={isPending} />
+        {body}
+      </ScrollView>
+      {canEditNow && (
+        <CommitBar count={view?.changeCount ?? 0} pending={isPending} offline={offline} onCommit={runCommit} />
+      )}
+      {sheetOpen && results && (
+        <ResultsSheet
+          results={results}
+          nameFor={nameFor}
+          shiftNameFor={shiftNameFor}
+          pending={isPending}
+          onConfirm={onConfirm}
+          onClose={() => setSheetOpen(false)}
+        />
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
+  scroll: { flex: 1 },
   title: { fontSize: 28, fontWeight: '700', color: colors.text, letterSpacing: -0.5 },
   gap: { marginBottom: spacing.md },
   banner: { backgroundColor: colors.warningLight, borderRadius: radius.lg, padding: spacing.md, marginBottom: spacing.md },

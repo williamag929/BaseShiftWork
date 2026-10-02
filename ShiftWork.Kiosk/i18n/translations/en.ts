@@ -1536,7 +1536,17 @@ export default {
     "no_default_shift_all": "This site has no default shift. Set one in the admin app.",
     "no_default_shift_foreman": "This site has no default shift. Ask an admin to set one.",
     "unknown_person": "Unknown person",
-    "pick_site_first": "Pick a job site first."
+    "pick_site_first": "Pick a job site first.",
+    "publish": "Publish {{count}} changes",
+    "results_title": "Publish results",
+    "created": "{{count}} added",
+    "removed": "{{count}} removed",
+    "unchanged": "{{count}} unchanged",
+    "rejected": "Rejected",
+    "needs_confirmation": "Needs confirmation",
+    "confirm": "Confirm",
+    "commit_failed": "Couldn't publish the lineup. Your changes are kept. Try again.",
+    "unknown_shift": "Shift #{{id}}"
   },
   "kiosk_app": {
     "admin_aria": "Admin settings",
