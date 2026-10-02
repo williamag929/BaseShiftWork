@@ -9,10 +9,13 @@ import { LocationCard } from '@/components/screens/lineup/LocationCard';
 import { Bench } from '@/components/screens/lineup/Bench';
 import { UnavailableList } from '@/components/screens/lineup/UnavailableList';
 import { useLineup } from '@/hooks/useLineup';
+import { usePermission } from '@/hooks/usePermission';
+import { useToast } from '@/hooks/useToast';
 import { useLineupDraftStore } from '@/store/lineupDraftStore';
 import { colors, radius, spacing } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
-import { localToday, mergeLineup } from '@/utils/lineup';
+import { crewFill, localToday, mergeLineup } from '@/utils/lineup';
+import type { LineupPerson } from '@/types/lineup';
 
 const isForbidden = (error: unknown): boolean => {
   const e = error as { statusCode?: number; response?: { status?: number } } | null;
@@ -29,6 +32,11 @@ export default function LineupScreen() {
   const assignments = useLineupDraftStore((s) => s.assignments);
   const removals = useLineupDraftStore((s) => s.removals);
   const feedback = useLineupDraftStore((s) => s.feedback);
+  const { assign, assignMany, unassign, removeShift, undoRemoval } = useLineupDraftStore.getState();
+  const toast = useToast();
+  const hasEditPerm = usePermission('lineup.edit');
+  const hasAllLocations = usePermission('lineup.all-locations');
+  const [activeId, setActiveId] = useState<number | null>(null);
 
   // Keep the draft store's date in step with the screen.
   useEffect(() => {
@@ -46,6 +54,50 @@ export default function LineupScreen() {
     () => (data ? mergeLineup(data, { assignments, removals, feedback }) : null),
     [data, assignments, removals, feedback],
   );
+
+  const editable = !!data?.canEdit && hasEditPerm;
+  const firstId = view?.locations[0]?.locationId ?? null;
+  // Fall back to the first site when the active one disappears (e.g. after a refetch).
+  const effectiveId =
+    view && view.locations.some((l) => l.locationId === activeId) ? activeId : firstId;
+  const activeLocation = view?.locations.find((l) => l.locationId === effectiveId) ?? null;
+
+  const names = useMemo(() => {
+    const m: Record<number, string> = {};
+    data?.bench.forEach((p) => { m[p.personId] = p.name; });
+    data?.locations.forEach((l) => l.shifts.forEach((s) => { m[s.personId] = s.name; }));
+    return m;
+  }, [data]);
+
+  const noDefaultShift = () =>
+    toast.warning(t(hasAllLocations ? 'lineup.no_default_shift_all' : 'lineup.no_default_shift_foreman'));
+
+  const onBenchPress = (p: LineupPerson) => {
+    if (!editable) return;
+    if (!activeLocation) {
+      toast.info(t('lineup.pick_site_first'));
+      return;
+    }
+    if (!activeLocation.defaultShift) {
+      noDefaultShift();
+      return;
+    }
+    assign(p.personId, activeLocation.locationId, activeLocation.defaultShift);
+  };
+
+  const onPickCrew = (locationId: number, crewId: number) => {
+    if (!view || !editable) return;
+    const loc = view.locations.find((l) => l.locationId === locationId);
+    if (!loc) return;
+    if (!loc.defaultShift) {
+      noDefaultShift();
+      return;
+    }
+    const { memberIds, busy } = crewFill(view, crewId);
+    const total = view.crews.find((c) => c.crewId === crewId)?.memberIds.length ?? 0;
+    assignMany(memberIds, locationId, loc.defaultShift);
+    toast.info(t('lineup.crew_added', { added: memberIds.length, total, busy }));
+  };
 
   const changeDate = (next: string) => {
     setDraftDate(next);
@@ -89,9 +141,23 @@ export default function LineupScreen() {
           </View>
         )}
         {view.locations.map((l) => (
-          <LocationCard key={l.locationId} location={l} />
+          <LocationCard
+            key={l.locationId}
+            location={l}
+            removed={(data.locations.find((x) => x.locationId === l.locationId)?.shifts ?? []).filter((s) => removals.includes(s.shiftId))}
+            draftedIds={assignments.map((a) => a.personId)}
+            names={names}
+            active={l.locationId === effectiveId}
+            editable={editable}
+            crews={view.crews}
+            onActivate={() => setActiveId(l.locationId)}
+            onRemoveSaved={removeShift}
+            onUnassign={unassign}
+            onUndoRemoval={undoRemoval}
+            onPickCrew={(crewId) => onPickCrew(l.locationId, crewId)}
+          />
         ))}
-        <Bench people={view.bench} />
+        <Bench people={view.bench} onPress={editable ? onBenchPress : undefined} />
         <UnavailableList people={view.unavailable} />
       </View>
     );

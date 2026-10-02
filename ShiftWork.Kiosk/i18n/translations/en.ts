@@ -1530,7 +1530,12 @@ export default {
       "already_scheduled": "Already scheduled"
     },
     "prev_day": "Previous day",
-    "next_day": "Next day"
+    "next_day": "Next day",
+    "add_crew": "Add crew",
+    "crew_added": "{{added}} of {{total}} added, {{busy}} busy",
+    "no_default_shift_all": "This site has no default shift. Set one in the admin app.",
+    "no_default_shift_foreman": "This site has no default shift. Ask an admin to set one.",
+    "pick_site_first": "Pick a job site first."
   },
   "kiosk_app": {
     "admin_aria": "Admin settings",

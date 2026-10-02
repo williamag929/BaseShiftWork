@@ -5,7 +5,7 @@ import { useTranslation } from '@/i18n';
 import type { LineupPerson } from '@/types/lineup';
 import { PersonChip } from './PersonChip';
 
-export function Bench({ people }: { people: LineupPerson[] }) {
+export function Bench({ people, onPress }: { people: LineupPerson[]; onPress?: (p: LineupPerson) => void }) {
   const { t } = useTranslation();
   return (
     <View>
@@ -15,7 +15,7 @@ export function Bench({ people }: { people: LineupPerson[] }) {
       ) : (
         <View style={styles.wrap}>
           {people.map((p) => (
-            <PersonChip key={p.personId} name={p.name} />
+            <PersonChip key={p.personId} testID={`bench-chip-${p.personId}`} name={p.name} onPress={onPress ? () => onPress(p) : undefined} />
           ))}
         </View>
       )}

@@ -1530,7 +1530,12 @@ export default {
       "already_scheduled": "Ya programado"
     },
     "prev_day": "Día anterior",
-    "next_day": "Día siguiente"
+    "next_day": "Día siguiente",
+    "add_crew": "Agregar cuadrilla",
+    "crew_added": "{{added}} de {{total}} agregados, {{busy}} ocupados",
+    "no_default_shift_all": "Esta obra no tiene turno predeterminado. Configúralo en la app de administración.",
+    "no_default_shift_foreman": "Esta obra no tiene turno predeterminado. Pide a un administrador que lo configure.",
+    "pick_site_first": "Elige una obra primero."
   },
   "kiosk_app": {
     "admin_aria": "Configuración de administrador",
