@@ -24,7 +24,8 @@ export default {
     "inactive": "Inactive",
     "status": "Status",
     "loading_short": "Loading...",
-    "close_aria": "Close"
+    "close_aria": "Close",
+    "close": "Close"
   },
   "auth": {
     "login": {

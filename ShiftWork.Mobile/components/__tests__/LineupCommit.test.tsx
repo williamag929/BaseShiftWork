@@ -67,7 +67,9 @@ const ui = () => (
     <LocaleProvider><LineupScreen /></LocaleProvider>
   </QueryClientProvider>
 );
-const flush = () => act(async () => { await Promise.resolve(); });
+const flush = () => act(async () => { await new Promise((r) => setTimeout(r, 0)); }); // react-query batches notifications on a timer
+
+afterEach(() => { jest.restoreAllMocks(); });
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -140,6 +142,7 @@ describe('Lineup commit flow', () => {
     let resolve!: (v: unknown) => void;
     mockCommit.mockReturnValue(new Promise((r) => { resolve = r; }));
     const { getByTestId, findByTestId } = render(ui());
+    await flush();
     draftOne(fireEvent, getByTestId);
     const btn = await findByTestId('commit-button');
     fireEvent.press(btn);
@@ -153,6 +156,7 @@ describe('Lineup commit flow', () => {
     let resolve!: (v: unknown) => void;
     mockCommit.mockReturnValue(new Promise((r) => { resolve = r; }));
     const { getByTestId, queryByTestId } = render(ui());
+    await flush();
     fireEvent.press(getByTestId('bench-chip-41'));
     fireEvent.press(getByTestId('commit-button'));
     await flush();
@@ -178,6 +182,7 @@ describe('Lineup commit flow', () => {
       ],
     });
     const { getByTestId, findByText } = render(ui());
+    await flush();
     [41, 44, 52].forEach((id) => fireEvent.press(getByTestId(`bench-chip-${id}`)));
     fireEvent.press(getByTestId('commit-button'));
     expect(await findByText('Overlaps an existing shift')).toBeTruthy();
@@ -195,6 +200,7 @@ describe('Lineup commit flow', () => {
       })
       .mockResolvedValueOnce({ results: [res({ status: 'created', personId: 52, locationId: 7 })] });
     const { getByTestId, findByTestId } = render(ui());
+    await flush();
     fireEvent.press(getByTestId('bench-chip-41'));
     fireEvent.press(getByTestId('bench-chip-52'));
     fireEvent.press(getByTestId('commit-button'));
@@ -208,6 +214,7 @@ describe('Lineup commit flow', () => {
   it('lists a rejected removal (labelled with the shift person) and keeps it in the draft', async () => {
     mockCommit.mockResolvedValue({ results: [res({ status: 'rejected', shiftId: 502, errors: ['Shift not found.'] })] });
     const { getByTestId, findByText, getAllByText } = render(ui());
+    await flush();
     fireEvent.press(getByTestId('saved-chip-502'));
     fireEvent.press(getByTestId('commit-button'));
     expect(await findByText('Shift not found.')).toBeTruthy();
@@ -218,6 +225,7 @@ describe('Lineup commit flow', () => {
   it('a thrown commit error toasts commit_failed and keeps the draft', async () => {
     mockCommit.mockRejectedValue(new Error('Network Error'));
     const { getByTestId } = render(ui());
+    await flush();
     fireEvent.press(getByTestId('bench-chip-41'));
     fireEvent.press(getByTestId('commit-button'));
     await waitFor(() => expect(toasts()).toContain('Couldn\'t publish the lineup. Your changes are kept. Try again.'));
@@ -230,6 +238,7 @@ describe('Lineup commit flow', () => {
     });
     mockCommit.mockResolvedValue({ results: [res({ status: 'rejected', personId: 44, errors: ['Overlaps an existing shift'] })] });
     const { getByTestId, findByText, queryByText } = render(ui());
+    await flush();
     fireEvent.press(getByTestId('bench-chip-44'));
     fireEvent.press(getByTestId('commit-button'));
     await findByText('Overlaps an existing shift');
@@ -241,9 +250,38 @@ describe('Lineup commit flow', () => {
     expect(queryByText('Overlaps an existing shift')).toBeNull();
   });
 
+  it('confirm buttons are disabled while offline (nothing is accepted silently)', async () => {
+    mockCommit.mockResolvedValueOnce({
+      results: [res({ status: 'needs-confirmation', personId: 52, locationId: 7, warnings: ['Exceeds weekly hours limit'] })],
+    });
+    mockNet.mockResolvedValueOnce({ isConnected: true, isInternetReachable: true });
+    let emit: (s: object) => void = () => {};
+    (Network.addNetworkStateListener as jest.Mock).mockImplementation((cb) => { emit = cb; return { remove: jest.fn() }; });
+    const { getByTestId, findByTestId, findByText } = render(ui());
+    await flush();
+    fireEvent.press(getByTestId('bench-chip-52'));
+    fireEvent.press(getByTestId('commit-button'));
+    const confirm = await findByTestId('confirm-52');
+    act(() => emit({ isConnected: false, isInternetReachable: false }));
+    await findByText("You're offline. Showing the last loaded lineup.");
+    fireEvent.press(confirm);
+    expect(mockCommit).toHaveBeenCalledTimes(1);
+    expect(store().assignments[0].acceptWarnings).toBe(false);
+  });
+
+  it('publish is disabled while connectivity is still unknown, with no banner', async () => {
+    mockNet.mockReturnValue(new Promise(() => {}));
+    const { getByTestId, queryByText } = render(ui());
+    fireEvent.press(getByTestId('bench-chip-41'));
+    fireEvent.press(getByTestId('commit-button'));
+    expect(mockCommit).not.toHaveBeenCalled();
+    expect(queryByText("You're offline. Showing the last loaded lineup.")).toBeNull();
+  });
+
   it('offline: publish is disabled, banner shows, draft is kept', async () => {
     mockNet.mockResolvedValue({ isConnected: false, isInternetReachable: false });
     const { getByTestId, findByText } = render(ui());
+    await flush();
     fireEvent.press(getByTestId('bench-chip-41'));
     expect(await findByText("You're offline. Showing the last loaded lineup.")).toBeTruthy();
     fireEvent.press(getByTestId('commit-button'));

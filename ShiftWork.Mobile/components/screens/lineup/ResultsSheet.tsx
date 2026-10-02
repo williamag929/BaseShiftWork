@@ -34,7 +34,7 @@ export function ResultsSheet({ results, nameFor, shiftNameFor, onConfirm, onClos
           <View style={styles.header}>
             <Text style={styles.title}>{t('lineup.results_title')}</Text>
             <PressableScale testID="results-close" accessibilityRole="button" accessibilityLabel={t('common.close_aria')} onPress={onClose} style={styles.close}>
-              <Text style={styles.closeText}>{t('common.close_aria')}</Text>
+              <Text style={styles.closeText}>{t('common.close')}</Text>
             </PressableScale>
           </View>
           <ScrollView>

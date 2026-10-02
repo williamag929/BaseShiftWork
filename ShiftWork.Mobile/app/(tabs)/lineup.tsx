@@ -37,7 +37,9 @@ export default function LineupScreen() {
   const feedback = useLineupDraftStore((s) => s.feedback);
   const { assign, assignMany, unassign, removeShift, undoRemoval, acceptWarnings } = useLineupDraftStore.getState();
   const { commit, isPending, results, reset } = useLineupCommit();
-  const offline = useIsOffline();
+  const networkOffline = useIsOffline(); // null = unknown
+  const offline = networkOffline === true;
+  const publishBlocked = networkOffline !== false; // unknown blocks publishing too
   const [sheetOpen, setSheetOpen] = useState(false);
   const toast = useToast();
   const hasEditPerm = usePermission('lineup.edit');
@@ -87,7 +89,7 @@ export default function LineupScreen() {
   };
 
   const runCommit = async () => {
-    if (offline || isPending) return;
+    if (publishBlocked || isPending) return;
     try {
       await commit();
       setSheetOpen(true);
@@ -215,14 +217,14 @@ export default function LineupScreen() {
         {body}
       </ScrollView>
       {canEditNow && (
-        <CommitBar count={view?.changeCount ?? 0} pending={isPending} offline={offline} onCommit={runCommit} />
+        <CommitBar count={view?.changeCount ?? 0} pending={isPending} offline={publishBlocked} onCommit={runCommit} />
       )}
       {sheetOpen && results && (
         <ResultsSheet
           results={results}
           nameFor={nameFor}
           shiftNameFor={shiftNameFor}
-          pending={isPending}
+          pending={isPending || publishBlocked}
           onConfirm={onConfirm}
           onClose={() => setSheetOpen(false)}
         />

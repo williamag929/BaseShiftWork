@@ -22,6 +22,7 @@
   "common.status":        { "en": "Status",          "es": "Estado" },
   "common.loading_short": { "en": "Loading...",      "es": "Cargando..." },
   "common.close_aria":    { "en": "Close",           "es": "Cerrar" },
+  "common.close":         { "en": "Close",           "es": "Cerrar" },
 
   "auth.login.title":           { "en": "Sign In",                              "es": "Iniciar sesión" },
   "auth.login.subtitle":        { "en": "Sign in to your account",              "es": "Inicia sesión en tu cuenta" },
