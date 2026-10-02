@@ -12,9 +12,11 @@ interface AuthState {
   personId: number | null;
   personEmail: string | null;
   deviceToken: string | null;
+  permissions: string[];
   setCompanyId: (companyId: string) => void;
   setPersonId: (personId: number | null) => void;
   setDeviceToken: (token: string | null) => void;
+  setPermissions: (p: string[]) => void;
   setPersonProfile: (p: { email?: string | null; name?: string | null; photoUrl?: string | null }) => void;
   signOut: () => Promise<void>;
 }
@@ -29,9 +31,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   name: null,
   photoUrl: null,
   deviceToken: null,
+  permissions: [],
   setCompanyId: (companyId) => set({ companyId }),
   setPersonId: (personId) => set({ personId }),
   setDeviceToken: (token) => set({ deviceToken: token }),
+  setPermissions: (permissions) => set({ permissions }),
   setPersonProfile: ({ email, name, photoUrl }) =>
     set((s) => ({
       personEmail: email ?? s.personEmail,
@@ -50,6 +54,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       name: null,
       photoUrl: null,
       deviceToken: null,
+      permissions: [],
       companyId: getDefaultCompanyId(),
     });
   },

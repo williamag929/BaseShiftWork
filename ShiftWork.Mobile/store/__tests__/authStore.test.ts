@@ -50,4 +50,11 @@ describe('useAuthStore', () => {
     expect(useAuthStore.getState().name).toBeNull();
     expect(useAuthStore.getState().personEmail).toBeNull();
   });
+
+  it('setPermissions stores permissions and signOut resets them', async () => {
+    useAuthStore.getState().setPermissions(['lineup.view']);
+    expect(useAuthStore.getState().permissions).toEqual(['lineup.view']);
+    await useAuthStore.getState().signOut();
+    expect(useAuthStore.getState().permissions).toEqual([]);
+  });
 });
