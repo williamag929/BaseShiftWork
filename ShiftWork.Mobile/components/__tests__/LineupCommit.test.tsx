@@ -181,12 +181,12 @@ describe('Lineup commit flow', () => {
         res({ status: 'needs-confirmation', personId: 52, locationId: 7, warnings: ['Exceeds weekly hours limit'] }),
       ],
     });
-    const { getByTestId, findByText } = render(ui());
+    const { getByTestId, findByText, findAllByText } = render(ui());
     await flush();
     [41, 44, 52].forEach((id) => fireEvent.press(getByTestId(`bench-chip-${id}`)));
     fireEvent.press(getByTestId('commit-button'));
-    expect(await findByText('Overlaps an existing shift')).toBeTruthy();
-    expect(await findByText('Exceeds weekly hours limit')).toBeTruthy();
+    expect((await findAllByText('Overlaps an existing shift')).length).toBeGreaterThan(0);
+    expect((await findAllByText('Exceeds weekly hours limit')).length).toBeGreaterThan(0);
     expect(store().assignments.map((a) => a.personId).sort()).toEqual([44, 52]);
   });
 
@@ -213,11 +213,11 @@ describe('Lineup commit flow', () => {
 
   it('lists a rejected removal (labelled with the shift person) and keeps it in the draft', async () => {
     mockCommit.mockResolvedValue({ results: [res({ status: 'rejected', shiftId: 502, errors: ['Shift not found.'] })] });
-    const { getByTestId, findByText, getAllByText } = render(ui());
+    const { getByTestId, findByText, findAllByText, getAllByText } = render(ui());
     await flush();
     fireEvent.press(getByTestId('saved-chip-502'));
     fireEvent.press(getByTestId('commit-button'));
-    expect(await findByText('Shift not found.')).toBeTruthy();
+    expect((await findAllByText('Shift not found.')).length).toBeGreaterThan(0);
     expect(getAllByText('Ana Ruiz').length).toBeGreaterThan(0);
     expect(store().removals).toEqual([502]);
   });
@@ -237,17 +237,17 @@ describe('Lineup commit flow', () => {
       buttons?.[buttons.length - 1]?.onPress?.();
     });
     mockCommit.mockResolvedValue({ results: [res({ status: 'rejected', personId: 44, errors: ['Overlaps an existing shift'] })] });
-    const { getByTestId, findByText, queryByText } = render(ui());
+    const { getByTestId, findByText, findAllByText, queryAllByText } = render(ui());
     await flush();
     fireEvent.press(getByTestId('bench-chip-44'));
     fireEvent.press(getByTestId('commit-button'));
-    await findByText('Overlaps an existing shift');
+    await findAllByText('Overlaps an existing shift');
     const before = store().date;
     act(() => { store().setDate(before as string); }); // no-op, sheet still open
-    expect(queryByText('Overlaps an existing shift')).toBeTruthy();
+    expect(queryAllByText('Overlaps an existing shift').length).toBeGreaterThan(1); // sheet + inline
     fireEvent.press(getByTestId('lineup-next-day'));
     expect(store().date).not.toBe(before);
-    expect(queryByText('Overlaps an existing shift')).toBeNull();
+    expect(queryAllByText('Overlaps an existing shift')).toHaveLength(0);
   });
 
   it('confirm buttons are disabled while offline (nothing is accepted silently)', async () => {
@@ -257,7 +257,7 @@ describe('Lineup commit flow', () => {
     mockNet.mockResolvedValueOnce({ isConnected: true, isInternetReachable: true });
     let emit: (s: object) => void = () => {};
     (Network.addNetworkStateListener as jest.Mock).mockImplementation((cb) => { emit = cb; return { remove: jest.fn() }; });
-    const { getByTestId, findByTestId, findByText } = render(ui());
+    const { getByTestId, findByTestId, findByText, findAllByText } = render(ui());
     await flush();
     fireEvent.press(getByTestId('bench-chip-52'));
     fireEvent.press(getByTestId('commit-button'));
@@ -280,7 +280,7 @@ describe('Lineup commit flow', () => {
 
   it('offline: publish is disabled, banner shows, draft is kept', async () => {
     mockNet.mockResolvedValue({ isConnected: false, isInternetReachable: false });
-    const { getByTestId, findByText } = render(ui());
+    const { getByTestId, findByText, findAllByText } = render(ui());
     await flush();
     fireEvent.press(getByTestId('bench-chip-41'));
     expect(await findByText("You're offline. Showing the last loaded lineup.")).toBeTruthy();

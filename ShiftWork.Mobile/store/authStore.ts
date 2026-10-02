@@ -4,6 +4,7 @@ import { create } from 'zustand';
 // import { auth } from '@/config/firebase';
 import { clearAllStorage } from '@/utils/storage.utils';
 import { notificationService } from '@/services/notification.service';
+import { useLineupDraftStore } from '@/store/lineupDraftStore';
 
 interface AuthState {
   name: string | null;
@@ -32,7 +33,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   photoUrl: null,
   deviceToken: null,
   permissions: [],
-  setCompanyId: (companyId) => set({ companyId }),
+  // Permissions are per company: drop them when the company actually changes.
+  setCompanyId: (companyId) =>
+    set((s) => (s.companyId === companyId ? s : { companyId, permissions: [] })),
   setPersonId: (personId) => set({ personId }),
   setDeviceToken: (token) => set({ deviceToken: token }),
   setPermissions: (permissions) => set({ permissions }),
@@ -48,6 +51,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       try { await notificationService.removeDeviceToken(companyId, personId, deviceToken); } catch {}
     }
     await clearAllStorage();
+    useLineupDraftStore.getState().clear();
     set({
       personId: null,
       personEmail: null,

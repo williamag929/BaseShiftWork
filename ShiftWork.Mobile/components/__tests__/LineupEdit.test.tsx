@@ -14,13 +14,14 @@ jest.mock('@/hooks/useNetworkStatus', () => ({ useIsOffline: () => false }));
 jest.mock('@/hooks/usePermission', () => ({ usePermission: jest.fn() }));
 
 import React from 'react';
-import { render, fireEvent, within } from '@testing-library/react-native';
+import { render, fireEvent, within, act } from '@testing-library/react-native';
 import LineupScreen from '../../app/(tabs)/lineup';
 import { LocaleProvider } from '@/i18n';
 import { useLineup } from '@/hooks/useLineup';
 import { usePermission } from '@/hooks/usePermission';
 import { useLineupDraftStore } from '@/store/lineupDraftStore';
 import { useToastStore } from '@/hooks/useToast';
+import { localToday } from '@/utils/lineup';
 import type { Lineup } from '@/types/lineup';
 
 const mockUseLineup = useLineup as jest.Mock;
@@ -191,5 +192,62 @@ describe('Lineup editing', () => {
     mockUseLineup.mockReturnValue(ok(d));
     rerender(ui());
     expect(within(getByTestId('drafted-chip-41')).getByText('Unknown person')).toBeTruthy();
+  });
+
+  it('prunes a queued removal whose shift disappeared from the server data and updates the bar', () => {
+    mockUseLineup.mockReturnValue(ok(lineup({ date: localToday() })));
+    const { getByTestId, queryByTestId, rerender } = render(ui());
+    fireEvent.press(getByTestId('saved-chip-9'));
+    expect(getByTestId('commit-button')).toBeTruthy();
+    const d = lineup({ date: localToday() });
+    d.locations[0].shifts = [];
+    mockUseLineup.mockReturnValue(ok(d));
+    rerender(ui());
+    expect(store().removals).toEqual([]);
+    expect(queryByTestId('commit-button')).toBeNull();
+  });
+
+  it('shows rejected and needs-confirmation reasons inline on the card (translated when known)', () => {
+    const { getByTestId } = render(ui());
+    fireEvent.press(getByTestId('bench-chip-41'));
+    fireEvent.press(getByTestId('bench-chip-52'));
+    fireEvent.press(getByTestId('saved-chip-9'));
+    act(() => {
+      store().applyResults([
+        { status: 'rejected', personId: 41, locationId: 7, errors: ['Overlaps an existing shift'], warnings: [] },
+        { status: 'needs-confirmation', personId: 52, locationId: 7, errors: [], warnings: ['Time off'] },
+        { status: 'rejected', shiftId: 9, errors: ['Shift not found.'], warnings: [] },
+      ]);
+    });
+    expect(within(getByTestId('feedback-p41')).getByText('Overlaps an existing shift')).toBeTruthy();
+    expect(within(getByTestId('feedback-p52')).getByText('Time off')).toBeTruthy();
+    expect(within(getByTestId('feedback-s9')).getByText('Shift not found.')).toBeTruthy();
+  });
+
+  it('bench tap on a person whose same-site removal is queued undoes the removal', () => {
+    const { getByTestId } = render(ui());
+    fireEvent.press(getByTestId('saved-chip-9'));
+    fireEvent.press(getByTestId('bench-chip-5'));
+    expect(store().removals).toEqual([]);
+    expect(store().assignments).toEqual([]);
+  });
+
+  it('crew quick-fill undoes same-site removals and assigns the rest; other sites keep removal+assign', () => {
+    const d = lineup();
+    d.crews = [{ crewId: 1, name: 'Framing', memberIds: [5, 41] }];
+    mockUseLineup.mockReturnValue(ok(d));
+    const { getByTestId } = render(ui());
+    fireEvent.press(getByTestId('saved-chip-9'));
+    fireEvent.press(getByTestId('add-crew-7'));
+    fireEvent.press(getByTestId('crew-pick-1'));
+    expect(store().removals).toEqual([]);
+    expect(store().assignments.map((a) => a.personId)).toEqual([41]);
+
+    store().clear();
+    fireEvent.press(getByTestId('saved-chip-9'));
+    fireEvent.press(getByTestId('add-crew-8'));
+    fireEvent.press(getByTestId('crew-pick-1'));
+    expect(store().removals).toEqual([9]);
+    expect(store().assignments.map((a) => [a.personId, a.locationId]).sort()).toEqual([[41, 8], [5, 8]].sort());
   });
 });

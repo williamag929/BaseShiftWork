@@ -1516,7 +1516,6 @@ export default {
     "today": "Today",
     "bench": "Bench",
     "unavailable": "Unavailable",
-    "crews": "Crews",
     "people_count": "{{count}} people",
     "empty_scope": "No job sites in your scope for this day.",
     "empty_bench": "Nobody is available.",
@@ -1547,6 +1546,11 @@ export default {
     "needs_confirmation": "Needs confirmation",
     "confirm": "Confirm",
     "commit_failed": "Couldn't publish the lineup. Your changes are kept. Try again.",
+    "state_saved": "scheduled",
+    "state_drafted": "not published",
+    "state_removed": "queued for removal",
+    "state_rejected": "rejected",
+    "state_warning": "needs confirmation",
     "unknown_shift": "Shift #{{id}}"
   },
   "kiosk_app": {

@@ -46,7 +46,7 @@ describe('lineupDraftStore', () => {
     s().applyResults([
       { status: 'created', personId: 41, locationId: 7, errors: [], warnings: [] },
       { status: 'rejected', personId: 44, locationId: 7, errors: ['Overlaps'], warnings: [] },
-      { status: 'removed', shiftId: 501, errors: [], warnings: [] },
+      { status: 'removed', shiftId: 501, personId: 5, locationId: 7, errors: [], warnings: [] },
     ]);
     expect(s().assignments.map((x) => x.personId)).toEqual([44]);
     expect(s().feedback).toEqual({ p44: { status: 'rejected', messages: ['Overlaps'] } });
@@ -86,5 +86,44 @@ describe('lineupDraftStore', () => {
     s().assign(41, 7, shift);
     s().applyResults([{ status: 'unchanged', personId: 41, locationId: 7, errors: [], warnings: [] }]);
     expect(s().assignments).toHaveLength(0);
+  });
+
+  it('setScope isolates drafts between companies and dates', () => {
+    s().setScope('co-a', '2026-10-01');
+    s().assign(41, 7, shift);
+    s().setScope('co-a', '2026-10-01');
+    expect(s().assignments).toHaveLength(1);
+    s().setScope('co-b', '2026-10-01');
+    expect(s().assignments).toHaveLength(0);
+    expect(s().companyId).toBe('co-b');
+    s().assign(41, 7, shift);
+    s().setScope('co-b', '2026-10-02');
+    expect(s().assignments).toHaveLength(0);
+  });
+
+  it('prune drops removals and assignments the server no longer has, with their feedback', () => {
+    s().removeShift(501);
+    s().removeShift(502);
+    s().assign(41, 7, shift);
+    s().assign(44, 99, shift);
+    s().applyResults([
+      { status: 'rejected', shiftId: 501, errors: ['Shift not found.'], warnings: [] },
+      { status: 'rejected', personId: 44, locationId: 99, errors: ['x'], warnings: [] },
+    ]);
+    s().prune([502], [7, 8]);
+    expect(s().removals).toEqual([502]);
+    expect(s().assignments.map((a) => a.personId)).toEqual([41]);
+    expect(s().feedback).toEqual({});
+  });
+
+  it('a removed result (real shape, with personId/locationId) clears s-feedback and keeps the person\'s draft elsewhere', () => {
+    s().removeShift(501);
+    s().assign(41, 8, shift);
+    s().applyResults([{ status: 'rejected', shiftId: 501, errors: ['Locked'], warnings: [] }]);
+    expect(s().feedback.s501).toBeDefined();
+    s().applyResults([{ status: 'removed', shiftId: 501, personId: 41, locationId: 7, errors: [], warnings: [] }]);
+    expect(s().removals).toEqual([]);
+    expect(s().feedback.s501).toBeUndefined();
+    expect(s().assignments).toEqual([expect.objectContaining({ personId: 41, locationId: 8 })]);
   });
 });

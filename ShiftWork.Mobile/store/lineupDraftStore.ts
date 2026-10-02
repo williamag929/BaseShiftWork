@@ -4,7 +4,12 @@ import type { DraftAssignment, DraftState } from '@/utils/lineup';
 
 interface LineupDraftState extends DraftState {
   date: string | null;
+  /** Company the draft belongs to; a different company or date discards the draft. */
+  companyId: string | null;
   setDate: (date: string) => void;
+  setScope: (companyId: string | null, date: string) => void;
+  /** Drop removals/assignments that no longer exist in the server's current lineup. */
+  prune: (validShiftIds: number[], validLocationIds: number[]) => void;
   assign: (personId: number, locationId: number, shift: DefaultShift) => void;
   assignMany: (personIds: number[], locationId: number, shift: DefaultShift) => void;
   unassign: (personId: number) => void;
@@ -34,9 +39,27 @@ const without = <T extends object>(obj: T, keys: string[]): T => {
 
 export const useLineupDraftStore = create<LineupDraftState>((set) => ({
   date: null,
+  companyId: null,
   ...blank,
   setDate: (date) =>
     set((s) => (s.date === date ? s : { date, assignments: [], removals: [], feedback: {} })),
+  setScope: (companyId, date) =>
+    set((s) =>
+      s.date === date && s.companyId === companyId
+        ? s
+        : { companyId, date, assignments: [], removals: [], feedback: {} },
+    ),
+  prune: (validShiftIds, validLocationIds) =>
+    set((s) => {
+      const removals = s.removals.filter((id) => validShiftIds.includes(id));
+      const assignments = s.assignments.filter((a) => validLocationIds.includes(a.locationId));
+      if (removals.length === s.removals.length && assignments.length === s.assignments.length) return s;
+      const droppedKeys = [
+        ...s.removals.filter((id) => !removals.includes(id)).map((id) => `s${id}`),
+        ...s.assignments.filter((a) => !assignments.includes(a)).map((a) => `p${a.personId}`),
+      ];
+      return { removals, assignments, feedback: without(s.feedback, droppedKeys) };
+    }),
   assign: (personId, locationId, shift) =>
     set((s) => ({
       assignments: [...s.assignments.filter((a) => a.personId !== personId), draftOf(personId, locationId, shift)],
@@ -76,7 +99,11 @@ export const useLineupDraftStore = create<LineupDraftState>((set) => ({
       let removals = s.removals;
       let feedback = s.feedback;
       for (const r of results) {
-        const key = r.personId != null ? `p${r.personId}` : r.shiftId != null ? `s${r.shiftId}` : null;
+        // The server sets personId/locationId on `removed` too, so key by result kind, not by which ids exist.
+        const isShiftResult = r.status === 'removed' || (r.status === 'rejected' && r.personId == null);
+        const key = isShiftResult
+          ? r.shiftId != null ? `s${r.shiftId}` : null
+          : r.personId != null ? `p${r.personId}` : null;
         if (r.status === 'created' || r.status === 'unchanged') {
           assignments = assignments.filter((a) => !(a.personId === r.personId && a.locationId === r.locationId));
           if (key) feedback = without(feedback, [key]);
@@ -95,5 +122,5 @@ export const useLineupDraftStore = create<LineupDraftState>((set) => ({
       }
       return { assignments, removals, feedback };
     }),
-  clear: () => set({ date: null, ...blank }),
+  clear: () => set({ date: null, companyId: null, ...blank }),
 }));

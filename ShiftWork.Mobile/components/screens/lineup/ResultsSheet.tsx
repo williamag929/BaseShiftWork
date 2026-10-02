@@ -2,6 +2,7 @@ import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { PressableScale } from '@/components/ui/PressableScale';
 import { colors, radius, spacing, touchTarget } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
+import { reasonKey } from '@/utils/lineup';
 import type { LineupCommitResult } from '@/types/lineup';
 
 type Props = {
@@ -20,6 +21,11 @@ export function ResultsSheet({ results, nameFor, shiftNameFor, onConfirm, onClos
   const count = (s: LineupCommitResult['status']) => results.filter((r) => r.status === s).length;
   const rejected = results.filter((r) => r.status === 'rejected');
   const needs = results.filter((r) => r.status === 'needs-confirmation');
+
+  const reason = (m: string) => {
+    const k = reasonKey(m);
+    return k ? t(k) : m;
+  };
 
   const labelOf = (r: LineupCommitResult): string => {
     if (r.personId != null) return nameFor(r.personId) || t('lineup.unknown_person');
@@ -48,7 +54,7 @@ export function ResultsSheet({ results, nameFor, shiftNameFor, onConfirm, onClos
               <View key={`rej-${r.personId ?? 's' + r.shiftId}-${i}`} style={styles.row}>
                 <Text style={styles.name}>{labelOf(r)}</Text>
                 {r.errors.map((e, j) => (
-                  <Text key={j} style={styles.error}>{e}</Text>
+                  <Text key={j} style={styles.error}>{reason(e)}</Text>
                 ))}
               </View>
             ))}
@@ -58,7 +64,7 @@ export function ResultsSheet({ results, nameFor, shiftNameFor, onConfirm, onClos
                 <View style={styles.rowText}>
                   <Text style={styles.name}>{labelOf(r)}</Text>
                   {r.warnings.map((w, j) => (
-                    <Text key={j} style={styles.warning}>{w}</Text>
+                    <Text key={j} style={styles.warning}>{reason(w)}</Text>
                   ))}
                 </View>
                 {r.personId != null && (

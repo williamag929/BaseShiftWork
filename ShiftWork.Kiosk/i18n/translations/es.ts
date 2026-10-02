@@ -1516,7 +1516,6 @@ export default {
     "today": "Hoy",
     "bench": "Disponibles",
     "unavailable": "No disponibles",
-    "crews": "Cuadrillas",
     "people_count": "{{count}} personas",
     "empty_scope": "No hay obras en tu alcance para este día.",
     "empty_bench": "No hay nadie disponible.",
@@ -1547,6 +1546,11 @@ export default {
     "needs_confirmation": "Requiere confirmación",
     "confirm": "Confirmar",
     "commit_failed": "No se pudo publicar la alineación. Tus cambios se conservan. Inténtalo de nuevo.",
+    "state_saved": "programado",
+    "state_drafted": "sin publicar",
+    "state_removed": "en cola para quitar",
+    "state_rejected": "rechazado",
+    "state_warning": "requiere confirmación",
     "unknown_shift": "Turno #{{id}}"
   },
   "kiosk_app": {

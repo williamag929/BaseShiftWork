@@ -8,6 +8,7 @@ jest.mock('@/utils/storage.utils', () => ({
 }));
 
 import { useAuthStore } from '../../store/authStore';
+import { useLineupDraftStore } from '../../store/lineupDraftStore';
 
 describe('useAuthStore', () => {
   beforeEach(() => {
@@ -56,5 +57,21 @@ describe('useAuthStore', () => {
     expect(useAuthStore.getState().permissions).toEqual(['lineup.view']);
     await useAuthStore.getState().signOut();
     expect(useAuthStore.getState().permissions).toEqual([]);
+  });
+
+  it('setCompanyId resets permissions only when the company actually changes', () => {
+    useAuthStore.setState({ companyId: 'co-1', permissions: ['lineup.view'] });
+    useAuthStore.getState().setCompanyId('co-1');
+    expect(useAuthStore.getState().permissions).toEqual(['lineup.view']);
+    useAuthStore.getState().setCompanyId('co-2');
+    expect(useAuthStore.getState().permissions).toEqual([]);
+  });
+
+  it('signOut clears the lineup draft', async () => {
+    useLineupDraftStore.getState().setScope('co-1', '2026-10-02');
+    useLineupDraftStore.getState().assign(41, 7, { start: '07:00', end: '15:00', areaId: null });
+    await useAuthStore.getState().signOut();
+    expect(useLineupDraftStore.getState().assignments).toEqual([]);
+    expect(useLineupDraftStore.getState().companyId).toBeNull();
   });
 });

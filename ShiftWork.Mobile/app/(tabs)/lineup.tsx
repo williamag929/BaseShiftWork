@@ -12,6 +12,7 @@ import { ResultsSheet } from '@/components/screens/lineup/ResultsSheet';
 import { UnavailableList } from '@/components/screens/lineup/UnavailableList';
 import { useLineup, useLineupCommit } from '@/hooks/useLineup';
 import { useIsOffline } from '@/hooks/useNetworkStatus';
+import { useAuthStore } from '@/store/authStore';
 import { usePermission } from '@/hooks/usePermission';
 import { useToast } from '@/hooks/useToast';
 import { useLineupDraftStore } from '@/store/lineupDraftStore';
@@ -31,7 +32,8 @@ export default function LineupScreen() {
   const [date, setDate] = useState<string>(() => localToday());
   const { data, isLoading, isError, error, refetch } = useLineup(date);
 
-  const setDraftDate = useLineupDraftStore((s) => s.setDate);
+  const companyId = useAuthStore((s) => s.companyId);
+  const setScope = useLineupDraftStore((s) => s.setScope);
   const assignments = useLineupDraftStore((s) => s.assignments);
   const removals = useLineupDraftStore((s) => s.removals);
   const feedback = useLineupDraftStore((s) => s.feedback);
@@ -47,16 +49,28 @@ export default function LineupScreen() {
   const [activeId, setActiveId] = useState<number | null>(null);
 
   // Keep the draft store's date in step with the screen.
+  // The draft is scoped to company + date; either changing discards it (also covers sign-in as another user).
   useEffect(() => {
-    setDraftDate(date);
-  }, [date, setDraftDate]);
+    setScope(companyId, date);
+  }, [companyId, date, setScope]);
 
   // Refetch on focus only; a date change already fetches through the query key.
   useFocusEffect(
     useCallback(() => {
-      refetch();
-    }, [refetch]),
+      if (companyId) refetch(); // refetch() ignores `enabled`, so guard here
+    }, [companyId, refetch]),
   );
+
+  // Drop draft items the server no longer knows (lost-response removals, locations that left scope).
+  const { prune } = useLineupDraftStore.getState();
+  useEffect(() => {
+    if (!data || data.date !== date || isPending) return;
+    if (useLineupDraftStore.getState().date !== date) return;
+    prune(
+      data.locations.flatMap((l) => l.shifts.map((s) => s.shiftId)),
+      data.locations.map((l) => l.locationId),
+    );
+  }, [data, date, isPending, prune]);
 
   const view = useMemo(
     () => (data ? mergeLineup(data, { assignments, removals, feedback }) : null),
@@ -104,6 +118,12 @@ export default function LineupScreen() {
     runCommit();
   };
 
+  // A saved shift of this person at this same site that is queued for removal: undoing beats delete + recreate.
+  const queuedRemovalAt = (personId: number, locationId: number): number | null => {
+    const loc = data?.locations.find((l) => l.locationId === locationId);
+    return loc?.shifts.find((x) => x.personId === personId && removals.includes(x.shiftId))?.shiftId ?? null;
+  };
+
   const noDefaultShift = () =>
     toast.warning(t(hasAllLocations ? 'lineup.no_default_shift_all' : 'lineup.no_default_shift_foreman'));
 
@@ -117,7 +137,9 @@ export default function LineupScreen() {
       noDefaultShift();
       return;
     }
-    assign(p.personId, activeLocation.locationId, activeLocation.defaultShift);
+    const queued = queuedRemovalAt(p.personId, activeLocation.locationId);
+    if (queued != null) undoRemoval(queued);
+    else assign(p.personId, activeLocation.locationId, activeLocation.defaultShift);
   };
 
   const onPickCrew = (locationId: number, crewId: number) => {
@@ -130,7 +152,13 @@ export default function LineupScreen() {
     }
     const { memberIds, busy } = crewFill(view, crewId);
     const total = view.crews.find((c) => c.crewId === crewId)?.memberIds.length ?? 0;
-    assignMany(memberIds, locationId, loc.defaultShift);
+    const toAssign: number[] = [];
+    memberIds.forEach((id) => {
+      const queued = queuedRemovalAt(id, locationId);
+      if (queued != null) undoRemoval(queued);
+      else toAssign.push(id);
+    });
+    if (toAssign.length) assignMany(toAssign, locationId, loc.defaultShift);
     toast.info(t('lineup.crew_added', { added: memberIds.length, total, busy }));
   };
 
@@ -138,7 +166,7 @@ export default function LineupScreen() {
     if (isPending) return;
     reset();
     setSheetOpen(false);
-    setDraftDate(next);
+    setScope(companyId, next);
     setDate(next);
   };
 
@@ -185,6 +213,7 @@ export default function LineupScreen() {
             removed={(data.locations.find((x) => x.locationId === l.locationId)?.shifts ?? []).filter((s) => removals.includes(s.shiftId))}
             draftedIds={assignments.map((a) => a.personId)}
             names={names}
+            feedback={feedback}
             active={l.locationId === effectiveId}
             editable={editable}
             crews={view.crews}
