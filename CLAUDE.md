@@ -1,10 +1,12 @@
-# ShiftWork — Claude Code Project Guide
+# Loqzen (code name ShiftWork) — Claude Code Project Guide
 
 > AI-first documentation for Claude Code and agent-based workflows. Read this before touching any file.
 
 ## Project Identity
 
-ShiftWork is a **multi-tenant workforce management platform** for field operations industries (security, facilities, construction, janitorial). It is purpose-built for **non-desk workers** — the UX principle is: *assistant-grade simplicity, not documentation-grade complexity*.
+**Loqzen** ([loqzen.com](https://loqzen.com)) is a **multi-tenant workforce management platform** for field operations industries (security, facilities, construction, janitorial). It is purpose-built for **non-desk workers** — the UX principle is: *assistant-grade simplicity, not documentation-grade complexity*.
+
+**Naming rule (product = Loqzen, code = ShiftWork).** The product was previously branded JobLogSmart and ClockShift. Internal identifiers deliberately keep the `ShiftWork` name and must NOT be renamed: top-level folders, `.csproj` names, C# namespaces (`ShiftWork.*`), `ShiftWorkContext`, and the GitHub repo (`BaseShiftWork`). Anything a user, store or browser sees uses Loqzen: UI copy, emails, page titles, config values (`APP_NAME=Loqzen`), domains (`loqzen.com`), and mobile bundle IDs (`com.loqzen.mobile`, `com.loqzen.kiosk`). New user-facing text must say Loqzen, never ShiftWork or JobLogSmart.
 
 Three client surfaces share one API:
 | Surface | Stack | Audience |
