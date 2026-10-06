@@ -22,7 +22,7 @@ export default function AcceptInviteScreen() {
   const [loading, setLoading] = useState(false);
 
   // Params arrive from the invite deep-link:
-  // joblogsmart://accept-invite?token=...&companyId=...&personId=...&email=...&name=...
+  // loqzen://accept-invite?token=...&companyId=...&personId=...&email=...&name=...
   const { token, companyId, personId, email, name } = useLocalSearchParams<{
     token: string;
     companyId: string;
