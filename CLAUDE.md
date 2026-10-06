@@ -14,7 +14,7 @@ Three client surfaces share one API:
 | `ShiftWork.Angular` | Angular 19 + NgRx + Material | Managers / Admins (web) |
 | `ShiftWork.Mobile` | React Native + Expo + Zustand | Employees (phone) |
 | `ShiftWork.Kiosk` | React Native + Expo | Clock-in terminal (tablet) |
-| `ShiftWork.Api` | .NET 8 + EF Core + SQL Server | Backend (REST) |
+| `ShiftWork.Api` | .NET 9 + EF Core 8 + SQL Server | Backend (REST) |
 
 ---
 
@@ -25,7 +25,7 @@ Three client surfaces share one API:
        │              │            │
        └──────────────┴────────────┘
                       │
-              REST API (.NET 8)
+              REST API (.NET 9)
                       │
            ┌──────────┼──────────┐
         SQL Server   AWS S3   Expo Push
