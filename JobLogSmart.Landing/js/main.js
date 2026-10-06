@@ -17,7 +17,15 @@ menu.querySelectorAll('a').forEach(link => {
   });
 });
 
-// CTA form — wire to your email service (Formspree, Mailchimp, etc.)
+// CTA form
+// Until a real signup/lead endpoint exists, the form must not pretend the
+// email was received. Set LEAD_ENDPOINT to a URL that accepts a JSON POST
+// (Formspree, Mailchimp, or a future Loqzen API route) to collect leads
+// silently. While it is empty, the form opens a pre-filled email to
+// hello@loqzen.com so no request is ever lost.
+const LEAD_ENDPOINT = '';
+const CONTACT_EMAIL = 'hello@loqzen.com';
+
 const form = document.getElementById('ctaForm');
 const msg = document.getElementById('formMessage');
 
@@ -31,9 +39,31 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
-  // TODO: replace with your actual endpoint (Formspree, Mailchimp, custom API)
-  // Example Formspree: const res = await fetch('https://formspree.io/f/YOUR_ID', { ... })
-  msg.textContent = 'Thanks! Check your inbox to get started.';
+  if (LEAD_ENDPOINT) {
+    try {
+      const res = await fetch(LEAD_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email, source: 'loqzen-landing', createdAt: new Date().toISOString() })
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      msg.textContent = "Thanks! We'll email you at " + email + ' to get your account set up.';
+      msg.className = 'form-note success';
+      form.reset();
+    } catch (err) {
+      msg.textContent = 'Something went wrong. Please email ' + CONTACT_EMAIL + ' and we will set you up.';
+      msg.className = 'form-note error';
+    }
+    return;
+  }
+
+  const subject = encodeURIComponent('Loqzen free trial request');
+  const body = encodeURIComponent('Hi Loqzen team,\n\nI would like to start a free trial.\nMy work email: ' + email + '\n');
+  window.location.href = 'mailto:' + CONTACT_EMAIL + '?subject=' + subject + '&body=' + body;
+  msg.textContent = 'Your email app should open with a pre-filled message. Just hit send, or write to ' + CONTACT_EMAIL + '.';
   msg.className = 'form-note success';
-  form.reset();
 });
+
+// Footer year
+const yearEl = document.getElementById('year');
+if (yearEl) yearEl.textContent = new Date().getFullYear();

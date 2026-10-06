@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/useToast';
 import { useShiftEvents, useClockMutation } from './queries';
 import type { KioskQuestionDto, ScheduleShiftDto } from '@/types/api';
 import type { ShiftEventDto } from '@/types/api';
-import { useLocationName } from './queries';
+import { useLocationName, useLocationDetails } from './queries';
 import type { QuestionAnswers } from '@/components/screens/clock/SafetyQuestionnaire';
 
 const EMPTY_EVENTS: ShiftEventDto[] = [];
@@ -28,6 +28,8 @@ export interface ClockActionData {
   safetyQuestions: KioskQuestionDto[];
   shiftLocationName: string | null;
   isClockedIn: boolean;
+  siteRequiresNfc: boolean;
+  siteHasNfcTag: boolean;
   answers: QuestionAnswers;
   setPhotoUri: (uri: string | null) => void;
   setCameraOpen: (open: boolean) => void;
@@ -78,6 +80,11 @@ export const useClockAction = (): ClockActionData => {
 
   // ── Location name for today's shift (dependent query) ──
   const { data: shiftLocationName = null } = useLocationName(companyId, todayShift?.locationId);
+
+  // ── NFC settings of today's shift site ──
+  const { data: shiftLocation = null } = useLocationDetails(companyId, todayShift?.locationId);
+  const siteRequiresNfc = !!shiftLocation?.requireNfc;
+  const siteHasNfcTag = !!shiftLocation?.nfcTagKey;
 
   // ── Safety questions query ──
   const { data: safetyQuestions = [] } = useQuery({
@@ -201,6 +208,8 @@ export const useClockAction = (): ClockActionData => {
     safetyQuestions,
     shiftLocationName,
     isClockedIn,
+    siteRequiresNfc,
+    siteHasNfcTag,
     answers,
     setPhotoUri,
     setCameraOpen,

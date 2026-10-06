@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useRouter } from 'expo-router';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,6 +12,10 @@ import { ClockButton } from '@/components/screens/clock/ClockButton';
 import { ElapsedTimer } from '@/components/screens/clock/ElapsedTimer';
 import { SafetyQuestionnaire } from '@/components/screens/clock/SafetyQuestionnaire';
 import PhotoCapture from '@/components/PhotoCapture';
+import { NfcClockPanel } from '@/components/screens/clock/NfcClockPanel';
+import { useNfcAvailability } from '@/hooks/useNfcAvailability';
+import { nfcService } from '@/services/nfc.service';
+import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/i18n';
 
 export default function ClockScreen() {
@@ -27,12 +33,32 @@ export default function ClockScreen() {
     safetyQuestions,
     shiftLocationName,
     isClockedIn,
+    siteRequiresNfc,
+    siteHasNfcTag,
     answers,
     setPhotoUri,
     setCameraOpen,
     setAnswers,
     handleClock,
   } = useClockAction();
+
+  const router = useRouter();
+  const toast = useToast();
+  const nfcAvailability = useNfcAvailability();
+  const [scanning, setScanning] = useState(false);
+
+  const scanTag = async () => {
+    setScanning(true);
+    try {
+      const tagKey = await nfcService.readTagKey(t('nfc.scan_prompt'));
+      if (tagKey) router.push(`/t/${tagKey}` as any);
+      else toast.error(t('nfc.error_not_loqzen'));
+    } catch {
+      // Scan cancelled by the employee or timed out: nothing to report.
+    } finally {
+      setScanning(false);
+    }
+  };
 
   const firstName = name ? name.split(' ')[0] : 'there';
 
@@ -76,7 +102,7 @@ export default function ClockScreen() {
         )}
 
         {/* Safety questionnaire (when shift scheduled & not clocked in) */}
-        {!!todayShift && !isClockedIn && (
+        {!!todayShift && !isClockedIn && !siteRequiresNfc && (
           <SafetyQuestionnaire
             shift={todayShift}
             questions={safetyQuestions}
@@ -86,17 +112,29 @@ export default function ClockScreen() {
           />
         )}
 
-        {/* Clock button */}
-        <View style={styles.clockBtnArea}>
-          <ClockButton
-            isClockedIn={isClockedIn}
-            loading={loading}
-            onPress={handleClock}
-            photoUri={photoUri}
-            onPhotoPress={() => setCameraOpen(true)}
-            onRemovePhoto={() => setPhotoUri(null)}
+        {/* Clock button: hidden where the site only accepts NFC taps (the server rejects it too) */}
+        {!siteRequiresNfc && (
+          <View style={styles.clockBtnArea}>
+            <ClockButton
+              isClockedIn={isClockedIn}
+              loading={loading}
+              onPress={handleClock}
+              photoUri={photoUri}
+              onPhotoPress={() => setCameraOpen(true)}
+              onRemovePhoto={() => setPhotoUri(null)}
+            />
+          </View>
+        )}
+
+        {(siteRequiresNfc || siteHasNfcTag) && (
+          <NfcClockPanel
+            siteName={shiftLocationName}
+            required={siteRequiresNfc}
+            availability={nfcAvailability}
+            scanning={scanning}
+            onScan={scanTag}
           />
-        </View>
+        )}
 
         {/* Error */}
         {!!error && (

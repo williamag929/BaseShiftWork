@@ -1,9 +1,12 @@
-import { Tabs } from 'expo-router';
+import { useEffect } from 'react';
+import { Tabs, useRouter } from 'expo-router';
 import { Platform, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
 import { useServerLocale } from '@/hooks/useServerLocale';
+import { usePendingTagStore } from '@/store/pendingTagStore';
+import { useAuthStore } from '@/store/authStore';
 
 /** Apple-style active tab icon — filled variant with tinted dot indicator */
 function TabIcon({
@@ -28,6 +31,15 @@ function TabIcon({
 export default function TabsLayout() {
   const { t } = useTranslation();
   useServerLocale();
+  const router = useRouter();
+  const personId = useAuthStore((s) => s.personId);
+  const companyId = useAuthStore((s) => s.companyId);
+  // Finish a tag tap that had to wait for sign-in; keyed on the identity so a re-login while mounted resumes it too.
+  useEffect(() => {
+    if (!personId || !companyId) return;
+    const pending = usePendingTagStore.getState().take();
+    if (pending) router.push(`/t/${pending}` as any);
+  }, [router, personId, companyId]);
 
   return (
     <Tabs

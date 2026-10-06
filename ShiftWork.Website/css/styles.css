@@ -980,8 +980,8 @@ h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; letter-spacing
   .leads-summary { grid-template-columns: 1fr 1fr; }
 }
 
-@media (max-width: 680px) {
-  .section { padding: 68px 0; }
+/* Collapse the nav before it overflows (procore page has an extra link) */
+@media (max-width: 900px) {
   .nav-links, .nav-cta { display: none; }
   .nav-toggle { display: flex; }
   .navbar.menu-open .nav-links {
@@ -996,6 +996,10 @@ h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; letter-spacing
     gap: 18px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
   }
+}
+
+@media (max-width: 680px) {
+  .section { padding: 68px 0; }
   .feature-grid, .industry-grid, .quote-grid, .pricing-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
   .float-card-1 { left: 0; }

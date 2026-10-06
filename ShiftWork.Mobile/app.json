@@ -17,6 +17,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.loqzen.mobile",
+      "associatedDomains": ["applinks:t.loqzen.com"],
       "infoPlist": {
         "NSCameraUsageDescription": "Loqzen needs camera access to capture photos during clock in/out",
         "NSLocationWhenInUseUsageDescription": "Loqzen needs your location to record where you clock in/out",
@@ -29,6 +30,14 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.loqzen.mobile",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [{ "scheme": "https", "host": "t.loqzen.com", "pathPrefix": "/t/" }],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.ACCESS_FINE_LOCATION",
@@ -71,7 +80,15 @@
           "color": "#ffffff",
           "sounds": []
         }
-      ]
+      ],
+      [
+        "react-native-nfc-manager",
+        {
+          "nfcPermission": "Loqzen reads the NFC tag at your jobsite to clock you in or out",
+          "includeNdefEntitlement": false
+        }
+      ],
+      "./plugins/withNfcTagIntent"
     ],
     "experiments": {
       "typedRoutes": true

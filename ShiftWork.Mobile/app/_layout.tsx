@@ -2,6 +2,7 @@ import { Stack, useRouter } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
+import { Linking } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAuthStore } from '@/store/authStore';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -10,6 +11,7 @@ import { ToastContainer } from '@/components/ui';
 import { logger } from '@/utils/logger';
 import { getToken, getUserData, getCompanyId } from '@/utils/storage.utils';
 import { LocaleProvider } from '@/i18n';
+import { isTagLaunchUrl } from '@/utils/nfcTag';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -47,10 +49,11 @@ export default function RootLayout() {
     let cancelled = false;
     (async () => {
       try {
-        const [token, userData, companyId] = await Promise.all([
+        const [token, userData, companyId, initialUrl] = await Promise.all([
           getToken(),
           getUserData(),
           getCompanyId(),
+          Linking.getInitialURL(),
         ]);
 
         if (cancelled) return;
@@ -60,7 +63,8 @@ export default function RootLayout() {
           setPersonProfile({ email: userData.email ?? null, name: userData.name ?? null });
           if (companyId) setCompanyId(companyId);
           // Only redirect to dashboard on the very first mount
-          if (!authInitialized.current) {
+          // A tag tap cold-starts the app on /t/<key>; replacing it with the dashboard would drop the punch.
+          if (!authInitialized.current && !isTagLaunchUrl(initialUrl)) {
             router.replace('/(tabs)/dashboard' as any);
           }
         } else {
@@ -85,6 +89,7 @@ export default function RootLayout() {
               <Stack.Screen name="index" options={{ headerShown: false }} />
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="t/[tagKey]" options={{ headerShown: false }} />
             </Stack>
             <ToastContainer />
             <StatusBar style="auto" />

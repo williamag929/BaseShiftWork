@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Data;
 using ShiftWork.Api.DTOs;
+using ShiftWork.Api.Helpers;
 using ShiftWork.Api.Models;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,10 @@ namespace ShiftWork.Api.Services
         Task<bool> Delete(string companyId, int locationId);
         /// <summary>Live "who's on site" roster per active location, for the Active Sites dashboard.</summary>
         Task<List<ActiveSiteStatusDto>> GetActiveSiteStatusAsync(string companyId);
+        /// <summary>Gives the site a new tag key (the old tag link stops working) and clears NfcLastTappedAt.</summary>
+        Task<Location?> RegenerateNfcTagAsync(string companyId, int locationId);
+        /// <summary>Active sites with their tag links, for the Mobile "Write tag" screen.</summary>
+        Task<List<NfcTagLinkDto>> GetNfcTagLinksAsync(string companyId);
     }
 
     /// <summary>
@@ -53,6 +58,8 @@ namespace ShiftWork.Api.Services
 
         public async Task<Location> Add(Location location)
         {
+            location.NfcTagKey = location.RequireNfc ? NfcTagKeys.NewKey() : null;
+            location.NfcLastTappedAt = null;
             _context.Locations.Add(location);
             await _context.SaveChangesAsync();
             _logger.LogInformation("Location with ID {LocationId} created.", location.LocationId);
@@ -92,6 +99,13 @@ namespace ShiftWork.Api.Services
             existingLocation.Status = location.Status;
             existingLocation.RequirePin = location.RequirePin;
             existingLocation.RequirePhoto = location.RequirePhoto;
+            existingLocation.RequireNfc = location.RequireNfc;
+            // NfcTagKey/NfcLastTappedAt are never copied from the caller. Turning the rule off keeps
+            // the key so a tag already on the wall keeps working at an optional site.
+            if (existingLocation.RequireNfc && string.IsNullOrEmpty(existingLocation.NfcTagKey))
+            {
+                existingLocation.NfcTagKey = NfcTagKeys.NewKey();
+            }
 
             // SaveChangesAsync will trigger the audit interceptor with proper change tracking
             await _context.SaveChangesAsync();
@@ -118,6 +132,39 @@ namespace ShiftWork.Api.Services
             await _context.SaveChangesAsync();
             _logger.LogInformation("Location with ID {LocationId} for company {CompanyId} deleted.", locationId, companyId);
             return true;
+        }
+
+        public async Task<Location?> RegenerateNfcTagAsync(string companyId, int locationId)
+        {
+            var location = await _context.Locations
+                .FirstOrDefaultAsync(l => l.CompanyId == companyId && l.LocationId == locationId);
+            if (location == null)
+            {
+                return null;
+            }
+
+            location.NfcTagKey = NfcTagKeys.NewKey();
+            location.NfcLastTappedAt = null;
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("NFC tag key regenerated for location {LocationId}.", locationId);
+            return location;
+        }
+
+        public async Task<List<NfcTagLinkDto>> GetNfcTagLinksAsync(string companyId)
+        {
+            return await _context.Locations
+                .AsNoTracking()
+                .Where(l => l.CompanyId == companyId && l.Status == "Active")
+                .OrderBy(l => l.Name)
+                .Select(l => new NfcTagLinkDto
+                {
+                    LocationId = l.LocationId,
+                    Name = l.Name,
+                    RequireNfc = l.RequireNfc,
+                    TagUrl = l.NfcTagKey == null ? null : NfcTagKeys.TagUrlBase + l.NfcTagKey,
+                    NfcLastTappedAt = l.NfcLastTappedAt,
+                })
+                .ToListAsync();
         }
 
         public async Task<List<ActiveSiteStatusDto>> GetActiveSiteStatusAsync(string companyId)

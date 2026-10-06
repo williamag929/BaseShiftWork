@@ -4,6 +4,7 @@ jest.mock('@/hooks/queries', () => ({
   useShiftEvents: jest.fn(() => ({ data: [], isLoading: false, isError: false, error: null })),
   useClockMutation: jest.fn(() => ({ mutateAsync: jest.fn(), isPending: false })),
   useLocationName: jest.fn(() => ({ data: null })),
+  useLocationDetails: jest.fn(() => ({ data: null })),
 }));
 jest.mock('@tanstack/react-query', () => ({
   useQuery: jest.fn(() => ({ data: null, isLoading: false })),
@@ -71,5 +72,22 @@ describe('useClockAction', () => {
   it('fmtHMS correctly formats 0 seconds as 00:00:00', () => {
     const { result } = renderHook(() => useClockAction());
     expect(result.current.fmtHMS(0)).toBe('00:00:00');
+  });
+});
+
+import { useLocationDetails } from '@/hooks/queries';
+
+describe('useClockAction NFC site flags', () => {
+  it('is a normal site when the location has no NFC settings', () => {
+    const { result } = renderHook(() => useClockAction());
+    expect(result.current.siteRequiresNfc).toBe(false);
+    expect(result.current.siteHasNfcTag).toBe(false);
+  });
+
+  it('reports an NFC-required site with a tag', () => {
+    (useLocationDetails as jest.Mock).mockReturnValue({ data: { requireNfc: true, nfcTagKey: 'k' } });
+    const { result } = renderHook(() => useClockAction());
+    expect(result.current.siteRequiresNfc).toBe(true);
+    expect(result.current.siteHasNfcTag).toBe(true);
   });
 });

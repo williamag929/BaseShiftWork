@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace ShiftWork.Api.Models
@@ -43,5 +44,20 @@ namespace ShiftWork.Api.Models
         public bool RequirePin { get; set; } = true;
         /// <summary>When false, kiosks at this site skip the camera. Default true (today's behavior).</summary>
         public bool RequirePhoto { get; set; } = true;
+
+        /// <summary>
+        /// When true, an employee's own phone punch at this site must come from an NFC tag tap
+        /// (POST nfc-punch). Kiosk punches and manager entries are unaffected. Default false.
+        /// </summary>
+        public bool RequireNfc { get; set; } = false;
+
+        /// <summary>
+        /// Random URL-safe key in this site's tag link (https://t.loqzen.com/t/{key}). Server-owned:
+        /// created when RequireNfc is first turned on or on regenerate; never taken from a client.
+        /// </summary>
+        public string? NfcTagKey { get; set; }
+
+        /// <summary>Time of the last accepted NFC tap at this site (UTC).</summary>
+        public DateTime? NfcLastTappedAt { get; set; }
     }
 }

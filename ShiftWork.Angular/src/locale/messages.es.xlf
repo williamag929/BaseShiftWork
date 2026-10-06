@@ -1810,6 +1810,62 @@
         <source>Turn both off for the fastest clock-in. Employees marked "No photo required" never see the camera.</source>
         <target state="translated">Desactiva ambos para una marcación más rápida. Los empleados marcados como "Sin foto" nunca ven la cámara.</target>
       </trans-unit>
+      <trans-unit id="locations.nfc_section" datatype="html">
+        <source>NFC tag</source>
+        <target state="translated">Etiqueta NFC</target>
+      </trans-unit>
+      <trans-unit id="locations.require_nfc" datatype="html">
+        <source>Require an NFC tag tap to clock in or out from phones</source>
+        <target state="translated">Exigir tocar la etiqueta NFC para marcar desde el teléfono</target>
+      </trans-unit>
+      <trans-unit id="locations.require_nfc_hint" datatype="html">
+        <source>When on, employees can't use the phone's clock button at this site. Kiosks and manager entries still work.</source>
+        <target state="translated">Si está activo, los empleados no pueden usar el botón de marcar del teléfono en este sitio. Los kioscos y las entradas de gerentes siguen funcionando.</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_tag_link" datatype="html">
+        <source>Tag link</source>
+        <target state="translated">Enlace de la etiqueta</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_copy" datatype="html">
+        <source>Copy</source>
+        <target state="translated">Copiar</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_regenerate" datatype="html">
+        <source>Regenerate</source>
+        <target state="translated">Regenerar</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_last_tapped" datatype="html">
+        <source>Last tapped:</source>
+        <target state="translated">Último toque:</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_create" datatype="html">
+        <source>Create tag link</source>
+        <target state="translated">Crear enlace de etiqueta</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_after_save" datatype="html">
+        <source>Save the location first, then create its tag link here.</source>
+        <target state="translated">Guarda la ubicación primero y luego crea aquí su enlace de etiqueta.</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_copied" datatype="html">
+        <source>Tag link copied.</source>
+        <target state="translated">Enlace copiado.</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_copy_failed" datatype="html">
+        <source>Could not copy. Select the link and copy it.</source>
+        <target state="translated">No se pudo copiar. Selecciona el enlace y cópialo.</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_regenerate_confirm" datatype="html">
+        <source>Create a new tag link? The current tag stops working right away and must be written again.</source>
+        <target state="translated">¿Crear un nuevo enlace? La etiqueta actual deja de funcionar de inmediato y hay que volver a escribirla.</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_regenerated" datatype="html">
+        <source>New tag link ready. Write it to the tag.</source>
+        <target state="translated">Nuevo enlace listo. Escríbelo en la etiqueta.</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_regenerate_failed" datatype="html">
+        <source>Could not create the tag link.</source>
+        <target state="translated">No se pudo crear el enlace de la etiqueta.</target>
+      </trans-unit>
       <trans-unit id="people.photo_exempt" datatype="html">
         <source>No photo required at the kiosk</source>
         <target state="translated">Sin foto en el kiosco</target>

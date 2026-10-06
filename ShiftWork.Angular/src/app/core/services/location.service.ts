@@ -50,6 +50,14 @@ export class LocationService {
       );
   }
 
+  /** New tag key for the site; the old tag link stops working immediately. Also creates the first key. */
+  regenerateNfcTag(companyId: string, id: number): Observable<Location> {
+    return this.http.post<Location>(`${this.apiUrl}/companies/${companyId}/locations/${id}/nfc-tag/regenerate`, {}, this.getHttpOptions())
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
   deleteLocation(companyId: string, id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/companies/${companyId}/locations/${id}`, this.getHttpOptions())
       .pipe(
