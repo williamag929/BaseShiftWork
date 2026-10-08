@@ -12,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#0F2237"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.loqzen.kiosk",
@@ -48,7 +50,9 @@
         {
           "locationWhenInUsePermission": "Allow Loqzen Kiosk to verify clock-in location."
         }
-      ]
+      ],
+      "expo-font",
+      "expo-asset"
     ],
     "extra": {
       "router": {
