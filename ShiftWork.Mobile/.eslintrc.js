@@ -20,6 +20,10 @@ module.exports = {
   },
   overrides: [
     {
+      files: ['**/__tests__/**', '**/*.test.{ts,tsx,js}', '__mocks__/**', 'jest.setup.*'],
+      env: { jest: true },
+    },
+    {
       files: ['scripts/**/*.js'],
       env: { node: true },
       rules: {

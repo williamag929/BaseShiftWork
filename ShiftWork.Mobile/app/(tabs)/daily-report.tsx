@@ -116,7 +116,7 @@ export default function DailyReportScreen() {
     const result = source === 'camera'
       ? await ImagePicker.launchCameraAsync({ quality: 0.75, allowsEditing: false })
       : await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          mediaTypes: ['images'],
           quality: 0.75,
           allowsMultipleSelection: false,
         });
