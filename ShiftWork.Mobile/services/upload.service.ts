@@ -1,5 +1,4 @@
 import { apiClient } from './api-client';
-import * as FileSystem from 'expo-file-system';
 // Firebase auth is DISABLED — token is read from SecureStore instead.
 // import { auth } from '@/config/firebase';
 import { getToken } from '@/utils/storage.utils';
