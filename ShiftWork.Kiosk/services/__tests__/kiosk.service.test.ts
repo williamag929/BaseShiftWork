@@ -43,12 +43,12 @@ describe('kioskService.verifyPin', () => {
   it('fails fast (5 s) so an offline PIN screen does not hang', async () => {
     mockPost.mockResolvedValue({ data: { verified: true } });
 
-    const ok = await kioskService.verifyPin(7, '1234');
+    const ok = await kioskService.verifyPin('co-1', 7, '1234');
 
     expect(ok).toBe(true);
     expect(mockPost).toHaveBeenCalledWith(
-      '/api/auth/verify-pin',
-      { personId: 7, pin: '1234' },
+      '/api/companies/co-1/people/7/verify-pin',
+      { pin: '1234' },
       { timeout: 5_000 }
     );
   });

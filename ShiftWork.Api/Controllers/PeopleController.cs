@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -543,6 +544,30 @@ namespace ShiftWork.Api.Controllers
                 _logger.LogError(ex, "Error retrieving ShiftWork status for person {PersonId} in company {CompanyId}.", personId, companyId);
                 return StatusCode(500, "An internal server error occurred.");
             }
+        }
+
+        /// <summary>
+        /// Checks a person's clock PIN inside one company. Used by the iPad kiosk (which has no user
+        /// session, hence AllowAnonymous), the web kiosk and the mobile app. The person must belong to
+        /// {companyId}; an unknown person, a person of another company and a person without a PIN all
+        /// get the same 404. Rate-limited per client IP + company + person (5 tries / 5 minutes → 429).
+        /// </summary>
+        [HttpPost("{personId:int}/verify-pin")]
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.PinVerify)]
+        [ProducesResponseType(typeof(PinVerificationResponse), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(429)]
+        public async Task<ActionResult<PinVerificationResponse>> VerifyPin(
+            string companyId, int personId, [FromBody] CompanyPinVerificationRequest request)
+        {
+            var result = await PinVerification.CheckAsync(_context, companyId, personId, request?.Pin);
+            if (result == PinCheckResult.NotFound)
+            {
+                return NotFound("Person not found or PIN not set.");
+            }
+
+            return Ok(new PinVerificationResponse { Verified = result == PinCheckResult.Verified });
         }
 
         /// <summary>

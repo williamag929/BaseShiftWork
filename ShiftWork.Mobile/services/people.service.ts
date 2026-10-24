@@ -66,11 +66,11 @@ class PeopleService {
     pin: string
   ): Promise<boolean> {
     try {
-      const response = await apiClient.post<{ valid: boolean }>(
+      const response = await apiClient.post<{ verified: boolean }>(
         `/api/companies/${companyId}/people/${personId}/verify-pin`,
         { pin }
       );
-      return response.valid;
+      return response.verified;
     } catch {
       return false;
     }

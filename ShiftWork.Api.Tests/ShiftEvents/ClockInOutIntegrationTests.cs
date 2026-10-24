@@ -265,6 +265,14 @@ public class ClockInOutIntegrationTests : IDisposable
         Assert.IsType<NotFoundObjectResult>(result);
     }
 
+    [Fact]
+    public async Task VerifyPin_LegacyRoute_PersonOfAnotherCompany_Is404()
+    {
+        // Carla (company B) has the same PIN, but a caller that says it is company A can't test it.
+        var result = await Auth().VerifyPin(new PinVerificationRequest { PersonId = CarlaId, Pin = AnaPin, CompanyId = CoA });
+        Assert.IsType<NotFoundObjectResult>(result);
+    }
+
     // ── CompanyId isolation ──────────────────────────────────────────────────
 
     [Fact]

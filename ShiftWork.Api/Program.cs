@@ -185,6 +185,8 @@ builder.Services.AddRateLimiter(options =>
         opt.QueueLimit = 0;
         opt.AutoReplenishment = true;
     });
+    // Brute-force protection for 4-digit kiosk PINs (see Helpers/RateLimitPolicies.cs)
+    options.AddPinVerifyPolicies();
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 

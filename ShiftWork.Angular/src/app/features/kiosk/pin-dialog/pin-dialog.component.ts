@@ -31,7 +31,7 @@ export class PinDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<PinDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { name: string, personId: number },
+    @Inject(MAT_DIALOG_DATA) public data: { name: string, personId: number, companyId: string },
     private fb: FormBuilder,
     private authService: AuthService,
     private toastr: ToastrService,
@@ -67,7 +67,7 @@ export class PinDialogComponent implements OnInit {
 
   onSubmit(): void {
     if (this.pinForm.valid) {
-      this.authService.verifyPin(this.data.personId, this.pinForm.value.pin).subscribe(result => {
+      this.authService.verifyPin(this.data.companyId, this.data.personId, this.pinForm.value.pin).subscribe(result => {
         if (result.verified) {
           this.dialogRef.close(true);
         } else {
@@ -75,7 +75,10 @@ export class PinDialogComponent implements OnInit {
           this.pinForm.reset();
         }
       }, error => {
-        this.toastr.error('Error verifying PIN');
+        this.toastr.error(error?.status === 429
+          ? 'Too many attempts. Wait a few minutes and try again.'
+          : 'Error verifying PIN');
+        this.pinForm.reset();
         console.error(error);
       });
     }
