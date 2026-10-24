@@ -17,12 +17,13 @@ namespace ShiftWork.Api.Services
         /// </summary>
         Task EnsureNfcNotRequiredAsync(ShiftEventDto shiftEventDto);
 
-    Task<ShiftEvent?> GetShiftEventByIdAsync(Guid id);
+        /// <summary>Returns the event only when it belongs to <paramref name="companyId"/>.</summary>
+        Task<ShiftEvent?> GetShiftEventByIdAsync(string companyId, Guid id);
         Task<IEnumerable<ShiftEvent>> GetShiftEventsByPersonIdAsync(string companyId, int personId);
         Task<IEnumerable<ShiftEvent>> GetShiftEventsByCompanyIdAsync(string companyId);
         Task<IEnumerable<ShiftEvent>> GetShiftEventsByEventTypeAsync(string companyId, string eventType);
-        Task<ShiftEvent?> UpdateShiftEventAsync(Guid id, ShiftEventDto shiftEventDto);
-        Task<bool> DeleteShiftEventAsync(Guid id);
+        Task<ShiftEvent?> UpdateShiftEventAsync(string companyId, Guid id, ShiftEventDto shiftEventDto);
+        Task<bool> DeleteShiftEventAsync(string companyId, Guid id);
         Task<bool> EnsureAutoClockOutForPersonAsync(string companyId, int personId, DateTime? nowUtc = null);
 
         /// <summary>

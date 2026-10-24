@@ -35,6 +35,19 @@ namespace ShiftWork.Api.Services
             // Ensure PhotoUrl from DTO is preserved even if mapper configuration changes
             shiftEvent.PhotoUrl = shiftEventDto.PhotoUrl;
 
+            // Tenant guard: a punch can only be recorded for a person of the same company.
+            if (shiftEvent.PersonId > 0)
+            {
+                var personCompanyId = await _context.Persons
+                    .Where(p => p.PersonId == shiftEvent.PersonId)
+                    .Select(p => p.CompanyId)
+                    .FirstOrDefaultAsync();
+                if (personCompanyId != null && personCompanyId != shiftEvent.CompanyId)
+                {
+                    throw new PersonNotInCompanyException(shiftEvent.PersonId, shiftEvent.CompanyId);
+                }
+            }
+
             // Idempotency guard: prevent double clock-in/out based on current StatusShiftWork
             if (shiftEvent.PersonId > 0 && !string.IsNullOrWhiteSpace(shiftEvent.EventType))
             {
@@ -217,9 +230,10 @@ namespace ShiftWork.Api.Services
             }
         }
 
-        public async Task<ShiftEvent?> GetShiftEventByIdAsync(Guid id)
+        public async Task<ShiftEvent?> GetShiftEventByIdAsync(string companyId, Guid id)
         {
-            return await _context.ShiftEvents.FindAsync(id);
+            return await _context.ShiftEvents
+                .FirstOrDefaultAsync(e => e.EventLogId == id && e.CompanyId == companyId);
         }
 
         public async Task<IEnumerable<ShiftEvent>> GetShiftEventsByPersonIdAsync(string companyId, int personId)
@@ -239,28 +253,31 @@ namespace ShiftWork.Api.Services
         public async Task<IEnumerable<ShiftEvent>> GetShiftEventsByEventTypeAsync(string companyId, string eventType)
         {
             return await _context.ShiftEvents
-                .Where(e => e.EventType == eventType)
+                .Where(e => e.CompanyId == companyId && e.EventType == eventType)
                 .ToListAsync();
         }
 
-        public async Task<ShiftEvent?> UpdateShiftEventAsync(Guid id, ShiftEventDto shiftEventDto)
+        public async Task<ShiftEvent?> UpdateShiftEventAsync(string companyId, Guid id, ShiftEventDto shiftEventDto)
         {
-            var existing = await _context.ShiftEvents.FindAsync(id);
+            var existing = await GetShiftEventByIdAsync(companyId, id);
             if (existing == null)
             {
                 return null;
             }
 
-            // Map allowed fields from DTO onto existing entity
+            // Map allowed fields from DTO onto existing entity. The key and tenant never change:
+            // an update must not move an event to another company or re-key it.
             _mapper.Map(shiftEventDto, existing);
+            existing.EventLogId = id;
+            existing.CompanyId = companyId;
 
             await _context.SaveChangesAsync();
             return existing;
         }
 
-        public async Task<bool> DeleteShiftEventAsync(Guid id)
+        public async Task<bool> DeleteShiftEventAsync(string companyId, Guid id)
         {
-            var existing = await _context.ShiftEvents.FindAsync(id);
+            var existing = await GetShiftEventByIdAsync(companyId, id);
             if (existing == null)
             {
                 return false;
@@ -441,7 +458,14 @@ namespace ShiftWork.Api.Services
             {
                 targetLocation = explicitLocationId == scheduleShift?.LocationId
                     ? scheduleShift?.Location
-                    : await _context.Locations.FindAsync(explicitLocationId.Value);
+                    : await _context.Locations.FirstOrDefaultAsync(l =>
+                        l.LocationId == explicitLocationId.Value && l.CompanyId == shiftEvent.CompanyId);
+                // A site id from another company is ignored rather than stored on this tenant's event.
+                if (targetLocation == null &&
+                    await _context.Locations.AnyAsync(l => l.LocationId == explicitLocationId.Value))
+                {
+                    explicitLocationId = null;
+                }
             }
             else
             {

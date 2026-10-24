@@ -45,6 +45,9 @@ namespace ShiftWork.Api.Controllers
                 return BadRequest(ModelState);
             }
 
+            // The route decides the tenant; a body CompanyId can never point at another company.
+            shiftEventDto.CompanyId = companyId;
+
             try
             {
                 if (IsOwnPhonePunch(shiftEventDto))
@@ -61,6 +64,11 @@ namespace ShiftWork.Api.Controllers
             catch (NfcRequiredException ex)
             {
                 return StatusCode(403, new { code = NfcRequiredException.Code, message = ex.Message });
+            }
+            catch (PersonNotInCompanyException ex)
+            {
+                _logger.LogWarning(ex, "Rejected shift event for person {PersonId} in company {CompanyId}", shiftEventDto.PersonId, companyId);
+                return NotFound(new { message = "Person not found in this company." });
             }
             catch (InvalidOperationException ex)
             {
@@ -83,7 +91,7 @@ namespace ShiftWork.Api.Controllers
         {
             try
             {
-                var shiftEvent = await _shiftEventService.GetShiftEventByIdAsync(eventLogId);
+                var shiftEvent = await _shiftEventService.GetShiftEventByIdAsync(companyId, eventLogId);
                 if (shiftEvent == null)
                 {
                     return NotFound();
@@ -170,7 +178,8 @@ namespace ShiftWork.Api.Controllers
 
             try
             {
-                var updated = await _shiftEventService.UpdateShiftEventAsync(eventLogId, shiftEventDto);
+                shiftEventDto.CompanyId = companyId;
+                var updated = await _shiftEventService.UpdateShiftEventAsync(companyId, eventLogId, shiftEventDto);
                 if (updated == null)
                 {
                     return NotFound();
@@ -220,7 +229,7 @@ namespace ShiftWork.Api.Controllers
         {
             try
             {
-                var deleted = await _shiftEventService.DeleteShiftEventAsync(eventLogId);
+                var deleted = await _shiftEventService.DeleteShiftEventAsync(companyId, eventLogId);
                 if (!deleted)
                 {
                     return NotFound();
