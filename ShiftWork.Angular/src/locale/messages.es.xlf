@@ -134,6 +134,14 @@
         <source>Log in with Google</source>
         <target state="translated">Iniciar sesión con Google</target>
       </trans-unit>
+      <trans-unit id="auth.login.newToLoqzen" datatype="html">
+        <source>New to Loqzen?</source>
+        <target state="translated">¿Nuevo en Loqzen?</target>
+      </trans-unit>
+      <trans-unit id="auth.login.createCompany" datatype="html">
+        <source>Create a company account</source>
+        <target state="translated">Crear una cuenta de empresa</target>
+      </trans-unit>
       <trans-unit id="auth.login.biometric" datatype="html">
         <source>Sign in with <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/></source>
         <target state="translated">Iniciar sesión con <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/></target>
