@@ -342,7 +342,19 @@ export default {
     "subtitle_web": "Unlock the full power of Loqzen for your team.",
     "feature": "Feature",
     "upgrade_btn": "Upgrade to Pro Now",
-    "back": "← Back"
+    "back": "← Back",
+    "plans_title": "Plans",
+    "plans_subtitle": "Every plan includes kiosk clock-in and scheduling. Plans differ by how many active employees you can have.",
+    "col_plan": "Plan",
+    "col_employees": "Active employees",
+    "plan_starter": "Starter",
+    "plan_business": "Business",
+    "unlimited": "Unlimited",
+    "trial_note": "New companies get a 14-day Pro trial, no card needed.",
+    "billing_web_note": "Plans are purchased and managed on the Loqzen web app, under Plan & Billing.",
+    "manage_billing_btn": "Open Plan & Billing",
+    "no_web_url": "Billing link is not configured. Open Loqzen on the web and go to Plan & Billing.",
+    "open_failed": "Could not open the browser. Open Loqzen on the web and go to Plan & Billing."
   },
   "nav": {
     "home": "Home",

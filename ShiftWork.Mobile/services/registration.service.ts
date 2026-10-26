@@ -24,17 +24,6 @@ export interface SandboxStatusResponse {
   sandboxLocationCount: number;
 }
 
-export interface PlanUpgradeRequest {
-  stripePaymentMethodId: string;
-  targetPlan: string;
-}
-
-export interface PlanUpgradeResponse {
-  success: boolean;
-  plan: string;
-  message: string;
-}
-
 export const registrationService = {
   async register(request: CompanyRegistrationRequest): Promise<CompanyRegistrationResponse> {
     return apiClient.post<CompanyRegistrationResponse>('/api/auth/register', request);
@@ -56,7 +45,5 @@ export const registrationService = {
     return apiClient.post<void>(`/api/companies/${companyId}/sandbox/delete`, {});
   },
 
-  async upgradePlan(companyId: string, request: PlanUpgradeRequest): Promise<PlanUpgradeResponse> {
-    return apiClient.post<PlanUpgradeResponse>(`/api/companies/${companyId}/plan/upgrade`, request);
-  },
+  // Plan purchases go through the web Plan & Billing page (Stripe Checkout); see app/(tabs)/upgrade.tsx.
 };
