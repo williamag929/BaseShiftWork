@@ -8,8 +8,8 @@
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#1A6B47"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -19,15 +19,17 @@
       "bundleIdentifier": "com.loqzen.mobile",
       "associatedDomains": ["applinks:t.loqzen.com"],
       "infoPlist": {
-        "NSCameraUsageDescription": "Loqzen needs camera access to capture photos during clock in/out",
-        "NSLocationWhenInUseUsageDescription": "Loqzen needs your location to record where you clock in/out",
-        "NSFaceIDUsageDescription": "Loqzen uses Face ID for quick and secure login"
+        "NSCameraUsageDescription": "Loqzen uses the camera to take a photo when you clock in or out and to attach photos to your daily report.",
+        "NSPhotoLibraryUsageDescription": "Loqzen lets you choose photos from your library to attach to your daily report.",
+        "NSLocationWhenInUseUsageDescription": "Loqzen records your location only at the moment you clock in or out so your employer can confirm you are at the jobsite.",
+        "NSFaceIDUsageDescription": "Loqzen uses Face ID so you can sign in quickly and securely.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#1A6B47"
       },
       "package": "com.loqzen.mobile",
       "intentFilters": [
@@ -43,9 +45,12 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.USE_BIOMETRIC",
-        "android.permission.USE_FINGERPRINT",
-        "android.permission.DETECT_SCREEN_CAPTURE",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.USE_FINGERPRINT"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
       ]
     },
     "web": {
@@ -57,27 +62,39 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Loqzen to access your camera for clock in/out photos"
+          "cameraPermission": "Loqzen uses the camera to take a photo when you clock in or out and to attach photos to your daily report.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Loqzen lets you choose photos from your library to attach to your daily report.",
+          "cameraPermission": "Loqzen uses the camera to take a photo when you clock in or out and to attach photos to your daily report.",
+          "microphonePermission": false
         }
       ],
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow Loqzen to use your location for clock in/out tracking"
+          "locationWhenInUsePermission": "Loqzen records your location only at the moment you clock in or out so your employer can confirm you are at the jobsite.",
+          "locationAlwaysAndWhenInUsePermission": false,
+          "locationAlwaysPermission": false
         }
       ],
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Allow Loqzen to use Face ID for secure authentication"
+          "faceIDPermission": "Loqzen uses Face ID so you can sign in quickly and securely."
         }
       ],
       "expo-font",
       [
         "expo-notifications",
         {
-          "icon": "./assets/icon.png",
-          "color": "#ffffff",
+          "icon": "./assets/notification-icon.png",
+          "color": "#1A6B47",
           "sounds": []
         }
       ],
@@ -99,7 +116,9 @@
       },
       "eas": {
         "projectId": "531adbf1-53a0-48ca-9fc8-f65ae312365a"
-      }
+      },
+      "privacyPolicyUrl": "https://loqzen.com/privacy",
+      "termsUrl": "https://loqzen.com/terms"
     },
     "owner": "williamaguirre82"
   }

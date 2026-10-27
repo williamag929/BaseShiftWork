@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 5.9.0"
+    "version": ">= 5.9.0",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
@@ -23,6 +24,7 @@
       }
     },
     "production": {
+      "autoIncrement": true,
       "ios": {
         "resourceClass": "m-medium"
       },
@@ -34,12 +36,14 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "your-apple-id@example.com",
-        "ascAppId": "000000000",
-        "appleTeamId": "XXXXXXXXXX"
+        "appleId": "[[APPLE_ID_EMAIL]]",
+        "ascAppId": "[[APP_STORE_CONNECT_APP_ID]]",
+        "appleTeamId": "[[APPLE_TEAM_ID]]"
       },
       "android": {
-        "serviceAccountKeyPath": "./path-to-service-account.json"
+        "serviceAccountKeyPath": "./secrets/google-play-service-account.json",
+        "track": "internal",
+        "releaseStatus": "draft"
       }
     }
   }

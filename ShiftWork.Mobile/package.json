@@ -9,8 +9,6 @@
     "web": "expo start --web",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
-    "create-assets": "node scripts/create-placeholder-assets.js",
-    "postinstall": "node scripts/create-placeholder-assets.js",
     "test": "node node_modules/jest-expo/bin/jest.js --passWithNoTests"
   },
   "dependencies": {

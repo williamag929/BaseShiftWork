@@ -1,57 +1,15 @@
-# Quick Asset Setup Guide
+# App Icon & Splash Assets
 
-## The Issue
+The PNGs in `assets/` are the **interim Loqzen mark** (white "L" on brand green `#1A6B47`, matching the landing-site favicon). Their SVG sources live in `scripts/assets/`.
 
-Expo needs these asset files to run:
-- `assets/icon.png` (1024x1024)
-- `assets/splash.png` (1284x2778)  
-- `assets/adaptive-icon.png` (1024x1024)
-- `assets/favicon.png` (48x48)
+| File | Size | Rules |
+|---|---|---|
+| `assets/icon.png` | 1024×1024 | Opaque (no alpha), square corners |
+| `assets/adaptive-icon.png` | 1024×1024 | Transparent; logo inside the central 66% safe zone |
+| `assets/splash.png` | 1284×2778 | `resizeMode: cover`, logo centered |
+| `assets/notification-icon.png` | 96×96 | White on transparent (Android status bar) |
+| `assets/favicon.png` | 48×48 | Web only |
 
-## Quick Fix - Option 1: Download Default Expo Assets
+To replace with final artwork, overwrite the PNGs at the same sizes (and update the SVG sources). If the brand color changes, also update `splash.backgroundColor`, `android.adaptiveIcon.backgroundColor` and the `expo-notifications` `color` in `app.json`.
 
-Run this in PowerShell:
-
-```powershell
-# Create assets directory
-New-Item -ItemType Directory -Force -Path assets
-
-# Download default Expo template assets
-Invoke-WebRequest -Uri "https://github.com/expo/expo/raw/main/templates/expo-template-blank/assets/icon.png" -OutFile "assets/icon.png"
-Invoke-WebRequest -Uri "https://github.com/expo/expo/raw/main/templates/expo-template-blank/assets/splash.png" -OutFile "assets/splash.png"
-Invoke-WebRequest -Uri "https://github.com/expo/expo/raw/main/templates/expo-template-blank/assets/adaptive-icon.png" -OutFile "assets/adaptive-icon.png"
-Invoke-WebRequest -Uri "https://github.com/expo/expo/raw/main/templates/expo-template-blank/assets/favicon.png" -OutFile "assets/favicon.png"
-```
-
-## Quick Fix - Option 2: Use Placeholder Tool
-
-```powershell
-npm run create-assets
-```
-
-Then convert the SVG files to PNG using an online tool or image editor.
-
-## Quick Fix - Option 3: Create Simple Assets Manually
-
-Create simple colored PNG files with any image editor:
-- Use solid blue (#4A90E2) backgrounds
-- Add white "SW" text in the center
-- Save as PNG with the correct dimensions
-
-## Recommended Tools
-
-- **Canva** - Quick icon creation (free)
-- **Figma** - Professional design tool (free)
-- **GIMP** - Free image editor
-- **Photoshop** - Professional (paid)
-- Online converters: https://svgtopng.com/
-
-## After Creating Assets
-
-Once you have the PNG files in the `assets/` folder, run:
-
-```powershell
-npm start
-```
-
-The app should now load without errors!
+Store-submission steps: see `Docs/STORE_SUBMISSION_CHECKLIST.md` at the repo root.
