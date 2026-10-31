@@ -3,3 +3,9 @@ node_modules/
 jest-run.log
 *.log
 .env
+
+# Store credentials (Play service account, Apple keys) - never commit
+secrets/
+*.p8
+*.p12
+*.mobileprovision
