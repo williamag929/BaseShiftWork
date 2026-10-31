@@ -27,7 +27,7 @@ Angular `features/dashboard/billing/`, `core/services/billing.service.ts`, `core
 
 ## Issues to fix (priority order)
 
-### 1. Mobile Upgrade tab is broken (bug)
+### 1. Mobile Upgrade tab is broken (bug) - FIXED in `loqzen-daily/11-stripe-review`
 `ShiftWork.Mobile/app/(tabs)/upgrade.tsx`:
 - With `EXPO_PUBLIC_APP_URL` set it opens `<url>/upgrade`, which now only redirects to `/dashboard/billing`.
 - Without it, it calls `registrationService.upgradePlan(...)` -> `POST /plan/upgrade` with a stub `pm_stub_mobile` payment method.

@@ -342,7 +342,19 @@ export default {
     "subtitle_web": "Desbloquea todo el poder de Loqzen para tu equipo.",
     "feature": "Función",
     "upgrade_btn": "Actualizar a Pro ahora",
-    "back": "← Atrás"
+    "back": "← Atrás",
+    "plans_title": "Planes",
+    "plans_subtitle": "Todos los planes incluyen marcación en kiosco y horarios. Los planes cambian según cuántos empleados activos puedes tener.",
+    "col_plan": "Plan",
+    "col_employees": "Empleados activos",
+    "plan_starter": "Starter",
+    "plan_business": "Business",
+    "unlimited": "Ilimitado",
+    "trial_note": "Las empresas nuevas tienen 14 días de prueba de Pro, sin tarjeta.",
+    "billing_web_note": "Los planes se compran y administran en la app web de Loqzen, en Plan y facturación.",
+    "manage_billing_btn": "Abrir Plan y facturación",
+    "no_web_url": "El enlace de facturación no está configurado. Abre Loqzen en la web y ve a Plan y facturación.",
+    "open_failed": "No se pudo abrir el navegador. Abre Loqzen en la web y ve a Plan y facturación."
   },
   "nav": {
     "home": "Inicio",
