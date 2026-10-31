@@ -506,7 +506,10 @@ export default {
     "language": "Idioma",
     "language_en": "Inglés",
     "language_es": "Español",
-    "footer": "ShiftWork Mobile · v1.0.0"
+    "legal": "Legal",
+    "privacy_policy": "Política de privacidad",
+    "terms_of_service": "Términos del servicio",
+    "footer": "Loqzen · v1.0.0"
   },
   "daily_reports": {
     "page_title": "Reportes diarios",
