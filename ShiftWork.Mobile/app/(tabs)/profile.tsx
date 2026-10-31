@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, Linking } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -27,6 +28,21 @@ export default function ProfileScreen() {
   const languages: { code: SupportedLocale; label: string }[] = [
     { code: 'en', label: t('profile.language_en') },
     { code: 'es', label: t('profile.language_es') },
+  ];
+
+  const extra = (Constants.expoConfig?.extra ?? {}) as Record<string, string | undefined>;
+  const isEs = locale === 'es';
+  const legalLinks = [
+    {
+      key: 'privacy',
+      label: t('profile.privacy_policy'),
+      url: (isEs && extra.privacyPolicyUrlEs) || extra.privacyPolicyUrl,
+    },
+    {
+      key: 'terms',
+      label: t('profile.terms_of_service'),
+      url: (isEs && extra.termsUrlEs) || extra.termsUrl,
+    },
   ];
 
   const selectLanguage = (code: SupportedLocale) => {
@@ -114,6 +130,28 @@ export default function ProfileScreen() {
         </View>
       </Animated.View>
 
+      {/* Legal */}
+      <Animated.View entering={FadeInDown.delay(240).duration(350)} style={styles.languageSection}>
+        <View style={styles.languageCard}>
+          <View style={styles.languageHeader}>
+            <View style={styles.languageIconWrap}>
+              <Ionicons name="document-text-outline" size={20} color={colors.primary} />
+            </View>
+            <Text style={styles.languageTitle}>{t('profile.legal')}</Text>
+          </View>
+          {legalLinks.map((link) => (
+            <PressableScale
+              key={link.key}
+              style={styles.legalRow}
+              onPress={() => { if (link.url) Linking.openURL(link.url); }}
+            >
+              <Text style={styles.legalRowText}>{link.label}</Text>
+              <Ionicons name="open-outline" size={16} color={colors.muted} />
+            </PressableScale>
+          ))}
+        </View>
+      </Animated.View>
+
       {/* Sign out */}
       <Animated.View entering={FadeInDown.delay(260).duration(350)} style={styles.signOutSection}>
         <PressableScale
@@ -164,6 +202,11 @@ const styles = StyleSheet.create({
   languageOptionActive: { borderColor: colors.primary, backgroundColor: 'rgba(0,122,255,0.08)' },
   languageOptionText: { fontSize: 14, fontWeight: '600', color: colors.muted },
   languageOptionTextActive: { color: colors.primary },
+  legalRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingVertical: 12, borderTopWidth: 1, borderTopColor: colors.border,
+  },
+  legalRowText: { fontSize: 14, fontWeight: '500', color: colors.text },
   signOutSection: { paddingHorizontal: spacing.lg, paddingTop: 16 },
   signOutRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,

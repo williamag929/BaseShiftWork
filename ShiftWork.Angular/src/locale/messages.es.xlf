@@ -543,8 +543,8 @@
         <target state="translated">Volver a iniciar sesión</target>
       </trans-unit>
       <trans-unit id="registration.title" datatype="html">
-        <source>Create your <x id="INTERPOLATION" equiv-text="{{ appName }}"/> account</source>
-        <target state="translated">Crea tu cuenta de <x id="INTERPOLATION" equiv-text="{{ appName }}"/></target>
+        <source>Create your Loqzen account</source>
+        <target state="translated">Crea tu cuenta de Loqzen</target>
       </trans-unit>
       <trans-unit id="registration.subtitle" datatype="html">
         <source>Get started in just a few steps — it&apos;s free</source>
@@ -621,6 +621,30 @@
       <trans-unit id="registration.notice" datatype="html">
         <source>A verification email will be sent to your inbox. Your company will start on the Free plan with sandbox demo data so you can explore the app right away.</source>
         <target state="translated">Se enviará un correo de verificación. Tu empresa comenzará en el plan gratuito con datos de demostración para explorar la aplicación.</target>
+      </trans-unit>
+      <trans-unit id="registration.legal_prefix" datatype="html">
+        <source>By creating an account you agree to the</source>
+        <target state="translated">Al crear una cuenta aceptas los</target>
+      </trans-unit>
+      <trans-unit id="registration.terms_link" datatype="html">
+        <source>Terms of Service</source>
+        <target state="translated">Términos del servicio</target>
+      </trans-unit>
+      <trans-unit id="registration.terms_url" datatype="html">
+        <source>https://www.loqzen.com/terms/</source>
+        <target state="translated">https://www.loqzen.com/es/terminos/</target>
+      </trans-unit>
+      <trans-unit id="registration.legal_and" datatype="html">
+        <source>and the</source>
+        <target state="translated">y la</target>
+      </trans-unit>
+      <trans-unit id="registration.privacy_link" datatype="html">
+        <source>Privacy Policy</source>
+        <target state="translated">Política de privacidad</target>
+      </trans-unit>
+      <trans-unit id="registration.privacy_url" datatype="html">
+        <source>https://www.loqzen.com/privacy/</source>
+        <target state="translated">https://www.loqzen.com/es/privacidad/</target>
       </trans-unit>
       <trans-unit id="registration.creating" datatype="html">
         <source>Creating account…</source>
