@@ -1521,6 +1521,7 @@ export default {
     "enter_pin": "Ingresa tu PIN",
     "pin_incorrect": "PIN incorrecto. Intenta de nuevo.",
     "pin_failed": "Falló la verificación. Revisa tu conexión.",
+    "pin_too_many": "Demasiados intentos. Espera unos minutos e inténtalo de nuevo.",
     "cancel": "Cancelar",
     "camera_required": "Se requiere acceso a la cámara para marcar entrada.",
     "grant_camera": "Permitir acceso a la cámara",

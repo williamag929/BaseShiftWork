@@ -36,7 +36,7 @@ Three client surfaces share one API:
 **Auth:**
 - Web/Admin → Firebase JWT (Bearer token from Firebase)
 - Mobile/Employee → API JWT issued by `POST /api/auth/login` or `POST /api/auth/accept-invite`
-- Kiosk → PIN verification (`POST /api/auth/verify-pin`), no persistent session
+- Kiosk → PIN verification (`POST /api/companies/{companyId}/people/{personId}/verify-pin`, company-scoped and rate-limited; `/api/auth/verify-pin` is deprecated), no persistent session
 
 **Authorization:** Custom `PermissionAuthorizationHandler` evaluates `[Authorize(Policy = "permission.key")]` against `CompanyUser → UserRole → Role → RolePermission → Permission` chain.
 

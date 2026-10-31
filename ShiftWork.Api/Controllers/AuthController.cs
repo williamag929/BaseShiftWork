@@ -121,18 +121,33 @@ namespace ShiftWork.Api.Controllers
             }
         }
 
+        /// <summary>
+        /// DEPRECATED — use POST /api/companies/{companyId}/people/{personId}/verify-pin, which is
+        /// scoped to one company and rate-limited per person. Kept so older app builds keep working;
+        /// now rate-limited per client IP, and scoped to CompanyId when the body includes it.
+        /// </summary>
         [HttpPost("verify-pin")]
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.PinVerifyLegacy)]
         public async Task<IActionResult> VerifyPin([FromBody] PinVerificationRequest request)
         {
-            var person = await _context.Persons.FindAsync(request.PersonId);
-            if (person == null || string.IsNullOrEmpty(person.Pin))
+            var companyId = request.CompanyId;
+            if (string.IsNullOrWhiteSpace(companyId))
+            {
+                // Legacy clients send no company: fall back to the person's own company.
+                companyId = await _context.Persons
+                    .Where(p => p.PersonId == request.PersonId)
+                    .Select(p => p.CompanyId)
+                    .FirstOrDefaultAsync();
+            }
+
+            var result = await PinVerification.CheckAsync(_context, companyId ?? string.Empty, request.PersonId, request.Pin);
+            if (result == PinCheckResult.NotFound)
             {
                 return NotFound("Person not found or PIN not set.");
             }
 
-            var verified = BCrypt.Net.BCrypt.Verify(request.Pin, person.Pin);
-
-            return Ok(new { verified });
+            return Ok(new { verified = result == PinCheckResult.Verified });
         }
 
         [HttpGet("user")]

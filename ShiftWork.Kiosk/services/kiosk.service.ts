@@ -68,11 +68,12 @@ export const kioskService = {
     return data.url;
   },
 
-  async verifyPin(personId: number, pin: string): Promise<boolean> {
+  async verifyPin(companyId: string, personId: number, pin: string): Promise<boolean> {
     // Short timeout: with no connection the PIN screen must fail fast, not spin for 15 s.
+    // Company-scoped route: the API only checks people of this company and rate-limits guesses.
     const { data } = await apiClient.post<{ verified: boolean }>(
-      '/api/auth/verify-pin',
-      { personId, pin },
+      `/api/companies/${companyId}/people/${personId}/verify-pin`,
+      { pin },
       { timeout: 5_000 }
     );
     return data.verified;

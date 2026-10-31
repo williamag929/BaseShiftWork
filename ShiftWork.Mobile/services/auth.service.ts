@@ -71,6 +71,7 @@ export const authService = {
 
   /**
    * Verify person's PIN
+   * @deprecated Calls the old unscoped /api/auth/verify-pin. Use peopleService.verifyPin(companyId, personId, pin).
    */
   async verifyPin(request: PinVerificationRequest): Promise<PinVerificationResponse> {
     return apiClient.post<PinVerificationResponse>('/api/auth/verify-pin', request);

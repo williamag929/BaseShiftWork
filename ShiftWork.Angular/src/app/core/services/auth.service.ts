@@ -209,11 +209,13 @@ export class AuthService {
     }
   }
 
-  verifyPin(personId: number, pin: string): Observable<{ verified: boolean }> {
-    const request = { personId, pin };
-    return this.http.post<{ verified: boolean }>(`${this.apiUrl}/auth/verify-pin`, request, this.getHttpOptions())
+  /** Company-scoped PIN check (the API only looks at people of this company and rate-limits guesses). */
+  verifyPin(companyId: string, personId: number, pin: string): Observable<{ verified: boolean }> {
+    return this.http.post<{ verified: boolean }>(
+      `${this.apiUrl}/companies/${companyId}/people/${personId}/verify-pin`, { pin }, this.getHttpOptions())
       .pipe(
-        catchError((err) => this.handleHttpError(err))
+        // Keep the 429 (too many attempts) response intact so the dialog can say so.
+        catchError((err) => err?.status === 429 ? throwError(() => err) : this.handleHttpError(err))
       );
   }
 

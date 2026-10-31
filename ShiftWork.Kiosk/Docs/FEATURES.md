@@ -309,7 +309,7 @@ All methods are plain `async` functions (no class). The base URL is read from `E
 | `getEmployees(companyId)` | GET | `/api/kiosk/:id/employees` | Fetch employee list for the enrolled company |
 | `getQuestions(companyId)` | GET | `/api/kiosk/:id/questions` | Fetch active pre-clock survey questions |
 | `getLocations(companyId)` | GET | `/api/companies/:id/locations` | Fetch available locations for enrollment |
-| `verifyPin(personId, pin)` | POST | `/api/auth/verify-pin` | Validate employee PIN before clocking |
+| `verifyPin(companyId, personId, pin)` | POST | `/api/companies/{companyId}/people/{personId}/verify-pin` | Validate employee PIN before clocking |
 | `verifyAdminPassword(companyId, password)` | POST | `/api/kiosk/:id/verify-admin-password` | Validate admin panel access |
 | `clock(companyId, request)` | POST | `/api/kiosk/:id/clock` | Submit clock event with answers + photo |
 

@@ -14,6 +14,7 @@ import * as Haptics from 'expo-haptics';
 import { PinPad } from '@/components/ui/PinPad';
 import { kioskService } from '@/services/kiosk.service';
 import { useSessionStore } from '@/store/sessionStore';
+import { useDeviceStore } from '@/store/deviceStore';
 import { usePunchNavigator } from '@/hooks/usePunchNavigator';
 import { colors, spacing, radius, typography, shadow } from '@/styles/tokens';
 import { useTranslation } from '@/i18n';
@@ -24,6 +25,7 @@ export default function PinScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const employee = useSessionStore((s) => s.employee);
+  const companyId = useDeviceStore((s) => s.companyId);
   const setSessionPin = useSessionStore((s) => s.setPin);
   const resetSession = useSessionStore((s) => s.reset);
   const goNext = usePunchNavigator();
@@ -71,7 +73,7 @@ export default function PinScreen() {
       setError(false);
       setErrorMsg('');
       try {
-        const verified = await kioskService.verifyPin(employee.personId, submittedPin);
+        const verified = await kioskService.verifyPin(companyId, employee.personId, submittedPin);
         if (verified) {
           await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           setSessionPin(submittedPin);
@@ -83,16 +85,17 @@ export default function PinScreen() {
           setPin('');
           resetTimeout();
         }
-      } catch {
+      } catch (err) {
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         setError(true);
-        setErrorMsg(t('kiosk_app.pin_failed'));
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        setErrorMsg(t(status === 429 ? 'kiosk_app.pin_too_many' : 'kiosk_app.pin_failed'));
         setPin('');
       } finally {
         setLoading(false);
       }
     },
-    [employee, loading, router, resetTimeout, t, setSessionPin, goNext]
+    [employee, companyId, loading, router, resetTimeout, t, setSessionPin, goNext]
   );
 
   if (!employee) return null;

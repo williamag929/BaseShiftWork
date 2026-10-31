@@ -330,7 +330,7 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
 
         const dialogRef = this.dialog.open(PinDialogComponent, {
           width: '250px',
-          data: { name: employee.name, personId: employee.personId }
+          data: { name: employee.name, personId: employee.personId, companyId: this.activeCompany?.companyId }
         });
 
         dialogRef.afterClosed().subscribe((verified: boolean) => {
