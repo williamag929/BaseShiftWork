@@ -2,6 +2,7 @@
   "expo": {
     "name": "Loqzen Kiosk",
     "slug": "loqzen-kiosk",
+    "owner": "williamaguirre82",
     "version": "1.0.0",
     "orientation": "landscape",
     "scheme": "loqzen-kiosk",
@@ -17,38 +18,56 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "isTabletOnly": true,
       "bundleIdentifier": "com.loqzen.kiosk",
       "requireFullScreen": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "Camera is required to capture employee clock-in photos.",
-        "NSLocationWhenInUseUsageDescription": "Location is used to verify clock-in at the correct site."
+        "NSCameraUsageDescription": "Loqzen Kiosk takes a photo when an employee clocks in or out, so managers can confirm who punched.",
+        "NSLocationWhenInUseUsageDescription": "Loqzen Kiosk records the tablet's location with each clock-in and clock-out to confirm punches happen at the work site.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "package": "com.loqzen.kiosk",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0F2237"
+        "backgroundColor": "#1A6B47"
       },
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.WAKE_LOCK"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
       ]
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": false
+        }
+      ],
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Loqzen Kiosk to access the camera for clock-in photos."
+          "cameraPermission": "Loqzen Kiosk takes a photo when an employee clocks in or out, so managers can confirm who punched.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Allow Loqzen Kiosk to verify clock-in location."
+          "locationWhenInUsePermission": "Loqzen Kiosk records the tablet's location with each clock-in and clock-out to confirm punches happen at the work site.",
+          "locationAlwaysAndWhenInUsePermission": false,
+          "locationAlwaysPermission": false
         }
       ],
       "expo-font",
@@ -58,9 +77,8 @@
       "router": {
         "origin": false
       },
-      "eas": {
-        "projectId": "loqzen-kiosk"
-      }
+      "privacyPolicyUrl": "https://loqzen.com/privacy",
+      "termsUrl": "https://loqzen.com/terms"
     }
   }
 }
