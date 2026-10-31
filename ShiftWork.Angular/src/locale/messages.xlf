@@ -101,6 +101,12 @@
       <trans-unit id="auth.login.google" datatype="html">
         <source>Log in with Google</source>
       </trans-unit>
+      <trans-unit id="auth.login.newToLoqzen" datatype="html">
+        <source>New to Loqzen?</source>
+      </trans-unit>
+      <trans-unit id="auth.login.createCompany" datatype="html">
+        <source>Create a company account</source>
+      </trans-unit>
       <trans-unit id="auth.login.biometric" datatype="html">
         <source>Sign in with <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/></source>
       </trans-unit>

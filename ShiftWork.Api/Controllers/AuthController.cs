@@ -31,6 +31,7 @@ namespace ShiftWork.Api.Controllers
         private readonly ISandboxService _sandboxService;
         private readonly IConfiguration _configuration;
         private readonly INotificationService _notificationService;
+        private readonly IRoleSeedService _roleSeedService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthController"/> class.
@@ -41,8 +42,10 @@ namespace ShiftWork.Api.Controllers
             ILogger<AuthController> logger,
             ISandboxService sandboxService,
             IConfiguration configuration,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IRoleSeedService roleSeedService)
         {
+            _roleSeedService = roleSeedService ?? throw new ArgumentNullException(nameof(roleSeedService));
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -173,8 +176,6 @@ namespace ShiftWork.Api.Controllers
         /// Caller MUST send a valid Firebase ID token as Authorization: Bearer {token}.
         /// The FirebaseUid in the body MUST match the JWT sub claim.
         /// Rate-limited: max 5 attempts per IP per hour.
-        /// 
-        /// DISABLED: Self-registration is no longer allowed. Users must be invited by a company admin.
         /// </summary>
         [HttpPost("register")]
         [Authorize]
@@ -182,17 +183,19 @@ namespace ShiftWork.Api.Controllers
         [ProducesResponseType(typeof(CompanyRegistrationResponse), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
-        [ProducesResponseType(403)]
         [ProducesResponseType(409)]
         [ProducesResponseType(429)]
         [ProducesResponseType(500)]
         public async Task<ActionResult<CompanyRegistrationResponse>> Register(
             [FromBody] CompanyRegistrationRequest request)
         {
-            // Self-registration is disabled. Users must be invited by a company admin.
-            return StatusCode(403, new { message = "Self-registration is disabled. Please contact a company administrator to receive an invitation." });
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            /* Original registration logic preserved for reference:
+            // Require a valid Firebase Bearer token whose sub claim matches FirebaseUid.
+            // This proves the caller owns the Firebase account they are registering.
+            var tokenUid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(tokenUid))
                 return Unauthorized("A valid Firebase Bearer token is required.");
             if (tokenUid != request.FirebaseUid)
@@ -246,28 +249,23 @@ namespace ShiftWork.Api.Controllers
                 _context.CompanyUsers.Add(companyUser);
                 await _context.SaveChangesAsync();
 
-                // 3. Assign Owner role
-                var ownerRole = await _context.Roles
-                    .Where(r => r.CompanyId == companyId ||
-                                r.Name == "Owner" || r.Name == "Admin")
-                    .OrderBy(r => r.RoleId)
-                    .FirstOrDefaultAsync();
+                // 3. Give the new user this company's own Admin role (with all permissions).
+                //    Permission checks read UserRoles, so the role must be granted there; it must
+                //    also belong to THIS company, never another tenant's "Owner"/"Admin" role.
+                var adminRole = await _roleSeedService.EnsureCompanyAdminAsync(companyId, companyUser.CompanyUserId);
 
-                if (ownerRole != null)
+                _context.CompanyUserProfiles.Add(new CompanyUserProfile
                 {
-                    _context.CompanyUserProfiles.Add(new CompanyUserProfile
-                    {
-                        CompanyUserId = companyUser.CompanyUserId,
-                        CompanyId = companyId,
-                        RoleId = ownerRole.RoleId,
-                        IsActive = true,
-                        AssignedAt = DateTime.UtcNow,
-                        AssignedBy = "system",
-                        LastUpdatedBy = "system",
-                        LastUpdatedAt = DateTime.UtcNow
-                    });
-                    await _context.SaveChangesAsync();
-                }
+                    CompanyUserId = companyUser.CompanyUserId,
+                    CompanyId = companyId,
+                    RoleId = adminRole.RoleId,
+                    IsActive = true,
+                    AssignedAt = DateTime.UtcNow,
+                    AssignedBy = "system",
+                    LastUpdatedBy = "system",
+                    LastUpdatedAt = DateTime.UtcNow
+                });
+                await _context.SaveChangesAsync();
 
                 // 4. Seed sandbox data
                 await _sandboxService.SeedSandboxDataAsync(companyId);
@@ -293,7 +291,6 @@ namespace ShiftWork.Api.Controllers
                 _logger.LogError(ex, "Registration failed for {Email}", request.UserEmail);
                 return StatusCode(500, "Registration failed. Please try again.");
             }
-            */
         }
 
         // ── API-based authentication (Firebase auth disabled for mobile) ──────────

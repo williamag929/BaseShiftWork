@@ -118,7 +118,7 @@ export default function OnboardingScreen() {
         <View style={styles.heroIcon}>
           <Ionicons name="sparkles" size={36} color={colors.primary} />
         </View>
-        <Text style={styles.heroTitle}>{t('auth.onboarding.title', { appName: 'ShiftWork' })}</Text>
+        <Text style={styles.heroTitle}>{t('auth.onboarding.title', { appName: 'Loqzen' })}</Text>
         <Text style={styles.heroSub}>{t('auth.onboarding.subtitle')}</Text>
       </Animated.View>
 
@@ -131,7 +131,7 @@ export default function OnboardingScreen() {
             </View>
             <Text style={styles.cardTitle}>{t('auth.onboarding.demo_sample_title')}</Text>
             <Text style={styles.cardBody}>
-              We've added demo employees, a location, and an area so you can explore ShiftWork right away.
+              We've added demo employees, a location, and an area so you can explore Loqzen right away.
             </Text>
           </View>
 

@@ -11,11 +11,18 @@ namespace ShiftWork.Api.Services
     public interface IRoleSeedService
     {
         Task SeedAsync();
+
+        /// <summary>
+        /// Ensures the company has its own "Admin" role holding every permission the company may use,
+        /// and grants it to <paramref name="ownerCompanyUserId"/> (or, when null, to the company's first
+        /// user if nobody in the company has a role yet). Returns the company's Admin role.
+        /// </summary>
+        Task<Role> EnsureCompanyAdminAsync(string companyId, string? ownerCompanyUserId = null);
     }
 
     public class RoleSeedService : IRoleSeedService
     {
-        private const string AdminRoleName = "Admin";
+        public const string AdminRoleName = "Admin";
         private const string AdminRoleDescription = "System administrator";
 
         private readonly ShiftWorkContext _context;
@@ -27,90 +34,103 @@ namespace ShiftWork.Api.Services
 
         public async Task SeedAsync()
         {
-            var companies = await _context.Companies
-                .Select(c => new { c.CompanyId })
+            var companyIds = await _context.Companies
+                .Select(c => c.CompanyId)
                 .ToListAsync();
 
-            if (companies.Count == 0)
+            foreach (var companyId in companyIds)
             {
-                return;
+                await EnsureCompanyAdminAsync(companyId);
+            }
+        }
+
+        public async Task<Role> EnsureCompanyAdminAsync(string companyId, string? ownerCompanyUserId = null)
+        {
+            var adminRole = await _context.Roles
+                .FirstOrDefaultAsync(r => r.CompanyId == companyId && r.Name == AdminRoleName);
+
+            if (adminRole == null)
+            {
+                adminRole = new Role
+                {
+                    Name = AdminRoleName,
+                    Description = AdminRoleDescription,
+                    Status = "Active",
+                    CompanyId = companyId,
+                    Permissions = null
+                };
+
+                _context.Roles.Add(adminRole);
+                await _context.SaveChangesAsync();
             }
 
-            var allPermissions = await _context.Permissions
+            var allowedPermissions = await _context.Permissions
+                .Where(p => p.CompanyId == null || p.CompanyId == companyId)
+                .Select(p => p.PermissionId)
                 .ToListAsync();
 
-            foreach (var company in companies)
+            var existingRolePermissions = await _context.RolePermissions
+                .Where(rp => rp.RoleId == adminRole.RoleId)
+                .ToListAsync();
+
+            if (existingRolePermissions.Count > 0)
             {
-                var adminRole = await _context.Roles
-                    .FirstOrDefaultAsync(r => r.CompanyId == company.CompanyId && r.Name == AdminRoleName);
+                _context.RolePermissions.RemoveRange(existingRolePermissions);
+            }
 
-                if (adminRole == null)
+            var newRolePermissions = allowedPermissions
+                .Distinct()
+                .Select(permissionId => new RolePermission
                 {
-                    adminRole = new Role
-                    {
-                        Name = AdminRoleName,
-                        Description = AdminRoleDescription,
-                        Status = "Active",
-                        CompanyId = company.CompanyId,
-                        Permissions = null
-                    };
+                    RoleId = adminRole.RoleId,
+                    PermissionId = permissionId
+                })
+                .ToList();
 
-                    _context.Roles.Add(adminRole);
-                    await _context.SaveChangesAsync();
-                }
+            if (newRolePermissions.Count > 0)
+            {
+                _context.RolePermissions.AddRange(newRolePermissions);
+            }
 
-                var allowedPermissions = allPermissions
-                    .Where(p => p.CompanyId == null || p.CompanyId == company.CompanyId)
-                    .Select(p => p.PermissionId)
-                    .ToList();
+            await _context.SaveChangesAsync();
 
-                var existingRolePermissions = await _context.RolePermissions
-                    .Where(rp => rp.RoleId == adminRole.RoleId)
-                    .ToListAsync();
-
-                if (existingRolePermissions.Count > 0)
-                {
-                    _context.RolePermissions.RemoveRange(existingRolePermissions);
-                }
-
-                var newRolePermissions = allowedPermissions
-                    .Distinct()
-                    .Select(permissionId => new RolePermission
-                    {
-                        RoleId = adminRole.RoleId,
-                        PermissionId = permissionId
-                    })
-                    .ToList();
-
-                if (newRolePermissions.Count > 0)
-                {
-                    _context.RolePermissions.AddRange(newRolePermissions);
-                    await _context.SaveChangesAsync();
-                }
-
+            var assigneeId = ownerCompanyUserId;
+            if (assigneeId == null)
+            {
                 var hasAnyUserRoles = await _context.UserRoles
-                    .AnyAsync(ur => ur.CompanyId == company.CompanyId);
+                    .AnyAsync(ur => ur.CompanyId == companyId);
 
                 if (!hasAnyUserRoles)
                 {
-                    var firstUser = await _context.CompanyUsers
-                        .Where(u => u.CompanyId == company.CompanyId)
+                    assigneeId = await _context.CompanyUsers
+                        .Where(u => u.CompanyId == companyId)
                         .OrderBy(u => u.CreatedAt)
+                        .Select(u => u.CompanyUserId)
                         .FirstOrDefaultAsync();
-
-                    if (firstUser != null)
-                    {
-                        _context.UserRoles.Add(new UserRole
-                        {
-                            CompanyUserId = firstUser.CompanyUserId,
-                            RoleId = adminRole.RoleId,
-                            CompanyId = company.CompanyId
-                        });
-
-                        await _context.SaveChangesAsync();
-                    }
                 }
             }
+
+            if (assigneeId != null)
+            {
+                var alreadyAssigned = await _context.UserRoles
+                    .AnyAsync(ur => ur.CompanyId == companyId
+                                    && ur.CompanyUserId == assigneeId
+                                    && ur.RoleId == adminRole.RoleId);
+
+                if (!alreadyAssigned)
+                {
+                    _context.UserRoles.Add(new UserRole
+                    {
+                        CompanyUserId = assigneeId,
+                        RoleId = adminRole.RoleId,
+                        CompanyId = companyId
+                    });
+
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            return adminRole;
         }
     }
 }

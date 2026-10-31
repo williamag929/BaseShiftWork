@@ -6,9 +6,10 @@ import { authGuard } from './core/guards/auth.guard';
 const routes: Routes = [
   // --- Public routes (no auth guard) ---
   { path: 'auth', loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule) },
-  // Self-registration disabled: users must be invited by a company admin
-  { path: 'register', redirectTo: '/auth/sign-in', pathMatch: 'prefix' },
-  { path: 'onboarding', redirectTo: '/auth/sign-in', pathMatch: 'prefix' },
+  // New customer self-registration wizard (public — no auth guard)
+  { path: 'register', loadChildren: () => import('./features/registration/registration.module').then(m => m.RegistrationModule) },
+  // Onboarding sandbox management after registration (public — no auth guard at this stage)
+  { path: 'onboarding', loadChildren: () => import('./features/onboarding/onboarding.module').then(m => m.OnboardingModule) },
 
   // --- Authenticated routes ---
   { path: 'dashboard', loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule), canActivate: [authGuard] },

@@ -1,6 +1,6 @@
 import {
   View, Text, TextInput, Pressable, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView,
+  KeyboardAvoidingView, Platform, ScrollView, Linking,
 } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { useRouter } from 'expo-router';
@@ -32,7 +32,7 @@ export default function LoginScreen() {
         <View style={styles.logoMark}>
           <Ionicons name="time" size={36} color="#fff" />
         </View>
-        <Text style={styles.heroTitle}>ShiftWork</Text>
+        <Text style={styles.heroTitle}>Loqzen</Text>
         <Text style={styles.heroSub}>{t('auth.login.subtitle')}</Text>
       </Animated.View>
 
@@ -129,7 +129,16 @@ export default function LoginScreen() {
 
           <Pressable
             style={({ pressed }) => [styles.linkRow, pressed && { opacity: 0.65 }]}
-            onPress={() => router.push('/(auth)/register' as any)}
+            onPress={() => {
+              // Company signup needs Firebase, which is off in the mobile app, so send new
+              // customers to the web signup wizard. Without a web URL, fall back to the in-app screen.
+              const appUrl = process.env.EXPO_PUBLIC_APP_URL;
+              if (appUrl) {
+                Linking.openURL(`${appUrl.replace(/\/$/, '')}/register`);
+              } else {
+                router.push('/(auth)/register' as any);
+              }
+            }}
           >
             <Text style={styles.linkText}>
               {t('auth.login.no_account')}{' '}

@@ -118,7 +118,8 @@ public class ClockInOutIntegrationTests : IDisposable
 
     private AuthController Auth() => new(
         _context, _mapper, NullLogger<AuthController>.Instance, new Mock<ISandboxService>().Object,
-        new ConfigurationBuilder().Build(), new Mock<INotificationService>().Object);
+        new ConfigurationBuilder().Build(), new Mock<INotificationService>().Object,
+        new Mock<IRoleSeedService>().Object);
 
     private static ShiftEventDto Punch(string companyId, int personId, string type, DateTime? at = null) => new()
     {
