@@ -270,51 +270,84 @@
       <div class="container">
         <div class="section-head reveal">
           <p class="eyebrow">Simple pricing</p>
-          <h2>Pay per active employee. Nothing else.</h2>
-          <p class="section-sub">Every plan includes the kiosk, the mobile app, and unlimited schedules.</p>
+          <h2>One flat price. Unlimited users.</h2>
+          <p class="section-sub">Add your whole crew, seasonal hires, and new sites without watching a per-seat bill grow. Every account starts with a 14-day free trial.</p>
+          <p class="lang-switch"><a href="es/precios/" hreflang="es" lang="es">Ver precios en español</a></p>
         </div>
-        <div class="pricing-grid">
-          <article class="price-card reveal">
-            <h3>Starter</h3>
-            <div class="price"><span class="amount">$3</span><span class="per">/employee · mo</span></div>
-            <p class="price-desc">For small crews getting off paper timesheets.</p>
-            <ul>
-              <li>✓ Verified clock-in/out (photo + GPS)</li>
-              <li>✓ Kiosk mode</li>
-              <li>✓ Weekly scheduling &amp; publishing</li>
-              <li>✓ Employee mobile app</li>
-              <li>✓ Email support</li>
-            </ul>
-            <a href="#demo" class="btn btn-outline btn-block">Start free trial</a>
-          </article>
+        <div class="pricing-grid pricing-grid-2">
           <article class="price-card price-featured reveal">
-            <div class="price-badge">Most popular</div>
-            <h3>Growth</h3>
-            <div class="price"><span class="amount">$5</span><span class="per">/employee · mo</span></div>
-            <p class="price-desc">For operations that need PTO, approvals, and coverage.</p>
+            <div class="price-badge">Everything included</div>
+            <h3>Loqzen</h3>
+            <div class="price"><span class="amount">[[PRICE]]</span><span class="per">/ month, flat</span></div>
+            <p class="price-desc">One price for your whole company: unlimited employees, unlimited sites.</p>
             <ul>
-              <li>✓ Everything in Starter</li>
-              <li>✓ PTO accrual &amp; balance tracking</li>
-              <li>✓ Time-off approval dashboard</li>
+              <li>✓ Unlimited employees &amp; managers</li>
+              <li>✓ Verified clock-in/out (photo + GPS)</li>
+              <li>✓ Kiosk mode with PIN clock-in</li>
+              <li>✓ Scheduling, publishing &amp; push notifications</li>
+              <li>✓ Employee mobile app (iOS &amp; Android)</li>
+              <li>✓ PTO tracking &amp; time-off approvals</li>
               <li>✓ Replacement notifications (push/SMS/email)</li>
               <li>✓ Custom clock-out questions</li>
-              <li>✓ Priority support</li>
             </ul>
-            <a href="#demo" class="btn btn-primary btn-block">Start free trial</a>
+            <a href="#demo" class="btn btn-primary btn-block">Start your 14-day free trial</a>
           </article>
           <article class="price-card reveal">
             <h3>Enterprise</h3>
             <div class="price"><span class="amount">Custom</span></div>
-            <p class="price-desc">For multi-company operations and payroll integrations.</p>
+            <p class="price-desc">For multi-company operations that want hands-on help.</p>
             <ul>
-              <li>✓ Everything in Growth</li>
+              <li>✓ Everything in Loqzen</li>
               <li>✓ Multi-company management</li>
-              <li>✓ Payroll &amp; data export integrations</li>
-              <li>✓ SSO &amp; advanced security</li>
-              <li>✓ Dedicated success manager</li>
+              <li>✓ Procore integration</li>
+              <li>✓ Help importing your employees &amp; sites</li>
+              <li>✓ Annual or volume terms: [[ENTERPRISE_TERMS]]</li>
             </ul>
-            <a href="#demo" class="btn btn-outline btn-block">Talk to sales</a>
+            <a href="#demo" class="btn btn-outline btn-block">Talk to us</a>
           </article>
+        </div>
+
+        <div class="compare reveal">
+          <h3 class="compare-title">Why flat pricing matters as you grow</h3>
+          <div class="compare-scroll">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th scope="col"><span class="visually-hidden">Comparison</span></th>
+                  <th scope="col" class="compare-us">Loqzen</th>
+                  <th scope="col">Deputy</th>
+                  <th scope="col">Connecteam</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">How you're billed</th>
+                  <td class="compare-us">One flat monthly fee</td>
+                  <td>Per user, per month</td>
+                  <td>Priced by number of users</td>
+                </tr>
+                <tr>
+                  <th scope="row">Adding a new hire</th>
+                  <td class="compare-us">No extra cost</td>
+                  <td>Raises your bill</td>
+                  <td>Can raise your bill</td>
+                </tr>
+                <tr>
+                  <th scope="row">Monthly cost, 25-person crew</th>
+                  <td class="compare-us">[[PRICE]]</td>
+                  <td>[[DEPUTY_COST_25_USERS]]</td>
+                  <td>[[CONNECTEAM_COST_25_USERS]]</td>
+                </tr>
+                <tr>
+                  <th scope="row">Monthly cost, 75-person crew</th>
+                  <td class="compare-us">[[PRICE]]</td>
+                  <td>[[DEPUTY_COST_75_USERS]]</td>
+                  <td>[[CONNECTEAM_COST_75_USERS]]</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="compare-note">Competitor pricing based on their published plans as of [[COMPETITOR_PRICING_CHECKED_ON]]. Deputy and Connecteam are trademarks of their respective owners; Loqzen is not affiliated with them.</p>
         </div>
       </div>
     </section>
@@ -350,6 +383,10 @@
           <details class="faq-item reveal">
             <summary>How long does setup take?</summary>
             <p>Most teams are fully running within a day: add your people and sites, set PINs, place a tablet at the entrance, and publish your first schedule.</p>
+          </details>
+          <details class="faq-item reveal">
+            <summary>Is it really unlimited users?</summary>
+            <p>Yes. Loqzen is one flat monthly fee for your company, no matter how many employees, managers, or sites you add. Seasonal hires and new crews don't change your bill.</p>
           </details>
         </div>
       </div>
