@@ -339,8 +339,8 @@
         <target state="translated">Tu espacio de trabajo está listo para datos reales.</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.demo_hidden_ok" datatype="html">
-        <source>Demo data hidden. Restore from Settings anytime.</source>
-        <target state="translated">Datos ocultos. Puedes restaurarlos desde Configuración.</target>
+        <source>Demo data hidden.</source>
+        <target state="translated">Datos ocultos.</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.demo_hidden_fail" datatype="html">
         <source>Failed to hide demo data.</source>
@@ -363,8 +363,8 @@
         <target state="translated">No se pudieron eliminar los datos de demostración.</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.sandbox_hidden_ok" datatype="html">
-        <source>Sandbox data has been hidden. You can restore it at any time from Settings.</source>
-        <target state="translated">Los datos de demostración han sido ocultados. Puedes restaurarlos desde Configuración.</target>
+        <source>Demo data has been hidden.</source>
+        <target state="translated">Los datos de demostración han sido ocultados.</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.sandbox_hidden_fail" datatype="html">
         <source>Failed to hide sandbox data. Please try again.</source>
@@ -619,8 +619,8 @@
         <target state="translated">Zona horaria</target>
       </trans-unit>
       <trans-unit id="registration.notice" datatype="html">
-        <source>A verification email will be sent to your inbox. Your company will start on the Free plan with sandbox demo data so you can explore the app right away.</source>
-        <target state="translated">Se enviará un correo de verificación. Tu empresa comenzará en el plan gratuito con datos de demostración para explorar la aplicación.</target>
+        <source>A verification email will be sent to your inbox. Your company starts with a free trial and demo data so you can explore the app right away.</source>
+        <target state="translated">Se enviará un correo de verificación. Tu empresa comienza con una prueba gratuita y datos de demostración para explorar la aplicación.</target>
       </trans-unit>
       <trans-unit id="registration.creating" datatype="html">
         <source>Creating account…</source>
@@ -6123,6 +6123,98 @@ What would you like to do?</source>
       <trans-unit id="analytics.status_unscheduled" datatype="html">
         <source>Unscheduled</source>
         <target state="translated">Sin programar</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.subtitle_steps" datatype="html">
+        <source>Four steps to your team&apos;s first clock-in.</source>
+        <target state="translated">Cuatro pasos para el primer registro de entrada de tu equipo.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_location_title" datatype="html">
+        <source>Add your first location</source>
+        <target state="translated">Agrega tu primera ubicación</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_location_desc" datatype="html">
+        <source>The site where your team works.</source>
+        <target state="translated">El sitio donde trabaja tu equipo.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_people_title" datatype="html">
+        <source>Invite your team</source>
+        <target state="translated">Invita a tu equipo</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_people_desc" datatype="html">
+        <source>Employees get an email invite to the mobile app.</source>
+        <target state="translated">Los empleados reciben una invitación por correo a la aplicación móvil.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_schedule_title" datatype="html">
+        <source>Schedule a shift</source>
+        <target state="translated">Programa un turno</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_schedule_desc" datatype="html">
+        <source>Assign someone to a location and time.</source>
+        <target state="translated">Asigna a alguien a una ubicación y un horario.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_clock_title" datatype="html">
+        <source>Clock in</source>
+        <target state="translated">Registra la entrada</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_clock_desc" datatype="html">
+        <source>Employees clock in from the mobile app or a kiosk tablet.</source>
+        <target state="translated">Los empleados registran su entrada desde la aplicación móvil o una tableta en modo quiosco.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.trial_heading" datatype="html">
+        <source>Your free trial ends on</source>
+        <target state="translated">Tu prueba gratuita termina el</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.trial_description" datatype="html">
+        <source>Choose a plan any time from Billing.</source>
+        <target state="translated">Elige un plan en cualquier momento desde Facturación.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.remove_confirm" datatype="html">
+        <source>Permanently remove all demo data? This can&apos;t be undone.</source>
+        <target state="translated">¿Eliminar permanentemente todos los datos de demostración? Esto no se puede deshacer.</target>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.remove_plan_required" datatype="html">
+        <source>Permanently removing demo data needs a paid plan. You can hide it instead.</source>
+        <target state="translated">Eliminar permanentemente los datos de demostración requiere un plan de pago. Puedes ocultarlos en su lugar.</target>
+      </trans-unit>
+      <trans-unit id="registration.error_email_in_use" datatype="html">
+        <source>This email already has an account. Sign in instead, or use a different email.</source>
+        <target state="translated">Este correo ya tiene una cuenta. Inicia sesión o usa otro correo.</target>
+      </trans-unit>
+      <trans-unit id="registration.error_invalid_email" datatype="html">
+        <source>That email address doesn&apos;t look right. Please check it and try again.</source>
+        <target state="translated">Ese correo no parece válido. Revísalo e inténtalo de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="registration.error_weak_password" datatype="html">
+        <source>Please choose a stronger password.</source>
+        <target state="translated">Elige una contraseña más segura.</target>
+      </trans-unit>
+      <trans-unit id="registration.error_too_many" datatype="html">
+        <source>Too many attempts. Please wait a few minutes and try again.</source>
+        <target state="translated">Demasiados intentos. Espera unos minutos e inténtalo de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="registration.error_network" datatype="html">
+        <source>We couldn&apos;t connect. Please check your internet connection and try again.</source>
+        <target state="translated">No pudimos conectarnos. Revisa tu conexión a internet e inténtalo de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="registration.error_generic" datatype="html">
+        <source>We couldn&apos;t create your account. Please try again.</source>
+        <target state="translated">No pudimos crear tu cuenta. Inténtalo de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="registration.verify_title" datatype="html">
+        <source>Check your email</source>
+        <target state="translated">Revisa tu correo</target>
+      </trans-unit>
+      <trans-unit id="registration.verify_desc" datatype="html">
+        <source>We sent a verification link to your email address. Click the link to continue. This page will advance automatically.</source>
+        <target state="translated">Enviamos un enlace de verificación a tu correo. Haz clic en el enlace para continuar. Esta página avanzará automáticamente.</target>
+      </trans-unit>
+      <trans-unit id="registration.verify_checking" datatype="html">
+        <source>Checking verification status...</source>
+        <target state="translated">Comprobando el estado de la verificación...</target>
+      </trans-unit>
+      <trans-unit id="registration.verify_skip" datatype="html">
+        <source>Skip for now</source>
+        <target state="translated">Omitir por ahora</target>
       </trans-unit>
     </body>
   </file>

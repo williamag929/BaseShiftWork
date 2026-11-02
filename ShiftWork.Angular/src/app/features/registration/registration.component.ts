@@ -1,3 +1,4 @@
+import '@angular/localize/init';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -5,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { RegistrationService, CompanyRegistrationRequest } from '../../core/services/registration.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   standalone: true,
@@ -22,14 +24,22 @@ export class RegistrationComponent implements OnInit {
   userForm!: FormGroup;
   companyForm!: FormGroup;
 
+  /** Time zones already offered in the template's select. */
+  private readonly listedTimeZones = ['UTC', 'America/New_York', 'America/Chicago', 'America/Denver',
+    'America/Los_Angeles', 'Europe/London', 'Europe/Paris', 'Asia/Tokyo'];
+  detectedTimeZone = 'UTC';
+
   constructor(
     private fb: FormBuilder,
     private afAuth: AngularFireAuth,
     private registrationService: RegistrationService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    this.detectedTimeZone = this.detectTimeZone();
+
     this.userForm = this.fb.group({
       displayName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
@@ -40,14 +50,26 @@ export class RegistrationComponent implements OnInit {
       companyName: ['', [Validators.required, Validators.minLength(2)]],
       companyEmail: ['', [Validators.required, Validators.email]],
       companyPhone: [''],
-      timeZone: ['UTC', Validators.required]
+      timeZone: [this.detectedTimeZone, Validators.required]
     });
   }
 
   get isStep1Valid(): boolean { return this.userForm.valid; }
   get isStep2Valid(): boolean { return this.companyForm.valid; }
 
+  /** True when the browser's zone isn't one of the fixed options, so the select must offer it too. */
+  get showDetectedTimeZone(): boolean {
+    return !this.listedTimeZones.includes(this.detectedTimeZone);
+  }
+
   nextStep(): void {
+    if (this.currentStep === 1) {
+      // Most small companies use the owner's email; don't make them type it twice.
+      const companyEmail = this.companyForm.get('companyEmail');
+      if (companyEmail && !companyEmail.value && !companyEmail.dirty) {
+        companyEmail.setValue(this.userForm.value.email);
+      }
+    }
     if (this.currentStep < this.totalSteps) this.currentStep++;
   }
 
@@ -107,14 +129,47 @@ export class RegistrationComponent implements OnInit {
       if (response) {
         sessionStorage.setItem('onboarding_company_id', response.companyId);
         sessionStorage.setItem('onboarding_plan', response.plan);
+        if (response.trialEndsAt) {
+          sessionStorage.setItem('onboarding_trial_ends_at', response.trialEndsAt);
+        }
       }
+
+      // Mark the session as signed in: authGuard checks this, and without it the
+      // new owner gets bounced to the sign-in page when leaving onboarding.
+      void this.authService.SetUserData(firebaseUser);
 
       // 7. Redirect to email verification notice, then onboarding
       this.router.navigate(['/register/verify']);
     } catch (err: any) {
-      this.errorMessage = err?.message ?? 'Registration failed. Please try again.';
+      console.error('Registration failed', err);
+      this.errorMessage = this.friendlyError(err);
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  private detectTimeZone(): string {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    } catch {
+      return 'UTC';
+    }
+  }
+
+  private friendlyError(err: any): string {
+    switch (err?.code) {
+      case 'auth/email-already-in-use':
+        return $localize`:@@registration.error_email_in_use:This email already has an account. Sign in instead, or use a different email.`;
+      case 'auth/invalid-email':
+        return $localize`:@@registration.error_invalid_email:That email address doesn't look right. Please check it and try again.`;
+      case 'auth/weak-password':
+        return $localize`:@@registration.error_weak_password:Please choose a stronger password.`;
+      case 'auth/too-many-requests':
+        return $localize`:@@registration.error_too_many:Too many attempts. Please wait a few minutes and try again.`;
+      case 'auth/network-request-failed':
+        return $localize`:@@registration.error_network:We couldn't connect. Please check your internet connection and try again.`;
+      default:
+        return $localize`:@@registration.error_generic:We couldn't create your account. Please try again.`;
     }
   }
 }

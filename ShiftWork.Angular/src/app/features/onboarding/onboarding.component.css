@@ -374,3 +374,13 @@
     justify-content: center;
   }
 }
+
+.next-steps { list-style: none; margin: 0 0 1.5rem; padding: 0; text-align: left; }
+.next-step { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid #eef0f6; }
+.next-step:last-child { border-bottom: 0; }
+.next-step-num { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #f0f4ff; color: #667eea; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.next-step-icon { flex: 0 0 18px; color: #667eea; text-align: center; }
+.next-step-text { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.next-step-text small { color: #6c757d; }
+.next-step-link { background: none; border: 0; padding: 0; color: #667eea; font-weight: 600; cursor: pointer; text-align: left; }
+.next-step-link:hover { text-decoration: underline; }

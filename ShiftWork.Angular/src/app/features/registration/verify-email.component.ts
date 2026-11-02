@@ -16,29 +16,27 @@ import { switchMap, takeWhile } from 'rxjs/operators';
         <div class="verify-icon-circle">
           <i class="fa fa-envelope"></i>
         </div>
-        <h1>Check your email</h1>
+        <h1 i18n="@@registration.verify_title">Check your email</h1>
         <p class="verify-email-address">{{ userEmail }}</p>
-        <p class="verify-desc">
-          We sent a verification link to your email address.<br>
-          Please click the link to continue — this page will advance automatically.
-        </p>
+        <p class="verify-desc" i18n="@@registration.verify_desc">We sent a verification link to your email address. Click the link to continue. This page will advance automatically.</p>
 
         <div *ngIf="errorMessage" class="alert-danger">
           <i class="fa fa-exclamation-triangle"></i> {{ errorMessage }}
         </div>
         <div *ngIf="checking" class="verify-checking">
-          <span class="mini-spinner"></span> Checking verification status…
+          <span class="mini-spinner"></span> <ng-container i18n="@@registration.verify_checking">Checking verification status...</ng-container>
         </div>
 
         <div class="verify-actions">
           <button class="btn-resend" (click)="resendEmail()" [disabled]="resendCooldown > 0">
             <i class="fa fa-refresh"></i>
-            {{ resendCooldown > 0 ? 'Resend in ' + resendCooldown + 's' : 'Resend verification email' }}
+            <ng-container *ngIf="resendCooldown > 0">{{ resendCooldown }}s</ng-container>
+            <ng-container *ngIf="resendCooldown <= 0" i18n="@@auth.verify_email.resend">Resend Verification Email</ng-container>
           </button>
         </div>
 
         <p class="verify-skip">
-          <a href="#" (click)="skipForNow($event)">Skip for now → go to dashboard</a>
+          <a href="#" (click)="skipForNow($event)" i18n="@@registration.verify_skip">Skip for now</a>
         </p>
       </div>
     </div>

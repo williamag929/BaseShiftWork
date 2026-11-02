@@ -7,7 +7,7 @@
         <i class="fa fa-check"></i>
       </div>
       <h1 i18n="@@auth.onboarding.account_setup">Your account is set up and ready to go.</h1>
-      <p class="sub" i18n="@@auth.onboarding.subtitle">Your account is ready. Let's get you started.</p>
+      <p class="sub" i18n="@@auth.onboarding.subtitle_steps">Four steps to your team's first clock-in.</p>
     </div>
 
     <!-- ── Alerts ── -->
@@ -24,7 +24,20 @@
       <p i18n="@@auth.onboarding.loading">Loading your workspace…</p>
     </div>
 
-    <!-- ── Sandbox banner ── -->
+    <!-- Next steps -->
+    <ol class="next-steps" *ngIf="!isLoading">
+      <li *ngFor="let step of nextSteps; let i = index" class="next-step">
+        <span class="next-step-num">{{ i + 1 }}</span>
+        <i class="fa {{ step.icon }} next-step-icon"></i>
+        <span class="next-step-text">
+          <button *ngIf="step.link; else plainTitle" type="button" class="next-step-link" (click)="goToDashboard(step.link)">{{ step.title }}</button>
+          <ng-template #plainTitle><strong>{{ step.title }}</strong></ng-template>
+          <small>{{ step.description }}</small>
+        </span>
+      </li>
+    </ol>
+
+    <!-- Sandbox banner -->
     <div class="sandbox-banner" *ngIf="!isLoading && sandboxStatus?.hasSandboxData">
       <div class="sandbox-banner-header">
         <span class="badge-info" i18n="@@auth.onboarding.demo_badge">Demo Data</span>
@@ -74,11 +87,17 @@
 
     <!-- ── Plan banner ── -->
     <div class="plan-banner" *ngIf="!isLoading">
-      <h3 i18n="@@auth.onboarding.free_plan_heading">You're on the <strong>Free plan</strong></h3>
-      <p i18n="@@auth.onboarding.upgrade_description">Upgrade to Pro to unlock advanced scheduling, analytics, multi-location support, and more.</p>
-      <a routerLink="/upgrade" class="btn btn-primary">
+      <ng-container *ngIf="trialEndsAt; else freePlan">
+        <h3><ng-container i18n="@@auth.onboarding.trial_heading">Your free trial ends on</ng-container> <strong>{{ trialEndsAt | date:'mediumDate' }}</strong></h3>
+        <p i18n="@@auth.onboarding.trial_description">Choose a plan any time from Billing.</p>
+      </ng-container>
+      <ng-template #freePlan>
+        <h3 i18n="@@auth.onboarding.free_plan_heading">You're on the <strong>Free plan</strong></h3>
+        <p i18n="@@auth.onboarding.upgrade_description">Upgrade to Pro to unlock advanced scheduling, analytics, multi-location support, and more.</p>
+      </ng-template>
+      <button type="button" class="btn btn-primary" (click)="goToDashboard('/dashboard/billing')">
         <ng-container i18n="@@auth.onboarding.explore_pro">Explore Pro</ng-container> <i class="fa fa-arrow-right"></i>
-      </a>
+      </button>
     </div>
 
     <!-- ── CTA ── -->
