@@ -196,6 +196,15 @@
         <strong>Free plan</strong> with sandbox demo data so you can explore the app right away.</ng-container>
       </div>
 
+      <p class="legal-consent">
+        <ng-container i18n="@@registration.legal_prefix">By creating an account you agree to the</ng-container>
+        <a href="https://www.loqzen.com/terms/" i18n-href="@@registration.terms_url" target="_blank" rel="noopener"
+          i18n="@@registration.terms_link">Terms of Service</a>
+        <ng-container i18n="@@registration.legal_and">and the</ng-container>
+        <a href="https://www.loqzen.com/privacy/" i18n-href="@@registration.privacy_url" target="_blank" rel="noopener"
+          i18n="@@registration.privacy_link">Privacy Policy</a>.
+      </p>
+
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="prevStep()">
           <i class="fa fa-arrow-left"></i> <ng-container i18n="@@common.back">Back</ng-container>

@@ -118,7 +118,9 @@
         "projectId": "531adbf1-53a0-48ca-9fc8-f65ae312365a"
       },
       "privacyPolicyUrl": "https://loqzen.com/privacy",
-      "termsUrl": "https://loqzen.com/terms"
+      "termsUrl": "https://loqzen.com/terms",
+      "privacyPolicyUrlEs": "https://loqzen.com/es/privacidad",
+      "termsUrlEs": "https://loqzen.com/es/terminos"
     },
     "owner": "williamaguirre82"
   }

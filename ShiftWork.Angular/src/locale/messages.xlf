@@ -408,7 +408,7 @@
         <source>Go back to Sign in</source>
       </trans-unit>
       <trans-unit id="registration.title" datatype="html">
-        <source>Create your <x id="INTERPOLATION" equiv-text="{{ appName }}"/> account</source>
+        <source>Create your Loqzen account</source>
       </trans-unit>
       <trans-unit id="registration.subtitle" datatype="html">
         <source>Get started in just a few steps — it&apos;s free</source>
@@ -466,6 +466,24 @@
       </trans-unit>
       <trans-unit id="registration.notice" datatype="html">
         <source>A verification email will be sent to your inbox. Your company will start on the Free plan with sandbox demo data so you can explore the app right away.</source>
+      </trans-unit>
+      <trans-unit id="registration.legal_prefix" datatype="html">
+        <source>By creating an account you agree to the</source>
+      </trans-unit>
+      <trans-unit id="registration.terms_link" datatype="html">
+        <source>Terms of Service</source>
+      </trans-unit>
+      <trans-unit id="registration.terms_url" datatype="html">
+        <source>https://www.loqzen.com/terms/</source>
+      </trans-unit>
+      <trans-unit id="registration.legal_and" datatype="html">
+        <source>and the</source>
+      </trans-unit>
+      <trans-unit id="registration.privacy_link" datatype="html">
+        <source>Privacy Policy</source>
+      </trans-unit>
+      <trans-unit id="registration.privacy_url" datatype="html">
+        <source>https://www.loqzen.com/privacy/</source>
       </trans-unit>
       <trans-unit id="registration.creating" datatype="html">
         <source>Creating account…</source>
