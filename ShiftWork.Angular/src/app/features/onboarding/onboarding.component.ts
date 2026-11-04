@@ -19,6 +19,34 @@ export class OnboardingComponent implements OnInit {
   actionInProgress: 'hide' | 'reset' | 'delete' | null = null;
   successMessage = '';
   errorMessage = '';
+  /** Set while the company is on its signup trial; drives the plan banner copy. */
+  trialEndsAt: Date | null = null;
+
+  readonly nextSteps: { icon: string; title: string; description: string; link?: string }[] = [
+    {
+      icon: 'fa-map-marker',
+      title: $localize`:@@auth.onboarding.step_location_title:Add your first location`,
+      description: $localize`:@@auth.onboarding.step_location_desc:The site where your team works.`,
+      link: '/dashboard/locations'
+    },
+    {
+      icon: 'fa-users',
+      title: $localize`:@@auth.onboarding.step_people_title:Invite your team`,
+      description: $localize`:@@auth.onboarding.step_people_desc:Employees get an email invite to the mobile app.`,
+      link: '/dashboard/people'
+    },
+    {
+      icon: 'fa-calendar',
+      title: $localize`:@@auth.onboarding.step_schedule_title:Schedule a shift`,
+      description: $localize`:@@auth.onboarding.step_schedule_desc:Assign someone to a location and time.`,
+      link: '/dashboard/schedule-grid'
+    },
+    {
+      icon: 'fa-clock-o',
+      title: $localize`:@@auth.onboarding.step_clock_title:Clock in`,
+      description: $localize`:@@auth.onboarding.step_clock_desc:Employees clock in from the mobile app or a kiosk tablet.`
+    }
+  ];
 
   readonly hideDemoLabel  = $localize`:@@auth.onboarding.hide_demo:Hide demo data`;
   readonly hidingLabel    = $localize`:@@auth.onboarding.hiding:Hiding…`;
@@ -34,6 +62,8 @@ export class OnboardingComponent implements OnInit {
 
   ngOnInit(): void {
     this.companyId = sessionStorage.getItem('onboarding_company_id') ?? '';
+    const trialEnd = new Date(sessionStorage.getItem('onboarding_trial_ends_at') ?? '');
+    this.trialEndsAt = trialEnd.getTime() > Date.now() ? trialEnd : null;
     if (this.companyId) {
       this.loadSandboxStatus();
     }
@@ -53,10 +83,11 @@ export class OnboardingComponent implements OnInit {
   }
 
   hideSandboxData(): void {
+    this.clearMessages();
     this.actionInProgress = 'hide';
     this.registrationService.hideSandboxData(this.companyId, ['All']).subscribe({
       next: () => {
-        this.successMessage = $localize`:@@auth.onboarding.sandbox_hidden_ok:Sandbox data has been hidden. You can restore it at any time from Settings.`;
+        this.successMessage = $localize`:@@auth.onboarding.sandbox_hidden_ok:Demo data has been hidden.`;
         this.actionInProgress = null;
         this.loadSandboxStatus();
       },
@@ -68,6 +99,7 @@ export class OnboardingComponent implements OnInit {
   }
 
   resetSandboxData(): void {
+    this.clearMessages();
     this.actionInProgress = 'reset';
     this.registrationService.resetSandboxData(this.companyId).subscribe({
       next: () => {
@@ -83,6 +115,11 @@ export class OnboardingComponent implements OnInit {
   }
 
   deleteSandboxData(): void {
+    const confirmText = $localize`:@@auth.onboarding.remove_confirm:Permanently remove all demo data? This can't be undone.`;
+    if (!window.confirm(confirmText)) {
+      return;
+    }
+    this.clearMessages();
     this.actionInProgress = 'delete';
     this.registrationService.deleteSandboxData(this.companyId).subscribe({
       next: () => {
@@ -90,16 +127,29 @@ export class OnboardingComponent implements OnInit {
         this.sandboxStatus = { hasSandboxData: false, sandboxPersonCount: 0, sandboxAreaCount: 0, sandboxLocationCount: 0 };
         this.actionInProgress = null;
       },
-      error: () => {
-        this.errorMessage = $localize`:@@auth.onboarding.sandbox_removed_fail:Failed to delete sandbox data.`;
+      error: (err) => {
+        // The API plan-gates permanent removal (403); Hide is always available.
+        this.errorMessage = err?.status === 403
+          ? $localize`:@@auth.onboarding.remove_plan_required:Permanently removing demo data needs a paid plan. You can hide it instead.`
+          : $localize`:@@auth.onboarding.sandbox_removed_fail:Failed to delete sandbox data.`;
         this.actionInProgress = null;
       }
     });
   }
 
-  goToDashboard(): void {
+  /**
+   * Leaves onboarding through company-switch: that is what loads the new company
+   * into the store (and auto-selects it), so dashboard pages have an active company.
+   */
+  goToDashboard(next?: string): void {
     sessionStorage.removeItem('onboarding_company_id');
     sessionStorage.removeItem('onboarding_plan');
-    this.router.navigate(['/dashboard']);
+    sessionStorage.removeItem('onboarding_trial_ends_at');
+    this.router.navigate(['/company-switch'], next ? { queryParams: { next } } : {});
+  }
+
+  private clearMessages(): void {
+    this.successMessage = '';
+    this.errorMessage = '';
   }
 }

@@ -141,6 +141,7 @@
         <div class="input-wrapper">
           <i class="fa fa-globe input-icon"></i>
           <select id="timeZone" class="form-control" formControlName="timeZone">
+            <option *ngIf="showDetectedTimeZone" [value]="detectedTimeZone">{{ detectedTimeZone }}</option>
             <option value="UTC">UTC</option>
             <option value="America/New_York">Eastern (US)</option>
             <option value="America/Chicago">Central (US)</option>
@@ -192,8 +193,7 @@
 
       <div class="notice">
         <i class="fa fa-info-circle"></i>
-        <ng-container i18n="@@registration.notice">A verification email will be sent to your inbox. Your company will start on the
-        <strong>Free plan</strong> with sandbox demo data so you can explore the app right away.</ng-container>
+        <ng-container i18n="@@registration.notice">A verification email will be sent to your inbox. Your company starts with a free trial and demo data so you can explore the app right away.</ng-container>
       </div>
 
       <p class="legal-consent">

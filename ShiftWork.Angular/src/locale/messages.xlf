@@ -255,7 +255,7 @@
         <source>Your workspace is clean and ready for real data.</source>
       </trans-unit>
       <trans-unit id="auth.onboarding.demo_hidden_ok" datatype="html">
-        <source>Demo data hidden. Restore from Settings anytime.</source>
+        <source>Demo data hidden.</source>
       </trans-unit>
       <trans-unit id="auth.onboarding.demo_hidden_fail" datatype="html">
         <source>Failed to hide demo data.</source>
@@ -273,7 +273,7 @@
         <source>Failed to delete demo data.</source>
       </trans-unit>
       <trans-unit id="auth.onboarding.sandbox_hidden_ok" datatype="html">
-        <source>Sandbox data has been hidden. You can restore it at any time from Settings.</source>
+        <source>Demo data has been hidden.</source>
       </trans-unit>
       <trans-unit id="auth.onboarding.sandbox_hidden_fail" datatype="html">
         <source>Failed to hide sandbox data. Please try again.</source>
@@ -465,7 +465,7 @@
         <source>Time Zone</source>
       </trans-unit>
       <trans-unit id="registration.notice" datatype="html">
-        <source>A verification email will be sent to your inbox. Your company will start on the Free plan with sandbox demo data so you can explore the app right away.</source>
+        <source>A verification email will be sent to your inbox. Your company starts with a free trial and demo data so you can explore the app right away.</source>
       </trans-unit>
       <trans-unit id="registration.legal_prefix" datatype="html">
         <source>By creating an account you agree to the</source>
@@ -4609,6 +4609,75 @@ What would you like to do?</source>
       </trans-unit>
       <trans-unit id="analytics.status_unscheduled" datatype="html">
         <source>Unscheduled</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.subtitle_steps" datatype="html">
+        <source>Four steps to your team&apos;s first clock-in.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_location_title" datatype="html">
+        <source>Add your first location</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_location_desc" datatype="html">
+        <source>The site where your team works.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_people_title" datatype="html">
+        <source>Invite your team</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_people_desc" datatype="html">
+        <source>Employees get an email invite to the mobile app.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_schedule_title" datatype="html">
+        <source>Schedule a shift</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_schedule_desc" datatype="html">
+        <source>Assign someone to a location and time.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_clock_title" datatype="html">
+        <source>Clock in</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.step_clock_desc" datatype="html">
+        <source>Employees clock in from the mobile app or a kiosk tablet.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.trial_heading" datatype="html">
+        <source>Your free trial ends on</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.trial_description" datatype="html">
+        <source>Choose a plan any time from Billing.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.remove_confirm" datatype="html">
+        <source>Permanently remove all demo data? This can&apos;t be undone.</source>
+      </trans-unit>
+      <trans-unit id="auth.onboarding.remove_plan_required" datatype="html">
+        <source>Permanently removing demo data needs a paid plan. You can hide it instead.</source>
+      </trans-unit>
+      <trans-unit id="registration.error_email_in_use" datatype="html">
+        <source>This email already has an account. Sign in instead, or use a different email.</source>
+      </trans-unit>
+      <trans-unit id="registration.error_invalid_email" datatype="html">
+        <source>That email address doesn&apos;t look right. Please check it and try again.</source>
+      </trans-unit>
+      <trans-unit id="registration.error_weak_password" datatype="html">
+        <source>Please choose a stronger password.</source>
+      </trans-unit>
+      <trans-unit id="registration.error_too_many" datatype="html">
+        <source>Too many attempts. Please wait a few minutes and try again.</source>
+      </trans-unit>
+      <trans-unit id="registration.error_network" datatype="html">
+        <source>We couldn&apos;t connect. Please check your internet connection and try again.</source>
+      </trans-unit>
+      <trans-unit id="registration.error_generic" datatype="html">
+        <source>We couldn&apos;t create your account. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="registration.verify_title" datatype="html">
+        <source>Check your email</source>
+      </trans-unit>
+      <trans-unit id="registration.verify_desc" datatype="html">
+        <source>We sent a verification link to your email address. Click the link to continue. This page will advance automatically.</source>
+      </trans-unit>
+      <trans-unit id="registration.verify_checking" datatype="html">
+        <source>Checking verification status...</source>
+      </trans-unit>
+      <trans-unit id="registration.verify_skip" datatype="html">
+        <source>Skip for now</source>
       </trans-unit>
     </body>
   </file>

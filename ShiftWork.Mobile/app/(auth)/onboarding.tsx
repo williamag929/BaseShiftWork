@@ -48,7 +48,7 @@ export default function OnboardingScreen() {
     setActionLoading(true);
     try {
       await registrationService.hideSandboxData(companyId);
-      toast.success('Demo data hidden. Restore from Settings anytime.');
+      toast.success('Demo data hidden.');
       await loadStatus();
     } catch {
       toast.error('Failed to hide demo data.');

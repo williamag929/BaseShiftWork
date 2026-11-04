@@ -5,7 +5,7 @@ import { loadCompanies, setActiveCompany } from 'src/app/store/company/company.a
 import { selectCompanies, selectCompanyLoading, selectCompanyError } from 'src/app/store/company/company.selectors';
 import { AppState } from 'src/app/store/app.state';
 import { ToastrService } from 'ngx-toastr';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 
@@ -23,7 +23,8 @@ export class CompanySwitchComponent implements OnInit, OnDestroy {
 
   constructor(private store: Store<AppState>,
      private toastr: ToastrService,
-      private router: Router) { }
+      private router: Router,
+      private route: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.store.dispatch(loadCompanies());
@@ -39,6 +40,12 @@ export class CompanySwitchComponent implements OnInit, OnDestroy {
     });
   }
 
+  /** Only same-app dashboard pages are accepted from ?next= (never an arbitrary URL). */
+  private landingUrl(): string {
+    const next = this.route.snapshot.queryParamMap.get('next');
+    return next && /^\/dashboard\/[a-z-]+$/.test(next) ? next : '/dashboard';
+  }
+
   ngOnDestroy(): void {
     this.autoSwitchSub?.unsubscribe();
   }
@@ -47,6 +54,6 @@ export class CompanySwitchComponent implements OnInit, OnDestroy {
     this.store.dispatch(setActiveCompany({ company }));
     this.toastr.success(`Switched to ${company.name}`);
     console.log(`Switched to company: ${company.name}`);
-    this.router.navigate(['/dashboard']);
+    this.router.navigateByUrl(this.landingUrl());
   }
 }
