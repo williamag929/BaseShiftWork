@@ -1,6 +1,6 @@
 # Angular design system, Plan A: verification
 
-Branch `feature/angular-design-system`, 2026-11-08. Headless checks were run in CI-like conditions; visual checks need a running app with Firebase auth and are pending William (ruling R6).
+Branch `feature/angular-design-system`, 2026-11-08. Headless checks were run in the build container; visual checks need a running app with Firebase auth and are pending William.
 
 ## Automated checks
 
@@ -22,37 +22,37 @@ Bundle sizes (production, fonts inlining off), branch vs main:
 
 No budget warnings on either. One CSS minifier note (`.btn-group>+.btn`, successive traversals) appears on both.
 
-## Manual checks: Pending, William
+## Manual checks: Pending — William
 
 Run with `npm run start` (EN) and the es-SP build served from `dist`.
 
-- [ ] Pending: Schedule and People at 1440px match mock boards 1 and 2. Look for: layout, spacing, type scale and colors matching the mocks.
-- [ ] Pending: Schedule at 1280px. Look for: no horizontal page overflow, grid readable.
-- [ ] Pending: Schedule at 390px. Look for: rail is an overlay, grid scrolls horizontally, team column stays sticky.
-- [ ] Pending: Schedule with horizon 4W. Look for: 28 columns scroll and the header stays readable.
-- [ ] Pending: Spanish rail labels. Look for: wrapping, no truncation.
-- [ ] Pending: Spanish "Publicar N turnos". Look for: button text fits.
-- [ ] Pending: Spanish summary strip. Look for: it wraps without clipping.
-- [ ] Pending: Keyboard Tab order. Look for: every nav item, header action, summary button and shift block reachable.
-- [ ] Pending: Focus ring. Look for: visible 2px ring on both navy and white backgrounds.
-- [ ] Pending: Overview. Look for: opaque surface, no layout breakage.
-- [ ] Pending: Locations. Look for: opaque surface, Bootstrap layout intact.
-- [ ] Pending: Bulletins. Look for: opaque surface, Bootstrap layout intact.
-- [ ] Pending: Safety. Look for: opaque surface, Bootstrap layout intact.
-- [ ] Pending: Company settings. Look for: opaque surface, forms and buttons intact.
-- [ ] Pending: Sign-in. Look for: renders correctly with the new theme and font.
-- [ ] Pending: Drag a shift to another day. Look for: the shift moves and persists.
-- [ ] Pending: Tick a shift checkbox. Look for: selection toggles and no edit dialog opens.
-- [ ] Pending: Open a shift. Look for: edit dialog opens.
+- [ ] Pending — William: Schedule and People at 1440px match mock boards 1 and 2. Look for: layout, spacing, type scale and colors matching the mocks.
+- [ ] Pending — William: Schedule at 1280px. Look for: no horizontal page overflow, grid readable.
+- [ ] Pending — William: Schedule at 390px. Look for: rail is an overlay, grid scrolls horizontally, team column stays sticky.
+- [ ] Pending — William: Schedule with horizon 4W. Look for: 28 columns scroll and the header stays readable.
+- [ ] Pending — William: Spanish rail labels. Look for: wrapping, no truncation.
+- [ ] Pending — William: Spanish "Publicar N turnos". Look for: button text fits.
+- [ ] Pending — William: Spanish summary strip. Look for: it wraps without clipping.
+- [ ] Pending — William: Keyboard Tab order. Look for: every nav item, header action, summary button and shift block reachable.
+- [ ] Pending — William: Focus ring. Look for: visible 2px ring on both navy and white backgrounds.
+- [ ] Pending — William: Overview. Look for: opaque surface, no layout breakage.
+- [ ] Pending — William: Locations. Look for: opaque surface, Bootstrap layout intact.
+- [ ] Pending — William: Bulletins. Look for: opaque surface, Bootstrap layout intact.
+- [ ] Pending — William: Safety. Look for: opaque surface, Bootstrap layout intact.
+- [ ] Pending — William: Company settings. Look for: opaque surface, forms and buttons intact.
+- [ ] Pending — William: Sign-in. Look for: renders correctly with the new theme and font.
+- [ ] Pending — William: Drag a shift to another day. Look for: the shift moves and persists.
+- [ ] Pending — William: Tick a shift checkbox. Look for: selection toggles and no edit dialog opens.
+- [ ] Pending — William: Open a shift. Look for: edit dialog opens.
 
 ## Known visual changes on unmigrated screens
 
 - Material surfaces are now opaque paper (no glass).
 - Material primary is ink navy instead of violet.
 - Body font is IBM Plex Sans and the background is canvas grey.
-- Bootstrap is compiled without `!important` utilities in a lower cascade layer (R19).
-- Tailwind generates utilities only for migrated files (R20).
-- New routes reachable: `/dashboard/analytics`, `/dashboard/cost-codes`, `/dashboard/procore` (R13).
+- Bootstrap is compiled without `!important` utilities in a lower cascade layer (the `legacy` layer).
+- Tailwind generates utilities only for migrated files.
+- New routes reachable: `/dashboard/analytics`, `/dashboard/cost-codes`, `/dashboard/procore`.
 
 ## Environmental / pre-existing issues
 
