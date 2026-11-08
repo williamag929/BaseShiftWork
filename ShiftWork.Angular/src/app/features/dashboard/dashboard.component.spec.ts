@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, Component } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideRouter, Router } from '@angular/router';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
@@ -53,6 +54,7 @@ describe('DashboardComponent shell', () => {
         { provide: BillingService, useValue: billing },
         { provide: ProcoreService, useValue: procore },
         { provide: TourService, useValue: tour },
+        { provide: BreakpointObserver, useValue: { observe: () => of({ matches: false, breakpoints: {} }) } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(DashboardComponent);
@@ -64,10 +66,11 @@ describe('DashboardComponent shell', () => {
   const el = () => fixture.nativeElement as HTMLElement;
 
   it('renders one nav heading per visible section', async () => {
-    await setup({ can: k => k !== 'active-sites.view' && k !== 'credentials.track' });
-    const expected = visibleSections(NAV_SECTIONS, k => k !== 'active-sites.view' && k !== 'credentials.track').length;
+    await setup({ can: k => k !== 'active-sites.view' && k !== 'credentials.read' });
+    const expected = visibleSections(NAV_SECTIONS, k => k !== 'active-sites.view' && k !== 'credentials.read').length;
     expect(el().querySelectorAll('[data-nav-heading]').length).toBe(expected);
     expect(expected).toBe(5);
+    expect(el().querySelectorAll('[data-nav-label]').length).toBe(visibleSections(NAV_SECTIONS, k => k !== 'active-sites.view' && k !== 'credentials.read').flatMap(x => x.items).length);
   });
 
   it('marks the active item with aria-current="page"', async () => {
@@ -98,5 +101,21 @@ describe('DashboardComponent shell', () => {
       expect(l.classList.contains('truncate')).toBeFalse();
       expect(l.classList.contains('text-ellipsis')).toBeFalse();
     });
+  });
+
+  it('sizes the rail 232px expanded and 64px collapsed with the toggle inside it', async () => {
+    await setup();
+    const rail = el().querySelector('mat-sidenav') as HTMLElement;
+    expect(Math.round(rail.getBoundingClientRect().width)).toBe(232);
+    fixture.componentInstance.toggleCollapsed();
+    fixture.detectChanges();
+    await new Promise(r => setTimeout(r, 300));
+    expect(Math.round(rail.getBoundingClientRect().width)).toBe(64);
+    const toggle = rail.querySelector('button[aria-expanded]') as HTMLElement;
+    const r = toggle.getBoundingClientRect();
+    const rr = rail.getBoundingClientRect();
+    expect(r.left).toBeGreaterThanOrEqual(rr.left);
+    expect(r.right).toBeLessThanOrEqual(rr.right + 0.5);
+    expect(r.width).toBeGreaterThanOrEqual(48);
   });
 });

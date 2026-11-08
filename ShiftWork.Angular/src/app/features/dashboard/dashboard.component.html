@@ -77,10 +77,6 @@
           <span i18n="@@nav.account.company_users">Company users</span>
         </a>
       }
-      <a mat-menu-item routerLink="/dashboard/help">
-        <mat-icon>help_outline</mat-icon>
-        <span i18n="@@nav.account.help">Help</span>
-      </a>
       <mat-divider></mat-divider>
       <button mat-menu-item type="button" (click)="logout()">
         <mat-icon>logout</mat-icon>
@@ -89,16 +85,16 @@
     </mat-menu>
   </header>
 
-  <mat-sidenav-container class="min-h-0 flex-1 bg-canvas">
+  <mat-sidenav-container autosize class="min-h-0 flex-1 bg-canvas">
     <mat-sidenav #sidenav
       class="lz-rail border-0 bg-navy-900"
-      [ngClass]="collapsed && (isHandset$ | async) === false ? 'w-16' : 'w-[232px]'"
+      [class.lz-rail-collapsed]="collapsed && (isHandset$ | async) === false"
       [mode]="(isHandset$ | async) ? 'over' : 'side'"
       [opened]="(isHandset$ | async) === false">
 
-      <div class="flex min-h-[60px] items-center gap-2 px-3 py-2">
-        <mat-icon class="shrink-0 text-amber">schedule</mat-icon>
+      <div class="flex min-h-[60px] items-center gap-2 py-2" [ngClass]="collapsed && (isHandset$ | async) === false ? 'justify-center px-0' : 'px-3'">
         @if (!collapsed || (isHandset$ | async)) {
+          <mat-icon class="shrink-0 text-amber">schedule</mat-icon>
           <span class="flex-1 font-display text-[18px] font-semibold text-paper">Loqzen</span>
         }
         @if ((isHandset$ | async) === false) {
@@ -131,7 +127,7 @@
                     @if (!collapsed || (isHandset$ | async)) {
                       <span data-nav-label class="min-w-0 flex-1 whitespace-normal break-words">{{ item.label }}</span>
                       @if (item.id === 'credentials' && (expiringCredentialsCount$ | async); as count) {
-                        <span class="inline-flex min-w-5 items-center justify-center rounded-chip bg-[var(--lz-draft-bg-1)] px-1.5 text-xs font-semibold text-amber-ink">{{ count }}</span>
+                        <span class="inline-flex min-w-5 items-center justify-center rounded-chip bg-danger-bg px-1.5 text-xs font-semibold text-danger-ink">{{ count }}</span>
                       }
                     }
                   </a>

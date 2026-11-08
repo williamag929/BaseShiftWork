@@ -9,8 +9,21 @@
   --mat-sidenav-container-divider-color: transparent;
   --mat-sidenav-container-background-color: var(--lz-navy-900);
   --mat-sidenav-container-text-color: var(--lz-rail-text);
-  overflow-x: hidden;
+  --mat-sidenav-container-width: 232px;
+  overflow: hidden;
   transition: width 150ms ease;
+}
+
+.lz-rail ::ng-deep .mat-drawer-inner-container {
+  scrollbar-width: thin;
+}
+
+.lz-rail.lz-rail-collapsed {
+  --mat-sidenav-container-width: 64px;
+}
+
+.lz-rail.lz-rail-collapsed ::ng-deep .mat-drawer-inner-container {
+  scrollbar-width: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -6258,7 +6258,7 @@ What would you like to do?</source>
       </trans-unit>
       <trans-unit id="ui.shift_status.timeOff" datatype="html">
         <source>Time off</source>
-        <target state="translated">Tiempo libre</target>
+        <target state="translated">Ausencia</target>
       </trans-unit>
       <trans-unit id="ui.shift_status.locked" datatype="html">
         <source>Locked</source>
@@ -6306,7 +6306,7 @@ What would you like to do?</source>
       </trans-unit>
       <trans-unit id="nav.item.time_off" datatype="html">
         <source>Time off</source>
-        <target state="translated">Tiempo libre</target>
+        <target state="translated">Ausencias</target>
       </trans-unit>
       <trans-unit id="nav.item.people" datatype="html">
         <source>People</source>
@@ -6435,6 +6435,10 @@ What would you like to do?</source>
       <trans-unit id="nav.procore.synced_date" datatype="html">
         <source>Synced with Procore on <x id="date" equiv-text="date"/></source>
         <target state="translated">Sincronizado con Procore el <x id="date" equiv-text="date"/></target>
+      </trans-unit>
+      <trans-unit id="nav.item.analytics" datatype="html">
+        <source>Analytics</source>
+        <target state="translated">Analítica</target>
       </trans-unit>
     </body>
   </file>

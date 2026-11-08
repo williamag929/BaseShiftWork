@@ -28,6 +28,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { id: 'overview', label: $localize`:@@nav.item.overview:Overview`, i18nId: 'nav.item.overview', icon: 'space_dashboard', route: '/dashboard', exact: true },
       { id: 'schedule', label: $localize`:@@nav.item.schedule:Schedule`, i18nId: 'nav.item.schedule', icon: 'calendar_view_week', route: '/dashboard/schedule-grid', tourId: 'tour-nav-schedule' },
       { id: 'timesheets', label: $localize`:@@nav.item.timesheets:Timesheets`, i18nId: 'nav.item.timesheets', icon: 'assignment', route: '/dashboard/shiftsummaries' },
+      { id: 'analytics', label: $localize`:@@nav.item.analytics:Analytics`, i18nId: 'nav.item.analytics', icon: 'insights', route: '/dashboard/analytics', permission: 'analytics.view' },
       { id: 'timeOff', label: $localize`:@@nav.item.time_off:Time off`, i18nId: 'nav.item.time_off', icon: 'event_busy', route: '/dashboard/time-off-approvals' },
     ],
   },
@@ -38,7 +39,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { id: 'people', label: $localize`:@@nav.item.people:People`, i18nId: 'nav.item.people', icon: 'people', route: '/dashboard/people', tourId: 'tour-nav-people' },
       { id: 'crews', label: $localize`:@@nav.item.crews:Crews`, i18nId: 'nav.item.crews', icon: 'group_work', route: '/dashboard/crews' },
-      { id: 'credentials', label: $localize`:@@nav.item.credentials:Credentials`, i18nId: 'nav.item.credentials', icon: 'badge', route: '/dashboard/credentials', permission: 'credentials.track' },
+      { id: 'credentials', label: $localize`:@@nav.item.credentials:Credentials`, i18nId: 'nav.item.credentials', icon: 'badge', route: '/dashboard/credentials', permission: 'credentials.read' },
       { id: 'rolesAccess', label: $localize`:@@nav.item.roles_access:Roles & access`, i18nId: 'nav.item.roles_access', icon: 'admin_panel_settings', route: '/dashboard/people-management' },
     ],
   },
@@ -97,6 +98,9 @@ export function procoreSyncLabel(
     return { tone: 'success', text: $localize`:@@nav.procore.connected:Procore connected` };
   }
   const at = new Date(conn.lastSyncAt);
+  if (isNaN(at.getTime())) {
+    return { tone: 'success', text: $localize`:@@nav.procore.connected:Procore connected` };
+  }
   const diffMin = Math.floor((now.getTime() - at.getTime()) / 60000);
   if (diffMin < 0) {
     return { tone: 'success', text: $localize`:@@nav.procore.synced_today:Synced with Procore today` };

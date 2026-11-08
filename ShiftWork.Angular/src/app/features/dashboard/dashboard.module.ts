@@ -29,7 +29,7 @@ import { AuditHistoryFiltersComponent } from '../kiosk/audit-history/audit-histo
 import { TourOverlayComponent } from 'src/app/shared/tour/tour-overlay.component';
 
 
-const routes: Routes = [
+export const DASHBOARD_ROUTES: Routes = [
   {
     path: '',
     component: DashboardComponent,
@@ -55,6 +55,9 @@ const routes: Routes = [
       { path: 'daily-reports', loadChildren: () => import('./daily-reports/daily-reports.module').then(m => m.DailyReportsModule) },
       { path: 'documents', loadChildren: () => import('./documents/documents.module').then(m => m.DocumentsModule) },
       { path: 'credentials', loadComponent: () => import('./credentials/credentials.component').then(m => m.CredentialsComponent) },
+      { path: 'analytics', loadChildren: () => import('./analytics/analytics.module').then(m => m.AnalyticsModule) },
+      { path: 'cost-codes', loadChildren: () => import('./cost-codes/cost-codes.module').then(m => m.CostCodesModule) },
+      { path: 'procore', loadChildren: () => import('./procore/procore.module').then(m => m.ProcoreModule) },
       { path: 'safety', loadChildren: () => import('./safety/safety.module').then(m => m.SafetyModule) },
     ]
   }
@@ -75,7 +78,7 @@ const routes: Routes = [
     FormsModule,
     SharedModule,
     FullCalendarModule,
-    RouterModule.forChild(routes),
+    RouterModule.forChild(DASHBOARD_ROUTES),
     MatDialogModule,
     // Import Audit History Components (standalone)
     AuditHistoryButtonComponent,

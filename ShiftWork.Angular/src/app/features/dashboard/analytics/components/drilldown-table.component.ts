@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AnalyticsDrilldownRow } from '../../../../core/models/analytics.model';
 
 @Component({
+  standalone: false,
   selector: 'app-drilldown-table',
   template: `
     <div class="dd-card">

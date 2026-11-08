@@ -1,7 +1,7 @@
 import { Component, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable, Subscription, combineLatest, of, BehaviorSubject, interval } from 'rxjs';
-import { map, shareReplay, withLatestFrom, filter, switchMap, startWith, catchError } from 'rxjs/operators';
+import { map, shareReplay, withLatestFrom, filter, switchMap, startWith, catchError, distinctUntilChanged } from 'rxjs/operators';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Router, NavigationEnd } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -84,7 +84,9 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
 
     this.procoreChip$ = this.activeCompany$.pipe(
       filter((c: any) => !!c?.companyId),
-      switchMap((c: any) => this.procoreService.getConnection(c.companyId).pipe(catchError(() => of(null)))),
+      map((c: any) => c.companyId as string),
+      distinctUntilChanged(),
+      switchMap((companyId: string) => this.procoreService.getConnection(companyId).pipe(catchError(() => of(null)))),
       map(conn => procoreSyncLabel(conn, new Date())),
       startWith(null as ReturnType<typeof procoreSyncLabel>)
     );

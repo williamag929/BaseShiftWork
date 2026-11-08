@@ -4826,6 +4826,9 @@ What would you like to do?</source>
       <trans-unit id="nav.procore.synced_date" datatype="html">
         <source>Synced with Procore on <x id="date" equiv-text="date"/></source>
       </trans-unit>
+      <trans-unit id="nav.item.analytics" datatype="html">
+        <source>Analytics</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>

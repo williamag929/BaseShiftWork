@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/store/app.state';
 import { Subject, combineLatest, of } from 'rxjs';
 import { catchError, debounceTime, filter, switchMap, takeUntil, distinctUntilChanged, startWith } from 'rxjs/operators';
 import type { EChartsOption } from 'echarts';
@@ -17,6 +18,7 @@ import { AnalyticsPalette } from './analytics-theme';
 type ChartId = 'hours' | 'location' | 'attendance' | 'coverage';
 
 @Component({
+  standalone: false,
   selector: 'app-analytics',
   templateUrl: './analytics.component.html',
   styleUrls: ['./analytics.component.css'],
@@ -57,7 +59,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private store: Store,
+    private store: Store<AppState>,
     private analytics: AnalyticsService,
     private locationService: LocationService,
     private areaService: AreaService,
