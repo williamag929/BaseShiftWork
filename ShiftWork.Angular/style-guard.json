@@ -1,1 +1,6 @@
-{ "migrated": [] }
+{
+  "migrated": [
+    "src/app/features/dashboard/dashboard.component.*",
+    "src/app/features/dashboard/nav/**"
+  ]
+}

@@ -6272,6 +6272,170 @@ What would you like to do?</source>
         <source>Select shift</source>
         <target state="translated">Seleccionar turno</target>
       </trans-unit>
+      <trans-unit id="nav.section.scheduling" datatype="html">
+        <source>Scheduling</source>
+        <target state="translated">Programación</target>
+      </trans-unit>
+      <trans-unit id="nav.section.workforce" datatype="html">
+        <source>Workforce</source>
+        <target state="translated">Personal</target>
+      </trans-unit>
+      <trans-unit id="nav.section.job_sites" datatype="html">
+        <source>Job sites</source>
+        <target state="translated">Obras</target>
+      </trans-unit>
+      <trans-unit id="nav.section.field_comms" datatype="html">
+        <source>Field communication</source>
+        <target state="translated">Comunicación en campo</target>
+      </trans-unit>
+      <trans-unit id="nav.section.integrations" datatype="html">
+        <source>Integrations</source>
+        <target state="translated">Integraciones</target>
+      </trans-unit>
+      <trans-unit id="nav.item.overview" datatype="html">
+        <source>Overview</source>
+        <target state="translated">Resumen</target>
+      </trans-unit>
+      <trans-unit id="nav.item.schedule" datatype="html">
+        <source>Schedule</source>
+        <target state="translated">Horario</target>
+      </trans-unit>
+      <trans-unit id="nav.item.timesheets" datatype="html">
+        <source>Timesheets</source>
+        <target state="translated">Hojas de horas</target>
+      </trans-unit>
+      <trans-unit id="nav.item.time_off" datatype="html">
+        <source>Time off</source>
+        <target state="translated">Tiempo libre</target>
+      </trans-unit>
+      <trans-unit id="nav.item.people" datatype="html">
+        <source>People</source>
+        <target state="translated">Personas</target>
+      </trans-unit>
+      <trans-unit id="nav.item.crews" datatype="html">
+        <source>Crews</source>
+        <target state="translated">Cuadrillas</target>
+      </trans-unit>
+      <trans-unit id="nav.item.credentials" datatype="html">
+        <source>Credentials</source>
+        <target state="translated">Credenciales</target>
+      </trans-unit>
+      <trans-unit id="nav.item.roles_access" datatype="html">
+        <source>Roles &amp; access</source>
+        <target state="translated">Roles y acceso</target>
+      </trans-unit>
+      <trans-unit id="nav.item.locations" datatype="html">
+        <source>Locations</source>
+        <target state="translated">Ubicaciones</target>
+      </trans-unit>
+      <trans-unit id="nav.item.areas" datatype="html">
+        <source>Areas</source>
+        <target state="translated">Áreas</target>
+      </trans-unit>
+      <trans-unit id="nav.item.cost_codes" datatype="html">
+        <source>Cost codes</source>
+        <target state="translated">Códigos de costo</target>
+      </trans-unit>
+      <trans-unit id="nav.item.tasks" datatype="html">
+        <source>Tasks</source>
+        <target state="translated">Tareas</target>
+      </trans-unit>
+      <trans-unit id="nav.item.active_sites" datatype="html">
+        <source>Active sites</source>
+        <target state="translated">Obras activas</target>
+      </trans-unit>
+      <trans-unit id="nav.item.daily_reports" datatype="html">
+        <source>Daily reports</source>
+        <target state="translated">Reportes diarios</target>
+      </trans-unit>
+      <trans-unit id="nav.item.bulletins" datatype="html">
+        <source>Bulletins</source>
+        <target state="translated">Boletines</target>
+      </trans-unit>
+      <trans-unit id="nav.item.safety" datatype="html">
+        <source>Safety</source>
+        <target state="translated">Seguridad</target>
+      </trans-unit>
+      <trans-unit id="nav.item.documents" datatype="html">
+        <source>Documents</source>
+        <target state="translated">Documentos</target>
+      </trans-unit>
+      <trans-unit id="nav.item.procore" datatype="html">
+        <source>Procore</source>
+        <target state="translated">Procore</target>
+      </trans-unit>
+      <trans-unit id="nav.item.kiosks" datatype="html">
+        <source>Kiosks</source>
+        <target state="translated">Kioscos</target>
+      </trans-unit>
+      <trans-unit id="nav.open_menu" datatype="html">
+        <source>Open navigation</source>
+        <target state="translated">Abrir navegación</target>
+      </trans-unit>
+      <trans-unit id="nav.account_menu" datatype="html">
+        <source>Account menu</source>
+        <target state="translated">Menú de cuenta</target>
+      </trans-unit>
+      <trans-unit id="nav.main_label" datatype="html">
+        <source>Main</source>
+        <target state="translated">Principal</target>
+      </trans-unit>
+      <trans-unit id="nav.expand" datatype="html">
+        <source>Expand navigation</source>
+        <target state="translated">Expandir navegación</target>
+      </trans-unit>
+      <trans-unit id="nav.collapse" datatype="html">
+        <source>Collapse navigation</source>
+        <target state="translated">Contraer navegación</target>
+      </trans-unit>
+      <trans-unit id="nav.account.profile" datatype="html">
+        <source>My profile</source>
+        <target state="translated">Mi perfil</target>
+      </trans-unit>
+      <trans-unit id="nav.account.company_settings" datatype="html">
+        <source>Company settings</source>
+        <target state="translated">Configuración de la empresa</target>
+      </trans-unit>
+      <trans-unit id="nav.account.billing" datatype="html">
+        <source>Billing</source>
+        <target state="translated">Facturación</target>
+      </trans-unit>
+      <trans-unit id="nav.account.company_users" datatype="html">
+        <source>Company users</source>
+        <target state="translated">Usuarios de la empresa</target>
+      </trans-unit>
+      <trans-unit id="nav.account.help" datatype="html">
+        <source>Help</source>
+        <target state="translated">Ayuda</target>
+      </trans-unit>
+      <trans-unit id="nav.account.logout" datatype="html">
+        <source>Log out</source>
+        <target state="translated">Cerrar sesión</target>
+      </trans-unit>
+      <trans-unit id="nav.procore.failed" datatype="html">
+        <source>Procore sync failed</source>
+        <target state="translated">La sincronización con Procore falló</target>
+      </trans-unit>
+      <trans-unit id="nav.procore.connected" datatype="html">
+        <source>Procore connected</source>
+        <target state="translated">Procore conectado</target>
+      </trans-unit>
+      <trans-unit id="nav.procore.synced_today" datatype="html">
+        <source>Synced with Procore today</source>
+        <target state="translated">Sincronizado con Procore hoy</target>
+      </trans-unit>
+      <trans-unit id="nav.procore.synced_min" datatype="html">
+        <source>Synced with Procore <x id="n" equiv-text="n"/> min ago</source>
+        <target state="translated">Sincronizado con Procore hace <x id="n" equiv-text="n"/> min</target>
+      </trans-unit>
+      <trans-unit id="nav.procore.synced_hour" datatype="html">
+        <source>Synced with Procore <x id="n" equiv-text="n"/> h ago</source>
+        <target state="translated">Sincronizado con Procore hace <x id="n" equiv-text="n"/> h</target>
+      </trans-unit>
+      <trans-unit id="nav.procore.synced_date" datatype="html">
+        <source>Synced with Procore on <x id="date" equiv-text="date"/></source>
+        <target state="translated">Sincronizado con Procore el <x id="date" equiv-text="date"/></target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

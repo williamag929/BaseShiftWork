@@ -62,7 +62,7 @@ Three client surfaces share one API:
 - **Services** in `src/app/core/services/`. One Angular service per API resource.
 - **State** → NgRx for global state. Local component state for UI-only concerns.
 - **Navigation** → add new routes to `dashboard-routing.module.ts`. Add nav links to `dashboard.component.html`.
-- **Sidebar sections:** Main Menu → Management → PTO → Kiosks → **Field Communications** → **Resources** → More Options.
+- **Sidebar sections:** Scheduling → Workforce → Job sites → Field communication → Integrations (defined in features/dashboard/nav/nav.config.ts)
 - **Material Icons** → use Google Material icons in `<mat-icon>`. No custom SVGs unless necessary.
 
 ### Mobile (React Native / Expo)
