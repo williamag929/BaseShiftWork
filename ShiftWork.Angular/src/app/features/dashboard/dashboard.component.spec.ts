@@ -30,7 +30,7 @@ describe('DashboardComponent shell', () => {
   let fixture: ComponentFixture<DashboardComponent>;
   let procore: jasmine.SpyObj<ProcoreService>;
 
-  async function setup(opts: { can?: (k: string) => boolean; connection?: any } = {}) {
+  async function setup(opts: { can?: (k: string) => boolean; connection?: any; shiftStatus?: string } = {}) {
     localStorage.removeItem('lz.nav.collapsed');
     procore = jasmine.createSpyObj('ProcoreService', ['getConnection']);
     procore.getConnection.and.returnValue(of(opts.connection ?? null));
@@ -47,8 +47,8 @@ describe('DashboardComponent shell', () => {
           { path: 'dashboard', component: StubPage, children: [{ path: 'people', component: StubPage }] },
         ]),
         provideMockStore({ selectors: [{ selector: selectActiveCompany, value: { companyId: 'co-1', name: 'Acme' } }] }),
-        { provide: AuthService, useValue: { user$: of({ name: 'Ann', email: 'a@b.c' }), signOut: () => {} } },
-        { provide: PeopleService, useValue: { getPersonStatus: () => of(null) } },
+        { provide: AuthService, useValue: { user$: of({ name: 'Ann', email: 'a@b.c', personId: opts.shiftStatus ? 7 : undefined }), signOut: () => {} } },
+        { provide: PeopleService, useValue: { getPersonStatus: () => of(opts.shiftStatus ?? null) } },
         { provide: PermissionService, useValue: perm },
         { provide: CredentialService, useValue: { getExpiring: () => of({ expiredCount: 0, expiringSoonCount: 0 }) } },
         { provide: BillingService, useValue: billing },
@@ -90,6 +90,20 @@ describe('DashboardComponent shell', () => {
     await setup({ connection: { enabled: true, lastSyncStatus: 'failed' } });
     const chip = el().querySelector('[data-procore-chip]');
     expect(chip?.textContent).toContain('Procore sync failed');
+  });
+
+  it('shows a localized status chip instead of the raw shift status', async () => {
+    await setup({ shiftStatus: 'OnShift:Late' });
+    const chip = el().querySelector('header lz-status-chip span')!;
+    expect(chip.textContent).toContain('On shift');
+    expect(chip.classList.contains('bg-success-bg')).toBeTrue();
+    expect(el().querySelector('header')!.textContent).not.toContain('OnShift');
+    fixture.destroy();
+    TestBed.resetTestingModule();
+    await setup({ shiftStatus: 'OffShift' });
+    const off = el().querySelector('header lz-status-chip span')!;
+    expect(off.textContent).toContain('Off shift');
+    expect(off.classList.contains('bg-neutral-bg')).toBeTrue();
   });
 
   it('nav labels never truncate', async () => {

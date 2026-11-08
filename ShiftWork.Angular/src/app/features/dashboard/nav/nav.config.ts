@@ -30,6 +30,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { id: 'timesheets', label: $localize`:@@nav.item.timesheets:Timesheets`, i18nId: 'nav.item.timesheets', icon: 'assignment', route: '/dashboard/shiftsummaries' },
       { id: 'analytics', label: $localize`:@@nav.item.analytics:Analytics`, i18nId: 'nav.item.analytics', icon: 'insights', route: '/dashboard/analytics', permission: 'analytics.view' },
       { id: 'timeOff', label: $localize`:@@nav.item.time_off:Time off`, i18nId: 'nav.item.time_off', icon: 'event_busy', route: '/dashboard/time-off-approvals' },
+      { id: 'timeOffSettings', label: $localize`:@@nav.item.time_off_settings:Time off settings`, i18nId: 'nav.item.time_off_settings', icon: 'event_available', route: '/dashboard/people-management' },
     ],
   },
   {
@@ -40,7 +41,6 @@ export const NAV_SECTIONS: NavSection[] = [
       { id: 'people', label: $localize`:@@nav.item.people:People`, i18nId: 'nav.item.people', icon: 'people', route: '/dashboard/people', tourId: 'tour-nav-people' },
       { id: 'crews', label: $localize`:@@nav.item.crews:Crews`, i18nId: 'nav.item.crews', icon: 'group_work', route: '/dashboard/crews' },
       { id: 'credentials', label: $localize`:@@nav.item.credentials:Credentials`, i18nId: 'nav.item.credentials', icon: 'badge', route: '/dashboard/credentials', permission: 'credentials.read' },
-      { id: 'rolesAccess', label: $localize`:@@nav.item.roles_access:Roles & access`, i18nId: 'nav.item.roles_access', icon: 'admin_panel_settings', route: '/dashboard/people-management' },
     ],
   },
   {

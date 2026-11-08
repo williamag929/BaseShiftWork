@@ -14,6 +14,14 @@ describe('nav.config', () => {
     expect(NAV_SECTIONS.map(s => s.id)).toEqual(['scheduling', 'workforce', 'jobSites', 'fieldComms', 'integrations']);
   });
 
+  it('places Time off settings right after Time off in Scheduling', () => {
+    const scheduling = NAV_SECTIONS.find(s => s.id === 'scheduling')!.items.map(i => i.id);
+    expect(scheduling.indexOf('timeOffSettings')).toBe(scheduling.indexOf('timeOff') + 1);
+    const settings = NAV_SECTIONS.flatMap(s => s.items).find(i => i.id === 'timeOffSettings')!;
+    expect(settings.route).toBe('/dashboard/people-management');
+    expect(NAV_SECTIONS.find(s => s.id === 'workforce')!.items.map(i => i.id)).not.toContain('timeOffSettings');
+  });
+
   it('every item route exists in the dashboard routes or is /kiosk', () => {
     const children = DASHBOARD_ROUTES[0].children!.map(r => r.path);
     NAV_SECTIONS.flatMap(s => s.items.map(i => i.route)).forEach(route => {

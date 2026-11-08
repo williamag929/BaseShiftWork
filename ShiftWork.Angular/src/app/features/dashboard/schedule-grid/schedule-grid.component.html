@@ -1,4 +1,4 @@
-<div class="flex h-full flex-col gap-4 p-6">
+<div class="flex h-full flex-col gap-4">
 
   <lz-page-header title="Schedule" i18n-title="@@schedule_grid.title">
     <div lzHeaderMeta class="mt-2 flex flex-wrap items-center gap-2">
@@ -60,15 +60,12 @@
       <button lzButton variant="quiet" iconOnly type="button" aria-label="Refresh" i18n-aria-label="@@schedule_grid.refresh" title="Refresh" i18n-title="@@schedule_grid.refresh" (click)="loadScheduleData()">
         <mat-icon aria-hidden="true">refresh</mat-icon>
       </button>
-      <button lzButton variant="quiet" iconOnly type="button" aria-label="More options" i18n-aria-label="@@schedule_grid.more_options" title="More options" i18n-title="@@schedule_grid.more_options">
-        <mat-icon aria-hidden="true">more_vert</mat-icon>
-      </button>
       <button lzButton type="button" (click)="openAddScheduleModal()">
         <mat-icon aria-hidden="true">add</mat-icon>
         <ng-container i18n="@@schedule_grid.add_shift_btn">Add shift</ng-container>
       </button>
       <button lzButton variant="primary" type="button" [disabled]="gridData.stats.unpublished === 0" (click)="onPublishAllShifts()">
-        <ng-container *ngIf="gridData.stats.unpublished > 0" i18n="@@schedule_grid.publish_n_shifts">Publish {{ gridData.stats.unpublished }} shifts</ng-container>
+        <ng-container *ngIf="gridData.stats.unpublished > 0" i18n="@@schedule_grid.publish_n_shifts">{gridData.stats.unpublished, plural, =1 {Publish 1 shift} other {Publish {{ gridData.stats.unpublished }} shifts}}</ng-container>
         <ng-container *ngIf="gridData.stats.unpublished === 0" i18n="@@schedule_grid.all_published">All shifts published</ng-container>
       </button>
     </ng-container>
@@ -78,7 +75,7 @@
     *ngIf="summaryItems.length > 0"
     class="block rounded-panel border border-line bg-paper"
     [items]="summaryItems"
-    (itemSelect)="onSummarySelect($event)"
+    [interactive]="false"
   ></lz-summary-strip>
 
   <div class="flex flex-wrap items-center gap-2">

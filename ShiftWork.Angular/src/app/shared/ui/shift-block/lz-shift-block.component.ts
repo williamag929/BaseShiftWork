@@ -63,7 +63,7 @@ import { LzShiftStatus } from './shift-status';
             class="ml-auto shrink-0"
             [class.text-success]="clock === 'onShift'"
             [class.text-danger]="clock === 'late'"
-            >schedule</mat-icon
+            >{{ clock === 'late' ? 'alarm' : 'schedule' }}</mat-icon
           >
         }
       </button>
@@ -94,7 +94,18 @@ export class LzShiftBlockComponent {
   @Output() selectedChange = new EventEmitter<boolean>();
 
   get ariaLabel(): string {
-    return `${this.statusLabel()}, ${this.time}${this.detail ? ', ' + this.detail : ''}`;
+    return `${this.statusLabel()}, ${this.time}${this.detail ? ', ' + this.detail : ''}${this.clockLabel()}`;
+  }
+
+  private clockLabel(): string {
+    switch (this.clock) {
+      case 'onShift':
+        return $localize`:@@ui.shift_clock.on_shift:, on shift now`;
+      case 'late':
+        return $localize`:@@ui.shift_clock.late:, late`;
+      default:
+        return '';
+    }
   }
 
   private statusLabel(): string {

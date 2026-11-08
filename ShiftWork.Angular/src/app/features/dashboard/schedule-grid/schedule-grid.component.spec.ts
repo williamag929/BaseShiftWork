@@ -91,6 +91,18 @@ describe('ScheduleGridComponent (Loqzen design system)', () => {
     expect(spy).toHaveBeenCalled();
   });
 
+  it('uses a singular label for one unpublished shift', async () => {
+    await setup(grid({ unpublished: 1 }));
+    const publish = el().querySelector('button[variant="primary"]') as HTMLButtonElement;
+    expect(publish.textContent?.replace(/\s+/g, ' ').trim()).toBe('Publish 1 shift');
+  });
+
+  it('has no More options button and a non-interactive summary strip', async () => {
+    await setup(grid({ unpublished: 3 }));
+    expect(el().querySelector('[aria-label="More options"]')).toBeNull();
+    expect(el().querySelectorAll('lz-summary-strip button').length).toBe(0);
+  });
+
   it('primary button is disabled with "All shifts published" when nothing is unpublished', async () => {
     await setup(grid({ unpublished: 0 }));
     const publish = el().querySelector('button[variant="primary"]') as HTMLButtonElement;

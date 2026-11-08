@@ -54,7 +54,7 @@
     "echarts": "^5.6.0",
     "firebase": "^11.10.0",
     "font-awesome": "^4.7.0",
-    "material-design-icons": "^3.0.1",
+    "material-icons": "^1.13.14",
     "ngrx-store-persist": "^1.0.26",
     "ngx-echarts": "^19.0.0",
     "ngx-pagination": "6.0.3",
@@ -87,6 +87,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
     "postcss": "^8.5.32",
+    "postcss-loader": "^8.1.1",
     "sharp-cli": "^5.2.0",
     "tailwindcss": "^4.3.5",
     "typescript": "~5.5.0"

@@ -149,6 +149,16 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
     }
   }
 
+  isOnShift(status: string): boolean {
+    return status.startsWith('OnShift');
+  }
+
+  statusLabel(status: string): string {
+    return this.isOnShift(status)
+      ? $localize`:@@nav.status.on_shift:On shift`
+      : $localize`:@@nav.status.off_shift:Off shift`;
+  }
+
   refreshStatus(): void {
     this.refreshTrigger$.next();
   }

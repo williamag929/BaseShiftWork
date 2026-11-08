@@ -1,10 +1,10 @@
-<div class="flex flex-col gap-4 p-6">
+<div class="flex flex-col gap-4">
 
   <lz-page-header title="People" i18n-title="@@people.page_title" subtitle="Everyone who can be scheduled or clock in at your job sites." i18n-subtitle="@@people.page_subtitle">
     <ng-container lzHeaderActions>
       <button lzButton variant="primary" type="button" (click)="cancelEdit(); nameInput.focus()">
         <mat-icon aria-hidden="true">person_add</mat-icon>
-        <ng-container i18n="@@people.invite_people">Invite people</ng-container>
+        <ng-container i18n="@@people.add_person">Add person</ng-container>
       </button>
     </ng-container>
   </lz-page-header>
@@ -113,9 +113,9 @@
       <div class="mb-4 flex items-center justify-between gap-2">
         <h2 class="font-display text-[18px] font-semibold">
           @if (selectedPerson) {
-            <ng-container i18n="@@people.form_edit">Edit Person</ng-container>
+            <ng-container i18n="@@people.form_edit">Edit person</ng-container>
           } @else {
-            <ng-container i18n="@@people.form_create">Create New Person</ng-container>
+            <ng-container i18n="@@people.form_create">Create new person</ng-container>
           }
         </h2>
         <div class="flex items-center gap-1">
@@ -137,27 +137,27 @@
 
       <form [formGroup]="personForm" (ngSubmit)="savePerson()" class="flex flex-col gap-6">
         <fieldset class="m-0 grid gap-4 border-0 p-0 sm:grid-cols-2">
-          <legend class="mb-2 font-medium text-ink" i18n="@@people.section_personal">Personal Information</legend>
+          <legend class="mb-2 font-medium text-ink" i18n="@@people.section_personal">Personal information</legend>
           <div class="sm:col-span-2">
-            <label for="name" class="mb-1 block text-[13px] font-medium text-ink-soft"><ng-container i18n="@@people.full_name">Full Name</ng-container> <span aria-hidden="true">*</span></label>
+            <label for="name" class="mb-1 block text-[13px] font-medium text-ink-soft"><ng-container i18n="@@people.full_name">Full name</ng-container> <span aria-hidden="true">*</span></label>
             <input #nameInput type="text" id="name" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" [class.border-danger]="personForm.get('name')?.touched && personForm.get('name')?.invalid" formControlName="name" placeholder="Enter full name" i18n-placeholder="@@people.name_placeholder">
             @if (personForm.get('name')?.touched && personForm.get('name')?.errors?.['required']) {
               <p class="mt-1 text-[13px] text-danger-ink" role="alert" i18n="@@people.name_required">Name is required</p>
             }
           </div>
           <div>
-            <label for="email" class="mb-1 block text-[13px] font-medium text-ink-soft"><ng-container i18n="@@people.email_address">Email Address</ng-container> <span aria-hidden="true">*</span></label>
+            <label for="email" class="mb-1 block text-[13px] font-medium text-ink-soft"><ng-container i18n="@@people.email_address">Email address</ng-container> <span aria-hidden="true">*</span></label>
             <input type="email" id="email" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" [class.border-danger]="personForm.get('email')?.touched && personForm.get('email')?.invalid" formControlName="email" placeholder="name@example.com">
             @if (personForm.get('email')?.touched && personForm.get('email')?.errors?.['required']) {
               <p class="mt-1 text-[13px] text-danger-ink" role="alert" i18n="@@people.email_required">Email is required</p>
             }
           </div>
           <div>
-            <label for="phone" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.phone_number">Phone Number</label>
+            <label for="phone" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.phone_number">Phone number</label>
             <input type="text" id="phone" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="phoneNumber" placeholder="(123) 456-7890">
           </div>
           <div>
-            <label for="pin" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.pin_code">PIN Code</label>
+            <label for="pin" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.pin_code">PIN code</label>
             <input type="text" id="pin" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="pin" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="4-digit PIN" i18n-placeholder="@@people.pin_placeholder">
           </div>
           <label class="flex min-h-12 items-center gap-2 self-end text-ink">
@@ -167,9 +167,9 @@
         </fieldset>
 
         <fieldset class="m-0 grid gap-4 border-0 p-0 sm:grid-cols-2">
-          <legend class="mb-2 font-medium text-ink" i18n="@@people.section_address">Address Information</legend>
+          <legend class="mb-2 font-medium text-ink" i18n="@@people.section_address">Address information</legend>
           <div class="sm:col-span-2">
-            <label for="address" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.street_address">Street Address</label>
+            <label for="address" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.street_address">Street address</label>
             <input type="text" id="address" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="address" placeholder="123 Main Street">
           </div>
           <div>
@@ -183,7 +183,7 @@
         </fieldset>
 
         <fieldset class="m-0 grid gap-4 border-0 p-0 sm:grid-cols-2">
-          <legend class="mb-2 font-medium text-ink" i18n="@@people.section_additional">Additional Information</legend>
+          <legend class="mb-2 font-medium text-ink" i18n="@@people.section_additional">Additional information</legend>
           <div>
             <label for="status" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.status">Status</label>
             <select id="status" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="status">
@@ -209,9 +209,9 @@
           }
           <button lzButton variant="secondary" type="submit" [disabled]="!personForm.valid">
             @if (selectedPerson) {
-              <ng-container i18n="@@people.update_btn">Update Person</ng-container>
+              <ng-container i18n="@@people.update_btn">Update person</ng-container>
             } @else {
-              <ng-container i18n="@@people.create_btn">Create Person</ng-container>
+              <ng-container i18n="@@people.create_btn">Create person</ng-container>
             }
           </button>
         </div>
@@ -242,7 +242,7 @@
 
         @if (getInviteStatus(selectedPerson?.personId || 0)?.status !== 'Active') {
           <div>
-            <h3 class="mb-2 font-medium" i18n="@@people.select_roles">Select Roles</h3>
+            <h3 class="mb-2 font-medium" i18n="@@people.select_roles">Select roles</h3>
             <div class="flex flex-col gap-2">
               @for (role of roles; track role.roleId) {
                 <label class="flex min-h-12 cursor-pointer items-start gap-3 rounded-control border p-3" [class.border-ink]="isRoleSelected(role.roleId)" [class.border-line]="!isRoleSelected(role.roleId)">

@@ -1766,9 +1766,9 @@
         <source>Everyone who can be scheduled or clock in at your job sites.</source>
         <target state="translated">Todas las personas que se pueden programar o marcar entrada en tus obras.</target>
       </trans-unit>
-      <trans-unit id="people.invite_people" datatype="html">
-        <source>Invite people</source>
-        <target state="translated">Invitar personas</target>
+      <trans-unit id="people.add_person" datatype="html">
+        <source>Add person</source>
+        <target state="translated">Agregar persona</target>
       </trans-unit>
       <trans-unit id="people.search_label" datatype="html">
         <source>Search people</source>
@@ -1827,7 +1827,7 @@
         <target state="translated">PIN de 4 dígitos</target>
       </trans-unit>
       <trans-unit id="people.team_members" datatype="html">
-        <source>Team Members</source>
+        <source>Team members</source>
         <target state="translated">Miembros del equipo</target>
       </trans-unit>
       <trans-unit id="people.loading" datatype="html">
@@ -1847,27 +1847,27 @@
         <target state="translated">Crea el primer miembro del equipo para comenzar</target>
       </trans-unit>
       <trans-unit id="people.form_edit" datatype="html">
-        <source>Edit Person</source>
+        <source>Edit person</source>
         <target state="translated">Editar persona</target>
       </trans-unit>
       <trans-unit id="people.form_create" datatype="html">
-        <source>Create New Person</source>
+        <source>Create new person</source>
         <target state="translated">Crear nueva persona</target>
       </trans-unit>
       <trans-unit id="people.section_personal" datatype="html">
-        <source>Personal Information</source>
+        <source>Personal information</source>
         <target state="translated">Información personal</target>
       </trans-unit>
       <trans-unit id="people.section_address" datatype="html">
-        <source>Address Information</source>
+        <source>Address information</source>
         <target state="translated">Información de dirección</target>
       </trans-unit>
       <trans-unit id="people.section_additional" datatype="html">
-        <source>Additional Information</source>
+        <source>Additional information</source>
         <target state="translated">Información adicional</target>
       </trans-unit>
       <trans-unit id="people.full_name" datatype="html">
-        <source>Full Name</source>
+        <source>Full name</source>
         <target state="translated">Nombre completo</target>
       </trans-unit>
       <trans-unit id="people.name_required" datatype="html">
@@ -1875,7 +1875,7 @@
         <target state="translated">El nombre es requerido</target>
       </trans-unit>
       <trans-unit id="people.email_address" datatype="html">
-        <source>Email Address</source>
+        <source>Email address</source>
         <target state="translated">Correo electrónico</target>
       </trans-unit>
       <trans-unit id="people.email_required" datatype="html">
@@ -1883,7 +1883,7 @@
         <target state="translated">El correo electrónico es requerido</target>
       </trans-unit>
       <trans-unit id="people.phone_number" datatype="html">
-        <source>Phone Number</source>
+        <source>Phone number</source>
         <target state="translated">Número de teléfono</target>
       </trans-unit>
       <trans-unit id="locations.kiosk_section" datatype="html">
@@ -1963,11 +1963,11 @@
         <target state="translated">Sin foto en el kiosco</target>
       </trans-unit>
       <trans-unit id="people.pin_code" datatype="html">
-        <source>PIN Code</source>
+        <source>PIN code</source>
         <target state="translated">Código PIN</target>
       </trans-unit>
       <trans-unit id="people.street_address" datatype="html">
-        <source>Street Address</source>
+        <source>Street address</source>
         <target state="translated">Dirección</target>
       </trans-unit>
       <trans-unit id="people.city" datatype="html">
@@ -1995,15 +1995,15 @@
         <target state="translated">Inactivo</target>
       </trans-unit>
       <trans-unit id="people.update_btn" datatype="html">
-        <source>Update Person</source>
+        <source>Update person</source>
         <target state="translated">Actualizar persona</target>
       </trans-unit>
       <trans-unit id="people.create_btn" datatype="html">
-        <source>Create Person</source>
+        <source>Create person</source>
         <target state="translated">Crear persona</target>
       </trans-unit>
       <trans-unit id="people.select_roles" datatype="html">
-        <source>Select Roles</source>
+        <source>Select roles</source>
         <target state="translated">Seleccionar roles</target>
       </trans-unit>
       <trans-unit id="people.sending" datatype="html">
@@ -2693,10 +2693,6 @@ Opción C</target>
       <trans-unit id="schedule_grid.share" datatype="html">
         <source>Share</source>
         <target state="translated">Compartir</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.more_options" datatype="html">
-        <source>More options</source>
-        <target state="translated">Más opciones</target>
       </trans-unit>
       <trans-unit id="schedule_grid.bulk_builder" datatype="html">
         <source>Bulk Schedule Builder</source>
@@ -6328,6 +6324,14 @@ What would you like to do?</source>
         <source>Void</source>
         <target state="translated">Anulado</target>
       </trans-unit>
+      <trans-unit id="ui.shift_clock.on_shift" datatype="html">
+        <source>, on shift now</source>
+        <target state="translated">, en turno ahora</target>
+      </trans-unit>
+      <trans-unit id="ui.shift_clock.late" datatype="html">
+        <source>, late</source>
+        <target state="translated">, tarde</target>
+      </trans-unit>
       <trans-unit id="ui.shift_block.select" datatype="html">
         <source>Select shift</source>
         <target state="translated">Seleccionar turno</target>
@@ -6380,9 +6384,17 @@ What would you like to do?</source>
         <source>Credentials</source>
         <target state="translated">Credenciales</target>
       </trans-unit>
-      <trans-unit id="nav.item.roles_access" datatype="html">
-        <source>Roles &amp; access</source>
-        <target state="translated">Roles y acceso</target>
+      <trans-unit id="nav.item.time_off_settings" datatype="html">
+        <source>Time off settings</source>
+        <target state="translated">Ajustes de ausencias</target>
+      </trans-unit>
+      <trans-unit id="nav.status.on_shift" datatype="html">
+        <source>On shift</source>
+        <target state="translated">En turno</target>
+      </trans-unit>
+      <trans-unit id="nav.status.off_shift" datatype="html">
+        <source>Off shift</source>
+        <target state="translated">Fuera de turno</target>
       </trans-unit>
       <trans-unit id="nav.item.locations" datatype="html">
         <source>Locations</source>
@@ -6549,8 +6561,8 @@ What would you like to do?</source>
         <target state="translated">Añadir turno</target>
       </trans-unit>
       <trans-unit id="schedule_grid.publish_n_shifts" datatype="html">
-        <source>Publish <x id="INTERPOLATION" equiv-text="{{ gridData.stats.unpublished }}"/> shifts</source>
-        <target state="translated">Publicar <x id="INTERPOLATION" equiv-text="{{ gridData.stats.unpublished }}"/> turnos</target>
+        <source>{VAR_PLURAL, plural, =1 {Publish 1 shift} other {Publish <x id="INTERPOLATION"/> shifts}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {Publicar 1 turno} other {Publicar <x id="INTERPOLATION"/> turnos}}</target>
       </trans-unit>
       <trans-unit id="schedule_grid.selected_count" datatype="html">
         <source><x id="INTERPOLATION" equiv-text="{{ selectedShifts.size }}"/> selected</source>

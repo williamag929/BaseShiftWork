@@ -19,7 +19,7 @@
     }
 
     @if (personStatus$ | async; as status) {
-      <lz-status-chip [tone]="status === 'OnShift' ? 'success' : 'neutral'" dot>{{ status }}</lz-status-chip>
+      <lz-status-chip [tone]="isOnShift(status) ? 'success' : 'neutral'" dot>{{ statusLabel(status) }}</lz-status-chip>
     }
 
     <button id="tour-help-btn" lzButton variant="quiet" iconOnly type="button" (click)="tourService.startTour()"
@@ -45,7 +45,7 @@
           <p class="m-0 text-[13px] text-ink-soft">{{ user.email }}</p>
           @if (personStatus$ | async; as status) {
             <p class="m-0 mt-1 flex items-center gap-2 text-[13px] text-ink-soft">
-              <span><ng-container i18n="@@nav.web_status_prefix">Status:</ng-container> <strong>{{ status }}</strong></span>
+              <span><ng-container i18n="@@nav.web_status_prefix">Status:</ng-container> <strong>{{ statusLabel(status) }}</strong></span>
               <button lzButton variant="quiet" iconOnly type="button" (click)="refreshStatus(); $event.stopPropagation()"
                 [disabled]="refreshing" matTooltip="Refresh status" i18n-matTooltip="@@nav.web_refresh_status"
                 aria-label="Refresh status" i18n-aria-label="@@nav.web_refresh_status">

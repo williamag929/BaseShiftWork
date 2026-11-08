@@ -91,8 +91,8 @@ Material components are themed from tokens; no Material class is overridden per 
 - Procore sync status chip shows only when the company has an enabled Procore connection: "Synced with Procore {relative time}" (success tone) or "Procore sync failed" (danger tone) from `ProcoreConnection.lastSyncAt` / `lastSyncStatus`.
 - Every screen: `lz-page-header` with exactly one `primary` button (CLAUDE.md principle 1).
 - Nav sections and items:
-  - **Scheduling:** Overview, Schedule (schedule-grid), Timesheets (shiftsummaries), Time off (time-off-approvals, badge = pending count)
-  - **Workforce:** People, Crews, Credentials, Roles & access (people-management)
+  - **Scheduling:** Overview, Schedule (schedule-grid), Timesheets (shiftsummaries), Time off (time-off-approvals, badge = pending count), Time off settings (people-management)
+  - **Workforce:** People, Crews, Credentials
   - **Job sites:** Locations, Areas, Cost codes, Tasks, Active sites (permission `active-sites.view`), Daily reports
   - **Field communication:** Bulletins, Safety, Documents
   - **Integrations:** Procore, Kiosks

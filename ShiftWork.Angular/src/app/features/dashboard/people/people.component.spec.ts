@@ -4,7 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideMockStore } from '@ngrx/store/testing';
 import { ToastrService } from 'ngx-toastr';
-import { of } from 'rxjs';
+import { Observable, Subject, of } from 'rxjs';
 import { People } from 'src/app/core/models/people.model';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { InviteService } from 'src/app/core/services/invite.service';
@@ -31,7 +31,7 @@ describe('PeopleComponent (Loqzen design system)', () => {
 
   let peopleService: { getPeople: jasmine.Spy };
 
-  async function setup(people: People[]) {
+  async function setup(people: People[], invite: { getInviteStatus: (...a: any[]) => any } = { getInviteStatus: () => of({ status: 'None' }) }) {
     peopleService = { getPeople: jasmine.createSpy('getPeople').and.returnValue(of(people)) };
     await TestBed.configureTestingModule({
       declarations: [PeopleComponent],
@@ -42,7 +42,7 @@ describe('PeopleComponent (Loqzen design system)', () => {
         provideMockStore({ selectors: [{ selector: selectActiveCompany, value: company }] }),
         { provide: PeopleService, useValue: peopleService },
         { provide: RoleService, useValue: { getRoles: () => of([]) } },
-        { provide: InviteService, useValue: { getInviteStatus: () => of({ status: 'None' }) } },
+        { provide: InviteService, useValue: invite },
         { provide: ToastrService, useValue: jasmine.createSpyObj('ToastrService', ['success', 'error', 'warning']) },
         { provide: PlanLimitPromptService, useValue: { handle: () => false } },
       ],
@@ -64,7 +64,7 @@ describe('PeopleComponent (Loqzen design system)', () => {
     fixture.detectChanges();
     expect(el().querySelectorAll('[role="dialog"] [variant="primary"]').length).toBe(1);
     expect(Array.from(primary).filter(b => !b.closest('[role="dialog"]')).length).toBe(1);
-    expect(primary[0].textContent).toContain('Invite people');
+    expect(primary[0].textContent).toContain('Add person');
   });
 
   it('primary action resets the form for a new person', async () => {
@@ -137,5 +137,35 @@ describe('PeopleComponent (Loqzen design system)', () => {
     fixture.detectChanges();
     expect(el().textContent).toContain('No people match your search');
     expect(el().textContent).not.toContain('Create your first team member');
+  });
+
+  it('caps concurrent invite-status requests at 6 and still records every result', async () => {
+    const pending: Subject<any>[] = [];
+    let inFlight = 0;
+    let maxInFlight = 0;
+    const getInviteStatus = jasmine.createSpy('getInviteStatus').and.callFake(() => {
+      const subject = new Subject<any>();
+      pending.push(subject);
+      return new Observable<any>(observer => {
+        inFlight++;
+        maxInFlight = Math.max(maxInFlight, inFlight);
+        const sub = subject.subscribe(observer);
+        return () => {
+          inFlight--;
+          sub.unsubscribe();
+        };
+      });
+    });
+    const people = Array.from({ length: 10 }, (_, i) => person({ personId: i + 1, name: `P${i + 1}`, email: `p${i + 1}@example.com` }));
+    await setup(people, { getInviteStatus });
+    expect(inFlight).toBe(6);
+    let next: Subject<any> | undefined;
+    while ((next = pending.shift())) {
+      next.next({ status: 'Pending' });
+      next.complete();
+    }
+    expect(maxInFlight).toBe(6);
+    expect(getInviteStatus).toHaveBeenCalledTimes(10);
+    expect(fixture.componentInstance.getInviteStatus(10)?.status).toBe('Pending');
   });
 });

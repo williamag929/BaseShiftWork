@@ -58,6 +58,14 @@ jobs:
         run: npm ci
         working-directory: ShiftWork.Angular
 
+      - name: Style guard tests
+        run: npm run test:style-guard
+        working-directory: ShiftWork.Angular
+
+      - name: Style guard lint
+        run: npm run lint:styles
+        working-directory: ShiftWork.Angular
+
       - name: TypeScript check (v2 modules)
         run: >
           npx tsc --noEmit

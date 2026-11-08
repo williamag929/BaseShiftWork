@@ -1623,9 +1623,6 @@ export class ScheduleGridComponent implements OnInit {
     return this.summaryCache.items;
   }
 
-  // The legacy shiftTypes filter is never applied to the grid, so there is nothing to wire yet.
-  onSummarySelect(_id: string): void {}
-
   getShiftClock(shift: ShiftBlock): 'none' | 'onShift' | 'late' {
     if (shift.isOnShiftNow) return 'onShift';
     return this.isShiftLate(shift) ? 'late' : 'none';

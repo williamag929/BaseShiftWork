@@ -19,4 +19,7 @@ describe('toLzShiftStatus', () => {
   it('maps void to void', () => {
     expect(toLzShiftStatus({ status: 'void' })).toBe('void');
   });
+  it('maps a locked void shift to void', () => {
+    expect(toLzShiftStatus({ status: 'void', isLocked: true })).toBe('void');
+  });
 });

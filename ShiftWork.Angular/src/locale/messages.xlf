@@ -1325,8 +1325,8 @@
       <trans-unit id="people.page_subtitle" datatype="html">
         <source>Everyone who can be scheduled or clock in at your job sites.</source>
       </trans-unit>
-      <trans-unit id="people.invite_people" datatype="html">
-        <source>Invite people</source>
+      <trans-unit id="people.add_person" datatype="html">
+        <source>Add person</source>
       </trans-unit>
       <trans-unit id="people.search_label" datatype="html">
         <source>Search people</source>
@@ -1371,7 +1371,7 @@
         <source>4-digit PIN</source>
       </trans-unit>
       <trans-unit id="people.team_members" datatype="html">
-        <source>Team Members</source>
+        <source>Team members</source>
       </trans-unit>
       <trans-unit id="people.loading" datatype="html">
         <source>Loading people...</source>
@@ -1386,34 +1386,34 @@
         <source>Create your first team member to get started</source>
       </trans-unit>
       <trans-unit id="people.form_edit" datatype="html">
-        <source>Edit Person</source>
+        <source>Edit person</source>
       </trans-unit>
       <trans-unit id="people.form_create" datatype="html">
-        <source>Create New Person</source>
+        <source>Create new person</source>
       </trans-unit>
       <trans-unit id="people.section_personal" datatype="html">
-        <source>Personal Information</source>
+        <source>Personal information</source>
       </trans-unit>
       <trans-unit id="people.section_address" datatype="html">
-        <source>Address Information</source>
+        <source>Address information</source>
       </trans-unit>
       <trans-unit id="people.section_additional" datatype="html">
-        <source>Additional Information</source>
+        <source>Additional information</source>
       </trans-unit>
       <trans-unit id="people.full_name" datatype="html">
-        <source>Full Name</source>
+        <source>Full name</source>
       </trans-unit>
       <trans-unit id="people.name_required" datatype="html">
         <source>Name is required</source>
       </trans-unit>
       <trans-unit id="people.email_address" datatype="html">
-        <source>Email Address</source>
+        <source>Email address</source>
       </trans-unit>
       <trans-unit id="people.email_required" datatype="html">
         <source>Email is required</source>
       </trans-unit>
       <trans-unit id="people.phone_number" datatype="html">
-        <source>Phone Number</source>
+        <source>Phone number</source>
       </trans-unit>
       <trans-unit id="locations.kiosk_section" datatype="html">
         <source>Kiosk</source>
@@ -1473,10 +1473,10 @@
         <source>No photo required at the kiosk</source>
       </trans-unit>
       <trans-unit id="people.pin_code" datatype="html">
-        <source>PIN Code</source>
+        <source>PIN code</source>
       </trans-unit>
       <trans-unit id="people.street_address" datatype="html">
-        <source>Street Address</source>
+        <source>Street address</source>
       </trans-unit>
       <trans-unit id="people.city" datatype="html">
         <source>City</source>
@@ -1497,13 +1497,13 @@
         <source>Inactive</source>
       </trans-unit>
       <trans-unit id="people.update_btn" datatype="html">
-        <source>Update Person</source>
+        <source>Update person</source>
       </trans-unit>
       <trans-unit id="people.create_btn" datatype="html">
-        <source>Create Person</source>
+        <source>Create person</source>
       </trans-unit>
       <trans-unit id="people.select_roles" datatype="html">
-        <source>Select Roles</source>
+        <source>Select roles</source>
       </trans-unit>
       <trans-unit id="people.sending" datatype="html">
         <source>Sending...</source>
@@ -2019,9 +2019,6 @@ Option C</source>
       </trans-unit>
       <trans-unit id="schedule_grid.share" datatype="html">
         <source>Share</source>
-      </trans-unit>
-      <trans-unit id="schedule_grid.more_options" datatype="html">
-        <source>More options</source>
       </trans-unit>
       <trans-unit id="schedule_grid.bulk_builder" datatype="html">
         <source>Bulk Schedule Builder</source>
@@ -4745,6 +4742,12 @@ What would you like to do?</source>
       <trans-unit id="ui.shift_status.void" datatype="html">
         <source>Void</source>
       </trans-unit>
+      <trans-unit id="ui.shift_clock.on_shift" datatype="html">
+        <source>, on shift now</source>
+      </trans-unit>
+      <trans-unit id="ui.shift_clock.late" datatype="html">
+        <source>, late</source>
+      </trans-unit>
       <trans-unit id="ui.shift_block.select" datatype="html">
         <source>Select shift</source>
       </trans-unit>
@@ -4784,8 +4787,14 @@ What would you like to do?</source>
       <trans-unit id="nav.item.credentials" datatype="html">
         <source>Credentials</source>
       </trans-unit>
-      <trans-unit id="nav.item.roles_access" datatype="html">
-        <source>Roles &amp; access</source>
+      <trans-unit id="nav.item.time_off_settings" datatype="html">
+        <source>Time off settings</source>
+      </trans-unit>
+      <trans-unit id="nav.status.on_shift" datatype="html">
+        <source>On shift</source>
+      </trans-unit>
+      <trans-unit id="nav.status.off_shift" datatype="html">
+        <source>Off shift</source>
       </trans-unit>
       <trans-unit id="nav.item.locations" datatype="html">
         <source>Locations</source>
@@ -4911,7 +4920,7 @@ What would you like to do?</source>
         <source>Add shift</source>
       </trans-unit>
       <trans-unit id="schedule_grid.publish_n_shifts" datatype="html">
-        <source>Publish <x id="INTERPOLATION" equiv-text="{{ gridData.stats.unpublished }}"/> shifts</source>
+        <source>{VAR_PLURAL, plural, =1 {Publish 1 shift} other {Publish <x id="INTERPOLATION"/> shifts}}</source>
       </trans-unit>
       <trans-unit id="schedule_grid.selected_count" datatype="html">
         <source><x id="INTERPOLATION" equiv-text="{{ selectedShifts.size }}"/> selected</source>

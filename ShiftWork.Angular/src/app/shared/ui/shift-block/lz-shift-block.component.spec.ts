@@ -18,6 +18,8 @@ import { LzShiftBlockComponent } from './lz-shift-block.component';
       (selectedChange)="selection = $event"
     />
     <lz-shift-block id="t" status="timeOff" time="All day" />
+    <lz-shift-block id="on" status="published" time="8a–4p" clock="onShift" />
+    <lz-shift-block id="late" status="published" time="8a–4p" clock="late" />
   `,
 })
 class HostComponent {
@@ -59,6 +61,13 @@ describe('LzShiftBlockComponent', () => {
 
   it('aria-label names the status', () => {
     expect(root.querySelector('#a button')!.getAttribute('aria-label')).toBe('Draft, 7:00a–3:30p, L3 framing');
+  });
+
+  it('names the clock state in the aria-label and uses alarm for late', () => {
+    expect(root.querySelector('#on button')!.getAttribute('aria-label')).toBe('Published, 8a–4p, on shift now');
+    expect(root.querySelector('#on mat-icon')!.textContent).toContain('schedule');
+    expect(root.querySelector('#late button')!.getAttribute('aria-label')).toBe('Published, 8a–4p, late');
+    expect(root.querySelector('#late mat-icon')!.textContent).toContain('alarm');
   });
 
   it('draft uses the hatch', () => {
