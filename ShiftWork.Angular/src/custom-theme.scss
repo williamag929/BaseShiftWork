@@ -2,44 +2,41 @@
 
 @include mat.core();
 
-// ─── M3 theme — violet primary matches the existing indigo/purple brand ───────
-$sw-theme: mat.define-theme((
-  color: (
-    theme-type: light,
-    primary:   mat.$violet-palette,
-    tertiary:  mat.$azure-palette,
-  ),
-  typography: (
-    brand-family:  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-    plain-family:  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-  ),
-  density: (
-    scale: 0,
-  ),
-));
-
+// Material system tokens (--mat-sys-*) accept var() values, so the --lz-* design
+// tokens in styles/tokens.css drive every Material component.
 html {
-  @include mat.all-component-themes($sw-theme);
-}
+  --mat-menu-container-elevation-shadow: var(--lz-shadow-overlay);
+  --mat-dialog-container-elevation-shadow: var(--lz-shadow-overlay);
+  --mat-app-background-color: var(--lz-paper);
 
-// ─── RGBA surface token overrides ────────────────────────────────────────────
-// Setting Material surface tokens to fully transparent lets backdrop-filter
-// do the work — the actual tinted glass fill is applied in styles.scss.
-html {
-  // Sidenav
-  --mat-sidenav-container-background-color:   rgba(255, 255, 255, 0);
-  --mat-sidenav-container-divider-color:       rgba(255, 255, 255, 0.22);
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+    ),
+    typography: (
+      brand-family: 'var(--lz-font-ui)',
+      plain-family: 'var(--lz-font-ui)',
+    ),
+    density: 0,
+  ));
 
-  // Toolbar
-  --mat-toolbar-container-background-color:   rgba(255, 255, 255, 0);
-  --mat-toolbar-container-text-color:          #ffffff;
-
-  // Cards — all three MDC variants
-  --mdc-elevated-card-container-color:         rgba(255, 255, 255, 0);
-  --mdc-filled-card-container-color:           rgba(255, 255, 255, 0);
-  --mdc-outlined-card-container-color:         rgba(255, 255, 255, 0);
-
-  // App background — body gradient handles the ambient layer
-  --mat-app-background-color:                  transparent;
-  --mat-sidenav-scrim-color:                   rgba(0, 0, 0, 0.30);
+  @include mat.theme-overrides((
+    primary: var(--lz-ink),
+    on-primary: var(--lz-paper),
+    surface: var(--lz-paper),
+    surface-dim: var(--lz-paper),
+    surface-bright: var(--lz-paper),
+    surface-container-lowest: var(--lz-paper),
+    surface-container-low: var(--lz-paper),
+    surface-container: var(--lz-paper),
+    surface-container-high: var(--lz-paper),
+    surface-container-highest: var(--lz-paper),
+    outline: var(--lz-line-strong),
+    outline-variant: var(--lz-line),
+    error: var(--lz-danger),
+    corner-small: var(--lz-radius-control),
+    corner-medium: var(--lz-radius-panel),
+    corner-large: var(--lz-radius-dialog),
+  ));
 }
