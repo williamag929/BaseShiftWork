@@ -6240,6 +6240,38 @@ What would you like to do?</source>
         <source>Skip for now</source>
         <target state="translated">Omitir por ahora</target>
       </trans-unit>
+      <trans-unit id="ui.shift_status.published" datatype="html">
+        <source>Published</source>
+        <target state="translated">Publicado</target>
+      </trans-unit>
+      <trans-unit id="ui.shift_status.draft" datatype="html">
+        <source>Draft</source>
+        <target state="translated">Borrador</target>
+      </trans-unit>
+      <trans-unit id="ui.shift_status.open" datatype="html">
+        <source>Open</source>
+        <target state="translated">Abierto</target>
+      </trans-unit>
+      <trans-unit id="ui.shift_status.conflict" datatype="html">
+        <source>Conflict</source>
+        <target state="translated">Conflicto</target>
+      </trans-unit>
+      <trans-unit id="ui.shift_status.timeOff" datatype="html">
+        <source>Time off</source>
+        <target state="translated">Tiempo libre</target>
+      </trans-unit>
+      <trans-unit id="ui.shift_status.locked" datatype="html">
+        <source>Locked</source>
+        <target state="translated">Bloqueado</target>
+      </trans-unit>
+      <trans-unit id="ui.shift_status.void" datatype="html">
+        <source>Void</source>
+        <target state="translated">Anulado</target>
+      </trans-unit>
+      <trans-unit id="ui.shift_block.select" datatype="html">
+        <source>Select shift</source>
+        <target state="translated">Seleccionar turno</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
