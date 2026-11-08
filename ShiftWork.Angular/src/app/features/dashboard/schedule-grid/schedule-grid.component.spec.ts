@@ -107,6 +107,26 @@ describe('ScheduleGridComponent (Loqzen design system)', () => {
     expect(el().querySelector('lz-summary-strip')).not.toBeNull();
   });
 
+  it('summaryItems keeps the same array while counts are unchanged', async () => {
+    await setup(grid({ unpublished: 3 }));
+    const first = component.summaryItems;
+    fixture.detectChanges();
+    expect(component.summaryItems).toBe(first);
+    component.gridData = grid({ unpublished: 4 });
+    expect(component.summaryItems).not.toBe(first);
+    expect(component.summaryItems[0].count).toBe(4);
+  });
+
+  it('horizon buttons have accessible names containing their visible text', async () => {
+    await setup(grid());
+    const buttons = Array.from(el().querySelectorAll('[role="group"] button')) as HTMLButtonElement[];
+    expect(buttons.length).toBe(4);
+    for (const b of buttons) {
+      expect(b.getAttribute('aria-label')).toContain(b.textContent!.trim());
+    }
+    expect(buttons[0].getAttribute('aria-label')).toBe('1W, 1 week');
+  });
+
   it('renders lz-shift-block with mapped status', async () => {
     await setup(grid({}, [shift({ status: 'unpublished' })]));
     const block = el().querySelector('lz-shift-block button') as HTMLButtonElement;

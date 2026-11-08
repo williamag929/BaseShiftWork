@@ -4851,16 +4851,16 @@ What would you like to do?</source>
         <source>Range</source>
       </trans-unit>
       <trans-unit id="schedule_grid.horizon_1w" datatype="html">
-        <source>1 week</source>
+        <source>1W, 1 week</source>
       </trans-unit>
       <trans-unit id="schedule_grid.horizon_2w" datatype="html">
-        <source>2 weeks</source>
+        <source>2W, 2 weeks</source>
       </trans-unit>
       <trans-unit id="schedule_grid.horizon_3w" datatype="html">
-        <source>3 weeks</source>
+        <source>3W, 3 weeks</source>
       </trans-unit>
       <trans-unit id="schedule_grid.horizon_4w" datatype="html">
-        <source>4 weeks</source>
+        <source>4W, 4 weeks</source>
       </trans-unit>
       <trans-unit id="schedule_grid.add_shift_btn" datatype="html">
         <source>Add shift</source>

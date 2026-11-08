@@ -6469,20 +6469,20 @@ What would you like to do?</source>
         <target state="translated">Rango</target>
       </trans-unit>
       <trans-unit id="schedule_grid.horizon_1w" datatype="html">
-        <source>1 week</source>
-        <target state="translated">1 semana</target>
+        <source>1W, 1 week</source>
+        <target state="translated">1W, 1 semana</target>
       </trans-unit>
       <trans-unit id="schedule_grid.horizon_2w" datatype="html">
-        <source>2 weeks</source>
-        <target state="translated">2 semanas</target>
+        <source>2W, 2 weeks</source>
+        <target state="translated">2W, 2 semanas</target>
       </trans-unit>
       <trans-unit id="schedule_grid.horizon_3w" datatype="html">
-        <source>3 weeks</source>
-        <target state="translated">3 semanas</target>
+        <source>3W, 3 weeks</source>
+        <target state="translated">3W, 3 semanas</target>
       </trans-unit>
       <trans-unit id="schedule_grid.horizon_4w" datatype="html">
-        <source>4 weeks</source>
-        <target state="translated">4 semanas</target>
+        <source>4W, 4 weeks</source>
+        <target state="translated">4W, 4 semanas</target>
       </trans-unit>
       <trans-unit id="schedule_grid.add_shift_btn" datatype="html">
         <source>Add shift</source>

@@ -37,6 +37,7 @@
               "src/manifest.webmanifest"
             ],
             "styles": [
+              "src/styles/bootstrap-legacy.scss",
               "src/custom-theme.scss",
               "src/styles/tailwind.css",
               "node_modules/@fontsource/ibm-plex-sans/400.css",
@@ -127,6 +128,7 @@
               "src/manifest.webmanifest"
             ],
             "styles": [
+              "src/styles/bootstrap-legacy.scss",
               "src/custom-theme.scss",
               "src/styles/tailwind.css",
               "node_modules/@fontsource/ibm-plex-sans/400.css",

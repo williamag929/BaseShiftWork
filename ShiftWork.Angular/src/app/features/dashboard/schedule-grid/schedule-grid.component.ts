@@ -1604,16 +1604,23 @@ export class ScheduleGridComponent implements OnInit {
 
   readonly toLzShiftStatus = toLzShiftStatus;
 
+  private summaryCache: { key: string; items: LzSummaryItem[] } = { key: '', items: [] };
+
+  // Memoised so lz-summary-strip (OnPush) receives a stable array between change-detection passes.
   get summaryItems(): LzSummaryItem[] {
     const stats = this.gridData.stats;
-    const items: LzSummaryItem[] = [
-      { id: 'drafts', count: stats.unpublished, tone: 'draft', label: $localize`:@@schedule_grid.summary.drafts:Drafts` },
-      { id: 'openShifts', count: stats.openShifts, tone: 'open', label: $localize`:@@schedule_grid.summary.openShifts:Open shifts` },
-      { id: 'warnings', count: stats.warnings, tone: 'danger', label: $localize`:@@schedule_grid.summary.warnings:Warnings` },
-      { id: 'timeOffPending', count: stats.leavePending, tone: 'timeOff', label: $localize`:@@schedule_grid.summary.timeOffPending:Time off pending` },
-      { id: 'unavailable', count: stats.unavailable, tone: 'neutral', label: $localize`:@@schedule_grid.summary.unavailable:Unavailable` }
-    ];
-    return items.filter(item => item.count > 0);
+    const key = [stats.unpublished, stats.openShifts, stats.warnings, stats.leavePending, stats.unavailable].join('|');
+    if (key !== this.summaryCache.key) {
+      const items: LzSummaryItem[] = [
+        { id: 'drafts', count: stats.unpublished, tone: 'draft', label: $localize`:@@schedule_grid.summary.drafts:Drafts` },
+        { id: 'openShifts', count: stats.openShifts, tone: 'open', label: $localize`:@@schedule_grid.summary.openShifts:Open shifts` },
+        { id: 'warnings', count: stats.warnings, tone: 'danger', label: $localize`:@@schedule_grid.summary.warnings:Warnings` },
+        { id: 'timeOffPending', count: stats.leavePending, tone: 'timeOff', label: $localize`:@@schedule_grid.summary.timeOffPending:Time off pending` },
+        { id: 'unavailable', count: stats.unavailable, tone: 'neutral', label: $localize`:@@schedule_grid.summary.unavailable:Unavailable` }
+      ];
+      this.summaryCache = { key, items: items.filter(item => item.count > 0) };
+    }
+    return this.summaryCache.items;
   }
 
   // The legacy shiftTypes filter is never applied to the grid, so there is nothing to wire yet.

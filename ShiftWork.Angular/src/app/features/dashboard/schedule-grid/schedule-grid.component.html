@@ -33,25 +33,25 @@
           [class.bg-ink]="horizonRange === 'week'" [class.text-paper]="horizonRange === 'week'"
           [class.bg-transparent]="horizonRange !== 'week'" [class.text-ink]="horizonRange !== 'week'"
           [attr.aria-pressed]="horizonRange === 'week'"
-          aria-label="1 week" i18n-aria-label="@@schedule_grid.horizon_1w"
+          aria-label="1W, 1 week" i18n-aria-label="@@schedule_grid.horizon_1w"
           (click)="onHorizonChange('week')">1W</button>
         <button type="button" class="min-h-12 min-w-12 border-0 border-l border-line-strong px-3 font-[inherit] font-medium"
           [class.bg-ink]="horizonRange === '2-weeks'" [class.text-paper]="horizonRange === '2-weeks'"
           [class.bg-transparent]="horizonRange !== '2-weeks'" [class.text-ink]="horizonRange !== '2-weeks'"
           [attr.aria-pressed]="horizonRange === '2-weeks'"
-          aria-label="2 weeks" i18n-aria-label="@@schedule_grid.horizon_2w"
+          aria-label="2W, 2 weeks" i18n-aria-label="@@schedule_grid.horizon_2w"
           (click)="onHorizonChange('2-weeks')">2W</button>
         <button type="button" class="min-h-12 min-w-12 border-0 border-l border-line-strong px-3 font-[inherit] font-medium"
           [class.bg-ink]="horizonRange === '3-weeks'" [class.text-paper]="horizonRange === '3-weeks'"
           [class.bg-transparent]="horizonRange !== '3-weeks'" [class.text-ink]="horizonRange !== '3-weeks'"
           [attr.aria-pressed]="horizonRange === '3-weeks'"
-          aria-label="3 weeks" i18n-aria-label="@@schedule_grid.horizon_3w"
+          aria-label="3W, 3 weeks" i18n-aria-label="@@schedule_grid.horizon_3w"
           (click)="onHorizonChange('3-weeks')">3W</button>
         <button type="button" class="min-h-12 min-w-12 border-0 border-l border-line-strong px-3 font-[inherit] font-medium"
           [class.bg-ink]="horizonRange === '4-weeks'" [class.text-paper]="horizonRange === '4-weeks'"
           [class.bg-transparent]="horizonRange !== '4-weeks'" [class.text-ink]="horizonRange !== '4-weeks'"
           [attr.aria-pressed]="horizonRange === '4-weeks'"
-          aria-label="4 weeks" i18n-aria-label="@@schedule_grid.horizon_4w"
+          aria-label="4W, 4 weeks" i18n-aria-label="@@schedule_grid.horizon_4w"
           (click)="onHorizonChange('4-weeks')">4W</button>
       </div>
     </div>
