@@ -1,0 +1,8 @@
+@use 'sass:meta';
+
+@layer legacy, theme, base, components, utilities;
+
+// Unlayered or !important Bootstrap utilities would beat Tailwind's layered utilities.
+@layer legacy {
+  @include meta.load-css('bootstrap/scss/bootstrap', $with: ('enable-important-utilities': false));
+}

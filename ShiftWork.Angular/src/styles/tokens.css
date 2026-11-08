@@ -1,0 +1,45 @@
+:root {
+  --lz-navy-900: #0F1B2D;
+  --lz-navy-800: #16263D;
+  --lz-navy-700: #1F3352;
+  --lz-ink: #16263D;
+  --lz-ink-soft: #51637E;
+  --lz-ink-muted: #3E4F68;
+  --lz-rail-text: #C9D3E0;
+  --lz-rail-label: #8FA0B8;
+  --lz-line: #DDE3EC;
+  --lz-line-soft: #E8EDF3;
+  --lz-line-strong: #C3CDDA;
+  --lz-canvas: #F4F6F9;
+  --lz-paper: #FFFFFF;
+  --lz-paper-alt: #F8FAFC;
+  --lz-amber: #F5A524;
+  --lz-amber-ink: #7A4300;
+  --lz-draft-bg-1: #FFF4E0;
+  --lz-draft-bg-2: #FDE6BA;
+  --lz-draft-border: #D08A16;
+  --lz-link: #2F6BD8;
+  --lz-success: #1E8A5A;
+  --lz-success-bg: #E3F4EC;
+  --lz-success-ink: #14653F;
+  --lz-danger: #C2412D;
+  --lz-danger-bg: #FBE9E6;
+  --lz-danger-ink: #A3321F;
+  --lz-info-bg: #E7EFFC;
+  --lz-info-ink: #1F4FA8;
+  --lz-neutral-bg: #EEF1F5;
+  --lz-shift-bg: #EAF0F8;
+  --lz-shift-border: #C9D6E8;
+  --lz-timeoff-bg: #E6EAF0;
+  --lz-open-border: #5F7290;
+
+  --lz-font-ui: 'IBM Plex Sans', system-ui, sans-serif;
+  --lz-font-display: 'Sora', 'IBM Plex Sans', sans-serif;
+
+  --lz-radius-chip: 4px;
+  --lz-radius-control: 6px;
+  --lz-radius-panel: 8px;
+  --lz-radius-dialog: 12px;
+
+  --lz-shadow-overlay: 0 8px 24px rgba(15, 27, 45, 0.16), 0 1px 3px rgba(15, 27, 45, 0.10);
+}

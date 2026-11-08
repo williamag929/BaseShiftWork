@@ -61,8 +61,8 @@ Three client surfaces share one API:
 - **Feature modules** live in `src/app/features/dashboard/`. Add new features here.
 - **Services** in `src/app/core/services/`. One Angular service per API resource.
 - **State** → NgRx for global state. Local component state for UI-only concerns.
-- **Navigation** → add new routes to `dashboard-routing.module.ts`. Add nav links to `dashboard.component.html`.
-- **Sidebar sections:** Main Menu → Management → PTO → Kiosks → **Field Communications** → **Resources** → More Options.
+- **Navigation** → add new routes to `DASHBOARD_ROUTES` in `dashboard.module.ts`. Add nav links to `features/dashboard/nav/nav.config.ts`.
+- **Sidebar sections:** Scheduling → Workforce → Job sites → Field communication → Integrations (defined in features/dashboard/nav/nav.config.ts)
 - **Material Icons** → use Google Material icons in `<mat-icon>`. No custom SVGs unless necessary.
 
 ### Mobile (React Native / Expo)
@@ -97,8 +97,8 @@ Three client surfaces share one API:
 | EF Migrations | `ShiftWork.Api/Migrations/` |
 | Angular Features | `ShiftWork.Angular/src/app/features/dashboard/` |
 | Angular Services | `ShiftWork.Angular/src/app/core/services/` |
-| Angular Routing | `ShiftWork.Angular/src/app/features/dashboard/dashboard-routing.module.ts` |
-| Angular Sidebar | `ShiftWork.Angular/src/app/features/dashboard/dashboard.component.html` |
+| Angular Routing | `ShiftWork.Angular/src/app/features/dashboard/dashboard.module.ts` (`DASHBOARD_ROUTES`) |
+| Angular Sidebar | `ShiftWork.Angular/src/app/features/dashboard/nav/nav.config.ts` |
 | Mobile Tabs | `ShiftWork.Mobile/app/(tabs)/` |
 | Mobile Services | `ShiftWork.Mobile/services/` |
 | Mobile Auth Store | `ShiftWork.Mobile/store/authStore.ts` |

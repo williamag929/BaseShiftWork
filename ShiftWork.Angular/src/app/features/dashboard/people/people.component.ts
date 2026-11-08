@@ -4,7 +4,8 @@ import { People } from 'src/app/core/models/people.model';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { InviteService } from 'src/app/core/services/invite.service';
 import { ToastrService } from 'ngx-toastr';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable, from } from 'rxjs';
+import { catchError, mergeMap, tap } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
@@ -12,6 +13,8 @@ import { Role } from 'src/app/core/models/role.model';
 import { RoleService } from 'src/app/core/services/role.service';
 import { InviteStatusResponse } from 'src/app/core/models/invite.model';
 import { PlanLimitPromptService } from 'src/app/core/services/plan-limit-prompt.service';
+
+const INVITE_STATUS_CONCURRENCY = 6;
 
 @Component({
   selector: 'app-people',
@@ -27,6 +30,8 @@ export class PeopleComponent implements OnInit {
   activeCompany: any;
   roles: Role[] = [];
   loading = false;
+  searchTerm = '';
+  statusFilter = 'all';
   error: any = null;
   
   // Invite functionality
@@ -61,7 +66,7 @@ export class PeopleComponent implements OnInit {
       if (company) {
         this.activeCompany = company;
         this.loading = true;
-        this.peopleService.getPeople(company.companyId).subscribe(
+        this.peopleService.getPeople(company.companyId, 1, 1000).subscribe(
           people => {
             this.people = people.filter(p => p.companyId === company.companyId);
             this.loading = false;
@@ -100,6 +105,17 @@ export class PeopleComponent implements OnInit {
       photoUrl: [''],
       photoExempt: [false]
     });
+  }
+
+  get filteredPeople(): People[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    return this.people.filter(p =>
+      (this.statusFilter === 'all' || p.status === this.statusFilter) &&
+      (!term || p.name.toLowerCase().includes(term) || (p.email || '').toLowerCase().includes(term)));
+  }
+
+  editLabel(person: People): string {
+    return $localize`:@@people.edit_person:Edit ${person.name}:name:`;
   }
 
   editPerson(person: People): void {
@@ -182,16 +198,18 @@ export class PeopleComponent implements OnInit {
   loadInviteStatuses(): void {
     if (!this.activeCompany?.companyId) return;
 
-    this.people.forEach(person => {
-      this.inviteService.getInviteStatus(this.activeCompany.companyId, person.personId).subscribe(
-        status => {
-          this.inviteStatuses.set(person.personId, status);
-        },
-        error => {
-          console.error(`Error loading invite status for person ${person.personId}:`, error);
-        }
-      );
-    });
+    from(this.people).pipe(
+      mergeMap(
+        person => this.inviteService.getInviteStatus(this.activeCompany.companyId, person.personId).pipe(
+          tap(status => this.inviteStatuses.set(person.personId, status)),
+          catchError(error => {
+            console.error(`Error loading invite status for person ${person.personId}:`, error);
+            return EMPTY;
+          })
+        ),
+        INVITE_STATUS_CONCURRENCY
+      )
+    ).subscribe();
   }
 
   /**
@@ -293,12 +311,12 @@ export class PeopleComponent implements OnInit {
     
     switch (status.status) {
       case 'Active':
-        return 'Has App Access';
+        return 'Has app access';
       case 'Pending':
-        return 'Invite Pending';
+        return 'Invite pending';
       case 'None':
       default:
-        return 'Kiosk Only';
+        return 'Kiosk only';
     }
   }
 
@@ -328,9 +346,9 @@ export class PeopleComponent implements OnInit {
   getInviteActionLabel(personId: number): string {
     const status = this.getInviteStatus(personId);
     switch (status?.status) {
-      case 'Active':  return 'Reset App Password';
-      case 'Pending': return 'Resend App Invite';
-      default:        return 'Send App Invite';
+      case 'Active':  return 'Reset app password';
+      case 'Pending': return 'Resend app invite';
+      default:        return 'Send app invite';
     }
   }
 
@@ -338,12 +356,12 @@ export class PeopleComponent implements OnInit {
    * Get dialog title based on current person's invite status
    */
   getDialogTitle(): string {
-    if (!this.selectedPerson) return 'Send App Invite';
+    if (!this.selectedPerson) return 'Send app invite';
     const status = this.getInviteStatus(this.selectedPerson.personId);
     switch (status?.status) {
-      case 'Active':  return 'Reset App Password';
-      case 'Pending': return 'Resend App Invite';
-      default:        return 'Send App Invite';
+      case 'Active':  return 'Reset app password';
+      case 'Pending': return 'Resend app invite';
+      default:        return 'Send app invite';
     }
   }
 
@@ -363,12 +381,12 @@ export class PeopleComponent implements OnInit {
    * Get the submit button label inside the dialog
    */
   getDialogSendLabel(): string {
-    if (!this.selectedPerson) return 'Send Invite';
+    if (!this.selectedPerson) return 'Send invite';
     const status = this.getInviteStatus(this.selectedPerson.personId);
     switch (status?.status) {
-      case 'Active':  return 'Send Reset Link';
-      case 'Pending': return 'Resend Invite';
-      default:        return 'Send Invite';
+      case 'Active':  return 'Send reset link';
+      case 'Pending': return 'Resend invite';
+      default:        return 'Send invite';
     }
   }
 

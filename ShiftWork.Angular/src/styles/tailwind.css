@@ -1,0 +1,65 @@
+@layer legacy, theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@import "./tokens.css";
+
+/* Only migrated code is scanned, so unmigrated Bootstrap screens never get Tailwind utilities with clashing names (p-3, mb-3, border…). Add a migrated screen here and in style-guard.json. */
+@source "../app/shared/ui";
+@source "../app/features/dashboard/dashboard.component.html";
+@source "../app/features/dashboard/dashboard.component.ts";
+@source "../app/features/dashboard/nav";
+@source "../app/features/dashboard/schedule-grid/schedule-grid.component.html";
+@source "../app/features/dashboard/schedule-grid/schedule-grid.component.ts";
+@source "../app/features/dashboard/people/people.component.html";
+@source "../app/features/dashboard/people/people.component.ts";
+
+@theme inline {
+  --color-navy-900: var(--lz-navy-900);
+  --color-navy-800: var(--lz-navy-800);
+  --color-navy-700: var(--lz-navy-700);
+  --color-ink: var(--lz-ink);
+  --color-ink-soft: var(--lz-ink-soft);
+  --color-ink-muted: var(--lz-ink-muted);
+  --color-rail-text: var(--lz-rail-text);
+  --color-rail-label: var(--lz-rail-label);
+  --color-line: var(--lz-line);
+  --color-line-soft: var(--lz-line-soft);
+  --color-line-strong: var(--lz-line-strong);
+  --color-canvas: var(--lz-canvas);
+  --color-paper: var(--lz-paper);
+  --color-paper-alt: var(--lz-paper-alt);
+  --color-amber: var(--lz-amber);
+  --color-amber-ink: var(--lz-amber-ink);
+  --color-draft-border: var(--lz-draft-border);
+  --color-link: var(--lz-link);
+  --color-success: var(--lz-success);
+  --color-success-bg: var(--lz-success-bg);
+  --color-success-ink: var(--lz-success-ink);
+  --color-danger: var(--lz-danger);
+  --color-danger-bg: var(--lz-danger-bg);
+  --color-danger-ink: var(--lz-danger-ink);
+  --color-info-bg: var(--lz-info-bg);
+  --color-info-ink: var(--lz-info-ink);
+  --color-neutral-bg: var(--lz-neutral-bg);
+  --color-shift-bg: var(--lz-shift-bg);
+  --color-shift-border: var(--lz-shift-border);
+  --color-timeoff-bg: var(--lz-timeoff-bg);
+  --color-open-border: var(--lz-open-border);
+  --font-ui: var(--lz-font-ui);
+  --font-display: var(--lz-font-display);
+  --radius-chip: var(--lz-radius-chip);
+  --radius-control: var(--lz-radius-control);
+  --radius-panel: var(--lz-radius-panel);
+  --radius-dialog: var(--lz-radius-dialog);
+  --shadow-overlay: var(--lz-shadow-overlay);
+}
+
+@utility bg-draft-hatch {
+  background: repeating-linear-gradient(135deg, var(--lz-draft-bg-1) 0 6px, var(--lz-draft-bg-2) 6px 12px);
+}
+
+@layer base {
+  body { font-family: var(--lz-font-ui); color: var(--lz-ink); background: var(--lz-canvas); font-size: 14px; line-height: 1.45; }
+  :focus-visible { outline: 2px solid var(--lz-link); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+}

@@ -1,340 +1,162 @@
-<!-- Modern Dashboard Layout -->
-<div class="dashboard-wrapper">
-  <!-- Top Navigation Bar -->
-  <mat-toolbar class="modern-toolbar">
-    <button mat-icon-button class="menu-toggle" (click)="sidenav.toggle()">
-      <mat-icon>menu</mat-icon>
-    </button>
+<div class="flex h-full flex-col bg-canvas text-ink">
+  <header class="flex h-[60px] shrink-0 items-center gap-3 border-b border-line bg-paper px-4">
+    @if (isHandset$ | async) {
+      <button lzButton variant="quiet" iconOnly type="button" (click)="sidenav.toggle()"
+        aria-label="Open navigation" i18n-aria-label="@@nav.open_menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+    }
 
-    <div class="toolbar-brand">
-      <div class="brand-icon">
-        <mat-icon>business_center</mat-icon>
-      </div>
-      <span class="company-name">{{ (activeCompany$ | async)?.name }}</span>
-    </div>
+    <a routerLink="/company-switch"
+      class="inline-flex min-h-12 items-center rounded-control px-2 font-display text-[18px] font-semibold text-ink no-underline">
+      {{ (activeCompany$ | async)?.name }}
+    </a>
 
-    <span class="spacer"></span>
+    <span class="flex-1"></span>
 
-    <!-- Help / Tour trigger -->
-    <button
-      id="tour-help-btn"
-      mat-icon-button
-      class="help-tour-btn"
-      (click)="tourService.startTour()"
-      matTooltip="Help tour"
-      i18n-matTooltip="@@nav.web_help_tour"
-      aria-label="Start help tour"
-      i18n-aria-label="@@nav.web_help_tour"
-    >
+    @if (procoreChip$ | async; as chip) {
+      <lz-status-chip data-procore-chip [tone]="chip.tone" dot>{{ chip.text }}</lz-status-chip>
+    }
+
+    @if (personStatus$ | async; as status) {
+      <lz-status-chip [tone]="isOnShift(status) ? 'success' : 'neutral'" dot>{{ statusLabel(status) }}</lz-status-chip>
+    }
+
+    <button id="tour-help-btn" lzButton variant="quiet" iconOnly type="button" (click)="tourService.startTour()"
+      matTooltip="Help tour" i18n-matTooltip="@@nav.web_help_tour"
+      aria-label="Start help tour" i18n-aria-label="@@nav.web_help_tour">
       <mat-icon>help_outline</mat-icon>
     </button>
 
-    <!-- User Profile Menu -->
-    <div class="user-section">
-      <span class="status-badge" *ngIf="personStatus$ | async as status" [ngClass]="{'on': status === 'OnShift', 'off': status === 'OffShift'}">
-        {{ status || 'Unknown' }}
-      </span>
-      <button mat-icon-button [matMenuTriggerFor]="menu" class="profile-button">
-        <img [src]="(user$ | async)?.photoUrl || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJDMTQuMjEgMTIgMTYgMTAuMjEgMTYgOEMxNiA1Ljc5IDE0LjIxIDQgMTIgNFM4IDUuNzkgOCA4QzggMTAuMjEgOS43OSAxMiAxMiAxMlpNMTIgMTRDNi40OCAxNCAyIDE2LjQ4IDIgMjJWMjRIMjJWMjJDMTggMTYuNDggMTUuNTIgMTQgMTIgMTRaIiBmaWxsPSIjY2NjY2NjIi8+PC9zdmc+'"
-             class="profile-avatar"
-             alt="User profile">
-        <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
-      </button>
-    </div>
-
-    <!-- User Dropdown Menu -->
-    <mat-menu #menu="matMenu" class="user-menu" xPosition="before">
-      <div class="user-menu-header" *ngIf="user$ | async as user">
-        <img [src]="user.photoUrl || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJDMTQuMjEgMTIgMTYgMTAuMjEgMTYgOEMxNiA1Ljc5IDE0LjIxIDQgMTIgNFM4IDUuNzkgOCA4QzggMTAuMjEgOS43OSAxMiAxMiAxMlpNMTIgMTRDNi40OCAxNCAyIDE2LjQ4IDIgMjJWMjRIMjJWMjJDMTggMTYuNDggMTUuNTIgMTQgMTIgMTRaIiBmaWxsPSIjY2NjY2NjIi8+PC9zdmc+'"
-             class="user-menu-avatar"
-             alt="User profile">
-        <div class="user-menu-info">
-          <p class="user-name">{{ user.name }}</p>
-          <p class="user-email">{{ user.email }}</p>
-          <p class="user-status" *ngIf="personStatus$ | async as status">
-            <ng-container i18n="@@nav.web_status_prefix">Status:</ng-container> <strong>{{ status || 'Unknown' }}</strong>
-            <button mat-icon-button (click)="refreshStatus(); $event.stopPropagation()" class="refresh-btn" [disabled]="refreshing"
-              matTooltip="Refresh status" i18n-matTooltip="@@nav.web_refresh_status">
-              <mat-icon [class.spinning]="refreshing">refresh</mat-icon>
-            </button>
-          </p>
-          <p class="last-updated" *ngIf="lastStatusUpdate">
-            <ng-container i18n="@@nav.web_updated_prefix">Updated:</ng-container> {{ lastStatusUpdate | date:'shortTime' }}
-          </p>
-        </div>
-      </div>
-      <mat-divider></mat-divider>
-      <button mat-menu-item routerLink="/dashboard/profiles" class="menu-item">
+    <button lzButton variant="quiet" type="button" [matMenuTriggerFor]="menu"
+      aria-label="Account menu" i18n-aria-label="@@nav.account_menu">
+      @if ((user$ | async)?.photoUrl; as photo) {
+        <img [src]="photo" class="size-8 rounded-full object-cover" alt="">
+      } @else {
         <mat-icon>account_circle</mat-icon>
-        <span i18n="@@nav.web_my_profile">My Profile</span>
-      </button>
-      <button mat-menu-item routerLink="/dashboard/company-settings" class="menu-item">
+      }
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+
+    <mat-menu #menu="matMenu" xPosition="before">
+      @if (user$ | async; as user) {
+        <div class="px-4 py-3">
+          <p class="m-0 text-[15px] font-semibold text-ink">{{ user.name }}</p>
+          <p class="m-0 text-[13px] text-ink-soft">{{ user.email }}</p>
+          @if (personStatus$ | async; as status) {
+            <p class="m-0 mt-1 flex items-center gap-2 text-[13px] text-ink-soft">
+              <span><ng-container i18n="@@nav.web_status_prefix">Status:</ng-container> <strong>{{ statusLabel(status) }}</strong></span>
+              <button lzButton variant="quiet" iconOnly type="button" (click)="refreshStatus(); $event.stopPropagation()"
+                [disabled]="refreshing" matTooltip="Refresh status" i18n-matTooltip="@@nav.web_refresh_status"
+                aria-label="Refresh status" i18n-aria-label="@@nav.web_refresh_status">
+                <mat-icon>refresh</mat-icon>
+              </button>
+            </p>
+          }
+          @if (lastStatusUpdate) {
+            <p class="m-0 text-[12px] text-ink-soft"><ng-container i18n="@@nav.web_updated_prefix">Updated:</ng-container> {{ lastStatusUpdate | date:'shortTime' }}</p>
+          }
+        </div>
+        <mat-divider></mat-divider>
+      }
+      <a mat-menu-item routerLink="/dashboard/profiles">
+        <mat-icon>account_circle</mat-icon>
+        <span i18n="@@nav.account.profile">My profile</span>
+      </a>
+      <a mat-menu-item routerLink="/dashboard/company-settings">
         <mat-icon>settings</mat-icon>
-        <span i18n="@@nav.web_settings">Settings</span>
-      </button>
+        <span i18n="@@nav.account.company_settings">Company settings</span>
+      </a>
+      <a mat-menu-item routerLink="/dashboard/billing">
+        <mat-icon>credit_card</mat-icon>
+        <span i18n="@@nav.account.billing">Billing</span>
+      </a>
+      @if (hasPermission('company-users.read')) {
+        <a mat-menu-item routerLink="/admin/company-users">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <span i18n="@@nav.account.company_users">Company users</span>
+        </a>
+      }
       <mat-divider></mat-divider>
-      <button mat-menu-item (click)="logout()" class="menu-item logout-item">
-        <mat-icon>exit_to_app</mat-icon>
-        <span i18n="@@nav.web_logout">Logout</span>
+      <button mat-menu-item type="button" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span i18n="@@nav.account.logout">Log out</span>
       </button>
     </mat-menu>
-  </mat-toolbar>
+  </header>
 
-  <!-- Sidebar and Content Container -->
-  <mat-sidenav-container class="sidenav-container">
+  <mat-sidenav-container autosize class="min-h-0 flex-1 bg-canvas">
     <mat-sidenav #sidenav
-                 class="modern-sidenav"
-                 [mode]="(isHandset$ | async) ? 'over' : 'side'"
-                 [opened]="(isHandset$ | async) === false">
+      class="lz-rail border-0 bg-navy-900"
+      [class.lz-rail-collapsed]="collapsed && (isHandset$ | async) === false"
+      [mode]="(isHandset$ | async) ? 'over' : 'side'"
+      [opened]="(isHandset$ | async) === false">
 
-      <!-- Sidebar Header -->
-      <div class="sidenav-header">
-        <div class="app-logo">
-          <div class="logo-icon">
-            <mat-icon>schedule</mat-icon>
-          </div>
-          <span class="app-title">Loqzen</span>
-        </div>
+      <div class="flex min-h-[60px] items-center gap-2 py-2" [ngClass]="collapsed && (isHandset$ | async) === false ? 'justify-center px-0' : 'px-3'">
+        @if (!collapsed || (isHandset$ | async)) {
+          <mat-icon class="shrink-0 text-amber">schedule</mat-icon>
+          <span class="flex-1 font-display text-[18px] font-semibold text-paper">Loqzen</span>
+        }
+        @if ((isHandset$ | async) === false) {
+          <button type="button" (click)="toggleCollapsed()"
+            class="inline-flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-control border-0 bg-transparent text-rail-text"
+            [attr.aria-label]="collapseLabel"
+            [attr.aria-expanded]="!collapsed">
+            <mat-icon>{{ collapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+          </button>
+        }
       </div>
 
-      <!-- Main Navigation -->
-      <mat-nav-list class="nav-list">
-        <div class="nav-section-title" i18n="@@nav.web_section_main">Main Menu</div>
-
-        <a mat-list-item routerLink="/dashboard" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>space_dashboard</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_overview">Overview</span>
-          </div>
-        </a>
-
-        <a id="tour-nav-schedule" mat-list-item routerLink="/dashboard/schedule-grid" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>apps</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_schedule_grid">Schedule Grid</span>
-          </div>
-        </a>
-
-        <a mat-list-item routerLink="/dashboard/shiftsummaries" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>assignment</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_shift_summaries">Shift Summaries</span>
-          </div>
-        </a>
-
-        <div class="nav-section-title" i18n="@@nav.web_section_mgmt">Management</div>
-
-        <a id="tour-nav-people" mat-list-item routerLink="/dashboard/people" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>people</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_people">People</span>
-          </div>
-        </a>
-
-        <a mat-list-item routerLink="/dashboard/areas" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>place</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_areas">Areas</span>
-          </div>
-        </a>
-
-        <a mat-list-item routerLink="/dashboard/cost-codes" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>tag</mat-icon>
-            <span matListItemTitle>Cost Codes</span>
-          </div>
-        </a>
-
-        <a id="tour-nav-locations" mat-list-item routerLink="/dashboard/locations" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>location_on</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_locations">Locations</span>
-          </div>
-        </a>
-
-        <a *ngIf="hasPermission('active-sites.view')" mat-list-item routerLink="/dashboard/active-sites" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>travel_explore</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_active_sites">Active Sites</span>
-          </div>
-        </a>
-
-        <a mat-list-item routerLink="/dashboard/tasks" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>check_box</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_tasks">Tasks</span>
-          </div>
-        </a>
-
-        <a mat-list-item routerLink="/dashboard/crews" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>group_work</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_crews">Crews</span>
-          </div>
-        </a>
-
-        <a mat-list-item routerLink="/dashboard/profiles" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>account_circle</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_user_profiles">User Profiles</span>
-          </div>
-        </a>
-
-        <a *ngIf="hasPermission('analytics.view')" mat-list-item routerLink="/dashboard/analytics" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>insights</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_analytics">Analytics</span>
-          </div>
-        </a>
-
-        <div class="nav-section-title" i18n="@@nav.web_section_pto">PTO</div>
-
-        <a mat-list-item routerLink="/dashboard/people-management" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>event_busy</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_pto_management">PTO Management</span>
-          </div>
-        </a>
-
-        <a mat-list-item routerLink="/dashboard/time-off-approvals" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>event_busy</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_time_off_approvals">Time-Off Approvals</span>
-          </div>
-        </a>
-
-        <div class="nav-section-title" i18n="@@nav.web_section_kiosks">Kiosks</div>
-
-        <a id="tour-nav-kiosk" mat-list-item routerLink="/kiosk" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>tablet</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_kiosks">Kiosks</span>
-          </div>
-        </a>
-
-        <div class="nav-section-title" i18n="@@nav.web_section_comms">Field Communications</div>
-
-        <a mat-list-item routerLink="/dashboard/bulletins" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>campaign</mat-icon>
-            <span matListItemTitle i18n="@@nav.bulletins">Bulletins</span>
-          </div>
-        </a>
-
-        <a mat-list-item routerLink="/dashboard/daily-reports" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>today</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_daily_reports">Daily Reports</span>
-          </div>
-        </a>
-
-        <div class="nav-section-title" i18n="@@nav.web_section_resources">Resources</div>
-
-        <a mat-list-item routerLink="/dashboard/documents" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>folder_open</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_documents">Documents</span>
-          </div>
-        </a>
-
-        <a *ngIf="hasPermission('credentials.read')" mat-list-item routerLink="/dashboard/credentials" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>badge</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_credentials">Credentials</span>
-            <span class="nav-badge nav-badge-warn" *ngIf="(expiringCredentialsCount$ | async) as count">{{ count }}</span>
-          </div>
-        </a>
-
-        <a mat-list-item routerLink="/dashboard/safety" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>health_and_safety</mat-icon>
-            <span matListItemTitle i18n="@@nav.web_safety">Safety</span>
-          </div>
-        </a>
-
-        <div class="nav-section-title">Integrations</div>
-
-        <a mat-list-item routerLink="/dashboard/procore" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>cloud_upload</mat-icon>
-            <span matListItemTitle>Procore</span>
-          </div>
-        </a>
-
-        <div class="nav-section-title">Integrations</div>
-
-        <a mat-list-item routerLink="/dashboard/procore" routerLinkActive="active-link" class="nav-item">
-          <div class="nav-item-content">
-            <mat-icon matListItemIcon>cloud_upload</mat-icon>
-            <span matListItemTitle>Procore</span>
-          </div>
-        </a>
-
-        <!-- Expandable More Options -->
-        <mat-expansion-panel class="nav-expansion-panel">
-          <mat-expansion-panel-header class="expansion-header">
-            <mat-panel-title class="expansion-title">
-              <mat-icon>more_horiz</mat-icon>
-              <span i18n="@@nav.web_more_options">More Options</span>
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <div class="expansion-content">
-            <a mat-list-item routerLink="/dashboard/billing" routerLinkActive="active-link" class="nav-item sub-item">
-              <div class="nav-item-content">
-                <mat-icon matListItemIcon>credit_card</mat-icon>
-                <span matListItemTitle i18n="@@nav.web_billing">Plan &amp; Billing</span>
-              </div>
-            </a>
-
-            <a mat-list-item routerLink="/dashboard/company-settings" routerLinkActive="active-link" class="nav-item sub-item">
-              <div class="nav-item-content">
-                <mat-icon matListItemIcon>settings</mat-icon>
-                <span matListItemTitle i18n="@@nav.web_settings">Settings</span>
-              </div>
-            </a>
-
-            <a mat-list-item routerLink="/admin/company-users" routerLinkActive="active-link" class="nav-item sub-item">
-              <div class="nav-item-content">
-                <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
-                <span matListItemTitle i18n="@@nav.web_company_users">Company Users</span>
-              </div>
-            </a>
-
-            <!--
-            <a mat-list-item routerLink="/dashboard/holidays" routerLinkActive="active-link" class="nav-item sub-item">
-              <div class="nav-item-content">
-                <mat-icon matListItemIcon>holiday_village</mat-icon>
-                <span matListItemTitle>Holidays</span>
-              </div>
-            </a>
-            -->
-
-            <a mat-list-item routerLink="/dashboard/help" routerLinkActive="active-link" class="nav-item sub-item">
-              <div class="nav-item-content">
-                <mat-icon matListItemIcon>help_outline</mat-icon>
-                <span matListItemTitle i18n="@@nav.web_help">Help</span>
-              </div>
-            </a>
-
-          </div>
-        </mat-expansion-panel>
-      </mat-nav-list>
+      <nav class="flex flex-col gap-2 px-2 pb-4" aria-label="Main" i18n-aria-label="@@nav.main_label">
+        @for (section of sections; track section.id) {
+          <section>
+            <h2 data-nav-heading
+              class="m-0 px-3 pb-1 pt-3 text-xs font-medium text-rail-label"
+              [class.sr-only]="collapsed && (isHandset$ | async) === false">{{ section.label }}</h2>
+            <ul class="m-0 flex list-none flex-col gap-0.5 p-0">
+              @for (item of section.items; track item.id) {
+                <li>
+                  <a [routerLink]="item.route" #rla="routerLinkActive" routerLinkActive
+                    [routerLinkActiveOptions]="{ exact: !!item.exact }" ariaCurrentWhenActive="page"
+                    [attr.id]="item.tourId"
+                    [attr.aria-label]="collapsed && (isHandset$ | async) === false ? item.label : null"
+                    [matTooltip]="collapsed && (isHandset$ | async) === false ? item.label : ''" matTooltipPosition="right"
+                    class="flex min-h-12 items-center gap-3 rounded-control px-3 py-2 text-[14px] no-underline"
+                    [ngClass]="rla.isActive ? 'bg-navy-700 text-paper' : 'text-rail-text hover:bg-navy-800'">
+                    <mat-icon class="shrink-0" [ngClass]="rla.isActive ? 'text-amber' : 'text-rail-label'">{{ item.icon }}</mat-icon>
+                    @if (!collapsed || (isHandset$ | async)) {
+                      <span data-nav-label class="min-w-0 flex-1 whitespace-normal break-words">{{ item.label }}</span>
+                      @if (item.id === 'credentials' && (expiringCredentialsCount$ | async); as count) {
+                        <span class="inline-flex min-w-5 items-center justify-center rounded-chip bg-danger-bg px-1.5 text-xs font-semibold text-danger-ink">{{ count }}</span>
+                      }
+                    }
+                  </a>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+      </nav>
     </mat-sidenav>
 
-    <!-- Main Content Area -->
-    <mat-sidenav-content class="main-content">
-      <div class="content-wrapper">
-        <div class="billing-banner" *ngIf="billingBanner$ | async as banner" role="status">
-          <mat-icon>{{ banner === 'limit' ? 'group_off' : 'schedule' }}</mat-icon>
-          <span *ngIf="banner === 'trial'" i18n="@@billing.banner_trial">Your free trial ends soon. Choose a plan to keep Pro features.</span>
-          <span *ngIf="banner === 'limit'" i18n="@@billing.banner_limit">You've reached your plan's employee limit.</span>
-          <a mat-flat-button color="primary" routerLink="/dashboard/billing" i18n="@@billing.banner_cta">See plans</a>
-        </div>
+    <mat-sidenav-content class="bg-canvas">
+      <main class="p-6 lg:p-8">
+        @if (billingBanner$ | async; as banner) {
+          <div class="mb-4 flex flex-wrap items-center gap-3 rounded-panel border border-line bg-paper p-3 text-ink" role="status">
+            <mat-icon>{{ banner === 'limit' ? 'group_off' : 'schedule' }}</mat-icon>
+            @if (banner === 'trial') {
+              <span class="flex-1" i18n="@@billing.banner_trial">Your free trial ends soon. Choose a plan to keep Pro features.</span>
+            }
+            @if (banner === 'limit') {
+              <span class="flex-1" i18n="@@billing.banner_limit">You've reached your plan's employee limit.</span>
+            }
+            <a lzButton variant="secondary" routerLink="/dashboard/billing" i18n="@@billing.banner_cta">See plans</a>
+          </div>
+        }
         <router-outlet></router-outlet>
-      </div>
+      </main>
     </mat-sidenav-content>
   </mat-sidenav-container>
 </div>
 
-<!-- Guided tour overlay — rendered outside main layout so z-index works -->
 <app-tour-overlay></app-tour-overlay>

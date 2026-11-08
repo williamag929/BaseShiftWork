@@ -19,6 +19,7 @@ const META: Record<string, { labelKey: string; label: string; icon: string; high
 };
 
 @Component({
+  standalone: false,
   selector: 'app-kpi-cards',
   template: `
     <div class="kpi-row">

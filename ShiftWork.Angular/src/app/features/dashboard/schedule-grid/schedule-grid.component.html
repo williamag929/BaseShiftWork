@@ -1,227 +1,202 @@
-<div class="schedule-grid-container">
+<div class="flex h-full flex-col gap-4">
 
-  <!-- Header -->
-  <div class="grid-header">
-    <div class="header-left">
-      <div class="location-dropdown">
-        <mat-icon>place</mat-icon>
-        <select class="grid-select" [(ngModel)]="selectedLocationId" (change)="onLocationChange()">
-          <option [ngValue]="-1" i18n="@@schedule_grid.all_locations">All Locations (Grouped)</option>
-          <option [ngValue]="0" i18n="@@schedule_grid.all_employees">All Employees</option>
+  <lz-page-header title="Schedule" i18n-title="@@schedule_grid.title">
+    <div lzHeaderMeta class="mt-2 flex flex-wrap items-center gap-2">
+      <label class="flex items-center gap-1">
+        <mat-icon aria-hidden="true" class="text-ink-soft">place</mat-icon>
+        <select
+          class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink"
+          aria-label="Location"
+          i18n-aria-label="@@schedule_grid.location_label"
+          [(ngModel)]="selectedLocationId"
+          (change)="onLocationChange()"
+        >
+          <option [ngValue]="-1" i18n="@@schedule_grid.all_locations_grouped">All locations (grouped)</option>
+          <option [ngValue]="0" i18n="@@schedule_grid.all_employees_option">All employees</option>
           <option disabled>──────────</option>
           <option *ngFor="let loc of locations" [ngValue]="loc.locationId">{{ loc.name }}</option>
         </select>
-      </div>
-    </div>
+      </label>
 
-    <div class="header-center">
-      <button class="nav-btn" (click)="onPreviousPeriod()">
-        <mat-icon>chevron_left</mat-icon>
+      <button lzButton variant="quiet" iconOnly type="button" aria-label="Previous period" i18n-aria-label="@@schedule_grid.previous_period" (click)="onPreviousPeriod()">
+        <mat-icon aria-hidden="true">chevron_left</mat-icon>
       </button>
-      <span class="week-label">
+      <span class="font-medium tabular-nums">
         {{ gridData.weekStart | date:'d MMM':'UTC' }} – {{ gridData.weekEnd | date:'d MMM':'UTC' }}
       </span>
-      <button class="nav-btn" (click)="onNextPeriod()">
-        <mat-icon>chevron_right</mat-icon>
+      <button lzButton variant="quiet" iconOnly type="button" aria-label="Next period" i18n-aria-label="@@schedule_grid.next_period" (click)="onNextPeriod()">
+        <mat-icon aria-hidden="true">chevron_right</mat-icon>
       </button>
-      <div class="range-selector">
-        <button class="range-btn" [class.active]="horizonRange === 'week'" (click)="onHorizonChange('week')" title="1 week (7 days)">1W</button>
-        <button class="range-btn" [class.active]="horizonRange === '2-weeks'" (click)="onHorizonChange('2-weeks')" title="2 weeks (14 days)">2W</button>
-        <button class="range-btn" [class.active]="horizonRange === '3-weeks'" (click)="onHorizonChange('3-weeks')" title="3 weeks (21 days)">3W</button>
-        <button class="range-btn" [class.active]="horizonRange === '4-weeks'" (click)="onHorizonChange('4-weeks')" title="4 weeks (28 days)">4W</button>
+
+      <div class="inline-flex overflow-hidden rounded-control border border-line-strong bg-paper" role="group" aria-label="Range" i18n-aria-label="@@schedule_grid.range_label">
+        <button type="button" class="min-h-12 min-w-12 border-0 px-3 font-[inherit] font-medium"
+          [class.bg-ink]="horizonRange === 'week'" [class.text-paper]="horizonRange === 'week'"
+          [class.bg-transparent]="horizonRange !== 'week'" [class.text-ink]="horizonRange !== 'week'"
+          [attr.aria-pressed]="horizonRange === 'week'"
+          aria-label="1W, 1 week" i18n-aria-label="@@schedule_grid.horizon_1w"
+          (click)="onHorizonChange('week')">1W</button>
+        <button type="button" class="min-h-12 min-w-12 border-0 border-l border-line-strong px-3 font-[inherit] font-medium"
+          [class.bg-ink]="horizonRange === '2-weeks'" [class.text-paper]="horizonRange === '2-weeks'"
+          [class.bg-transparent]="horizonRange !== '2-weeks'" [class.text-ink]="horizonRange !== '2-weeks'"
+          [attr.aria-pressed]="horizonRange === '2-weeks'"
+          aria-label="2W, 2 weeks" i18n-aria-label="@@schedule_grid.horizon_2w"
+          (click)="onHorizonChange('2-weeks')">2W</button>
+        <button type="button" class="min-h-12 min-w-12 border-0 border-l border-line-strong px-3 font-[inherit] font-medium"
+          [class.bg-ink]="horizonRange === '3-weeks'" [class.text-paper]="horizonRange === '3-weeks'"
+          [class.bg-transparent]="horizonRange !== '3-weeks'" [class.text-ink]="horizonRange !== '3-weeks'"
+          [attr.aria-pressed]="horizonRange === '3-weeks'"
+          aria-label="3W, 3 weeks" i18n-aria-label="@@schedule_grid.horizon_3w"
+          (click)="onHorizonChange('3-weeks')">3W</button>
+        <button type="button" class="min-h-12 min-w-12 border-0 border-l border-line-strong px-3 font-[inherit] font-medium"
+          [class.bg-ink]="horizonRange === '4-weeks'" [class.text-paper]="horizonRange === '4-weeks'"
+          [class.bg-transparent]="horizonRange !== '4-weeks'" [class.text-ink]="horizonRange !== '4-weeks'"
+          [attr.aria-pressed]="horizonRange === '4-weeks'"
+          aria-label="4W, 4 weeks" i18n-aria-label="@@schedule_grid.horizon_4w"
+          (click)="onHorizonChange('4-weeks')">4W</button>
       </div>
     </div>
 
-    <div class="header-right">
-      <button mat-icon-button (click)="loadScheduleData()" title="Refresh" i18n-title="@@schedule_grid.refresh">
-        <mat-icon>refresh</mat-icon>
+    <ng-container lzHeaderActions>
+      <button lzButton variant="quiet" iconOnly type="button" aria-label="Refresh" i18n-aria-label="@@schedule_grid.refresh" title="Refresh" i18n-title="@@schedule_grid.refresh" (click)="loadScheduleData()">
+        <mat-icon aria-hidden="true">refresh</mat-icon>
       </button>
-      <button mat-icon-button title="Share" i18n-title="@@schedule_grid.share">
-        <mat-icon>share</mat-icon>
+      <button lzButton type="button" (click)="openAddScheduleModal()">
+        <mat-icon aria-hidden="true">add</mat-icon>
+        <ng-container i18n="@@schedule_grid.add_shift_btn">Add shift</ng-container>
       </button>
-      <button mat-icon-button title="More options" i18n-title="@@schedule_grid.more_options">
-        <mat-icon>more_vert</mat-icon>
+      <button lzButton variant="primary" type="button" [disabled]="gridData.stats.unpublished === 0" (click)="onPublishAllShifts()">
+        <ng-container *ngIf="gridData.stats.unpublished > 0" i18n="@@schedule_grid.publish_n_shifts">{gridData.stats.unpublished, plural, =1 {Publish 1 shift} other {Publish {{ gridData.stats.unpublished }} shifts}}</ng-container>
+        <ng-container *ngIf="gridData.stats.unpublished === 0" i18n="@@schedule_grid.all_published">All shifts published</ng-container>
       </button>
-      <button mat-flat-button color="primary" (click)="openAddScheduleModal()">
-        <mat-icon>event</mat-icon>
-        <ng-container i18n="@@schedule_grid.add_schedule_btn">Add Schedule</ng-container>
-      </button>
-      <div
-        class="publish-badge"
-        [class.has-pending]="gridData.stats.unpublished > 0"
-        [class.clickable]="gridData.stats.unpublished > 0"
-        (click)="onPublishAllShifts()"
-        [title]="gridData.stats.unpublished > 0 ? 'Click to publish ' + gridData.stats.unpublished + ' unpublished shift(s)' : ''"
-      >
-        <mat-icon>{{ gridData.stats.unpublished > 0 ? 'warning' : 'check_circle' }}</mat-icon>
-        <span *ngIf="gridData.stats.unpublished === 0" i18n="@@schedule_grid.all_published">All shifts published</span>
-        <span *ngIf="gridData.stats.unpublished > 0" i18n="@@schedule_grid.unpublished_shifts">{{ gridData.stats.unpublished }} unpublished shifts</span>
-      </div>
-    </div>
-  </div>
+    </ng-container>
+  </lz-page-header>
 
-  <!-- Search and Filter Bar -->
-  <div class="filter-bar">
-    <div class="search-box">
-      <mat-icon>search</mat-icon>
+  <lz-summary-strip
+    *ngIf="summaryItems.length > 0"
+    class="block rounded-panel border border-line bg-paper"
+    [items]="summaryItems"
+    [interactive]="false"
+  ></lz-summary-strip>
+
+  <div class="flex flex-wrap items-center gap-2">
+    <label class="relative flex items-center">
+      <mat-icon aria-hidden="true" class="absolute left-3 text-ink-soft">search</mat-icon>
       <input
         type="text"
+        class="min-h-12 w-64 rounded-control border border-line-strong bg-paper pl-11 pr-3 font-[inherit] text-ink"
         placeholder="Search"
         i18n-placeholder="@@schedule_grid.search_ph"
+        aria-label="Search"
+        i18n-aria-label="@@schedule_grid.search_ph"
         [(ngModel)]="filters.searchQuery"
         (input)="onFilterChange()"
       />
-    </div>
-    <button class="filter-btn" (click)="toggleFilterModal()">
-      <mat-icon>tune</mat-icon>
-      <span *ngIf="activeFilterCount > 0" class="filter-count">{{ activeFilterCount }}</span>
+    </label>
+    <button lzButton type="button" aria-label="Filter and sort" i18n-aria-label="@@schedule_grid.filter_title" (click)="toggleFilterModal()">
+      <mat-icon aria-hidden="true">tune</mat-icon>
+      <span *ngIf="activeFilterCount > 0" class="rounded-chip bg-ink px-1.5 text-[12px] font-semibold text-paper tabular-nums">{{ activeFilterCount }}</span>
     </button>
-    <label class="void-toggle">
-      <input type="checkbox" [checked]="showVoidRecords" (change)="toggleShowVoidRecords()" />
-      <span class="void-toggle-label" i18n="@@schedule_grid.show_void">Show void records</span>
+    <label class="flex min-h-12 cursor-pointer items-center gap-2 px-2">
+      <input type="checkbox" class="size-4" [checked]="showVoidRecords" (change)="toggleShowVoidRecords()" />
+      <span i18n="@@schedule_grid.show_void">Show void records</span>
     </label>
   </div>
 
-  <!-- Bulk Actions Toolbar -->
-  <div class="bulk-actions-bar" *ngIf="showBulkActions">
-    <div class="bulk-selection-info">
-      <span class="selection-count">{{ selectedShifts.size }} shift(s) selected</span>
-      <button class="btn-link" (click)="selectAllShifts()" i18n="@@schedule_grid.select_all">Select All</button>
-      <button class="btn-link" (click)="clearSelection()" i18n="@@schedule_grid.clear_selection">Clear</button>
-    </div>
-    <div class="bulk-actions">
-      <button class="action-btn copy" (click)="copySelectedShifts()">
-        <mat-icon>content_copy</mat-icon>
-        <ng-container i18n="@@schedule_grid.copy">Copy</ng-container>
-      </button>
-      <span class="bulk-separator">|</span>
-      <span class="bulk-label" i18n="@@schedule_grid.update_status">Update Status:</span>
-      <button class="status-btn published" (click)="bulkUpdateStatus('published')">
-        <mat-icon>check_circle</mat-icon>
-        <ng-container i18n="@@schedule_grid.status_published">Published</ng-container>
-      </button>
-      <button class="status-btn unpublished" (click)="bulkUpdateStatus('unpublished')">
-        <mat-icon>schedule</mat-icon>
-        <ng-container i18n="@@schedule_grid.status_unpublished">Unpublished</ng-container>
-      </button>
-      <button class="status-btn open" (click)="bulkUpdateStatus('open')">
-        <mat-icon>lock_open</mat-icon>
-        <ng-container i18n="@@schedule_grid.status_open">Open</ng-container>
-      </button>
-      <button class="status-btn locked" (click)="bulkUpdateStatus('locked')">
-        <mat-icon>lock</mat-icon>
-        <ng-container i18n="@@schedule_grid.status_locked">Locked</ng-container>
-      </button>
-      <span class="bulk-separator">|</span>
-      <button class="status-btn void" (click)="voidSelectedShifts()">
-        <mat-icon>block</mat-icon>
-        <ng-container i18n="@@schedule_grid.status_void">Void</ng-container>
-      </button>
-    </div>
-  </div>
-
-  <!-- Stats Bar -->
-  <div class="stats-bar">
-    <div class="stat">
-      <span class="stat-dot unpublished"></span>
-      <span class="stat-text" i18n="@@schedule_grid.stat_unpublished">{{ gridData.stats.unpublished }} unpublished</span>
-    </div>
-    <div class="stat">
-      <span class="stat-dot warnings"></span>
-      <span class="stat-text" i18n="@@schedule_grid.stat_warnings">{{ gridData.stats.warnings }} warnings</span>
-    </div>
-    <div class="stat">
-      <span class="stat-dot open-shifts"></span>
-      <span class="stat-text" i18n="@@schedule_grid.stat_open_shifts">{{ gridData.stats.openShifts }} open shifts</span>
-    </div>
-    <ng-container *ngIf="showAllStats">
-      <div class="stat">
-        <span class="stat-dot empty"></span>
-        <span class="stat-text" i18n="@@schedule_grid.stat_empty">{{ gridData.stats.empty }} empty</span>
-      </div>
-      <div class="stat">
-        <span class="stat-dot published"></span>
-        <span class="stat-text" i18n="@@schedule_grid.stat_published">{{ gridData.stats.published }} published</span>
-      </div>
-      <div class="stat">
-        <span class="stat-dot require-confirmation"></span>
-        <span class="stat-text" i18n="@@schedule_grid.stat_req_confirm">{{ gridData.stats.requireConfirmation }} require confirmation</span>
-      </div>
-      <div class="stat">
-        <span class="stat-dot leave-pending"></span>
-        <span class="stat-text" i18n="@@schedule_grid.stat_leave_pending">{{ gridData.stats.leavePending }} leave pending</span>
-      </div>
-      <div class="stat">
-        <span class="stat-dot unavailable"></span>
-        <span class="stat-text" i18n="@@schedule_grid.stat_unavailable">{{ gridData.stats.unavailable }} unavailable</span>
-      </div>
-    </ng-container>
-    <button class="stats-toggle" (click)="showAllStats = !showAllStats" [title]="showAllStats ? 'Show fewer stats' : 'Show all stats'">
-      <mat-icon>{{ showAllStats ? 'expand_less' : 'expand_more' }}</mat-icon>
+  <div *ngIf="showBulkActions" class="flex flex-wrap items-center gap-2 rounded-panel border border-line bg-info-bg px-4 py-2">
+    <span class="font-semibold tabular-nums" i18n="@@schedule_grid.selected_count">{{ selectedShifts.size }} selected</span>
+    <button lzButton variant="quiet" type="button" (click)="selectAllShifts()" i18n="@@schedule_grid.select_all_shifts">Select all</button>
+    <button lzButton variant="quiet" type="button" (click)="clearSelection()" i18n="@@schedule_grid.clear_selection">Clear</button>
+    <span aria-hidden="true" class="mx-1 h-6 w-px bg-line-strong"></span>
+    <button lzButton type="button" (click)="copySelectedShifts()">
+      <mat-icon aria-hidden="true">content_copy</mat-icon>
+      <ng-container i18n="@@schedule_grid.copy">Copy</ng-container>
+    </button>
+    <span aria-hidden="true" class="mx-1 h-6 w-px bg-line-strong"></span>
+    <span class="text-ink-soft" i18n="@@schedule_grid.set_status">Set status</span>
+    <button lzButton type="button" (click)="bulkUpdateStatus('published')">
+      <mat-icon aria-hidden="true">check_circle</mat-icon>
+      <ng-container i18n="@@schedule_grid.status_published">Published</ng-container>
+    </button>
+    <button lzButton type="button" (click)="bulkUpdateStatus('unpublished')">
+      <mat-icon aria-hidden="true">schedule</mat-icon>
+      <ng-container i18n="@@schedule_grid.status_unpublished">Unpublished</ng-container>
+    </button>
+    <button lzButton type="button" (click)="bulkUpdateStatus('open')">
+      <mat-icon aria-hidden="true">lock_open</mat-icon>
+      <ng-container i18n="@@schedule_grid.status_open">Open</ng-container>
+    </button>
+    <button lzButton type="button" (click)="bulkUpdateStatus('locked')">
+      <mat-icon aria-hidden="true">lock</mat-icon>
+      <ng-container i18n="@@schedule_grid.status_locked">Locked</ng-container>
+    </button>
+    <span aria-hidden="true" class="mx-1 h-6 w-px bg-line-strong"></span>
+    <button lzButton variant="danger" type="button" (click)="voidSelectedShifts()">
+      <mat-icon aria-hidden="true">block</mat-icon>
+      <ng-container i18n="@@schedule_grid.status_void">Void</ng-container>
     </button>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="loading-state">
+  <div *ngIf="loading" class="flex flex-col items-center gap-3 p-12 text-ink-soft">
     <mat-spinner diameter="40"></mat-spinner>
-    <p i18n="@@schedule_grid.loading">Loading schedule...</p>
+    <p class="m-0" i18n="@@schedule_grid.loading">Loading schedule...</p>
   </div>
 
-  <!-- Error State -->
-  <div *ngIf="error && !loading" class="error-state">
-    <p class="error-text">{{ error }}</p>
+  <div *ngIf="error && !loading" class="rounded-panel border border-danger bg-danger-bg p-4 text-danger-ink" role="alert">
+    {{ error }}
   </div>
 
-  <!-- Grid -->
-  <div *ngIf="!loading && !error" class="grid-wrapper">
-    <div class="grid-scroll-container">
+  <div *ngIf="!loading && !error" class="overflow-x-auto rounded-panel border border-line bg-paper">
+    <div class="lz-grid" role="table" aria-label="Schedule" i18n-aria-label="@@schedule_grid.title" [style.--lz-day-count]="gridData.days.length">
 
-      <!-- Header Row -->
-      <div class="grid-header-row">
-        <div class="team-column">
-          <div class="open-shifts-header">
-            <mat-icon>people</mat-icon>
-            <span i18n="@@schedule_grid.open_shifts_header">Open shifts</span>
-            <span class="hours">0h</span>
-          </div>
-        </div>
-        <div class="day-header" *ngFor="let day of gridData.days">
-          <div class="day-header-content">
-            <div class="day-name">{{ day.dayName }}</div>
+      <div class="lz-grid-row" role="row">
+        <div class="sticky left-0 z-[1] flex min-h-12 items-center border-b border-line bg-paper px-4 font-semibold" role="columnheader" i18n="@@schedule_grid.team_member_header">Team member</div>
+        <div
+          *ngFor="let day of gridData.days"
+          class="flex flex-col justify-center gap-0.5 border-b border-l border-line px-2 py-1"
+          [class.bg-paper-alt]="!isWeekend(day)"
+          [class.bg-canvas]="isWeekend(day)"
+          role="columnheader"
+        >
+          <div class="flex items-center gap-1">
+            <span class="font-semibold">{{ day.dayName }}</span>
+            <span class="ml-auto text-[12px] text-ink-soft tabular-nums">{{ getDayHours(day) }}</span>
             <button
-              class="paste-btn"
               *ngIf="copiedShifts.length > 0"
-              (click)="pasteShifts(day.date)"
+              lzButton
+              variant="quiet"
+              iconOnly
+              type="button"
+              [attr.aria-label]="'Paste ' + copiedShifts.length + ' copied shift(s)'"
               [title]="'Paste ' + copiedShifts.length + ' copied shift(s)'"
+              (click)="pasteShifts(day.date)"
             >
-              <mat-icon>content_paste</mat-icon>
+              <mat-icon aria-hidden="true">content_paste</mat-icon>
             </button>
           </div>
-          <div class="unavailable-badge" *ngIf="day.unavailableCount > 0">
+          <span *ngIf="day.unavailableCount > 0" class="text-[12px] text-ink-soft">
             {{ day.unavailableCount }} <ng-container i18n="@@schedule_grid.unavailable">Unavailable</ng-container>
-          </div>
+          </span>
         </div>
       </div>
 
-      <!-- Team Member Rows: Single Location & All Employees modes -->
-      <div class="grid-body" *ngIf="viewMode !== 'grouped'">
-        <div class="grid-row" *ngFor="let member of gridData.teamMembers">
-          <!-- Team Member Column -->
-          <div class="team-column">
-            <div class="team-member">
-              <div class="avatar" [style.background-image]="member.profilePhotoUrl ? 'url(' + member.profilePhotoUrl + ')' : 'none'">
-                <span *ngIf="!member.profilePhotoUrl">{{ member.initials }}</span>
-              </div>
-              <div class="member-details">
-                <div class="member-name">{{ member.fullName }}</div>
-                <div class="member-hours">{{ member.totalHours }}</div>
-              </div>
-            </div>
+      <ng-container *ngIf="viewMode !== 'grouped'">
+        <div class="lz-grid-row" role="row" *ngFor="let member of gridData.teamMembers">
+          <div class="sticky left-0 z-[1] flex min-h-14 items-center gap-2 border-b border-line-soft bg-paper px-4" role="rowheader">
+            <span
+              class="flex size-8 shrink-0 items-center justify-center rounded-full bg-shift-bg bg-cover bg-center text-[12px] font-semibold"
+              [style.background-image]="member.profilePhotoUrl ? 'url(' + member.profilePhotoUrl + ')' : 'none'"
+            >
+              <span *ngIf="!member.profilePhotoUrl">{{ member.initials }}</span>
+            </span>
+            <span class="min-w-0 truncate font-medium">{{ member.fullName }}</span>
+            <span class="ml-auto text-ink-soft tabular-nums">{{ member.totalHours }}</span>
           </div>
 
-          <!-- Day Cells -->
-          <div class="day-cell"
+          <div
             *ngFor="let day of gridData.days; let di = index"
+            class="flex flex-col gap-1 border-b border-l border-line-soft p-1"
+            [class.bg-paper-alt]="isWeekend(day)"
+            role="cell"
             cdkDropList
             [id]="getCellDropId(member.personId, di)"
             [cdkDropListData]="{ personId: member.personId, date: day.date }"
@@ -229,124 +204,108 @@
             (cdkDropListDropped)="onShiftDrop($event)"
           >
             <ng-container *ngIf="getShiftsForPersonAndDay(member.personId, day.date) as shifts">
-              <!-- Empty Cell -->
               <button
                 *ngIf="shifts.length === 0"
-                class="add-shift-btn"
+                lzButton
+                variant="quiet"
+                iconOnly
+                type="button"
+                class="self-center"
+                [attr.aria-label]="addShiftLabel(day, member.fullName)"
                 (click)="onAddShift(member.personId, day.date)"
               >
-                <mat-icon>add</mat-icon>
+                <mat-icon aria-hidden="true">add</mat-icon>
               </button>
 
-              <!-- Shift Blocks -->
               <div
                 *ngFor="let shift of shifts"
-                class="shift-block"
+                class="lz-shift-drag"
+                [class.opacity-70]="shift.isCompleted"
                 cdkDrag
                 [cdkDragData]="shift"
                 [cdkDragDisabled]="shift.isLocked || shift.status === 'void'"
-                [class.selected]="isShiftSelected(shift)"
-                [class.completed]="shift.isCompleted"
-                [class.void]="shift.status === 'void'"
-                [style.background-color]="getShiftColor(shift.status)"
-                (click)="onShiftClick(shift)"
               >
-                <div *cdkDragPreview class="drag-preview" [style.background-color]="getShiftColor(shift.status)">
-                  <div class="shift-time">{{ shift.startTime }} – {{ shift.endTime }}</div>
-                  <div class="shift-person">{{ shift.personName }}</div>
+                <div *cdkDragPreview class="lz-drag-preview rounded-control border-2 border-link bg-paper p-2 shadow-overlay">
+                  <div class="text-[12px] font-semibold">{{ shift.startTime }} – {{ shift.endTime }}</div>
+                  <div class="text-[12px] text-ink-soft">{{ shift.personName }}</div>
                 </div>
-                <div *cdkDragPlaceholder class="drag-placeholder"></div>
-                <input
-                  type="checkbox"
-                  class="shift-checkbox"
-                  [checked]="isShiftSelected(shift)"
-                  (click)="toggleShiftSelection(shift, $event)"
-                  (change)="$event.stopPropagation()"
-                />
-                <div
-                  class="onshift-indicator"
-                  *ngIf="shift.isOnShiftNow || isShiftLate(shift)"
-                  [class.late]="isShiftLate(shift)"
-                  [title]="getShiftClockTooltip(shift)"
-                >
-                  <mat-icon>schedule</mat-icon>
-                </div>
-                <div class="shift-time">{{ shift.startTime }} – {{ shift.endTime }}</div>
-                <div class="shift-person">{{ shift.personName }}</div>
-                <div class="lock-badge" *ngIf="shift.isLocked">
-                  <mat-icon>lock</mat-icon>
-                  <span i18n="@@schedule_grid.locked_badge">LOCKED</span>
-                </div>
-                <div class="void-badge" *ngIf="shift.status === 'void'">
-                  <mat-icon>block</mat-icon>
-                  <span i18n="@@schedule_grid.void_badge">VOID</span>
-                </div>
+                <div *cdkDragPlaceholder class="lz-drag-placeholder rounded-control border-2 border-dashed border-link bg-info-bg"></div>
+                <lz-shift-block
+                  [status]="toLzShiftStatus(shift)"
+                  [time]="shift.startTime + '–' + shift.endTime"
+                  [detail]="shift.areaName || shift.locationName || ''"
+                  selectable
+                  [selected]="isShiftSelected(shift)"
+                  [clock]="getShiftClock(shift)"
+                  [attr.title]="getShiftClock(shift) !== 'none' ? getShiftClockTooltip(shift) : null"
+                  (activate)="onShiftClick(shift)"
+                  (selectedChange)="toggleShiftSelection(shift)"
+                ></lz-shift-block>
               </div>
             </ng-container>
           </div>
         </div>
 
-        <!-- Empty location row -->
-        <div class="grid-row empty-location-row" *ngIf="viewMode === 'single' && gridData.teamMembers.length === 0">
-          <div class="team-column">
-            <div class="empty-location-hint">
-              <mat-icon>person_add</mat-icon>
-              <span i18n="@@schedule_grid.click_to_add">Click + to add</span>
-            </div>
+        <div class="lz-grid-row" role="row" *ngIf="viewMode === 'single' && gridData.teamMembers.length === 0">
+          <div class="sticky left-0 z-[1] flex min-h-14 items-center gap-2 border-b border-line-soft bg-paper px-4 text-ink-soft" role="rowheader">
+            <mat-icon aria-hidden="true">person_add</mat-icon>
+            <span i18n="@@schedule_grid.click_to_add">Click + to add</span>
           </div>
-          <div class="day-cell" *ngFor="let day of gridData.days">
-            <button class="add-shift-btn" (click)="onAddShift(null, day.date)">
-              <mat-icon>add</mat-icon>
+          <div *ngFor="let day of gridData.days" class="flex items-center justify-center border-b border-l border-line-soft p-1" [class.bg-paper-alt]="isWeekend(day)" role="cell">
+            <button
+              lzButton
+              variant="quiet"
+              iconOnly
+              type="button"
+              [attr.aria-label]="addShiftLabel(day)"
+              (click)="onAddShift(null, day.date)"
+            >
+              <mat-icon aria-hidden="true">add</mat-icon>
             </button>
           </div>
         </div>
 
-        <!-- Add Employee Row (Single Location mode only) -->
-        <div class="grid-row add-employee-row" *ngIf="viewMode === 'single'">
-          <div class="team-column">
-            <button class="add-employee-btn" (click)="onAddEmployeeToLocation(selectedLocationId || undefined)">
-              <mat-icon>person_add</mat-icon>
+        <div class="lz-grid-row" role="row" *ngIf="viewMode === 'single'">
+          <div class="sticky left-0 z-[1] flex items-center bg-paper px-2" role="rowheader">
+            <button lzButton variant="quiet" type="button" (click)="onAddEmployeeToLocation(selectedLocationId || undefined)">
+              <mat-icon aria-hidden="true">person_add</mat-icon>
               <span i18n="@@schedule_grid.add_employee">Add employee</span>
             </button>
           </div>
-          <div class="day-cell placeholder" *ngFor="let day of gridData.days"></div>
+          <div *ngFor="let day of gridData.days" class="border-l border-line-soft" [class.bg-paper-alt]="isWeekend(day)" role="cell"></div>
         </div>
-      </div>
+      </ng-container>
 
-      <!-- Grouped View: Location Sections -->
-      <div class="grid-body" *ngIf="viewMode === 'grouped'">
+      <ng-container *ngIf="viewMode === 'grouped'">
         <ng-container *ngFor="let group of locationGroups">
-          <!-- Location Section Header -->
-          <div class="location-group-header">
-            <div class="team-column">
-              <div class="location-header-content">
-                <mat-icon>place</mat-icon>
-                <span class="location-header-name">{{ group.locationName }}</span>
-                <span class="location-member-count">({{ group.teamMembers.length }})</span>
-              </div>
+          <div class="lz-grid-row" role="row">
+            <div class="sticky left-0 z-[1] flex min-h-12 items-center gap-2 border-b border-line bg-paper-alt px-4" role="rowheader">
+              <mat-icon aria-hidden="true" class="text-ink-soft">place</mat-icon>
+              <span class="truncate font-semibold">{{ group.locationName }}</span>
+              <span class="text-ink-soft tabular-nums">({{ group.teamMembers.length }})</span>
             </div>
-            <div class="day-cell location-header-cell" *ngFor="let day of group.days">
-              <span class="location-day-shift-count">{{ day.shifts.length }} shift{{ day.shifts.length !== 1 ? 's' : '' }}</span>
+            <div *ngFor="let day of group.days" class="flex items-center border-b border-l border-line bg-paper-alt px-2 text-[12px] text-ink-soft tabular-nums" role="cell">
+              {{ day.shifts.length }} shift{{ day.shifts.length !== 1 ? 's' : '' }}
             </div>
           </div>
 
-          <!-- Team Member Rows in this Location -->
-          <div class="grid-row" *ngFor="let member of group.teamMembers">
-            <div class="team-column">
-              <div class="team-member">
-                <div class="avatar" [style.background-image]="member.profilePhotoUrl ? 'url(' + member.profilePhotoUrl + ')' : 'none'">
-                  <span *ngIf="!member.profilePhotoUrl">{{ member.initials }}</span>
-                </div>
-                <div class="member-details">
-                  <div class="member-name">{{ member.fullName }}</div>
-                  <div class="member-hours">{{ member.totalHours }}</div>
-                </div>
-              </div>
+          <div class="lz-grid-row" role="row" *ngFor="let member of group.teamMembers">
+            <div class="sticky left-0 z-[1] flex min-h-14 items-center gap-2 border-b border-line-soft bg-paper px-4" role="rowheader">
+              <span
+                class="flex size-8 shrink-0 items-center justify-center rounded-full bg-shift-bg bg-cover bg-center text-[12px] font-semibold"
+                [style.background-image]="member.profilePhotoUrl ? 'url(' + member.profilePhotoUrl + ')' : 'none'"
+              >
+                <span *ngIf="!member.profilePhotoUrl">{{ member.initials }}</span>
+              </span>
+              <span class="min-w-0 truncate font-medium">{{ member.fullName }}</span>
+              <span class="ml-auto text-ink-soft tabular-nums">{{ member.totalHours }}</span>
             </div>
 
-            <!-- Day Cells (location-scoped) -->
-            <div class="day-cell"
+            <div
               *ngFor="let day of group.days; let di = index"
+              class="flex flex-col gap-1 border-b border-l border-line-soft p-1"
+              [class.bg-paper-alt]="isWeekend(day)"
+              role="cell"
               cdkDropList
               [id]="getCellDropId(member.personId, di, group.locationId)"
               [cdkDropListData]="{ personId: member.personId, date: day.date, locationId: group.locationId }"
@@ -356,148 +315,144 @@
               <ng-container *ngIf="getShiftsForPersonDayAndLocation(member.personId, day.date, group.locationId) as shifts">
                 <button
                   *ngIf="shifts.length === 0"
-                  class="add-shift-btn"
+                  lzButton
+                  variant="quiet"
+                  iconOnly
+                  type="button"
+                  class="self-center"
+                  [attr.aria-label]="addShiftLabel(day, member.fullName)"
                   (click)="onAddShift(member.personId, day.date, group.locationId)"
                 >
-                  <mat-icon>add</mat-icon>
+                  <mat-icon aria-hidden="true">add</mat-icon>
                 </button>
 
                 <div
                   *ngFor="let shift of shifts"
-                  class="shift-block"
+                  class="lz-shift-drag"
+                  [class.opacity-70]="shift.isCompleted"
                   cdkDrag
                   [cdkDragData]="shift"
                   [cdkDragDisabled]="shift.isLocked || shift.status === 'void'"
-                  [class.selected]="isShiftSelected(shift)"
-                  [class.completed]="shift.isCompleted"
-                  [class.void]="shift.status === 'void'"
-                  [style.background-color]="getShiftColor(shift.status)"
-                  (click)="onShiftClick(shift)"
                 >
-                  <div *cdkDragPreview class="drag-preview" [style.background-color]="getShiftColor(shift.status)">
-                    <div class="shift-time">{{ shift.startTime }} – {{ shift.endTime }}</div>
-                    <div class="shift-person">{{ shift.personName }}</div>
+                  <div *cdkDragPreview class="lz-drag-preview rounded-control border-2 border-link bg-paper p-2 shadow-overlay">
+                    <div class="text-[12px] font-semibold">{{ shift.startTime }} – {{ shift.endTime }}</div>
+                    <div class="text-[12px] text-ink-soft">{{ shift.personName }}</div>
                   </div>
-                  <div *cdkDragPlaceholder class="drag-placeholder"></div>
-                  <input
-                    type="checkbox"
-                    class="shift-checkbox"
-                    [checked]="isShiftSelected(shift)"
-                    (click)="toggleShiftSelection(shift, $event)"
-                    (change)="$event.stopPropagation()"
-                  />
-                  <div
-                    class="onshift-indicator"
-                    *ngIf="shift.isOnShiftNow || isShiftLate(shift)"
-                    [class.late]="isShiftLate(shift)"
-                    [title]="getShiftClockTooltip(shift)"
-                  >
-                    <mat-icon>schedule</mat-icon>
-                  </div>
-                  <div class="shift-time">{{ shift.startTime }} – {{ shift.endTime }}</div>
-                  <div class="shift-person">{{ shift.personName }}</div>
-                  <div class="lock-badge" *ngIf="shift.isLocked">
-                    <mat-icon>lock</mat-icon>
-                    <span i18n="@@schedule_grid.locked_badge">LOCKED</span>
-                  </div>
-                  <div class="void-badge" *ngIf="shift.status === 'void'">
-                    <mat-icon>block</mat-icon>
-                    <span i18n="@@schedule_grid.void_badge">VOID</span>
-                  </div>
+                  <div *cdkDragPlaceholder class="lz-drag-placeholder rounded-control border-2 border-dashed border-link bg-info-bg"></div>
+                  <lz-shift-block
+                    [status]="toLzShiftStatus(shift)"
+                    [time]="shift.startTime + '–' + shift.endTime"
+                    [detail]="shift.areaName || shift.locationName || ''"
+                    selectable
+                    [selected]="isShiftSelected(shift)"
+                    [clock]="getShiftClock(shift)"
+                    [attr.title]="getShiftClock(shift) !== 'none' ? getShiftClockTooltip(shift) : null"
+                    (activate)="onShiftClick(shift)"
+                    (selectedChange)="toggleShiftSelection(shift)"
+                  ></lz-shift-block>
                 </div>
               </ng-container>
             </div>
           </div>
 
-          <!-- Empty location row in grouped view -->
-          <div class="grid-row empty-location-row" *ngIf="group.teamMembers.length === 0">
-            <div class="team-column">
-              <div class="empty-location-hint">
-                <mat-icon>person_add</mat-icon>
-                <span i18n="@@schedule_grid.click_to_add">Click + to add</span>
-              </div>
+          <div class="lz-grid-row" role="row" *ngIf="group.teamMembers.length === 0">
+            <div class="sticky left-0 z-[1] flex min-h-14 items-center gap-2 border-b border-line-soft bg-paper px-4 text-ink-soft" role="rowheader">
+              <mat-icon aria-hidden="true">person_add</mat-icon>
+              <span i18n="@@schedule_grid.click_to_add">Click + to add</span>
             </div>
-            <div class="day-cell" *ngFor="let day of group.days">
-              <button class="add-shift-btn" (click)="onAddShift(null, day.date, group.locationId)">
-                <mat-icon>add</mat-icon>
+            <div *ngFor="let day of group.days" class="flex items-center justify-center border-b border-l border-line-soft p-1" [class.bg-paper-alt]="isWeekend(day)" role="cell">
+              <button
+                lzButton
+                variant="quiet"
+                iconOnly
+                type="button"
+                [attr.aria-label]="addShiftLabel(day)"
+                (click)="onAddShift(null, day.date, group.locationId)"
+              >
+                <mat-icon aria-hidden="true">add</mat-icon>
               </button>
             </div>
           </div>
 
-          <!-- Add Employee Row per Location Group -->
-          <div class="grid-row add-employee-row">
-            <div class="team-column">
-              <button class="add-employee-btn" (click)="onAddEmployeeToLocation(group.locationId)">
-                <mat-icon>person_add</mat-icon>
+          <div class="lz-grid-row" role="row">
+            <div class="sticky left-0 z-[1] flex items-center border-b border-line bg-paper px-2" role="rowheader">
+              <button lzButton variant="quiet" type="button" (click)="onAddEmployeeToLocation(group.locationId)">
+                <mat-icon aria-hidden="true">person_add</mat-icon>
                 <span i18n="@@schedule_grid.add_employee">Add employee</span>
               </button>
             </div>
-            <div class="day-cell placeholder" *ngFor="let day of group.days"></div>
+            <div *ngFor="let day of group.days" class="border-b border-l border-line" [class.bg-paper-alt]="isWeekend(day)" role="cell"></div>
           </div>
         </ng-container>
 
-        <!-- Empty State for Grouped Mode -->
-        <div class="empty-grouped-state" *ngIf="locationGroups.length === 0">
-          <mat-icon>info</mat-icon>
-          <span i18n="@@schedule_grid.no_schedules">No schedules found. Select a location or add schedules to see grouped data.</span>
+        <div class="lz-grid-row" role="row" *ngIf="locationGroups.length === 0">
+          <div class="sticky left-0 z-[1] col-span-full flex items-center gap-2 bg-paper p-6 text-ink-soft" role="cell">
+            <mat-icon aria-hidden="true">info</mat-icon>
+            <span i18n="@@schedule_grid.no_schedules">No schedules found. Select a location or add schedules to see grouped data.</span>
+          </div>
         </div>
-      </div>
+      </ng-container>
 
     </div>
   </div>
 
-  <!-- Filter Modal -->
-  <div class="modal-backdrop" *ngIf="showFilterModal" (click)="toggleFilterModal()"></div>
-  <div class="filter-modal" *ngIf="showFilterModal">
-    <div class="modal-header">
-      <h3 i18n="@@schedule_grid.filter_title">Filter and sort</h3>
+  <div class="fixed inset-0 z-[1000] bg-ink/45" *ngIf="showFilterModal" (click)="toggleFilterModal()"></div>
+  <div
+    *ngIf="showFilterModal"
+    class="fixed left-1/2 top-1/2 z-[1001] max-h-[80vh] w-[90%] max-w-[500px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-dialog border border-line bg-paper p-6 shadow-overlay"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div class="mb-3 flex items-center justify-between">
+      <h3 class="m-0 font-display text-[18px] font-semibold" i18n="@@schedule_grid.filter_title">Filter and sort</h3>
       <button mat-icon-button (click)="toggleFilterModal()">
         <mat-icon>close</mat-icon>
       </button>
     </div>
-    <p class="modal-subtitle" i18n="@@schedule_grid.filter_subtitle">
+    <p class="mb-4 mt-0 text-ink-soft" i18n="@@schedule_grid.filter_subtitle">
       Quickly narrow down your team list with the new filtering options,
       making it easier to schedule the right people.
     </p>
 
-    <div class="filter-section">
-      <label class="filter-label" i18n="@@schedule_grid.sort_by">Sort by</label>
-      <select class="grid-select" [(ngModel)]="filters.sortBy" (change)="onFilterChange()">
+    <div class="mb-4 flex flex-col gap-1">
+      <label class="text-[13px] font-medium" i18n="@@schedule_grid.sort_by">Sort by</label>
+      <select class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" [(ngModel)]="filters.sortBy" (change)="onFilterChange()">
         <option value="name" i18n="@@schedule_grid.sort_name">Name</option>
         <option value="hours" i18n="@@schedule_grid.sort_hours">Hours</option>
         <option value="availability" i18n="@@schedule_grid.sort_availability">Availability</option>
       </select>
     </div>
 
-    <div class="filter-section">
-      <label class="filter-label" i18n="@@schedule_grid.shift_type">Shift type</label>
-      <div class="chip-container">
-        <div class="chip" *ngFor="let type of filters.shiftTypes">
+    <div class="mb-4 flex flex-col gap-1">
+      <label class="text-[13px] font-medium" i18n="@@schedule_grid.shift_type">Shift type</label>
+      <div class="flex flex-wrap gap-2">
+        <span class="inline-flex items-center gap-1 rounded-chip bg-neutral-bg pl-2" *ngFor="let type of filters.shiftTypes">
           <span>{{ type }}</span>
-          <button class="chip-remove-btn" (click)="removeShiftTypeFilter(type)">
+          <button mat-icon-button (click)="removeShiftTypeFilter(type)">
             <mat-icon>close</mat-icon>
           </button>
-        </div>
+        </span>
       </div>
     </div>
 
-    <div class="filter-section">
-      <label class="filter-label" i18n="@@schedule_grid.training_filter">Training</label>
-      <div class="chip-container">
-        <div class="chip" *ngFor="let type of filters.trainingTypes">
+    <div class="mb-4 flex flex-col gap-1">
+      <label class="text-[13px] font-medium" i18n="@@schedule_grid.training_filter">Training</label>
+      <div class="flex flex-wrap gap-2">
+        <span class="inline-flex items-center gap-1 rounded-chip bg-neutral-bg pl-2" *ngFor="let type of filters.trainingTypes">
           <span>{{ type }}</span>
-          <button class="chip-remove-btn" (click)="removeTrainingFilter(type)">
+          <button mat-icon-button (click)="removeTrainingFilter(type)">
             <mat-icon>close</mat-icon>
           </button>
-        </div>
+        </span>
       </div>
     </div>
 
-    <div class="modal-footer">
-      <button class="btn-clear" (click)="clearFilters()" i18n="@@schedule_grid.clear_all">Clear all</button>
-      <button class="btn-done" (click)="toggleFilterModal()" i18n="@@schedule_grid.done">Done</button>
+    <div class="flex justify-end gap-2">
+      <button lzButton variant="quiet" type="button" (click)="clearFilters()" i18n="@@schedule_grid.clear_all">Clear all</button>
+      <button lzButton type="button" (click)="toggleFilterModal()" i18n="@@schedule_grid.done">Done</button>
     </div>
   </div>
+
 
   <!-- Add/Edit Schedule Modal -->
   <app-schedule-grid-add-modal
@@ -583,34 +538,34 @@
     (dismiss)="closeConflictModal()"
   ></app-schedule-conflict-modal>
 
-  <!-- Bulk Schedule Builder -->
-  <div class="add-schedule-placeholder" *ngIf="showAddSchedulePlaceholder">
-    <div class="add-schedule-backdrop" (click)="closeAddSchedulePlaceholder()"></div>
-    <div class="add-schedule-dialog" role="dialog" aria-modal="true">
-      <div class="dialog-header">
-        <h3 i18n="@@schedule_grid.bulk_builder">Bulk Schedule Builder</h3>
+
+  <div class="fixed inset-0 z-[999]" *ngIf="showAddSchedulePlaceholder">
+    <div class="absolute inset-0 bg-ink/45" (click)="closeAddSchedulePlaceholder()"></div>
+    <div class="relative mx-auto mt-[8vh] max-h-[85vh] max-w-[540px] overflow-y-auto rounded-dialog border border-line bg-paper px-6 py-5 shadow-overlay" role="dialog" aria-modal="true">
+      <div class="mb-2 flex items-center justify-between">
+        <h3 class="m-0 font-display text-[18px] font-semibold" i18n="@@schedule_grid.bulk_builder">Bulk Schedule Builder</h3>
         <button mat-icon-button (click)="closeAddSchedulePlaceholder()">
           <mat-icon>close</mat-icon>
         </button>
       </div>
-      <p i18n="@@schedule_grid.bulk_desc">
+      <p class="mb-4 mt-0 text-ink-soft" i18n="@@schedule_grid.bulk_desc">
         Create multiple shifts for a location across a date range and assign people at once.
       </p>
 
-      <div class="bulk-form">
-        <div class="bulk-form-row">
-          <div class="bulk-form-group">
-            <label i18n="@@schedule_grid.bulk_location">Location</label>
-            <select class="grid-select" [(ngModel)]="bulkLocationId" (change)="onBulkLocationChange()">
+      <div class="flex flex-col gap-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_location">Location</label>
+            <select class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" [(ngModel)]="bulkLocationId" (change)="onBulkLocationChange()">
               <option [ngValue]="null" disabled i18n="@@schedule_grid.bulk_location_ph">Select a location</option>
               <option *ngFor="let loc of locations" [ngValue]="loc.locationId" [disabled]="loc.locationId <= 0">
                 {{ loc.name }}
               </option>
             </select>
           </div>
-          <div class="bulk-form-group">
-            <label i18n="@@schedule_grid.bulk_area">Area</label>
-            <select class="grid-select" [(ngModel)]="bulkAreaId">
+          <div class="flex flex-col gap-1">
+            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_area">Area</label>
+            <select class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" [(ngModel)]="bulkAreaId">
               <option [ngValue]="null" disabled i18n="@@schedule_grid.bulk_area_ph">Select an area</option>
               <option *ngFor="let area of getAreasForLocation(bulkLocationId)" [ngValue]="area.areaId">
                 {{ area.name }}
@@ -619,118 +574,114 @@
           </div>
         </div>
 
-        <div class="bulk-form-row">
-          <div class="bulk-form-group">
-            <label i18n="@@schedule_grid.bulk_start_date">Start Date</label>
-            <input type="date" class="form-input" [(ngModel)]="bulkStartDate" />
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_start_date">Start Date</label>
+            <input type="date" class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" [(ngModel)]="bulkStartDate" />
           </div>
-          <div class="bulk-form-group">
-            <label i18n="@@schedule_grid.bulk_end_date">End Date</label>
-            <input type="date" class="form-input" [(ngModel)]="bulkEndDate" />
-          </div>
-        </div>
-
-        <div class="bulk-form-row">
-          <div class="bulk-form-group">
-            <label i18n="@@schedule_grid.bulk_start_time">Start Time</label>
-            <input type="time" class="form-input" [(ngModel)]="bulkStartTime" />
-          </div>
-          <div class="bulk-form-group">
-            <label i18n="@@schedule_grid.bulk_end_time">End Time</label>
-            <input type="time" class="form-input" [(ngModel)]="bulkEndTime" />
+          <div class="flex flex-col gap-1">
+            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_end_date">End Date</label>
+            <input type="date" class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" [(ngModel)]="bulkEndDate" />
           </div>
         </div>
 
-        <div class="bulk-form-row">
-          <div class="bulk-form-group full-width">
-            <label i18n="@@schedule_grid.bulk_people">People</label>
-            <div class="bulk-actions-inline">
-              <button class="btn-link" (click)="selectAllBulkPeople()" i18n="@@schedule_grid.bulk_select_all">Select all</button>
-              <button class="btn-link" (click)="clearBulkPeopleSelection()" i18n="@@schedule_grid.bulk_clear">Clear</button>
-              <span class="bulk-count">{{ bulkSelectedPeopleIds.size }} selected</span>
-            </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_start_time">Start Time</label>
+            <input type="time" class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" [(ngModel)]="bulkStartTime" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_end_time">End Time</label>
+            <input type="time" class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" [(ngModel)]="bulkEndTime" />
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_people">People</label>
+          <div class="flex items-center gap-2">
+            <button lzButton variant="quiet" type="button" (click)="selectAllBulkPeople()" i18n="@@schedule_grid.bulk_select_all">Select all</button>
+            <button lzButton variant="quiet" type="button" (click)="clearBulkPeopleSelection()" i18n="@@schedule_grid.bulk_clear">Clear</button>
+            <span class="text-[13px] text-ink-soft tabular-nums">{{ bulkSelectedPeopleIds.size }} selected</span>
+          </div>
+          <input
+            type="text"
+            class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink"
+            placeholder="Search people..."
+            i18n-placeholder="@@schedule_grid.bulk_people_ph"
+            [(ngModel)]="bulkPeopleSearch"
+          />
+          <div class="mt-1 grid max-h-[180px] gap-1.5 overflow-auto rounded-panel border border-line bg-paper-alt p-2">
+            <label class="flex cursor-pointer items-center gap-2 text-[13px]" *ngFor="let person of filteredBulkPeopleList">
+              <input
+                type="checkbox"
+                [checked]="bulkSelectedPeopleIds.has(person.personId)"
+                (change)="onBulkPersonCheckboxChange($event, person.personId)"
+              />
+              <span>{{ person.name }}</span>
+              <span
+                *ngIf="crewAvailability[person.personId]"
+                class="ml-auto inline-block size-[9px] shrink-0 rounded-full"
+                [class.bg-success]="crewAvailability[person.personId].available"
+                [class.bg-amber]="!crewAvailability[person.personId].available && crewAvailability[person.personId].reason === 'conflict'"
+                [class.bg-danger]="!crewAvailability[person.personId].available && crewAvailability[person.personId].reason === 'time-off'"
+                [title]="crewAvailability[person.personId].available ? 'Available' : (crewAvailability[person.personId].reason === 'time-off' ? 'Has time off' : 'Already scheduled')"
+              ></span>
+            </label>
+            <span class="text-[13px] text-ink-soft" *ngIf="filteredBulkPeopleList.length === 0" i18n="@@schedule_grid.bulk_no_results">No people match your search.</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_crew">Crew</span>
+            <span class="inline-flex items-center gap-1 text-[12px] text-ink-soft" *ngIf="bulkSelectedCrewId">
+              <span class="inline-block size-[9px] rounded-full bg-success" title="Available"></span>
+              <ng-container i18n="@@schedule_grid.avail_ok">Available</ng-container>
+              <span class="ml-1.5 inline-block size-[9px] rounded-full bg-amber" title="Scheduled conflict"></span>
+              <ng-container i18n="@@schedule_grid.avail_conflict">Conflict</ng-container>
+              <span class="ml-1.5 inline-block size-[9px] rounded-full bg-danger" title="Time off"></span>
+              <ng-container i18n="@@schedule_grid.avail_timeoff">Time off</ng-container>
+            </span>
+            <button lzButton variant="quiet" class="ml-auto" type="button" (click)="toggleNewCrewForm()" title="Create a new crew">
+              <ng-container *ngIf="showNewCrewForm" i18n="@@schedule_grid.bulk_cancel_crew">✕ Cancel</ng-container>
+              <ng-container *ngIf="!showNewCrewForm" i18n="@@schedule_grid.bulk_new_crew">+ New crew</ng-container>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2" *ngIf="showNewCrewForm">
             <input
               type="text"
-              class="form-input bulk-people-search"
-              placeholder="Search people..."
-              i18n-placeholder="@@schedule_grid.bulk_people_ph"
-              [(ngModel)]="bulkPeopleSearch"
+              class="min-h-12 flex-1 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink"
+              placeholder="Crew name"
+              i18n-placeholder="@@schedule_grid.bulk_crew_ph"
+              [(ngModel)]="newCrewName"
+              (keyup.enter)="createCrewInline()"
+              maxlength="100"
             />
-            <div class="bulk-people-list">
-              <label class="bulk-person" *ngFor="let person of filteredBulkPeopleList">
-                <input
-                  type="checkbox"
-                  [checked]="bulkSelectedPeopleIds.has(person.personId)"
-                  (change)="onBulkPersonCheckboxChange($event, person.personId)"
-                />
-                <span>{{ person.name }}</span>
-                <span
-                  *ngIf="crewAvailability[person.personId]"
-                  class="avail-badge"
-                  [class.avail-ok]="crewAvailability[person.personId].available"
-                  [class.avail-conflict]="!crewAvailability[person.personId].available && crewAvailability[person.personId].reason === 'conflict'"
-                  [class.avail-timeoff]="!crewAvailability[person.personId].available && crewAvailability[person.personId].reason === 'time-off'"
-                  [title]="crewAvailability[person.personId].available ? 'Available' : (crewAvailability[person.personId].reason === 'time-off' ? 'Has time off' : 'Already scheduled')"
-                ></span>
-              </label>
-              <span class="bulk-no-results" *ngIf="filteredBulkPeopleList.length === 0" i18n="@@schedule_grid.bulk_no_results">No people match your search.</span>
-            </div>
+            <button
+              mat-flat-button
+              color="primary"
+              [disabled]="!newCrewName.trim() || creatingCrew"
+              (click)="createCrewInline()"
+            >{{ creatingCrew ? '...' : 'Create' }}</button>
           </div>
-        </div>
 
-        <div class="bulk-form-row">
-          <div class="bulk-form-group full-width">
-            <label>
-              <ng-container i18n="@@schedule_grid.bulk_crew">Crew</ng-container>
-              <span class="avail-legend" *ngIf="bulkSelectedCrewId">
-                <span class="avail-badge avail-ok" title="Available"></span>
-                <ng-container i18n="@@schedule_grid.avail_ok">Available</ng-container>
-                <span class="avail-badge avail-conflict" title="Scheduled conflict"></span>
-                <ng-container i18n="@@schedule_grid.avail_conflict">Conflict</ng-container>
-                <span class="avail-badge avail-timeoff" title="Time off"></span>
-                <ng-container i18n="@@schedule_grid.avail_timeoff">Time off</ng-container>
-              </span>
-              <button class="btn-link crew-add-btn" type="button" (click)="toggleNewCrewForm()" title="Create a new crew">
-                <ng-container *ngIf="showNewCrewForm" i18n="@@schedule_grid.bulk_cancel_crew">✕ Cancel</ng-container>
-                <ng-container *ngIf="!showNewCrewForm" i18n="@@schedule_grid.bulk_new_crew">+ New crew</ng-container>
-              </button>
-            </label>
-
-            <div class="new-crew-form" *ngIf="showNewCrewForm">
-              <input
-                type="text"
-                class="form-input"
-                placeholder="Crew name"
-                i18n-placeholder="@@schedule_grid.bulk_crew_ph"
-                [(ngModel)]="newCrewName"
-                (keyup.enter)="createCrewInline()"
-                maxlength="100"
-              />
-              <button
-                mat-flat-button
-                color="primary"
-                [disabled]="!newCrewName.trim() || creatingCrew"
-                (click)="createCrewInline()"
-              >{{ creatingCrew ? '...' : 'Create' }}</button>
-            </div>
-
-            <select
-              class="grid-select"
-              [(ngModel)]="bulkSelectedCrewId"
-              (change)="onBulkCrewChange()"
-            >
-              <option [ngValue]="null" i18n="@@schedule_grid.bulk_no_crew">— No crew —</option>
-              <option *ngFor="let crew of crews" [ngValue]="crew.crewId">{{ crew.name }}</option>
-            </select>
-            <div class="avail-checking" *ngIf="checkingCrewAvailability" i18n="@@schedule_grid.bulk_checking">
-              Checking availability...
-            </div>
+          <select
+            class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink"
+            [(ngModel)]="bulkSelectedCrewId"
+            (change)="onBulkCrewChange()"
+          >
+            <option [ngValue]="null" i18n="@@schedule_grid.bulk_no_crew">— No crew —</option>
+            <option *ngFor="let crew of crews" [ngValue]="crew.crewId">{{ crew.name }}</option>
+          </select>
+          <div class="text-[12px] italic text-ink-soft" *ngIf="checkingCrewAvailability" i18n="@@schedule_grid.bulk_checking">
+            Checking availability...
           </div>
         </div>
       </div>
 
-      <p class="bulk-error" *ngIf="bulkError">{{ bulkError }}</p>
-      <div class="dialog-actions">
+      <p class="mb-0 mt-2 text-[13px] font-semibold text-danger" *ngIf="bulkError">{{ bulkError }}</p>
+      <div class="mt-4 flex justify-end gap-2">
         <button mat-stroked-button (click)="openSingleShiftFromPlaceholder()" i18n="@@schedule_grid.bulk_create_single">Create single shift now</button>
         <button mat-flat-button color="primary" [disabled]="bulkCreating" (click)="createBulkSchedules()">
           <ng-container *ngIf="bulkCreating" i18n="@@schedule_grid.bulk_creating">Creating...</ng-container>

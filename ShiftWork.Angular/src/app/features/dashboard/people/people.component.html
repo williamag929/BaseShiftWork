@@ -1,379 +1,277 @@
-<div class="people-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-icon">
-        <i class="fa fa-users"></i>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title" i18n="@@people.page_title">People Management</h1>
-        <p class="page-subtitle" i18n="@@people.page_subtitle">Manage your team members and their information</p>
-      </div>
-    </div>
-  </div>
+<div class="flex flex-col gap-4">
 
-  <div class="content-grid">
-    <!-- Left Panel - People List -->
-    <div class="list-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="fa fa-list"></i>
-            <ng-container i18n="@@people.team_members">Team Members</ng-container>
-          </h3>
-          <span class="badge">{{ people.length || 0 }}</span>
-        </div>
-
-        <div class="card-body">
-          <!-- Loading State -->
-          <div *ngIf="loading" class="loading-state">
-            <div class="spinner"></div>
-            <p class="loading-text" i18n="@@people.loading">Loading people...</p>
-          </div>
-
-          <!-- Error State -->
-          <div *ngIf="error" class="error-state">
-            <i class="fa fa-exclamation-triangle error-icon"></i>
-            <p class="error-text" i18n="@@people.error">Error loading people. Please try again.</p>
-          </div>
-
-          <!-- People List -->
-          <div *ngIf="!loading && !error" class="people-list">
-            <div
-              *ngFor="let person of people; let i = index"
-              class="person-item"
-              [class.selected]="selectedPerson?.personId === person.personId"
-              (click)="editPerson(person)"
-              [style.animation-delay.ms]="i * 50">
-              <div class="person-avatar">
-                <img *ngIf="person.photoUrl" [src]="person.photoUrl" alt="{{ person.name }}">
-                <div *ngIf="!person.photoUrl" class="avatar-placeholder">
-                  {{getInitials(person.name) }}
-                </div>
-              </div>
-              <div class="person-info">
-                <h4 class="person-name">{{ person.name }}</h4>
-                <p class="person-email">{{ person.email }}</p>
-                <div class="person-badges">
-                  <span class="status-badge" [class.active]="person.status === 'Active'">
-                    {{ person.status }}
-                  </span>
-                  <span class="invite-badge" [ngClass]="getStatusBadgeClass(person.personId)">
-                    {{ getStatusBadgeText(person.personId) }}
-                  </span>
-                </div>
-              </div>
-              <button
-                class="invite-icon-btn"
-                *ngIf="person.email"
-                [title]="getInviteIconTooltip(person.personId)"
-                (click)="openInviteDialog(person); $event.stopPropagation()">
-                <i class="fa" [ngClass]="getInviteStatusBadgeClass(person.personId)"></i>
-              </button>
-              <button class="edit-btn" (click)="editPerson(person); $event.stopPropagation()">
-                <i class="fa fa-pencil"></i>
-              </button>
-            </div>
-
-            <!-- Empty State -->
-            <div *ngIf="people.length === 0" class="empty-state">
-              <i class="fa fa-users empty-icon"></i>
-              <p class="empty-text" i18n="@@people.empty_title">No people found</p>
-              <p class="empty-subtext" i18n="@@people.empty_desc">Create your first team member to get started</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Panel - Form -->
-    <div class="form-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="fa" [class.fa-user-plus]="!selectedPerson" [class.fa-user-edit]="selectedPerson"></i>
-            <ng-container *ngIf="selectedPerson" i18n="@@people.form_edit">Edit Person</ng-container>
-            <ng-container *ngIf="!selectedPerson" i18n="@@people.form_create">Create New Person</ng-container>
-          </h3>
-          <div class="header-actions">
-            <app-audit-history-button
-              *ngIf="selectedPerson"
-              [entity]="selectedPerson"
-              entityType="Person"
-              [entityId]="selectedPerson.personId"
-              [entityDisplayName]="selectedPerson.name"
-              [companyId]="activeCompany?.companyId || ''"
-            ></app-audit-history-button>
-            <button *ngIf="selectedPerson" class="clear-btn" (click)="cancelEdit()">
-              <i class="fa fa-times"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <form [formGroup]="personForm" (ngSubmit)="savePerson()" class="person-form">
-
-            <!-- Personal Information Section -->
-            <div class="form-section">
-              <h4 class="section-title" i18n="@@people.section_personal">Personal Information</h4>
-
-              <div class="form-row">
-                <div class="form-group full-width">
-                  <label for="name" class="form-label">
-                    <i class="fa fa-user"></i>
-                    <ng-container i18n="@@people.full_name">Full Name</ng-container> <span class="required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    class="form-input"
-                    formControlName="name"
-                    placeholder="Enter full name"
-                    [class.error]="personForm.get('name')?.touched && personForm.get('name')?.invalid">
-                  <div *ngIf="personForm.get('name')?.touched && personForm.get('name')?.errors?.['required']"
-                       class="error-message">
-                    <i class="fa fa-exclamation-circle"></i>
-                    <ng-container i18n="@@people.name_required">Name is required</ng-container>
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="email" class="form-label">
-                    <i class="fa fa-envelope"></i>
-                    <ng-container i18n="@@people.email_address">Email Address</ng-container> <span class="required">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    class="form-input"
-                    formControlName="email"
-                    placeholder="name@example.com"
-                    [class.error]="personForm.get('email')?.touched && personForm.get('email')?.invalid">
-                  <div *ngIf="personForm.get('email')?.touched && personForm.get('email')?.errors?.['required']"
-                       class="error-message">
-                    <i class="fa fa-exclamation-circle"></i>
-                    <ng-container i18n="@@people.email_required">Email is required</ng-container>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="phone" class="form-label">
-                    <i class="fa fa-phone"></i>
-                    <ng-container i18n="@@people.phone_number">Phone Number</ng-container>
-                  </label>
-                  <input
-                    type="text"
-                    id="phone"
-                    class="form-input"
-                    formControlName="phoneNumber"
-                    placeholder="(123) 456-7890">
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="pin" class="form-label">
-                    <i class="fa fa-lock"></i>
-                    <ng-container i18n="@@people.pin_code">PIN Code</ng-container>
-                  </label>
-                  <input
-                    type="text"
-                    id="pin"
-                    class="form-input"
-                    formControlName="pin"
-                    maxlength="4"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    autocomplete="off"
-                    placeholder="4-digit PIN">
-                </div>
-
-                <div class="form-group">
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="photoExempt" formControlName="photoExempt">
-                    <ng-container i18n="@@people.photo_exempt">No photo required at the kiosk</ng-container>
-                  </label>
-                </div>
-
-                <!-- Roles field removed: permissions now managed via CompanyUserProfiles -->
-              </div>
-            </div>
-
-            <!-- Address Section -->
-            <div class="form-section">
-              <h4 class="section-title" i18n="@@people.section_address">Address Information</h4>
-
-              <div class="form-row">
-                <div class="form-group full-width">
-                  <label for="address" class="form-label">
-                    <i class="fa fa-map-marker"></i>
-                    <ng-container i18n="@@people.street_address">Street Address</ng-container>
-                  </label>
-                  <input
-                    type="text"
-                    id="address"
-                    class="form-input"
-                    formControlName="address"
-                    placeholder="123 Main Street">
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="city" class="form-label">
-                    <i class="fa fa-building"></i>
-                    <ng-container i18n="@@people.city">City</ng-container>
-                  </label>
-                  <input
-                    type="text"
-                    id="city"
-                    class="form-input"
-                    formControlName="city"
-                    placeholder="New York">
-                </div>
-
-                <div class="form-group">
-                  <label for="state" class="form-label">
-                    <i class="fa fa-flag"></i>
-                    <ng-container i18n="@@people.state">State</ng-container>
-                  </label>
-                  <input
-                    type="text"
-                    id="state"
-                    class="form-input"
-                    formControlName="state"
-                    placeholder="NY">
-                </div>
-              </div>
-            </div>
-
-            <!-- Additional Information -->
-            <div class="form-section">
-              <h4 class="section-title" i18n="@@people.section_additional">Additional Information</h4>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="status" class="form-label">
-                    <i class="fa fa-toggle-on"></i>
-                    <ng-container i18n="@@people.status">Status</ng-container>
-                  </label>
-                  <select id="status" class="form-select" formControlName="status">
-                    <option value="Active" i18n="@@people.active">Active</option>
-                    <option value="Inactive" i18n="@@people.inactive">Inactive</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label for="photourl" class="form-label">
-                    <i class="fa fa-image"></i>
-                    <ng-container i18n="@@people.photo_url">Photo URL</ng-container>
-                  </label>
-                  <input
-                    type="text"
-                    id="photourl"
-                    class="form-input"
-                    formControlName="photoUrl"
-                    placeholder="https://example.com/photo.jpg">
-                </div>
-              </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="form-actions">
-              <!-- Send / Resend / Reset Invite Button -->
-              <button
-                type="button"
-                class="btn-invite"
-                *ngIf="selectedPerson && selectedPerson.email"
-                [class.btn-invite-reset]="getInviteStatus(selectedPerson.personId)?.status === 'Active'"
-                (click)="openInviteDialog(selectedPerson); $event.stopPropagation()">
-                <i class="fa fa-envelope"></i>
-                {{ getInviteActionLabel(selectedPerson.personId) }}
-              </button>
-              <button type="button" class="btn-cancel" *ngIf="selectedPerson" (click)="cancelEdit()">
-                <i class="fa fa-times"></i>
-                <ng-container i18n="@@common.cancel">Cancel</ng-container>
-              </button>
-              <button type="submit" class="btn-submit" [disabled]="!personForm.valid">
-                <i class="fa" [class.fa-save]="selectedPerson" [class.fa-plus]="!selectedPerson"></i>
-                <ng-container *ngIf="selectedPerson" i18n="@@people.update_btn">Update Person</ng-container>
-                <ng-container *ngIf="!selectedPerson" i18n="@@people.create_btn">Create Person</ng-container>
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Invite Dialog -->
-<div class="invite-dialog-overlay" *ngIf="showInviteDialog" (click)="closeInviteDialog()">
-  <div class="invite-dialog" (click)="$event.stopPropagation()">
-    <div class="dialog-header">
-      <h3 class="dialog-title">
-        <i class="fa fa-envelope"></i>
-        {{ getDialogTitle() }}
-      </h3>
-      <button class="dialog-close" (click)="closeInviteDialog()">
-        <i class="fa fa-times"></i>
+  <lz-page-header title="People" i18n-title="@@people.page_title" subtitle="Everyone who can be scheduled or clock in at your job sites." i18n-subtitle="@@people.page_subtitle">
+    <ng-container lzHeaderActions>
+      <button lzButton variant="primary" type="button" (click)="cancelEdit(); nameInput.focus()">
+        <mat-icon aria-hidden="true">person_add</mat-icon>
+        <ng-container i18n="@@people.add_person">Add person</ng-container>
       </button>
-    </div>
+    </ng-container>
+  </lz-page-header>
 
-    <div class="dialog-body">
-      <div class="invite-info">
-        <div class="employee-info">
-          <div class="employee-avatar">
-            <div class="avatar-placeholder">
-              {{selectedPerson ? getInitials(selectedPerson.name) : ''}}
-            </div>
-          </div>
-          <div class="employee-details">
-            <h4 class="employee-name">{{ selectedPerson?.name }}</h4>
-            <p class="employee-email">{{ selectedPerson?.email }}</p>
-          </div>
-        </div>
+  <div class="flex flex-wrap items-center gap-2">
+    <label class="flex items-center gap-2">
+      <mat-icon aria-hidden="true" class="text-ink-soft">search</mat-icon>
+      <input type="search" class="min-h-12 w-full sm:w-72 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted " aria-label="Search people" i18n-aria-label="@@people.search_label" placeholder="Search by name or email" i18n-placeholder="@@people.search_placeholder" [value]="searchTerm" (input)="searchTerm = $any($event.target).value">
+    </label>
+    <select class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" aria-label="Status" i18n-aria-label="@@people.status" [value]="statusFilter" (change)="statusFilter = $any($event.target).value">
+      <option value="all" i18n="@@people.all_statuses">All statuses</option>
+      <option value="Active" i18n="@@people.active">Active</option>
+      <option value="Inactive" i18n="@@people.inactive">Inactive</option>
+    </select>
+    <span class="ml-auto text-ink-soft tabular-nums">{{ filteredPeople.length }} / {{ people.length }}</span>
+  </div>
 
-        <p class="dialog-description">
-          {{ getDialogDescription() }}
+  <div class="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_26rem]">
+
+    <section class="min-w-0">
+      @if (loading) {
+        <p class="p-4 text-ink-soft" role="status" i18n="@@people.loading">Loading people...</p>
+      }
+      @if (error) {
+        <p class="flex items-center gap-2 rounded-panel border border-danger bg-danger-bg p-4 text-danger-ink" role="alert">
+          <mat-icon aria-hidden="true">error</mat-icon>
+          <ng-container i18n="@@people.error">Error loading people. Please try again.</ng-container>
         </p>
-      </div>
+      }
+      @if (!loading && !error) {
+        <div class="overflow-x-auto rounded-panel border border-line bg-paper">
+          <table class="w-full border-collapse text-left">
+            <thead class="bg-paper-alt text-[13px] text-ink-soft">
+              <tr>
+                <th scope="col" class="px-4 py-3 font-medium" i18n="@@people.col_person">Person</th>
+                <th scope="col" class="px-4 py-3 font-medium" i18n="@@people.status">Status</th>
+                <th scope="col" class="px-4 py-3 font-medium" i18n="@@people.col_app_access">App access</th>
+                <th scope="col" class="px-4 py-3 font-medium" i18n="@@people.col_right_now">Right now</th>
+                <th scope="col" class="px-4 py-3 text-right font-medium" i18n="@@people.col_actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (person of filteredPeople; track person.personId) {
+                <tr class="border-b border-line-soft" [class.bg-paper-alt]="selectedPerson?.personId === person.personId">
+                  <td class="px-4 py-2">
+                    <div class="flex items-center gap-3">
+                      @if (person.photoUrl) {
+                        <img class="size-10 rounded-full object-cover" [src]="person.photoUrl" alt="">
+                      } @else {
+                        <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-neutral-bg text-[13px] font-medium text-ink" aria-hidden="true">{{ getInitials(person.name) }}</span>
+                      }
+                      <div class="min-w-0">
+                        <div class="font-medium text-ink">{{ person.name }}</div>
+                        <div class="truncate text-[13px] text-ink-soft">{{ person.email }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-2">
+                    <lz-status-chip [tone]="person.status === 'Active' ? 'success' : 'neutral'">{{ person.status }}</lz-status-chip>
+                  </td>
+                  <td class="px-4 py-2">
+                    @if (getStatusBadgeText(person.personId); as badge) {
+                      <lz-status-chip [tone]="getInviteStatus(person.personId)?.status === 'Active' ? 'success' : getInviteStatus(person.personId)?.status === 'Pending' ? 'warning' : 'neutral'">{{ badge }}</lz-status-chip>
+                    }
+                  </td>
+                  <td class="px-4 py-2">
+                    @if (person.statusShiftWork) {
+                      @if (person.statusShiftWork.startsWith('OnShift')) {
+                        <lz-status-chip tone="success" [dot]="true" i18n="@@people.on_shift">On shift</lz-status-chip>
+                      } @else {
+                        <lz-status-chip tone="neutral" i18n="@@people.off_shift">Off shift</lz-status-chip>
+                      }
+                    }
+                  </td>
+                  <td class="px-4 py-2">
+                    <div class="flex justify-end gap-1">
+                      @if (person.email) {
+                        <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="getInviteIconTooltip(person.personId)" [title]="getInviteIconTooltip(person.personId)" (click)="openInviteDialog(person)">
+                          <mat-icon aria-hidden="true">{{ getInviteStatus(person.personId)?.status === 'Active' ? 'key' : 'mail' }}</mat-icon>
+                        </button>
+                      }
+                      <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(person)" (click)="editPerson(person)">
+                        <mat-icon aria-hidden="true">edit</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          @if (filteredPeople.length === 0) {
+            <div class="p-8 text-center">
+              @if (people.length === 0) {
+                <p class="font-medium" i18n="@@people.empty_title">No people found</p>
+                <p class="text-ink-soft" i18n="@@people.empty_desc">Create your first team member to get started</p>
+              } @else {
+                <p class="font-medium" i18n="@@people.no_matches">No people match your search</p>
+              }
+            </div>
+          }
+        </div>
+      }
+    </section>
 
-      <div class="role-selection" *ngIf="getInviteStatus(selectedPerson?.personId || 0)?.status !== 'Active'">
-        <h4 class="section-title" i18n="@@people.select_roles">Select Roles</h4>
-        <div class="role-list">
-          <div
-            *ngFor="let role of roles"
-            class="role-item"
-            [class.selected]="isRoleSelected(role.roleId)"
-            (click)="toggleRoleSelection(role.roleId)">
-            <div class="role-checkbox">
-              <i class="fa" [class.fa-check-square]="isRoleSelected(role.roleId)" [class.fa-square-o]="!isRoleSelected(role.roleId)"></i>
-            </div>
-            <div class="role-info">
-              <h5 class="role-name">{{ role.name }}</h5>
-              <p class="role-description">{{ role.description }}</p>
-            </div>
-          </div>
+    <section class="rounded-panel border border-line bg-paper p-4">
+      <div class="mb-4 flex items-center justify-between gap-2">
+        <h2 class="font-display text-[18px] font-semibold">
+          @if (selectedPerson) {
+            <ng-container i18n="@@people.form_edit">Edit person</ng-container>
+          } @else {
+            <ng-container i18n="@@people.form_create">Create new person</ng-container>
+          }
+        </h2>
+        <div class="flex items-center gap-1">
+          <app-audit-history-button
+            *ngIf="selectedPerson"
+            [entity]="selectedPerson"
+            entityType="Person"
+            [entityId]="selectedPerson.personId"
+            [entityDisplayName]="selectedPerson.name"
+            [companyId]="activeCompany?.companyId || ''"
+          ></app-audit-history-button>
+          @if (selectedPerson) {
+            <button lzButton variant="quiet" iconOnly type="button" aria-label="Close" i18n-aria-label="@@people.close" (click)="cancelEdit()">
+              <mat-icon aria-hidden="true">close</mat-icon>
+            </button>
+          }
         </div>
       </div>
-    </div>
 
-    <div class="dialog-footer">
-      <button class="btn-cancel" (click)="closeInviteDialog()" [disabled]="sendingInvite" i18n="@@common.cancel">
-        Cancel
-      </button>
-      <button
-        class="btn-submit"
-        (click)="sendInvite()"
-        [disabled]="sendingInvite || (getInviteStatus(selectedPerson?.personId || 0)?.status !== 'Active' && selectedRolesForInvite.length === 0)">
-        <i class="fa fa-spinner fa-spin" *ngIf="sendingInvite"></i>
-        <i class="fa fa-paper-plane" *ngIf="!sendingInvite"></i>
-        <ng-container *ngIf="sendingInvite" i18n="@@people.sending">Sending...</ng-container>
-        <ng-container *ngIf="!sendingInvite">{{ getDialogSendLabel() }}</ng-container>
-      </button>
-    </div>
+      <form [formGroup]="personForm" (ngSubmit)="savePerson()" class="flex flex-col gap-6">
+        <fieldset class="m-0 grid gap-4 border-0 p-0 sm:grid-cols-2">
+          <legend class="mb-2 font-medium text-ink" i18n="@@people.section_personal">Personal information</legend>
+          <div class="sm:col-span-2">
+            <label for="name" class="mb-1 block text-[13px] font-medium text-ink-soft"><ng-container i18n="@@people.full_name">Full name</ng-container> <span aria-hidden="true">*</span></label>
+            <input #nameInput type="text" id="name" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" [class.border-danger]="personForm.get('name')?.touched && personForm.get('name')?.invalid" formControlName="name" placeholder="Enter full name" i18n-placeholder="@@people.name_placeholder">
+            @if (personForm.get('name')?.touched && personForm.get('name')?.errors?.['required']) {
+              <p class="mt-1 text-[13px] text-danger-ink" role="alert" i18n="@@people.name_required">Name is required</p>
+            }
+          </div>
+          <div>
+            <label for="email" class="mb-1 block text-[13px] font-medium text-ink-soft"><ng-container i18n="@@people.email_address">Email address</ng-container> <span aria-hidden="true">*</span></label>
+            <input type="email" id="email" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" [class.border-danger]="personForm.get('email')?.touched && personForm.get('email')?.invalid" formControlName="email" placeholder="name@example.com">
+            @if (personForm.get('email')?.touched && personForm.get('email')?.errors?.['required']) {
+              <p class="mt-1 text-[13px] text-danger-ink" role="alert" i18n="@@people.email_required">Email is required</p>
+            }
+          </div>
+          <div>
+            <label for="phone" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.phone_number">Phone number</label>
+            <input type="text" id="phone" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="phoneNumber" placeholder="(123) 456-7890">
+          </div>
+          <div>
+            <label for="pin" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.pin_code">PIN code</label>
+            <input type="text" id="pin" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="pin" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="4-digit PIN" i18n-placeholder="@@people.pin_placeholder">
+          </div>
+          <label class="flex min-h-12 items-center gap-2 self-end text-ink">
+            <input type="checkbox" id="photoExempt" class="size-5" formControlName="photoExempt">
+            <ng-container i18n="@@people.photo_exempt">No photo required at the kiosk</ng-container>
+          </label>
+        </fieldset>
+
+        <fieldset class="m-0 grid gap-4 border-0 p-0 sm:grid-cols-2">
+          <legend class="mb-2 font-medium text-ink" i18n="@@people.section_address">Address information</legend>
+          <div class="sm:col-span-2">
+            <label for="address" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.street_address">Street address</label>
+            <input type="text" id="address" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="address" placeholder="123 Main Street">
+          </div>
+          <div>
+            <label for="city" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.city">City</label>
+            <input type="text" id="city" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="city" placeholder="New York">
+          </div>
+          <div>
+            <label for="state" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.state">State</label>
+            <input type="text" id="state" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="state" placeholder="NY">
+          </div>
+        </fieldset>
+
+        <fieldset class="m-0 grid gap-4 border-0 p-0 sm:grid-cols-2">
+          <legend class="mb-2 font-medium text-ink" i18n="@@people.section_additional">Additional information</legend>
+          <div>
+            <label for="status" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.status">Status</label>
+            <select id="status" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="status">
+              <option value="Active" i18n="@@people.active">Active</option>
+              <option value="Inactive" i18n="@@people.inactive">Inactive</option>
+            </select>
+          </div>
+          <div>
+            <label for="photourl" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.photo_url">Photo URL</label>
+            <input type="text" id="photourl" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="photoUrl" placeholder="https://example.com/photo.jpg">
+          </div>
+        </fieldset>
+
+        <div class="flex flex-wrap justify-end gap-2">
+          @if (selectedPerson && selectedPerson.email) {
+            <button lzButton variant="secondary" type="button" (click)="openInviteDialog(selectedPerson)">
+              <mat-icon aria-hidden="true">mail</mat-icon>
+              {{ getInviteActionLabel(selectedPerson.personId) }}
+            </button>
+          }
+          @if (selectedPerson) {
+            <button lzButton variant="secondary" type="button" (click)="cancelEdit()" i18n="@@common.cancel">Cancel</button>
+          }
+          <button lzButton variant="secondary" type="submit" [disabled]="!personForm.valid">
+            @if (selectedPerson) {
+              <ng-container i18n="@@people.update_btn">Update person</ng-container>
+            } @else {
+              <ng-container i18n="@@people.create_btn">Create person</ng-container>
+            }
+          </button>
+        </div>
+      </form>
+    </section>
   </div>
 </div>
+
+@if (showInviteDialog) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4" (click)="closeInviteDialog()">
+    <div class="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-dialog bg-paper shadow-overlay" role="dialog" aria-modal="true" aria-labelledby="invite-dialog-title" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between gap-2 border-b border-line p-4">
+        <h2 id="invite-dialog-title" class="font-display text-[18px] font-semibold">{{ getDialogTitle() }}</h2>
+        <button lzButton variant="quiet" iconOnly type="button" aria-label="Close" i18n-aria-label="@@people.close" (click)="closeInviteDialog()">
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-4 overflow-y-auto p-4">
+        <div class="flex items-center gap-3">
+          <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-neutral-bg text-[13px] font-medium" aria-hidden="true">{{ selectedPerson ? getInitials(selectedPerson.name) : '' }}</span>
+          <div class="min-w-0">
+            <div class="font-medium">{{ selectedPerson?.name }}</div>
+            <div class="truncate text-[13px] text-ink-soft">{{ selectedPerson?.email }}</div>
+          </div>
+        </div>
+        <p class="text-ink-soft">{{ getDialogDescription() }}</p>
+
+        @if (getInviteStatus(selectedPerson?.personId || 0)?.status !== 'Active') {
+          <div>
+            <h3 class="mb-2 font-medium" i18n="@@people.select_roles">Select roles</h3>
+            <div class="flex flex-col gap-2">
+              @for (role of roles; track role.roleId) {
+                <label class="flex min-h-12 cursor-pointer items-start gap-3 rounded-control border p-3" [class.border-ink]="isRoleSelected(role.roleId)" [class.border-line]="!isRoleSelected(role.roleId)">
+                  <input type="checkbox" class="mt-0.5 size-5" [checked]="isRoleSelected(role.roleId)" (change)="toggleRoleSelection(role.roleId)">
+                  <span>
+                    <span class="block font-medium">{{ role.name }}</span>
+                    <span class="block text-[13px] text-ink-soft">{{ role.description }}</span>
+                  </span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="flex justify-end gap-2 border-t border-line p-4">
+        <button lzButton variant="secondary" type="button" (click)="closeInviteDialog()" [disabled]="sendingInvite" i18n="@@common.cancel">Cancel</button>
+        <button
+          lzButton variant="primary"
+          type="button"
+          (click)="sendInvite()"
+          [disabled]="sendingInvite || (getInviteStatus(selectedPerson?.personId || 0)?.status !== 'Active' && selectedRolesForInvite.length === 0)">
+          @if (sendingInvite) {
+            <ng-container i18n="@@people.sending">Sending...</ng-container>
+          } @else {
+            {{ getDialogSendLabel() }}
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

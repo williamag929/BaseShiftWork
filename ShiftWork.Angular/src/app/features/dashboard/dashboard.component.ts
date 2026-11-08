@@ -1,7 +1,7 @@
 import { Component, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable, Subscription, combineLatest, of, BehaviorSubject, interval } from 'rxjs';
-import { map, shareReplay, withLatestFrom, filter, switchMap, startWith, catchError } from 'rxjs/operators';
+import { map, shareReplay, withLatestFrom, filter, switchMap, startWith, catchError, distinctUntilChanged } from 'rxjs/operators';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Router, NavigationEnd } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -15,6 +15,10 @@ import { environment } from 'src/environments/environment';
 import { TourService } from 'src/app/shared/tour/tour.service';
 import { BillingService } from 'src/app/core/services/billing.service';
 import { BillingBanner, billingBannerFor } from 'src/app/core/models/billing.model';
+import { ProcoreService } from 'src/app/core/services/procore.service';
+import { NAV_SECTIONS, NavSection, procoreSyncLabel, visibleSections } from './nav/nav.config';
+
+const NAV_COLLAPSED_KEY = 'lz.nav.collapsed';
 
 @Component({
   selector: 'app-dashboard',
@@ -47,6 +51,17 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
   /** Expiring + expired credential count for the sidenav badge; null/0 renders no badge. */
   expiringCredentialsCount$: Observable<number | null>;
 
+  procoreChip$: Observable<ReturnType<typeof procoreSyncLabel>>;
+  collapsed = DashboardComponent.readCollapsed();
+
+  private static readCollapsed(): boolean {
+    try {
+      return localStorage.getItem(NAV_COLLAPSED_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
   constructor(
     private breakpointObserver: BreakpointObserver,
     private authService: AuthService,
@@ -56,7 +71,8 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
     public tourService: TourService,
     private permissionService: PermissionService,
     private credentialService: CredentialService,
-    private billingService: BillingService
+    private billingService: BillingService,
+    private procoreService: ProcoreService
   ) {
     this.activeCompany$ = this.store.select(selectActiveCompany);
     this.user$ = this.authService.user$;
@@ -65,6 +81,15 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
       .pipe(filter((c: any) => !!c?.companyId))
       .subscribe((c: any) => this.billingService.refresh(c.companyId));
     this.billingBanner$ = this.billingService.summary$.pipe(map(billingBannerFor));
+
+    this.procoreChip$ = this.activeCompany$.pipe(
+      filter((c: any) => !!c?.companyId),
+      map((c: any) => c.companyId as string),
+      distinctUntilChanged(),
+      switchMap((companyId: string) => this.procoreService.getConnection(companyId).pipe(catchError(() => of(null)))),
+      map(conn => procoreSyncLabel(conn, new Date())),
+      startWith(null as ReturnType<typeof procoreSyncLabel>)
+    );
 
     this.expiringCredentialsCount$ = this.activeCompany$.pipe(
       filter((company: any) => !!company && this.hasPermission('credentials.track')),
@@ -124,8 +149,41 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
     }
   }
 
+  isOnShift(status: string): boolean {
+    return status.startsWith('OnShift');
+  }
+
+  statusLabel(status: string): string {
+    return this.isOnShift(status)
+      ? $localize`:@@nav.status.on_shift:On shift`
+      : $localize`:@@nav.status.off_shift:Off shift`;
+  }
+
   refreshStatus(): void {
     this.refreshTrigger$.next();
+  }
+
+  get sections(): NavSection[] {
+    return visibleSections(NAV_SECTIONS, key => this.hasPermission(key));
+  }
+
+  trackById(_: number, entry: { id: string }): string {
+    return entry.id;
+  }
+
+  get collapseLabel(): string {
+    return this.collapsed
+      ? $localize`:@@nav.expand:Expand navigation`
+      : $localize`:@@nav.collapse:Collapse navigation`;
+  }
+
+  toggleCollapsed(): void {
+    this.collapsed = !this.collapsed;
+    try {
+      localStorage.setItem(NAV_COLLAPSED_KEY, this.collapsed ? '1' : '0');
+    } catch {
+      // storage unavailable (private mode); collapse state is session-only
+    }
   }
 
   hasPermission(key: string): boolean {
