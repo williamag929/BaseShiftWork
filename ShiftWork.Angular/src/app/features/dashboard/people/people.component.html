@@ -12,7 +12,7 @@
   <div class="flex flex-wrap items-center gap-2">
     <label class="flex items-center gap-2">
       <mat-icon aria-hidden="true" class="text-ink-soft">search</mat-icon>
-      <input type="search" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted w-72" aria-label="Search people" i18n-aria-label="@@people.search_label" placeholder="Search by name or email" i18n-placeholder="@@people.search_placeholder" [value]="searchTerm" (input)="searchTerm = $any($event.target).value">
+      <input type="search" class="min-h-12 w-full sm:w-72 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted " aria-label="Search people" i18n-aria-label="@@people.search_label" placeholder="Search by name or email" i18n-placeholder="@@people.search_placeholder" [value]="searchTerm" (input)="searchTerm = $any($event.target).value">
     </label>
     <select class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" aria-label="Status" i18n-aria-label="@@people.status" [value]="statusFilter" (change)="statusFilter = $any($event.target).value">
       <option value="all" i18n="@@people.all_statuses">All statuses</option>
@@ -86,7 +86,7 @@
                           <mat-icon aria-hidden="true">{{ getInviteStatus(person.personId)?.status === 'Active' ? 'key' : 'mail' }}</mat-icon>
                         </button>
                       }
-                      <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="moreActionsLabel(person)" (click)="editPerson(person)">
+                      <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(person)" (click)="editPerson(person)">
                         <mat-icon aria-hidden="true">edit</mat-icon>
                       </button>
                     </div>
@@ -97,8 +97,12 @@
           </table>
           @if (filteredPeople.length === 0) {
             <div class="p-8 text-center">
-              <p class="font-medium" i18n="@@people.empty_title">No people found</p>
-              <p class="text-ink-soft" i18n="@@people.empty_desc">Create your first team member to get started</p>
+              @if (people.length === 0) {
+                <p class="font-medium" i18n="@@people.empty_title">No people found</p>
+                <p class="text-ink-soft" i18n="@@people.empty_desc">Create your first team member to get started</p>
+              } @else {
+                <p class="font-medium" i18n="@@people.no_matches">No people match your search</p>
+              }
             </div>
           }
         </div>
@@ -257,7 +261,7 @@
       <div class="flex justify-end gap-2 border-t border-line p-4">
         <button lzButton variant="secondary" type="button" (click)="closeInviteDialog()" [disabled]="sendingInvite" i18n="@@common.cancel">Cancel</button>
         <button
-          lzButton variant="secondary"
+          lzButton variant="primary"
           type="button"
           (click)="sendInvite()"
           [disabled]="sendingInvite || (getInviteStatus(selectedPerson?.personId || 0)?.status !== 'Active' && selectedRolesForInvite.length === 0)">

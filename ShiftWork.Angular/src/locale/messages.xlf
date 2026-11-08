@@ -1355,8 +1355,11 @@
       <trans-unit id="people.off_shift" datatype="html">
         <source>Off shift</source>
       </trans-unit>
-      <trans-unit id="people.more_actions" datatype="html">
-        <source>More actions for <x id="name"/></source>
+      <trans-unit id="people.edit_person" datatype="html">
+        <source>Edit <x id="name"/></source>
+      </trans-unit>
+      <trans-unit id="people.no_matches" datatype="html">
+        <source>No people match your search</source>
       </trans-unit>
       <trans-unit id="people.close" datatype="html">
         <source>Close</source>
@@ -3140,7 +3143,7 @@ Option C</source>
         <source>Status</source>
       </trans-unit>
       <trans-unit id="people_mgmt.page_title" datatype="html">
-        <source>People</source>
+        <source>People Management</source>
       </trans-unit>
       <trans-unit id="people_mgmt.page_subtitle" datatype="html">
         <source>Manage employees, configure PTO, and track team information</source>

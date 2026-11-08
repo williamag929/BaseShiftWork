@@ -63,7 +63,7 @@ export class PeopleComponent implements OnInit {
       if (company) {
         this.activeCompany = company;
         this.loading = true;
-        this.peopleService.getPeople(company.companyId).subscribe(
+        this.peopleService.getPeople(company.companyId, 1, 1000).subscribe(
           people => {
             this.people = people.filter(p => p.companyId === company.companyId);
             this.loading = false;
@@ -111,8 +111,8 @@ export class PeopleComponent implements OnInit {
       (!term || p.name.toLowerCase().includes(term) || (p.email || '').toLowerCase().includes(term)));
   }
 
-  moreActionsLabel(person: People): string {
-    return $localize`:@@people.more_actions:More actions for ${person.name}:name:`;
+  editLabel(person: People): string {
+    return $localize`:@@people.edit_person:Edit ${person.name}:name:`;
   }
 
   editPerson(person: People): void {

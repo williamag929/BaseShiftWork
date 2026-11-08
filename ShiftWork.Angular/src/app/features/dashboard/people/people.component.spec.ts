@@ -29,7 +29,10 @@ describe('PeopleComponent (Loqzen design system)', () => {
     ...overrides,
   });
 
+  let peopleService: { getPeople: jasmine.Spy };
+
   async function setup(people: People[]) {
+    peopleService = { getPeople: jasmine.createSpy('getPeople').and.returnValue(of(people)) };
     await TestBed.configureTestingModule({
       declarations: [PeopleComponent],
       imports: [ReactiveFormsModule, MatIconModule, LzButtonDirective, LzPageHeaderComponent, LzStatusChipComponent],
@@ -37,7 +40,7 @@ describe('PeopleComponent (Loqzen design system)', () => {
       providers: [
         provideNoopAnimations(),
         provideMockStore({ selectors: [{ selector: selectActiveCompany, value: company }] }),
-        { provide: PeopleService, useValue: { getPeople: () => of(people) } },
+        { provide: PeopleService, useValue: peopleService },
         { provide: RoleService, useValue: { getRoles: () => of([]) } },
         { provide: InviteService, useValue: { getInviteStatus: () => of({ status: 'None' }) } },
         { provide: ToastrService, useValue: jasmine.createSpyObj('ToastrService', ['success', 'error', 'warning']) },
@@ -57,7 +60,10 @@ describe('PeopleComponent (Loqzen design system)', () => {
     const header = el().querySelector('lz-page-header')!;
     expect(header.querySelector('h1')!.textContent).toContain('People');
     const primary = el().querySelectorAll('[variant="primary"]');
-    expect(primary.length).toBe(1);
+    fixture.componentInstance.openInviteDialog(person());
+    fixture.detectChanges();
+    expect(el().querySelectorAll('[role="dialog"] [variant="primary"]').length).toBe(1);
+    expect(Array.from(primary).filter(b => !b.closest('[role="dialog"]')).length).toBe(1);
     expect(primary[0].textContent).toContain('Invite people');
   });
 
@@ -88,7 +94,7 @@ describe('PeopleComponent (Loqzen design system)', () => {
 
   it('row action button has an accessible name', async () => {
     await setup([person()]);
-    expect(el().querySelector('[aria-label="More actions for Ana Ruiz"]')).not.toBeNull();
+    expect(el().querySelector('[aria-label="Edit Ana Ruiz"]')).not.toBeNull();
   });
 
   it('search filters rows by name or email', async () => {
@@ -99,5 +105,37 @@ describe('PeopleComponent (Loqzen design system)', () => {
     fixture.detectChanges();
     expect(el().querySelectorAll('tbody tr').length).toBe(1);
     expect(el().querySelector('tbody')!.textContent).toContain('Bo Li');
+  });
+
+  it('loads up to 1000 people', async () => {
+    await setup([person()]);
+    expect(peopleService.getPeople).toHaveBeenCalledWith('c1', 1, 1000);
+  });
+
+  it('status filter narrows rows', async () => {
+    await setup([person(), person({ personId: 2, name: 'Bo Li', email: 'bo@example.com', status: 'Inactive' })]);
+    const select = el().querySelector('select[aria-label="Status"]') as HTMLSelectElement;
+    select.value = 'Inactive';
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    expect(el().querySelectorAll('tbody tr').length).toBe(1);
+    expect(el().querySelector('tbody')!.textContent).toContain('Bo Li');
+  });
+
+  it('shows the On shift chip for OnShift:Late and no chip for a missing status', async () => {
+    await setup([person({ statusShiftWork: 'OnShift:Late' }), person({ personId: 2, name: 'Bo Li', email: 'bo@example.com', statusShiftWork: undefined })]);
+    const rows = el().querySelectorAll('tbody tr');
+    expect(rows[0].querySelector('td:nth-child(4) lz-status-chip')!.textContent).toContain('On shift');
+    expect(rows[1].querySelector('td:nth-child(4) lz-status-chip')).toBeNull();
+  });
+
+  it('shows a no-match message when the filter excludes everyone', async () => {
+    await setup([person()]);
+    const input = el().querySelector('input[type="search"]') as HTMLInputElement;
+    input.value = 'zzz';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(el().textContent).toContain('No people match your search');
+    expect(el().textContent).not.toContain('Create your first team member');
   });
 });
