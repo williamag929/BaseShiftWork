@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { findViolations } from './style-guard.mjs';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { findViolations, run } from './style-guard.mjs';
 
 const rules = (path, content) => findViolations(path, content).map((v) => v.rule);
 
@@ -27,7 +30,9 @@ test('flags gradients and backdrop-filter', () => {
 });
 
 test('flags bootstrap classes in html class attributes', () => {
-  assert.deepEqual(rules('a.html', '<div class="row mb-3">'), ['bootstrap-class']);
+  const v = findViolations('a.html', '<div class="row mb-3">');
+  assert.deepEqual(v.map((x) => x.rule), ['bootstrap-class']);
+  assert.equal(rules('a.html', '<div class="mb-3">').length, 0);
   assert.deepEqual(rules('a.html', '<div class="flex gap-4">'), []);
   assert.deepEqual(rules('a.html', '<span class="rowdy">'), []);
 });
@@ -53,4 +58,34 @@ test('flags raw colors in inline style attributes, not tailwind text sizes', () 
 
 test('reports 1-based line numbers', () => {
   assert.equal(findViolations('a.css', 'a{}\n\ncolor: #fff;')[0].line, 3);
+});
+
+test('does not flag common Tailwind utilities', () => {
+  assert.deepEqual(
+    rules('a.html', '<div class="p-4 m-2 mb-1 px-3 text-center table container col-span-2 row-span-2">'),
+    [],
+  );
+});
+
+test('scans single-quoted class attributes', () => {
+  assert.deepEqual(rules('a.html', "<div class='btn btn-primary'>"), ['bootstrap-class']);
+});
+
+test('run fails on migrated entries that match no files', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sg-'));
+  fs.mkdirSync(path.join(root, 'src/dir'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'src/ok.css'), 'a{color:var(--lz-ink)}');
+  const logs = [];
+  const orig = console.log;
+  console.log = (m) => logs.push(m);
+  try {
+    const entries = ['src/typo/*.css', 'src/{a,b}.css', 'src/dir'];
+    fs.writeFileSync(path.join(root, 'style-guard.json'), JSON.stringify({ migrated: ['src/ok.css'] }));
+    assert.equal(run(root), 0);
+    fs.writeFileSync(path.join(root, 'style-guard.json'), JSON.stringify({ migrated: ['src/ok.css', ...entries] }));
+    assert.equal(run(root), 1);
+  } finally {
+    console.log = orig;
+  }
+  for (const e of ['src/typo/*.css', 'src/{a,b}.css', 'src/dir']) assert.ok(logs.includes(`${e}: matches no files`), e);
 });
