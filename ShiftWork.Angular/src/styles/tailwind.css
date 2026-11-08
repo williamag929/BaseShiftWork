@@ -1,9 +1,15 @@
 @layer legacy, theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
 @import "./tokens.css";
 
-@source "../app";
+/* Only migrated code is scanned, so unmigrated Bootstrap screens never get Tailwind utilities with clashing names (p-3, mb-3, border…). Add a migrated screen here and in style-guard.json. */
+@source "../app/shared/ui";
+@source "../app/features/dashboard/dashboard.component.html";
+@source "../app/features/dashboard/dashboard.component.ts";
+@source "../app/features/dashboard/nav";
+@source "../app/features/dashboard/schedule-grid/schedule-grid.component.html";
+@source "../app/features/dashboard/schedule-grid/schedule-grid.component.ts";
 
 @theme inline {
   --color-navy-900: var(--lz-navy-900);
