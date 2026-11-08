@@ -31,6 +31,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ToastrModule } from 'ngx-toastr';
+import { LzButtonDirective, LzStatusChipComponent } from './ui';
 
 @NgModule({
   imports: [
@@ -74,7 +75,9 @@ import { ToastrModule } from 'ngx-toastr';
     MatCheckboxModule,
     MatChipsModule,
     MatProgressBarModule,
-    MatSidenav
+    MatSidenav,
+    LzButtonDirective,
+    LzStatusChipComponent
   ],
   exports: [
     CommonModule,
@@ -110,6 +113,8 @@ MatSidenavModule,
     MatChipsModule,
     MatProgressBarModule,
     MatSidenav,
+    LzButtonDirective,
+    LzStatusChipComponent,
   ]
 })
 export class SharedModule { }
