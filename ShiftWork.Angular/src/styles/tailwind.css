@@ -10,6 +10,8 @@
 @source "../app/features/dashboard/nav";
 @source "../app/features/dashboard/schedule-grid/schedule-grid.component.html";
 @source "../app/features/dashboard/schedule-grid/schedule-grid.component.ts";
+@source "../app/features/dashboard/people/people.component.html";
+@source "../app/features/dashboard/people/people.component.ts";
 
 @theme inline {
   --color-navy-900: var(--lz-navy-900);

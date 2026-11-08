@@ -1320,10 +1320,52 @@
         <source>Retry</source>
       </trans-unit>
       <trans-unit id="people.page_title" datatype="html">
-        <source>People Management</source>
+        <source>People</source>
       </trans-unit>
       <trans-unit id="people.page_subtitle" datatype="html">
-        <source>Manage your team members and their information</source>
+        <source>Everyone who can be scheduled or clock in at your job sites.</source>
+      </trans-unit>
+      <trans-unit id="people.invite_people" datatype="html">
+        <source>Invite people</source>
+      </trans-unit>
+      <trans-unit id="people.search_label" datatype="html">
+        <source>Search people</source>
+      </trans-unit>
+      <trans-unit id="people.search_placeholder" datatype="html">
+        <source>Search by name or email</source>
+      </trans-unit>
+      <trans-unit id="people.all_statuses" datatype="html">
+        <source>All statuses</source>
+      </trans-unit>
+      <trans-unit id="people.col_person" datatype="html">
+        <source>Person</source>
+      </trans-unit>
+      <trans-unit id="people.col_app_access" datatype="html">
+        <source>App access</source>
+      </trans-unit>
+      <trans-unit id="people.col_right_now" datatype="html">
+        <source>Right now</source>
+      </trans-unit>
+      <trans-unit id="people.col_actions" datatype="html">
+        <source>Actions</source>
+      </trans-unit>
+      <trans-unit id="people.on_shift" datatype="html">
+        <source>On shift</source>
+      </trans-unit>
+      <trans-unit id="people.off_shift" datatype="html">
+        <source>Off shift</source>
+      </trans-unit>
+      <trans-unit id="people.more_actions" datatype="html">
+        <source>More actions for <x id="name"/></source>
+      </trans-unit>
+      <trans-unit id="people.close" datatype="html">
+        <source>Close</source>
+      </trans-unit>
+      <trans-unit id="people.name_placeholder" datatype="html">
+        <source>Enter full name</source>
+      </trans-unit>
+      <trans-unit id="people.pin_placeholder" datatype="html">
+        <source>4-digit PIN</source>
       </trans-unit>
       <trans-unit id="people.team_members" datatype="html">
         <source>Team Members</source>
@@ -3098,7 +3140,7 @@ Option C</source>
         <source>Status</source>
       </trans-unit>
       <trans-unit id="people_mgmt.page_title" datatype="html">
-        <source>People Management</source>
+        <source>People</source>
       </trans-unit>
       <trans-unit id="people_mgmt.page_subtitle" datatype="html">
         <source>Manage employees, configure PTO, and track team information</source>

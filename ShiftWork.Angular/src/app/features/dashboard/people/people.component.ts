@@ -27,6 +27,8 @@ export class PeopleComponent implements OnInit {
   activeCompany: any;
   roles: Role[] = [];
   loading = false;
+  searchTerm = '';
+  statusFilter = 'all';
   error: any = null;
   
   // Invite functionality
@@ -100,6 +102,17 @@ export class PeopleComponent implements OnInit {
       photoUrl: [''],
       photoExempt: [false]
     });
+  }
+
+  get filteredPeople(): People[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    return this.people.filter(p =>
+      (this.statusFilter === 'all' || p.status === this.statusFilter) &&
+      (!term || p.name.toLowerCase().includes(term) || (p.email || '').toLowerCase().includes(term)));
+  }
+
+  moreActionsLabel(person: People): string {
+    return $localize`:@@people.more_actions:More actions for ${person.name}:name:`;
   }
 
   editPerson(person: People): void {

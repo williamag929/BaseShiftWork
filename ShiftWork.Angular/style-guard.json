@@ -2,6 +2,7 @@
   "migrated": [
     "src/app/features/dashboard/dashboard.component.*",
     "src/app/features/dashboard/nav/**",
-    "src/app/features/dashboard/schedule-grid/schedule-grid.component.*"
+    "src/app/features/dashboard/schedule-grid/schedule-grid.component.*",
+    "src/app/features/dashboard/people/people.component.*"
   ]
 }

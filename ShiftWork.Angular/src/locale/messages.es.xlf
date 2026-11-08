@@ -1759,12 +1759,68 @@
         <target state="translated">Reintentar</target>
       </trans-unit>
       <trans-unit id="people.page_title" datatype="html">
-        <source>People Management</source>
-        <target state="translated">Gestión de personas</target>
+        <source>People</source>
+        <target state="translated">Personas</target>
       </trans-unit>
       <trans-unit id="people.page_subtitle" datatype="html">
-        <source>Manage your team members and their information</source>
-        <target state="translated">Gestiona a los miembros de tu equipo y su información</target>
+        <source>Everyone who can be scheduled or clock in at your job sites.</source>
+        <target state="translated">Todas las personas que se pueden programar o marcar entrada en tus obras.</target>
+      </trans-unit>
+      <trans-unit id="people.invite_people" datatype="html">
+        <source>Invite people</source>
+        <target state="translated">Invitar personas</target>
+      </trans-unit>
+      <trans-unit id="people.search_label" datatype="html">
+        <source>Search people</source>
+        <target state="translated">Buscar personas</target>
+      </trans-unit>
+      <trans-unit id="people.search_placeholder" datatype="html">
+        <source>Search by name or email</source>
+        <target state="translated">Buscar por nombre o correo</target>
+      </trans-unit>
+      <trans-unit id="people.all_statuses" datatype="html">
+        <source>All statuses</source>
+        <target state="translated">Todos los estados</target>
+      </trans-unit>
+      <trans-unit id="people.col_person" datatype="html">
+        <source>Person</source>
+        <target state="translated">Persona</target>
+      </trans-unit>
+      <trans-unit id="people.col_app_access" datatype="html">
+        <source>App access</source>
+        <target state="translated">Acceso a la app</target>
+      </trans-unit>
+      <trans-unit id="people.col_right_now" datatype="html">
+        <source>Right now</source>
+        <target state="translated">Ahora mismo</target>
+      </trans-unit>
+      <trans-unit id="people.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="people.on_shift" datatype="html">
+        <source>On shift</source>
+        <target state="translated">En turno</target>
+      </trans-unit>
+      <trans-unit id="people.off_shift" datatype="html">
+        <source>Off shift</source>
+        <target state="translated">Fuera de turno</target>
+      </trans-unit>
+      <trans-unit id="people.more_actions" datatype="html">
+        <source>More actions for <x id="name"/></source>
+        <target state="translated">Más acciones para <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="people.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">Cerrar</target>
+      </trans-unit>
+      <trans-unit id="people.name_placeholder" datatype="html">
+        <source>Enter full name</source>
+        <target state="translated">Ingresa el nombre completo</target>
+      </trans-unit>
+      <trans-unit id="people.pin_placeholder" datatype="html">
+        <source>4-digit PIN</source>
+        <target state="translated">PIN de 4 dígitos</target>
       </trans-unit>
       <trans-unit id="people.team_members" datatype="html">
         <source>Team Members</source>
@@ -4131,8 +4187,8 @@ Opción C</target>
         <target state="translated">Estado</target>
       </trans-unit>
       <trans-unit id="people_mgmt.page_title" datatype="html">
-        <source>People Management</source>
-        <target state="translated">Gestión de personas</target>
+        <source>People</source>
+        <target state="translated">Personas</target>
       </trans-unit>
       <trans-unit id="people_mgmt.page_subtitle" datatype="html">
         <source>Manage employees, configure PTO, and track team information</source>
