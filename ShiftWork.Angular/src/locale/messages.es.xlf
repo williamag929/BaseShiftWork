@@ -6440,6 +6440,102 @@ What would you like to do?</source>
         <source>Analytics</source>
         <target state="translated">Analítica</target>
       </trans-unit>
+      <trans-unit id="schedule_grid.title" datatype="html">
+        <source>Schedule</source>
+        <target state="translated">Horario</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.location_label" datatype="html">
+        <source>Location</source>
+        <target state="translated">Ubicación</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.all_locations_grouped" datatype="html">
+        <source>All locations (grouped)</source>
+        <target state="translated">Todas las ubicaciones (agrupadas)</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.all_employees_option" datatype="html">
+        <source>All employees</source>
+        <target state="translated">Todos los empleados</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.previous_period" datatype="html">
+        <source>Previous period</source>
+        <target state="translated">Periodo anterior</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.next_period" datatype="html">
+        <source>Next period</source>
+        <target state="translated">Periodo siguiente</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.range_label" datatype="html">
+        <source>Range</source>
+        <target state="translated">Rango</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.horizon_1w" datatype="html">
+        <source>1 week</source>
+        <target state="translated">1 semana</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.horizon_2w" datatype="html">
+        <source>2 weeks</source>
+        <target state="translated">2 semanas</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.horizon_3w" datatype="html">
+        <source>3 weeks</source>
+        <target state="translated">3 semanas</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.horizon_4w" datatype="html">
+        <source>4 weeks</source>
+        <target state="translated">4 semanas</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.add_shift_btn" datatype="html">
+        <source>Add shift</source>
+        <target state="translated">Añadir turno</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.publish_n_shifts" datatype="html">
+        <source>Publish <x id="INTERPOLATION" equiv-text="{{ gridData.stats.unpublished }}"/> shifts</source>
+        <target state="translated">Publicar <x id="INTERPOLATION" equiv-text="{{ gridData.stats.unpublished }}"/> turnos</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.selected_count" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ selectedShifts.size }}"/> selected</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ selectedShifts.size }}"/> seleccionados</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.select_all_shifts" datatype="html">
+        <source>Select all</source>
+        <target state="translated">Seleccionar todo</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.set_status" datatype="html">
+        <source>Set status</source>
+        <target state="translated">Cambiar estado</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.team_member_header" datatype="html">
+        <source>Team member</source>
+        <target state="translated">Miembro del equipo</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.summary.drafts" datatype="html">
+        <source>Drafts</source>
+        <target state="translated">Borradores</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.summary.openShifts" datatype="html">
+        <source>Open shifts</source>
+        <target state="translated">Turnos abiertos</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.summary.warnings" datatype="html">
+        <source>Warnings</source>
+        <target state="translated">Advertencias</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.summary.timeOffPending" datatype="html">
+        <source>Time off pending</source>
+        <target state="translated">Ausencias pendientes</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.summary.unavailable" datatype="html">
+        <source>Unavailable</source>
+        <target state="translated">No disponibles</target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.add_shift_for" datatype="html">
+        <source>Add shift for <x id="name" equiv-text="name"/> on <x id="day" equiv-text="day.dayName"/></source>
+        <target state="translated">Añadir turno para <x id="name" equiv-text="name"/> el <x id="day" equiv-text="day.dayName"/></target>
+      </trans-unit>
+      <trans-unit id="schedule_grid.add_shift_on" datatype="html">
+        <source>Add shift on <x id="day" equiv-text="day.dayName"/></source>
+        <target state="translated">Añadir turno el <x id="day" equiv-text="day.dayName"/></target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -51,11 +51,19 @@ import {
   ConflictViolation,
   BulkSkippedEntry
 } from './schedule-conflict-modal.component';
+import {
+  LzButtonDirective,
+  LzPageHeaderComponent,
+  LzShiftBlockComponent,
+  LzSummaryItem,
+  LzSummaryStripComponent,
+  toLzShiftStatus
+} from 'src/app/shared/ui';
 
 @Component({
   selector: 'app-schedule-grid',
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule, ScheduleGridAddModalComponent, ReplacementPanelComponent, TimeOffRequestModalComponent, SickReportModalComponent, RepeatPatternModalComponent, ShiftHistoryModalComponent, ScheduleConflictModalComponent],
+  imports: [CommonModule, FormsModule, DragDropModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule, ScheduleGridAddModalComponent, ReplacementPanelComponent, TimeOffRequestModalComponent, SickReportModalComponent, RepeatPatternModalComponent, ShiftHistoryModalComponent, ScheduleConflictModalComponent, LzPageHeaderComponent, LzButtonDirective, LzShiftBlockComponent, LzSummaryStripComponent],
   templateUrl: './schedule-grid.component.html',
   styleUrl: './schedule-grid.component.css',
   providers: [ScheduleService, PeopleService, LocationService, AreaService, CrewService]
@@ -522,8 +530,7 @@ export class ScheduleGridComponent implements OnInit {
     return this.selectedShifts.has(this.getShiftKey(shift));
   }
 
-  toggleShiftSelection(shift: ShiftBlock, event: Event): void {
-    event.stopPropagation();
+  toggleShiftSelection(shift: ShiftBlock): void {
     const key = this.getShiftKey(shift);
     if (this.selectedShifts.has(key)) {
       this.selectedShifts.delete(key);
@@ -1595,15 +1602,44 @@ export class ScheduleGridComponent implements OnInit {
     return 'unpublished';
   }
 
-  getShiftColor(status: string): string {
-    switch (status) {
-      case 'published': return '#C8E6C9';
-      case 'locked': return '#C8E6C9';
-      case 'unpublished': return '#FFF9C4';
-      case 'open': return '#E1BEE7';
-      case 'void': return '#FFCDD2';
-      default: return '#E0E0E0';
-    }
+  readonly toLzShiftStatus = toLzShiftStatus;
+
+  get summaryItems(): LzSummaryItem[] {
+    const stats = this.gridData.stats;
+    const items: LzSummaryItem[] = [
+      { id: 'drafts', count: stats.unpublished, tone: 'draft', label: $localize`:@@schedule_grid.summary.drafts:Drafts` },
+      { id: 'openShifts', count: stats.openShifts, tone: 'open', label: $localize`:@@schedule_grid.summary.openShifts:Open shifts` },
+      { id: 'warnings', count: stats.warnings, tone: 'danger', label: $localize`:@@schedule_grid.summary.warnings:Warnings` },
+      { id: 'timeOffPending', count: stats.leavePending, tone: 'timeOff', label: $localize`:@@schedule_grid.summary.timeOffPending:Time off pending` },
+      { id: 'unavailable', count: stats.unavailable, tone: 'neutral', label: $localize`:@@schedule_grid.summary.unavailable:Unavailable` }
+    ];
+    return items.filter(item => item.count > 0);
+  }
+
+  // The legacy shiftTypes filter is never applied to the grid, so there is nothing to wire yet.
+  onSummarySelect(_id: string): void {}
+
+  getShiftClock(shift: ShiftBlock): 'none' | 'onShift' | 'late' {
+    if (shift.isOnShiftNow) return 'onShift';
+    return this.isShiftLate(shift) ? 'late' : 'none';
+  }
+
+  isWeekend(day: DaySchedule): boolean {
+    const weekday = day.date.getUTCDay();
+    return weekday === 0 || weekday === 6;
+  }
+
+  addShiftLabel(day: DaySchedule, name?: string): string {
+    return name
+      ? $localize`:@@schedule_grid.add_shift_for:Add shift for ${name}:name: on ${day.dayName}:day:`
+      : $localize`:@@schedule_grid.add_shift_on:Add shift on ${day.dayName}:day:`;
+  }
+
+  getDayHours(day: DaySchedule): string {
+    const ms = day.shifts
+      .filter(s => s.status !== 'void')
+      .reduce((sum, s) => sum + (s.endDate.getTime() - s.startDate.getTime()), 0);
+    return `${Math.round((ms / 3_600_000) * 10) / 10}h`;
   }
 
   isShiftLate(shift: ShiftBlock): boolean {

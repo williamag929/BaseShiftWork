@@ -4829,6 +4829,78 @@ What would you like to do?</source>
       <trans-unit id="nav.item.analytics" datatype="html">
         <source>Analytics</source>
       </trans-unit>
+      <trans-unit id="schedule_grid.title" datatype="html">
+        <source>Schedule</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.location_label" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.all_locations_grouped" datatype="html">
+        <source>All locations (grouped)</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.all_employees_option" datatype="html">
+        <source>All employees</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.previous_period" datatype="html">
+        <source>Previous period</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.next_period" datatype="html">
+        <source>Next period</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.range_label" datatype="html">
+        <source>Range</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.horizon_1w" datatype="html">
+        <source>1 week</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.horizon_2w" datatype="html">
+        <source>2 weeks</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.horizon_3w" datatype="html">
+        <source>3 weeks</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.horizon_4w" datatype="html">
+        <source>4 weeks</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.add_shift_btn" datatype="html">
+        <source>Add shift</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.publish_n_shifts" datatype="html">
+        <source>Publish <x id="INTERPOLATION" equiv-text="{{ gridData.stats.unpublished }}"/> shifts</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.selected_count" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ selectedShifts.size }}"/> selected</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.select_all_shifts" datatype="html">
+        <source>Select all</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.set_status" datatype="html">
+        <source>Set status</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.team_member_header" datatype="html">
+        <source>Team member</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.summary.drafts" datatype="html">
+        <source>Drafts</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.summary.openShifts" datatype="html">
+        <source>Open shifts</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.summary.warnings" datatype="html">
+        <source>Warnings</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.summary.timeOffPending" datatype="html">
+        <source>Time off pending</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.summary.unavailable" datatype="html">
+        <source>Unavailable</source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.add_shift_for" datatype="html">
+        <source>Add shift for <x id="name" equiv-text="name"/> on <x id="day" equiv-text="day.dayName"/></source>
+      </trans-unit>
+      <trans-unit id="schedule_grid.add_shift_on" datatype="html">
+        <source>Add shift on <x id="day" equiv-text="day.dayName"/></source>
+      </trans-unit>
     </body>
   </file>
 </xliff>
