@@ -27,6 +27,22 @@ for (const key of PUBLIC_ENV_KEYS) {
 }
 
 module.exports = {
+  module: {
+    rules: [
+      {
+        // The Angular webpack builder does not read .postcssrc.json, so Tailwind v4 is
+        // run explicitly (before Angular's own style loaders) on its entry stylesheet only.
+        test: /src[\\/]styles[\\/]tailwind\.css$/,
+        enforce: 'pre',
+        use: [
+          {
+            loader: 'postcss-loader',
+            options: { postcssOptions: { plugins: [require('@tailwindcss/postcss')] } }
+          }
+        ]
+      }
+    ]
+  },
   plugins: [
     new webpack.DefinePlugin({
       'process.env': JSON.stringify(publicEnv)

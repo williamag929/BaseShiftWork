@@ -38,7 +38,11 @@
             ],
             "styles": [
               "src/custom-theme.scss",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/styles/tailwind.css",
+              "node_modules/@fontsource/ibm-plex-sans/400.css",
+              "node_modules/@fontsource/ibm-plex-sans/500.css",
+              "node_modules/@fontsource/ibm-plex-sans/600.css",
+              "node_modules/@fontsource/sora/600.css",
               "node_modules/angular-calendar/css/angular-calendar.css",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
               "node_modules/font-awesome/css/font-awesome.min.css",
@@ -124,7 +128,11 @@
             ],
             "styles": [
               "src/custom-theme.scss",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/styles/tailwind.css",
+              "node_modules/@fontsource/ibm-plex-sans/400.css",
+              "node_modules/@fontsource/ibm-plex-sans/500.css",
+              "node_modules/@fontsource/ibm-plex-sans/600.css",
+              "node_modules/@fontsource/sora/600.css",
               "node_modules/angular-calendar/css/angular-calendar.css",
               "src/styles.scss"
             ],
