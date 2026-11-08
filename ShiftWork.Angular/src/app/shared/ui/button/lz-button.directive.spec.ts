@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LzButtonDirective } from './lz-button.directive';
 
 @Component({
@@ -11,6 +11,8 @@ import { LzButtonDirective } from './lz-button.directive';
     <button id="danger" lzButton variant="danger">Delete</button>
     <button id="author" lzButton class="w-full">Wide</button>
     <button id="disabled" lzButton variant="primary" [disabled]="isDisabled">Off</button>
+    <button id="quietbtn" lzButton variant="quiet">Q</button>
+    <button id="toggle" lzButton variant="primary" [disabled]="toggleDisabled">T</button>
     <a id="anchor" lzButton variant="quiet" href="#">Link</a>
     <a id="aria" lzButton variant="primary" aria-disabled="true" href="#">Nope</a>
     <button id="icon" lzButton [iconOnly]="true" aria-label="Edit">E</button>
@@ -18,14 +20,16 @@ import { LzButtonDirective } from './lz-button.directive';
 })
 class HostComponent {
   isDisabled = true;
+  toggleDisabled = true;
 }
 
 describe('LzButtonDirective', () => {
   let root: HTMLElement;
+  let fixture: ComponentFixture<HostComponent>;
   const el = (id: string) => root.querySelector<HTMLElement>('#' + id)!;
 
   beforeEach(() => {
-    const fixture = TestBed.createComponent(HostComponent);
+    fixture = TestBed.createComponent(HostComponent);
     fixture.detectChanges();
     root = fixture.nativeElement;
   });
@@ -41,10 +45,30 @@ describe('LzButtonDirective', () => {
     const c = el('primary').classList;
     expect(c.contains('bg-ink')).toBeTrue();
     expect(c.contains('text-paper')).toBeTrue();
+    expect(c.contains('border-ink')).toBeTrue();
   });
 
   it('danger uses danger background', () => {
     expect(el('danger').classList.contains('bg-danger')).toBeTrue();
+    expect(el('danger').classList.contains('border-danger')).toBeTrue();
+  });
+
+  it('quiet buttons are transparent with a transparent border', () => {
+    const c = el('quietbtn').classList;
+    expect(c.contains('bg-transparent')).toBeTrue();
+    expect(c.contains('border')).toBeTrue();
+    expect(c.contains('border-transparent')).toBeTrue();
+  });
+
+  it('toggling disabled restores variant classes', () => {
+    expect(el('toggle').classList.contains('bg-neutral-bg')).toBeTrue();
+    fixture.componentInstance.toggleDisabled = false;
+    fixture.detectChanges();
+    const c = el('toggle').classList;
+    expect(c.contains('bg-neutral-bg')).toBeFalse();
+    expect(c.contains('cursor-not-allowed')).toBeFalse();
+    expect(c.contains('bg-ink')).toBeTrue();
+    expect(c.contains('text-paper')).toBeTrue();
   });
 
   it('keeps author classes', () => {

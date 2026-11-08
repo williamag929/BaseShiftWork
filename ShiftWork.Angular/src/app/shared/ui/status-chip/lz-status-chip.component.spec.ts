@@ -8,6 +8,9 @@ import { LzStatusChipComponent } from './lz-status-chip.component';
   template: `
     <lz-status-chip id="a" tone="success">On shift</lz-status-chip>
     <lz-status-chip id="b" tone="success" [dot]="true">With dot</lz-status-chip>
+    <lz-status-chip id="n" tone="neutral">N</lz-status-chip>
+    <lz-status-chip id="d" tone="danger">D</lz-status-chip>
+    <lz-status-chip id="i" tone="info">I</lz-status-chip>
     <lz-status-chip id="c" tone="warning">Draft</lz-status-chip>
   `,
 })
@@ -38,6 +41,19 @@ describe('LzStatusChipComponent', () => {
     const span = chip('c').querySelector('span')!;
     expect(span.classList.contains('bg-[var(--lz-draft-bg-1)]')).toBeTrue();
     expect(span.classList.contains('text-amber-ink')).toBeTrue();
+  });
+
+  it('neutral, danger and info tone pairs', () => {
+    const pairs: [string, string, string][] = [
+      ['n', 'bg-neutral-bg', 'text-ink-muted'],
+      ['d', 'bg-danger-bg', 'text-danger-ink'],
+      ['i', 'bg-info-bg', 'text-info-ink'],
+    ];
+    for (const [id, bg, fg] of pairs) {
+      const c = chip(id).querySelector('span')!.classList;
+      expect(c.contains(bg)).withContext(id).toBeTrue();
+      expect(c.contains(fg)).withContext(id).toBeTrue();
+    }
   });
 
   it('dot is hidden from assistive tech', () => {
