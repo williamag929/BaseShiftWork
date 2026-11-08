@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "karma start karma.conf.js"
+    "test": "karma start karma.conf.js",
+    "lint:styles": "node scripts/style-guard.mjs",
+    "test:style-guard": "node --test scripts/style-guard.test.mjs"
   },
   "private": true,
   "dependencies": {
