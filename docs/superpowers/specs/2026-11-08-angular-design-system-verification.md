@@ -10,7 +10,7 @@ Branch `feature/angular-design-system`, 2026-11-08. Headless checks were run in 
 | `node --test scripts/style-guard.test.mjs` | 13/13 pass |
 | `npm run lint:styles` | 0 violations in 14 files |
 | `ng build --configuration production` (en-US) | Fails only at index.html Google Fonts inlining (403 from the container network). Same failure on `main`. With font inlining disabled (temporary, uncommitted), build passes. |
-| `ng build --configuration es-SP` | Fails on `main` too: `auth.onboarding.demo_description` has a placeholder mismatch in `messages.es.xlf` (target has `INTERPOLATION`, source text no longer does). Pre-existing, not caused by this branch. With that target temporarily patched and fonts off, `production,es-SP` passes and emits `dist/.../es/es-SP`. |
+| `ng build --configuration es-SP` | Passes localization and fails only at index.html font inlining (environmental, 403). The pre-existing `auth.onboarding.demo_description` placeholder mismatch (broken on `main`) is fixed in this branch (`messages.xlf` and `messages.es.xlf` now match the current onboarding source). With fonts inlining disabled temporarily, `production,es-SP` builds fully. |
 
 Bundle sizes (production, fonts inlining off), branch vs main:
 
@@ -57,4 +57,4 @@ Run with `npm run start` (EN) and the es-SP build served from `dist`.
 ## Environmental / pre-existing issues
 
 - Google Fonts 403 in this container breaks the production index.html step (pre-existing `<link>` for Roboto in `src/index.html`).
-- es-SP build breaks on `main` due to the `auth.onboarding.demo_description` placeholder mismatch in `messages.es.xlf`; recommend a separate fix.
+- es-SP build was broken on `main` by the `auth.onboarding.demo_description` placeholder mismatch; fixed in this branch.

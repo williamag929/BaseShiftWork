@@ -295,8 +295,8 @@
         <target state="translated">Tu cuenta incluye datos de muestra</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.demo_description" datatype="html">
-        <source>We&apos;ve added demo employees, a location, and an area so you can explore <x id="INTERPOLATION" equiv-text="{{ appName }}"/>.</source>
-        <target state="translated">Hemos añadido empleados, una ubicación y un área para que puedas explorar <x id="INTERPOLATION" equiv-text="{{ appName }}"/>.</target>
+        <source>We&apos;ve added demo employees, a location, and an area so you can explore how Loqzen works. This data is clearly marked as <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em&gt;"/>sandbox<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em&gt;"/> — it won&apos;t affect your payroll or reports.</source>
+        <target state="translated">Hemos añadido empleados, una ubicación y un área de muestra para que explores cómo funciona Loqzen. Estos datos están claramente marcados como <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em&gt;"/>sandbox<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em&gt;"/> y no afectarán tu nómina ni tus informes.</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.employees" datatype="html">
         <source>Employees</source>
