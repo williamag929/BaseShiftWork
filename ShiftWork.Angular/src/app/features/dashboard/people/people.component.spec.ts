@@ -286,6 +286,19 @@ describe('PeopleComponent (Loqzen design system)', () => {
       expect((peopleService as any).createPerson).not.toHaveBeenCalled();
     });
 
+    it('Escape with the invite dialog open leaves the drawer and its person alone', async () => {
+      await setup([person()]);
+      click('[aria-label="Edit Ana Ruiz"]');
+      const edited = fixture.componentInstance.selectedPerson;
+      fixture.componentInstance.openInviteDialog(edited!);
+      fixture.detectChanges();
+      (panel()!.querySelector('#name') as HTMLElement).dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      fixture.detectChanges();
+      expect(fixture.componentInstance.panelOpen).toBeTrue();
+      expect(fixture.componentInstance.selectedPerson).toBe(edited);
+      expect(fixture.componentInstance.showInviteDialog).toBeTrue();
+    });
+
     it('renders the invite dialog above the drawer (outside the sidenav stacking context)', async () => {
       await setup([person()]);
       click('[aria-label="Edit Ana Ruiz"]');

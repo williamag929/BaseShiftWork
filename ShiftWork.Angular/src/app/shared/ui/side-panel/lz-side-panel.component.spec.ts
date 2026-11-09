@@ -120,14 +120,19 @@ describe('LzSidePanelComponent', () => {
     expect(host.closes).toBe(0);
   });
 
-  it('Escape inside another dialog does not close the panel', async () => {
+  it('Escape does not close the panel while a foreign modal is open, even with focus inside the panel', async () => {
+    host.dirty = true;
     await open();
-    const other = document.createElement('div');
-    other.setAttribute('role', 'dialog');
-    document.body.appendChild(other);
-    other.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-    other.remove();
+    const foreign = document.createElement('div');
+    foreign.setAttribute('role', 'dialog');
+    foreign.setAttribute('aria-modal', 'true');
+    document.body.appendChild(foreign);
+    (document.querySelector('#first') as HTMLElement).focus();
+    (document.querySelector('#first') as HTMLElement).dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    detect();
+    foreign.remove();
     expect(host.closes).toBe(0);
+    expect(panel().textContent).not.toContain('Discard your changes?');
   });
 
   it('Keep editing moves focus to the close button', async () => {
