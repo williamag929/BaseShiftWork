@@ -133,7 +133,7 @@ describe('BillingComponent', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelectorAll('h1').length).toBe(1);
     expect(el.querySelector('lz-alert[role="alert"]')!.textContent).toContain('Billing is unavailable');
-    expect(toastr.error).toHaveBeenCalledWith('Billing is unavailable right now. Please try again.');
+    expect(toastr.error).not.toHaveBeenCalled();
   });
 
   it('exposes the usage bar as a labelled progressbar and keeps targets at least 48px', () => {
@@ -144,5 +144,34 @@ describe('BillingComponent', () => {
     expect(bar.getAttribute('aria-valuenow')).toBe('3');
     expect((el.querySelector('[data-test=choose-Pro]') as HTMLElement).getBoundingClientRect().height).toBeGreaterThanOrEqual(48);
     expect(getComputedStyle(el.querySelector('h1')!).fontSize).toBe('26px');
+  });
+
+  const cases: [string, any, string][] = [
+    ['active', { isTrial: false, hasSubscription: true, subscriptionStatus: 'active' }, 'Active'],
+    ['trialing', { isTrial: true, hasSubscription: true, subscriptionStatus: 'trialing' }, 'Trial'],
+    ['past_due', { isTrial: false, hasSubscription: true, subscriptionStatus: 'past_due' }, 'Past due'],
+    ['unpaid', { isTrial: false, hasSubscription: true, subscriptionStatus: 'unpaid' }, 'Unpaid'],
+    ['canceled', { isTrial: false, hasSubscription: false, subscriptionStatus: 'canceled' }, 'Canceled'],
+    ['incomplete', { isTrial: false, hasSubscription: false, subscriptionStatus: 'incomplete' }, 'Incomplete'],
+    ['unknown', { isTrial: false, hasSubscription: true, subscriptionStatus: 'paused' }, 'Subscribed'],
+  ];
+  cases.forEach(([name, over, label]) => {
+    it(`maps the ${name} status to the "${label}" chip`, () => {
+      setup({ ...trial, ...over });
+      expect(fixture.nativeElement.querySelector('[data-test=plan-state]').textContent.trim()).toBe(label);
+    });
+  });
+
+  it('uses danger for past_due and unpaid, success for active and neutral for canceled', () => {
+    const tone = (status: string) => { setup({ ...trial, isTrial: false, hasSubscription: true, subscriptionStatus: status }); const t = fixture.componentInstance.stateTone; TestBed.resetTestingModule(); return t; };
+    expect(tone('past_due')).toBe('danger');
+    expect(tone('unpaid')).toBe('danger');
+    expect(tone('active')).toBe('success');
+    expect(tone('canceled')).toBe('neutral');
+  });
+
+  it('rounds the progressbar value', () => {
+    setup({ ...trial, employeeCount: 1, employeeCap: 3 });
+    expect(fixture.nativeElement.querySelector('[role="progressbar"]').getAttribute('aria-valuenow')).toBe('33');
   });
 });

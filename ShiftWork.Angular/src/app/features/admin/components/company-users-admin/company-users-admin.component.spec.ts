@@ -98,4 +98,15 @@ describe('CompanyUsersAdminComponent (Loqzen design system)', () => {
     expect((el().querySelector('#cua-company') as HTMLElement).getBoundingClientRect().height).toBeGreaterThanOrEqual(48);
     expect(getComputedStyle(el().querySelector('h1')!).fontSize).toBe('26px');
   });
+
+  it('resets to page 1 when the company changes', async () => {
+    await setup(Array.from({ length: 30 }, (_, i) => user(i + 1)));
+    await click(el().querySelector('lz-pager [aria-label="Next page"]'));
+    expect(fixture.componentInstance.page).toBe(2);
+    const select = el().querySelector('#cua-company') as HTMLSelectElement;
+    select.dispatchEvent(new Event('change'));
+    await settle();
+    expect(fixture.componentInstance.page).toBe(1);
+    expect(el().querySelectorAll('tbody tr').length).toBe(25);
+  });
 });

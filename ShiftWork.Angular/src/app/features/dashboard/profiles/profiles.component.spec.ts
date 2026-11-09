@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { MockStore } from '@ngrx/store/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,7 +32,9 @@ describe('ProfilesComponent (Loqzen design system)', () => {
   const panel = () => document.querySelector('lz-side-panel [role="dialog"]') as HTMLElement | null;
   const assign = () => document.querySelector('app-assign-users-panel [role="dialog"]') as HTMLElement | null;
 
-  async function setup(list: Role[] | Observable<Role[]> = [role(1), role(2, { status: 'Inactive' })]) {
+  let peopleList: any[] | undefined;
+  async function setup(list: Role[] | Observable<Role[]> = [role(1), role(2, { status: 'Inactive' })], ppl?: any[]) {
+    peopleList = ppl;
     TestBed.resetTestingModule();
     roles = {
       getRoles: jasmine.createSpy().and.returnValue(Array.isArray(list) ? of(list) : list),
@@ -56,7 +59,7 @@ describe('ProfilesComponent (Loqzen design system)', () => {
         provideMockStore({ selectors: [{ selector: selectActiveCompany, value: { companyId: 'c1' } }] }),
         { provide: RoleService, useValue: roles },
         { provide: CompanyUserProfileService, useValue: profiles },
-        { provide: PeopleService, useValue: { getPeople: () => of([{ personId: 1, name: 'Ana Ruiz', email: 'ana@x.com' }, { personId: 2, name: 'Bo Li', email: 'bo@x.com' }]) } },
+        { provide: PeopleService, useValue: { getPeople: () => of(peopleList ?? [{ personId: 1, name: 'Ana Ruiz', email: 'ana@x.com' }, { personId: 2, name: 'Bo Li', email: 'bo@x.com' }]) } },
         { provide: ToastrService, useValue: toastr },
       ],
     }).compileComponents();
@@ -151,11 +154,18 @@ describe('ProfilesComponent (Loqzen design system)', () => {
     expect(Array.from(panel()!.querySelectorAll('input[type="checkbox"]')).some(c => (c as HTMLInputElement).checked)).toBeFalse();
   });
 
-  it('opening by row click or keyboard-reachable edit button does not double fire and restores focus on close', async () => {
+  it('clicking a row opens the editor once, and the edit button does not double fire the row click', async () => {
     await setup();
+    const spy = spyOn(fixture.componentInstance, 'editRole').and.callThrough();
+    await click(el().querySelector('tbody tr'));
+    expect(spy).toHaveBeenCalledTimes(1);
+    await click(panel()!.querySelector('[aria-label="Close"]'));
+    await settle();
+    spy.calls.reset();
     const opener = el().querySelector('[aria-label="Edit Role 1"]') as HTMLElement;
     opener.focus();
     await click(opener);
+    expect(spy).toHaveBeenCalledTimes(1);
     expect(panel()!.querySelectorAll('#role-name').length).toBe(1);
     await click(panel()!.querySelector('[aria-label="Close"]'));
     await settle();
@@ -168,6 +178,30 @@ describe('ProfilesComponent (Loqzen design system)', () => {
     expect(el().querySelectorAll('tbody tr').length).toBe(25);
     await click(el().querySelector('lz-pager [aria-label="Next page"]'));
     expect(el().querySelectorAll('tbody tr').length).toBe(1);
+  });
+
+  it('clamps the roles page when a company switch reloads fewer roles', async () => {
+    await setup(Array.from({ length: 26 }, (_, i) => role(i + 1)));
+    await click(el().querySelector('lz-pager [aria-label="Next page"]'));
+    expect(fixture.componentInstance.page).toBe(2);
+    roles['getRoles'].and.returnValue(of([role(1), role(2), role(3)]));
+    const store = TestBed.inject(MockStore);
+    store.overrideSelector(selectActiveCompany, { companyId: 'c2' } as any);
+    store.refreshState();
+    await settle();
+    expect(fixture.componentInstance.page).toBe(1);
+    expect(el().querySelectorAll('tbody tr').length).toBe(3);
+  });
+
+  it('pages the people in the assign dialog beyond 25', async () => {
+    const ppl = Array.from({ length: 30 }, (_, i) => ({ personId: i + 1, name: `Person ${i + 1}`, email: `p${i + 1}@x.com` }));
+    await setup(undefined, ppl);
+    await click(el().querySelector('[aria-label="Assign users to Role 1"]'));
+    expect(assign()!.querySelectorAll('li').length).toBe(25);
+    await click(assign()!.querySelector('lz-pager [aria-label="Next page"]'));
+    expect(assign()!.querySelectorAll('li').length).toBe(5);
+    await setInput(assign()!, '#assign-search', 'Person 3');
+    expect(assign()!.querySelectorAll('li').length).toBe(2);
   });
 
   it('shows the empty state with an add action that opens the panel, and no empty state when loading failed', async () => {

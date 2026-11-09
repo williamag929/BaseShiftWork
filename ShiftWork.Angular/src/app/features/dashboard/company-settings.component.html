@@ -332,6 +332,7 @@
         </lz-field>
       </div>
     </section>
+    @if (canManageQuestions) {
     <section class="flex flex-col gap-4" aria-labelledby="settings-survey-title">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <h3 id="settings-survey-title" class="font-display text-[15px] font-semibold" i18n="@@settings.survey_questions">Clock-out survey questions</h3>
@@ -400,6 +401,7 @@
         <lz-pager [total]="kioskQuestions.length" [page]="qPage" [pageSize]="qPageSize" (pageChange)="qPage = $event" (pageSizeChange)="qPageSize = $event; qPage = 1" />
       }
     </section>
+    }
 
       </div>
     </lz-panel>

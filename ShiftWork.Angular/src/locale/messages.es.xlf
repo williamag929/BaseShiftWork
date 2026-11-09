@@ -8744,10 +8744,6 @@ What would you like to do?</source>
         <source>Question updated.</source>
         <target state="translated">Pregunta actualizada.</target>
       </trans-unit>
-      <trans-unit id="settings.toast_questions_load_failed" datatype="html">
-        <source>Could not load kiosk questions.</source>
-        <target state="translated">No se pudieron cargar las preguntas del kiosco.</target>
-      </trans-unit>
       <trans-unit id="settings.toast_save_failed" datatype="html">
         <source>Could not save settings.</source>
         <target state="translated">No se pudo guardar la configuración.</target>
@@ -8767,6 +8763,22 @@ What would you like to do?</source>
       <trans-unit id="billing.banner_cta" datatype="html">
         <source>See plans</source>
         <target state="translated">Ver planes</target>
+      </trans-unit>
+      <trans-unit id="billing.state_unpaid" datatype="html">
+        <source>Unpaid</source>
+        <target state="translated">Sin pagar</target>
+      </trans-unit>
+      <trans-unit id="billing.state_canceled" datatype="html">
+        <source>Canceled</source>
+        <target state="translated">Cancelado</target>
+      </trans-unit>
+      <trans-unit id="billing.state_incomplete" datatype="html">
+        <source>Incomplete</source>
+        <target state="translated">Incompleto</target>
+      </trans-unit>
+      <trans-unit id="billing.state_subscribed" datatype="html">
+        <source>Subscribed</source>
+        <target state="translated">Suscrito</target>
       </trans-unit>
     </body>
   </file>

@@ -54,7 +54,7 @@ export class BillingComponent implements OnInit, OnDestroy {
 
   get usagePercent(): number {
     const s = this.summary;
-    return s?.employeeCap ? Math.min(100, (s.employeeCount / s.employeeCap) * 100) : 0;
+    return s?.employeeCap ? Math.min(100, Math.round((s.employeeCount / s.employeeCap) * 100)) : 0;
   }
 
   get usageLabel(): string {
@@ -62,18 +62,29 @@ export class BillingComponent implements OnInit, OnDestroy {
   }
 
   get stateTone(): LzTone {
-    const s = this.summary;
-    if (s?.subscriptionStatus === 'past_due') return 'danger';
-    if (s?.isTrial) return 'info';
-    if (s?.hasSubscription) return 'success';
+    switch (this.summary?.subscriptionStatus) {
+      case 'active': return 'success';
+      case 'trialing': return 'info';
+      case 'past_due':
+      case 'unpaid': return 'danger';
+      case 'canceled':
+      case 'incomplete': return 'neutral';
+    }
+    if (this.summary?.isTrial) return 'info';
     return 'neutral';
   }
 
   get stateLabel(): string {
-    const s = this.summary;
-    if (s?.subscriptionStatus === 'past_due') return $localize`:@@billing.state_past_due:Past due`;
-    if (s?.isTrial) return $localize`:@@billing.state_trial:Trial`;
-    if (s?.hasSubscription) return $localize`:@@billing.state_active:Active`;
+    switch (this.summary?.subscriptionStatus) {
+      case 'active': return $localize`:@@billing.state_active:Active`;
+      case 'trialing': return $localize`:@@billing.state_trial:Trial`;
+      case 'past_due': return $localize`:@@billing.state_past_due:Past due`;
+      case 'unpaid': return $localize`:@@billing.state_unpaid:Unpaid`;
+      case 'canceled': return $localize`:@@billing.state_canceled:Canceled`;
+      case 'incomplete': return $localize`:@@billing.state_incomplete:Incomplete`;
+    }
+    if (this.summary?.isTrial) return $localize`:@@billing.state_trial:Trial`;
+    if (this.summary?.hasSubscription) return $localize`:@@billing.state_subscribed:Subscribed`;
     return $localize`:@@billing.state_free:No subscription`;
   }
 
@@ -96,7 +107,7 @@ export class BillingComponent implements OnInit, OnDestroy {
   private load(): void {
     this.billing.getSummary(this.companyId).subscribe({
       next: s => { this.summary = s; this.loadError = false; this.billing.refresh(this.companyId); },
-      error: err => { this.loadError = true; this.fail(err); }
+      error: () => { this.loadError = true; this.busy = false; }
     });
   }
 

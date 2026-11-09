@@ -20,7 +20,7 @@ describe('ManageCompaniesComponent (Loqzen design system)', () => {
   let toastr: Record<string, jasmine.Spy>;
   const el = () => fixture.nativeElement as HTMLElement;
 
-  async function setup(list: Company[] | Observable<Company[]> = [company(1), company(2)], members: any[] = [member(1), member(2, { isActive: false })]) {
+  async function setup(list: Company[] | Observable<Company[]> = [company(1), company(2)], members: any[] = [member(1), member(2, { isActive: false })], ppl?: any[]) {
     TestBed.resetTestingModule();
     companies = {
       getCompanies: jasmine.createSpy().and.returnValue(Array.isArray(list) ? of(list) : list),
@@ -40,7 +40,7 @@ describe('ManageCompaniesComponent (Loqzen design system)', () => {
         provideNoopAnimations(),
         { provide: CompanyService, useValue: companies },
         { provide: CompanyUsersService, useValue: users },
-        { provide: PeopleService, useValue: { getPeople: () => of([{ personId: 1, name: 'Ana Ruiz', email: 'ana@x.com' }, { personId: 2, name: 'Member 1', email: 'm1@x.com' }]) } },
+        { provide: PeopleService, useValue: { getPeople: () => of(ppl ?? [{ personId: 1, name: 'Ana Ruiz', email: 'ana@x.com' }, { personId: 2, name: 'Member 1', email: 'm1@x.com' }]) } },
         { provide: Router, useValue: router },
         { provide: ToastrService, useValue: toastr },
       ],
@@ -182,5 +182,59 @@ describe('ManageCompaniesComponent (Loqzen design system)', () => {
     expect((el().querySelector('[aria-label="Edit Company 1"]') as HTMLElement).getBoundingClientRect().height).toBeGreaterThanOrEqual(48);
     expect((el().querySelector('[aria-label="Manage users for Company 1"]') as HTMLElement).getBoundingClientRect().height).toBeGreaterThanOrEqual(48);
     expect(getComputedStyle(el().querySelector('h1')!).fontSize).toBe('26px');
+  });
+
+  it('after a successful company delete focus moves to the Create company button', async () => {
+    await setup();
+    await click(el().querySelector('[aria-label="Delete Company 1"]'));
+    await click(dialogBtn('Delete company'));
+    await settle();
+    expect(document.activeElement).toBe(el().querySelector('lz-page-header [variant="primary"]'));
+  });
+
+  it('after adding a user focus moves to the stable members heading', async () => {
+    await setup();
+    await click(el().querySelector('[aria-label="Manage users for Company 1"]'));
+    (el().querySelector('[aria-label="Add Ana Ruiz"]') as HTMLElement).focus();
+    await click(el().querySelector('[aria-label="Add Ana Ruiz"]'));
+    await new Promise(r => setTimeout(r));
+    await settle();
+    expect(document.activeElement!.id).toBe('mc-members-title');
+  });
+
+  it('pages and clamps the members list', async () => {
+    await setup([company(1)], Array.from({ length: 26 }, (_, i) => member(i + 1)), []);
+    await click(el().querySelector('[aria-label="Manage users for Company 1"]'));
+    const members = () => el().querySelector('[aria-labelledby="mc-members-title"]')!;
+    expect(members().querySelectorAll('tbody tr').length).toBe(25);
+    await click(members().querySelector('lz-pager [aria-label="Next page"]'));
+    expect(members().querySelectorAll('tbody tr').length).toBe(1);
+    users['getCompanyUsers'].and.returnValue(of([member(1), member(2)]));
+    fixture.componentInstance.loadUsersForCompany('c1');
+    await settle();
+    expect(fixture.componentInstance.memberPage).toBe(1);
+    expect(members().querySelectorAll('tbody tr').length).toBe(2);
+  });
+
+  it('pages and clamps the available users list', async () => {
+    const ppl = Array.from({ length: 26 }, (_, i) => ({ personId: i + 1, name: `Person ${i + 1}`, email: `p${i + 1}@y.com` }));
+    await setup([company(1)], [], ppl);
+    await click(el().querySelector('[aria-label="Manage users for Company 1"]'));
+    const avail = () => el().querySelector('[aria-labelledby="mc-available-title"]')!;
+    expect(avail().querySelectorAll('tbody tr').length).toBe(25);
+    await click(avail().querySelector('lz-pager [aria-label="Next page"]'));
+    expect(avail().querySelectorAll('tbody tr').length).toBe(1);
+    (TestBed.inject(PeopleService) as any).getPeople = () => of(ppl.slice(0, 25));
+    await click(avail().querySelector('[aria-label="Add Person 26"]'));
+    await new Promise(r => setTimeout(r));
+    await settle();
+    expect(fixture.componentInstance.availablePage).toBe(1);
+  });
+
+  it('a failed people load also toasts', async () => {
+    await setup();
+    TestBed.inject(PeopleService).getPeople = () => throwError(() => new Error('x'));
+    await click(el().querySelector('[aria-label="Manage users for Company 1"]'));
+    expect(toastr['error']).toHaveBeenCalledWith('Could not load users for this company.');
   });
 });

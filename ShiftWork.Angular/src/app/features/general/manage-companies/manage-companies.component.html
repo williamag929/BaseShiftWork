@@ -2,7 +2,7 @@
   <div class="sticky top-0 z-10 bg-canvas">
     <lz-page-header title="Manage companies" i18n-title="@@manage_companies.title">
       <ng-container lzHeaderActions>
-        <button lzButton variant="primary" type="button" (click)="createCompany()">
+        <button #createBtn lzButton variant="primary" type="button" (click)="createCompany()">
           <mat-icon aria-hidden="true">add</mat-icon>
           <ng-container i18n="@@manage_companies.create_new_btn">Create company</ng-container>
         </button>

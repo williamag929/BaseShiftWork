@@ -6,6 +6,7 @@ import { Observable, of, throwError } from 'rxjs';
 import { CompanySettingsService } from 'src/app/core/services/company-settings.service';
 import { CompanySettings } from 'src/app/core/models/company-settings.model';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
+import { PermissionService } from 'src/app/core/services/permission.service';
 import { KioskService } from '../kiosk/core/services/kiosk.service';
 import { KioskQuestion } from '../kiosk/core/models/kiosk-question.model';
 import { CompanySettingsComponent } from './company-settings.component';
@@ -41,7 +42,7 @@ describe('CompanySettingsComponent (Loqzen design system)', () => {
 
   afterEach(() => selectActiveCompany.clearResult());
 
-  async function setup(opts: { settings?: Observable<CompanySettings>; questions?: KioskQuestion[] | Observable<KioskQuestion[]>; company?: any } = {}) {
+  async function setup(opts: { settings?: Observable<CompanySettings>; questions?: KioskQuestion[] | Observable<KioskQuestion[]>; company?: any; perms?: string[] } = {}) {
     settingsService = {
       getSettings: jasmine.createSpy('getSettings').and.returnValue(opts.settings ?? of(settings())),
       updateSettings: jasmine.createSpy('updateSettings').and.returnValue(of(undefined)),
@@ -61,6 +62,7 @@ describe('CompanySettingsComponent (Loqzen design system)', () => {
         provideMockStore({ selectors: [{ selector: selectActiveCompany, value: opts.company === undefined ? { companyId: 'c1' } : opts.company }] }),
         { provide: CompanySettingsService, useValue: settingsService },
         { provide: KioskService, useValue: kiosk },
+        { provide: PermissionService, useValue: { hasPermission: (k: string) => (opts.perms ?? ['kiosk.questions.manage']).includes(k) } },
       ],
     }).overrideProvider(MatSnackBar, { useValue: snack }).compileComponents();
     fixture = TestBed.createComponent(CompanySettingsComponent);
@@ -207,8 +209,46 @@ describe('CompanySettingsComponent (Loqzen design system)', () => {
       expect(document.querySelectorAll('[variant="primary"]').length).toBe(1);
       expect(el().querySelector('lz-page-header [form="company-settings-form"]')!.getAttribute('variant')).toBe('secondary');
       await click(byText(document.querySelector('lz-dialog-overlay')!, 'Cancel'));
+      await settle();
       expect(document.querySelector('lz-dialog-overlay')).toBeNull();
-      expect(document.activeElement).not.toBe(document.body);
+      expect(document.activeElement).toBe(add);
+    });
+
+    it('Escape closes the question dialog and returns focus to the edit button that opened it', async () => {
+      await setup({ questions: [question(1)] });
+      const opener = el().querySelector('[aria-label="Edit Question 1"]') as HTMLElement;
+      opener.focus();
+      await click(opener);
+      expect(document.querySelector('lz-dialog-overlay')).not.toBeNull();
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      await settle();
+      await settle();
+      expect(document.querySelector('lz-dialog-overlay')).toBeNull();
+      expect(kiosk['updateQuestion']).not.toHaveBeenCalled();
+      expect(document.activeElement).toBe(opener);
+    });
+
+    it('with kiosk.questions.manage it requests the questions and shows the block', async () => {
+      await setup({ questions: [question(1)] });
+      expect(kiosk['getManagementQuestions']).toHaveBeenCalledWith('c1');
+      expect(el().textContent).toContain('Clock-out survey questions');
+    });
+
+    it('without kiosk.questions.manage it never requests the questions and hides the block', async () => {
+      await setup({ questions: [question(1)], perms: [] });
+      expect(kiosk['getManagementQuestions']).not.toHaveBeenCalled();
+      expect(el().textContent).not.toContain('Clock-out survey questions');
+      expect(el().querySelector('#kioskModeEnabled')).not.toBeNull();
+    });
+
+    it('a 403 on the questions shows an inline message, no toast, and the rest of the form still saves', async () => {
+      await setup({ questions: throwError(() => ({ status: 403 })) });
+      expect(el().textContent).toContain('Could not load kiosk questions.');
+      expect(snack.open).not.toHaveBeenCalled();
+      const save = el().querySelector('[variant="primary"]') as HTMLButtonElement;
+      expect(save.disabled).toBeFalse();
+      await click(save);
+      expect(settingsService['updateSettings']).toHaveBeenCalled();
     });
 
     it('creates a question from the dialog and requires the text', async () => {
@@ -292,7 +332,15 @@ describe('CompanySettingsComponent (Loqzen design system)', () => {
       expect(el().querySelectorAll('tbody tr').length).toBe(25);
     });
 
-    it('lists questions in lz-table-scroll with chips for state and no load alert together with the empty state', async () => {
+    it('lists questions in lz-table-scroll with required and state chips', async () => {
+      await setup({ questions: [question(1), { ...question(2), isRequired: true, isActive: false }] });
+      const rows = el().querySelectorAll('lz-table-scroll tbody tr');
+      expect(rows.length).toBe(2);
+      expect(Array.from(rows[1].querySelectorAll('lz-status-chip')).map(c => c.textContent!.trim())).toEqual(['Required', 'Inactive']);
+      expect(rows[0].querySelector('lz-status-chip')!.textContent!.trim()).toBe('Active');
+    });
+
+    it('shows the load alert and not the empty state when the questions fail to load', async () => {
       await setup({ questions: throwError(() => new Error('boom')) });
       expect(el().querySelector('lz-empty-state')).toBeNull();
       expect(el().textContent).toContain('Could not load kiosk questions.');

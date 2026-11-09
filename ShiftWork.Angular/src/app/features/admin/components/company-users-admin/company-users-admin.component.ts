@@ -60,6 +60,7 @@ export class CompanyUsersAdminComponent implements OnInit {
   }
 
   onCompanyChange(): void {
+    this.page = 1;
     this.loadUsers();
   }
 

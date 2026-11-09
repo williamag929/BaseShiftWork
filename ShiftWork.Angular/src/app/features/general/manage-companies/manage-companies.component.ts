@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Company } from 'src/app/core/models/company.model';
@@ -51,6 +51,7 @@ export class ManageCompaniesComponent implements OnInit {
   private deleteOpener: HTMLElement | null = null;
   private removeOpener: HTMLElement | null = null;
   private focusMembersOnLoad = false;
+  @ViewChild('createBtn') private createBtn?: ElementRef<HTMLElement>;
 
   constructor(
     private companyService: CompanyService,
@@ -119,6 +120,7 @@ export class ManageCompaniesComponent implements OnInit {
           },
           error: (err: any) => {
             console.error('Failed to load people for company.', err);
+            this.toastr.error($localize`:@@manage_companies.toast_users_load_failed:Could not load users for this company.`);
             this.usersError = true;
             this.isLoadingUsers = false;
           }
@@ -152,6 +154,7 @@ export class ManageCompaniesComponent implements OnInit {
     this.companyUsersService.createCompanyUser(this.selectedCompany.companyId, newMember).subscribe({
       next: () => {
         this.toastr.success($localize`:@@manage_companies.toast_added:${person.name}:person: added to ${this.selectedCompany?.name}:company:.`);
+        this.focusMembersOnLoad = true;
         this.loadUsersForCompany(this.selectedCompany!.companyId);
       },
       error: (err: any) => {
@@ -256,6 +259,7 @@ export class ManageCompaniesComponent implements OnInit {
           this.companyMembers = [];
           this.availablePeople = [];
         }
+        Promise.resolve().then(() => this.createBtn?.nativeElement.focus());
       },
       error: (err: any) => {
         this.deletingCompanyId = null;

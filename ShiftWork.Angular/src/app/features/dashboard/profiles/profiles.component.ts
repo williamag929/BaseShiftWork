@@ -367,10 +367,6 @@ export class ProfilesComponent implements OnInit {
   readonly nameError = $localize`:@@roles.name_error:Role name is required`;
   readonly descError = $localize`:@@roles.desc_error:Description is required`;
 
-  get assignTitle(): string {
-    return $localize`:@@assign_users.title:Assign users to ${this.assignPanelRole?.name ?? ''}:name:`;
-  }
-
   roleEditLabel(role: Role): string {
     return $localize`:@@roles.edit_aria:Edit ${role.name}:name:`;
   }

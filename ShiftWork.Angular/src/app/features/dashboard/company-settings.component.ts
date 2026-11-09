@@ -18,6 +18,7 @@ import { CompanySettingsService } from 'src/app/core/services/company-settings.s
 import { CompanySettings } from 'src/app/core/models/company-settings.model';
 import { TIMEZONES } from 'src/app/core/data/timezones';
 import { Timezone } from 'src/app/core/models/timezone.model';
+import { PermissionService } from 'src/app/core/services/permission.service';
 import { KioskService } from '../kiosk/core/services/kiosk.service';
 import { KioskQuestion, CreateKioskQuestionDto } from '../kiosk/core/models/kiosk-question.model';
 
@@ -64,6 +65,7 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
   constructor(
     private settingsService: CompanySettingsService,
     private kioskService: KioskService,
+    private permissionService: PermissionService,
     private store: Store<AppState>,
     private snackBar: MatSnackBar
   ) {
@@ -160,7 +162,7 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
   // ── Kiosk question management ────────────────────────────────────────────────
 
   loadKioskQuestions(): void {
-    if (!this.companyId) return;
+    if (!this.companyId || !this.canManageQuestions) return;
     this.kioskQuestionsLoading = true;
     this.questionsError = false;
     this.kioskService.getManagementQuestions(this.companyId).subscribe({
@@ -170,10 +172,13 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.questionsError = true;
-        this.snackBar.open($localize`:@@settings.toast_questions_load_failed:Could not load kiosk questions.`, this.closeLabel, { duration: 3000 });
         this.kioskQuestionsLoading = false;
       }
     });
+  }
+
+  get canManageQuestions(): boolean {
+    return this.permissionService.hasPermission('kiosk.questions.manage');
   }
 
   get closeLabel(): string {
