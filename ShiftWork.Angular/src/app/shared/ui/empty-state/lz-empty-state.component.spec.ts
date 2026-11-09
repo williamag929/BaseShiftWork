@@ -32,4 +32,15 @@ describe('LzEmptyStateComponent', () => {
     f.detectChanges();
     expect(f.nativeElement.querySelector('p')).toBeNull();
   });
+
+  it('renders the icon at 40px', () => {
+    const f = TestBed.createComponent(HostComponent);
+    document.body.appendChild(f.nativeElement);
+    f.detectChanges();
+    const cs = getComputedStyle(f.nativeElement.querySelector('mat-icon'));
+    expect(cs.width).toBe('40px');
+    expect(cs.height).toBe('40px');
+    expect(cs.fontSize).toBe('36px');
+    f.nativeElement.remove();
+  });
 });

@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex flex-col items-center gap-2 px-4 py-10 text-center' },
   template: `
-    <mat-icon aria-hidden="true" class="size-10 text-[40px] text-ink-muted">{{ icon }}</mat-icon>
+    <mat-icon aria-hidden="true" class="size-10! text-4xl text-ink-muted">{{ icon }}</mat-icon>
     <h3 class="font-display text-base font-semibold">{{ title }}</h3>
     @if (body) {
       <p class="max-w-md text-ink-soft">{{ body }}</p>

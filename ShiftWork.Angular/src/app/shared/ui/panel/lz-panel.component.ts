@@ -6,18 +6,22 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block rounded-panel border border-line bg-paper' },
   template: `
-    @if (heading) {
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line-soft px-4 py-3">
+    <div
+      class="flex flex-wrap items-center gap-2"
+      [class.px-4]="heading"
+      [class.py-3]="heading"
+      [class.justify-between]="heading"
+      [class.justify-end]="!heading"
+      [class.border-b]="heading"
+      [class.border-line-soft]="heading"
+    >
+      @if (heading) {
         <h2 class="font-display text-base font-semibold">{{ heading }}</h2>
-        <div class="ml-auto flex flex-wrap items-center gap-2">
-          <ng-content select="[lzPanelActions]" />
-        </div>
-      </div>
-    } @else {
-      <div class="ml-auto flex flex-wrap items-center justify-end gap-2 px-4 pt-3 empty:hidden">
+      }
+      <div class="ml-auto flex flex-wrap items-center gap-2 empty:hidden" [class.px-4]="!heading" [class.pt-3]="!heading">
         <ng-content select="[lzPanelActions]" />
       </div>
-    }
+    </div>
     <div class="p-4"><ng-content /></div>
   `,
 })

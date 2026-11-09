@@ -16,8 +16,10 @@ class HostComponent {}
 
 describe('LzAlertComponent', () => {
   let root: HTMLElement;
+  afterEach(() => root.remove());
   beforeEach(() => {
     const f = TestBed.createComponent(HostComponent);
+    document.body.appendChild(f.nativeElement);
     f.detectChanges();
     root = f.nativeElement;
   });
@@ -35,5 +37,27 @@ describe('LzAlertComponent', () => {
     expect(icon('s')).toBe('check_circle');
     expect(icon('w')).toBe('warning');
     expect(icon('d')).toBe('error');
+  });
+
+  it('colours each tone from its tokens', () => {
+    const resolve = (prop: 'backgroundColor' | 'color', token: string) => {
+      const probe = document.createElement('span');
+      probe.style[prop] = `var(${token})`;
+      root.appendChild(probe);
+      const v = getComputedStyle(probe)[prop];
+      probe.remove();
+      return v;
+    };
+    const cases: [string, string, string][] = [
+      ['i', '--lz-info-bg', '--lz-info-ink'],
+      ['s', '--lz-success-bg', '--lz-success-ink'],
+      ['w', '--lz-draft-bg-1', '--lz-amber-ink'],
+      ['d', '--lz-danger-bg', '--lz-danger-ink'],
+    ];
+    for (const [id, bg, ink] of cases) {
+      const cs = getComputedStyle(root.querySelector('#' + id)!);
+      expect(cs.backgroundColor).withContext(id + ' bg').toBe(resolve('backgroundColor', bg));
+      expect(cs.color).withContext(id + ' ink').toBe(resolve('color', ink));
+    }
   });
 });

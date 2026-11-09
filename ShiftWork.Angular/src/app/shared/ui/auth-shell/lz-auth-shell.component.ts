@@ -12,7 +12,7 @@ import { ChangeDetectionStrategy, Component, Input, booleanAttribute } from '@an
       [class.max-w-2xl]="wide"
     >
       <p class="font-display text-xl font-semibold text-ink" aria-hidden="true">Loqzen</p>
-      <h1 class="mt-4 font-display text-[22px] font-semibold leading-tight">{{ title }}</h1>
+      <h1 class="mt-4 font-display text-[26px] font-semibold leading-tight">{{ title }}</h1>
       @if (subtitle) {
         <p class="mt-1 text-ink-soft">{{ subtitle }}</p>
       }

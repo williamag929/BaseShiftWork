@@ -6,9 +6,13 @@ import { LzPanelComponent } from './lz-panel.component';
   standalone: true,
   imports: [LzPanelComponent],
   template: `
-    <lz-panel heading="Details">
+    <lz-panel id="p1" heading="Details">
       <button lzPanelActions id="act">Edit</button>
       <p id="body">Body</p>
+    </lz-panel>
+    <lz-panel id="p2">
+      <button lzPanelActions id="act2">Edit</button>
+      <p>Body</p>
     </lz-panel>
   `,
 })
@@ -25,5 +29,16 @@ describe('LzPanelComponent', () => {
     const host = root.querySelector('lz-panel')!;
     expect(host.classList.contains('rounded-panel')).toBeTrue();
     expect(host.classList.contains('bg-paper')).toBeTrue();
+  });
+
+  it('still shows projected actions when heading is unset', () => {
+    const f = TestBed.createComponent(HostComponent);
+    document.body.appendChild(f.nativeElement);
+    f.detectChanges();
+    const act = f.nativeElement.querySelector('#p2 #act2') as HTMLElement;
+    expect(act).not.toBeNull();
+    expect(act.getBoundingClientRect().width).toBeGreaterThan(0);
+    expect(f.nativeElement.querySelector('#p2 h2')).toBeNull();
+    f.nativeElement.remove();
   });
 });

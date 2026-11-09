@@ -3,22 +3,22 @@ import { MatIconModule } from '@angular/material/icon';
 
 export type LzAlertTone = 'info' | 'success' | 'warning' | 'danger';
 
+const BASE = 'flex items-start gap-3 rounded-control px-4 py-3';
+const TONE_CLASSES: Record<LzAlertTone, string> = {
+  info: 'bg-info-bg text-info-ink',
+  success: 'bg-success-bg text-success-ink',
+  warning: 'bg-(--lz-draft-bg-1) text-amber-ink',
+  danger: 'bg-danger-bg text-danger-ink',
+};
+
 @Component({
   selector: 'lz-alert',
   standalone: true,
   imports: [MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'flex items-start gap-3 rounded-control px-4 py-3',
+    '[class]': 'toneClasses',
     '[attr.role]': 'tone === "danger" ? "alert" : "status"',
-    '[class.bg-info-bg]': 'tone === "info"',
-    '[class.text-info-ink]': 'tone === "info"',
-    '[class.bg-success-bg]': 'tone === "success"',
-    '[class.text-success-ink]': 'tone === "success"',
-    '[class.bg-[var(--lz-draft-bg-1)]]': 'tone === "warning"',
-    '[class.text-amber-ink]': 'tone === "warning"',
-    '[class.bg-danger-bg]': 'tone === "danger"',
-    '[class.text-danger-ink]': 'tone === "danger"',
   },
   template: `
     <mat-icon aria-hidden="true" class="shrink-0">{{ icon }}</mat-icon>
@@ -27,6 +27,10 @@ export type LzAlertTone = 'info' | 'success' | 'warning' | 'danger';
 })
 export class LzAlertComponent {
   @Input() tone: LzAlertTone = 'info';
+
+  get toneClasses(): string {
+    return `${BASE} ${TONE_CLASSES[this.tone]}`;
+  }
 
   get icon(): string {
     switch (this.tone) {
