@@ -1,223 +1,223 @@
-<div class="reg-container">
-  <div class="reg-card">
+<lz-auth-shell
+  wide
+  title="Create your Loqzen account"
+  i18n-title="@@registration.title"
+  subtitle="Get started in just a few steps — it's free"
+  i18n-subtitle="@@registration.subtitle"
+>
+  @if (errorMessage) {
+    <div class="mb-4"><lz-alert tone="danger">{{ errorMessage }}</lz-alert></div>
+  }
 
-    <!-- ── Header ── -->
-    <div class="reg-header">
-      <div class="logo-circle">
-        <i class="fa fa-calendar-check-o"></i>
-      </div>
-      <h1 i18n="@@registration.title">Create your Loqzen account</h1>
-      <p class="sub" i18n="@@registration.subtitle">Get started in just a few steps — it's free</p>
-    </div>
+  @switch (currentStep) {
+    @case (1) {
+      <form [formGroup]="userForm" (ngSubmit)="onNext()" novalidate class="flex flex-col gap-4">
+        <h2 tabindex="-1" data-step-heading class="text-lg font-semibold text-ink outline-none">
+          <span class="block text-[13px] font-normal text-ink-soft" i18n="@@registration.step_progress">Step {{ currentStep }} of {{ totalSteps }}</span>
+          <span i18n="@@registration.step1_section">Your account details</span>
+        </h2>
 
-    <!-- ── Step progress ── -->
-    <div class="step-track">
-      <div class="step-node">
-        <div class="step-dot" [class.active]="currentStep === 1" [class.done]="currentStep > 1">
-          <span *ngIf="currentStep <= 1">1</span>
-          <i *ngIf="currentStep > 1" class="fa fa-check"></i>
-        </div>
-        <span class="step-label" [class.active]="currentStep === 1" [class.done]="currentStep > 1" i18n="@@registration.step_account">Account</span>
-      </div>
-      <div class="step-line" [class.done]="currentStep > 1"></div>
-      <div class="step-node">
-        <div class="step-dot" [class.active]="currentStep === 2" [class.done]="currentStep > 2">
-          <span *ngIf="currentStep <= 2">2</span>
-          <i *ngIf="currentStep > 2" class="fa fa-check"></i>
-        </div>
-        <span class="step-label" [class.active]="currentStep === 2" [class.done]="currentStep > 2" i18n="@@registration.step_company">Company</span>
-      </div>
-      <div class="step-line" [class.done]="currentStep > 2"></div>
-      <div class="step-node">
-        <div class="step-dot" [class.active]="currentStep === 3">
-          <span>3</span>
-        </div>
-        <span class="step-label" [class.active]="currentStep === 3" i18n="@@registration.step_confirm">Confirm</span>
-      </div>
-    </div>
+        <lz-field
+          label="Full name"
+          i18n-label="@@auth.register.full_name"
+          controlId="displayName"
+          required
+          [error]="fieldError(userForm, 'displayName')"
+        >
+          <input
+            lzField
+            id="displayName"
+            type="text"
+            formControlName="displayName"
+            placeholder="Jane Doe"
+            i18n-placeholder="@@registration.placeholder_name"
+            autocomplete="name"
+            aria-required="true"
+            [attr.aria-invalid]="fieldError(userForm, 'displayName') ? 'true' : null"
+            [attr.aria-describedby]="fieldError(userForm, 'displayName') ? 'displayName-error' : null"
+          />
+        </lz-field>
 
-    <!-- ── Error Banner ── -->
-    <div *ngIf="errorMessage" class="alert-danger">
-      <i class="fa fa-exclamation-triangle"></i> {{ errorMessage }}
-    </div>
+        <lz-field
+          label="Email address"
+          i18n-label="@@registration.email_label"
+          controlId="email"
+          required
+          [error]="fieldError(userForm, 'email')"
+        >
+          <input
+            lzField
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            aria-required="true"
+            [attr.aria-invalid]="fieldError(userForm, 'email') ? 'true' : null"
+            [attr.aria-describedby]="fieldError(userForm, 'email') ? 'email-error' : null"
+          />
+        </lz-field>
 
-    <!-- ── Step 1: User Info ── -->
-    <form *ngIf="currentStep === 1" [formGroup]="userForm">
-      <p class="section-title" i18n="@@registration.step1_section">Your Account Details</p>
-
-      <div class="form-group">
-        <label for="displayName" i18n="@@auth.register.full_name">Full Name <span style="color:#dc3545">*</span></label>
-        <div class="input-wrapper">
-          <i class="fa fa-user input-icon"></i>
-          <input id="displayName" type="text" class="form-control"
-            formControlName="displayName" placeholder="Jane Doe" autocomplete="name"
-            [class.is-invalid]="userForm.get('displayName')?.invalid && userForm.get('displayName')?.touched" />
-        </div>
-        <div *ngIf="userForm.get('displayName')?.invalid && userForm.get('displayName')?.touched" class="field-error">
-          <i class="fa fa-exclamation-circle"></i>
-          <ng-container i18n="@@registration.full_name_required">Name is required (min 2 characters).</ng-container>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="email" i18n="@@auth.register.email">Email Address <span style="color:#dc3545">*</span></label>
-        <div class="input-wrapper">
-          <i class="fa fa-envelope input-icon"></i>
-          <input id="email" type="email" class="form-control"
-            formControlName="email" placeholder="you@example.com" autocomplete="email"
-            [class.is-invalid]="userForm.get('email')?.invalid && userForm.get('email')?.touched" />
-        </div>
-        <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="field-error">
-          <i class="fa fa-exclamation-circle"></i>
-          <ng-container i18n="@@registration.email_required">A valid email is required.</ng-container>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="password" i18n="@@auth.register.password">Password <span style="color:#dc3545">*</span></label>
-        <div class="input-wrapper">
-          <i class="fa fa-lock input-icon"></i>
-          <input id="password" type="password" class="form-control"
-            formControlName="password" placeholder="Min 8 characters" autocomplete="new-password"
+        <lz-field
+          label="Password"
+          i18n-label="@@auth.register.password"
+          controlId="password"
+          required
+          [error]="fieldError(userForm, 'password')"
+        >
+          <input
+            lzField
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="Min 8 characters"
             i18n-placeholder="@@auth.register.password_hint"
-            [class.is-invalid]="userForm.get('password')?.invalid && userForm.get('password')?.touched" />
-        </div>
-        <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="field-error">
-          <i class="fa fa-exclamation-circle"></i>
-          <ng-container i18n="@@registration.password_min_8">Password must be at least 8 characters.</ng-container>
-        </div>
-      </div>
+            autocomplete="new-password"
+            aria-required="true"
+            [attr.aria-invalid]="fieldError(userForm, 'password') ? 'true' : null"
+            [attr.aria-describedby]="fieldError(userForm, 'password') ? 'password-error' : null"
+          />
+        </lz-field>
 
-      <div class="form-actions">
-        <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!isStep1Valid">
-          <ng-container i18n="@@registration.next_company">Next: Company Info</ng-container> <i class="fa fa-arrow-right"></i>
-        </button>
-      </div>
-    </form>
-
-    <!-- ── Step 2: Company Info ── -->
-    <form *ngIf="currentStep === 2" [formGroup]="companyForm">
-      <p class="section-title" i18n="@@registration.step2_section">Your Company Details</p>
-
-      <div class="form-group">
-        <label for="companyName" i18n="@@auth.register.company_name">Company Name <span style="color:#dc3545">*</span></label>
-        <div class="input-wrapper">
-          <i class="fa fa-building input-icon"></i>
-          <input id="companyName" type="text" class="form-control"
-            formControlName="companyName" placeholder="Acme Corp"
-            [class.is-invalid]="companyForm.get('companyName')?.invalid && companyForm.get('companyName')?.touched" />
+        <div class="mt-2 flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <button type="submit" lzButton variant="primary" class="w-full sm:w-auto" i18n="@@registration.next_company">Next: company info</button>
         </div>
-        <div *ngIf="companyForm.get('companyName')?.invalid && companyForm.get('companyName')?.touched" class="field-error">
-          <i class="fa fa-exclamation-circle"></i>
-          <ng-container i18n="@@registration.company_name_req">Company name is required.</ng-container>
-        </div>
-      </div>
+      </form>
+    }
 
-      <div class="form-group">
-        <label for="companyEmail" i18n="@@auth.register.company_email">Company Email <span style="color:#dc3545">*</span></label>
-        <div class="input-wrapper">
-          <i class="fa fa-envelope input-icon"></i>
-          <input id="companyEmail" type="email" class="form-control"
-            formControlName="companyEmail" placeholder="contact@acme.com"
-            [class.is-invalid]="companyForm.get('companyEmail')?.invalid && companyForm.get('companyEmail')?.touched" />
-        </div>
-        <div *ngIf="companyForm.get('companyEmail')?.invalid && companyForm.get('companyEmail')?.touched" class="field-error">
-          <i class="fa fa-exclamation-circle"></i>
-          <ng-container i18n="@@registration.company_email_req">A valid company email is required.</ng-container>
-        </div>
-      </div>
+    @case (2) {
+      <form [formGroup]="companyForm" (ngSubmit)="onNext()" novalidate class="flex flex-col gap-4">
+        <h2 tabindex="-1" data-step-heading class="text-lg font-semibold text-ink outline-none">
+          <span class="block text-[13px] font-normal text-ink-soft" i18n="@@registration.step_progress">Step {{ currentStep }} of {{ totalSteps }}</span>
+          <span i18n="@@registration.step2_section">Your company details</span>
+        </h2>
 
-      <div class="form-group">
-        <label for="companyPhone" i18n="@@registration.phone_label">Phone Number <span style="color:#adb5bd;font-weight:400">(optional)</span></label>
-        <div class="input-wrapper">
-          <i class="fa fa-phone input-icon"></i>
-          <input id="companyPhone" type="tel" class="form-control"
-            formControlName="companyPhone" placeholder="+1 555 000 0000" />
-        </div>
-      </div>
+        <lz-field
+          label="Company name"
+          i18n-label="@@auth.register.company_name"
+          controlId="companyName"
+          required
+          [error]="fieldError(companyForm, 'companyName')"
+        >
+          <input
+            lzField
+            id="companyName"
+            type="text"
+            formControlName="companyName"
+            placeholder="Acme Corp"
+            i18n-placeholder="@@registration.placeholder_company"
+            autocomplete="organization"
+            aria-required="true"
+            [attr.aria-invalid]="fieldError(companyForm, 'companyName') ? 'true' : null"
+            [attr.aria-describedby]="fieldError(companyForm, 'companyName') ? 'companyName-error' : null"
+          />
+        </lz-field>
 
-      <div class="form-group">
-        <label for="timeZone" i18n="@@registration.time_zone">Time Zone <span style="color:#dc3545">*</span></label>
-        <div class="input-wrapper">
-          <i class="fa fa-globe input-icon"></i>
-          <select id="timeZone" class="form-control" formControlName="timeZone">
-            <option *ngIf="showDetectedTimeZone" [value]="detectedTimeZone">{{ detectedTimeZone }}</option>
+        <lz-field
+          label="Company email"
+          i18n-label="@@auth.register.company_email"
+          controlId="companyEmail"
+          required
+          [error]="fieldError(companyForm, 'companyEmail')"
+        >
+          <input
+            lzField
+            id="companyEmail"
+            type="email"
+            formControlName="companyEmail"
+            placeholder="contact@acme.com"
+            aria-required="true"
+            [attr.aria-invalid]="fieldError(companyForm, 'companyEmail') ? 'true' : null"
+            [attr.aria-describedby]="fieldError(companyForm, 'companyEmail') ? 'companyEmail-error' : null"
+          />
+        </lz-field>
+
+        <lz-field label="Phone number (optional)" i18n-label="@@registration.phone_label" controlId="companyPhone">
+          <input lzField id="companyPhone" type="tel" formControlName="companyPhone" placeholder="+1 555 000 0000" autocomplete="tel" />
+        </lz-field>
+
+        <lz-field label="Time zone" i18n-label="@@registration.time_zone" controlId="timeZone" required>
+          <select lzField id="timeZone" formControlName="timeZone" aria-required="true">
+            @if (showDetectedTimeZone) {
+              <option [value]="detectedTimeZone">{{ detectedTimeZone }}</option>
+            }
             <option value="UTC">UTC</option>
-            <option value="America/New_York">Eastern (US)</option>
-            <option value="America/Chicago">Central (US)</option>
-            <option value="America/Denver">Mountain (US)</option>
-            <option value="America/Los_Angeles">Pacific (US)</option>
-            <option value="Europe/London">London</option>
-            <option value="Europe/Paris">Paris / Madrid</option>
-            <option value="Asia/Tokyo">Tokyo</option>
+            <option value="America/New_York" i18n="@@registration.tz_eastern">Eastern (US)</option>
+            <option value="America/Chicago" i18n="@@registration.tz_central">Central (US)</option>
+            <option value="America/Denver" i18n="@@registration.tz_mountain">Mountain (US)</option>
+            <option value="America/Los_Angeles" i18n="@@registration.tz_pacific">Pacific (US)</option>
+            <option value="Europe/London" i18n="@@registration.tz_london">London</option>
+            <option value="Europe/Paris" i18n="@@registration.tz_paris">Paris / Madrid</option>
+            <option value="Asia/Tokyo" i18n="@@registration.tz_tokyo">Tokyo</option>
           </select>
+        </lz-field>
+
+        <div class="mt-2 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
+          <button type="button" lzButton variant="secondary" class="w-full sm:w-auto" (click)="onBack()" i18n="@@common.back">Back</button>
+          <button type="submit" lzButton variant="primary" class="w-full sm:w-auto" i18n="@@registration.next_confirm">Next: confirm</button>
+        </div>
+      </form>
+    }
+
+    @case (3) {
+      <div class="flex flex-col gap-4">
+        <h2 tabindex="-1" data-step-heading class="text-lg font-semibold text-ink outline-none">
+          <span class="block text-[13px] font-normal text-ink-soft" i18n="@@registration.step_progress">Step {{ currentStep }} of {{ totalSteps }}</span>
+          <span i18n="@@registration.step3_section">Review &amp; create account</span>
+        </h2>
+
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-2 rounded-control border border-line bg-canvas p-4 sm:grid-cols-[auto_1fr]">
+          <dt class="text-ink-soft" i18n="@@auth.register.full_name">Full name</dt>
+          <dd class="min-w-0 break-words font-medium text-ink">{{ userForm.value.displayName }}</dd>
+          <dt class="text-ink-soft" i18n="@@auth.register.email">Email</dt>
+          <dd class="min-w-0 break-words font-medium text-ink">{{ userForm.value.email }}</dd>
+          <dt class="text-ink-soft" i18n="@@registration.summary_company">Company</dt>
+          <dd class="min-w-0 break-words font-medium text-ink">{{ companyForm.value.companyName }}</dd>
+          <dt class="text-ink-soft" i18n="@@auth.register.company_email">Company email</dt>
+          <dd class="min-w-0 break-words font-medium text-ink">{{ companyForm.value.companyEmail }}</dd>
+          <dt class="text-ink-soft" i18n="@@registration.summary_timezone">Time zone</dt>
+          <dd class="min-w-0 break-words font-medium text-ink">{{ companyForm.value.timeZone }}</dd>
+        </dl>
+
+        <lz-alert tone="info" i18n="@@registration.notice">A verification email will be sent to your inbox. Your company starts with a free trial and demo data so you can explore the app right away.</lz-alert>
+
+        <p class="flex flex-wrap items-center gap-x-1 text-ink-soft">
+          <span i18n="@@registration.legal_prefix">By creating an account you agree to the</span>
+          <a
+            href="https://www.loqzen.com/terms/"
+            i18n-href="@@registration.terms_url"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex min-h-12 items-center font-medium text-link underline"
+            i18n="@@registration.terms_link"
+          >Terms of service</a>
+          <span i18n="@@registration.legal_and">and the</span>
+          <a
+            href="https://www.loqzen.com/privacy/"
+            i18n-href="@@registration.privacy_url"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex min-h-12 items-center font-medium text-link underline"
+            i18n="@@registration.privacy_link"
+          >Privacy policy</a>
+        </p>
+
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
+          <button type="button" lzButton variant="secondary" class="w-full sm:w-auto" (click)="onBack()" [disabled]="isLoading" i18n="@@common.back">Back</button>
+          <button type="button" lzButton variant="primary" class="w-full sm:w-auto" (click)="onSubmit()" [disabled]="isLoading" [attr.aria-busy]="isLoading">
+            @if (isLoading) {
+              <ng-container i18n="@@registration.creating">Creating account…</ng-container>
+            } @else {
+              <ng-container i18n="@@auth.register.submit">Create account</ng-container>
+            }
+          </button>
         </div>
       </div>
+    }
+  }
 
-      <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="prevStep()">
-          <i class="fa fa-arrow-left"></i> <ng-container i18n="@@common.back">Back</ng-container>
-        </button>
-        <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!isStep2Valid">
-          <ng-container i18n="@@registration.next_confirm">Next: Confirm</ng-container> <i class="fa fa-arrow-right"></i>
-        </button>
-      </div>
-    </form>
-
-    <!-- ── Step 3: Confirm & Submit ── -->
-    <div *ngIf="currentStep === 3">
-      <p class="section-title" i18n="@@registration.step3_section">Review &amp; Create Account</p>
-
-      <div class="summary-card">
-        <div class="summary-row">
-          <span class="label" i18n="@@auth.register.full_name">Full Name</span>
-          <span class="value">{{ userForm.value.displayName }}</span>
-        </div>
-        <div class="summary-row">
-          <span class="label" i18n="@@auth.register.email">Email</span>
-          <span class="value">{{ userForm.value.email }}</span>
-        </div>
-        <div class="summary-row">
-          <span class="label" i18n="@@registration.summary_company">Company</span>
-          <span class="value">{{ companyForm.value.companyName }}</span>
-        </div>
-        <div class="summary-row">
-          <span class="label" i18n="@@auth.register.company_email">Company Email</span>
-          <span class="value">{{ companyForm.value.companyEmail }}</span>
-        </div>
-        <div class="summary-row">
-          <span class="label" i18n="@@registration.summary_timezone">Time Zone</span>
-          <span class="value">{{ companyForm.value.timeZone }}</span>
-        </div>
-      </div>
-
-      <div class="notice">
-        <i class="fa fa-info-circle"></i>
-        <ng-container i18n="@@registration.notice">A verification email will be sent to your inbox. Your company starts with a free trial and demo data so you can explore the app right away.</ng-container>
-      </div>
-
-      <p class="legal-consent">
-        <ng-container i18n="@@registration.legal_prefix">By creating an account you agree to the</ng-container>
-        <a href="https://www.loqzen.com/terms/" i18n-href="@@registration.terms_url" target="_blank" rel="noopener"
-          i18n="@@registration.terms_link">Terms of Service</a>
-        <ng-container i18n="@@registration.legal_and">and the</ng-container>
-        <a href="https://www.loqzen.com/privacy/" i18n-href="@@registration.privacy_url" target="_blank" rel="noopener"
-          i18n="@@registration.privacy_link">Privacy Policy</a>.
-      </p>
-
-      <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="prevStep()">
-          <i class="fa fa-arrow-left"></i> <ng-container i18n="@@common.back">Back</ng-container>
-        </button>
-        <button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="isLoading">
-          <span *ngIf="isLoading" class="spinner"></span>
-          <i *ngIf="!isLoading" class="fa fa-check"></i>
-          <ng-container *ngIf="isLoading" i18n="@@registration.creating">Creating account…</ng-container>
-          <ng-container *ngIf="!isLoading" i18n="@@auth.register.submit">Create Account</ng-container>
-        </button>
-      </div>
-    </div>
-
-    <p class="sign-in-link" i18n="@@registration.sign_in_link">Already have an account? <a routerLink="/auth/sign-in">Sign in</a></p>
-  </div>
-</div>
+  <p class="mt-4 text-ink-soft">
+    <span i18n="@@registration.have_account">Already have an account?</span>
+    <a routerLink="/auth/sign-in" class="ml-1 inline-flex min-h-12 items-center font-medium text-link underline" i18n="@@registration.sign_in">Sign in</a>
+  </p>
+</lz-auth-shell>

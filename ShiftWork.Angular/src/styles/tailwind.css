@@ -33,6 +33,8 @@
 @source "../app/features/auth/forgot-password";
 @source "../app/features/auth/verify-email";
 @source "../app/features/auth/accept-invite";
+@source "../app/features/registration";
+@source "../app/features/onboarding";
 @source "../app/features/company-switch";
 
 @theme inline {

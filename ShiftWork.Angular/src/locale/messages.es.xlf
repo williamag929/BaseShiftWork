@@ -211,7 +211,7 @@
         <target state="translated">Revisar y crear</target>
       </trans-unit>
       <trans-unit id="auth.register.full_name" datatype="html">
-        <source>Full Name</source>
+        <source>Full name</source>
         <target state="translated">Nombre completo</target>
       </trans-unit>
       <trans-unit id="auth.register.email" datatype="html">
@@ -235,11 +235,11 @@
         <target state="translated">La contraseña debe tener al menos 6 caracteres.</target>
       </trans-unit>
       <trans-unit id="auth.register.company_name" datatype="html">
-        <source>Company Name</source>
+        <source>Company name</source>
         <target state="translated">Nombre de la empresa</target>
       </trans-unit>
       <trans-unit id="auth.register.company_email" datatype="html">
-        <source>Company Email</source>
+        <source>Company email</source>
         <target state="translated">Correo de la empresa</target>
       </trans-unit>
       <trans-unit id="auth.register.company_phone" datatype="html">
@@ -247,7 +247,7 @@
         <target state="translated">Teléfono de la empresa (opcional)</target>
       </trans-unit>
       <trans-unit id="auth.register.submit" datatype="html">
-        <source>Create Account</source>
+        <source>Create account</source>
         <target state="translated">Crear cuenta</target>
       </trans-unit>
       <trans-unit id="auth.register.creating" datatype="html">
@@ -287,7 +287,7 @@
         <target state="translated">Cargando tu espacio de trabajo…</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.demo_badge" datatype="html">
-        <source>Demo Data</source>
+        <source>Demo data</source>
         <target state="translated">Datos de demostración</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.demo_title" datatype="html">
@@ -403,7 +403,7 @@
         <target state="translated">Explorar Pro</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.go_dashboard" datatype="html">
-        <source>Go to Dashboard</source>
+        <source>Go to dashboard</source>
         <target state="translated">Ir al panel</target>
       </trans-unit>
       <trans-unit id="auth.forgot_password.title" datatype="html">
@@ -539,7 +539,7 @@
         <target state="translated">Revisa tu correo y haz clic en el enlace para verificar tu dirección.</target>
       </trans-unit>
       <trans-unit id="auth.verify_email.resend" datatype="html">
-        <source>Resend Verification Email</source>
+        <source>Resend verification email</source>
         <target state="translated">Reenviar correo de verificación</target>
       </trans-unit>
       <trans-unit id="auth.verify_email.back" datatype="html">
@@ -567,8 +567,8 @@
         <target state="translated">Confirmar</target>
       </trans-unit>
       <trans-unit id="registration.step1_section" datatype="html">
-        <source>Your Account Details</source>
-        <target state="translated">Detalles de tu cuenta</target>
+        <source>Your account details</source>
+        <target state="translated">Los datos de tu cuenta</target>
       </trans-unit>
       <trans-unit id="registration.full_name_required" datatype="html">
         <source>Name is required (min 2 characters).</source>
@@ -583,12 +583,12 @@
         <target state="translated">La contraseña debe tener al menos 8 caracteres.</target>
       </trans-unit>
       <trans-unit id="registration.next_company" datatype="html">
-        <source>Next: Company Info</source>
-        <target state="translated">Siguiente: Info de empresa</target>
+        <source>Next: company info</source>
+        <target state="translated">Siguiente: datos de la empresa</target>
       </trans-unit>
       <trans-unit id="registration.step2_section" datatype="html">
-        <source>Your Company Details</source>
-        <target state="translated">Detalles de tu empresa</target>
+        <source>Your company details</source>
+        <target state="translated">Los datos de tu empresa</target>
       </trans-unit>
       <trans-unit id="registration.company_name_req" datatype="html">
         <source>Company name is required.</source>
@@ -599,27 +599,27 @@
         <target state="translated">Se requiere un correo de empresa válido.</target>
       </trans-unit>
       <trans-unit id="registration.phone_label" datatype="html">
-        <source>Phone Number (optional)</source>
+        <source>Phone number (optional)</source>
         <target state="translated">Número de teléfono (opcional)</target>
       </trans-unit>
       <trans-unit id="registration.time_zone" datatype="html">
-        <source>Time Zone</source>
+        <source>Time zone</source>
         <target state="translated">Zona horaria</target>
       </trans-unit>
       <trans-unit id="registration.next_confirm" datatype="html">
-        <source>Next: Confirm</source>
-        <target state="translated">Siguiente: Confirmar</target>
+        <source>Next: confirm</source>
+        <target state="translated">Siguiente: confirmar</target>
       </trans-unit>
       <trans-unit id="registration.step3_section" datatype="html">
-        <source>Review &amp; Create Account</source>
-        <target state="translated">Revisar y crear cuenta</target>
+        <source>Review &amp; create account</source>
+        <target state="translated">Revisar y crear la cuenta</target>
       </trans-unit>
       <trans-unit id="registration.summary_company" datatype="html">
         <source>Company</source>
         <target state="translated">Empresa</target>
       </trans-unit>
       <trans-unit id="registration.summary_timezone" datatype="html">
-        <source>Time Zone</source>
+        <source>Time zone</source>
         <target state="translated">Zona horaria</target>
       </trans-unit>
       <trans-unit id="registration.notice" datatype="html">
@@ -631,7 +631,7 @@
         <target state="translated">Al crear una cuenta aceptas los</target>
       </trans-unit>
       <trans-unit id="registration.terms_link" datatype="html">
-        <source>Terms of Service</source>
+        <source>Terms of service</source>
         <target state="translated">Términos del servicio</target>
       </trans-unit>
       <trans-unit id="registration.terms_url" datatype="html">
@@ -643,7 +643,7 @@
         <target state="translated">y la</target>
       </trans-unit>
       <trans-unit id="registration.privacy_link" datatype="html">
-        <source>Privacy Policy</source>
+        <source>Privacy policy</source>
         <target state="translated">Política de privacidad</target>
       </trans-unit>
       <trans-unit id="registration.privacy_url" datatype="html">
@@ -9047,6 +9047,70 @@ What would you like to do?</source>
       <trans-unit id="audit.field_changes" datatype="html">
         <source><x id="COUNT"/> changes</source>
         <target state="translated"><x id="COUNT"/> cambios</target>
+      </trans-unit>
+      <trans-unit id="registration.step_progress" datatype="html">
+        <source>Step <x id="INTERPOLATION" equiv-text="{{ currentStep }}"/> of <x id="INTERPOLATION_1" equiv-text="{{ totalSteps }}"/></source>
+        <target state="translated">Paso <x id="INTERPOLATION" equiv-text="{{ currentStep }}"/> de <x id="INTERPOLATION_1" equiv-text="{{ totalSteps }}"/></target>
+      </trans-unit>
+      <trans-unit id="registration.email_label" datatype="html">
+        <source>Email address</source>
+        <target state="translated">Correo electrónico</target>
+      </trans-unit>
+      <trans-unit id="registration.placeholder_name" datatype="html">
+        <source>Jane Doe</source>
+        <target state="translated">María García</target>
+      </trans-unit>
+      <trans-unit id="registration.placeholder_company" datatype="html">
+        <source>Acme Corp</source>
+        <target state="translated">Empresa Ejemplo</target>
+      </trans-unit>
+      <trans-unit id="registration.tz_eastern" datatype="html">
+        <source>Eastern (US)</source>
+        <target state="translated">Este (EE. UU.)</target>
+      </trans-unit>
+      <trans-unit id="registration.tz_central" datatype="html">
+        <source>Central (US)</source>
+        <target state="translated">Centro (EE. UU.)</target>
+      </trans-unit>
+      <trans-unit id="registration.tz_mountain" datatype="html">
+        <source>Mountain (US)</source>
+        <target state="translated">Montaña (EE. UU.)</target>
+      </trans-unit>
+      <trans-unit id="registration.tz_pacific" datatype="html">
+        <source>Pacific (US)</source>
+        <target state="translated">Pacífico (EE. UU.)</target>
+      </trans-unit>
+      <trans-unit id="registration.tz_london" datatype="html">
+        <source>London</source>
+        <target state="translated">Londres</target>
+      </trans-unit>
+      <trans-unit id="registration.tz_paris" datatype="html">
+        <source>Paris / Madrid</source>
+        <target state="translated">París / Madrid</target>
+      </trans-unit>
+      <trans-unit id="registration.tz_tokyo" datatype="html">
+        <source>Tokyo</source>
+        <target state="translated">Tokio</target>
+      </trans-unit>
+      <trans-unit id="registration.have_account" datatype="html">
+        <source>Already have an account?</source>
+        <target state="translated">¿Ya tienes una cuenta?</target>
+      </trans-unit>
+      <trans-unit id="registration.sign_in" datatype="html">
+        <source>Sign in</source>
+        <target state="translated">Iniciar sesión</target>
+      </trans-unit>
+      <trans-unit id="registration.verify_resend_wait" datatype="html">
+        <source>Resend in <x id="INTERPOLATION" equiv-text="{{ resendCooldown }}"/>s</source>
+        <target state="translated">Reenviar en <x id="INTERPOLATION" equiv-text="{{ resendCooldown }}"/> s</target>
+      </trans-unit>
+      <trans-unit id="registration.verify_resend_failed" datatype="html">
+        <source>We couldn&apos;t resend the email. Please try again.</source>
+        <target state="translated">No pudimos reenviar el correo. Inténtalo de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="onboarding.steps_label" datatype="html">
+        <source>Your four setup steps</source>
+        <target state="translated">Tus cuatro pasos de configuración</target>
       </trans-unit>
     </body>
   </file>

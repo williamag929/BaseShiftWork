@@ -159,7 +159,7 @@
         <source>Review &amp; Create</source>
       </trans-unit>
       <trans-unit id="auth.register.full_name" datatype="html">
-        <source>Full Name</source>
+        <source>Full name</source>
       </trans-unit>
       <trans-unit id="auth.register.email" datatype="html">
         <source>Email</source>
@@ -177,16 +177,16 @@
         <source>Password must be at least 6 characters long.</source>
       </trans-unit>
       <trans-unit id="auth.register.company_name" datatype="html">
-        <source>Company Name</source>
+        <source>Company name</source>
       </trans-unit>
       <trans-unit id="auth.register.company_email" datatype="html">
-        <source>Company Email</source>
+        <source>Company email</source>
       </trans-unit>
       <trans-unit id="auth.register.company_phone" datatype="html">
         <source>Company Phone (optional)</source>
       </trans-unit>
       <trans-unit id="auth.register.submit" datatype="html">
-        <source>Create Account</source>
+        <source>Create account</source>
       </trans-unit>
       <trans-unit id="auth.register.creating" datatype="html">
         <source>Creating…</source>
@@ -216,7 +216,7 @@
         <source>Loading your workspace…</source>
       </trans-unit>
       <trans-unit id="auth.onboarding.demo_badge" datatype="html">
-        <source>Demo Data</source>
+        <source>Demo data</source>
       </trans-unit>
       <trans-unit id="auth.onboarding.demo_title" datatype="html">
         <source>Your account includes sample data</source>
@@ -303,7 +303,7 @@
         <source>Explore Pro</source>
       </trans-unit>
       <trans-unit id="auth.onboarding.go_dashboard" datatype="html">
-        <source>Go to Dashboard</source>
+        <source>Go to dashboard</source>
       </trans-unit>
       <trans-unit id="auth.forgot_password.title" datatype="html">
         <source>Forgot Password</source>
@@ -402,7 +402,7 @@
         <source>Please check your email and click on the link to verify your email address.</source>
       </trans-unit>
       <trans-unit id="auth.verify_email.resend" datatype="html">
-        <source>Resend Verification Email</source>
+        <source>Resend verification email</source>
       </trans-unit>
       <trans-unit id="auth.verify_email.back" datatype="html">
         <source>Go back to Sign in</source>
@@ -423,7 +423,7 @@
         <source>Confirm</source>
       </trans-unit>
       <trans-unit id="registration.step1_section" datatype="html">
-        <source>Your Account Details</source>
+        <source>Your account details</source>
       </trans-unit>
       <trans-unit id="registration.full_name_required" datatype="html">
         <source>Name is required (min 2 characters).</source>
@@ -435,10 +435,10 @@
         <source>Password must be at least 8 characters.</source>
       </trans-unit>
       <trans-unit id="registration.next_company" datatype="html">
-        <source>Next: Company Info</source>
+        <source>Next: company info</source>
       </trans-unit>
       <trans-unit id="registration.step2_section" datatype="html">
-        <source>Your Company Details</source>
+        <source>Your company details</source>
       </trans-unit>
       <trans-unit id="registration.company_name_req" datatype="html">
         <source>Company name is required.</source>
@@ -447,22 +447,22 @@
         <source>A valid company email is required.</source>
       </trans-unit>
       <trans-unit id="registration.phone_label" datatype="html">
-        <source>Phone Number (optional)</source>
+        <source>Phone number (optional)</source>
       </trans-unit>
       <trans-unit id="registration.time_zone" datatype="html">
-        <source>Time Zone</source>
+        <source>Time zone</source>
       </trans-unit>
       <trans-unit id="registration.next_confirm" datatype="html">
-        <source>Next: Confirm</source>
+        <source>Next: confirm</source>
       </trans-unit>
       <trans-unit id="registration.step3_section" datatype="html">
-        <source>Review &amp; Create Account</source>
+        <source>Review &amp; create account</source>
       </trans-unit>
       <trans-unit id="registration.summary_company" datatype="html">
         <source>Company</source>
       </trans-unit>
       <trans-unit id="registration.summary_timezone" datatype="html">
-        <source>Time Zone</source>
+        <source>Time zone</source>
       </trans-unit>
       <trans-unit id="registration.notice" datatype="html">
         <source>A verification email will be sent to your inbox. Your company starts with a free trial and demo data so you can explore the app right away.</source>
@@ -471,7 +471,7 @@
         <source>By creating an account you agree to the</source>
       </trans-unit>
       <trans-unit id="registration.terms_link" datatype="html">
-        <source>Terms of Service</source>
+        <source>Terms of service</source>
       </trans-unit>
       <trans-unit id="registration.terms_url" datatype="html">
         <source>https://www.loqzen.com/terms/</source>
@@ -480,7 +480,7 @@
         <source>and the</source>
       </trans-unit>
       <trans-unit id="registration.privacy_link" datatype="html">
-        <source>Privacy Policy</source>
+        <source>Privacy policy</source>
       </trans-unit>
       <trans-unit id="registration.privacy_url" datatype="html">
         <source>https://www.loqzen.com/privacy/</source>
@@ -5203,6 +5203,54 @@ What would you like to do?</source>
       </trans-unit>
       <trans-unit id="audit.field_changes" datatype="html">
         <source><x id="COUNT"/> changes</source>
+      </trans-unit>
+      <trans-unit id="registration.step_progress" datatype="html">
+        <source>Step <x id="INTERPOLATION" equiv-text="{{ currentStep }}"/> of <x id="INTERPOLATION_1" equiv-text="{{ totalSteps }}"/></source>
+      </trans-unit>
+      <trans-unit id="registration.email_label" datatype="html">
+        <source>Email address</source>
+      </trans-unit>
+      <trans-unit id="registration.placeholder_name" datatype="html">
+        <source>Jane Doe</source>
+      </trans-unit>
+      <trans-unit id="registration.placeholder_company" datatype="html">
+        <source>Acme Corp</source>
+      </trans-unit>
+      <trans-unit id="registration.tz_eastern" datatype="html">
+        <source>Eastern (US)</source>
+      </trans-unit>
+      <trans-unit id="registration.tz_central" datatype="html">
+        <source>Central (US)</source>
+      </trans-unit>
+      <trans-unit id="registration.tz_mountain" datatype="html">
+        <source>Mountain (US)</source>
+      </trans-unit>
+      <trans-unit id="registration.tz_pacific" datatype="html">
+        <source>Pacific (US)</source>
+      </trans-unit>
+      <trans-unit id="registration.tz_london" datatype="html">
+        <source>London</source>
+      </trans-unit>
+      <trans-unit id="registration.tz_paris" datatype="html">
+        <source>Paris / Madrid</source>
+      </trans-unit>
+      <trans-unit id="registration.tz_tokyo" datatype="html">
+        <source>Tokyo</source>
+      </trans-unit>
+      <trans-unit id="registration.have_account" datatype="html">
+        <source>Already have an account?</source>
+      </trans-unit>
+      <trans-unit id="registration.sign_in" datatype="html">
+        <source>Sign in</source>
+      </trans-unit>
+      <trans-unit id="registration.verify_resend_wait" datatype="html">
+        <source>Resend in <x id="INTERPOLATION" equiv-text="{{ resendCooldown }}"/>s</source>
+      </trans-unit>
+      <trans-unit id="registration.verify_resend_failed" datatype="html">
+        <source>We couldn&apos;t resend the email. Please try again.</source>
+      </trans-unit>
+      <trans-unit id="onboarding.steps_label" datatype="html">
+        <source>Your four setup steps</source>
       </trans-unit>
     </body>
   </file>

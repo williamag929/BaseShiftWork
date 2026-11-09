@@ -1,111 +1,91 @@
-<div class="onboarding-bg">
-  <div class="onboarding-card">
+<lz-auth-shell
+  wide
+  title="Your account is set up and ready to go."
+  i18n-title="@@auth.onboarding.account_setup"
+  subtitle="Four steps to your team's first clock-in."
+  i18n-subtitle="@@auth.onboarding.subtitle_steps"
+>
+  @if (successMessage) {
+    <div class="mb-4"><lz-alert tone="success">{{ successMessage }}</lz-alert></div>
+  }
+  @if (errorMessage) {
+    <div class="mb-4"><lz-alert tone="danger">{{ errorMessage }}</lz-alert></div>
+  }
 
-    <!-- ── Header ── -->
-    <div class="ob-header">
-      <div class="check-circle">
-        <i class="fa fa-check"></i>
-      </div>
-      <h1 i18n="@@auth.onboarding.account_setup">Your account is set up and ready to go.</h1>
-      <p class="sub" i18n="@@auth.onboarding.subtitle_steps">Four steps to your team's first clock-in.</p>
-    </div>
-
-    <!-- ── Alerts ── -->
-    <div *ngIf="successMessage" class="alert alert-success">
-      <i class="fa fa-check-circle"></i> {{ successMessage }}
-    </div>
-    <div *ngIf="errorMessage" class="alert alert-danger">
-      <i class="fa fa-exclamation-triangle"></i> {{ errorMessage }}
-    </div>
-
-    <!-- ── Loading state ── -->
-    <div *ngIf="isLoading" class="loading-state">
-      <div class="spinner"></div>
-      <p i18n="@@auth.onboarding.loading">Loading your workspace…</p>
-    </div>
-
-    <!-- Next steps -->
-    <ol class="next-steps" *ngIf="!isLoading">
-      <li *ngFor="let step of nextSteps; let i = index" class="next-step">
-        <span class="next-step-num">{{ i + 1 }}</span>
-        <i class="fa {{ step.icon }} next-step-icon"></i>
-        <span class="next-step-text">
-          <button *ngIf="step.link; else plainTitle" type="button" class="next-step-link" (click)="goToDashboard(step.link)">{{ step.title }}</button>
-          <ng-template #plainTitle><strong>{{ step.title }}</strong></ng-template>
-          <small>{{ step.description }}</small>
-        </span>
-      </li>
+  @if (isLoading) {
+    <p role="status" class="py-6 text-center text-ink-soft" i18n="@@auth.onboarding.loading">Loading your workspace…</p>
+  } @else {
+    <ol class="flex flex-col gap-3" aria-label="Your four setup steps" i18n-aria-label="@@onboarding.steps_label">
+      @for (step of nextSteps; track step.title; let i = $index) {
+        <li class="flex items-start gap-3 rounded-control border border-line p-3">
+          <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-neutral-bg font-medium text-ink" aria-hidden="true">{{ i + 1 }}</span>
+          <span class="min-w-0 flex-1">
+            @if (step.link) {
+              <button type="button" lzButton variant="quiet" class="-ml-3 text-left" (click)="goToDashboard(step.link)">{{ step.title }}</button>
+            } @else {
+              <strong class="flex min-h-12 items-center">{{ step.title }}</strong>
+            }
+            <small class="block text-[13px] text-ink-soft">{{ step.description }}</small>
+          </span>
+        </li>
+      }
     </ol>
 
-    <!-- Sandbox banner -->
-    <div class="sandbox-banner" *ngIf="!isLoading && sandboxStatus?.hasSandboxData">
-      <div class="sandbox-banner-header">
-        <span class="badge-info" i18n="@@auth.onboarding.demo_badge">Demo Data</span>
-        <h3 i18n="@@auth.onboarding.demo_title">Your account includes sample data</h3>
-      </div>
-      <p i18n="@@auth.onboarding.demo_description">
-        We've added demo employees, a location, and an area so you can explore how Loqzen works.
-        This data is clearly marked as <em>sandbox</em> — it won't affect your payroll or reports.
-      </p>
+    @if (sandboxStatus?.hasSandboxData) {
+      <section class="mt-4 rounded-control border border-line bg-paper-alt p-4">
+        <p class="text-[13px] font-medium text-ink-soft" i18n="@@auth.onboarding.demo_badge">Demo data</p>
+        <h2 class="mt-1 text-lg font-semibold text-ink" i18n="@@auth.onboarding.demo_title">Your account includes sample data</h2>
+        <p class="mt-2 text-ink-soft" i18n="@@auth.onboarding.demo_description">
+          We've added demo employees, a location, and an area so you can explore how Loqzen works.
+          This data is clearly marked as <em>sandbox</em> — it won't affect your payroll or reports.
+        </p>
 
-      <div class="sandbox-counts" *ngIf="sandboxStatus">
-        <div class="count-item">
-          <strong>{{ sandboxStatus.sandboxPersonCount }}</strong>
-          <span i18n="@@auth.onboarding.employees">Employees</span>
+        <dl class="mt-4 grid grid-cols-3 gap-3 text-center">
+          <div class="flex flex-col-reverse">
+            <dt class="text-[13px] text-ink-soft" i18n="@@auth.onboarding.employees">Employees</dt>
+            <dd class="text-[26px] font-semibold leading-tight text-ink">{{ sandboxStatus!.sandboxPersonCount }}</dd>
+          </div>
+          <div class="flex flex-col-reverse">
+            <dt class="text-[13px] text-ink-soft" i18n="@@auth.onboarding.locations">Locations</dt>
+            <dd class="text-[26px] font-semibold leading-tight text-ink">{{ sandboxStatus!.sandboxLocationCount }}</dd>
+          </div>
+          <div class="flex flex-col-reverse">
+            <dt class="text-[13px] text-ink-soft" i18n="@@auth.onboarding.areas">Areas</dt>
+            <dd class="text-[26px] font-semibold leading-tight text-ink">{{ sandboxStatus!.sandboxAreaCount }}</dd>
+          </div>
+        </dl>
+
+        <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <button type="button" lzButton variant="secondary" class="w-full sm:w-auto" (click)="hideSandboxData()" [disabled]="!!actionInProgress">
+            {{ actionInProgress === 'hide' ? hidingLabel : hideDemoLabel }}
+          </button>
+          <button type="button" lzButton variant="secondary" class="w-full sm:w-auto" (click)="resetSandboxData()" [disabled]="!!actionInProgress">
+            {{ actionInProgress === 'reset' ? resettingLabel : resetDemoLabel }}
+          </button>
+          <button type="button" lzButton variant="danger" class="w-full sm:w-auto" (click)="deleteSandboxData()" [disabled]="!!actionInProgress">
+            {{ actionInProgress === 'delete' ? removingLabel : removeDemoLabel }}
+          </button>
         </div>
-        <div class="count-item">
-          <strong>{{ sandboxStatus.sandboxLocationCount }}</strong>
-          <span i18n="@@auth.onboarding.locations">Locations</span>
-        </div>
-        <div class="count-item">
-          <strong>{{ sandboxStatus.sandboxAreaCount }}</strong>
-          <span i18n="@@auth.onboarding.areas">Areas</span>
-        </div>
+      </section>
+    } @else if (sandboxStatus) {
+      <div class="mt-4">
+        <lz-alert tone="success" i18n="@@auth.onboarding.workspace_clean">Your workspace is clean and ready for real data.</lz-alert>
       </div>
+    }
 
-      <div class="sandbox-actions">
-        <button class="btn btn-outline-secondary" (click)="hideSandboxData()" [disabled]="!!actionInProgress">
-          <i class="fa fa-eye-slash"></i>
-          {{ actionInProgress === 'hide' ? hidingLabel : hideDemoLabel }}
-        </button>
-        <button class="btn btn-outline-warning" (click)="resetSandboxData()" [disabled]="!!actionInProgress">
-          <i class="fa fa-refresh"></i>
-          {{ actionInProgress === 'reset' ? resettingLabel : resetDemoLabel }}
-        </button>
-        <button class="btn btn-outline-danger" (click)="deleteSandboxData()" [disabled]="!!actionInProgress">
-          <i class="fa fa-trash"></i>
-          {{ actionInProgress === 'delete' ? removingLabel : removeDemoLabel }}
-        </button>
-      </div>
+    <section class="mt-4 rounded-control border border-line p-4">
+      @if (trialEndsAt) {
+        <h2 class="text-lg font-semibold text-ink"><ng-container i18n="@@auth.onboarding.trial_heading">Your free trial ends on</ng-container> <strong>{{ trialEndsAt | date:'mediumDate' }}</strong></h2>
+        <p class="mt-1 text-ink-soft" i18n="@@auth.onboarding.trial_description">Choose a plan any time from Billing.</p>
+      } @else {
+        <h2 class="text-lg font-semibold text-ink" i18n="@@auth.onboarding.free_plan_heading">You're on the <strong>Free plan</strong></h2>
+        <p class="mt-1 text-ink-soft" i18n="@@auth.onboarding.upgrade_description">Upgrade to Pro to unlock advanced scheduling, analytics, multi-location support, and more.</p>
+      }
+      <button type="button" lzButton variant="secondary" class="mt-3 w-full sm:w-auto" (click)="goToDashboard('/dashboard/billing')" i18n="@@auth.onboarding.explore_pro">Explore Pro</button>
+    </section>
+
+    <div class="mt-6">
+      <button type="button" lzButton variant="primary" class="w-full" (click)="goToDashboard()" i18n="@@auth.onboarding.go_dashboard">Go to dashboard</button>
     </div>
-
-    <!-- ── Clean workspace notice ── -->
-    <div class="sandbox-clean" *ngIf="!isLoading && sandboxStatus && !sandboxStatus.hasSandboxData">
-      <i class="fa fa-check-circle"></i>
-      <ng-container i18n="@@auth.onboarding.workspace_clean">Your workspace is clean and ready for real data.</ng-container>
-    </div>
-
-    <!-- ── Plan banner ── -->
-    <div class="plan-banner" *ngIf="!isLoading">
-      <ng-container *ngIf="trialEndsAt; else freePlan">
-        <h3><ng-container i18n="@@auth.onboarding.trial_heading">Your free trial ends on</ng-container> <strong>{{ trialEndsAt | date:'mediumDate' }}</strong></h3>
-        <p i18n="@@auth.onboarding.trial_description">Choose a plan any time from Billing.</p>
-      </ng-container>
-      <ng-template #freePlan>
-        <h3 i18n="@@auth.onboarding.free_plan_heading">You're on the <strong>Free plan</strong></h3>
-        <p i18n="@@auth.onboarding.upgrade_description">Upgrade to Pro to unlock advanced scheduling, analytics, multi-location support, and more.</p>
-      </ng-template>
-      <button type="button" class="btn btn-primary" (click)="goToDashboard('/dashboard/billing')">
-        <ng-container i18n="@@auth.onboarding.explore_pro">Explore Pro</ng-container> <i class="fa fa-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- ── CTA ── -->
-    <div class="ob-footer" *ngIf="!isLoading">
-      <button class="btn-cta" (click)="goToDashboard()">
-        <ng-container i18n="@@auth.onboarding.go_dashboard">Go to Dashboard</ng-container> <i class="fa fa-arrow-right"></i>
-      </button>
-    </div>
-
-  </div>
-</div>
+  }
+</lz-auth-shell>

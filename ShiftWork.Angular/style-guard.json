@@ -51,6 +51,8 @@
     "src/app/features/kiosk/admin-password-dialog/**",
     "src/app/features/kiosk/location-select-dialog/**",
     "src/app/features/kiosk/question-dialog/**",
-    "src/app/features/kiosk/audit-history/**"
+    "src/app/features/kiosk/audit-history/**",
+    "src/app/features/registration/**",
+    "src/app/features/onboarding/**"
   ]
 }

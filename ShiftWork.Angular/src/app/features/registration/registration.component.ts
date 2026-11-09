@@ -1,5 +1,5 @@
 import '@angular/localize/init';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -7,13 +7,28 @@ import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { RegistrationService, CompanyRegistrationRequest } from '../../core/services/registration.service';
 import { AuthService } from '../../core/services/auth.service';
+import {
+  LzAlertComponent,
+  LzAuthShellComponent,
+  LzButtonDirective,
+  LzFieldComponent,
+  LzFieldDirective,
+} from '../../shared/ui';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    LzAuthShellComponent,
+    LzFieldComponent,
+    LzFieldDirective,
+    LzAlertComponent,
+    LzButtonDirective,
+  ],
   selector: 'app-registration',
-  templateUrl: './registration.component.html',
-  styleUrls: ['./registration.component.css']
+  templateUrl: './registration.component.html'
 })
 export class RegistrationComponent implements OnInit {
   currentStep = 1;
@@ -34,7 +49,9 @@ export class RegistrationComponent implements OnInit {
     private afAuth: AngularFireAuth,
     private registrationService: RegistrationService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private host: ElementRef<HTMLElement>,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -60,6 +77,42 @@ export class RegistrationComponent implements OnInit {
   /** True when the browser's zone isn't one of the fixed options, so the select must offer it too. */
   get showDetectedTimeZone(): boolean {
     return !this.listedTimeZones.includes(this.detectedTimeZone);
+  }
+
+  private readonly fieldErrors: Record<string, string> = {
+    displayName: $localize`:@@registration.full_name_required:Name is required (min 2 characters).`,
+    email: $localize`:@@registration.email_required:A valid email is required.`,
+    password: $localize`:@@registration.password_min_8:Password must be at least 8 characters.`,
+    companyName: $localize`:@@registration.company_name_req:Company name is required.`,
+    companyEmail: $localize`:@@registration.company_email_req:A valid company email is required.`
+  };
+
+  /** Message for a control that was touched (or touched by a failed Next) and is invalid. */
+  fieldError(form: FormGroup, name: string): string | null {
+    const control = form.get(name);
+    return control && control.invalid && control.touched ? this.fieldErrors[name] ?? null : null;
+  }
+
+  /** Next from the form: reveals every error and focuses the first invalid field instead of advancing. */
+  onNext(): void {
+    const form = this.currentStep === 1 ? this.userForm : this.companyForm;
+    if (form.invalid) {
+      form.markAllAsTouched();
+      this.focusAfterRender('[aria-invalid="true"]');
+      return;
+    }
+    this.nextStep();
+    this.focusAfterRender('[data-step-heading]');
+  }
+
+  onBack(): void {
+    this.prevStep();
+    this.focusAfterRender('[data-step-heading]');
+  }
+
+  private focusAfterRender(selector: string): void {
+    this.cdr.detectChanges();
+    this.host.nativeElement.querySelector<HTMLElement>(selector)?.focus();
   }
 
   nextStep(): void {

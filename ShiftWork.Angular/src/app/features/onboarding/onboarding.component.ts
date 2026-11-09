@@ -4,13 +4,13 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { RegistrationService, SandboxStatusResponse } from '../../core/services/registration.service';
+import { LzAlertComponent, LzAuthShellComponent, LzButtonDirective } from '../../shared/ui';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, LzAuthShellComponent, LzAlertComponent, LzButtonDirective],
   selector: 'app-onboarding',
-  templateUrl: './onboarding.component.html',
-  styleUrls: ['./onboarding.component.css']
+  templateUrl: './onboarding.component.html'
 })
 export class OnboardingComponent implements OnInit {
   companyId = '';
