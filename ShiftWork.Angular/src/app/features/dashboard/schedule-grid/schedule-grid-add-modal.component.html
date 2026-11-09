@@ -1,82 +1,113 @@
-<div class="modal-backdrop" (click)="onClose()"></div>
-<div class="modal-content">
-  <div class="modal-header">
-    <span class="modal-title">
-      <ng-container *ngIf="existingSchedule" i18n="@@add_modal.edit_schedule">Edit Schedule</ng-container>
-      <ng-container *ngIf="!existingSchedule" i18n="@@add_modal.add_schedule">Add Schedule</ng-container>
-    </span>
-    <button class="close-btn" (click)="onClose()">&times;</button>
-  </div>
-  <div class="modal-body">
-    <label for="person-select" i18n="@@add_modal.select_person">Select Person</label>
-    <select id="person-select" [(ngModel)]="selectedPersonId" class="form-select">
-      <option [ngValue]="null" i18n="@@add_modal.select_person_ph">-- Select a person --</option>
-      <option *ngFor="let person of people" [ngValue]="person.personId">
-        {{ person.name }}
-      </option>
-    </select>
-    <div class="modal-row">
-      <label for="location-select" i18n="@@add_modal.location">Location</label>
-      <select id="location-select" class="form-select" [(ngModel)]="selectedLocationId" (change)="onLocationChange()">
-        <option *ngFor="let loc of locations" [value]="loc.locationId">{{ loc.name }}</option>
-      </select>
-    </div>
-    <div class="modal-row">
-      <label for="area-select" i18n="@@add_modal.area">Area</label>
-      <select id="area-select" class="form-select" [(ngModel)]="selectedAreaId">
-        <option [value]="0" i18n="@@add_modal.area_ph">-- Select an area --</option>
-        <option *ngFor="let area of filteredAreas" [value]="area.areaId">{{ area.name }}</option>
-      </select>
-    </div>
-    <div class="modal-row">
-      <label i18n="@@add_modal.start_time">Start Time</label>
-      <input type="time" [(ngModel)]="defaultStart" />
-      <label i18n="@@add_modal.end_time">End Time</label>
-      <input type="time" [(ngModel)]="defaultEnd" />
-    </div>
-  </div>
-  <div class="modal-footer">
-    <div class="footer-actions">
-      <div class="more-wrapper">
-        <button type="button" class="more-btn" (click)="toggleMenu($event)">…</button>
-        <div class="action-menu" *ngIf="menuOpen" (click)="$event.stopPropagation()">
-          <button class="menu-item" (click)="repeatTomorrow()" i18n="@@add_modal.repeat_tomorrow">Repeat for tomorrow</button>
-          <button class="menu-item" (click)="repeatRestOfWeek()" i18n="@@add_modal.repeat_week">Repeat for rest of the week</button>
+<div class="fixed inset-0 z-[999] flex items-start justify-center overflow-y-auto p-4">
+  <div class="fixed inset-0 bg-navy-900/40" aria-hidden="true" (click)="onClose()"></div>
+  <div
+    role="dialog"
+    aria-modal="true"
+    cdkTrapFocus
+    cdkTrapFocusAutoCapture
+    [attr.aria-labelledby]="frame.titleId"
+    class="relative my-auto w-full max-w-lg rounded-dialog border border-line bg-paper shadow-overlay"
+  >
+    <lz-dialog-frame #frame [title]="dialogTitle" (closed)="onClose()">
+      <div class="space-y-4">
+        <lz-field label="Person" i18n-label="@@add_modal.select_person_label" controlId="person-select">
+          <select lzField id="person-select" cdkFocusInitial [(ngModel)]="selectedPersonId">
+            <option [ngValue]="null" i18n="@@add_modal.select_person_ph">Select a person</option>
+            <option *ngFor="let person of people" [ngValue]="person.personId">{{ person.name }}</option>
+          </select>
+        </lz-field>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <lz-field label="Location" i18n-label="@@add_modal.location" controlId="location-select">
+            <select lzField id="location-select" [(ngModel)]="selectedLocationId" (change)="onLocationChange()">
+              <option *ngFor="let loc of locations" [value]="loc.locationId">{{ loc.name }}</option>
+            </select>
+          </lz-field>
+          <lz-field label="Area" i18n-label="@@add_modal.area" controlId="area-select">
+            <select lzField id="area-select" [(ngModel)]="selectedAreaId">
+              <option [value]="0" i18n="@@add_modal.area_ph">Select an area</option>
+              <option *ngFor="let area of filteredAreas" [value]="area.areaId">{{ area.name }}</option>
+            </select>
+          </lz-field>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <lz-field label="Start time" i18n-label="@@add_modal.start_time" controlId="start-time">
+            <input lzField type="time" id="start-time" [(ngModel)]="defaultStart" />
+          </lz-field>
+          <lz-field label="End time" i18n-label="@@add_modal.end_time" controlId="end-time">
+            <input lzField type="time" id="end-time" [(ngModel)]="defaultEnd" />
+          </lz-field>
+        </div>
+      </div>
+
+      <div lzDialogActions class="relative mr-auto">
+        <button
+          lzButton
+          variant="secondary"
+          iconOnly
+          type="button"
+          aria-haspopup="menu"
+          aria-label="More actions"
+          i18n-aria-label="@@add_modal.more_actions"
+          [attr.aria-expanded]="menuOpen"
+          (click)="toggleMenu($event)"
+        >
+          <mat-icon aria-hidden="true">more_horiz</mat-icon>
+        </button>
+        <div
+          *ngIf="menuOpen"
+          role="menu"
+          class="absolute bottom-full left-0 z-10 mb-2 w-72 rounded-panel border border-line bg-paper p-1 shadow-overlay"
+          (click)="$event.stopPropagation()"
+        >
+          <button role="menuitem" lzButton variant="quiet" type="button" class="w-full justify-start! text-ink!" (click)="repeatTomorrow()" i18n="@@add_modal.repeat_tomorrow">Repeat for tomorrow</button>
+          <button role="menuitem" lzButton variant="quiet" type="button" class="w-full justify-start! text-ink!" (click)="repeatRestOfWeek()" i18n="@@add_modal.repeat_week">Repeat for rest of the week</button>
           <ng-container *ngIf="!specificDaysMode; else daysSelector">
-            <button class="menu-item" (click)="repeatSpecificDays()" i18n="@@add_modal.repeat_specific">Repeat for specific days</button>
+            <button role="menuitem" lzButton variant="quiet" type="button" class="w-full justify-start! text-ink!" (click)="repeatSpecificDays()" i18n="@@add_modal.repeat_specific">Repeat for specific days</button>
           </ng-container>
           <ng-template #daysSelector>
-            <div class="days-selector">
-              <div class="days-grid">
-                <button type="button" class="day-chip" *ngFor="let d of [0,1,2,3,4,5,6]"
-                        [class.selected]="selectedDayIndices.has(d)" (click)="toggleDayIndex(d)">
-                  {{ ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d] }}
-                </button>
+            <div class="space-y-2 p-2">
+              <div class="flex flex-wrap gap-2">
+                <button
+                  *ngFor="let d of [0, 1, 2, 3, 4, 5, 6]"
+                  type="button"
+                  lzButton
+                  variant="secondary"
+                  iconOnly
+                  [class]="selectedDayIndices.has(d) ? 'border-2! border-ink! bg-neutral-bg! font-semibold' : ''"
+                  [attr.aria-pressed]="selectedDayIndices.has(d)"
+                  (click)="toggleDayIndex(d)"
+                >{{ ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d] }}</button>
               </div>
-              <div class="days-actions">
-                <button type="button" class="menu-item" (click)="confirmSpecificDays()" i18n="@@add_modal.confirm_days">Confirm days</button>
-                <button type="button" class="menu-item" (click)="cancelSpecificDays()" i18n="@@common.cancel">Cancel</button>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" lzButton variant="secondary" (click)="confirmSpecificDays()" i18n="@@add_modal.confirm_days">Confirm days</button>
+                <button type="button" lzButton variant="quiet" (click)="cancelSpecificDays()" i18n="@@common.cancel">Cancel</button>
               </div>
             </div>
           </ng-template>
-          <button class="menu-item" (click)="repeatSetPattern()" i18n="@@add_modal.repeat_pattern">Repeat for set pattern</button>
-          <hr class="menu-separator" />
-          <button class="menu-item" (click)="requestTimeOff()" i18n="@@add_modal.request_time_off">Request time off</button>
-          <button class="menu-item" (click)="reportSick()" i18n="@@add_modal.report_sick">Report sick</button>
-          <button class="menu-item" (click)="findReplacement()" i18n="@@add_modal.find_replacement">Find replacement</button>
-          <button class="menu-item" (click)="viewProfile()" i18n="@@add_modal.view_profile">View {{ personName }}'s profile</button>
-          <button class="menu-item" (click)="viewShiftHistory()">
+          <button role="menuitem" lzButton variant="quiet" type="button" class="w-full justify-start! text-ink!" (click)="repeatSetPattern()" i18n="@@add_modal.repeat_pattern">Repeat for set pattern</button>
+          <hr class="my-1 border-line-soft" />
+          <button role="menuitem" lzButton variant="quiet" type="button" class="w-full justify-start! text-ink!" (click)="requestTimeOff()" i18n="@@add_modal.request_time_off">Request time off</button>
+          <button role="menuitem" lzButton variant="quiet" type="button" class="w-full justify-start! text-ink!" (click)="reportSick()" i18n="@@add_modal.report_sick">Report sick</button>
+          <button role="menuitem" lzButton variant="quiet" type="button" class="w-full justify-start! text-ink!" (click)="findReplacement()" i18n="@@add_modal.find_replacement">Find replacement</button>
+          <button role="menuitem" lzButton variant="quiet" type="button" class="w-full justify-start! text-ink!" (click)="viewProfile()" i18n="@@add_modal.view_profile">View {{ personName }}'s profile</button>
+          <button role="menuitem" lzButton variant="quiet" type="button" class="w-full justify-start! text-ink!" (click)="viewShiftHistory()">
             <ng-container i18n="@@add_modal.view_history">View shift history</ng-container>
-            <span class="badge-shortcut">H</span>
+            <kbd class="ml-auto rounded-control border border-line px-2 font-[inherit] text-[12px] text-ink-soft" aria-hidden="true">H</kbd>
           </button>
-          <hr class="menu-separator" />
-          <button class="menu-item danger" (click)="deleteShiftClicked()" i18n="@@add_modal.delete_shift">Delete shift</button>
-            <div class="delete-spinner" *ngIf="deleteInProgress">
-              <div class="spinner"></div>
-            </div>
+          <hr class="my-1 border-line-soft" />
+          <button role="menuitem" lzButton variant="quiet" type="button" class="w-full justify-start! text-danger-ink!" [disabled]="deleteInProgress" [attr.aria-busy]="deleteInProgress" (click)="deleteShiftClicked()">
+            <mat-icon *ngIf="deleteInProgress" aria-hidden="true" class="animate-spin motion-reduce:animate-none">autorenew</mat-icon>
+            <ng-container i18n="@@add_modal.delete_shift">Delete shift</ng-container>
+          </button>
         </div>
       </div>
-      <button class="save-btn" (click)="onSave()" i18n="@@add_modal.save">Save</button>
-    </div>
+      <button lzDialogActions lzButton variant="secondary" type="button" (click)="onClose()" i18n="@@common.cancel">Cancel</button>
+      <button lzDialogActions lzButton variant="primary" type="button" (click)="onSave()">
+        <ng-container *ngIf="existingSchedule" i18n="@@add_modal.save_shift">Save shift</ng-container>
+        <ng-container *ngIf="!existingSchedule" i18n="@@add_modal.add_shift">Add shift</ng-container>
+      </button>
+    </lz-dialog-frame>
   </div>
 </div>

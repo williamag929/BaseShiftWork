@@ -20,6 +20,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ScheduleEditComponent } from '../schedule-edit/schedule-edit.component';
 import { ToastrService } from 'ngx-toastr';
 import { SharedModule } from "src/app/shared/shared.module";
+import { MatIconModule } from '@angular/material/icon';
+import { LzAlertComponent, LzFieldDirective, LzPageHeaderComponent } from 'src/app/shared/ui';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
@@ -27,9 +29,8 @@ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 @Component({
   selector: 'app-schedule',
   templateUrl: './schedule.component.html',
-  styleUrls: ['./schedule.component.css'],
   providers: [ScheduleService, PeopleService, LocationService],
-  imports: [SharedModule],
+  imports: [SharedModule, MatIconModule, LzPageHeaderComponent, LzAlertComponent, LzFieldDirective],
 
 })
 export class ScheduleComponent implements OnInit {

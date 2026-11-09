@@ -1,28 +1,20 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-md-12">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="card-title" i18n="@@schedule.title">Schedule</h4>
-          <div class="col-md-4">
-            <select class="form-control" (change)="filterByLocation($event)">
-              <option value="" i18n="@@schedule.all_locations">All Locations</option>
-              <option *ngFor="let location of locations" [value]="location.locationId">{{ location.name }}</option>
-            </select>
-          </div>
-        </div>
-        <div class="card-body">
-          <div *ngIf="loading" class="text-center">
-            <div class="spinner-border" role="status">
-              <span class="sr-only" i18n="@@common.loading_short">Loading...</span>
-            </div>
-          </div>
-          <div *ngIf="error" class="alert alert-danger" i18n="@@schedule.error">
-            Error loading schedule.
-          </div>
-          <full-calendar #calendar [options]="calendarOptions"></full-calendar>
-        </div>
-      </div>
+<div class="flex flex-col gap-4">
+  <lz-page-header title="Schedule" i18n-title="@@schedule.title">
+    <div lzHeaderMeta class="mt-2">
+      <label class="flex items-center gap-2">
+        <mat-icon aria-hidden="true" class="text-ink-soft">place</mat-icon>
+        <select lzField class="sm:w-auto" aria-label="Location" i18n-aria-label="@@schedule.location_label" (change)="filterByLocation($event)">
+          <option value="" i18n="@@schedule.all_locations">All locations</option>
+          <option *ngFor="let location of locations" [value]="location.locationId">{{ location.name }}</option>
+        </select>
+      </label>
     </div>
+  </lz-page-header>
+
+  <lz-alert tone="info" *ngIf="loading"><ng-container i18n="@@common.loading_short">Loading...</ng-container></lz-alert>
+  <lz-alert tone="danger" *ngIf="error" i18n="@@schedule.error">Error loading schedule.</lz-alert>
+
+  <div class="rounded-panel border border-line bg-paper p-4">
+    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
   </div>
 </div>

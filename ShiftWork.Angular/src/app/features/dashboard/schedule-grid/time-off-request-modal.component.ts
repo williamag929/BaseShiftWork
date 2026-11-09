@@ -1,14 +1,16 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
+import { MatIconModule } from '@angular/material/icon';
+import { LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzFieldComponent, LzFieldDirective } from 'src/app/shared/ui';
 import { FormsModule } from '@angular/forms';
 import { CreateTimeOffRequest } from 'src/app/core/models/time-off-request.model';
 
 @Component({
   selector: 'app-time-off-request-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './time-off-request-modal.component.html',
-  styleUrl: './time-off-request-modal.component.css'
+  imports: [CommonModule, FormsModule, A11yModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzFieldComponent, LzFieldDirective],
+  templateUrl: './time-off-request-modal.component.html'
 })
 export class TimeOffRequestModalComponent implements OnInit {
   @Input() personId: number | null = null;

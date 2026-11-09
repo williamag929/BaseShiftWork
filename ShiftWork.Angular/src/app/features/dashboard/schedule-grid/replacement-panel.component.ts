@@ -1,14 +1,16 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
+import { MatIconModule } from '@angular/material/icon';
+import { LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzPanelComponent, LzStatusChipComponent } from 'src/app/shared/ui';
 import { FormsModule } from '@angular/forms';
 import { ReplacementCandidate } from 'src/app/core/models/replacement-candidate.model';
 
 @Component({
   selector: 'app-replacement-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './replacement-panel.component.html',
-  styleUrls: ['./replacement-panel.component.css']
+  imports: [CommonModule, FormsModule, A11yModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzPanelComponent, LzStatusChipComponent],
+  templateUrl: './replacement-panel.component.html'
 })
 export class ReplacementPanelComponent {
   @Input() candidates: ReplacementCandidate[] = [];

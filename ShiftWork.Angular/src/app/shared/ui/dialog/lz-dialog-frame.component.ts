@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
+let nextId = 0;
+
 @Component({
   selector: 'lz-dialog-frame',
   standalone: true,
@@ -8,12 +10,13 @@ import { MatIconModule } from '@angular/material/icon';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'block bg-paper text-ink',
+    '[attr.title]': 'null',
     '(keydown.escape)': 'onEscape()',
   },
   template: `
     <div class="flex items-start justify-between gap-4 border-b border-line-soft px-6 py-4">
       <div class="min-w-0">
-        <h2 class="font-display text-lg font-semibold leading-tight">{{ title }}</h2>
+        <h2 [id]="titleId" class="font-display text-lg font-semibold leading-tight">{{ title }}</h2>
         @if (subtitle) {
           <p class="text-ink-soft">{{ subtitle }}</p>
         }
@@ -37,6 +40,8 @@ import { MatIconModule } from '@angular/material/icon';
   `,
 })
 export class LzDialogFrameComponent {
+  readonly titleId = `lz-dialog-title-${nextId++}`;
+
   @Input({ required: true }) title!: string;
   @Input() subtitle?: string;
   @Input() closable = true;

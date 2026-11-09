@@ -9,6 +9,14 @@
     "src/app/features/auth/sign-up/**",
     "src/app/features/auth/forgot-password/**",
     "src/app/features/auth/verify-email/**",
-    "src/app/features/auth/accept-invite/**"
+    "src/app/features/auth/accept-invite/**",
+    "src/app/features/dashboard/schedule-grid/repeat-pattern-modal.component.*",
+    "src/app/features/dashboard/schedule-grid/replacement-panel.component.*",
+    "src/app/features/dashboard/schedule-grid/schedule-conflict-modal.component.*",
+    "src/app/features/dashboard/schedule-grid/schedule-grid-add-modal.component.*",
+    "src/app/features/dashboard/schedule-grid/shift-history-modal.component.*",
+    "src/app/features/dashboard/schedule-grid/sick-report-modal.component.*",
+    "src/app/features/dashboard/schedule-grid/time-off-request-modal.component.*",
+    "src/app/features/dashboard/schedule/schedule.component.*"
   ]
 }

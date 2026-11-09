@@ -1,5 +1,8 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
+import { MatIconModule } from '@angular/material/icon';
+import { LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzFieldComponent, LzFieldDirective } from 'src/app/shared/ui';
 import { FormsModule } from '@angular/forms';
 
 export interface RepeatPattern {
@@ -23,9 +26,8 @@ export interface RepeatPatternRequest {
 @Component({
   selector: 'app-repeat-pattern-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './repeat-pattern-modal.component.html',
-  styleUrl: './repeat-pattern-modal.component.css'
+  imports: [CommonModule, FormsModule, A11yModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzFieldComponent, LzFieldDirective],
+  templateUrl: './repeat-pattern-modal.component.html'
 })
 export class RepeatPatternModalComponent {
   @Input() personId: number | null = null;

@@ -2819,8 +2819,8 @@ Opción C</target>
         <target state="translated">Seleccionar persona</target>
       </trans-unit>
       <trans-unit id="add_modal.select_person_ph" datatype="html">
-        <source>-- Select a person --</source>
-        <target state="translated">-- Selecciona una persona --</target>
+        <source>Select a person</source>
+        <target state="translated">Selecciona una persona</target>
       </trans-unit>
       <trans-unit id="add_modal.location" datatype="html">
         <source>Location</source>
@@ -2831,15 +2831,15 @@ Opción C</target>
         <target state="translated">Área</target>
       </trans-unit>
       <trans-unit id="add_modal.area_ph" datatype="html">
-        <source>-- Select an area --</source>
-        <target state="translated">-- Selecciona un área --</target>
+        <source>Select an area</source>
+        <target state="translated">Selecciona un área</target>
       </trans-unit>
       <trans-unit id="add_modal.start_time" datatype="html">
-        <source>Start Time</source>
+        <source>Start time</source>
         <target state="translated">Hora de inicio</target>
       </trans-unit>
       <trans-unit id="add_modal.end_time" datatype="html">
-        <source>End Time</source>
+        <source>End time</source>
         <target state="translated">Hora de fin</target>
       </trans-unit>
       <trans-unit id="add_modal.repeat_tomorrow" datatype="html">
@@ -2875,8 +2875,8 @@ Opción C</target>
         <target state="translated">Buscar reemplazo</target>
       </trans-unit>
       <trans-unit id="add_modal.view_profile" datatype="html">
-        <source>View <x id="INTERPOLATION" equiv-text="{{ name }}"/>&apos;s profile</source>
-        <target state="translated">Ver perfil de <x id="INTERPOLATION" equiv-text="{{ name }}"/></target>
+        <source>View <x id="INTERPOLATION" equiv-text="{{ personName }}"/>&apos;s profile</source>
+        <target state="translated">Ver perfil de <x id="INTERPOLATION" equiv-text="{{ personName }}"/></target>
       </trans-unit>
       <trans-unit id="add_modal.view_history" datatype="html">
         <source>View shift history</source>
@@ -2891,7 +2891,7 @@ Opción C</target>
         <target state="translated">Guardar</target>
       </trans-unit>
       <trans-unit id="sick_report.title" datatype="html">
-        <source>Report Sick</source>
+        <source>Report sick</source>
         <target state="translated">Reportar enfermedad</target>
       </trans-unit>
       <trans-unit id="sick_report.employee" datatype="html">
@@ -2899,19 +2899,19 @@ Opción C</target>
         <target state="translated">Empleado</target>
       </trans-unit>
       <trans-unit id="sick_report.sick_date" datatype="html">
-        <source>Sick Date</source>
+        <source>Sick date</source>
         <target state="translated">Fecha de enfermedad</target>
       </trans-unit>
       <trans-unit id="sick_report.end_date" datatype="html">
-        <source>End Date</source>
+        <source>End date</source>
         <target state="translated">Fecha de fin</target>
       </trans-unit>
       <trans-unit id="sick_report.multiple_days" datatype="html">
-        <source>Multiple Days</source>
+        <source>Multiple days</source>
         <target state="translated">Varios días</target>
       </trans-unit>
       <trans-unit id="sick_report.symptoms" datatype="html">
-        <source>Symptoms (Optional)</source>
+        <source>Symptoms (optional)</source>
         <target state="translated">Síntomas (opcional)</target>
       </trans-unit>
       <trans-unit id="sick_report.symptoms_ph" datatype="html">
@@ -2919,11 +2919,11 @@ Opción C</target>
         <target state="translated">Ej.: Fiebre, Dolor de cabeza, Tos</target>
       </trans-unit>
       <trans-unit id="sick_report.doctor_note" datatype="html">
-        <source>Requires Doctor&apos;s Note</source>
+        <source>Requires doctor&apos;s note</source>
         <target state="translated">Requiere nota médica</target>
       </trans-unit>
       <trans-unit id="sick_report.notes" datatype="html">
-        <source>Additional Notes (Optional)</source>
+        <source>Additional notes (optional)</source>
         <target state="translated">Notas adicionales (opcional)</target>
       </trans-unit>
       <trans-unit id="sick_report.notes_ph" datatype="html">
@@ -2935,7 +2935,7 @@ Opción C</target>
         <target state="translated">Reportar enfermedad marcará automáticamente tus turnos programados como &quot;abiertos&quot; para las fechas seleccionadas.</target>
       </trans-unit>
       <trans-unit id="sick_report.submit" datatype="html">
-        <source>Report Sick</source>
+        <source>Report sick</source>
         <target state="translated">Reportar enfermedad</target>
       </trans-unit>
       <trans-unit id="sick_report.submitting" datatype="html">
@@ -2943,7 +2943,7 @@ Opción C</target>
         <target state="translated">Enviando...</target>
       </trans-unit>
       <trans-unit id="time_off_modal.title" datatype="html">
-        <source>Request Time Off</source>
+        <source>Request time off</source>
         <target state="translated">Solicitar permiso</target>
       </trans-unit>
       <trans-unit id="time_off_modal.employee" datatype="html">
@@ -2951,31 +2951,31 @@ Opción C</target>
         <target state="translated">Empleado</target>
       </trans-unit>
       <trans-unit id="time_off_modal.request_type" datatype="html">
-        <source>Request Type</source>
+        <source>Request type</source>
         <target state="translated">Tipo de solicitud</target>
       </trans-unit>
       <trans-unit id="time_off_modal.start_date" datatype="html">
-        <source>Start Date</source>
+        <source>Start date</source>
         <target state="translated">Fecha de inicio</target>
       </trans-unit>
       <trans-unit id="time_off_modal.end_date" datatype="html">
-        <source>End Date</source>
+        <source>End date</source>
         <target state="translated">Fecha de fin</target>
       </trans-unit>
       <trans-unit id="time_off_modal.partial_day" datatype="html">
-        <source>Partial Day</source>
+        <source>Partial day</source>
         <target state="translated">Día parcial</target>
       </trans-unit>
       <trans-unit id="time_off_modal.start_time" datatype="html">
-        <source>Start Time</source>
+        <source>Start time</source>
         <target state="translated">Hora de inicio</target>
       </trans-unit>
       <trans-unit id="time_off_modal.end_time" datatype="html">
-        <source>End Time</source>
+        <source>End time</source>
         <target state="translated">Hora de fin</target>
       </trans-unit>
       <trans-unit id="time_off_modal.reason" datatype="html">
-        <source>Reason (Optional)</source>
+        <source>Reason (optional)</source>
         <target state="translated">Motivo (opcional)</target>
       </trans-unit>
       <trans-unit id="time_off_modal.reason_ph" datatype="html">
@@ -2983,15 +2983,15 @@ Opción C</target>
         <target state="translated">Proporciona detalles adicionales...</target>
       </trans-unit>
       <trans-unit id="time_off_modal.submit" datatype="html">
-        <source>Submit Request</source>
-        <target state="translated">Enviar solicitud</target>
+        <source>Request time off</source>
+        <target state="translated">Solicitar permiso</target>
       </trans-unit>
       <trans-unit id="time_off_modal.submitting" datatype="html">
         <source>Submitting...</source>
         <target state="translated">Enviando...</target>
       </trans-unit>
       <trans-unit id="repeat_pattern.title" datatype="html">
-        <source>Repeat Shift Pattern</source>
+        <source>Repeat shift pattern</source>
         <target state="translated">Patrón de repetición de turno</target>
       </trans-unit>
       <trans-unit id="repeat_pattern.employee" datatype="html">
@@ -2999,7 +2999,7 @@ Opción C</target>
         <target state="translated">Empleado</target>
       </trans-unit>
       <trans-unit id="repeat_pattern.pattern_type" datatype="html">
-        <source>Pattern Type</source>
+        <source>Pattern type</source>
         <target state="translated">Tipo de patrón</target>
       </trans-unit>
       <trans-unit id="repeat_pattern.daily" datatype="html">
@@ -3019,7 +3019,7 @@ Opción C</target>
         <target state="translated">Mensual</target>
       </trans-unit>
       <trans-unit id="repeat_pattern.repeat_every" datatype="html">
-        <source>Repeat Every</source>
+        <source>Repeat every</source>
         <target state="translated">Repetir cada</target>
       </trans-unit>
       <trans-unit id="repeat_pattern.days_unit" datatype="html">
@@ -3031,7 +3031,7 @@ Opción C</target>
         <target state="translated">mes(es)</target>
       </trans-unit>
       <trans-unit id="repeat_pattern.repeat_on" datatype="html">
-        <source>Repeat On</source>
+        <source>Repeat on</source>
         <target state="translated">Repetir el</target>
       </trans-unit>
       <trans-unit id="repeat_pattern.end" datatype="html">
@@ -3055,16 +3055,16 @@ Opción C</target>
         <target state="translated">Se crearán múltiples turnos según tu patrón. Revísalos en la cuadrícula de horarios.</target>
       </trans-unit>
       <trans-unit id="repeat_pattern.create" datatype="html">
-        <source>Create Shifts</source>
+        <source>Create shifts</source>
         <target state="translated">Crear turnos</target>
       </trans-unit>
       <trans-unit id="replacement.title" datatype="html">
-        <source>Find Replacement</source>
+        <source>Find replacement</source>
         <target state="translated">Buscar reemplazo</target>
       </trans-unit>
       <trans-unit id="replacement.notify_via" datatype="html">
-        <source>Notify via:</source>
-        <target state="translated">Notificar vía:</target>
+        <source>Notify via</source>
+        <target state="translated">Notificar vía</target>
       </trans-unit>
       <trans-unit id="replacement.push" datatype="html">
         <source>Push</source>
@@ -3091,8 +3091,8 @@ Opción C</target>
         <target state="translated">Todos los empleados están programados o han reportado enfermedad/permiso.</target>
       </trans-unit>
       <trans-unit id="replacement.match_score" datatype="html">
-        <source>Match: <x id="INTERPOLATION" equiv-text="{{ score }}"/>%</source>
-        <target state="translated">Coincidencia: <x id="INTERPOLATION" equiv-text="{{ score }}"/>%</target>
+        <source>Match: <x id="INTERPOLATION" equiv-text="{{ candidate.score }}"/>%</source>
+        <target state="translated">Coincidencia: <x id="INTERPOLATION" equiv-text="{{ candidate.score }}"/>%</target>
       </trans-unit>
       <trans-unit id="replacement.notify" datatype="html">
         <source>Notify</source>
@@ -3107,15 +3107,15 @@ Opción C</target>
         <target state="translated">Los candidatos se filtran por disponibilidad y conflictos.</target>
       </trans-unit>
       <trans-unit id="conflict_modal.bulk_title" datatype="html">
-        <source>Bulk Schedule — Partial Completion</source>
+        <source>Bulk schedule — partial completion</source>
         <target state="translated">Horario masivo — Finalización parcial</target>
       </trans-unit>
       <trans-unit id="conflict_modal.conflict_title" datatype="html">
-        <source>Schedule Conflict</source>
+        <source>Schedule conflict</source>
         <target state="translated">Conflicto de horario</target>
       </trans-unit>
       <trans-unit id="conflict_modal.warning_title" datatype="html">
-        <source>Schedule Warning</source>
+        <source>Schedule warning</source>
         <target state="translated">Advertencia de horario</target>
       </trans-unit>
       <trans-unit id="conflict_modal.bulk_subtitle" datatype="html">
@@ -3179,31 +3179,31 @@ Opción C</target>
         <target state="translated">Cerrar</target>
       </trans-unit>
       <trans-unit id="shift_history.title" datatype="html">
-        <source>Shift History</source>
+        <source>Shift history</source>
         <target state="translated">Historial de turnos</target>
       </trans-unit>
       <trans-unit id="shift_history.date_range" datatype="html">
-        <source>Date Range</source>
+        <source>Date range</source>
         <target state="translated">Rango de fechas</target>
       </trans-unit>
       <trans-unit id="shift_history.past_week" datatype="html">
-        <source>Past Week</source>
+        <source>Past week</source>
         <target state="translated">Última semana</target>
       </trans-unit>
       <trans-unit id="shift_history.past_month" datatype="html">
-        <source>Past Month</source>
+        <source>Past month</source>
         <target state="translated">Último mes</target>
       </trans-unit>
       <trans-unit id="shift_history.past_3_months" datatype="html">
-        <source>Past 3 Months</source>
+        <source>Past 3 months</source>
         <target state="translated">Últimos 3 meses</target>
       </trans-unit>
       <trans-unit id="shift_history.past_year" datatype="html">
-        <source>Past Year</source>
+        <source>Past year</source>
         <target state="translated">Último año</target>
       </trans-unit>
       <trans-unit id="shift_history.all_history" datatype="html">
-        <source>All History</source>
+        <source>All history</source>
         <target state="translated">Todo el historial</target>
       </trans-unit>
       <trans-unit id="shift_history.status_filter" datatype="html">
@@ -3235,11 +3235,11 @@ Opción C</target>
         <target state="translated">No se encontró historial de turnos para el período seleccionado</target>
       </trans-unit>
       <trans-unit id="shift_history.clock_in" datatype="html">
-        <source>Clock In:</source>
+        <source>Clock in:</source>
         <target state="translated">Entrada:</target>
       </trans-unit>
       <trans-unit id="shift_history.clock_out" datatype="html">
-        <source>Clock Out:</source>
+        <source>Clock out:</source>
         <target state="translated">Salida:</target>
       </trans-unit>
       <trans-unit id="shift_history.duration" datatype="html">
@@ -3247,19 +3247,19 @@ Opción C</target>
         <target state="translated">Duración:</target>
       </trans-unit>
       <trans-unit id="shift_history.edit_clock" datatype="html">
-        <source>Edit Clock Times</source>
+        <source>Edit clock times</source>
         <target state="translated">Editar tiempos de reloj</target>
       </trans-unit>
       <trans-unit id="shift_history.manual_clock_out" datatype="html">
-        <source>Manual Clock Out</source>
+        <source>Manual clock out</source>
         <target state="translated">Salida manual</target>
       </trans-unit>
       <trans-unit id="shift_history.clock_in_label" datatype="html">
-        <source>Clock In</source>
+        <source>Clock in</source>
         <target state="translated">Entrada</target>
       </trans-unit>
       <trans-unit id="shift_history.clock_out_label" datatype="html">
-        <source>Clock Out</source>
+        <source>Clock out</source>
         <target state="translated">Salida</target>
       </trans-unit>
       <trans-unit id="shift_history.start" datatype="html">
@@ -3271,7 +3271,7 @@ Opción C</target>
         <target state="translated">Fin</target>
       </trans-unit>
       <trans-unit id="shift_history.edit_time" datatype="html">
-        <source>Edit Time</source>
+        <source>Edit time</source>
         <target state="translated">Editar tiempo</target>
       </trans-unit>
       <trans-unit id="shift_history.approve" datatype="html">
@@ -3279,11 +3279,11 @@ Opción C</target>
         <target state="translated">Aprobar</target>
       </trans-unit>
       <trans-unit id="shift_history.approve_missed" datatype="html">
-        <source>Approve Missed</source>
+        <source>Approve missed</source>
         <target state="translated">Aprobar faltado</target>
       </trans-unit>
       <trans-unit id="shift_history.total_shifts" datatype="html">
-        <source>Total Shifts:</source>
+        <source>Total shifts:</source>
         <target state="translated">Total de turnos:</target>
       </trans-unit>
       <trans-unit id="shift_history.completed_stat" datatype="html">
@@ -4251,7 +4251,7 @@ Opción C</target>
         <target state="translated">Horario</target>
       </trans-unit>
       <trans-unit id="schedule.all_locations" datatype="html">
-        <source>All Locations</source>
+        <source>All locations</source>
         <target state="translated">Todas las ubicaciones</target>
       </trans-unit>
       <trans-unit id="schedule.error" datatype="html">
@@ -6675,6 +6675,38 @@ What would you like to do?</source>
       <trans-unit id="people.field_required" datatype="html">
         <source>This field is required</source>
         <target state="translated">Este campo es obligatorio</target>
+      </trans-unit>
+      <trans-unit id="add_modal.add_shift" datatype="html">
+        <source>Add shift</source>
+        <target state="translated">Agregar turno</target>
+      </trans-unit>
+      <trans-unit id="add_modal.edit_shift" datatype="html">
+        <source>Edit shift</source>
+        <target state="translated">Editar turno</target>
+      </trans-unit>
+      <trans-unit id="add_modal.more_actions" datatype="html">
+        <source>More actions</source>
+        <target state="translated">Más acciones</target>
+      </trans-unit>
+      <trans-unit id="add_modal.save_shift" datatype="html">
+        <source>Save shift</source>
+        <target state="translated">Guardar turno</target>
+      </trans-unit>
+      <trans-unit id="add_modal.select_person_label" datatype="html">
+        <source>Person</source>
+        <target state="translated">Persona</target>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.end_date_aria" datatype="html">
+        <source>End date</source>
+        <target state="translated">Fecha de fin</target>
+      </trans-unit>
+      <trans-unit id="repeat_pattern.occurrences_aria" datatype="html">
+        <source>Number of occurrences</source>
+        <target state="translated">Número de repeticiones</target>
+      </trans-unit>
+      <trans-unit id="schedule.location_label" datatype="html">
+        <source>Location</source>
+        <target state="translated">Ubicación</target>
       </trans-unit>
     </body>
   </file>

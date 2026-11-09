@@ -1,5 +1,8 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
+import { MatIconModule } from '@angular/material/icon';
+import { LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzStatusChipComponent, type LzTone } from 'src/app/shared/ui';
 import { FormsModule } from '@angular/forms';
 import { ShiftEventService } from 'src/app/core/services/shift-event.service';
 import { ScheduleService } from 'src/app/core/services/schedule.service';
@@ -19,9 +22,8 @@ interface ShiftHistoryEntry {
 @Component({
   selector: 'app-shift-history-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './shift-history-modal.component.html',
-  styleUrl: './shift-history-modal.component.css'
+  imports: [CommonModule, FormsModule, A11yModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzStatusChipComponent],
+  templateUrl: './shift-history-modal.component.html'
 })
 export class ShiftHistoryModalComponent implements OnInit {
   @Input() personId: number | null = null;
@@ -203,14 +205,14 @@ export class ShiftHistoryModalComponent implements OnInit {
     return `${hours}:${minutes}`;
   }
 
-  getStatusColor(status: string): string {
+  getStatusTone(status: string): LzTone {
     switch (status) {
-      case 'completed': return '#4caf50';
-      case 'missed': return '#f44336';
-      case 'partial': return '#ff9800';
-      case 'sick': return '#9c27b0';
-      case 'timeoff': return '#2196f3';
-      default: return '#757575';
+      case 'completed': return 'success';
+      case 'missed': return 'danger';
+      case 'partial': return 'warning';
+      case 'sick':
+      case 'timeoff': return 'info';
+      default: return 'neutral';
     }
   }
 
@@ -227,12 +229,12 @@ export class ShiftHistoryModalComponent implements OnInit {
 
   getStatusIcon(status: string): string {
     switch (status) {
-      case 'completed': return 'bi-check-circle-fill';
-      case 'missed': return 'bi-x-circle-fill';
-      case 'partial': return 'bi-clock-fill';
-      case 'sick': return 'bi-thermometer-half';
-      case 'timeoff': return 'bi-calendar-x';
-      default: return 'bi-question-circle';
+      case 'completed': return 'check_circle';
+      case 'missed': return 'cancel';
+      case 'partial': return 'schedule';
+      case 'sick': return 'thermostat';
+      case 'timeoff': return 'event_busy';
+      default: return 'help';
     }
   }
 

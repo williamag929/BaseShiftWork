@@ -1,108 +1,71 @@
-<div class="modal-backdrop" (click)="onClose()"></div>
-<div class="modal-content">
-  <div class="modal-header">
-    <span class="modal-title" i18n="@@sick_report.title">Report Sick</span>
-    <button class="close-btn" (click)="onClose()">&times;</button>
-  </div>
+<div class="fixed inset-0 z-[999] flex items-start justify-center overflow-y-auto p-4">
+  <div class="fixed inset-0 bg-navy-900/40" aria-hidden="true" (click)="onClose()"></div>
+  <div
+    role="dialog"
+    aria-modal="true"
+    cdkTrapFocus
+    cdkTrapFocusAutoCapture
+    [attr.aria-labelledby]="frame.titleId"
+    class="relative my-auto w-full max-w-lg rounded-dialog border border-line bg-paper shadow-overlay"
+  >
+    <lz-dialog-frame #frame title="Report sick" i18n-title="@@sick_report.title" (closed)="onClose()">
+      <div class="space-y-4">
+        <lz-field label="Employee" i18n-label="@@sick_report.employee" controlId="person-name">
+          <input lzField type="text" id="person-name" [value]="personName" disabled />
+        </lz-field>
 
-  <div class="modal-body">
-    <div class="form-group">
-      <label for="person-name" i18n="@@sick_report.employee">Employee</label>
-      <input
-        type="text"
-        id="person-name"
-        class="form-input"
-        [value]="personName"
-        disabled
-      />
-    </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <lz-field label="Sick date" i18n-label="@@sick_report.sick_date" controlId="start-date">
+            <input lzField type="date" id="start-date" cdkFocusInitial [(ngModel)]="startDate" />
+          </lz-field>
+          <lz-field *ngIf="isMultiDay" label="End date" i18n-label="@@sick_report.end_date" controlId="end-date">
+            <input lzField type="date" id="end-date" [(ngModel)]="endDate" />
+          </lz-field>
+        </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label for="start-date" i18n="@@sick_report.sick_date">Sick Date</label>
-        <input
-          type="date"
-          id="start-date"
-          class="form-input"
-          [(ngModel)]="startDate"
-        />
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-5 accent-ink" [(ngModel)]="isMultiDay" />
+          <span i18n="@@sick_report.multiple_days">Multiple days</span>
+        </label>
+
+        <lz-field label="Symptoms (optional)" i18n-label="@@sick_report.symptoms" controlId="symptoms">
+          <input
+            lzField
+            type="text"
+            id="symptoms"
+            placeholder="e.g., Fever, Headache, Cough"
+            i18n-placeholder="@@sick_report.symptoms_ph"
+            [(ngModel)]="symptoms"
+          />
+        </lz-field>
+
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-5 accent-ink" [(ngModel)]="requiresDoctor" />
+          <span i18n="@@sick_report.doctor_note">Requires doctor's note</span>
+        </label>
+
+        <lz-field label="Additional notes (optional)" i18n-label="@@sick_report.notes" controlId="note">
+          <textarea
+            lzField
+            id="note"
+            class="py-2"
+            rows="3"
+            placeholder="Provide additional details..."
+            i18n-placeholder="@@sick_report.notes_ph"
+            [(ngModel)]="note"
+          ></textarea>
+        </lz-field>
+
+        <lz-alert tone="info" i18n="@@sick_report.info_msg">Reporting sick will automatically mark your scheduled shifts as "open" for the selected date(s).</lz-alert>
+
+        <lz-alert tone="danger" *ngIf="errorMessage">{{ errorMessage }}</lz-alert>
       </div>
-      <div class="form-group" *ngIf="isMultiDay">
-        <label for="end-date" i18n="@@sick_report.end_date">End Date</label>
-        <input
-          type="date"
-          id="end-date"
-          class="form-input"
-          [(ngModel)]="endDate"
-        />
-      </div>
-    </div>
 
-    <div class="form-group">
-      <label class="checkbox-label">
-        <input
-          type="checkbox"
-          [(ngModel)]="isMultiDay"
-        />
-        <span i18n="@@sick_report.multiple_days">Multiple Days</span>
-      </label>
-    </div>
-
-    <div class="form-group">
-      <label for="symptoms" i18n="@@sick_report.symptoms">Symptoms (Optional)</label>
-      <input
-        type="text"
-        id="symptoms"
-        class="form-input"
-        placeholder="e.g., Fever, Headache, Cough"
-        i18n-placeholder="@@sick_report.symptoms_ph"
-        [(ngModel)]="symptoms"
-      />
-    </div>
-
-    <div class="form-group">
-      <label class="checkbox-label">
-        <input
-          type="checkbox"
-          [(ngModel)]="requiresDoctor"
-        />
-        <span i18n="@@sick_report.doctor_note">Requires Doctor's Note</span>
-      </label>
-    </div>
-
-    <div class="form-group">
-      <label for="note" i18n="@@sick_report.notes">Additional Notes (Optional)</label>
-      <textarea
-        id="note"
-        class="form-textarea"
-        rows="3"
-        placeholder="Provide additional details..."
-        i18n-placeholder="@@sick_report.notes_ph"
-        [(ngModel)]="note"
-      ></textarea>
-    </div>
-
-    <div class="info-message">
-      <i class="bi bi-info-circle"></i>
-      <span i18n="@@sick_report.info_msg">Reporting sick will automatically mark your scheduled shifts as "open" for the selected date(s).</span>
-    </div>
-
-    <div class="error-message" *ngIf="errorMessage">
-      <i class="bi bi-exclamation-circle"></i>
-      {{ errorMessage }}
-    </div>
-  </div>
-
-  <div class="modal-footer">
-    <button class="btn-cancel" (click)="onClose()" [disabled]="submitting" i18n="@@common.cancel">
-      Cancel
-    </button>
-    <button class="btn-submit" (click)="onSubmit()" [disabled]="submitting">
-      <span *ngIf="!submitting" i18n="@@sick_report.submit">Report Sick</span>
-      <span *ngIf="submitting" class="loading-text">
-        <span class="spinner-small"></span>
-        <ng-container i18n="@@sick_report.submitting">Submitting...</ng-container>
-      </span>
-    </button>
+      <button lzDialogActions lzButton variant="secondary" type="button" (click)="onClose()" [disabled]="submitting" i18n="@@common.cancel">Cancel</button>
+      <button lzDialogActions lzButton variant="primary" type="button" (click)="onSubmit()" [disabled]="submitting">
+        <ng-container *ngIf="!submitting" i18n="@@sick_report.submit">Report sick</ng-container>
+        <ng-container *ngIf="submitting" i18n="@@sick_report.submitting">Submitting...</ng-container>
+      </button>
+    </lz-dialog-frame>
   </div>
 </div>

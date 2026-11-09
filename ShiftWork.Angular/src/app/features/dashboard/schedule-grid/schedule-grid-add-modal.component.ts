@@ -1,5 +1,8 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
+import { MatIconModule } from '@angular/material/icon';
+import { LzButtonDirective, LzDialogFrameComponent, LzFieldComponent, LzFieldDirective } from 'src/app/shared/ui';
 import { FormsModule } from '@angular/forms';
 import { People } from 'src/app/core/models/people.model';
 import { Schedule } from 'src/app/core/models/schedule.model';
@@ -10,9 +13,8 @@ import { AreaService } from 'src/app/core/services/area.service';
 @Component({
   selector: 'app-schedule-grid-add-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './schedule-grid-add-modal.component.html',
-  styleUrls: ['./schedule-grid-add-modal.component.css']
+  imports: [CommonModule, FormsModule, A11yModule, MatIconModule, LzButtonDirective, LzDialogFrameComponent, LzFieldComponent, LzFieldDirective],
+  templateUrl: './schedule-grid-add-modal.component.html'
 })
 export class ScheduleGridAddModalComponent implements OnInit {
   @Input() people: People[] = [];
@@ -71,6 +73,12 @@ export class ScheduleGridAddModalComponent implements OnInit {
       }
     }
     this.loadAreas();
+  }
+
+  get dialogTitle(): string {
+    return this.existingSchedule
+      ? $localize`:@@add_modal.edit_shift:Edit shift`
+      : $localize`:@@add_modal.add_shift:Add shift`;
   }
 
   formatTimeForInput(date: Date): string {

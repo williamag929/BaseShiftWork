@@ -1,5 +1,8 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
+import { MatIconModule } from '@angular/material/icon';
+import { LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzStatusChipComponent } from 'src/app/shared/ui';
 
 /** A single scheduling-rule infraction detected for the proposed shift. */
 export interface ConflictViolation {
@@ -43,9 +46,8 @@ export interface ScheduleConflictInfo {
 @Component({
   selector: 'app-schedule-conflict-modal',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './schedule-conflict-modal.component.html',
-  styleUrls: ['./schedule-conflict-modal.component.css']
+  imports: [CommonModule, A11yModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzStatusChipComponent],
+  templateUrl: './schedule-conflict-modal.component.html'
 })
 export class ScheduleConflictModalComponent {
   @Input() info!: ScheduleConflictInfo;
@@ -53,6 +55,21 @@ export class ScheduleConflictModalComponent {
 
   onDismiss(): void {
     this.dismiss.emit();
+  }
+
+  get dialogTitle(): string {
+    if (this.isBulk) {
+      return $localize`:@@conflict_modal.bulk_title:Bulk schedule — partial completion`;
+    }
+    return this.hasErrors
+      ? $localize`:@@conflict_modal.conflict_title:Schedule conflict`
+      : $localize`:@@conflict_modal.warning_title:Schedule warning`;
+  }
+
+  get dialogSubtitle(): string {
+    return this.isBulk
+      ? $localize`:@@conflict_modal.bulk_subtitle:Some shifts were skipped — see details below`
+      : $localize`:@@conflict_modal.single_subtitle:Review the issues below before saving`;
   }
 
   get isBulk(): boolean {

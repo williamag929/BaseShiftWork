@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { LzDialogFrameComponent } from './lz-dialog-frame.component';
 
 @Component({
@@ -53,5 +54,19 @@ describe('LzDialogFrameComponent', () => {
     expect(f.nativeElement.querySelector('button[aria-label="Close"]')).toBeNull();
     f.nativeElement.querySelector('lz-dialog-frame').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(f.componentInstance.count).toBe(0);
+  });
+
+  it('does not leak the title input as a native tooltip attribute', () => {
+    const f = setup();
+    expect(f.nativeElement.querySelector('lz-dialog-frame').hasAttribute('title')).toBeFalse();
+  });
+
+  it('gives the heading a unique id exposed as titleId', () => {
+    const f = TestBed.createComponent(HostComponent);
+    f.detectChanges();
+    const frame = f.debugElement.query(By.directive(LzDialogFrameComponent)).componentInstance as LzDialogFrameComponent;
+    const h2 = f.nativeElement.querySelector('h2') as HTMLElement;
+    expect(frame.titleId).toMatch(/^lz-dialog-title-\d+$/);
+    expect(h2.id).toBe(frame.titleId);
   });
 });
