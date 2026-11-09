@@ -17,6 +17,12 @@
     "src/app/features/dashboard/schedule-grid/shift-history-modal.component.*",
     "src/app/features/dashboard/schedule-grid/sick-report-modal.component.*",
     "src/app/features/dashboard/schedule-grid/time-off-request-modal.component.*",
-    "src/app/features/dashboard/schedule/schedule.component.*"
+    "src/app/features/dashboard/schedule/schedule.component.*",
+    "src/app/features/dashboard/overview/**",
+    "src/app/features/dashboard/shiftsummaries/**",
+    "src/app/features/dashboard/analytics/**",
+    "src/app/features/dashboard/time-off-approvals.component.*",
+    "src/app/features/dashboard/people-management.component.*",
+    "src/app/features/dashboard/pto-config-modal.component.*"
   ]
 }

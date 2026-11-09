@@ -2,6 +2,9 @@ import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import {
+  LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzDialogOverlayComponent, LzFieldComponent, LzFieldDirective,
+} from 'src/app/shared/ui';
 import { PtoService } from 'src/app/core/services/pto.service';
 import { People } from 'src/app/core/models/people.model';
 import { ConfigurePtoDto } from 'src/app/core/models/pto.model';
@@ -9,9 +12,11 @@ import { ConfigurePtoDto } from 'src/app/core/models/pto.model';
 @Component({
   selector: 'app-pto-config-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatSnackBarModule],
-  templateUrl: './pto-config-modal.component.html',
-  styleUrls: ['./pto-config-modal.component.css']
+  imports: [
+    CommonModule, FormsModule, MatSnackBarModule, LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzDialogOverlayComponent,
+    LzFieldComponent, LzFieldDirective,
+  ],
+  templateUrl: './pto-config-modal.component.html'
 })
 export class PtoConfigModalComponent implements OnInit {
   @Input() person: People | null = null;
@@ -26,6 +31,9 @@ export class PtoConfigModalComponent implements OnInit {
   accrualRatePerMonth: number | null = null;
   startingBalance: number | null = null;
   startDate: string | null = null;
+
+  readonly negativeAccrualMessage = $localize`:@@pto_config.accrual_negative:Accrual rate cannot be negative.`;
+  readonly negativeStartingMessage = $localize`:@@pto_config.starting_negative:Starting balance cannot be negative.`;
 
   constructor(
     private ptoService: PtoService,

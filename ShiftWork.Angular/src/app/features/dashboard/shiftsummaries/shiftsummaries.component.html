@@ -1,249 +1,180 @@
-<div class="shifts-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-icon">
-        <i class="fas fa-calendar-check"></i>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title" i18n="@@shift_summaries.page_title">Shift Summaries</h1>
-        <p class="page-subtitle" i18n="@@shift_summaries.page_subtitle">Filter and view summarized shift activity by person, location, and date</p>
-      </div>
-    </div>
-  </div>
+<div class="flex flex-col gap-4">
+  <lz-page-header title="Timesheets" i18n-title="@@shift_summaries.page_title" subtitle="Filter and view summarized shift activity by person, location, and date" i18n-subtitle="@@shift_summaries.page_subtitle" />
 
-  <div class="content-wrapper">
-    <!-- Filters Card -->
-    <div class="filters-card">
-      <div class="card-header">
-        <h3 class="card-title">
-          <i class="fas fa-filter"></i>
-          <ng-container i18n="@@shift_summaries.filter_title">Filter Shifts</ng-container>
-        </h3>
-        <div class="result-count" *ngIf="(shifts$ | async) as shifts">
-          <i class="fas fa-list"></i>
-          {{ shifts.length }} result(s)
-        </div>
-      </div>
-      <div class="card-body">
-        <form [formGroup]="filterForm" (ngSubmit)="getShifts()" class="filters-grid">
-          <div class="filter-group">
-            <label class="filter-label">
-              <i class="fas fa-calendar-alt"></i>
-              <ng-container i18n="@@shift_summaries.start_date">Start Date</ng-container>
-            </label>
-            <input type="date" id="startDate" class="filter-input" formControlName="startDate">
-          </div>
+  <lz-panel heading="Filter shifts" i18n-heading="@@shift_summaries.filter_title">
+    <form [formGroup]="filterForm" (ngSubmit)="getShifts()" class="grid items-end gap-4 sm:grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
+      <lz-field label="Start date" i18n-label="@@shift_summaries.start_date" controlId="startDate">
+        <input lzField type="date" id="startDate" formControlName="startDate">
+      </lz-field>
 
-          <div class="filter-group">
-            <label class="filter-label">
-              <i class="fas fa-calendar-day"></i>
-              <ng-container i18n="@@shift_summaries.end_date">End Date</ng-container>
-            </label>
-            <input type="date" id="endDate" class="filter-input" formControlName="endDate">
-          </div>
+      <lz-field label="End date" i18n-label="@@shift_summaries.end_date" controlId="endDate">
+        <input lzField type="date" id="endDate" formControlName="endDate">
+      </lz-field>
 
-          <div class="filter-group">
-            <label class="filter-label">
-              <i class="fas fa-location-dot"></i>
-              <ng-container i18n="@@shift_summaries.location_label">Location</ng-container>
-            </label>
-            <select id="locationId" class="filter-select" formControlName="locationId">
-              <option [ngValue]="null" i18n="@@shift_summaries.all_locations">All Locations</option>
-              <option *ngFor="let location of locations$ | async" [value]="location.locationId">{{ location.name }}</option>
-            </select>
-          </div>
+      <lz-field label="Location" i18n-label="@@shift_summaries.location_label" controlId="locationId">
+        <select lzField id="locationId" formControlName="locationId">
+          <option [ngValue]="null" i18n="@@shift_summaries.all_locations">All locations</option>
+          <option *ngFor="let location of locations$ | async" [value]="location.locationId">{{ location.name }}</option>
+        </select>
+      </lz-field>
 
-          <div class="filter-group">
-            <label class="filter-label">
-              <i class="fas fa-user"></i>
-              <ng-container i18n="@@shift_summaries.person">Person</ng-container>
-            </label>
-            <select id="personId" class="filter-select" formControlName="personId">
-              <option [ngValue]="null" i18n="@@shift_summaries.all_people">All People</option>
-              <option *ngFor="let person of people$ | async" [value]="person.personId">{{ person.name }}</option>
-            </select>
-          </div>
+      <lz-field label="Person" i18n-label="@@shift_summaries.person" controlId="personId">
+        <select lzField id="personId" formControlName="personId">
+          <option [ngValue]="null" i18n="@@shift_summaries.all_people">All people</option>
+          <option *ngFor="let person of people$ | async" [value]="person.personId">{{ person.name }}</option>
+        </select>
+      </lz-field>
 
-          <div class="filter-actions">
-            <button type="submit" class="btn-apply">
-              <i class="fas fa-check"></i>
-              <ng-container i18n="@@shift_summaries.apply_filters">Apply Filters</ng-container>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+      <button lzButton variant="primary" type="submit">
+        <mat-icon aria-hidden="true">check</mat-icon>
+        <ng-container i18n="@@shift_summaries.apply_filters">Apply filters</ng-container>
+      </button>
+    </form>
+  </lz-panel>
 
-    <!-- Results Toolbar -->
-    <div class="results-toolbar" *ngIf="(shifts$ | async) as shifts">
-      <div class="toggle-group">
-        <button class="toggle-btn" [class.active]="viewMode === 'cards'" (click)="toggleView('cards')">
-          <i class="fas fa-th-large"></i>
+  @if (shifts$ | async; as shifts) {
+    <div class="flex flex-wrap items-center gap-3">
+      <div role="group" aria-label="View" i18n-aria-label="@@shift_summaries.view_label" class="inline-flex overflow-hidden rounded-control border border-line-strong">
+        <button
+          type="button"
+          class="inline-flex min-h-12 items-center gap-2 border-0 px-4 font-[inherit] font-medium"
+          [class.bg-ink]="viewMode === 'cards'" [class.text-paper]="viewMode === 'cards'"
+          [class.bg-paper]="viewMode !== 'cards'" [class.text-ink]="viewMode !== 'cards'"
+          [attr.aria-pressed]="viewMode === 'cards'"
+          (click)="toggleView('cards')">
+          <mat-icon aria-hidden="true">grid_view</mat-icon>
           <ng-container i18n="@@shift_summaries.view_cards">Cards</ng-container>
         </button>
-        <button class="toggle-btn" [class.active]="viewMode === 'table'" (click)="toggleView('table')">
-          <i class="fas fa-table"></i>
+        <button
+          type="button"
+          class="inline-flex min-h-12 items-center gap-2 border-0 px-4 font-[inherit] font-medium"
+          [class.bg-ink]="viewMode === 'table'" [class.text-paper]="viewMode === 'table'"
+          [class.bg-paper]="viewMode !== 'table'" [class.text-ink]="viewMode !== 'table'"
+          [attr.aria-pressed]="viewMode === 'table'"
+          (click)="toggleView('table')">
+          <mat-icon aria-hidden="true">table_rows</mat-icon>
           <ng-container i18n="@@shift_summaries.view_table">Table</ng-container>
         </button>
       </div>
-      <div class="toggle-group bulk-actions" style="gap:0.5rem; display:flex; align-items:center;">
-        <label class="bulk-select-all">
-          <input type="checkbox" [checked]="allSelected" (change)="toggleSelectAll($any($event.target).checked)">
+
+      @if (viewMode === 'cards') {
+        <label class="flex min-h-12 items-center gap-2">
+          <input type="checkbox" class="size-5" [checked]="allSelected" (change)="toggleSelectAll($any($event.target).checked)">
           <ng-container i18n="@@shift_summaries.select_all">Select all</ng-container>
         </label>
-        <select [(ngModel)]="bulkStatus" [ngModelOptions]="{standalone: true}">
-          <option *ngFor="let o of statusOptions" [ngValue]="o.value">{{ o.label }}</option>
-        </select>
-        <button class="export-btn" (click)="applyBulk()" title="Apply status to selected">
-          <i class="fas fa-check-double"></i>
-          <ng-container i18n="@@shift_summaries.apply_bulk">Apply</ng-container>
-        </button>
-      </div>
-      <div class="toggle-group" style="margin-left:auto; gap: 0.5rem; align-items:center; display:flex;">
-        <label style="display:flex; align-items:center; gap:0.5rem; padding:0 0.5rem;">
-          <input type="checkbox" [(ngModel)]="exportApprovedOnly" [ngModelOptions]="{standalone: true}">
+      }
+      <select lzField class="w-auto" aria-label="Status to apply" i18n-aria-label="@@shift_summaries.bulk_status_label" [(ngModel)]="bulkStatus" [ngModelOptions]="{standalone: true}">
+        <option *ngFor="let o of statusOptions" [ngValue]="o.value">{{ o.label }}</option>
+      </select>
+      <button lzButton variant="secondary" type="button" (click)="applyBulk()">
+        <mat-icon aria-hidden="true">done_all</mat-icon>
+        <ng-container i18n="@@shift_summaries.apply_bulk">Apply to selected</ng-container>
+      </button>
+
+      <span class="text-ink-soft tabular-nums">{{ shifts.length }} <ng-container i18n="@@shift_summaries.result_count">result(s)</ng-container></span>
+
+      <div class="ml-auto flex flex-wrap items-center gap-3">
+        <label class="flex min-h-12 items-center gap-2">
+          <input type="checkbox" class="size-5" [(ngModel)]="exportApprovedOnly" [ngModelOptions]="{standalone: true}">
           <ng-container i18n="@@shift_summaries.export_approved">Export approved only</ng-container>
         </label>
-        <button class="export-btn" (click)="exportToCsv()">
-          <i class="fas fa-file-export"></i>
+        <button lzButton variant="secondary" type="button" (click)="exportToCsv()">
+          <mat-icon aria-hidden="true">file_download</mat-icon>
           <ng-container i18n="@@shift_summaries.export_csv">Export CSV</ng-container>
         </button>
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div *ngIf="loading" class="loading-state">
-      <div class="spinner"></div>
-      <p class="loading-text" i18n="@@shift_summaries.loading">Loading shift summaries...</p>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="!loading && ((shifts$ | async)?.length || 0) === 0" class="empty-state">
-      <i class="fas fa-folder-open empty-icon"></i>
-      <p class="empty-text" i18n="@@shift_summaries.empty_text">No results</p>
-      <p class="empty-subtext" i18n="@@shift_summaries.empty_subtext">Try a different date range or filters</p>
-    </div>
-
-    <!-- Results Grid -->
-    <div *ngIf="!loading && (shifts$ | async) as shifts" class="summary-grid" [hidden]="viewMode !== 'cards'">
-      <div
-        class="summary-card"
-        *ngFor="let shift of shifts; let i = index"
-        [style.animation-delay]="(i * 0.05) + 's'"
-      >
-        <div class="card-select">
-          <input type="checkbox" [checked]="isSelected(shift)" (change)="toggleSelection(shift, $any($event.target).checked)">
+    @if (loading) {
+      <lz-alert tone="info" i18n="@@shift_summaries.loading">Loading shift summaries...</lz-alert>
+    } @else if (shifts.length === 0) {
+      <lz-empty-state icon="event_busy" title="No results" i18n-title="@@shift_summaries.empty_text" body="Try a different date range or filters" i18n-body="@@shift_summaries.empty_subtext" />
+    } @else {
+      @if (viewMode === 'cards') {
+        <div data-testid="shift-cards" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          @for (shift of paginate(shifts, page, pageSize); track shift) {
+            <article class="flex flex-col gap-3 rounded-panel border border-line bg-paper p-4">
+              <div class="flex items-start gap-2">
+                <label class="-ml-2 -mt-2 flex size-12 shrink-0 cursor-pointer items-center justify-center">
+                  <input type="checkbox" class="size-5" [attr.aria-label]="selectLabel(shift)" [checked]="isSelected(shift)" (change)="toggleSelection(shift, $any($event.target).checked)">
+                </label>
+                <div class="min-w-0 flex-1">
+                  <h3 class="font-display text-base font-semibold">{{ shift.personName || 'Unknown' }}</h3>
+                  <p class="text-ink-soft">{{ shift.day | date:'fullDate' }}</p>
+                </div>
+                <span class="whitespace-nowrap tabular-nums text-ink-soft">{{ shift.minStartTime | date:'shortTime' }} – {{ shift.maxEndTime | date:'shortTime' }}</span>
+              </div>
+              <dl class="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+                <dt class="text-ink-soft" i18n="@@shift_summaries.location_label">Location</dt>
+                <dd class="m-0">{{ shift.locationName || '-' }}</dd>
+                <dt class="text-ink-soft" i18n="@@shift_summaries.area_label">Area</dt>
+                <dd class="m-0">{{ shift.areaName || '-' }}</dd>
+                <dt class="text-ink-soft" i18n="@@shift_summaries.break_label">Break time</dt>
+                <dd class="m-0 tabular-nums">{{ shift.breakTime || 0 }} min</dd>
+                <dt class="text-ink-soft" i18n="@@shift_summaries.hours_label">Total hours</dt>
+                <dd class="m-0 font-medium tabular-nums">{{ shift.totalHours | number:'1.2-2' }}</dd>
+              </dl>
+              <div class="flex flex-wrap items-center gap-2">
+                <lz-status-chip [tone]="statusTone(shift.status)" dot>{{ statusLabel(shift.status) }}</lz-status-chip>
+                <select lzField class="ml-auto w-auto" [attr.aria-label]="statusSelectLabel(shift)" [ngModel]="shift.status || 'shifted'" (ngModelChange)="onStatusChange(shift, $event)" [ngModelOptions]="{standalone: true}">
+                  <option *ngFor="let o of statusOptions" [ngValue]="o.value">{{ o.label }}</option>
+                </select>
+              </div>
+            </article>
+          }
         </div>
-        <div class="card-header-row">
-          <div class="person-section">
-            <div class="person-avatar">{{ (shift.personName || '?') | slice:0:2 }}</div>
-            <div class="person-info">
-              <h4 class="person-name">{{ shift.personName || 'Unknown' }}</h4>
-              <p class="shift-day">
-                <i class="fas fa-calendar-day"></i>
-                {{ shift.day | date:'fullDate' }}
-              </p>
-            </div>
-          </div>
-
-          <div class="time-range">
-            <i class="fas fa-clock"></i>
-            <span>{{ shift.minStartTime | date:'shortTime' }} – {{ shift.maxEndTime | date:'shortTime' }}</span>
-          </div>
-        </div>
-
-        <div class="card-divider"></div>
-
-        <div class="card-body-grid">
-          <div class="info-row">
-            <span class="info-label">
-              <i class="fas fa-location-dot"></i>
-              <ng-container i18n="@@shift_summaries.location_label">Location</ng-container>
-            </span>
-            <span class="info-value">{{ shift.locationName || '-' }}</span>
-          </div>
-
-          <div class="info-row">
-            <span class="info-label">
-              <i class="fas fa-layer-group"></i>
-              <ng-container i18n="@@shift_summaries.area_label">Area</ng-container>
-            </span>
-            <span class="info-value">{{ shift.areaName || '-' }}</span>
-          </div>
-
-          <div class="info-row">
-            <span class="info-label">
-              <i class="fas fa-mug-hot"></i>
-              <ng-container i18n="@@shift_summaries.break_label">Break Time</ng-container>
-            </span>
-            <span class="info-value">{{ shift.breakTime || 0 }} min</span>
-          </div>
-
-          <div class="info-row">
-            <span class="info-label">
-              <i class="fas fa-hourglass-half"></i>
-              <ng-container i18n="@@shift_summaries.hours_label">Total Hours</ng-container>
-            </span>
-            <span class="info-value total-hours">{{ shift.totalHours | number:'1.2-2' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">
-              <i class="fas fa-circle-check"></i>
-              <ng-container i18n="@@shift_summaries.status_label">Status</ng-container>
-            </span>
-            <span class="info-value">
-              <span [class]="statusClass(shift.status)" class="status-badge">{{ statusLabel(shift.status) }}</span>
-              <select [ngModel]="shift.status || 'shifted'" (ngModelChange)="onStatusChange(shift, $event)" [ngModelOptions]="{standalone: true}">
-                <option *ngFor="let o of statusOptions" [ngValue]="o.value">{{ o.label }}</option>
-              </select>
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Results Table -->
-    <div *ngIf="!loading && (shifts$ | async) as shifts" class="summary-table-wrapper" [hidden]="viewMode !== 'table'">
-      <table class="summary-table">
-        <thead>
-          <tr>
-            <th style="width:36px; text-align:center;">
-              <input type="checkbox" [checked]="allSelected" (change)="toggleSelectAll($any($event.target).checked)">
-            </th>
-            <th i18n="@@shift_summaries.col_day">Day</th>
-            <th i18n="@@shift_summaries.col_person">Person</th>
-            <th i18n="@@shift_summaries.col_location">Location</th>
-            <th i18n="@@shift_summaries.col_area">Area</th>
-            <th i18n="@@shift_summaries.col_start">Start Time</th>
-            <th i18n="@@shift_summaries.col_end">End Time</th>
-            <th i18n="@@shift_summaries.col_break">Break (min)</th>
-            <th i18n="@@shift_summaries.col_hours">Total Hours</th>
-            <th i18n="@@shift_summaries.col_status">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let shift of shifts">
-            <td style="text-align:center;">
-              <input type="checkbox" [checked]="isSelected(shift)" (change)="toggleSelection(shift, $any($event.target).checked)">
-            </td>
-            <td>{{ shift.day | date }}</td>
-            <td>{{ shift.personName }}</td>
-            <td>{{ shift.locationName }}</td>
-            <td>{{ shift.areaName }}</td>
-            <td>{{ shift.minStartTime | date:'shortTime' }}</td>
-            <td>{{ shift.maxEndTime | date:'shortTime' }}</td>
-            <td>{{ shift.breakTime || 0 }}</td>
-            <td>{{ shift.totalHours | number:'1.2-2' }}</td>
-            <td>
-              <span [class]="statusClass(shift.status)" class="status-badge" style="margin-right: 0.5rem;">{{ statusLabel(shift.status) }}</span>
-              <select [ngModel]="shift.status || 'shifted'" (ngModelChange)="onStatusChange(shift, $event)" [ngModelOptions]="{standalone: true}">
-                <option *ngFor="let o of statusOptions" [ngValue]="o.value">{{ o.label }}</option>
-              </select>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+      } @else {
+        <lz-table-scroll>
+          <table lzTable class="min-w-4xl">
+            <thead>
+              <tr>
+                <th scope="col" class="w-12">
+                  <label class="flex size-12 cursor-pointer items-center justify-center">
+                    <input type="checkbox" class="size-5" aria-label="Select all" i18n-aria-label="@@shift_summaries.select_all" [checked]="allSelected" (change)="toggleSelectAll($any($event.target).checked)">
+                  </label>
+                </th>
+                <th scope="col" i18n="@@shift_summaries.col_day">Day</th>
+                <th scope="col" i18n="@@shift_summaries.col_person">Person</th>
+                <th scope="col" i18n="@@shift_summaries.col_location">Location</th>
+                <th scope="col" i18n="@@shift_summaries.col_area">Area</th>
+                <th scope="col" i18n="@@shift_summaries.col_start">Start time</th>
+                <th scope="col" i18n="@@shift_summaries.col_end">End time</th>
+                <th scope="col" class="text-right" i18n="@@shift_summaries.col_break">Break (min)</th>
+                <th scope="col" class="text-right" i18n="@@shift_summaries.col_hours">Total hours</th>
+                <th scope="col" i18n="@@shift_summaries.col_status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (shift of paginate(shifts, page, pageSize); track shift) {
+                <tr>
+                  <td>
+                    <label class="flex size-12 cursor-pointer items-center justify-center">
+                      <input type="checkbox" class="size-5" [attr.aria-label]="selectLabel(shift)" [checked]="isSelected(shift)" (change)="toggleSelection(shift, $any($event.target).checked)">
+                    </label>
+                  </td>
+                  <td>{{ shift.day | date }}</td>
+                  <td>{{ shift.personName }}</td>
+                  <td>{{ shift.locationName }}</td>
+                  <td>{{ shift.areaName }}</td>
+                  <td class="whitespace-nowrap">{{ shift.minStartTime | date:'shortTime' }}</td>
+                  <td class="whitespace-nowrap">{{ shift.maxEndTime | date:'shortTime' }}</td>
+                  <td class="text-right tabular-nums">{{ shift.breakTime || 0 }}</td>
+                  <td class="text-right tabular-nums">{{ shift.totalHours | number:'1.2-2' }}</td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <lz-status-chip [tone]="statusTone(shift.status)" dot>{{ statusLabel(shift.status) }}</lz-status-chip>
+                      <select lzField class="w-auto" [attr.aria-label]="statusSelectLabel(shift)" [ngModel]="shift.status || 'shifted'" (ngModelChange)="onStatusChange(shift, $event)" [ngModelOptions]="{standalone: true}">
+                        <option *ngFor="let o of statusOptions" [ngValue]="o.value">{{ o.label }}</option>
+                      </select>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </lz-table-scroll>
+      }
+      <lz-pager [total]="shifts.length" [page]="page" [pageSize]="pageSize" (pageChange)="page = $event" (pageSizeChange)="pageSize = $event; page = 1" />
+    }
+  }
 </div>

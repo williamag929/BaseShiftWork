@@ -11,6 +11,11 @@ import { Location } from 'src/app/core/models/location.model';
 import { People } from 'src/app/core/models/people.model';
 import { Company } from 'src/app/core/models/company.model';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import {
+  LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzPageHeaderComponent,
+  LzPagerComponent, LzPanelComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent, paginate, type LzTone,
+} from 'src/app/shared/ui';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
@@ -19,9 +24,11 @@ import { AppState } from 'src/app/store/app.state';
 @Component({
   selector: 'app-shiftsummaries',
   templateUrl: './shiftsummaries.component.html',
-  styleUrls: ['./shiftsummaries.component.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, CommonModule]
+  imports: [
+    ReactiveFormsModule, FormsModule, CommonModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzFieldComponent,
+    LzFieldDirective, LzPageHeaderComponent, LzPagerComponent, LzPanelComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
+  ]
 })
 export class ShiftsummariesComponent implements OnInit {
 
@@ -40,6 +47,9 @@ export class ShiftsummariesComponent implements OnInit {
   currentApproverPersonId?: number;
 
   // UI state
+  readonly paginate = paginate;
+  page = 1;
+  pageSize = 25;
   viewMode: 'cards' | 'table' = 'cards';
   shiftsList: SummaryShift[] = [];
   exportApprovedOnly = true;
@@ -107,6 +117,7 @@ export class ShiftsummariesComponent implements OnInit {
       ).pipe(
         tap(list => {
           this.shiftsList = list || [];
+          this.page = 1;
           // prune selections no longer present
           const valid = new Set(this.shiftsList.map(s => this.selectionKey(s)));
           this.selectedKeys.forEach(k => { if (!valid.has(k)) this.selectedKeys.delete(k); });
@@ -250,13 +261,21 @@ export class ShiftsummariesComponent implements OnInit {
     }
   }
 
-  statusClass(status?: string): string {
+  statusTone(status?: string): LzTone {
     switch (status) {
-      case 'approved': return 'status-badge status-approved';
-      case 'avoid': return 'status-badge status-avoid';
-      case 'not_shifted': return 'status-badge status-not-shifted';
+      case 'approved': return 'success';
+      case 'avoid': return 'danger';
+      case 'not_shifted': return 'neutral';
       case 'shifted':
-      default: return 'status-badge status-shifted';
+      default: return 'info';
     }
+  }
+
+  selectLabel(s: SummaryShift): string {
+    return $localize`:@@shift_summaries.select_row:Select ${s.personName}:name: ${this.formatDate(s.day)}:day:`;
+  }
+
+  statusSelectLabel(s: SummaryShift): string {
+    return $localize`:@@shift_summaries.status_for_row:Status for ${s.personName}:name: ${this.formatDate(s.day)}:day:`;
   }
 }

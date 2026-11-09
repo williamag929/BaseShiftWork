@@ -1,276 +1,149 @@
-<div class="approvals-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-icon">
-        <i class="fa fa-calendar-check-o"></i>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title" i18n="@@time_off_approvals.page_title">Time-Off Approvals</h1>
-        <p class="page-subtitle" i18n="@@time_off_approvals.page_subtitle">Review and manage employee time-off requests</p>
-      </div>
+<div class="flex flex-col gap-4">
+  <lz-page-header title="Time off" i18n-title="@@time_off_approvals.page_title" subtitle="Review and manage employee time-off requests" i18n-subtitle="@@time_off_approvals.page_subtitle" />
+
+  <lz-panel heading="Filters" i18n-heading="@@time_off_approvals.filter_title">
+    <button lzPanelActions lzButton variant="secondary" type="button" (click)="clearFilters()">
+      <mat-icon aria-hidden="true">restart_alt</mat-icon>
+      <ng-container i18n="@@time_off_approvals.clear_btn">Clear</ng-container>
+    </button>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <lz-field label="Search" i18n-label="@@time_off_approvals.search_label" controlId="toa-search">
+        <input
+          lzField
+          type="search"
+          id="toa-search"
+          placeholder="Search by name or reason..."
+          i18n-placeholder="@@time_off_approvals.search_ph"
+          [(ngModel)]="search"
+          (input)="loadRequests()"
+        />
+      </lz-field>
+
+      <lz-field label="Status" i18n-label="@@time_off_approvals.status_label" controlId="toa-status">
+        <select lzField id="toa-status" [(ngModel)]="status" (change)="loadRequests()">
+          <option value="Pending" i18n="@@time_off_approvals.status_pending">Pending</option>
+          <option value="Approved" i18n="@@time_off_approvals.status_approved">Approved</option>
+          <option value="Denied" i18n="@@time_off_approvals.status_denied">Denied</option>
+          <option value="All" i18n="@@time_off_approvals.status_all">All</option>
+        </select>
+      </lz-field>
+
+      <lz-field label="Employee" i18n-label="@@time_off_approvals.employee_label" controlId="toa-employee">
+        <select lzField id="toa-employee" [(ngModel)]="personId" (change)="loadRequests()">
+          <option [ngValue]="undefined" i18n="@@time_off_approvals.all_employees">All employees</option>
+          <option *ngFor="let p of people" [ngValue]="p.personId">{{ p.name }}</option>
+        </select>
+      </lz-field>
+
+      <lz-field label="Start date" i18n-label="@@time_off_approvals.start_date" controlId="toa-start">
+        <input lzField type="date" id="toa-start" [(ngModel)]="startDate" (change)="loadRequests()" />
+      </lz-field>
+
+      <lz-field label="End date" i18n-label="@@time_off_approvals.end_date" controlId="toa-end">
+        <input lzField type="date" id="toa-end" [(ngModel)]="endDate" (change)="loadRequests()" />
+      </lz-field>
     </div>
-  </div>
+  </lz-panel>
 
-  <div class="content-wrapper">
-    <!-- Filters Card -->
-    <div class="filters-card">
-      <div class="card-header">
-        <h3 class="card-title">
-          <i class="fa fa-filter"></i>
-          <ng-container i18n="@@time_off_approvals.filter_title">Filters</ng-container>
-        </h3>
-        <button class="clear-btn" (click)="clearFilters()" title="Clear all filters">
-          <i class="fa fa-refresh"></i>
-          <ng-container i18n="@@time_off_approvals.clear_btn">Clear</ng-container>
-        </button>
-      </div>
-      <div class="card-body">
-        <div class="filters-grid">
-          <div class="filter-group">
-            <label class="filter-label">
-              <i class="fa fa-search"></i>
-              <ng-container i18n="@@time_off_approvals.search_label">Search</ng-container>
-            </label>
-            <input
-              type="text"
-              class="filter-input"
-              placeholder="Search by name or reason..."
-              i18n-placeholder="@@time_off_approvals.search_ph"
-              [(ngModel)]="search"
-              (input)="loadRequests()"
-            />
-          </div>
-
-          <div class="filter-group">
-            <label class="filter-label">
-              <i class="fa fa-info-circle"></i>
-              <ng-container i18n="@@time_off_approvals.status_label">Status</ng-container>
-            </label>
-            <select class="filter-select" [(ngModel)]="status" (change)="loadRequests()">
-              <option value="Pending">Pending</option>
-              <option value="Approved">Approved</option>
-              <option value="Denied">Denied</option>
-              <option value="All">All</option>
-            </select>
-          </div>
-
-          <div class="filter-group">
-            <label class="filter-label">
-              <i class="fa fa-user"></i>
-              <ng-container i18n="@@time_off_approvals.employee_label">Employee</ng-container>
-            </label>
-            <select class="filter-select" [(ngModel)]="personId" (change)="loadRequests()">
-              <option [ngValue]="undefined" i18n="@@time_off_approvals.all_employees">All employees</option>
-              <option *ngFor="let p of people" [ngValue]="p.personId">{{ p.name }}</option>
-            </select>
-          </div>
-
-          <div class="filter-group">
-            <label class="filter-label">
-              <i class="fa fa-calendar"></i>
-              <ng-container i18n="@@time_off_approvals.start_date">Start Date</ng-container>
-            </label>
-            <input
-              type="date"
-              class="filter-input"
-              [(ngModel)]="startDate"
-              (change)="loadRequests()"
-            />
-          </div>
-
-          <div class="filter-group">
-            <label class="filter-label">
-              <i class="fa fa-calendar"></i>
-              <ng-container i18n="@@time_off_approvals.end_date">End Date</ng-container>
-            </label>
-            <input
-              type="date"
-              class="filter-input"
-              [(ngModel)]="endDate"
-              (change)="loadRequests()"
-            />
-          </div>
-
-          <div class="filter-group">
-            <label class="filter-label">
-              <i class="fa fa-list-ol"></i>
-              <ng-container i18n="@@time_off_approvals.per_page">Per Page</ng-container>
-            </label>
-            <select class="filter-select" [(ngModel)]="pageSize" (change)="page=1">
-              <option [ngValue]="10">10 / page</option>
-              <option [ngValue]="20">20 / page</option>
-              <option [ngValue]="50">50 / page</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Loading State -->
-    <div *ngIf="loading" class="loading-state">
-      <div class="spinner"></div>
-      <p class="loading-text" i18n="@@time_off_approvals.loading">Loading time-off requests...</p>
-    </div>
-
-    <!-- Error State -->
-    <div *ngIf="error && !loading" class="error-state">
-      <i class="fa fa-exclamation-triangle error-icon"></i>
-      <p class="error-text">{{ error }}</p>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="!loading && !error && requests.length === 0" class="empty-state">
-      <i class="fa fa-inbox empty-icon"></i>
-      <p class="empty-text" i18n="@@time_off_approvals.empty_text">No requests found</p>
-      <p class="empty-subtext" i18n="@@time_off_approvals.empty_subtext">Try adjusting your filters</p>
-    </div>
-
-    <!-- Requests List -->
-    <div *ngIf="!loading && !error && requests.length > 0" class="requests-grid">
-      <div *ngFor="let r of pagedRequests; let i = index"
-           class="request-card"
-           [class.pending]="r.status==='Pending'"
-           [class.approved]="r.status==='Approved'"
-           [class.denied]="r.status==='Denied'"
-           [style.animation-delay.ms]="i * 50">
-
-        <div class="card-header-row">
-          <div class="employee-section">
-            <div class="employee-avatar">
-              {{ getInitials(r.personName || '') }}
-            </div>
-            <div class="employee-info">
-              <h4 class="employee-name">{{ r.personName || ('#' + r.personId) }}</h4>
-              <p class="request-date">
-                <i class="fa fa-clock-o"></i>
-                <ng-container i18n="@@time_off_approvals.requested">Requested {{ formatDate(r.createdAt) }}</ng-container>
-              </p>
-            </div>
-          </div>
-          <div class="status-badge" [class.pending]="r.status==='Pending'"
-               [class.approved]="r.status==='Approved'"
-               [class.denied]="r.status==='Denied'">
-            <i class="fa"
-               [class.fa-clock-o]="r.status==='Pending'"
-               [class.fa-check-circle]="r.status==='Approved'"
-               [class.fa-times-circle]="r.status==='Denied'"></i>
-            {{ r.status }}
-          </div>
-        </div>
-
-        <div class="card-divider"></div>
-
-        <div class="card-body-grid">
-          <div class="info-section">
-            <div class="info-row">
-              <span class="info-label">
-                <i class="fa fa-tag"></i>
-                <ng-container i18n="@@time_off_approvals.type_label">Type</ng-container>
-              </span>
-              <span class="info-value type-badge">{{ r.type }}</span>
-            </div>
-
-            <div class="info-row">
-              <span class="info-label">
-                <i class="fa fa-calendar-o"></i>
-                <ng-container i18n="@@time_off_approvals.duration_label">Duration</ng-container>
-              </span>
-              <span class="info-value">
-                {{ formatDate(r.startDate) }} → {{ formatDate(r.endDate) }}
-              </span>
-            </div>
-
-            <div class="info-row" *ngIf="r.isPartialDay">
-              <span class="info-label">
-                <i class="fa fa-clock-o"></i>
-                <ng-container i18n="@@time_off_approvals.time_label">Time</ng-container>
-              </span>
-              <span class="info-value">{{ r.partialStartTime }} - {{ r.partialEndTime }}</span>
-            </div>
-
-            <div class="info-row" *ngIf="r.hoursRequested">
-              <span class="info-label">
-                <i class="fa fa-hourglass-half"></i>
-                <ng-container i18n="@@time_off_approvals.hours_label">Hours</ng-container>
-              </span>
-              <span class="info-value">{{ r.hoursRequested }} hrs</span>
-            </div>
-
-            <div class="info-row pto-balance-row" *ngIf="(r.type === 'Vacation' || r.type === 'PTO') && getPtoBalance(r.personId) !== undefined">
-              <span class="info-label">
-                <i class="fa fa-bank"></i>
-                <ng-container i18n="@@time_off_approvals.pto_balance">PTO Balance</ng-container>
-              </span>
-              <span class="info-value">
-                <strong>{{ getPtoBalance(r.personId) }} hrs</strong>
-                <span class="insufficient-badge" *ngIf="r.hoursRequested && getPtoBalance(r.personId)! < r.hoursRequested">
-                  <i class="fa fa-exclamation-triangle"></i>
-                  <ng-container i18n="@@time_off_approvals.insufficient">Insufficient</ng-container>
-                </span>
-              </span>
-            </div>
-
-            <div class="info-row" *ngIf="r.reason">
-              <span class="info-label">
-                <i class="fa fa-comment"></i>
-                <ng-container i18n="@@time_off_approvals.reason_label">Reason</ng-container>
-              </span>
-              <span class="info-value reason-text">{{ r.reason }}</span>
-            </div>
-          </div>
-
-          <div class="actions-section">
-            <div class="notes-group">
-              <label class="notes-label">
-                <i class="fa fa-pencil"></i>
-                <ng-container i18n="@@time_off_approvals.notes_label">Notes (Optional)</ng-container>
-              </label>
-              <textarea
-                class="notes-textarea"
-                [(ngModel)]="noteText[r.timeOffRequestId]"
-                placeholder="Add notes for approval/denial..."
-                i18n-placeholder="@@time_off_approvals.notes_ph"
-                rows="3"
-              ></textarea>
-            </div>
-
-            <div class="action-buttons">
-              <button
-                class="btn btn-approve"
-                (click)="approve(r)"
-                [disabled]="r.status!=='Pending'">
-                <i class="fa fa-check"></i>
-                <ng-container i18n="@@time_off_approvals.approve_btn">Approve</ng-container>
-              </button>
-              <button
-                class="btn btn-deny"
-                (click)="deny(r)"
-                [disabled]="r.status!=='Pending'">
-                <i class="fa fa-times"></i>
-                <ng-container i18n="@@time_off_approvals.deny_btn">Deny</ng-container>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Pagination -->
-    <div *ngIf="!loading && !error && requests.length > 0" class="pagination-card">
-      <button class="pagination-btn" (click)="prevPage()" [disabled]="page===1">
-        <i class="fa fa-chevron-left"></i>
-        <ng-container i18n="@@time_off_approvals.prev_page">Previous</ng-container>
-      </button>
-      <div class="pagination-info">
-        <span class="page-number">Page {{ page }}</span>
-        <span class="page-divider">/</span>
-        <span class="page-total">{{ totalPages }}</span>
-      </div>
-      <button class="pagination-btn" (click)="nextPage()" [disabled]="page===totalPages">
-        <ng-container i18n="@@time_off_approvals.next_page">Next</ng-container>
-        <i class="fa fa-chevron-right"></i>
-      </button>
-    </div>
-  </div>
+  @if (loading) {
+    <lz-alert tone="info" i18n="@@time_off_approvals.loading">Loading time-off requests...</lz-alert>
+  } @else if (error) {
+    <lz-alert tone="danger">{{ error }}</lz-alert>
+  } @else if (requests.length === 0) {
+    <lz-empty-state icon="inbox" title="No requests found" i18n-title="@@time_off_approvals.empty_text" body="Try adjusting your filters" i18n-body="@@time_off_approvals.empty_subtext" />
+  } @else {
+    <lz-table-scroll>
+      <table lzTable class="min-w-6xl">
+        <thead>
+          <tr>
+            <th scope="col" i18n="@@time_off_approvals.employee_label">Employee</th>
+            <th scope="col" i18n="@@time_off_approvals.type_label">Type</th>
+            <th scope="col" i18n="@@time_off_approvals.duration_label">Duration</th>
+            <th scope="col" class="text-right" i18n="@@time_off_approvals.hours_label">Hours</th>
+            <th scope="col" i18n="@@time_off_approvals.pto_balance">PTO balance</th>
+            <th scope="col" i18n="@@time_off_approvals.reason_label">Reason</th>
+            <th scope="col" i18n="@@time_off_approvals.notes_label">Notes (optional)</th>
+            <th scope="col" i18n="@@time_off_approvals.status_label">Status</th>
+            <th scope="col"><span class="sr-only" i18n="@@time_off_approvals.actions_col">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of paginate(requests, page, pageSize); track r.timeOffRequestId) {
+            <tr class="align-top">
+              <td>
+                <div class="font-medium">{{ r.personName || ('#' + r.personId) }}</div>
+                <div class="text-[13px] text-ink-soft"><ng-container i18n="@@time_off_approvals.requested">Requested {{ formatDate(r.createdAt) }}</ng-container></div>
+              </td>
+              <td>{{ r.type }}</td>
+              <td>
+                <div class="whitespace-nowrap">{{ formatDate(r.startDate) }} → {{ formatDate(r.endDate) }}</div>
+                @if (r.isPartialDay) {
+                  <div class="text-[13px] text-ink-soft">{{ r.partialStartTime }} - {{ r.partialEndTime }}</div>
+                }
+              </td>
+              <td class="text-right tabular-nums">@if (r.hoursRequested) { {{ r.hoursRequested }} hrs }</td>
+              <td>
+                @if ((r.type === 'Vacation' || r.type === 'PTO') && getPtoBalance(r.personId) !== undefined) {
+                  <div class="flex flex-wrap items-center gap-2">
+                    <strong class="tabular-nums">{{ getPtoBalance(r.personId) }} hrs</strong>
+                    @if (r.hoursRequested && getPtoBalance(r.personId)! < r.hoursRequested) {
+                      <lz-status-chip tone="danger" dot><ng-container i18n="@@time_off_approvals.insufficient">Insufficient</ng-container></lz-status-chip>
+                    }
+                  </div>
+                }
+              </td>
+              <td class="max-w-64">{{ r.reason }}</td>
+              <td class="min-w-56">
+                <textarea
+                  lzField
+                  class="py-2"
+                  rows="2"
+                  [attr.aria-label]="notesLabel(r)"
+                  placeholder="Add notes for approval/denial..."
+                  i18n-placeholder="@@time_off_approvals.notes_ph"
+                  [(ngModel)]="noteText[r.timeOffRequestId]"
+                ></textarea>
+              </td>
+              <td>
+                <lz-status-chip data-testid="status" [tone]="r.status === 'Approved' ? 'success' : r.status === 'Denied' ? 'danger' : 'warning'" dot>
+                  @switch (r.status) {
+                    @case ('Approved') { <ng-container i18n="@@time_off_approvals.status_approved">Approved</ng-container> }
+                    @case ('Denied') { <ng-container i18n="@@time_off_approvals.status_denied">Denied</ng-container> }
+                    @default { <ng-container i18n="@@time_off_approvals.status_pending">Pending</ng-container> }
+                  }
+                </lz-status-chip>
+              </td>
+              <td>
+                <div class="flex gap-2">
+                  <button
+                    lzButton
+                    variant="secondary"
+                    type="button"
+                    data-testid="approve"
+                    [attr.aria-label]="approveLabel(r)"
+                    (click)="approve(r)"
+                    [disabled]="r.status!=='Pending'">
+                    <mat-icon aria-hidden="true">check</mat-icon>
+                    <ng-container i18n="@@time_off_approvals.approve_btn">Approve</ng-container>
+                  </button>
+                  <button
+                    lzButton
+                    variant="secondary"
+                    type="button"
+                    data-testid="deny"
+                    [attr.aria-label]="denyLabel(r)"
+                    (click)="deny(r)"
+                    [disabled]="r.status!=='Pending'">
+                    <mat-icon aria-hidden="true" [class.text-danger-ink]="r.status === 'Pending'">close</mat-icon>
+                    <span [class.text-danger-ink]="r.status === 'Pending'" i18n="@@time_off_approvals.deny_btn">Deny</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </lz-table-scroll>
+    <lz-pager [total]="requests.length" [page]="page" [pageSize]="pageSize" [pageSizes]="[10, 20, 50]" (pageChange)="page = $event" (pageSizeChange)="pageSize = $event; page = 1" />
+  }
 </div>

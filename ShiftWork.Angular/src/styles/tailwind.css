@@ -85,3 +85,12 @@
   :focus-visible { outline: 2px solid var(--lz-link); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 }
+@source "../app/features/dashboard/overview";
+@source "../app/features/dashboard/shiftsummaries";
+@source "../app/features/dashboard/analytics";
+@source "../app/features/dashboard/time-off-approvals.component.html";
+@source "../app/features/dashboard/time-off-approvals.component.ts";
+@source "../app/features/dashboard/people-management.component.html";
+@source "../app/features/dashboard/people-management.component.ts";
+@source "../app/features/dashboard/pto-config-modal.component.html";
+@source "../app/features/dashboard/pto-config-modal.component.ts";

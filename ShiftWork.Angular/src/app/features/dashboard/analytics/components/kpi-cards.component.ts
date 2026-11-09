@@ -22,41 +22,38 @@ const META: Record<string, { labelKey: string; label: string; icon: string; high
   standalone: false,
   selector: 'app-kpi-cards',
   template: `
-    <div class="kpi-row">
-      <div class="kpi-card" *ngFor="let k of views; trackBy: trackByKey">
-        <div class="kpi-head">
-          <mat-icon class="kpi-icon">{{ k.icon }}</mat-icon>
-          <span class="kpi-label">{{ k.label }}</span>
-        </div>
-        <div class="kpi-value">{{ k.value }}</div>
-        <div class="kpi-delta" [ngClass]="k.deltaClass" *ngIf="k.deltaPct !== 0">
-          <mat-icon class="delta-icon">{{ k.deltaPct > 0 ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-          <span>{{ absPct(k.deltaPct) }}%</span>
-        </div>
-        <div class="kpi-delta flat" *ngIf="k.deltaPct === 0">
-          <span i18n="@@analytics.no_change">no change</span>
-        </div>
-      </div>
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      @for (k of views; track k.key) {
+        <lz-panel>
+          <div class="flex items-center gap-2 text-ink-soft">
+            <mat-icon aria-hidden="true" class="shrink-0 text-ink-muted">{{ k.icon }}</mat-icon>
+            <span class="text-[13px] font-medium">{{ k.label }}</span>
+          </div>
+          <div class="mt-1 text-[26px] font-semibold tabular-nums">{{ k.value }}</div>
+          @if (k.deltaPct !== 0) {
+            <div
+              class="mt-1 inline-flex items-center gap-1 text-[13px] font-medium"
+              [class.text-success-ink]="k.deltaClass === 'up-good' || k.deltaClass === 'down-good'"
+              [class.text-danger-ink]="k.deltaClass === 'up-bad' || k.deltaClass === 'down-bad'">
+              <mat-icon aria-hidden="true" class="size-4! text-base!">{{ k.deltaPct > 0 ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+              <span>{{ absPct(k.deltaPct) }}%</span>
+              <span class="sr-only">
+                @if (k.deltaClass === 'up-good' || k.deltaClass === 'down-good') {
+                  <ng-container i18n="@@analytics.delta_better">better than the previous period</ng-container>
+                } @else {
+                  <ng-container i18n="@@analytics.delta_worse">worse than the previous period</ng-container>
+                }
+              </span>
+            </div>
+          } @else {
+            <div class="mt-1 text-[13px] text-ink-soft">
+              <span i18n="@@analytics.no_change">no change</span>
+            </div>
+          }
+        </lz-panel>
+      }
     </div>
   `,
-  styles: [`
-    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-    @media (max-width: 900px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 520px) { .kpi-row { grid-template-columns: 1fr; } }
-    .kpi-card {
-      background: #fff; border: 1px solid rgba(11,11,11,0.08); border-radius: 14px;
-      padding: 16px 18px; display: flex; flex-direction: column; gap: 6px;
-    }
-    .kpi-head { display: flex; align-items: center; gap: 8px; color: #52514e; }
-    .kpi-icon { font-size: 18px; width: 18px; height: 18px; color: #898781; }
-    .kpi-label { font-size: 13px; font-weight: 500; }
-    .kpi-value { font-size: 30px; font-weight: 700; letter-spacing: -0.5px; color: #0b0b0b; }
-    .kpi-delta { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 600; width: fit-content; }
-    .delta-icon { font-size: 15px; width: 15px; height: 15px; }
-    .kpi-delta.up-good, .kpi-delta.down-good { color: #0ca30c; }
-    .kpi-delta.up-bad, .kpi-delta.down-bad { color: #d03b3b; }
-    .kpi-delta.flat { color: #898781; font-weight: 500; }
-  `],
 })
 export class KpiCardsComponent {
   views: KpiView[] = [];

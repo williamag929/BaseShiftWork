@@ -1359,19 +1359,19 @@
         <target state="translated">Inicia sesión para continuar</target>
       </trans-unit>
       <trans-unit id="overview.eyebrow" datatype="html">
-        <source>Operations Command</source>
+        <source>Operations command</source>
         <target state="translated">Centro de operaciones</target>
       </trans-unit>
       <trans-unit id="overview.title" datatype="html">
-        <source>Workforce Intelligence Dashboard</source>
-        <target state="translated">Panel de inteligencia laboral</target>
+        <source>Overview</source>
+        <target state="translated">Resumen</target>
       </trans-unit>
       <trans-unit id="overview.subtitle" datatype="html">
         <source>real-time visibility of attendance, GPS compliance, labor health, and location-level exceptions.</source>
         <target state="translated">visibilidad en tiempo real de asistencia, cumplimiento GPS, salud laboral y excepciones por ubicación.</target>
       </trans-unit>
       <trans-unit id="overview.live_sync" datatype="html">
-        <source>Live Sync</source>
+        <source>Live sync</source>
         <target state="translated">Sincronizar</target>
       </trans-unit>
       <trans-unit id="overview.refreshing" datatype="html">
@@ -1383,11 +1383,11 @@
         <target state="translated">Pulso de turno</target>
       </trans-unit>
       <trans-unit id="overview.clock_activity" datatype="html">
-        <source>Clock-in Activity</source>
+        <source>Clock-in activity</source>
         <target state="translated">Actividad de marcaje</target>
       </trans-unit>
       <trans-unit id="overview.open_summaries" datatype="html">
-        <source>Open Shift Summaries</source>
+        <source>Open shift summaries</source>
         <target state="translated">Ver resúmenes de turno</target>
       </trans-unit>
       <trans-unit id="overview.peak_label" datatype="html">
@@ -1411,7 +1411,7 @@
         <target state="translated">Cola de acciones</target>
       </trans-unit>
       <trans-unit id="overview.alerts_title" datatype="html">
-        <source>Operational Alerts</source>
+        <source>Operational alerts</source>
         <target state="translated">Alertas operativas</target>
       </trans-unit>
       <trans-unit id="overview.notifications_open" datatype="html">
@@ -1419,7 +1419,7 @@
         <target state="translated">abiertas</target>
       </trans-unit>
       <trans-unit id="overview.review_team" datatype="html">
-        <source>Review Team Impact</source>
+        <source>Review team impact</source>
         <target state="translated">Ver impacto del equipo</target>
       </trans-unit>
       <trans-unit id="overview.by_location" datatype="html">
@@ -1427,11 +1427,11 @@
         <target state="translated">Por ubicación</target>
       </trans-unit>
       <trans-unit id="overview.gps_compliance" datatype="html">
-        <source>GPS and Attendance Compliance</source>
+        <source>GPS and attendance compliance</source>
         <target state="translated">Cumplimiento de GPS y asistencia</target>
       </trans-unit>
       <trans-unit id="overview.manage_locations" datatype="html">
-        <source>Manage Locations</source>
+        <source>Manage locations</source>
         <target state="translated">Gestionar ubicaciones</target>
       </trans-unit>
       <trans-unit id="overview.on_shift" datatype="html">
@@ -1455,7 +1455,7 @@
         <target state="translated">Próximas acciones</target>
       </trans-unit>
       <trans-unit id="overview.recommended_actions" datatype="html">
-        <source>Recommended Actions</source>
+        <source>Recommended actions</source>
         <target state="translated">Acciones recomendadas</target>
       </trans-unit>
       <trans-unit id="overview.action_balance" datatype="html">
@@ -1487,7 +1487,7 @@
         <target state="translated">Hoja de ruta</target>
       </trans-unit>
       <trans-unit id="overview.next_features" datatype="html">
-        <source>Recommended Features For Next Version</source>
+        <source>Recommended features for next version</source>
         <target state="translated">Funciones recomendadas para la próxima versión</target>
       </trans-unit>
       <trans-unit id="overview.expected_impact" datatype="html">
@@ -3891,8 +3891,8 @@ Opción C</target>
         <target state="translated">Crear tarea</target>
       </trans-unit>
       <trans-unit id="time_off_approvals.page_title" datatype="html">
-        <source>Time-Off Approvals</source>
-        <target state="translated">Aprobaciones de permisos</target>
+        <source>Time off</source>
+        <target state="translated">Ausencias</target>
       </trans-unit>
       <trans-unit id="time_off_approvals.page_subtitle" datatype="html">
         <source>Review and manage employee time-off requests</source>
@@ -3927,11 +3927,11 @@ Opción C</target>
         <target state="translated">Todos los empleados</target>
       </trans-unit>
       <trans-unit id="time_off_approvals.start_date" datatype="html">
-        <source>Start Date</source>
+        <source>Start date</source>
         <target state="translated">Fecha de inicio</target>
       </trans-unit>
       <trans-unit id="time_off_approvals.end_date" datatype="html">
-        <source>End Date</source>
+        <source>End date</source>
         <target state="translated">Fecha de fin</target>
       </trans-unit>
       <trans-unit id="time_off_approvals.per_page" datatype="html">
@@ -3951,8 +3951,8 @@ Opción C</target>
         <target state="translated">Intenta ajustar tus filtros</target>
       </trans-unit>
       <trans-unit id="time_off_approvals.requested" datatype="html">
-        <source>Requested <x id="INTERPOLATION" equiv-text="{{ date }}"/></source>
-        <target state="translated">Solicitado <x id="INTERPOLATION" equiv-text="{{ date }}"/></target>
+        <source>Requested <x id="INTERPOLATION" equiv-text="{{ formatDate(r.createdAt) }}"/></source>
+        <target state="translated">Solicitado <x id="INTERPOLATION" equiv-text="{{ formatDate(r.createdAt) }}"/></target>
       </trans-unit>
       <trans-unit id="time_off_approvals.type_label" datatype="html">
         <source>Type</source>
@@ -3971,7 +3971,7 @@ Opción C</target>
         <target state="translated">Horas</target>
       </trans-unit>
       <trans-unit id="time_off_approvals.pto_balance" datatype="html">
-        <source>PTO Balance</source>
+        <source>PTO balance</source>
         <target state="translated">Saldo de PTO</target>
       </trans-unit>
       <trans-unit id="time_off_approvals.insufficient" datatype="html">
@@ -3983,7 +3983,7 @@ Opción C</target>
         <target state="translated">Razón</target>
       </trans-unit>
       <trans-unit id="time_off_approvals.notes_label" datatype="html">
-        <source>Notes (Optional)</source>
+        <source>Notes (optional)</source>
         <target state="translated">Notas (Opcional)</target>
       </trans-unit>
       <trans-unit id="time_off_approvals.notes_ph" datatype="html">
@@ -4007,15 +4007,15 @@ Opción C</target>
         <target state="translated">Siguiente</target>
       </trans-unit>
       <trans-unit id="pto_config.title" datatype="html">
-        <source>Configure PTO for <x id="INTERPOLATION" equiv-text="{{ name }}"/></source>
-        <target state="translated">Configurar PTO para <x id="INTERPOLATION" equiv-text="{{ name }}"/></target>
+        <source>Configure PTO for <x id="INTERPOLATION" equiv-text="{{ person?.name }}"/></source>
+        <target state="translated">Configurar PTO para <x id="INTERPOLATION" equiv-text="{{ person?.name }}"/></target>
       </trans-unit>
       <trans-unit id="pto_config.balance_label" datatype="html">
-        <source>Current PTO Balance:</source>
+        <source>Current PTO balance:</source>
         <target state="translated">Saldo actual de PTO:</target>
       </trans-unit>
       <trans-unit id="pto_config.accrual_label" datatype="html">
-        <source>Accrual Rate (hours per month)</source>
+        <source>Accrual rate (hours per month)</source>
         <target state="translated">Tasa de acumulación (horas por mes)</target>
       </trans-unit>
       <trans-unit id="pto_config.accrual_placeholder" datatype="html">
@@ -4027,7 +4027,7 @@ Opción C</target>
         <target state="translated">Cuántas horas de PTO gana este empleado cada mes (p. ej., 10 = 10 horas/mes)</target>
       </trans-unit>
       <trans-unit id="pto_config.starting_label" datatype="html">
-        <source>Starting Balance (hours)</source>
+        <source>Starting balance (hours)</source>
         <target state="translated">Saldo inicial (horas)</target>
       </trans-unit>
       <trans-unit id="pto_config.starting_placeholder" datatype="html">
@@ -4039,7 +4039,7 @@ Opción C</target>
         <target state="translated">Saldo inicial de PTO cuando el empleado comenzó o cuando empieza la acumulación</target>
       </trans-unit>
       <trans-unit id="pto_config.start_date_label" datatype="html">
-        <source>Accrual Start Date</source>
+        <source>Accrual start date</source>
         <target state="translated">Fecha de inicio de acumulación</target>
       </trans-unit>
       <trans-unit id="pto_config.start_date_hint" datatype="html">
@@ -4059,31 +4059,31 @@ Opción C</target>
         <target state="translated">Guardando...</target>
       </trans-unit>
       <trans-unit id="pto_config.save_btn" datatype="html">
-        <source>Save Configuration</source>
+        <source>Save configuration</source>
         <target state="translated">Guardar configuración</target>
       </trans-unit>
       <trans-unit id="shift_summaries.page_title" datatype="html">
-        <source>Shift Summaries</source>
-        <target state="translated">Resumen de turnos</target>
+        <source>Timesheets</source>
+        <target state="translated">Hojas de horas</target>
       </trans-unit>
       <trans-unit id="shift_summaries.page_subtitle" datatype="html">
         <source>Filter and view summarized shift activity by person, location, and date</source>
         <target state="translated">Filtra y visualiza la actividad de turnos por persona, ubicación y fecha</target>
       </trans-unit>
       <trans-unit id="shift_summaries.filter_title" datatype="html">
-        <source>Filter Shifts</source>
+        <source>Filter shifts</source>
         <target state="translated">Filtrar turnos</target>
       </trans-unit>
       <trans-unit id="shift_summaries.start_date" datatype="html">
-        <source>Start Date</source>
+        <source>Start date</source>
         <target state="translated">Fecha de inicio</target>
       </trans-unit>
       <trans-unit id="shift_summaries.end_date" datatype="html">
-        <source>End Date</source>
+        <source>End date</source>
         <target state="translated">Fecha de fin</target>
       </trans-unit>
       <trans-unit id="shift_summaries.all_locations" datatype="html">
-        <source>All Locations</source>
+        <source>All locations</source>
         <target state="translated">Todas las ubicaciones</target>
       </trans-unit>
       <trans-unit id="shift_summaries.person" datatype="html">
@@ -4091,11 +4091,11 @@ Opción C</target>
         <target state="translated">Persona</target>
       </trans-unit>
       <trans-unit id="shift_summaries.all_people" datatype="html">
-        <source>All People</source>
+        <source>All people</source>
         <target state="translated">Todas las personas</target>
       </trans-unit>
       <trans-unit id="shift_summaries.apply_filters" datatype="html">
-        <source>Apply Filters</source>
+        <source>Apply filters</source>
         <target state="translated">Aplicar filtros</target>
       </trans-unit>
       <trans-unit id="shift_summaries.view_cards" datatype="html">
@@ -4111,8 +4111,8 @@ Opción C</target>
         <target state="translated">Seleccionar todo</target>
       </trans-unit>
       <trans-unit id="shift_summaries.apply_bulk" datatype="html">
-        <source>Apply</source>
-        <target state="translated">Aplicar</target>
+        <source>Apply to selected</source>
+        <target state="translated">Aplicar a la selección</target>
       </trans-unit>
       <trans-unit id="shift_summaries.export_approved" datatype="html">
         <source>Export approved only</source>
@@ -4151,11 +4151,11 @@ Opción C</target>
         <target state="translated">Área</target>
       </trans-unit>
       <trans-unit id="shift_summaries.col_start" datatype="html">
-        <source>Start Time</source>
+        <source>Start time</source>
         <target state="translated">Hora de inicio</target>
       </trans-unit>
       <trans-unit id="shift_summaries.col_end" datatype="html">
-        <source>End Time</source>
+        <source>End time</source>
         <target state="translated">Hora de fin</target>
       </trans-unit>
       <trans-unit id="shift_summaries.col_break" datatype="html">
@@ -4163,7 +4163,7 @@ Opción C</target>
         <target state="translated">Descanso (min)</target>
       </trans-unit>
       <trans-unit id="shift_summaries.col_hours" datatype="html">
-        <source>Total Hours</source>
+        <source>Total hours</source>
         <target state="translated">Horas totales</target>
       </trans-unit>
       <trans-unit id="shift_summaries.col_status" datatype="html">
@@ -4179,11 +4179,11 @@ Opción C</target>
         <target state="translated">Área</target>
       </trans-unit>
       <trans-unit id="shift_summaries.break_label" datatype="html">
-        <source>Break Time</source>
+        <source>Break time</source>
         <target state="translated">Tiempo de descanso</target>
       </trans-unit>
       <trans-unit id="shift_summaries.hours_label" datatype="html">
-        <source>Total Hours</source>
+        <source>Total hours</source>
         <target state="translated">Horas totales</target>
       </trans-unit>
       <trans-unit id="shift_summaries.status_label" datatype="html">
@@ -4191,8 +4191,8 @@ Opción C</target>
         <target state="translated">Estado</target>
       </trans-unit>
       <trans-unit id="people_mgmt.page_title" datatype="html">
-        <source>People Management</source>
-        <target state="translated">Gestión de personas</target>
+        <source>Time off settings</source>
+        <target state="translated">Ajustes de ausencias</target>
       </trans-unit>
       <trans-unit id="people_mgmt.page_subtitle" datatype="html">
         <source>Manage employees, configure PTO, and track team information</source>
@@ -6707,6 +6707,166 @@ What would you like to do?</source>
       <trans-unit id="schedule.location_label" datatype="html">
         <source>Location</source>
         <target state="translated">Ubicación</target>
+      </trans-unit>
+      <trans-unit id="analytics.date_range" datatype="html">
+        <source>Date range</source>
+        <target state="translated">Rango de fechas</target>
+      </trans-unit>
+      <trans-unit id="analytics.delta_better" datatype="html">
+        <source>better than the previous period</source>
+        <target state="translated">mejor que el período anterior</target>
+      </trans-unit>
+      <trans-unit id="analytics.delta_worse" datatype="html">
+        <source>worse than the previous period</source>
+        <target state="translated">peor que el período anterior</target>
+      </trans-unit>
+      <trans-unit id="analytics.group_by" datatype="html">
+        <source>Group by</source>
+        <target state="translated">Agrupar por</target>
+      </trans-unit>
+      <trans-unit id="analytics.subtitle" datatype="html">
+        <source>Hours, attendance and coverage across your job sites.</source>
+        <target state="translated">Horas, asistencia y cobertura en tus sitios de trabajo.</target>
+      </trans-unit>
+      <trans-unit id="analytics.title" datatype="html">
+        <source>Analytics</source>
+        <target state="translated">Analítica</target>
+      </trans-unit>
+      <trans-unit id="overview.activity_chart_label" datatype="html">
+        <source>Hourly clock-in activity chart</source>
+        <target state="translated">Gráfico de actividad de marcaje por hora</target>
+      </trans-unit>
+      <trans-unit id="overview.kpi_label" datatype="html">
+        <source>Key metrics</source>
+        <target state="translated">Métricas clave</target>
+      </trans-unit>
+      <trans-unit id="overview.loading_locations" datatype="html">
+        <source>Loading location health…</source>
+        <target state="translated">Cargando el estado de las ubicaciones…</target>
+      </trans-unit>
+      <trans-unit id="overview.location_section_label" datatype="html">
+        <source>Location health and GPS compliance</source>
+        <target state="translated">Estado de las ubicaciones y cumplimiento de GPS</target>
+      </trans-unit>
+      <trans-unit id="overview.no_gps" datatype="html">
+        <source>missing GPS</source>
+        <target state="translated">sin GPS</target>
+      </trans-unit>
+      <trans-unit id="overview.no_locations" datatype="html">
+        <source>No locations configured yet.</source>
+        <target state="translated">Aún no hay ubicaciones configuradas.</target>
+      </trans-unit>
+      <trans-unit id="overview.range_label" datatype="html">
+        <source>Data range</source>
+        <target state="translated">Rango de datos</target>
+      </trans-unit>
+      <trans-unit id="overview.risk_high" datatype="html">
+        <source>At risk</source>
+        <target state="translated">En riesgo</target>
+      </trans-unit>
+      <trans-unit id="overview.risk_low" datatype="html">
+        <source>On track</source>
+        <target state="translated">En objetivo</target>
+      </trans-unit>
+      <trans-unit id="overview.risk_medium" datatype="html">
+        <source>Watch</source>
+        <target state="translated">Vigilar</target>
+      </trans-unit>
+      <trans-unit id="people_mgmt.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="people_mgmt.col_person" datatype="html">
+        <source>Person</source>
+        <target state="translated">Persona</target>
+      </trans-unit>
+      <trans-unit id="people_mgmt.configure_pto_for" datatype="html">
+        <source>Configure PTO for <x id="name" equiv-text="person.name"/></source>
+        <target state="translated">Configurar PTO para <x id="name" equiv-text="person.name"/></target>
+      </trans-unit>
+      <trans-unit id="people_mgmt.employees_found" datatype="html">
+        <source>employee(s) found</source>
+        <target state="translated">empleado(s) encontrado(s)</target>
+      </trans-unit>
+      <trans-unit id="pto_config.accrual_negative" datatype="html">
+        <source>Accrual rate cannot be negative.</source>
+        <target state="translated">La tasa de acumulación no puede ser negativa.</target>
+      </trans-unit>
+      <trans-unit id="pto_config.hours_unit" datatype="html">
+        <source>hours</source>
+        <target state="translated">horas</target>
+      </trans-unit>
+      <trans-unit id="pto_config.how_1" datatype="html">
+        <source>Employee starts with the starting balance hours.</source>
+        <target state="translated">El empleado comienza con las horas del saldo inicial.</target>
+      </trans-unit>
+      <trans-unit id="pto_config.how_2" datatype="html">
+        <source>Each month, accrual rate hours are added automatically.</source>
+        <target state="translated">Cada mes se suman automáticamente las horas de la tasa de acumulación.</target>
+      </trans-unit>
+      <trans-unit id="pto_config.how_3" datatype="html">
+        <source>When time-off is approved, hours are deducted from the balance.</source>
+        <target state="translated">Cuando se aprueba un permiso, las horas se descuentan del saldo.</target>
+      </trans-unit>
+      <trans-unit id="pto_config.how_4" datatype="html">
+        <source>Set all to zero or leave blank to disable PTO tracking for this employee.</source>
+        <target state="translated">Deja todo en cero o en blanco para desactivar el seguimiento de PTO de este empleado.</target>
+      </trans-unit>
+      <trans-unit id="pto_config.starting_negative" datatype="html">
+        <source>Starting balance cannot be negative.</source>
+        <target state="translated">El saldo inicial no puede ser negativo.</target>
+      </trans-unit>
+      <trans-unit id="shift_summaries.bulk_status_label" datatype="html">
+        <source>Status to apply</source>
+        <target state="translated">Estado a aplicar</target>
+      </trans-unit>
+      <trans-unit id="shift_summaries.result_count" datatype="html">
+        <source>result(s)</source>
+        <target state="translated">resultado(s)</target>
+      </trans-unit>
+      <trans-unit id="shift_summaries.select_row" datatype="html">
+        <source>Select <x id="name" equiv-text="s.personName"/> <x id="day" equiv-text="this.formatDate(s.day)"/></source>
+        <target state="translated">Seleccionar <x id="name" equiv-text="s.personName"/> <x id="day" equiv-text="this.formatDate(s.day)"/></target>
+      </trans-unit>
+      <trans-unit id="shift_summaries.status_for_row" datatype="html">
+        <source>Status for <x id="name" equiv-text="s.personName"/> <x id="day" equiv-text="this.formatDate(s.day)"/></source>
+        <target state="translated">Estado de <x id="name" equiv-text="s.personName"/> <x id="day" equiv-text="this.formatDate(s.day)"/></target>
+      </trans-unit>
+      <trans-unit id="shift_summaries.view_label" datatype="html">
+        <source>View</source>
+        <target state="translated">Vista</target>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.actions_col" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.approve_for" datatype="html">
+        <source>Approve request from <x id="name" equiv-text="r.personName || r.personId"/></source>
+        <target state="translated">Aprobar solicitud de <x id="name" equiv-text="r.personName || r.personId"/></target>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.deny_for" datatype="html">
+        <source>Deny request from <x id="name" equiv-text="r.personName || r.personId"/></source>
+        <target state="translated">Denegar solicitud de <x id="name" equiv-text="r.personName || r.personId"/></target>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.notes_for" datatype="html">
+        <source>Notes for <x id="name" equiv-text="r.personName || r.personId"/></source>
+        <target state="translated">Notas para <x id="name" equiv-text="r.personName || r.personId"/></target>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.status_all" datatype="html">
+        <source>All</source>
+        <target state="translated">Todas</target>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.status_approved" datatype="html">
+        <source>Approved</source>
+        <target state="translated">Aprobada</target>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.status_denied" datatype="html">
+        <source>Denied</source>
+        <target state="translated">Denegada</target>
+      </trans-unit>
+      <trans-unit id="time_off_approvals.status_pending" datatype="html">
+        <source>Pending</source>
+        <target state="translated">Pendiente</target>
       </trans-unit>
     </body>
   </file>

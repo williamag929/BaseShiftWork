@@ -1,185 +1,169 @@
-<section class="overview-page">
-  <header class="overview-hero">
-    <div>
-      <p class="eyebrow" i18n="@@overview.eyebrow">Operations Command</p>
-      <h1 i18n="@@overview.title">Workforce Intelligence Dashboard</h1>
-      <p class="hero-subtitle">
+<div class="flex flex-col gap-4">
+  <lz-page-header title="Overview" i18n-title="@@overview.title">
+    <ng-container lzHeaderMeta>
+      <p class="text-[13px] font-medium text-ink-soft" i18n="@@overview.eyebrow">Operations command</p>
+      <p class="text-ink-soft">
         {{ activeCompanyName }}: <ng-container i18n="@@overview.subtitle">real-time visibility of attendance, GPS compliance, labor health, and location-level exceptions.</ng-container>
       </p>
-    </div>
+    </ng-container>
 
-    <div class="hero-actions">
-      <button mat-stroked-button class="refresh-button" (click)="refreshCurrentData()" [disabled]="!activeCompanyId || loading">
-        <mat-icon>autorenew</mat-icon>
-        <ng-container i18n="@@overview.live_sync">Live Sync</ng-container>
-      </button>
-
-      <div class="time-pill">
-        <mat-icon>schedule</mat-icon>
+    <ng-container lzHeaderActions>
+      @if (loading) {
+        <lz-status-chip tone="info" role="status"><ng-container i18n="@@overview.refreshing">Refreshing data...</ng-container></lz-status-chip>
+      }
+      <span class="inline-flex min-h-12 items-center gap-1 text-ink-soft">
+        <mat-icon aria-hidden="true">schedule</mat-icon>
         <span>{{ now | date:'EEE, MMM d • h:mm a' }}</span>
-      </div>
-
-      <span class="loading-chip" *ngIf="loading">
-        <mat-icon>hourglass_top</mat-icon>
-        <ng-container i18n="@@overview.refreshing">Refreshing data...</ng-container>
       </span>
-
-      <div class="range-switcher" role="tablist" aria-label="Data range selector">
-        <button type="button" [class.active]="activeRange === '24h'" (click)="setRange('24h')">24h</button>
-        <button type="button" [class.active]="activeRange === '7d'" (click)="setRange('7d')">7d</button>
-        <button type="button" [class.active]="activeRange === '30d'" (click)="setRange('30d')">30d</button>
+      <div role="group" aria-label="Data range" i18n-aria-label="@@overview.range_label" class="inline-flex overflow-hidden rounded-control border border-line-strong">
+        @for (range of ranges; track range) {
+          <button
+            type="button"
+            class="min-h-12 min-w-12 border-0 px-4 font-[inherit] font-medium"
+            [class.bg-ink]="activeRange === range"
+            [class.text-paper]="activeRange === range"
+            [class.bg-paper]="activeRange !== range"
+            [class.text-ink]="activeRange !== range"
+            [attr.aria-pressed]="activeRange === range"
+            (click)="setRange(range)">{{ range }}</button>
+        }
       </div>
-    </div>
-  </header>
+      <button lzButton variant="secondary" type="button" (click)="refreshCurrentData()" [disabled]="!activeCompanyId || loading">
+        <mat-icon aria-hidden="true">autorenew</mat-icon>
+        <ng-container i18n="@@overview.live_sync">Live sync</ng-container>
+      </button>
+    </ng-container>
+  </lz-page-header>
 
-  <section class="kpi-grid" aria-label="Key metrics">
-    <article class="kpi-card" *ngFor="let metric of kpis">
-      <div class="kpi-header">
-        <div class="kpi-icon">
-          <mat-icon>{{ metric.icon }}</mat-icon>
-        </div>
-        <span class="kpi-trend" [class.up]="metric.trendUp" [class.down]="!metric.trendUp">{{ metric.trend }}</span>
-      </div>
-      <h3>{{ metric.value }}</h3>
-      <p class="kpi-label">{{ metric.label }}</p>
-      <p class="kpi-description">{{ metric.description }}</p>
-    </article>
-  </section>
+  <lz-panel role="group" aria-label="Key metrics" i18n-aria-label="@@overview.kpi_label">
+    <lz-summary-strip [items]="kpiItems" [interactive]="false" />
+  </lz-panel>
 
-  <section class="insight-layout">
-    <article class="panel">
-      <div class="panel-header">
-        <div>
-          <p class="panel-eyebrow" i18n="@@overview.shift_pulse">Shift Pulse</p>
-          <h2 i18n="@@overview.clock_activity">Clock-in Activity</h2>
-        </div>
-        <button mat-stroked-button color="primary" routerLink="/dashboard/shiftsummaries" i18n="@@overview.open_summaries">
-          Open Shift Summaries
-        </button>
-      </div>
+  <section class="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+    <lz-panel heading="Clock-in activity" i18n-heading="@@overview.clock_activity">
+      <a lzPanelActions lzButton variant="secondary" routerLink="/dashboard/shiftsummaries" i18n="@@overview.open_summaries">Open shift summaries</a>
 
-      <div class="activity-chart" role="img" aria-label="Hourly clock-in activity chart">
-        <div class="activity-bar-wrap" *ngFor="let point of hourlyActivity">
-          <div
-            class="activity-bar"
-            [style.height.%]="getActivityHeight(point)"
-            [attr.aria-label]="point.hour + ': ' + point.count + ' check-ins'"
-          ></div>
-          <span class="activity-count">{{ point.count }}</span>
-          <span class="activity-hour">{{ point.hour }}</span>
-        </div>
+      <div data-testid="activity-chart" class="flex h-48 items-end gap-2" role="img" aria-label="Hourly clock-in activity chart" i18n-aria-label="@@overview.activity_chart_label">
+        @for (point of hourlyActivity; track point.hour) {
+          <div class="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
+            <span class="text-[12px] tabular-nums text-ink-soft">{{ point.count }}</span>
+            <div class="flex min-h-0 w-full flex-1 items-end">
+              <div
+                data-testid="activity-bar"
+                class="w-full rounded-t-control bg-link"
+                [style.height.%]="getActivityHeight(point)"
+                [attr.aria-label]="point.hour + ': ' + point.count + ' check-ins'"
+              ></div>
+            </div>
+            <span class="text-[12px] text-ink-soft">{{ point.hour }}</span>
+          </div>
+        }
       </div>
 
-      <div class="activity-footer">
+      <div class="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-ink-soft">
         <span><strong i18n="@@overview.peak_label">Peak:</strong> {{ maxActivityCount }} <ng-container i18n="@@overview.checkins_hour">check-ins/hour</ng-container></span>
         <span><strong i18n="@@overview.trend_label">Trend:</strong> {{ lateArrivalsTrend }}</span>
       </div>
-    </article>
+    </lz-panel>
 
-    <article class="panel notifications-panel">
-      <div class="panel-header">
-        <div>
-          <p class="panel-eyebrow" i18n="@@overview.action_queue">Action Queue</p>
-          <h2 i18n="@@overview.alerts_title">Operational Alerts</h2>
-        </div>
-        <span class="notification-count">{{ notifications.length }} <ng-container i18n="@@overview.notifications_open">open</ng-container></span>
-      </div>
+    <lz-panel heading="Operational alerts" i18n-heading="@@overview.alerts_title">
+      <span lzPanelActions class="text-[13px] text-ink-soft tabular-nums">{{ notifications.length }} <ng-container i18n="@@overview.notifications_open">open</ng-container></span>
 
-      <div class="notification-list">
-        <article class="notification-item" *ngFor="let item of notifications" [ngClass]="getLevelClass(item.level)">
-          <div class="notification-icon">
-            <mat-icon>{{ item.icon }}</mat-icon>
-          </div>
-          <div class="notification-content">
-            <h3>{{ item.title }}</h3>
+      <div class="flex flex-col gap-2">
+        @for (item of notifications; track item.title) {
+          <lz-alert [tone]="item.level === 'critical' ? 'danger' : item.level === 'warning' ? 'warning' : 'info'">
+            <p class="font-medium">{{ item.title }}</p>
             <p>{{ item.description }}</p>
-            <span>{{ item.ago }}</span>
-          </div>
-        </article>
+            <p class="text-[13px] opacity-80">{{ item.ago }}</p>
+          </lz-alert>
+        }
       </div>
 
-      <button mat-flat-button color="primary" routerLink="/dashboard/people-management" i18n="@@overview.review_team">
-        Review Team Impact
-      </button>
-    </article>
+      <a lzButton variant="primary" class="mt-4 w-full" routerLink="/dashboard/people-management" i18n="@@overview.review_team">Review team impact</a>
+    </lz-panel>
   </section>
 
-  <section class="location-layout" aria-label="Location health and GPS compliance">
-    <article class="panel location-panel">
-      <div class="panel-header">
-        <div>
-          <p class="panel-eyebrow" i18n="@@overview.by_location">By Location</p>
-          <h2 i18n="@@overview.gps_compliance">GPS and Attendance Compliance</h2>
-        </div>
-        <button mat-stroked-button color="primary" routerLink="/dashboard/locations" i18n="@@overview.manage_locations">
-          Manage Locations
-        </button>
-      </div>
+  <section class="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" aria-label="Location health and GPS compliance" i18n-aria-label="@@overview.location_section_label">
+    <lz-panel heading="GPS and attendance compliance" i18n-heading="@@overview.gps_compliance">
+      <a lzPanelActions lzButton variant="secondary" routerLink="/dashboard/locations" i18n="@@overview.manage_locations">Manage locations</a>
 
-      <div class="location-list">
-        <article class="location-row" *ngFor="let location of locations" [ngClass]="getGpsRiskClass(location)">
-          <div class="location-main">
-            <h3>{{ location.name }}</h3>
-            <div class="location-stats">
-              <span><mat-icon>badge</mat-icon> {{ location.onShift }} <ng-container i18n="@@overview.on_shift">on shift</ng-container></span>
-              <span><mat-icon>alarm</mat-icon> {{ location.late }} <ng-container i18n="@@overview.late_label">late</ng-container></span>
-              <span><mat-icon>gps_off</mat-icon> {{ location.geofenceBreaches }} <ng-container i18n="@@overview.no_gps">missing GPS</ng-container></span>
-            </div>
-          </div>
+      @if (locations.length) {
+        <ul class="m-0 flex list-none flex-col gap-3 p-0">
+          @for (location of locations; track location.name) {
+            <li class="rounded-control border border-line-soft p-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h3 class="font-display text-base font-semibold">{{ location.name }}</h3>
+                <lz-status-chip [tone]="getGpsRiskClass(location) === 'risk-high' ? 'danger' : getGpsRiskClass(location) === 'risk-medium' ? 'warning' : 'success'" dot>
+                  {{ location.gpsCompliance }}% <ng-container i18n="@@overview.gps_ring">GPS</ng-container>
+                  ·
+                  @switch (getGpsRiskClass(location)) {
+                    @case ('risk-high') { <ng-container i18n="@@overview.risk_high">At risk</ng-container> }
+                    @case ('risk-medium') { <ng-container i18n="@@overview.risk_medium">Watch</ng-container> }
+                    @default { <ng-container i18n="@@overview.risk_low">On track</ng-container> }
+                  }
+                </lz-status-chip>
+              </div>
+              <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-ink-soft">
+                <span class="inline-flex items-center gap-1"><mat-icon aria-hidden="true">badge</mat-icon> {{ location.onShift }} <ng-container i18n="@@overview.on_shift">on shift</ng-container></span>
+                <span class="inline-flex items-center gap-1"><mat-icon aria-hidden="true">alarm</mat-icon> {{ location.late }} <ng-container i18n="@@overview.late_label">late</ng-container></span>
+                <span class="inline-flex items-center gap-1"><mat-icon aria-hidden="true">gps_off</mat-icon> {{ location.geofenceBreaches }} <ng-container i18n="@@overview.no_gps">missing GPS</ng-container></span>
+              </div>
+              <div
+                class="mt-3 h-2 overflow-hidden rounded-chip bg-neutral-bg"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                [attr.aria-valuenow]="location.gpsCompliance"
+                [attr.aria-label]="location.name"
+              >
+                <div
+                  class="h-full"
+                  [class.bg-success]="getGpsRiskClass(location) === 'risk-low'"
+                  [class.bg-amber]="getGpsRiskClass(location) === 'risk-medium'"
+                  [class.bg-danger]="getGpsRiskClass(location) === 'risk-high'"
+                  [style.width.%]="location.gpsCompliance"
+                ></div>
+              </div>
+            </li>
+          }
+        </ul>
+      } @else if (loading) {
+        <lz-alert tone="info" i18n="@@overview.loading_locations">Loading location health…</lz-alert>
+      } @else {
+        <lz-empty-state icon="location_off" title="No locations configured yet." i18n-title="@@overview.no_locations" />
+      }
+    </lz-panel>
 
-          <div class="gps-ring" [style.background]="getComplianceBackground(location.gpsCompliance)">
-            <span>{{ location.gpsCompliance }}%</span>
-            <small i18n="@@overview.gps_ring">GPS</small>
-          </div>
-        </article>
-
-        <p class="empty-state" *ngIf="!locations.length" i18n="@@overview.no_locations">
-          {{ loading ? 'Loading location health…' : 'No locations configured yet.' }}
-        </p>
-      </div>
-    </article>
-
-    <article class="panel quick-actions-panel">
-      <div class="panel-header">
-        <div>
-          <p class="panel-eyebrow" i18n="@@overview.next_moves">Next Moves</p>
-          <h2 i18n="@@overview.recommended_actions">Recommended Actions</h2>
-        </div>
-      </div>
-
-      <div class="actions-list">
-        <a class="action-link" *ngFor="let action of recommendedActions" [routerLink]="action.routerLink">
-          <mat-icon>{{ action.icon }}</mat-icon>
-          <div>
-            <h3>{{ action.title }}</h3>
-            <p>{{ action.description }}</p>
-          </div>
-        </a>
-      </div>
-    </article>
+    <lz-panel heading="Recommended actions" i18n-heading="@@overview.recommended_actions">
+      <ul class="m-0 flex list-none flex-col gap-2 p-0">
+        @for (action of recommendedActions; track action.routerLink) {
+          <li>
+            <a class="flex min-h-12 items-start gap-3 rounded-control border border-line-soft p-3 text-ink no-underline hover:bg-paper-alt" [routerLink]="action.routerLink">
+              <mat-icon aria-hidden="true" class="shrink-0 text-ink-soft">{{ action.icon }}</mat-icon>
+              <span class="min-w-0">
+                <span class="block font-medium">{{ action.title }}</span>
+                <span class="block text-ink-soft">{{ action.description }}</span>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    </lz-panel>
   </section>
 
-  <section class="next-version-panel panel" aria-label="Recommended features for next dashboard version">
-    <div class="panel-header">
-      <div>
-        <p class="panel-eyebrow" i18n="@@overview.roadmap">Roadmap</p>
-        <h2 i18n="@@overview.next_features">Recommended Features For Next Version</h2>
-      </div>
-    </div>
-
-    <div class="next-version-grid">
-      <article class="next-feature-card" *ngFor="let feature of upcomingFeatures">
-        <div class="next-feature-head">
-          <div class="next-feature-icon">
-            <mat-icon>{{ feature.icon }}</mat-icon>
+  <lz-panel heading="Recommended features for next version" i18n-heading="@@overview.next_features" aria-label="Recommended features for next dashboard version">
+    <ul class="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2 lg:grid-cols-4">
+      @for (feature of upcomingFeatures; track feature.title) {
+        <li class="flex flex-col gap-1 rounded-control border border-line-soft p-3">
+          <div class="flex items-center justify-between gap-2">
+            <mat-icon aria-hidden="true" class="text-ink-soft">{{ feature.icon }}</mat-icon>
+            <lz-status-chip tone="neutral">{{ feature.eta }}</lz-status-chip>
           </div>
-          <span class="next-feature-eta">{{ feature.eta }}</span>
-        </div>
-
-        <h3>{{ feature.title }}</h3>
-        <p class="next-feature-summary">{{ feature.summary }}</p>
-        <p class="next-feature-impact"><strong i18n="@@overview.expected_impact">Expected impact:</strong> {{ feature.impact }}</p>
-      </article>
-    </div>
-  </section>
-</section>
+          <h3 class="font-display text-base font-semibold">{{ feature.title }}</h3>
+          <p class="text-ink-soft">{{ feature.summary }}</p>
+          <p><strong i18n="@@overview.expected_impact">Expected impact:</strong> {{ feature.impact }}</p>
+        </li>
+      }
+    </ul>
+  </lz-panel>
+</div>

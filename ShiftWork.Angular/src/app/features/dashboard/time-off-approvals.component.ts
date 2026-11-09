@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import {
+  LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzPageHeaderComponent,
+  LzPagerComponent, LzPanelComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent, paginate,
+} from 'src/app/shared/ui';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { AppState } from 'src/app/store/app.state';
@@ -15,9 +20,11 @@ import { TimeOffRequest } from 'src/app/core/models/time-off-request.model';
 @Component({
   selector: 'app-time-off-approvals',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatSnackBarModule],
-  templateUrl: './time-off-approvals.component.html',
-  styleUrls: ['./time-off-approvals.component.css']
+  imports: [
+    CommonModule, FormsModule, MatSnackBarModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzFieldComponent,
+    LzFieldDirective, LzPageHeaderComponent, LzPagerComponent, LzPanelComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
+  ],
+  templateUrl: './time-off-approvals.component.html'
 })
 export class TimeOffApprovalsComponent implements OnInit {
   activeCompany$: Observable<any>;
@@ -37,6 +44,7 @@ export class TimeOffApprovalsComponent implements OnInit {
   personId?: number;
 
   // Paging
+  readonly paginate = paginate;
   page = 1;
   pageSize = 10;
 
@@ -185,6 +193,18 @@ export class TimeOffApprovalsComponent implements OnInit {
 
   getPtoBalance(personId: number): number | undefined {
     return this.ptoBalances[personId];
+  }
+
+  notesLabel(r: TimeOffRequest): string {
+    return $localize`:@@time_off_approvals.notes_for:Notes for ${r.personName || r.personId}:name:`;
+  }
+
+  approveLabel(r: TimeOffRequest): string {
+    return $localize`:@@time_off_approvals.approve_for:Approve request from ${r.personName || r.personId}:name:`;
+  }
+
+  denyLabel(r: TimeOffRequest): string {
+    return $localize`:@@time_off_approvals.deny_for:Deny request from ${r.personName || r.personId}:name:`;
   }
 
   formatDate(d: Date | string): string {

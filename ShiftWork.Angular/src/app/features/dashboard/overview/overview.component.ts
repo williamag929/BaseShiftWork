@@ -7,6 +7,7 @@ import { LocationService } from 'src/app/core/services/location.service';
 import { ShiftEventService } from 'src/app/core/services/shift-event.service';
 import { ScheduleShiftService } from 'src/app/core/services/schedule-shift.service';
 import { TimeOffRequestService } from 'src/app/core/services/time-off-request.service';
+import type { LzSummaryItem } from 'src/app/shared/ui';
 import { Location } from 'src/app/core/models/location.model';
 import { People } from 'src/app/core/models/people.model';
 import { ShiftEvent } from 'src/app/core/models/shift-event.model';
@@ -66,10 +67,10 @@ interface UpcomingFeature {
 @Component({
   selector: 'app-dashboard-overview',
   templateUrl: './overview.component.html',
-  styleUrls: ['./overview.component.css'],
   standalone: false
 })
 export class DashboardOverviewComponent implements OnInit, OnDestroy {
+  readonly ranges: Array<'24h' | '7d' | '30d'> = ['24h', '7d', '30d'];
   now: Date = new Date();
   activeRange: '24h' | '7d' | '30d' = '24h';
   activeCompanyName = 'Your Company';
@@ -187,6 +188,26 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
       eta: 'vNext +3'
     }
   ];
+
+  private kpiItemsSource: KpiMetric[] | null = null;
+  private kpiItemsCache: LzSummaryItem[] = [];
+
+  /** Summary-strip view of `kpis`; rebuilt only when `kpis` is replaced so the OnPush strip keeps a stable input. */
+  get kpiItems(): LzSummaryItem[] {
+    if (this.kpiItemsSource !== this.kpis) {
+      this.kpiItemsSource = this.kpis;
+      this.kpiItemsCache = this.kpis.map((metric, index) => {
+        const unit = metric.value.trim().replace(/^[\d.,]+\s*/, '');
+        return {
+          id: `kpi-${index}`,
+          count: Number.parseFloat(metric.value) || 0,
+          label: `${metric.label}${unit ? ` (${unit})` : ''} · ${metric.trend}`,
+          tone: metric.trendUp ? 'neutral' : 'danger',
+        };
+      });
+    }
+    return this.kpiItemsCache;
+  }
 
   private clockSub: Subscription = Subscription.EMPTY;
   private dataSub: Subscription = Subscription.EMPTY;
@@ -557,10 +578,6 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
     });
 
     return dynamicItems;
-  }
-
-  getComplianceBackground(percent: number): string {
-    return `conic-gradient(#0f766e 0% ${percent}%, #dbeafe ${percent}% 100%)`;
   }
 
   getLevelClass(level: OpsNotification['level']): string {

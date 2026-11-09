@@ -13,7 +13,7 @@ import { PeopleService } from '../../../core/services/people.service';
 import {
   AnalyticsFilter, AnalyticsGroupBy, AnalyticsKpi, AnalyticsResponse, AnalyticsDrilldownRow,
 } from '../../../core/models/analytics.model';
-import { AnalyticsPalette } from './analytics-theme';
+import { AnalyticsColors, analyticsPalette } from './analytics-theme';
 
 type ChartId = 'hours' | 'location' | 'attendance' | 'coverage';
 
@@ -21,7 +21,6 @@ type ChartId = 'hours' | 'location' | 'attendance' | 'coverage';
   standalone: false,
   selector: 'app-analytics',
   templateUrl: './analytics.component.html',
-  styleUrls: ['./analytics.component.css'],
 })
 export class AnalyticsComponent implements OnInit, OnDestroy {
   form!: FormGroup;
@@ -45,6 +44,8 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     open: false, bucket: null as string | null,
     rows: [] as AnalyticsDrilldownRow[], total: 0, page: 1, pageSize: 25,
   };
+
+  readonly groupings: AnalyticsGroupBy[] = ['day', 'week', 'month'];
 
   readonly presets = [
     { key: 'today', labelKey: 'analytics.preset_today' },
@@ -118,6 +119,20 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
 
   get isCustom(): boolean { return this.form?.value.preset === 'custom'; }
 
+  /** Native date inputs speak yyyy-MM-dd; the filter form keeps Date objects. */
+  dateValue(key: 'from' | 'to'): string {
+    const d: Date | null = this.form.value[key];
+    if (!d) return '';
+    const date = new Date(d);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
+
+  setDate(key: 'from' | 'to', value: string): void {
+    if (!value) return;
+    const [y, m, d] = value.split('-').map(Number);
+    this.form.patchValue({ [key]: new Date(y, m - 1, d) });
+  }
+
   private loadDimensions(): void {
     this.locationService.getLocations(this.companyId).pipe(catchError(() => of([]))).subscribe((l) => (this.locations = l ?? []));
     this.areaService.getAreas(this.companyId).pipe(catchError(() => of([]))).subscribe((a: any) => (this.areas = a ?? []));
@@ -168,23 +183,24 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
   }
 
   // ── Chart option builders ────────────────────────────────────────────────
-  private axisBase(categories: string[]): any {
+  private axisBase(categories: string[], p: AnalyticsColors): any {
     return {
       grid: { top: 48, right: 16, bottom: 40, left: 52, containLabel: true },
       tooltip: { trigger: 'axis' },
-      legend: { top: 8, icon: 'roundRect', itemWidth: 12, itemHeight: 12, textStyle: { color: AnalyticsPalette.inkSecondary } },
-      xAxis: { type: 'category', data: categories, axisLine: { lineStyle: { color: AnalyticsPalette.axis } }, axisLabel: { color: AnalyticsPalette.muted } },
-      yAxis: { type: 'value', splitLine: { lineStyle: { color: AnalyticsPalette.gridline } }, axisLabel: { color: AnalyticsPalette.muted } },
+      legend: { top: 8, icon: 'roundRect', itemWidth: 12, itemHeight: 12, textStyle: { color: p.inkSecondary } },
+      xAxis: { type: 'category', data: categories, axisLine: { lineStyle: { color: p.axis } }, axisLabel: { color: p.muted } },
+      yAxis: { type: 'value', splitLine: { lineStyle: { color: p.gridline } }, axisLabel: { color: p.muted } },
     };
   }
 
   private buildHours(r: AnalyticsResponse): EChartsOption {
+    const p = analyticsPalette();
     const cats = this.unionX(r);
     const worked = r.series.find((s) => s.key === 'worked');
     const scheduled = r.series.find((s) => s.key === 'scheduled');
     return {
-      ...this.axisBase(cats),
-      color: [AnalyticsPalette.seriesBlue, AnalyticsPalette.seriesGreen],
+      ...this.axisBase(cats, p),
+      color: [p.seriesBlue, p.seriesGreen],
       series: [
         { name: $localize`:@@analytics.series_worked:Worked`, type: 'line', smooth: false, symbolSize: 7, lineStyle: { width: 2 }, areaStyle: { opacity: 0.08 }, data: this.align(cats, worked) },
         { name: $localize`:@@analytics.series_scheduled:Scheduled`, type: 'line', smooth: false, symbolSize: 7, lineStyle: { width: 2, type: 'dashed' }, data: this.align(cats, scheduled) },
@@ -193,44 +209,47 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
   }
 
   private buildLocation(r: AnalyticsResponse): EChartsOption {
+    const colors = analyticsPalette();
     const worked = r.series.find((s) => s.key === 'worked');
     const points = [...(worked?.points ?? [])].sort((a, b) => a.y - b.y);
     return {
       grid: { top: 24, right: 24, bottom: 24, left: 8, containLabel: true },
       tooltip: { trigger: 'item' },
-      color: [AnalyticsPalette.seriesBlue],
-      xAxis: { type: 'value', splitLine: { lineStyle: { color: AnalyticsPalette.gridline } }, axisLabel: { color: AnalyticsPalette.muted } },
-      yAxis: { type: 'category', data: points.map((p) => p.x), axisLine: { lineStyle: { color: AnalyticsPalette.axis } }, axisLabel: { color: AnalyticsPalette.muted } },
+      color: [colors.seriesBlue],
+      xAxis: { type: 'value', splitLine: { lineStyle: { color: colors.gridline } }, axisLabel: { color: colors.muted } },
+      yAxis: { type: 'category', data: points.map((p) => p.x), axisLine: { lineStyle: { color: colors.axis } }, axisLabel: { color: colors.muted } },
       series: [{ name: $localize`:@@analytics.series_worked:Worked`, type: 'bar', barMaxWidth: 22, itemStyle: { borderRadius: [0, 4, 4, 0] }, data: points.map((p) => p.y) }],
     };
   }
 
   private buildAttendance(r: AnalyticsResponse): EChartsOption {
+    const p = analyticsPalette();
     const cats = this.unionX(r);
-    const map: Record<string, string> = { 'on-time': AnalyticsPalette.statusGood, late: AnalyticsPalette.statusWarning, 'no-show': AnalyticsPalette.statusCritical };
+    const map: Record<string, string> = { 'on-time': p.statusGood, late: p.statusWarning, 'no-show': p.statusCritical };
     const labels: Record<string, string> = {
       'on-time': $localize`:@@analytics.status_on_time:On time`,
       late: $localize`:@@analytics.status_late:Late`,
       'no-show': $localize`:@@analytics.status_no_show:No show`,
     };
     return {
-      ...this.axisBase(cats),
-      color: r.series.map((s) => map[s.key] ?? AnalyticsPalette.muted),
+      ...this.axisBase(cats, p),
+      color: r.series.map((s) => map[s.key] ?? p.muted),
       series: r.series.map((s) => ({
         name: labels[s.key] ?? s.label, type: 'bar', stack: 'att', barMaxWidth: 28,
-        itemStyle: { borderColor: '#fff', borderWidth: 1 }, data: this.align(cats, s),
+        itemStyle: { borderColor: p.surface, borderWidth: 1 }, data: this.align(cats, s),
       })),
     };
   }
 
   private buildCoverage(r: AnalyticsResponse): EChartsOption {
+    const p = analyticsPalette();
     const cats = this.unionX(r);
     return {
-      ...this.axisBase(cats),
-      color: [AnalyticsPalette.seriesBlue, AnalyticsPalette.coverageOpen],
+      ...this.axisBase(cats, p),
+      color: [p.seriesBlue, p.coverageOpen],
       series: [
-        { name: $localize`:@@analytics.series_filled:Filled`, type: 'bar', stack: 'cov', barMaxWidth: 28, itemStyle: { borderColor: '#fff', borderWidth: 1 }, data: this.align(cats, r.series.find((s) => s.key === 'filled')) },
-        { name: $localize`:@@analytics.series_open:Open`, type: 'bar', stack: 'cov', barMaxWidth: 28, itemStyle: { borderColor: '#fff', borderWidth: 1 }, data: this.align(cats, r.series.find((s) => s.key === 'open')) },
+        { name: $localize`:@@analytics.series_filled:Filled`, type: 'bar', stack: 'cov', barMaxWidth: 28, itemStyle: { borderColor: p.surface, borderWidth: 1 }, data: this.align(cats, r.series.find((s) => s.key === 'filled')) },
+        { name: $localize`:@@analytics.series_open:Open`, type: 'bar', stack: 'cov', barMaxWidth: 28, itemStyle: { borderColor: p.surface, borderWidth: 1 }, data: this.align(cats, r.series.find((s) => s.key === 'open')) },
       ],
     };
   }
@@ -284,7 +303,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
   exportPng(id: ChartId): void {
     const inst = this.charts[id];
     if (!inst) return;
-    const url = inst.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#ffffff' });
+    const url = inst.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: analyticsPalette().surface });
     this.download(url, `analytics-${id}.png`);
   }
 

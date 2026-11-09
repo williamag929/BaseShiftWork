@@ -1,141 +1,78 @@
-<div class="people-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-icon">
-        <i class="fas fa-users"></i>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title" i18n="@@people_mgmt.page_title">People Management</h1>
-        <p class="page-subtitle" i18n="@@people_mgmt.page_subtitle">Manage employees, configure PTO, and track team information</p>
-      </div>
-    </div>
+<div class="flex flex-col gap-4">
+  <lz-page-header title="Time off settings" i18n-title="@@people_mgmt.page_title" subtitle="Manage employees, configure PTO, and track team information" i18n-subtitle="@@people_mgmt.page_subtitle" />
+
+  <div class="flex flex-wrap items-center gap-2">
+    <lz-field class="w-full sm:w-80" label="Search by name or email" i18n-label="@@people_mgmt.search_label" controlId="pm-search">
+      <input
+        lzField
+        type="search"
+        id="pm-search"
+        placeholder="Type to search..."
+        i18n-placeholder="@@people_mgmt.search_ph"
+        [(ngModel)]="searchQuery"
+        (input)="applyFilter()"
+      />
+    </lz-field>
+    @if (!loading) {
+      <span class="ml-auto self-end pb-3 text-ink-soft tabular-nums">{{ filteredPeople.length }} <ng-container i18n="@@people_mgmt.employees_found">employee(s) found</ng-container></span>
+    }
   </div>
 
-  <!-- Content Wrapper -->
-  <div class="content-wrapper">
-    <!-- Search Card -->
-    <div class="search-card">
-      <div class="card-header">
-        <h3 class="card-title">
-          <i class="fas fa-search"></i>
-          <ng-container i18n="@@people_mgmt.search_title">Search Employees</ng-container>
-        </h3>
-        <div class="result-count" *ngIf="!loading">
-          <i class="fas fa-users"></i>
-          {{ filteredPeople.length }} employee(s) found
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="search-group">
-          <label class="search-label">
-            <i class="fas fa-user-search"></i>
-            <ng-container i18n="@@people_mgmt.search_label">Search by name or email</ng-container>
-          </label>
-          <input
-            type="text"
-            class="search-input"
-            placeholder="Type to search..."
-            i18n-placeholder="@@people_mgmt.search_ph"
-            [(ngModel)]="searchQuery"
-            (input)="applyFilter()"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Loading State -->
-    <div *ngIf="loading" class="loading-state">
-      <div class="spinner"></div>
-      <p class="loading-text" i18n="@@people_mgmt.loading">Loading employees...</p>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="!loading && filteredPeople.length === 0" class="empty-state">
-      <i class="fas fa-user-slash empty-icon"></i>
-      <p class="empty-text" i18n="@@people_mgmt.empty_text">No employees found</p>
-      <p class="empty-subtext" i18n="@@people_mgmt.empty_subtext">Try adjusting your search criteria</p>
-    </div>
-
-    <!-- People Grid -->
-    <div *ngIf="!loading && filteredPeople.length > 0" class="people-grid">
-      <div
-        class="person-card"
-        *ngFor="let person of pagedPeople; let i = index"
-        [style.animation-delay]="(i * 0.05) + 's'"
-      >
-        <div class="card-header-row">
-          <div class="person-section">
-            <div class="person-avatar">
-              {{ getInitials(person.name) }}
-            </div>
-            <div class="person-info">
-              <h4 class="person-name">{{ person.name }}</h4>
-              <p class="person-id">
-                <i class="fas fa-id-badge"></i>
-                ID: {{ person.personId }}
-              </p>
-            </div>
-          </div>
-          <button class="btn-pto" (click)="openPtoConfig(person)">
-            <i class="fas fa-cog"></i>
-            <ng-container i18n="@@people_mgmt.configure_pto">Configure PTO</ng-container>
-          </button>
-        </div>
-
-        <div class="card-divider"></div>
-
-        <div class="card-body-grid">
-          <div class="info-row" *ngIf="person.email">
-            <span class="info-label">
-              <i class="fas fa-envelope"></i>
-              <ng-container i18n="@@people_mgmt.email_label">Email</ng-container>
-            </span>
-            <span class="info-value">{{ person.email }}</span>
-          </div>
-          <div class="info-row" *ngIf="person.phoneNumber">
-            <span class="info-label">
-              <i class="fas fa-phone"></i>
-              <ng-container i18n="@@people_mgmt.phone_label">Phone</ng-container>
-            </span>
-            <span class="info-value">{{ person.phoneNumber }}</span>
-          </div>
-          <div class="info-row" *ngIf="!person.email && !person.phoneNumber">
-            <span class="info-label">
-              <i class="fas fa-info-circle"></i>
-              Contact Info
-            </span>
-            <span class="info-value no-data" i18n="@@people_mgmt.no_contact">No contact information available</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Pagination -->
-    <div *ngIf="!loading && filteredPeople.length > 0" class="pagination-card">
-      <button class="pagination-btn" (click)="prevPage()" [disabled]="page === 1">
-        <i class="fas fa-chevron-left"></i>
-        <ng-container i18n="@@people_mgmt.prev_btn">Previous</ng-container>
-      </button>
-      <div class="pagination-info">
-        <span class="page-number">{{ page }}</span>
-        <span class="page-divider">/</span>
-        <span class="page-total">{{ totalPages }}</span>
-        <span class="total-count">({{ filteredPeople.length }} total)</span>
-      </div>
-      <button class="pagination-btn" (click)="nextPage()" [disabled]="page === totalPages">
-        <ng-container i18n="@@people_mgmt.next_btn">Next</ng-container>
-        <i class="fas fa-chevron-right"></i>
-      </button>
-    </div>
-  </div>
+  @if (loading) {
+    <lz-alert tone="info" i18n="@@people_mgmt.loading">Loading employees...</lz-alert>
+  } @else if (filteredPeople.length === 0) {
+    <lz-empty-state icon="person_off" title="No employees found" i18n-title="@@people_mgmt.empty_text" body="Try adjusting your search criteria" i18n-body="@@people_mgmt.empty_subtext" />
+  } @else {
+    <lz-table-scroll>
+      <table lzTable class="min-w-2xl">
+        <thead>
+          <tr>
+            <th scope="col" i18n="@@people_mgmt.col_person">Person</th>
+            <th scope="col" i18n="@@people_mgmt.email_label">Email</th>
+            <th scope="col" i18n="@@people_mgmt.phone_label">Phone</th>
+            <th scope="col"><span class="sr-only" i18n="@@people_mgmt.col_actions">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (person of paginate(filteredPeople, page, pageSize); track person.personId) {
+            <tr>
+              <td>
+                <div class="font-medium">{{ person.name }}</div>
+                <div class="text-[13px] text-ink-soft tabular-nums">ID: {{ person.personId }}</div>
+              </td>
+              <td>
+                @if (person.email) {
+                  {{ person.email }}
+                } @else if (!person.phoneNumber) {
+                  <span class="text-ink-soft" i18n="@@people_mgmt.no_contact">No contact information available</span>
+                }
+              </td>
+              <td>{{ person.phoneNumber }}</td>
+              <td class="text-right">
+                <button
+                  lzButton
+                  variant="secondary"
+                  type="button"
+                  [attr.aria-label]="configureLabel(person)"
+                  (click)="openPtoConfig(person)">
+                  <mat-icon aria-hidden="true">tune</mat-icon>
+                  <ng-container i18n="@@people_mgmt.configure_pto">Configure PTO</ng-container>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </lz-table-scroll>
+    <lz-pager [total]="filteredPeople.length" [page]="page" [pageSize]="pageSize" [pageSizes]="[15, 30, 60]" (pageChange)="page = $event" (pageSizeChange)="pageSize = $event; page = 1" />
+  }
 </div>
 
-<!-- PTO Config Modal -->
-<app-pto-config-modal
-  *ngIf="showPtoConfigModal"
-  [person]="selectedPerson"
-  [companyId]="activeCompany?.companyId"
-  (close)="closePtoConfigModal()"
-  (saved)="onPtoConfigSaved()"
-></app-pto-config-modal>
+@if (showPtoConfigModal) {
+  <app-pto-config-modal
+    [person]="selectedPerson"
+    [companyId]="activeCompany?.companyId"
+    (close)="closePtoConfigModal()"
+    (saved)="onPtoConfigSaved()"
+  ></app-pto-config-modal>
+}

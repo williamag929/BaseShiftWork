@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import {
+  LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzPageHeaderComponent,
+  LzPagerComponent, LzTableDirective, LzTableScrollComponent, paginate,
+} from 'src/app/shared/ui';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { AppState } from 'src/app/store/app.state';
@@ -13,9 +18,11 @@ import { PtoConfigModalComponent } from './pto-config-modal.component';
 @Component({
   selector: 'app-people-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatSnackBarModule, PtoConfigModalComponent],
-  templateUrl: './people-management.component.html',
-  styleUrls: ['./people-management.component.css']
+  imports: [
+    CommonModule, FormsModule, MatSnackBarModule, MatIconModule, PtoConfigModalComponent, LzAlertComponent, LzButtonDirective, LzEmptyStateComponent,
+    LzFieldComponent, LzFieldDirective, LzPageHeaderComponent, LzPagerComponent, LzTableDirective, LzTableScrollComponent,
+  ],
+  templateUrl: './people-management.component.html'
 })
 export class PeopleManagementComponent implements OnInit {
   activeCompany$: Observable<any>;
@@ -31,6 +38,7 @@ export class PeopleManagementComponent implements OnInit {
   selectedPerson: People | null = null;
 
   // Pagination
+  readonly paginate = paginate;
   page = 1;
   pageSize = 15;
 
@@ -101,6 +109,10 @@ export class PeopleManagementComponent implements OnInit {
 
   onPtoConfigSaved(): void {
     // Optionally reload people or refresh specific person data
+  }
+
+  configureLabel(person: People): string {
+    return $localize`:@@people_mgmt.configure_pto_for:Configure PTO for ${person.name}:name:`;
   }
 
   getInitials(name: string): string {

@@ -1,81 +1,83 @@
-<div class="modal-backdrop" (click)="onClose()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2 i18n="@@pto_config.title">Configure PTO for {{ person?.name }}</h2>
-      <button class="close-btn" (click)="onClose()">&times;</button>
+<lz-dialog-overlay size="lg" (closed)="onClose()">
+  <lz-dialog-frame title="Configure PTO for {{ person?.name }}" i18n-title="@@pto_config.title" (closed)="onClose()">
+    <div class="space-y-4">
+      @if (currentBalance !== null) {
+        <p class="m-0">
+          <span class="text-ink-soft" i18n="@@pto_config.balance_label">Current PTO balance:</span>
+          <strong class="tabular-nums"> {{ currentBalance }} <ng-container i18n="@@pto_config.hours_unit">hours</ng-container></strong>
+        </p>
+      }
+
+      <lz-field
+        label="Accrual rate (hours per month)"
+        i18n-label="@@pto_config.accrual_label"
+        hint="How many PTO hours this employee earns each month (e.g., 10 = 10 hours/month)"
+        i18n-hint="@@pto_config.accrual_hint"
+        [error]="accrualRatePerMonth !== null && accrualRatePerMonth < 0 ? negativeAccrualMessage : null"
+        controlId="accrualRate">
+        <input
+          lzField
+          type="number"
+          id="accrualRate"
+          cdkFocusInitial
+          [(ngModel)]="accrualRatePerMonth"
+          name="accrualRate"
+          placeholder="e.g., 10"
+          i18n-placeholder="@@pto_config.accrual_placeholder"
+          step="0.25"
+          min="0"
+          [attr.aria-invalid]="accrualRatePerMonth !== null && accrualRatePerMonth < 0"
+          [attr.aria-describedby]="accrualRatePerMonth !== null && accrualRatePerMonth < 0 ? 'accrualRate-hint accrualRate-error' : 'accrualRate-hint'"
+        />
+      </lz-field>
+
+      <lz-field
+        label="Starting balance (hours)"
+        i18n-label="@@pto_config.starting_label"
+        hint="Initial PTO balance when employee started or when accrual begins"
+        i18n-hint="@@pto_config.starting_hint"
+        [error]="startingBalance !== null && startingBalance < 0 ? negativeStartingMessage : null"
+        controlId="startingBalance">
+        <input
+          lzField
+          type="number"
+          id="startingBalance"
+          [(ngModel)]="startingBalance"
+          name="startingBalance"
+          placeholder="e.g., 40"
+          i18n-placeholder="@@pto_config.starting_placeholder"
+          step="1"
+          min="0"
+          [attr.aria-invalid]="startingBalance !== null && startingBalance < 0"
+          [attr.aria-describedby]="startingBalance !== null && startingBalance < 0 ? 'startingBalance-hint startingBalance-error' : 'startingBalance-hint'"
+        />
+      </lz-field>
+
+      <lz-field
+        label="Accrual start date"
+        i18n-label="@@pto_config.start_date_label"
+        hint="Date when PTO accrual begins for this employee"
+        i18n-hint="@@pto_config.start_date_hint"
+        controlId="startDate">
+        <input lzField type="date" id="startDate" [(ngModel)]="startDate" name="startDate" aria-describedby="startDate-hint" />
+      </lz-field>
+
+      <lz-alert tone="info">
+        <p class="m-0 font-medium" i18n="@@pto_config.how_it_works">How it works:</p>
+        <ul class="m-0 list-disc pl-5">
+          <li i18n="@@pto_config.how_1">Employee starts with the starting balance hours.</li>
+          <li i18n="@@pto_config.how_2">Each month, accrual rate hours are added automatically.</li>
+          <li i18n="@@pto_config.how_3">When time-off is approved, hours are deducted from the balance.</li>
+          <li i18n="@@pto_config.how_4">Set all to zero or leave blank to disable PTO tracking for this employee.</li>
+        </ul>
+      </lz-alert>
     </div>
 
-    <div class="modal-body">
-      <div class="info-section" *ngIf="currentBalance !== null">
-        <div class="info-label" i18n="@@pto_config.balance_label">Current PTO Balance:</div>
-        <div class="info-value">{{ currentBalance }} hours</div>
-      </div>
-
-      <form>
-        <div class="form-group">
-          <label for="accrualRate" i18n="@@pto_config.accrual_label">Accrual Rate (hours per month)</label>
-          <input
-            type="number"
-            id="accrualRate"
-            [(ngModel)]="accrualRatePerMonth"
-            name="accrualRate"
-            placeholder="e.g., 10"
-            i18n-placeholder="@@pto_config.accrual_placeholder"
-            step="0.25"
-            min="0"
-          />
-          <small class="hint" i18n="@@pto_config.accrual_hint">How many PTO hours this employee earns each month (e.g., 10 = 10 hours/month)</small>
-        </div>
-
-        <div class="form-group">
-          <label for="startingBalance" i18n="@@pto_config.starting_label">Starting Balance (hours)</label>
-          <input
-            type="number"
-            id="startingBalance"
-            [(ngModel)]="startingBalance"
-            name="startingBalance"
-            placeholder="e.g., 40"
-            i18n-placeholder="@@pto_config.starting_placeholder"
-            step="1"
-            min="0"
-          />
-          <small class="hint" i18n="@@pto_config.starting_hint">Initial PTO balance when employee started or when accrual begins</small>
-        </div>
-
-        <div class="form-group">
-          <label for="startDate" i18n="@@pto_config.start_date_label">Accrual Start Date</label>
-          <input
-            type="date"
-            id="startDate"
-            [(ngModel)]="startDate"
-            name="startDate"
-          />
-          <small class="hint" i18n="@@pto_config.start_date_hint">Date when PTO accrual begins for this employee</small>
-        </div>
-
-        <div class="form-info">
-          <strong i18n="@@pto_config.how_it_works">How it works:</strong>
-          <ul>
-            <li>Employee starts with the <strong>starting balance</strong> hours.</li>
-            <li>Each month, <strong>accrual rate</strong> hours are added automatically.</li>
-            <li>When time-off is approved, hours are deducted from the balance.</li>
-            <li>Set all to zero or leave blank to disable PTO tracking for this employee.</li>
-          </ul>
-        </div>
-      </form>
-    </div>
-
-    <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="resetForm()" [disabled]="loading" i18n="@@pto_config.clear_btn">
-        Clear
-      </button>
-      <button class="btn btn-secondary" (click)="onClose()" [disabled]="loading" i18n="@@common.cancel">
-        Cancel
-      </button>
-      <button class="btn btn-primary" (click)="save()" [disabled]="loading">
-        <ng-container *ngIf="loading" i18n="@@pto_config.saving">Saving...</ng-container>
-        <ng-container *ngIf="!loading" i18n="@@pto_config.save_btn">Save Configuration</ng-container>
-      </button>
-    </div>
-  </div>
-</div>
+    <button lzDialogActions lzButton variant="secondary" type="button" (click)="resetForm()" [disabled]="loading" i18n="@@pto_config.clear_btn">Clear</button>
+    <button lzDialogActions lzButton variant="secondary" type="button" (click)="onClose()" [disabled]="loading" i18n="@@common.cancel">Cancel</button>
+    <button lzDialogActions lzButton variant="primary" type="button" (click)="save()" [disabled]="loading">
+      <ng-container *ngIf="loading" i18n="@@pto_config.saving">Saving...</ng-container>
+      <ng-container *ngIf="!loading" i18n="@@pto_config.save_btn">Save configuration</ng-container>
+    </button>
+  </lz-dialog-frame>
+</lz-dialog-overlay>
