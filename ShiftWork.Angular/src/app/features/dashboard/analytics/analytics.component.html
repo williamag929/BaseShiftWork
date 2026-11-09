@@ -14,29 +14,9 @@
     <button mat-menu-item type="button" (click)="openDrilldown(null); exportDrilldownCsv()"><mat-icon aria-hidden="true">table_view</mat-icon><span i18n="@@analytics.export_all_csv">All rows (CSV)</span></button>
   </mat-menu>
 
-  <lz-panel class="sticky top-0 z-10" [formGroup]="form">
+  <lz-panel class="lg:sticky lg:top-0 lg:z-10" [formGroup]="form">
     <div class="flex flex-wrap items-end gap-3">
-      <div role="group" aria-label="Date range" i18n-aria-label="@@analytics.date_range" class="inline-flex overflow-hidden rounded-control border border-line-strong">
-        @for (p of presets; track p.key) {
-          <button
-            type="button"
-            class="min-h-12 border-0 px-4 font-[inherit] font-medium"
-            [class.bg-ink]="form.value.preset === p.key"
-            [class.text-paper]="form.value.preset === p.key"
-            [class.bg-paper]="form.value.preset !== p.key"
-            [class.text-ink]="form.value.preset !== p.key"
-            [attr.aria-pressed]="form.value.preset === p.key"
-            (click)="onPreset(p.key)">
-            <ng-container [ngSwitch]="p.key">
-              <span *ngSwitchCase="'today'" i18n="@@analytics.preset_today">Today</span>
-              <span *ngSwitchCase="'week'" i18n="@@analytics.preset_week">This week</span>
-              <span *ngSwitchCase="'month'" i18n="@@analytics.preset_month">This month</span>
-              <span *ngSwitchCase="'last_month'" i18n="@@analytics.preset_last_month">Last month</span>
-              <span *ngSwitchDefault i18n="@@analytics.preset_custom">Custom</span>
-            </ng-container>
-          </button>
-        }
-      </div>
+      <lz-segmented [options]="presetOptions" [value]="form.value.preset" ariaLabel="Date range" i18n-ariaLabel="@@analytics.date_range" (valueChange)="onPreset($event)" />
 
       @if (isCustom) {
         <lz-field label="From" i18n-label="@@analytics.from" controlId="analytics-from">
@@ -74,25 +54,7 @@
         </select>
       </lz-field>
 
-      <div role="group" aria-label="Group by" i18n-aria-label="@@analytics.group_by" class="inline-flex overflow-hidden rounded-control border border-line-strong">
-        @for (g of groupings; track g) {
-          <button
-            type="button"
-            class="min-h-12 border-0 px-4 font-[inherit] font-medium"
-            [class.bg-ink]="form.value.groupBy === g"
-            [class.text-paper]="form.value.groupBy === g"
-            [class.bg-paper]="form.value.groupBy !== g"
-            [class.text-ink]="form.value.groupBy !== g"
-            [attr.aria-pressed]="form.value.groupBy === g"
-            (click)="form.patchValue({ groupBy: g })">
-            <ng-container [ngSwitch]="g">
-              <span *ngSwitchCase="'day'" i18n="@@analytics.group_day">Day</span>
-              <span *ngSwitchCase="'week'" i18n="@@analytics.group_week">Week</span>
-              <span *ngSwitchDefault i18n="@@analytics.group_month">Month</span>
-            </ng-container>
-          </button>
-        }
-      </div>
+      <lz-segmented [options]="groupOptions" [value]="form.value.groupBy" ariaLabel="Group by" i18n-ariaLabel="@@analytics.group_by" (valueChange)="form.patchValue({ groupBy: $event })" />
     </div>
   </lz-panel>
 

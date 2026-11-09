@@ -70,7 +70,7 @@ interface UpcomingFeature {
   standalone: false
 })
 export class DashboardOverviewComponent implements OnInit, OnDestroy {
-  readonly ranges: Array<'24h' | '7d' | '30d'> = ['24h', '7d', '30d'];
+  readonly rangeOptions = [{ value: '24h', label: '24h' }, { value: '7d', label: '7d' }, { value: '30d', label: '30d' }];
   now: Date = new Date();
   activeRange: '24h' | '7d' | '30d' = '24h';
   activeCompanyName = 'Your Company';
@@ -200,7 +200,7 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
         const unit = metric.value.trim().replace(/^[\d.,]+\s*/, '');
         return {
           id: `kpi-${index}`,
-          count: Number.parseFloat(metric.value) || 0,
+          count: Number(metric.value.replace(/[^\d.-]/g, '')) || 0,
           label: `${metric.label}${unit ? ` (${unit})` : ''} · ${metric.trend}`,
           tone: metric.trendUp ? 'neutral' : 'danger',
         };

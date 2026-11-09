@@ -6868,6 +6868,14 @@ What would you like to do?</source>
         <source>Pending</source>
         <target state="translated">Pendiente</target>
       </trans-unit>
+      <trans-unit id="shift_summaries.select_page" datatype="html">
+        <source>Select page</source>
+        <target state="translated">Seleccionar página</target>
+      </trans-unit>
+      <trans-unit id="shift_summaries.selected_count" datatype="html">
+        <source>selected</source>
+        <target state="translated">seleccionados</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -11,7 +11,7 @@ import { ScheduleShiftService } from 'src/app/core/services/schedule-shift.servi
 import { TimeOffRequestService } from 'src/app/core/services/time-off-request.service';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import {
-  LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzPageHeaderComponent, LzPanelComponent,
+  LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzPageHeaderComponent, LzPanelComponent, LzSegmentedComponent,
   LzStatusChipComponent, LzSummaryStripComponent,
 } from 'src/app/shared/ui';
 import { DashboardOverviewComponent } from './overview.component';
@@ -34,7 +34,7 @@ describe('DashboardOverviewComponent (Loqzen design system)', () => {
     await TestBed.configureTestingModule({
       declarations: [DashboardOverviewComponent],
       imports: [
-        MatIconModule, LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzPageHeaderComponent, LzPanelComponent,
+        MatIconModule, LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzPageHeaderComponent, LzPanelComponent, LzSegmentedComponent,
         LzStatusChipComponent, LzSummaryStripComponent,
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -128,5 +128,38 @@ describe('DashboardOverviewComponent (Loqzen design system)', () => {
     await setup();
     const styled = Array.from(el().querySelectorAll('[style]')).map(n => n.getAttribute('style')!);
     styled.forEach(s => expect(s).not.toMatch(/#[0-9a-f]{3,8}|rgb|gradient/i));
+  });
+
+  it('KPI counts strip thousands separators and units: "1,234" -> 1234, "98%" -> 98', async () => {
+    await setup();
+    const c = fixture.componentInstance;
+    c.kpis = [
+      { label: 'A', value: '1,234', trend: 't', trendUp: true, icon: 'badge', description: '' },
+      { label: 'B', value: '98%', trend: 't', trendUp: true, icon: 'badge', description: '' },
+      { label: 'C', value: '3 people', trend: 't', trendUp: true, icon: 'badge', description: '' },
+      { label: 'D', value: 'n/a', trend: 't', trendUp: true, icon: 'badge', description: '' },
+    ];
+    expect(c.kpiItems.map(i => i.count)).toEqual([1234, 98, 3, 0]);
+  });
+
+  it('range switcher is an lz-segmented whose focus ring is not clipped', async () => {
+    await setup();
+    const btn = el().querySelector('lz-segmented button') as HTMLButtonElement;
+    expect(btn).not.toBeNull();
+    btn.focus();
+    expect(parseFloat(getComputedStyle(btn).outlineOffset)).toBeLessThanOrEqual(0);
+  });
+
+  it('fits a 360px host: no horizontal overflow and every header action is fully visible', async () => {
+    await setup();
+    const host = fixture.nativeElement as HTMLElement;
+    host.style.display = 'block';
+    host.style.width = '360px';
+    fixture.detectChanges();
+    expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
+    const right = host.getBoundingClientRect().right;
+    const actions = Array.from(el().querySelectorAll('lz-page-header button, lz-page-header lz-segmented, lz-page-header lz-status-chip'));
+    expect(actions.length).toBeGreaterThan(3);
+    actions.forEach(a => expect(a.getBoundingClientRect().right).toBeLessThanOrEqual(right + 0.5));
   });
 });

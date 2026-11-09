@@ -142,4 +142,34 @@ describe('ShiftsummariesComponent (Loqzen design system)', () => {
     select.dispatchEvent(new Event('change'));
     expect(summaryService.upsertApproval).toHaveBeenCalled();
   });
+
+  it('Select page selects only the visible 25 of 60 rows, keeps them across pages and shows the count', async () => {
+    await setup(Array.from({ length: 60 }, (_, i) => shift(i + 1)));
+    showTable();
+    const header = el().querySelector('thead input[type="checkbox"]') as HTMLInputElement;
+    expect(header.getAttribute('aria-label')).toBe('Select page');
+    header.click();
+    fixture.detectChanges();
+    expect(el().querySelectorAll('tbody input[type="checkbox"]:checked').length).toBe(25);
+    expect(el().textContent).toContain('25 selected');
+    (el().querySelector('lz-pager button[aria-label="Next page"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(el().querySelectorAll('tbody input[type="checkbox"]:checked').length).toBe(0);
+    expect(el().textContent).toContain('25 selected');
+    (el().querySelector('lz-pager button[aria-label="Previous page"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(el().querySelectorAll('tbody input[type="checkbox"]:checked').length).toBe(25);
+    const select = el().querySelector('select[aria-label="Status to apply"]') as HTMLSelectElement;
+    select.value = select.options[2].value;
+    select.dispatchEvent(new Event('change'));
+    fixture.componentInstance.applyBulk();
+    expect(summaryService.upsertApproval).toHaveBeenCalledTimes(25);
+  });
+
+  it('view toggle is an lz-segmented with an unclipped focus ring', async () => {
+    await setup([shift(1)]);
+    const btn = el().querySelector('lz-segmented button') as HTMLButtonElement;
+    btn.focus();
+    expect(parseFloat(getComputedStyle(btn).outlineOffset)).toBeLessThanOrEqual(0);
+  });
 });

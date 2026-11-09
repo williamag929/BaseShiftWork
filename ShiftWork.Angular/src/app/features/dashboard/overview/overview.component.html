@@ -15,19 +15,7 @@
         <mat-icon aria-hidden="true">schedule</mat-icon>
         <span>{{ now | date:'EEE, MMM d • h:mm a' }}</span>
       </span>
-      <div role="group" aria-label="Data range" i18n-aria-label="@@overview.range_label" class="inline-flex overflow-hidden rounded-control border border-line-strong">
-        @for (range of ranges; track range) {
-          <button
-            type="button"
-            class="min-h-12 min-w-12 border-0 px-4 font-[inherit] font-medium"
-            [class.bg-ink]="activeRange === range"
-            [class.text-paper]="activeRange === range"
-            [class.bg-paper]="activeRange !== range"
-            [class.text-ink]="activeRange !== range"
-            [attr.aria-pressed]="activeRange === range"
-            (click)="setRange(range)">{{ range }}</button>
-        }
-      </div>
+      <lz-segmented [options]="rangeOptions" [value]="activeRange" ariaLabel="Data range" i18n-ariaLabel="@@overview.range_label" (valueChange)="setRange($any($event))" />
       <button lzButton variant="secondary" type="button" (click)="refreshCurrentData()" [disabled]="!activeCompanyId || loading">
         <mat-icon aria-hidden="true">autorenew</mat-icon>
         <ng-container i18n="@@overview.live_sync">Live sync</ng-container>

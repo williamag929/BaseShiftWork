@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import {
   LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzPageHeaderComponent,
-  LzPagerComponent, LzPanelComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent, paginate, type LzTone,
+  LzPagerComponent, LzPanelComponent, LzSegmentedComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent, paginate, type LzTone,
 } from 'src/app/shared/ui';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { Store } from '@ngrx/store';
@@ -27,7 +27,7 @@ import { AppState } from 'src/app/store/app.state';
   standalone: true,
   imports: [
     ReactiveFormsModule, FormsModule, CommonModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzFieldComponent,
-    LzFieldDirective, LzPageHeaderComponent, LzPagerComponent, LzPanelComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
+    LzFieldDirective, LzPageHeaderComponent, LzPagerComponent, LzPanelComponent, LzSegmentedComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
   ]
 })
 export class ShiftsummariesComponent implements OnInit {
@@ -48,6 +48,10 @@ export class ShiftsummariesComponent implements OnInit {
 
   // UI state
   readonly paginate = paginate;
+  readonly viewOptions = [
+    { value: 'cards', label: $localize`:@@shift_summaries.view_cards:Cards` },
+    { value: 'table', label: $localize`:@@shift_summaries.view_table:Table` },
+  ];
   page = 1;
   pageSize = 25;
   viewMode: 'cards' | 'table' = 'cards';
@@ -222,9 +226,18 @@ export class ShiftsummariesComponent implements OnInit {
     return this.selectedKeys.has(this.selectionKey(s));
   }
 
+  /** Rows currently visible; Select page and the checked state apply to these only. */
+  private get pageRows(): SummaryShift[] {
+    return paginate(this.shiftsList || [], this.page, this.pageSize);
+  }
+
   get allSelected(): boolean {
-    const rows = this.shiftsList || [];
+    const rows = this.pageRows;
     return rows.length > 0 && rows.every(s => this.isSelected(s));
+  }
+
+  get selectedCount(): number {
+    return this.selectedKeys.size;
   }
 
   toggleSelection(s: SummaryShift, checked: boolean) {
@@ -233,11 +246,7 @@ export class ShiftsummariesComponent implements OnInit {
   }
 
   toggleSelectAll(checked: boolean) {
-    if (checked) {
-      (this.shiftsList || []).forEach(s => this.selectedKeys.add(this.selectionKey(s)));
-    } else {
-      this.selectedKeys.clear();
-    }
+    this.pageRows.forEach(s => (checked ? this.selectedKeys.add(this.selectionKey(s)) : this.selectedKeys.delete(this.selectionKey(s))));
   }
 
   applyBulk() {

@@ -67,6 +67,9 @@ describe('TimeOffApprovalsComponent (Loqzen design system)', () => {
     expect(getComputedStyle(scroll).overflowX).toBe('auto');
     fixture.nativeElement.style.width = '360px';
     fixture.nativeElement.style.display = 'block';
+    const table = scroll.querySelector('table') as HTMLElement;
+    expect(table.getBoundingClientRect().width).toBeGreaterThan(360);
+    expect(scroll.clientWidth).toBeLessThanOrEqual(360);
     expect(scroll.scrollWidth).toBeGreaterThan(scroll.clientWidth);
     const host = fixture.nativeElement as HTMLElement;
     expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);

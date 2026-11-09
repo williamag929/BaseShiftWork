@@ -45,7 +45,18 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     rows: [] as AnalyticsDrilldownRow[], total: 0, page: 1, pageSize: 25,
   };
 
-  readonly groupings: AnalyticsGroupBy[] = ['day', 'week', 'month'];
+  readonly presetOptions = [
+    { value: 'today', label: $localize`:@@analytics.preset_today:Today` },
+    { value: 'week', label: $localize`:@@analytics.preset_week:This week` },
+    { value: 'month', label: $localize`:@@analytics.preset_month:This month` },
+    { value: 'last_month', label: $localize`:@@analytics.preset_last_month:Last month` },
+    { value: 'custom', label: $localize`:@@analytics.preset_custom:Custom` },
+  ];
+  readonly groupOptions = [
+    { value: 'day', label: $localize`:@@analytics.group_day:Day` },
+    { value: 'week', label: $localize`:@@analytics.group_week:Week` },
+    { value: 'month', label: $localize`:@@analytics.group_month:Month` },
+  ];
 
   readonly presets = [
     { key: 'today', labelKey: 'analytics.preset_today' },

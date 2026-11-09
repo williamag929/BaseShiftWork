@@ -34,35 +34,15 @@
 
   @if (shifts$ | async; as shifts) {
     <div class="flex flex-wrap items-center gap-3">
-      <div role="group" aria-label="View" i18n-aria-label="@@shift_summaries.view_label" class="inline-flex overflow-hidden rounded-control border border-line-strong">
-        <button
-          type="button"
-          class="inline-flex min-h-12 items-center gap-2 border-0 px-4 font-[inherit] font-medium"
-          [class.bg-ink]="viewMode === 'cards'" [class.text-paper]="viewMode === 'cards'"
-          [class.bg-paper]="viewMode !== 'cards'" [class.text-ink]="viewMode !== 'cards'"
-          [attr.aria-pressed]="viewMode === 'cards'"
-          (click)="toggleView('cards')">
-          <mat-icon aria-hidden="true">grid_view</mat-icon>
-          <ng-container i18n="@@shift_summaries.view_cards">Cards</ng-container>
-        </button>
-        <button
-          type="button"
-          class="inline-flex min-h-12 items-center gap-2 border-0 px-4 font-[inherit] font-medium"
-          [class.bg-ink]="viewMode === 'table'" [class.text-paper]="viewMode === 'table'"
-          [class.bg-paper]="viewMode !== 'table'" [class.text-ink]="viewMode !== 'table'"
-          [attr.aria-pressed]="viewMode === 'table'"
-          (click)="toggleView('table')">
-          <mat-icon aria-hidden="true">table_rows</mat-icon>
-          <ng-container i18n="@@shift_summaries.view_table">Table</ng-container>
-        </button>
-      </div>
+      <lz-segmented [options]="viewOptions" [value]="viewMode" ariaLabel="View" i18n-ariaLabel="@@shift_summaries.view_label" (valueChange)="toggleView($any($event))" />
 
       @if (viewMode === 'cards') {
         <label class="flex min-h-12 items-center gap-2">
           <input type="checkbox" class="size-5" [checked]="allSelected" (change)="toggleSelectAll($any($event.target).checked)">
-          <ng-container i18n="@@shift_summaries.select_all">Select all</ng-container>
+          <ng-container i18n="@@shift_summaries.select_page">Select page</ng-container>
         </label>
       }
+      <span class="tabular-nums text-ink-soft" aria-live="polite">{{ selectedCount }} <ng-container i18n="@@shift_summaries.selected_count">selected</ng-container></span>
       <select lzField class="w-auto" aria-label="Status to apply" i18n-aria-label="@@shift_summaries.bulk_status_label" [(ngModel)]="bulkStatus" [ngModelOptions]="{standalone: true}">
         <option *ngFor="let o of statusOptions" [ngValue]="o.value">{{ o.label }}</option>
       </select>
@@ -130,7 +110,7 @@
               <tr>
                 <th scope="col" class="w-12">
                   <label class="flex size-12 cursor-pointer items-center justify-center">
-                    <input type="checkbox" class="size-5" aria-label="Select all" i18n-aria-label="@@shift_summaries.select_all" [checked]="allSelected" (change)="toggleSelectAll($any($event.target).checked)">
+                    <input type="checkbox" class="size-5" aria-label="Select page" i18n-aria-label="@@shift_summaries.select_page" [checked]="allSelected" (change)="toggleSelectAll($any($event.target).checked)">
                   </label>
                 </th>
                 <th scope="col" i18n="@@shift_summaries.col_day">Day</th>

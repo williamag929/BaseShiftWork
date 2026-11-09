@@ -14,7 +14,7 @@ import { PeopleService } from 'src/app/core/services/people.service';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import {
   LzButtonDirective, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzPageHeaderComponent, LzPagerComponent,
-  LzPanelComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
+  LzPanelComponent, LzSegmentedComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
 } from 'src/app/shared/ui';
 import { AnalyticsComponent } from './analytics.component';
 import { KpiCardsComponent } from './components/kpi-cards.component';
@@ -53,7 +53,7 @@ describe('AnalyticsComponent (Loqzen design system)', () => {
       declarations: [AnalyticsComponent, KpiCardsComponent, DrilldownTableComponent],
       imports: [
         ReactiveFormsModule, MatIconModule, MatMenuModule, LzButtonDirective, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective,
-        LzPageHeaderComponent, LzPagerComponent, LzPanelComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
+        LzPageHeaderComponent, LzPagerComponent, LzPanelComponent, LzSegmentedComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
       ],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
@@ -221,5 +221,29 @@ describe('AnalyticsComponent (Loqzen design system)', () => {
     fixture.detectChanges();
     expect(el().querySelector('table[mat-table], .kpi-card, .chart-card, .dd-card, .filter-bar')).toBeNull();
     Array.from(el().querySelectorAll('[style]')).forEach(n => expect(n.getAttribute('style')).not.toMatch(/#[0-9a-f]{3,8}|rgb|gradient/i));
+  }));
+
+  it('fits a 360px host with the filter panel only sticky from lg up and every filter control reachable', fakeAsync(() => {
+    setup();
+    const host = fixture.nativeElement as HTMLElement;
+    host.style.display = 'block';
+    host.style.width = '360px';
+    fixture.detectChanges();
+    expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
+    const panel = el().querySelector('lz-panel[class*="sticky"]') as HTMLElement;
+    expect(getComputedStyle(panel).position).toBe(window.innerWidth >= 1024 ? 'sticky' : 'static');
+    const hostRight = host.getBoundingClientRect().right;
+    el().querySelectorAll('lz-page-header button').forEach(b => expect(b.getBoundingClientRect().right).toBeLessThanOrEqual(hostRight + 0.5));
+    el().querySelectorAll('lz-panel select, lz-segmented').forEach(c => expect(c.getBoundingClientRect().right).toBeLessThanOrEqual(hostRight + 0.5));
+  }));
+
+  it('preset and group-by toggles are lz-segmented with unclipped focus rings', fakeAsync(() => {
+    setup();
+    const groups = el().querySelectorAll('lz-segmented');
+    expect(groups.length).toBe(2);
+    const btn = groups[0].querySelector('button') as HTMLButtonElement;
+    btn.focus();
+    expect(parseFloat(getComputedStyle(btn).outlineOffset)).toBeLessThanOrEqual(0);
+    tick(300);
   }));
 });
