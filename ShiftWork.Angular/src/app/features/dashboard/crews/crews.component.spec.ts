@@ -168,6 +168,82 @@ describe('CrewsComponent (Loqzen design system)', () => {
     expect(document.querySelector('[role="alertdialog"]')).toBeNull();
   });
 
+  it('Cancel closes the delete dialog without deleting and returns focus to the delete button', async () => {
+    await setup([crew(1, 'Night crew')]);
+    const trigger = el().querySelector('[aria-label="Delete Night crew"]') as HTMLElement;
+    trigger.focus();
+    await click(trigger);
+    const dialog = document.querySelector('[role="alertdialog"]') as HTMLElement;
+    await click(Array.from(dialog.querySelectorAll('button')).find(b => b.textContent!.trim() === 'Cancel')!);
+    expect(document.querySelector('[role="alertdialog"]')).toBeNull();
+    expect(service['deleteCrew']).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('Escape closes the delete dialog without deleting and returns focus to the delete button', async () => {
+    await setup([crew(1, 'Night crew')]);
+    const trigger = el().querySelector('[aria-label="Delete Night crew"]') as HTMLElement;
+    trigger.focus();
+    await click(trigger);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await settle();
+    expect(document.querySelector('[role="alertdialog"]')).toBeNull();
+    expect(service['deleteCrew']).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('a failed delete closes the dialog, keeps the row, shows an alert and refocuses the delete button', async () => {
+    await setup([crew(1, 'Night crew')]);
+    service['deleteCrew'].and.returnValue(throwError(() => new Error('boom')));
+    const trigger = el().querySelector('[aria-label="Delete Night crew"]') as HTMLElement;
+    trigger.focus();
+    await click(trigger);
+    const dialog = document.querySelector('[role="alertdialog"]') as HTMLElement;
+    await click(Array.from(dialog.querySelectorAll('button')).find(b => b.textContent!.includes('Delete crew'))!);
+    expect(document.querySelector('[role="alertdialog"]')).toBeNull();
+    expect(el().querySelectorAll('tbody tr').length).toBe(1);
+    expect(el().querySelector('lz-alert[role="alert"]')!.textContent).toContain('Failed to delete crew.');
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('deleting the only row on the last page falls back to page 1 with 25 rows', async () => {
+    await setup(many(26));
+    await click(el().querySelector('lz-pager [aria-label="Next page"]'));
+    expect(el().querySelectorAll('tbody tr').length).toBe(1);
+    await click(el().querySelector('[aria-label="Delete Crew 26"]'));
+    await click(Array.from(document.querySelectorAll('[role="alertdialog"] button')).find(b => b.textContent!.includes('Delete crew'))!);
+    expect(fixture.componentInstance.page).toBe(1);
+    expect(el().querySelectorAll('tbody tr').length).toBe(25);
+    expect(el().querySelector('lz-pager')!.textContent!.trim()).toBe('');
+      expect(el().querySelector('tbody tr')!.textContent).toContain('1');
+  });
+
+  it('after a successful delete focus moves to the Add crew button', async () => {
+    await setup([crew(1, 'Night crew')]);
+    await click(el().querySelector('[aria-label="Delete Night crew"]'));
+    await click(Array.from(document.querySelectorAll('[role="alertdialog"] button')).find(b => b.textContent!.includes('Delete crew'))!);
+    await settle();
+    expect(document.activeElement).toBe(el().querySelector('lz-page-header button'));
+  });
+
+  it('closing the panel restores focus to the opener', async () => {
+    await setup([crew(1, 'Night crew')]);
+    const opener = el().querySelector('[aria-label="Edit Night crew"]') as HTMLElement;
+    opener.focus();
+    await click(opener);
+    expect(panel()).not.toBeNull();
+    await click(panel()!.querySelector('[aria-label="Close"]'));
+    await settle();
+    expect(panel()).toBeNull();
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('does not show the empty state when loading failed', async () => {
+    await setup(throwError(() => new Error('boom')));
+    expect(el().querySelector('lz-empty-state')).toBeNull();
+    expect(el().querySelector('lz-alert[role="alert"]')).not.toBeNull();
+  });
+
   it('keeps row action targets at 48px', async () => {
     await setup([crew(1)]);
     const button = el().querySelector('[aria-label="Edit Crew 1"]') as HTMLElement;

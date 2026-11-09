@@ -18,12 +18,14 @@
     @if (loadingCrews) {
       <lz-alert tone="info" i18n="@@crews.loading">Loading crews...</lz-alert>
     } @else if (crews.length === 0) {
+      @if (!error) {
       <lz-empty-state icon="group_work" title="No crews yet" i18n-title="@@crews.empty_text" body="Create your first crew to schedule people together" i18n-body="@@crews.empty_body">
         <button lzEmptyAction lzButton variant="secondary" type="button" (click)="addCrew()">
           <mat-icon aria-hidden="true">add</mat-icon>
           <ng-container i18n="@@crews.add_crew">Add crew</ng-container>
         </button>
       </lz-empty-state>
+      }
     } @else {
       <lz-table-scroll>
         <table lzTable>
@@ -42,7 +44,7 @@
                     <button #editBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(crew)" (click)="openerEl = editBtn; selectCrew(crew)">
                       <mat-icon aria-hidden="true">edit</mat-icon>
                     </button>
-                    <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="deleteLabel(crew)" [disabled]="deletingCrewId === crew.crewId" (click)="askDelete(crew)">
+                    <button #delBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="deleteLabel(crew)" [disabled]="deletingCrewId === crew.crewId" (click)="askDelete(crew, delBtn)">
                       <mat-icon aria-hidden="true">delete</mat-icon>
                     </button>
                   </div>

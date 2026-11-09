@@ -7092,6 +7092,54 @@ What would you like to do?</source>
         <source>Saving...</source>
         <target state="translated">Guardando...</target>
       </trans-unit>
+      <trans-unit id="credentials.load_error" datatype="html">
+        <source>Failed to load credentials. Check your connection and try again.</source>
+        <target state="translated">No se pudieron cargar las credenciales. Revisa tu conexión e inténtalo de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="credentials.fill_required" datatype="html">
+        <source>Please fill in all required fields.</source>
+        <target state="translated">Completa todos los campos obligatorios.</target>
+      </trans-unit>
+      <trans-unit id="credentials.toast_updated" datatype="html">
+        <source>Credential updated</source>
+        <target state="translated">Credencial actualizada</target>
+      </trans-unit>
+      <trans-unit id="credentials.toast_update_failed" datatype="html">
+        <source>Failed to update credential</source>
+        <target state="translated">No se pudo actualizar la credencial</target>
+      </trans-unit>
+      <trans-unit id="credentials.toast_added" datatype="html">
+        <source>Credential added</source>
+        <target state="translated">Credencial agregada</target>
+      </trans-unit>
+      <trans-unit id="credentials.toast_confirm_failed" datatype="html">
+        <source>Upload confirmation failed</source>
+        <target state="translated">Falló la confirmación de la carga</target>
+      </trans-unit>
+      <trans-unit id="credentials.toast_upload_failed" datatype="html">
+        <source>Upload failed</source>
+        <target state="translated">Falló la carga</target>
+      </trans-unit>
+      <trans-unit id="credentials.toast_initiate_failed" datatype="html">
+        <source>Failed to start the upload</source>
+        <target state="translated">No se pudo iniciar la carga</target>
+      </trans-unit>
+      <trans-unit id="credentials.toast_add_failed" datatype="html">
+        <source>Failed to add credential</source>
+        <target state="translated">No se pudo agregar la credencial</target>
+      </trans-unit>
+      <trans-unit id="credentials.toast_archived" datatype="html">
+        <source>Credential archived</source>
+        <target state="translated">Credencial archivada</target>
+      </trans-unit>
+      <trans-unit id="credentials.toast_archive_failed" datatype="html">
+        <source>Failed to archive credential</source>
+        <target state="translated">No se pudo archivar la credencial</target>
+      </trans-unit>
+      <trans-unit id="credentials.toast_open_failed" datatype="html">
+        <source>Could not open document</source>
+        <target state="translated">No se pudo abrir el documento</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

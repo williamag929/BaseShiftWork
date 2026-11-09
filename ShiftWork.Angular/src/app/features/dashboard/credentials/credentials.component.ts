@@ -113,7 +113,7 @@ export class CredentialsComponent implements OnInit, OnDestroy {
         this.page = Math.min(this.page, Math.max(1, Math.ceil(this.credentials.length / this.pageSize)));
         this.loading = false;
       },
-      error: () => { this.errorMessage = 'Failed to load credentials. Check your connection and try again.'; this.loading = false; }
+      error: () => { this.errorMessage = $localize`:@@credentials.load_error:Failed to load credentials. Check your connection and try again.`; this.loading = false; }
     });
     return obs;
   }
@@ -172,7 +172,7 @@ export class CredentialsComponent implements OnInit, OnDestroy {
 
   async save(): Promise<void> {
     if (this.form.invalid) {
-      this.toastr.warning('Please fill in all required fields.');
+      this.toastr.warning($localize`:@@credentials.fill_required:Please fill in all required fields.`);
       return;
     }
 
@@ -192,9 +192,9 @@ export class CredentialsComponent implements OnInit, OnDestroy {
           this.saving = false;
           this.cancelForm();
           this.loadCredentials();
-          this.toastr.success('Credential updated');
+          this.toastr.success($localize`:@@credentials.toast_updated:Credential updated`);
         },
-        error: () => { this.saving = false; this.toastr.error('Failed to update credential'); }
+        error: () => { this.saving = false; this.toastr.error($localize`:@@credentials.toast_update_failed:Failed to update credential`); }
       });
       return;
     }
@@ -220,15 +220,15 @@ export class CredentialsComponent implements OnInit, OnDestroy {
                   this.saving = false;
                   this.cancelForm();
                   this.loadCredentials();
-                  this.toastr.success('Credential added');
+                  this.toastr.success($localize`:@@credentials.toast_added:Credential added`);
                 },
-                error: () => { this.saving = false; this.toastr.error('Upload confirmation failed'); }
+                error: () => { this.saving = false; this.toastr.error($localize`:@@credentials.toast_confirm_failed:Upload confirmation failed`); }
               });
             },
-            error: () => { this.saving = false; this.toastr.error('S3 upload failed'); }
+            error: () => { this.saving = false; this.toastr.error($localize`:@@credentials.toast_upload_failed:Upload failed`); }
           });
         },
-        error: () => { this.saving = false; this.toastr.error('Failed to initiate upload'); }
+        error: () => { this.saving = false; this.toastr.error($localize`:@@credentials.toast_initiate_failed:Failed to start the upload`); }
       });
     } else {
       this.credentialService.createCredential(this.activeCompany.companyId, createDto).subscribe({
@@ -236,9 +236,9 @@ export class CredentialsComponent implements OnInit, OnDestroy {
           this.saving = false;
           this.cancelForm();
           this.loadCredentials();
-          this.toastr.success('Credential added');
+          this.toastr.success($localize`:@@credentials.toast_added:Credential added`);
         },
-        error: () => { this.saving = false; this.toastr.error('Failed to add credential'); }
+        error: () => { this.saving = false; this.toastr.error($localize`:@@credentials.toast_add_failed:Failed to add credential`); }
       });
     }
   }
@@ -248,9 +248,10 @@ export class CredentialsComponent implements OnInit, OnDestroy {
     this.credentialService.archiveCredential(this.activeCompany.companyId, credential.credentialId).subscribe({
       next: () => {
         this.credentials = this.credentials.filter(c => c.credentialId !== credential.credentialId);
-        this.toastr.success('Credential archived');
+        this.page = Math.min(this.page, Math.max(1, Math.ceil(this.credentials.length / this.pageSize)));
+        this.toastr.success($localize`:@@credentials.toast_archived:Credential archived`);
       },
-      error: () => this.toastr.error('Failed to archive')
+      error: () => this.toastr.error($localize`:@@credentials.toast_archive_failed:Failed to archive credential`)
     });
   }
 
@@ -262,7 +263,7 @@ export class CredentialsComponent implements OnInit, OnDestroy {
           window.open(detail.documentViewUrl, '_blank');
         }
       },
-      error: () => this.toastr.error('Could not open document')
+      error: () => this.toastr.error($localize`:@@credentials.toast_open_failed:Could not open document`)
     });
   }
 

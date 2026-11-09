@@ -235,6 +235,38 @@ describe('CredentialsComponent', () => {
       expect(box.height).toBeGreaterThanOrEqual(48);
     });
 
+    it('archiving the only row on the last page falls back to page 1 with 25 rows', async () => {
+      await load(many(26));
+      await click(el().querySelector('lz-pager [aria-label="Next page"]'));
+      expect(el().querySelectorAll('tbody tr').length).toBe(1);
+      credentialSvc.archiveCredential.and.returnValue(of(undefined));
+      await click(el().querySelector('[aria-label="Archive Credential 26"]'));
+      expect(component.page).toBe(1);
+      expect(el().querySelectorAll('tbody tr').length).toBe(25);
+      expect(el().querySelector('lz-pager')!.textContent!.trim()).toBe('');
+      expect(el().querySelector('tbody tr')!.textContent).toContain('1');
+    });
+
+    it('the edit button opens the panel once without also firing the row handler', async () => {
+      await load([credential(1)]);
+      const start = spyOn(component, 'startEdit').and.callThrough();
+      await click(el().querySelector('[aria-label="Edit Credential 1"]'));
+      expect(start).toHaveBeenCalledTimes(1);
+      expect(document.querySelectorAll('lz-side-panel [role="dialog"]').length).toBe(1);
+    });
+
+    it('changing a filter resets to page 1', async () => {
+      await load(many(120));
+      await click(el().querySelector('lz-pager [aria-label="Next page"]'));
+      expect(component.page).toBe(2);
+      const select = el().querySelector('select[aria-label="Status"]') as HTMLSelectElement;
+      select.value = 'Valid';
+      select.dispatchEvent(new Event('change'));
+      await settle();
+      expect(component.page).toBe(1);
+      expect(el().querySelector('tbody tr')!.textContent).toContain('Credential 1');
+    });
+
     for (const width of [360, 768]) {
       it(`scrolls the table inside lz-table-scroll without page overflow at ${width}px`, async () => {
         await load(many(3));

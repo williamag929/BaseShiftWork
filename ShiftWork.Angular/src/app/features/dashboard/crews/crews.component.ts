@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
@@ -45,6 +45,8 @@ export class CrewsComponent implements OnInit {
   deletingCrewId: number | null = null;
   removingMemberId: number | null = null;
   crewToDelete: Crew | null = null;
+  private deleteOpener: HTMLElement | null = null;
+  @ViewChild('addBtn') private addBtn?: ElementRef<HTMLElement>;
   error = '';
 
   constructor(
@@ -163,18 +165,24 @@ export class CrewsComponent implements OnInit {
     });
   }
 
-  askDelete(crew: Crew): void {
+  askDelete(crew: Crew, opener: HTMLElement): void {
+    this.deleteOpener = opener;
     this.crewToDelete = crew;
   }
 
   cancelDelete(): void {
+    const opener = this.deleteOpener;
     this.crewToDelete = null;
+    this.deleteOpener = null;
+    Promise.resolve().then(() => opener?.focus());
   }
 
   confirmDelete(): void {
     const crew = this.crewToDelete;
     if (!crew) return;
+    const opener = this.deleteOpener;
     this.crewToDelete = null;
+    this.deleteOpener = null;
     this.deletingCrewId = crew.crewId;
     this.error = '';
     this.crewService.deleteCrew(String(this.activeCompany.companyId), crew.crewId).subscribe({
@@ -183,10 +191,12 @@ export class CrewsComponent implements OnInit {
         this.page = Math.min(this.page, Math.max(1, Math.ceil(this.crews.length / this.pageSize)));
         this.deletingCrewId = null;
         if (this.selectedCrew?.crewId === crew.crewId) this.cancelEdit();
+        Promise.resolve().then(() => this.addBtn?.nativeElement.focus());
       },
       error: () => {
         this.deletingCrewId = null;
         this.error = $localize`:@@crews.delete_error:Failed to delete crew.`;
+        Promise.resolve().then(() => opener?.focus());
       }
     });
   }
