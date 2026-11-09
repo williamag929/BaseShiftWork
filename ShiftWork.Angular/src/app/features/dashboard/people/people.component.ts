@@ -41,6 +41,8 @@ export class PeopleComponent implements OnInit {
   pageSize = 25;
   selectedIds = new Set<number>();
   bulkUpdating = false;
+  detailsOpen = false;
+  openerEl: HTMLElement | null = null;
   readonly paginate = paginate;
   readonly addPersonLabel = $localize`:@@people.add_person:Add person`;
 
@@ -135,15 +137,25 @@ export class PeopleComponent implements OnInit {
   setSearchTerm(value: string): void {
     this.searchTerm = value;
     this.page = 1;
+    this.pruneSelection();
   }
 
   setStatusFilter(value: string): void {
     this.statusFilter = value;
     this.page = 1;
+    this.pruneSelection();
+  }
+
+  private pruneSelection(): void {
+    const visible = new Set(this.filteredPeople.map(p => p.personId));
+    for (const id of [...this.selectedIds]) {
+      if (!visible.has(id)) this.selectedIds.delete(id);
+    }
   }
 
   addPerson(): void {
     this.cancelEdit();
+    this.detailsOpen = true;
     this.panelOpen = true;
   }
 
@@ -199,6 +211,11 @@ export class PeopleComponent implements OnInit {
       ...person,
       photoExempt: person.photoExempt ?? false,
     });
+    const hidden = ['address', 'city', 'state', 'pin', 'photoUrl'].map(k => this.personForm.get(k)!);
+    this.detailsOpen = hidden.some(c => !!c.value || c.invalid);
+    if (this.personForm.invalid) {
+      this.personForm.markAllAsTouched();
+    }
   }
 
   cancelEdit(): void {
@@ -313,7 +330,9 @@ export class PeopleComponent implements OnInit {
    */
   closeInviteDialog(): void {
     this.showInviteDialog = false;
-    this.selectedPerson = null;
+    if (!this.panelOpen) {
+      this.selectedPerson = null;
+    }
     this.selectedRolesForInvite = [];
   }
 

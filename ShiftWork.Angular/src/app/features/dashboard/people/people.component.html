@@ -1,20 +1,15 @@
 <div class="flex flex-col gap-4">
 
+  <div class="sticky top-0 z-10 bg-canvas">
   <lz-page-header title="People" i18n-title="@@people.page_title" subtitle="Everyone who can be scheduled or clock in at your job sites." i18n-subtitle="@@people.page_subtitle">
     <ng-container lzHeaderActions>
-      @if (panelOpen) {
-        <button lzButton variant="secondary" type="button" (click)="addPerson()">
-          <mat-icon aria-hidden="true">person_add</mat-icon>
-          <ng-container i18n="@@people.add_person">Add person</ng-container>
-        </button>
-      } @else {
-        <button lzButton variant="primary" type="button" (click)="addPerson()">
-          <mat-icon aria-hidden="true">person_add</mat-icon>
-          <ng-container i18n="@@people.add_person">Add person</ng-container>
-        </button>
-      }
+      <button #addBtn lzButton type="button" [variant]="panelOpen ? 'secondary' : 'primary'" [attr.variant]="panelOpen ? 'secondary' : 'primary'" (click)="openerEl = addBtn; addPerson()">
+        <mat-icon aria-hidden="true">person_add</mat-icon>
+        <ng-container i18n="@@people.add_person">Add person</ng-container>
+      </button>
     </ng-container>
   </lz-page-header>
+  </div>
 
   <div class="flex flex-wrap items-center gap-2">
     <label class="flex items-center gap-2">
@@ -60,7 +55,7 @@
           </thead>
           <tbody>
             @for (person of paginate(filteredPeople, page, pageSize); track person.personId) {
-              <tr class="cursor-pointer hover:bg-paper-alt" [class.bg-paper-alt]="selectedPerson?.personId === person.personId || selectedIds.has(person.personId)" (click)="editPerson(person)">
+              <tr class="cursor-pointer hover:bg-paper-alt" [class.bg-paper-alt]="selectedPerson?.personId === person.personId || selectedIds.has(person.personId)" (click)="openerEl = editBtn; editPerson(person)">
                 <td (click)="$event.stopPropagation()">
                   <label class="flex size-6 cursor-pointer items-center justify-center">
                     <input type="checkbox" class="size-5" [attr.aria-label]="selectLabel(person)" [checked]="selectedIds.has(person.personId)" (change)="toggleSelected(person.personId)">
@@ -103,7 +98,7 @@
                         <mat-icon aria-hidden="true">{{ getInviteStatus(person.personId)?.status === 'Active' ? 'key' : 'mail' }}</mat-icon>
                       </button>
                     }
-                    <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(person)" (click)="editPerson(person)">
+                    <button #editBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(person)" (click)="openerEl = editBtn; editPerson(person)">
                       <mat-icon aria-hidden="true">edit</mat-icon>
                     </button>
                   </div>
@@ -130,7 +125,7 @@
   </section>
 </div>
 
-<lz-side-panel #sp [heading]="selectedPerson ? selectedPerson.name : addPersonLabel" [open]="panelOpen" [dirty]="personForm.dirty" (closed)="cancelEdit()">
+<lz-side-panel #sp [restoreFocusTo]="openerEl" [heading]="selectedPerson ? selectedPerson.name : addPersonLabel" [open]="panelOpen" [dirty]="personForm.dirty" (closed)="cancelEdit()">
   <app-audit-history-button lzPanelHeaderActions
     *ngIf="selectedPerson"
     [entity]="selectedPerson"
@@ -142,13 +137,13 @@
   @if (panelOpen) {
     <form id="person-form" [formGroup]="personForm" (ngSubmit)="savePerson()" class="flex flex-col gap-4">
       <lz-field label="Full name" i18n-label="@@people.full_name" controlId="name">
-        <input lzField type="text" id="name" formControlName="name" placeholder="Enter full name" i18n-placeholder="@@people.name_placeholder" [attr.aria-invalid]="personForm.get('name')?.touched && personForm.get('name')?.invalid ? 'true' : null">
+        <input lzField type="text" id="name" formControlName="name" aria-required="true" placeholder="Enter full name" i18n-placeholder="@@people.name_placeholder" [attr.aria-invalid]="personForm.get('name')?.touched && personForm.get('name')?.invalid ? 'true' : null">
         @if (personForm.get('name')?.touched && personForm.get('name')?.errors?.['required']) {
           <p class="mt-1 text-[13px] text-danger-ink" role="alert" i18n="@@people.name_required">Name is required</p>
         }
       </lz-field>
       <lz-field label="Email address" i18n-label="@@people.email_address" controlId="email">
-        <input lzField type="email" id="email" formControlName="email" placeholder="name@example.com" [attr.aria-invalid]="personForm.get('email')?.touched && personForm.get('email')?.invalid ? 'true' : null">
+        <input lzField type="email" id="email" formControlName="email" aria-required="true" placeholder="name@example.com" [attr.aria-invalid]="personForm.get('email')?.touched && personForm.get('email')?.invalid ? 'true' : null">
         @if (personForm.get('email')?.touched && personForm.get('email')?.errors?.['required']) {
           <p class="mt-1 text-[13px] text-danger-ink" role="alert" i18n="@@people.email_required">Email is required</p>
         }
@@ -163,17 +158,26 @@
         </select>
       </lz-field>
 
-      <details class="rounded-control border border-line" [open]="!selectedPerson || !!(selectedPerson.address || selectedPerson.city || selectedPerson.state || selectedPerson.pin || selectedPerson.photoUrl)">
+      <details class="rounded-control border border-line" [open]="detailsOpen" (toggle)="detailsOpen = $any($event.target).open">
         <summary class="flex min-h-12 cursor-pointer items-center px-4 font-medium" i18n="@@people.section_address_access">Address and app access</summary>
         <div class="flex flex-col gap-4 border-t border-line-soft p-4">
           <lz-field label="Street address" i18n-label="@@people.street_address" controlId="address">
-            <input lzField type="text" id="address" formControlName="address" placeholder="123 Main Street">
+            <input lzField type="text" id="address" formControlName="address" aria-required="true" [attr.aria-invalid]="personForm.get('address')?.touched && personForm.get('address')?.invalid ? 'true' : null" placeholder="123 Main Street">
+            @if (personForm.get('address')?.touched && personForm.get('address')?.errors?.['required']) {
+              <p class="mt-1 text-[13px] text-danger-ink" role="alert" i18n="@@people.field_required">This field is required</p>
+            }
           </lz-field>
           <lz-field label="City" i18n-label="@@people.city" controlId="city">
-            <input lzField type="text" id="city" formControlName="city" placeholder="New York">
+            <input lzField type="text" id="city" formControlName="city" aria-required="true" [attr.aria-invalid]="personForm.get('city')?.touched && personForm.get('city')?.invalid ? 'true' : null" placeholder="New York">
+            @if (personForm.get('city')?.touched && personForm.get('city')?.errors?.['required']) {
+              <p class="mt-1 text-[13px] text-danger-ink" role="alert" i18n="@@people.field_required">This field is required</p>
+            }
           </lz-field>
           <lz-field label="State" i18n-label="@@people.state" controlId="state">
-            <input lzField type="text" id="state" formControlName="state" placeholder="NY">
+            <input lzField type="text" id="state" formControlName="state" aria-required="true" [attr.aria-invalid]="personForm.get('state')?.touched && personForm.get('state')?.invalid ? 'true' : null" placeholder="NY">
+            @if (personForm.get('state')?.touched && personForm.get('state')?.errors?.['required']) {
+              <p class="mt-1 text-[13px] text-danger-ink" role="alert" i18n="@@people.field_required">This field is required</p>
+            }
           </lz-field>
           <lz-field label="PIN code" i18n-label="@@people.pin_code" controlId="pin">
             <input lzField type="text" id="pin" formControlName="pin" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="4-digit PIN" i18n-placeholder="@@people.pin_placeholder">
@@ -208,7 +212,7 @@
 </lz-side-panel>
 
 @if (showInviteDialog) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4" (click)="closeInviteDialog()">
+  <div lzPortal class="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4" (click)="closeInviteDialog()">
     <div class="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-dialog bg-paper shadow-overlay" role="dialog" aria-modal="true" aria-labelledby="invite-dialog-title" (click)="$event.stopPropagation()">
       <div class="flex items-center justify-between gap-2 border-b border-line p-4">
         <h2 id="invite-dialog-title" class="font-display text-[18px] font-semibold">{{ getDialogTitle() }}</h2>

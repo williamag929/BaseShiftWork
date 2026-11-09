@@ -6668,6 +6668,10 @@ What would you like to do?</source>
         <source>Discard</source>
         <target state="translated">Descartar</target>
       </trans-unit>
+      <trans-unit id="people.field_required" datatype="html">
+        <source>This field is required</source>
+        <target state="translated">Este campo es obligatorio</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

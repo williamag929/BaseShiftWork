@@ -5000,6 +5000,9 @@ What would you like to do?</source>
       <trans-unit id="ui.side_panel.discard" datatype="html">
         <source>Discard</source>
       </trans-unit>
+      <trans-unit id="people.field_required" datatype="html">
+        <source>This field is required</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>

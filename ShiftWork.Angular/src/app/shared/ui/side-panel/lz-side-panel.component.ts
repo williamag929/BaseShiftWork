@@ -35,7 +35,6 @@ let nextId = 0;
         aria-modal="true"
         [attr.aria-labelledby]="headingId"
         class="fixed inset-y-0 right-0 z-40 flex w-full flex-col bg-paper text-ink shadow-overlay transition-transform duration-200 starting:translate-x-full motion-reduce:transition-none lg:w-[30rem]"
-        (keydown.escape)="requestClose()"
       >
         <header class="flex items-start justify-between gap-2 border-b border-line-soft px-4 py-3">
           <div class="min-w-0">
@@ -64,7 +63,7 @@ let nextId = 0;
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line-soft bg-paper-alt px-4 py-3" role="alert">
             <span class="font-medium" i18n="@@ui.side_panel.discard_prompt">Discard your changes?</span>
             <div class="flex gap-2">
-              <button lzButton variant="secondary" type="button" (click)="confirming = false" i18n="@@ui.side_panel.keep_editing">Keep editing</button>
+              <button lzButton variant="secondary" type="button" (click)="keepEditing()" i18n="@@ui.side_panel.keep_editing">Keep editing</button>
               <button lzButton variant="secondary" type="button" (click)="discard()"><span class="text-danger-ink" i18n="@@ui.side_panel.discard">Discard</span></button>
             </div>
           </div>
@@ -85,6 +84,20 @@ export class LzSidePanelComponent implements OnChanges, OnDestroy {
   private readonly injector = inject(Injector);
   private readonly cdr = inject(ChangeDetectorRef);
   private opener: HTMLElement | null = null;
+  private anchor: Comment | null = null;
+  private scroller: HTMLElement | null = null;
+  private scrollerOverflow = '';
+  private readonly onDocKeydown = (event: KeyboardEvent): void => {
+    if (event.key !== 'Escape' || event.defaultPrevented) {
+      return;
+    }
+    const target = event.target as Element | null;
+    const dialog = target?.closest?.('[role="dialog"]');
+    if (dialog && !this.host.nativeElement.contains(dialog)) {
+      return;
+    }
+    this.requestClose();
+  };
 
   readonly headingId = `lz-side-panel-title-${nextId++}`;
   confirming = false;
@@ -93,6 +106,7 @@ export class LzSidePanelComponent implements OnChanges, OnDestroy {
   @Input() subtitle?: string;
   @Input() open = false;
   @Input() dirty = false;
+  @Input() restoreFocusTo?: HTMLElement | null;
   @Output() closed = new EventEmitter<void>();
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -108,7 +122,14 @@ export class LzSidePanelComponent implements OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.doc.body.classList.remove('overflow-hidden');
+    this.release();
+  }
+
+  keepEditing(): void {
+    this.confirming = false;
+    afterNextRender(() => this.host.nativeElement.querySelector<HTMLElement>('[aria-label="Close"]')?.focus(), {
+      injector: this.injector,
+    });
   }
 
   requestClose(): void {
@@ -129,7 +150,14 @@ export class LzSidePanelComponent implements OnChanges, OnDestroy {
     const active = this.doc.activeElement;
     this.opener = active instanceof HTMLElement && active !== this.doc.body ? active : null;
     this.confirming = false;
-    this.doc.body.classList.add('overflow-hidden');
+    const el = this.host.nativeElement;
+    this.scroller = el.parentElement?.closest<HTMLElement>('mat-sidenav-content') ?? this.doc.body;
+    this.scrollerOverflow = this.scroller.style.overflow;
+    this.scroller.style.overflow = 'hidden';
+    this.anchor = this.doc.createComment('lz-side-panel');
+    el.parentNode?.insertBefore(this.anchor, el);
+    this.doc.body.appendChild(el);
+    this.doc.addEventListener('keydown', this.onDocKeydown);
     afterNextRender(
       () => {
         const panel = this.host.nativeElement.querySelector<HTMLElement>('[role="dialog"]');
@@ -142,9 +170,22 @@ export class LzSidePanelComponent implements OnChanges, OnDestroy {
 
   private onClose(): void {
     this.confirming = false;
-    this.doc.body.classList.remove('overflow-hidden');
-    const opener = this.opener;
+    this.release();
+    const preferred = this.restoreFocusTo?.isConnected ? this.restoreFocusTo : null;
+    const opener = preferred ?? (this.opener?.isConnected ? this.opener : null);
     this.opener = null;
     afterNextRender(() => opener?.focus(), { injector: this.injector });
+  }
+
+  private release(): void {
+    this.doc.removeEventListener('keydown', this.onDocKeydown);
+    if (this.scroller) {
+      this.scroller.style.overflow = this.scrollerOverflow;
+      this.scroller = null;
+    }
+    if (this.anchor) {
+      this.anchor.replaceWith(this.host.nativeElement);
+      this.anchor = null;
+    }
   }
 }

@@ -13,7 +13,7 @@ import { PlanLimitPromptService } from 'src/app/core/services/plan-limit-prompt.
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { MatIconModule } from '@angular/material/icon';
 import {
-  LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzPageHeaderComponent,
+  LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzFieldComponent, LzPortalDirective, LzFieldDirective, LzPageHeaderComponent,
   LzPagerComponent, LzSidePanelComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
 } from 'src/app/shared/ui';
 import { PeopleComponent } from './people.component';
@@ -72,7 +72,7 @@ describe('PeopleComponent (Loqzen design system)', () => {
     const primary = el().querySelectorAll('[variant="primary"]');
     fixture.componentInstance.openInviteDialog(person());
     fixture.detectChanges();
-    expect(el().querySelectorAll('[role="dialog"] [variant="primary"]').length).toBe(1);
+    expect(document.querySelectorAll('[role="dialog"] [variant="primary"]').length).toBe(1);
     expect(Array.from(primary).filter(b => !b.closest('[role="dialog"]')).length).toBe(1);
     expect(primary[0].textContent).toContain('Add person');
   });
@@ -119,7 +119,7 @@ describe('PeopleComponent (Loqzen design system)', () => {
       input.dispatchEvent(new Event('input'));
       fixture.detectChanges();
     };
-    const panel = () => el().querySelector('lz-side-panel [role="dialog"]') as HTMLElement | null;
+    const panel = () => document.querySelector('lz-side-panel [role="dialog"]') as HTMLElement | null;
     const addPerson = async () => {
       (Array.from(el().querySelectorAll('lz-page-header button')).find(b => b.textContent!.includes('Add person')) as HTMLElement).click();
       fixture.detectChanges();
@@ -210,17 +210,16 @@ describe('PeopleComponent (Loqzen design system)', () => {
       await setup([person()]);
       expect(el().querySelectorAll('lzButton[variant="primary"], button[variant="primary"]').length).toBe(1);
       await addPerson();
-      const primaries = el().querySelectorAll('button[variant="primary"]');
+      const primaries = document.querySelectorAll('button[variant="primary"]');
       expect(primaries.length).toBe(1);
       expect(panel()!.contains(primaries[0])).toBeTrue();
     });
 
-    it('splits the form into Basics and a collapsed Address and app access section', async () => {
+    it('splits the form into Basics and an Address and app access section', async () => {
       await setup([person()]);
       click('[aria-label="Edit Ana Ruiz"]');
       const details = panel()!.querySelector('details') as HTMLDetailsElement;
       expect(details.querySelector('summary')!.textContent).toContain('Address and app access');
-      expect(details.open).toBeFalse();
       expect(details.contains(panel()!.querySelector('#name'))).toBeFalse();
       expect(details.contains(panel()!.querySelector('#city'))).toBeTrue();
     });
@@ -268,6 +267,112 @@ describe('PeopleComponent (Loqzen design system)', () => {
       expect(peopleService.updatePersonStatus.calls.allArgs()).toEqual([['c1', 1, 'Inactive'], ['c1', 3, 'Inactive']]);
       expect(peopleService.getPeople.calls.count()).toBe(callsBefore + 1);
       expect(fixture.componentInstance.selectedIds.size).toBe(0);
+    });
+
+    it('keeps the edited person when the invite dialog is closed, so Save updates', async () => {
+      await setup([person()]);
+      (peopleService as any).updatePerson = jasmine.createSpy('updatePerson').and.callFake((_c: string, _id: number, p: People) => of(p));
+      (peopleService as any).createPerson = jasmine.createSpy('createPerson').and.returnValue(of(person()));
+      click('[aria-label="Edit Ana Ruiz"]');
+      fixture.componentInstance.openInviteDialog(fixture.componentInstance.selectedPerson!);
+      fixture.detectChanges();
+      expect(document.querySelector('lz-side-panel [role="dialog"]')).not.toBeNull();
+      fixture.componentInstance.closeInviteDialog();
+      fixture.detectChanges();
+      expect(panel()!.querySelector('h2')!.textContent).toContain('Ana Ruiz');
+      fixture.componentInstance.personForm.patchValue({ address: 'a', city: 'b', state: 'c' });
+      fixture.componentInstance.savePerson();
+      expect((peopleService as any).updatePerson).toHaveBeenCalled();
+      expect((peopleService as any).createPerson).not.toHaveBeenCalled();
+    });
+
+    it('renders the invite dialog above the drawer (outside the sidenav stacking context)', async () => {
+      await setup([person()]);
+      click('[aria-label="Edit Ana Ruiz"]');
+      fixture.componentInstance.openInviteDialog(person());
+      fixture.detectChanges();
+      const dialog = document.querySelector('#invite-dialog-title')!.closest('[lzPortal]')!;
+      expect(dialog.parentElement).toBe(document.body);
+      fixture.componentInstance.closeInviteDialog();
+      fixture.detectChanges();
+      expect(document.querySelector('#invite-dialog-title')).toBeNull();
+    });
+
+    it('opens the address section and shows errors when the person has no address', async () => {
+      await setup([person()]);
+      click('[aria-label="Edit Ana Ruiz"]');
+      const details = panel()!.querySelector('details') as HTMLDetailsElement;
+      expect(details.open).toBeTrue();
+      expect(details.textContent).toContain('This field is required');
+      expect(details.querySelector('#address')!.getAttribute('aria-invalid')).toBe('true');
+    });
+
+    it('marks name and email as required for assistive tech', async () => {
+      await setup([person()]);
+      await addPerson();
+      expect(panel()!.querySelector('#name')!.getAttribute('aria-required')).toBe('true');
+      expect(panel()!.querySelector('#email')!.getAttribute('aria-required')).toBe('true');
+    });
+
+    it('prunes the selection to rows that remain after a search or status change', async () => {
+      await setup([person(), person({ personId: 2, name: 'Bo Li', email: 'bo@example.com', status: 'Inactive' })]);
+      click('tbody tr:nth-child(1) input[type="checkbox"]');
+      click('tbody tr:nth-child(2) input[type="checkbox"]');
+      expect(el().textContent).toContain('2 selected');
+      type(el().querySelector('input[type="search"]') as HTMLInputElement, 'bo li');
+      expect(el().textContent).toContain('1 selected');
+      expect(fixture.componentInstance.selectedIds.has(1)).toBeFalse();
+      type(el().querySelector('input[type="search"]') as HTMLInputElement, '');
+      click('tbody tr:nth-child(1) input[type="checkbox"]');
+      const select = el().querySelector('select[aria-label="Status"]') as HTMLSelectElement;
+      select.value = 'Active';
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+      expect(el().textContent).toContain('1 selected');
+      expect(fixture.componentInstance.selectedIds.has(2)).toBeFalse();
+    });
+
+    it('keeps the selection when only the page changes', async () => {
+      await setup(many(60));
+      click('tbody tr:first-child input[type="checkbox"]');
+      click('lz-pager [aria-label="Next page"]');
+      expect(el().textContent).toContain('1 selected');
+    });
+
+    it('uses one header button whose variant follows the drawer, and it gets focus back after Add', async () => {
+      await setup([person()]);
+      const header = () => el().querySelectorAll('lz-page-header button');
+      expect(header().length).toBe(1);
+      expect(header()[0].getAttribute('variant')).toBe('primary');
+      const btn = header()[0] as HTMLButtonElement;
+      btn.focus();
+      await addPerson();
+      expect(header()[0]).toBe(btn);
+      expect(btn.getAttribute('variant')).toBe('secondary');
+      fixture.componentInstance.cancelEdit();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(document.activeElement).toBe(btn);
+      expect(btn.getAttribute('variant')).toBe('primary');
+    });
+
+    it('returns focus to the row edit button after opening from a row click', async () => {
+      await setup([person(), person({ personId: 2, name: 'Bo Li', email: 'bo@example.com' })]);
+      (el().querySelectorAll('tbody tr')[1] as HTMLElement).click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.componentInstance.cancelEdit();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(document.activeElement).toBe(el().querySelector('[aria-label="Edit Bo Li"]'));
+    });
+
+    it('keeps the page header sticky', async () => {
+      await setup([person()]);
+      const wrap = el().querySelector('lz-page-header')!.parentElement!;
+      expect(wrap.classList.contains('sticky')).toBeTrue();
+      expect(wrap.classList.contains('top-0')).toBeTrue();
+      expect(wrap.classList.contains('bg-canvas')).toBeTrue();
     });
 
     it('uses an empty state when there are no people at all', async () => {
