@@ -48,4 +48,13 @@ describe('LzFieldComponent', () => {
     expect(input.classList.contains('border-line-strong')).toBeTrue();
     expect(getComputedStyle(input).borderTopColor).toBe('rgb(194, 65, 45)');
   });
+
+  it('gives hint and error stable ids derived from controlId so inputs can aria-describedby them', () => {
+    const f = setup();
+    f.componentInstance.error = 'Required';
+    f.detectChanges();
+    const root: HTMLElement = f.nativeElement;
+    expect(root.querySelector('p:not([role=alert])')!.id).toBe('nm-hint');
+    expect(root.querySelector('[role=alert]')!.id).toBe('nm-error');
+  });
 });
