@@ -23,6 +23,8 @@
     "src/app/features/dashboard/analytics/**",
     "src/app/features/dashboard/time-off-approvals.component.*",
     "src/app/features/dashboard/people-management.component.*",
-    "src/app/features/dashboard/pto-config-modal.component.*"
+    "src/app/features/dashboard/pto-config-modal.component.*",
+    "src/app/features/dashboard/crews/**",
+    "src/app/features/dashboard/credentials/**"
   ]
 }

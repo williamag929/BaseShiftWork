@@ -3695,28 +3695,20 @@ Opción C</target>
         <target state="translated">Confirmar ubicación</target>
       </trans-unit>
       <trans-unit id="crews.page_title" datatype="html">
-        <source>Crew Management</source>
-        <target state="translated">Gestión de cuadrillas</target>
-      </trans-unit>
-      <trans-unit id="crews.page_subtitle" datatype="html">
-        <source>Organise employees into crews for bulk scheduling</source>
-        <target state="translated">Organiza empleados en cuadrillas para programación masiva</target>
-      </trans-unit>
-      <trans-unit id="crews.list_title" datatype="html">
         <source>Crews</source>
         <target state="translated">Cuadrillas</target>
+      </trans-unit>
+      <trans-unit id="crews.page_subtitle" datatype="html">
+        <source>Organize employees into crews for bulk scheduling</source>
+        <target state="translated">Organiza empleados en cuadrillas para programación masiva</target>
       </trans-unit>
       <trans-unit id="crews.name_placeholder" datatype="html">
         <source>Crew name</source>
         <target state="translated">Nombre de cuadrilla</target>
       </trans-unit>
-      <trans-unit id="crews.creating" datatype="html">
-        <source>Creating...</source>
-        <target state="translated">Creando...</target>
-      </trans-unit>
       <trans-unit id="crews.create_btn" datatype="html">
-        <source>Create</source>
-        <target state="translated">Crear</target>
+        <source>Create crew</source>
+        <target state="translated">Crear cuadrilla</target>
       </trans-unit>
       <trans-unit id="crews.loading" datatype="html">
         <source>Loading crews...</source>
@@ -3726,17 +3718,9 @@ Opción C</target>
         <source>No crews yet</source>
         <target state="translated">Sin cuadrillas aún</target>
       </trans-unit>
-      <trans-unit id="crews.no_selection" datatype="html">
-        <source>Select a crew from the list to manage it, or create a new one.</source>
-        <target state="translated">Selecciona una cuadrilla de la lista para gestionarla, o crea una nueva.</target>
-      </trans-unit>
       <trans-unit id="crews.name_section" datatype="html">
-        <source>Crew Name</source>
-        <target state="translated">Nombre de cuadrilla</target>
-      </trans-unit>
-      <trans-unit id="crews.saving" datatype="html">
-        <source>Saving...</source>
-        <target state="translated">Guardando...</target>
+        <source>Crew name</source>
+        <target state="translated">Nombre de la cuadrilla</target>
       </trans-unit>
       <trans-unit id="crews.save_btn" datatype="html">
         <source>Save</source>
@@ -3747,8 +3731,8 @@ Opción C</target>
         <target state="translated">Miembros</target>
       </trans-unit>
       <trans-unit id="crews.add_person_ph" datatype="html">
-        <source>— Add a person —</source>
-        <target state="translated">— Agregar persona —</target>
+        <source>Select a person</source>
+        <target state="translated">Selecciona una persona</target>
       </trans-unit>
       <trans-unit id="crews.add_btn" datatype="html">
         <source>Add</source>
@@ -3757,14 +3741,6 @@ Opción C</target>
       <trans-unit id="crews.no_members" datatype="html">
         <source>No members yet. Add people above.</source>
         <target state="translated">Sin miembros aún. Agrega personas arriba.</target>
-      </trans-unit>
-      <trans-unit id="crews.remove_tooltip" datatype="html">
-        <source>Remove from crew</source>
-        <target state="translated">Quitar de la cuadrilla</target>
-      </trans-unit>
-      <trans-unit id="crews.delete_tooltip" datatype="html">
-        <source>Delete crew</source>
-        <target state="translated">Eliminar cuadrilla</target>
       </trans-unit>
       <trans-unit id="tasks.page_title" datatype="html">
         <source>Task Management</source>
@@ -6879,6 +6855,242 @@ What would you like to do?</source>
       <trans-unit id="shift_summaries.selected_other_pages" datatype="html">
         <source>(<x id="INTERPOLATION" equiv-text="{{ selectedOtherPages }}"/> on other pages)</source>
         <target state="translated">(<x id="INTERPOLATION" equiv-text="{{ selectedOtherPages }}"/> en otras páginas)</target>
+      </trans-unit>
+      <trans-unit id="crews.add_crew" datatype="html">
+        <source>Add crew</source>
+        <target state="translated">Agregar cuadrilla</target>
+      </trans-unit>
+      <trans-unit id="crews.empty_body" datatype="html">
+        <source>Create your first crew to schedule people together</source>
+        <target state="translated">Crea tu primera cuadrilla para programar personas en grupo</target>
+      </trans-unit>
+      <trans-unit id="crews.col_name" datatype="html">
+        <source>Crew</source>
+        <target state="translated">Cuadrilla</target>
+      </trans-unit>
+      <trans-unit id="crews.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="crews.add_person_label" datatype="html">
+        <source>Add a person</source>
+        <target state="translated">Agregar una persona</target>
+      </trans-unit>
+      <trans-unit id="crews.delete_confirm" datatype="html">
+        <source>Delete crew</source>
+        <target state="translated">Eliminar cuadrilla</target>
+      </trans-unit>
+      <trans-unit id="crews.delete_title" datatype="html">
+        <source>Delete <x id="name"/>?</source>
+        <target state="translated">¿Eliminar <x id="name"/>?</target>
+      </trans-unit>
+      <trans-unit id="crews.delete_body" datatype="html">
+        <source>This crew will be deleted. This cannot be undone.</source>
+        <target state="translated">Esta cuadrilla se eliminará. Esta acción no se puede deshacer.</target>
+      </trans-unit>
+      <trans-unit id="crews.load_error" datatype="html">
+        <source>Failed to load crews.</source>
+        <target state="translated">No se pudieron cargar las cuadrillas.</target>
+      </trans-unit>
+      <trans-unit id="crews.members_load_error" datatype="html">
+        <source>Failed to load crew members.</source>
+        <target state="translated">No se pudieron cargar los miembros de la cuadrilla.</target>
+      </trans-unit>
+      <trans-unit id="crews.create_error" datatype="html">
+        <source>Failed to create crew.</source>
+        <target state="translated">No se pudo crear la cuadrilla.</target>
+      </trans-unit>
+      <trans-unit id="crews.save_error" datatype="html">
+        <source>Failed to save crew.</source>
+        <target state="translated">No se pudo guardar la cuadrilla.</target>
+      </trans-unit>
+      <trans-unit id="crews.delete_error" datatype="html">
+        <source>Failed to delete crew.</source>
+        <target state="translated">No se pudo eliminar la cuadrilla.</target>
+      </trans-unit>
+      <trans-unit id="crews.add_member_error" datatype="html">
+        <source>Failed to add member.</source>
+        <target state="translated">No se pudo agregar al miembro.</target>
+      </trans-unit>
+      <trans-unit id="crews.remove_member_error" datatype="html">
+        <source>Failed to remove member.</source>
+        <target state="translated">No se pudo quitar al miembro.</target>
+      </trans-unit>
+      <trans-unit id="crews.edit_aria" datatype="html">
+        <source>Edit <x id="name"/></source>
+        <target state="translated">Editar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="crews.delete_aria" datatype="html">
+        <source>Delete <x id="name"/></source>
+        <target state="translated">Eliminar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="crews.remove_aria" datatype="html">
+        <source>Remove <x id="name"/> from crew</source>
+        <target state="translated">Quitar a <x id="name"/> de la cuadrilla</target>
+      </trans-unit>
+      <trans-unit id="credentials.title" datatype="html">
+        <source>Credentials</source>
+        <target state="translated">Credenciales</target>
+      </trans-unit>
+      <trans-unit id="credentials.page_subtitle" datatype="html">
+        <source>Licenses, certifications, and training records</source>
+        <target state="translated">Licencias, certificaciones y registros de capacitación</target>
+      </trans-unit>
+      <trans-unit id="credentials.add_btn" datatype="html">
+        <source>Add credential</source>
+        <target state="translated">Agregar credencial</target>
+      </trans-unit>
+      <trans-unit id="credentials.create_btn" datatype="html">
+        <source>Add credential</source>
+        <target state="translated">Agregar credencial</target>
+      </trans-unit>
+      <trans-unit id="credentials.update_btn" datatype="html">
+        <source>Update credential</source>
+        <target state="translated">Actualizar credencial</target>
+      </trans-unit>
+      <trans-unit id="credentials.filter_person_label" datatype="html">
+        <source>Employee</source>
+        <target state="translated">Empleado</target>
+      </trans-unit>
+      <trans-unit id="credentials.filter_status_label" datatype="html">
+        <source>Status</source>
+        <target state="translated">Estado</target>
+      </trans-unit>
+      <trans-unit id="credentials.filter_all_people" datatype="html">
+        <source>All employees</source>
+        <target state="translated">Todos los empleados</target>
+      </trans-unit>
+      <trans-unit id="credentials.filter_all_status" datatype="html">
+        <source>All statuses</source>
+        <target state="translated">Todos los estados</target>
+      </trans-unit>
+      <trans-unit id="credentials.filter_expired" datatype="html">
+        <source>Expired</source>
+        <target state="translated">Vencida</target>
+      </trans-unit>
+      <trans-unit id="credentials.filter_expiring" datatype="html">
+        <source>Expiring soon</source>
+        <target state="translated">Por vencer</target>
+      </trans-unit>
+      <trans-unit id="credentials.filter_valid" datatype="html">
+        <source>Valid</source>
+        <target state="translated">Vigente</target>
+      </trans-unit>
+      <trans-unit id="credentials.status_expired" datatype="html">
+        <source>Expired</source>
+        <target state="translated">Vencida</target>
+      </trans-unit>
+      <trans-unit id="credentials.status_expiring" datatype="html">
+        <source>Expiring soon</source>
+        <target state="translated">Por vencer</target>
+      </trans-unit>
+      <trans-unit id="credentials.status_valid" datatype="html">
+        <source>Valid</source>
+        <target state="translated">Vigente</target>
+      </trans-unit>
+      <trans-unit id="credentials.retry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">Reintentar</target>
+      </trans-unit>
+      <trans-unit id="credentials.loading" datatype="html">
+        <source>Loading credentials...</source>
+        <target state="translated">Cargando credenciales...</target>
+      </trans-unit>
+      <trans-unit id="credentials.col_employee" datatype="html">
+        <source>Employee</source>
+        <target state="translated">Empleado</target>
+      </trans-unit>
+      <trans-unit id="credentials.col_name" datatype="html">
+        <source>Credential</source>
+        <target state="translated">Credencial</target>
+      </trans-unit>
+      <trans-unit id="credentials.col_type" datatype="html">
+        <source>Type</source>
+        <target state="translated">Tipo</target>
+      </trans-unit>
+      <trans-unit id="credentials.col_expiry" datatype="html">
+        <source>Expiry date</source>
+        <target state="translated">Fecha de vencimiento</target>
+      </trans-unit>
+      <trans-unit id="credentials.col_status" datatype="html">
+        <source>Status</source>
+        <target state="translated">Estado</target>
+      </trans-unit>
+      <trans-unit id="credentials.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="credentials.empty_title" datatype="html">
+        <source>No credentials found</source>
+        <target state="translated">No se encontraron credenciales</target>
+      </trans-unit>
+      <trans-unit id="credentials.empty_subtitle" datatype="html">
+        <source>Add the first credential to start tracking compliance.</source>
+        <target state="translated">Agrega la primera credencial para comenzar a dar seguimiento al cumplimiento.</target>
+      </trans-unit>
+      <trans-unit id="credentials.edit_aria" datatype="html">
+        <source>Edit <x id="name"/></source>
+        <target state="translated">Editar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="credentials.view_aria" datatype="html">
+        <source>View document for <x id="name"/></source>
+        <target state="translated">Ver documento de <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="credentials.archive_aria" datatype="html">
+        <source>Archive <x id="name"/></source>
+        <target state="translated">Archivar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="credentials.form_person" datatype="html">
+        <source>Employee</source>
+        <target state="translated">Empleado</target>
+      </trans-unit>
+      <trans-unit id="credentials.form_person_ph" datatype="html">
+        <source>Select an employee</source>
+        <target state="translated">Selecciona un empleado</target>
+      </trans-unit>
+      <trans-unit id="credentials.form_name" datatype="html">
+        <source>Credential name</source>
+        <target state="translated">Nombre de la credencial</target>
+      </trans-unit>
+      <trans-unit id="credentials.form_name_ph" datatype="html">
+        <source>e.g. OSHA 30, Forklift License</source>
+        <target state="translated">p. ej. OSHA 30, licencia de montacargas</target>
+      </trans-unit>
+      <trans-unit id="credentials.form_type" datatype="html">
+        <source>Type</source>
+        <target state="translated">Tipo</target>
+      </trans-unit>
+      <trans-unit id="credentials.form_type_ph" datatype="html">
+        <source>License, Certification, Training</source>
+        <target state="translated">Licencia, certificación, capacitación</target>
+      </trans-unit>
+      <trans-unit id="credentials.form_authority" datatype="html">
+        <source>Issuing authority</source>
+        <target state="translated">Entidad emisora</target>
+      </trans-unit>
+      <trans-unit id="credentials.form_number" datatype="html">
+        <source>Credential number</source>
+        <target state="translated">Número de credencial</target>
+      </trans-unit>
+      <trans-unit id="credentials.form_issue_date" datatype="html">
+        <source>Issue date</source>
+        <target state="translated">Fecha de emisión</target>
+      </trans-unit>
+      <trans-unit id="credentials.form_expiry_date" datatype="html">
+        <source>Expiry date</source>
+        <target state="translated">Fecha de vencimiento</target>
+      </trans-unit>
+      <trans-unit id="credentials.choose_file" datatype="html">
+        <source>Attach document (optional)</source>
+        <target state="translated">Adjuntar documento (opcional)</target>
+      </trans-unit>
+      <trans-unit id="credentials.no_file" datatype="html">
+        <source>No file selected</source>
+        <target state="translated">Ningún archivo seleccionado</target>
+      </trans-unit>
+      <trans-unit id="credentials.saving" datatype="html">
+        <source>Saving...</source>
+        <target state="translated">Guardando...</target>
       </trans-unit>
     </body>
   </file>

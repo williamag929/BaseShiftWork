@@ -94,3 +94,5 @@
 @source "../app/features/dashboard/people-management.component.ts";
 @source "../app/features/dashboard/pto-config-modal.component.html";
 @source "../app/features/dashboard/pto-config-modal.component.ts";
+@source "../app/features/dashboard/crews";
+@source "../app/features/dashboard/credentials";

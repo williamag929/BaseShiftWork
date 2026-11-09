@@ -1,194 +1,141 @@
-<div class="crews-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-icon">
-        <i class="fa fa-users"></i>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title" i18n="@@crews.page_title">Crew Management</h1>
-        <p class="page-subtitle" i18n="@@crews.page_subtitle">Organise employees into crews for bulk scheduling</p>
-      </div>
-    </div>
+<div class="flex flex-col gap-4">
+  <div class="sticky top-0 z-10 bg-canvas">
+    <lz-page-header title="Crews" i18n-title="@@crews.page_title" subtitle="Organize employees into crews for bulk scheduling" i18n-subtitle="@@crews.page_subtitle">
+      <ng-container lzHeaderActions>
+        <button #addBtn lzButton type="button" [variant]="panelOpen ? 'secondary' : 'primary'" [attr.variant]="panelOpen ? 'secondary' : 'primary'" (click)="openerEl = addBtn; addCrew()">
+          <mat-icon aria-hidden="true">add</mat-icon>
+          <ng-container i18n="@@crews.add_crew">Add crew</ng-container>
+        </button>
+      </ng-container>
+    </lz-page-header>
   </div>
 
-  <div class="content-grid">
-    <!-- ── Left panel: crew list ─────────────────────────────── -->
-    <div class="list-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="fa fa-list"></i>
-            <ng-container i18n="@@crews.list_title">Crews</ng-container>
-          </h3>
-          <span class="badge">{{ crews.length }}</span>
-          <button class="btn-icon-round" (click)="toggleCreateForm()" [title]="showCreateForm ? 'Cancel' : 'New crew'">
-            <i class="fa" [class.fa-plus]="!showCreateForm" [class.fa-times]="showCreateForm"></i>
-          </button>
-        </div>
+  @if (error && !panelOpen) {
+    <lz-alert tone="danger">{{ error }}</lz-alert>
+  }
 
-        <!-- New crew form -->
-        <div class="create-form" *ngIf="showCreateForm">
-          <input
-            type="text"
-            class="form-input"
-            placeholder="Crew name"
-            i18n-placeholder="@@crews.name_placeholder"
-            [(ngModel)]="newCrewName"
-            (keyup.enter)="createCrew()"
-            maxlength="100"
-            autofocus
-          />
-          <button class="btn btn-primary btn-sm" [disabled]="!newCrewName.trim() || creating" (click)="createCrew()">
-            <ng-container *ngIf="creating" i18n="@@crews.creating">Creating...</ng-container>
-            <ng-container *ngIf="!creating" i18n="@@crews.create_btn">Create</ng-container>
-          </button>
-        </div>
-
-        <div class="card-body">
-          <div *ngIf="loadingCrews" class="loading-state">
-            <div class="spinner"></div>
-            <p i18n="@@crews.loading">Loading crews...</p>
-          </div>
-
-          <div *ngIf="!loadingCrews">
-            <div
-              *ngFor="let crew of crews"
-              class="crew-item"
-              [class.selected]="selectedCrew?.crewId === crew.crewId"
-              (click)="selectCrew(crew)"
-            >
-              <div class="crew-icon"><i class="fa fa-users"></i></div>
-              <div class="crew-info">
-                <span class="crew-name">{{ crew.name }}</span>
-              </div>
-              <button
-                class="delete-btn"
-                i18n-title="@@crews.delete_tooltip"
-                title="Delete crew"
-                [disabled]="deletingCrewId === crew.crewId"
-                (click)="deleteCrew(crew); $event.stopPropagation()"
-              >
-                <i class="fa fa-trash"></i>
-              </button>
-            </div>
-
-            <div *ngIf="crews.length === 0" class="empty-state">
-              <i class="fa fa-users empty-icon"></i>
-              <p i18n="@@crews.empty_text">No crews yet</p>
-              <p class="empty-subtext">Click <strong>+</strong> to create your first crew</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Right panel: crew detail ──────────────────────────── -->
-    <div class="form-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="fa" [class.fa-edit]="selectedCrew" [class.fa-info-circle]="!selectedCrew"></i>
-            {{ selectedCrew ? selectedCrew.name : 'Select a crew' }}
-          </h3>
-          <button *ngIf="selectedCrew" class="clear-btn" (click)="cancelEdit()" title="Close">
-            <i class="fa fa-times"></i>
-          </button>
-        </div>
-
-        <div class="card-body">
-          <!-- placeholder when nothing selected -->
-          <div *ngIf="!selectedCrew" class="no-selection">
-            <i class="fa fa-arrow-left no-selection-icon"></i>
-            <p i18n="@@crews.no_selection">Select a crew from the list to manage it, or create a new one.</p>
-          </div>
-
-          <div *ngIf="selectedCrew">
-            <!-- Error banner -->
-            <div class="error-banner" *ngIf="error">
-              <i class="fa fa-exclamation-triangle"></i> {{ error }}
-            </div>
-
-            <!-- ── Name edit ── -->
-            <section class="section">
-              <h4 class="section-title" i18n="@@crews.name_section">Crew Name</h4>
-              <div class="inline-edit">
-                <input
-                  type="text"
-                  class="form-input"
-                  [(ngModel)]="editName"
-                  maxlength="100"
-                  (keyup.enter)="saveCrew()"
-                />
-                <button
-                  class="btn btn-primary btn-sm"
-                  [disabled]="!editName.trim() || saving || editName === selectedCrew.name"
-                  (click)="saveCrew()"
-                >
-                  <ng-container *ngIf="saving" i18n="@@crews.saving">Saving...</ng-container>
-                  <ng-container *ngIf="!saving" i18n="@@crews.save_btn">Save</ng-container>
-                </button>
-              </div>
-            </section>
-
-            <!-- ── Members ── -->
-            <section class="section">
-              <h4 class="section-title">
-                <ng-container i18n="@@crews.members_section">Members</ng-container>
-                <span class="badge">{{ crewMembers.length }}</span>
-              </h4>
-
-              <div *ngIf="loadingMembers" class="loading-state small">
-                <div class="spinner sm"></div>
-                <ng-container i18n="@@common.loading_short">Loading...</ng-container>
-              </div>
-
-              <div *ngIf="!loadingMembers">
-                <!-- Add member row -->
-                <div class="add-member-row">
-                  <select class="form-select" [(ngModel)]="addPersonId">
-                    <option [ngValue]="null" i18n="@@crews.add_person_ph">— Add a person —</option>
-                    <option *ngFor="let p of availablePeople" [ngValue]="p.personId">{{ p.name }}</option>
-                  </select>
-                  <button
-                    class="btn btn-secondary btn-sm"
-                    [disabled]="!addPersonId || addingMember"
-                    (click)="addMember()"
-                  >
-                    <ng-container *ngIf="addingMember" i18n="@@common.loading_short">Loading...</ng-container>
-                    <ng-container *ngIf="!addingMember" i18n="@@crews.add_btn">Add</ng-container>
-                  </button>
-                </div>
-
-                <!-- Members list -->
-                <div class="members-list">
-                  <div *ngFor="let member of crewMembers" class="member-item">
-                    <img
-                      class="member-avatar"
-                      [src]="member.photoUrl || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJDMTQuMjEgMTIgMTYgMTAuMjEgMTYgOEMxNiA1Ljc5IDE0LjIxIDQgMTIgNFM4IDUuNzkgOCA4QzggMTAuMjEgOS43OSAxMiAxMiAxMlpNMTIgMTRDNi40OCAxNCAyIDE2LjQ4IDIgMjJWMjRIMjJWMjJDMTggMTYuNDggMTUuNTIgMTQgMTIgMTRaIiBmaWxsPSIjY2NjY2NjIi8+PC9zdmc+'"
-                      alt="{{ member.name }}"
-                    />
-                    <span class="member-name">{{ member.name }}</span>
-                    <button
-                      class="remove-btn"
-                      i18n-title="@@crews.remove_tooltip"
-                      title="Remove from crew"
-                      [disabled]="removingMemberId === member.personId"
-                      (click)="removeMember(member.personId)"
-                    >
-                      <i class="fa fa-times"></i>
+  <section class="min-w-0">
+    @if (loadingCrews) {
+      <lz-alert tone="info" i18n="@@crews.loading">Loading crews...</lz-alert>
+    } @else if (crews.length === 0) {
+      <lz-empty-state icon="group_work" title="No crews yet" i18n-title="@@crews.empty_text" body="Create your first crew to schedule people together" i18n-body="@@crews.empty_body">
+        <button lzEmptyAction lzButton variant="secondary" type="button" (click)="addCrew()">
+          <mat-icon aria-hidden="true">add</mat-icon>
+          <ng-container i18n="@@crews.add_crew">Add crew</ng-container>
+        </button>
+      </lz-empty-state>
+    } @else {
+      <lz-table-scroll>
+        <table lzTable>
+          <thead>
+            <tr>
+              <th scope="col" i18n="@@crews.col_name">Crew</th>
+              <th scope="col" class="text-right" i18n="@@crews.col_actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (crew of paginate(crews, page, pageSize); track crew.crewId) {
+              <tr class="cursor-pointer hover:bg-paper-alt" [class.bg-paper-alt]="selectedCrew?.crewId === crew.crewId" (click)="openerEl = editBtn; selectCrew(crew)">
+                <td class="font-medium text-ink">{{ crew.name }}</td>
+                <td (click)="$event.stopPropagation()">
+                  <div class="flex justify-end gap-1">
+                    <button #editBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(crew)" (click)="openerEl = editBtn; selectCrew(crew)">
+                      <mat-icon aria-hidden="true">edit</mat-icon>
+                    </button>
+                    <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="deleteLabel(crew)" [disabled]="deletingCrewId === crew.crewId" (click)="askDelete(crew)">
+                      <mat-icon aria-hidden="true">delete</mat-icon>
                     </button>
                   </div>
-
-                  <div *ngIf="crewMembers.length === 0" class="empty-state small">
-                    <p i18n="@@crews.no_members">No members yet. Add people above.</p>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </lz-table-scroll>
+      <lz-pager [total]="crews.length" [page]="page" [pageSize]="pageSize" (pageChange)="page = $event" (pageSizeChange)="pageSize = $event; page = 1" />
+    }
+  </section>
 </div>
+
+<lz-side-panel #sp [restoreFocusTo]="openerEl" [heading]="selectedCrew ? selectedCrew.name : addCrewLabel" [open]="panelOpen" [dirty]="crewForm.dirty" (closed)="cancelEdit()">
+  @if (panelOpen) {
+    <div class="flex flex-col gap-6">
+      @if (error) {
+        <lz-alert tone="danger">{{ error }}</lz-alert>
+      }
+
+      <form id="crew-form" [formGroup]="crewForm" (ngSubmit)="saveCrew()" class="flex flex-col gap-4">
+        <lz-field label="Crew name" i18n-label="@@crews.name_section" controlId="crew-name">
+          <input lzField type="text" id="crew-name" formControlName="name" maxlength="100" aria-required="true" placeholder="Crew name" i18n-placeholder="@@crews.name_placeholder">
+        </lz-field>
+      </form>
+
+      @if (selectedCrew) {
+        <section class="flex flex-col gap-3" aria-labelledby="crew-members-title">
+          <h3 id="crew-members-title" class="font-display text-[15px] font-semibold">
+            <ng-container i18n="@@crews.members_section">Members</ng-container>
+            <span class="ml-1 text-ink-soft tabular-nums">({{ crewMembers.length }})</span>
+          </h3>
+
+          @if (loadingMembers) {
+            <lz-alert tone="info" i18n="@@common.loading_short">Loading...</lz-alert>
+          } @else {
+            <div class="flex items-end gap-2">
+              <lz-field class="min-w-0 flex-1" label="Add a person" i18n-label="@@crews.add_person_label" controlId="crew-add-person">
+                <select lzField id="crew-add-person" [formControl]="addPersonControl">
+                  <option [ngValue]="null" i18n="@@crews.add_person_ph">Select a person</option>
+                  @for (p of availablePeople; track p.personId) {
+                    <option [ngValue]="p.personId">{{ p.name }}</option>
+                  }
+                </select>
+              </lz-field>
+              <button lzButton variant="secondary" type="button" [disabled]="!addPersonControl.value || addingMember" (click)="addMember()" i18n="@@crews.add_btn">Add</button>
+            </div>
+
+            @if (crewMembers.length === 0) {
+              <p class="text-ink-soft" i18n="@@crews.no_members">No members yet. Add people above.</p>
+            } @else {
+              <ul class="flex flex-col divide-y divide-line-soft rounded-control border border-line">
+                @for (member of crewMembers; track member.personId) {
+                  <li class="flex items-center gap-3 px-3 py-1">
+                    @if (member.photoUrl) {
+                      <img class="size-8 shrink-0 rounded-full object-cover" [src]="member.photoUrl" alt="">
+                    } @else {
+                      <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-neutral-bg text-ink-soft" aria-hidden="true"><mat-icon>person</mat-icon></span>
+                    }
+                    <span class="min-w-0 flex-1 truncate font-medium">{{ member.name }}</span>
+                    <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="removeLabel(member)" [disabled]="removingMemberId === member.personId" (click)="removeMember(member.personId)">
+                      <mat-icon aria-hidden="true">close</mat-icon>
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          }
+        </section>
+      }
+    </div>
+  }
+  <ng-container lzPanelFooter>
+    <button lzButton variant="secondary" type="button" (click)="sp.requestClose()" i18n="@@common.cancel">Cancel</button>
+    <button lzButton variant="primary" type="submit" form="crew-form" [disabled]="crewForm.invalid || saving || (!!selectedCrew && !crewForm.dirty)">
+      @if (selectedCrew) {
+        <ng-container i18n="@@crews.save_btn">Save</ng-container>
+      } @else {
+        <ng-container i18n="@@crews.create_btn">Create crew</ng-container>
+      }
+    </button>
+  </ng-container>
+</lz-side-panel>
+
+@if (crewToDelete) {
+  <lz-dialog-overlay dialogRole="alertdialog" (closed)="cancelDelete()">
+    <lz-dialog-frame [title]="deleteTitle" (closed)="cancelDelete()">
+      <p>{{ deleteBody }}</p>
+      <ng-container lzDialogActions>
+        <button lzButton variant="secondary" type="button" (click)="cancelDelete()" i18n="@@common.cancel">Cancel</button>
+        <button lzButton variant="secondary" type="button" (click)="confirmDelete()"><span class="text-danger-ink" i18n="@@crews.delete_confirm">Delete crew</span></button>
+      </ng-container>
+    </lz-dialog-frame>
+  </lz-dialog-overlay>
+}

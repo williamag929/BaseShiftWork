@@ -14,13 +14,20 @@ import { Credential, CredentialExpiryStatus } from 'src/app/core/models/credenti
 import { PeopleService } from 'src/app/core/services/people.service';
 import { People } from 'src/app/core/models/people.model';
 import { PermissionService } from 'src/app/core/services/permission.service';
+import {
+  LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzPageHeaderComponent,
+  LzPagerComponent, LzSidePanelComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent, LzTone, paginate,
+} from 'src/app/shared/ui';
 
 @Component({
   selector: 'app-credentials',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule, MatTooltipModule],
-  templateUrl: './credentials.component.html',
-  styleUrls: ['./credentials.component.css']
+  imports: [
+    CommonModule, FormsModule, ReactiveFormsModule, MatIconModule, MatTooltipModule,
+    LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzPageHeaderComponent,
+    LzPagerComponent, LzSidePanelComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
+  ],
+  templateUrl: './credentials.component.html'
 })
 export class CredentialsComponent implements OnInit, OnDestroy {
   activeCompany$: Observable<any>;
@@ -34,6 +41,11 @@ export class CredentialsComponent implements OnInit, OnDestroy {
   saving = false;
   selectedFile: File | null = null;
   editing: Credential | null = null;
+  openerEl: HTMLElement | null = null;
+  page = 1;
+  pageSize = 25;
+  readonly paginate = paginate;
+  readonly addCredentialLabel = $localize`:@@credentials.add_btn:Add credential`;
 
   personFilter: number | null = null;
   statusFilter: CredentialExpiryStatus | '' = '';
@@ -98,6 +110,7 @@ export class CredentialsComponent implements OnInit, OnDestroy {
         this.credentials = this.statusFilter
           ? result.filter(c => c.expiryStatus === this.statusFilter)
           : result;
+        this.page = Math.min(this.page, Math.max(1, Math.ceil(this.credentials.length / this.pageSize)));
         this.loading = false;
       },
       error: () => { this.errorMessage = 'Failed to load credentials. Check your connection and try again.'; this.loading = false; }
@@ -110,6 +123,7 @@ export class CredentialsComponent implements OnInit, OnDestroy {
   }
 
   onFilterChange(): void {
+    this.page = 1;
     this.loadCredentials();
   }
 
@@ -127,6 +141,11 @@ export class CredentialsComponent implements OnInit, OnDestroy {
     this.selectedFile = null;
     this.form.reset();
     this.showForm = true;
+  }
+
+  editRow(credential: Credential, event: Event): void {
+    this.openerEl = (event.currentTarget as HTMLElement).querySelector<HTMLElement>('[data-edit]');
+    this.startEdit(credential);
   }
 
   startEdit(credential: Credential): void {
@@ -249,10 +268,30 @@ export class CredentialsComponent implements OnInit, OnDestroy {
 
   statusLabel(status: CredentialExpiryStatus): string {
     switch (status) {
-      case 'Expired': return 'Expired';
-      case 'ExpiringSoon': return 'Expiring Soon';
-      default: return 'Valid';
+      case 'Expired': return $localize`:@@credentials.status_expired:Expired`;
+      case 'ExpiringSoon': return $localize`:@@credentials.status_expiring:Expiring soon`;
+      default: return $localize`:@@credentials.status_valid:Valid`;
     }
+  }
+
+  statusTone(status: CredentialExpiryStatus): LzTone {
+    switch (status) {
+      case 'Expired': return 'danger';
+      case 'ExpiringSoon': return 'warning';
+      default: return 'success';
+    }
+  }
+
+  editLabel(credential: Credential): string {
+    return $localize`:@@credentials.edit_aria:Edit ${credential.name}:name:`;
+  }
+
+  viewLabel(credential: Credential): string {
+    return $localize`:@@credentials.view_aria:View document for ${credential.name}:name:`;
+  }
+
+  archiveLabel(credential: Credential): string {
+    return $localize`:@@credentials.archive_aria:Archive ${credential.name}:name:`;
   }
 
   ngOnDestroy(): void {

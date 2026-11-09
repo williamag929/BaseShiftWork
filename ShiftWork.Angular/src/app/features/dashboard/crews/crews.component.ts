@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
@@ -7,11 +8,11 @@ import { CrewService } from 'src/app/core/services/crew.service';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { Crew, CrewMember } from 'src/app/core/models/crew.model';
 import { People } from 'src/app/core/models/people.model';
+import { paginate } from 'src/app/shared/ui';
 
 @Component({
   selector: 'app-crews',
   templateUrl: './crews.component.html',
-  styleUrls: ['./crews.component.css'],
   standalone: false
 })
 export class CrewsComponent implements OnInit {
@@ -24,24 +25,26 @@ export class CrewsComponent implements OnInit {
   allPeople: People[] = [];
   memberSet: Set<number> = new Set();
 
-  // Create new crew
-  showCreateForm = false;
-  newCrewName = '';
-  creating = false;
+  panelOpen = false;
+  openerEl: HTMLElement | null = null;
+  page = 1;
+  pageSize = 25;
+  readonly paginate = paginate;
+  readonly addCrewLabel = $localize`:@@crews.add_crew:Add crew`;
 
-  // Edit crew name
-  editName = '';
+  readonly crewForm = new FormGroup({
+    name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(100)] })
+  });
+  readonly addPersonControl = new FormControl<number | null>(null);
+
   saving = false;
-
-  // Add member
-  addPersonId: number | null = null;
   addingMember = false;
 
-  // States
   loadingCrews = false;
   loadingMembers = false;
   deletingCrewId: number | null = null;
   removingMemberId: number | null = null;
+  crewToDelete: Crew | null = null;
   error = '';
 
   constructor(
@@ -72,32 +75,42 @@ export class CrewsComponent implements OnInit {
       next: crews => {
         this.crews = crews;
         this.loadingCrews = false;
-        // Re-select current crew after refresh
+        this.page = Math.min(this.page, Math.max(1, Math.ceil(crews.length / this.pageSize)));
         if (this.selectedCrew) {
           const refreshed = crews.find(c => c.crewId === this.selectedCrew!.crewId);
           if (refreshed) {
             this.selectedCrew = refreshed;
-            this.editName = refreshed.name;
           }
         }
       },
-      error: () => { this.loadingCrews = false; this.error = 'Failed to load crews.'; }
+      error: () => { this.loadingCrews = false; this.error = $localize`:@@crews.load_error:Failed to load crews.`; }
     });
   }
 
+  addCrew(): void {
+    this.resetPanel();
+    this.panelOpen = true;
+  }
+
   selectCrew(crew: Crew): void {
+    this.resetPanel();
     this.selectedCrew = crew;
-    this.editName = crew.name;
-    this.addPersonId = null;
-    this.error = '';
+    this.crewForm.reset({ name: crew.name });
+    this.panelOpen = true;
     this.loadMembers(crew.crewId);
   }
 
   cancelEdit(): void {
+    this.panelOpen = false;
+    this.resetPanel();
+  }
+
+  private resetPanel(): void {
     this.selectedCrew = null;
     this.crewMembers = [];
     this.memberSet = new Set();
-    this.addPersonId = null;
+    this.addPersonControl.reset(null);
+    this.crewForm.reset({ name: '' });
     this.error = '';
   }
 
@@ -111,96 +124,95 @@ export class CrewsComponent implements OnInit {
       },
       error: () => {
         this.loadingMembers = false;
-        this.error = 'Failed to load crew members.';
+        this.error = $localize`:@@crews.members_load_error:Failed to load crew members.`;
       }
     });
   }
 
-  // ── Create ──────────────────────────────────────────────────
-  toggleCreateForm(): void {
-    this.showCreateForm = !this.showCreateForm;
-    if (!this.showCreateForm) this.newCrewName = '';
-  }
-
-  createCrew(): void {
-    const name = this.newCrewName.trim();
-    if (!name || this.creating) return;
-    this.creating = true;
-    this.error = '';
-    this.crewService.createCrew(String(this.activeCompany.companyId), name).subscribe({
-      next: crew => {
-        this.crews = [...this.crews, crew];
-        this.newCrewName = '';
-        this.showCreateForm = false;
-        this.creating = false;
-        this.selectCrew(crew);
-      },
-      error: () => {
-        this.creating = false;
-        this.error = 'Failed to create crew.';
-      }
-    });
-  }
-
-  // ── Update ──────────────────────────────────────────────────
   saveCrew(): void {
-    if (!this.selectedCrew || this.saving) return;
-    const name = this.editName.trim();
+    if (this.crewForm.invalid || this.saving) return;
+    const name = this.crewForm.controls.name.value.trim();
     if (!name) return;
     this.saving = true;
     this.error = '';
-    this.crewService.updateCrew(String(this.activeCompany.companyId), this.selectedCrew.crewId, name).subscribe({
+    const companyId = String(this.activeCompany.companyId);
+    if (!this.selectedCrew) {
+      this.crewService.createCrew(companyId, name).subscribe({
+        next: crew => {
+          this.crews = [...this.crews, crew];
+          this.saving = false;
+          this.selectCrew(crew);
+        },
+        error: () => {
+          this.saving = false;
+          this.error = $localize`:@@crews.create_error:Failed to create crew.`;
+        }
+      });
+      return;
+    }
+    this.crewService.updateCrew(companyId, this.selectedCrew.crewId, name).subscribe({
       next: () => {
         this.saving = false;
+        this.crewForm.reset({ name });
         this.loadCrews();
       },
       error: () => {
         this.saving = false;
-        this.error = 'Failed to save crew.';
+        this.error = $localize`:@@crews.save_error:Failed to save crew.`;
       }
     });
   }
 
-  // ── Delete ──────────────────────────────────────────────────
-  deleteCrew(crew: Crew): void {
-    if (!confirm(`Delete crew "${crew.name}"? This cannot be undone.`)) return;
+  askDelete(crew: Crew): void {
+    this.crewToDelete = crew;
+  }
+
+  cancelDelete(): void {
+    this.crewToDelete = null;
+  }
+
+  confirmDelete(): void {
+    const crew = this.crewToDelete;
+    if (!crew) return;
+    this.crewToDelete = null;
     this.deletingCrewId = crew.crewId;
     this.error = '';
     this.crewService.deleteCrew(String(this.activeCompany.companyId), crew.crewId).subscribe({
       next: () => {
         this.crews = this.crews.filter(c => c.crewId !== crew.crewId);
+        this.page = Math.min(this.page, Math.max(1, Math.ceil(this.crews.length / this.pageSize)));
         this.deletingCrewId = null;
         if (this.selectedCrew?.crewId === crew.crewId) this.cancelEdit();
       },
       error: () => {
         this.deletingCrewId = null;
-        this.error = 'Failed to delete crew.';
+        this.error = $localize`:@@crews.delete_error:Failed to delete crew.`;
       }
     });
   }
 
-  // ── Members ─────────────────────────────────────────────────
   get availablePeople(): People[] {
     return this.allPeople.filter(p => !this.memberSet.has(p.personId));
   }
 
   addMember(): void {
-    if (!this.selectedCrew || !this.addPersonId || this.addingMember) return;
+    const personId = this.addPersonControl.value;
+    if (!this.selectedCrew || !personId || this.addingMember) return;
     this.addingMember = true;
     this.error = '';
     this.crewService.addPersonToCrew(
       String(this.activeCompany.companyId),
       this.selectedCrew.crewId,
-      this.addPersonId
+      personId
     ).subscribe({
       next: () => {
-        this.addPersonId = null;
+        this.addPersonControl.reset(null);
         this.addingMember = false;
         this.loadMembers(this.selectedCrew!.crewId);
       },
       error: () => {
         this.addingMember = false;
-        this.error = 'Failed to add member.';
+        this.error = $localize`:@@crews.add_member_error:Failed to add member.`;
       }
     });
   }
@@ -220,8 +232,28 @@ export class CrewsComponent implements OnInit {
       },
       error: () => {
         this.removingMemberId = null;
-        this.error = 'Failed to remove member.';
+        this.error = $localize`:@@crews.remove_member_error:Failed to remove member.`;
       }
     });
+  }
+
+  get deleteTitle(): string {
+    return $localize`:@@crews.delete_title:Delete ${this.crewToDelete?.name ?? ''}:name:?`;
+  }
+
+  get deleteBody(): string {
+    return $localize`:@@crews.delete_body:This crew will be deleted. This cannot be undone.`;
+  }
+
+  editLabel(crew: Crew): string {
+    return $localize`:@@crews.edit_aria:Edit ${crew.name}:name:`;
+  }
+
+  deleteLabel(crew: Crew): string {
+    return $localize`:@@crews.delete_aria:Delete ${crew.name}:name:`;
+  }
+
+  removeLabel(member: CrewMember): string {
+    return $localize`:@@crews.remove_aria:Remove ${member.name}:name: from crew`;
   }
 }
