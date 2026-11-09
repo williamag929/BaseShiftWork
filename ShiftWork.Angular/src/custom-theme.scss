@@ -9,6 +9,62 @@ html {
   --mat-dialog-container-elevation-shadow: var(--lz-shadow-overlay);
   --mat-app-background-color: var(--lz-paper);
 
+  --mat-dialog-container-color: var(--lz-paper);
+  --mat-dialog-container-shape: var(--lz-radius-dialog);
+  --mat-dialog-container-small-max-width: 560px;
+  --mat-dialog-subhead-color: var(--lz-ink);
+  --mat-dialog-supporting-text-color: var(--lz-ink);
+  --mat-dialog-actions-alignment: flex-end;
+  --mat-dialog-actions-padding: 16px 24px;
+  --mat-dialog-content-padding: 20px 24px;
+  --mat-dialog-with-actions-content-padding: 20px 24px;
+  --mat-dialog-headline-padding: 20px 24px 0;
+
+  --mat-tab-active-indicator-color: var(--lz-link);
+  --mat-tab-header-active-label-text-color: var(--lz-link);
+  --mat-tab-header-active-focus-label-text-color: var(--lz-link);
+  --mat-tab-header-active-hover-label-text-color: var(--lz-link);
+  --mat-tab-header-active-ripple-color: var(--lz-link);
+  --mat-tab-header-active-focus-indicator-color: var(--lz-link);
+  --mat-tab-header-active-hover-indicator-color: var(--lz-link);
+  --mat-tab-header-inactive-label-text-color: var(--lz-ink-soft);
+  --mat-tab-header-divider-color: var(--lz-line);
+
+  --mat-form-field-outlined-outline-color: var(--lz-line-strong);
+  --mat-form-field-outlined-hover-outline-color: var(--lz-ink-soft);
+  --mat-form-field-outlined-focus-outline-color: var(--lz-link);
+  --mat-form-field-outlined-error-outline-color: var(--lz-danger);
+  --mat-form-field-outlined-label-text-color: var(--lz-ink-soft);
+  --mat-form-field-outlined-focus-label-text-color: var(--lz-link);
+  --mat-form-field-outlined-input-text-color: var(--lz-ink);
+  --mat-select-panel-background-color: var(--lz-paper);
+  --mat-datepicker-calendar-container-background-color: var(--lz-paper);
+  --mat-datepicker-calendar-date-selected-state-background-color: var(--lz-link);
+  --mat-datepicker-calendar-date-focus-state-background-color: var(--lz-info-bg);
+  --mat-datepicker-calendar-date-hover-state-background-color: var(--lz-info-bg);
+  --mat-datepicker-calendar-date-today-outline-color: var(--lz-link);
+  --mat-datepicker-calendar-period-button-text-color: var(--lz-ink);
+
+  --mat-checkbox-selected-icon-color: var(--lz-link);
+  --mat-checkbox-selected-hover-icon-color: var(--lz-link);
+  --mat-checkbox-selected-focus-icon-color: var(--lz-link);
+  --mat-checkbox-selected-pressed-icon-color: var(--lz-link);
+  --mat-checkbox-selected-checkmark-color: var(--lz-paper);
+  --mat-checkbox-unselected-icon-color: var(--lz-line-strong);
+
+  --mat-slide-toggle-selected-track-color: var(--lz-link);
+  --mat-slide-toggle-selected-hover-track-color: var(--lz-link);
+  --mat-slide-toggle-selected-focus-track-color: var(--lz-link);
+  --mat-slide-toggle-selected-pressed-track-color: var(--lz-link);
+  --mat-slide-toggle-selected-handle-color: var(--lz-paper);
+  --mat-slide-toggle-selected-hover-handle-color: var(--lz-paper);
+  --mat-slide-toggle-selected-focus-handle-color: var(--lz-paper);
+  --mat-slide-toggle-selected-pressed-handle-color: var(--lz-paper);
+
+  --mat-snack-bar-container-color: var(--lz-navy-800);
+  --mat-snack-bar-supporting-text-color: var(--lz-paper);
+  --mat-snack-bar-button-color: var(--lz-rail-text);
+
   @include mat.theme((
     color: (
       theme-type: light,
@@ -39,4 +95,74 @@ html {
     corner-medium: var(--lz-radius-panel),
     corner-large: var(--lz-radius-dialog),
   ));
+}
+
+// ngx-toastr ships no stylesheet in this app, so position and surface are defined here.
+.toast-container {
+  position: fixed;
+  z-index: 999999;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  max-width: 100%;
+
+  &.toast-bottom-right { right: 0; bottom: 0; align-items: flex-end; }
+  &.toast-bottom-left { left: 0; bottom: 0; align-items: flex-start; }
+  &.toast-top-right { right: 0; top: 0; align-items: flex-end; }
+  &.toast-top-left { left: 0; top: 0; align-items: flex-start; }
+  &.toast-top-center,
+  &.toast-bottom-center { left: 0; right: 0; align-items: center; }
+  &.toast-top-center { top: 0; }
+  &.toast-bottom-center { bottom: 0; }
+  &.toast-top-full-width,
+  &.toast-bottom-full-width { left: 0; right: 0; align-items: stretch; }
+  &.toast-top-full-width { top: 0; }
+  &.toast-bottom-full-width { bottom: 0; }
+
+  .ngx-toastr {
+    pointer-events: auto;
+    position: relative;
+    width: 360px;
+    max-width: 100%;
+    margin: 0;
+    padding: 12px 16px;
+    border-radius: var(--lz-radius-panel);
+    box-shadow: var(--lz-shadow-overlay);
+    background-image: none;
+    cursor: pointer;
+  }
+}
+
+.toast-title { font-weight: 600; }
+.toast-message { overflow-wrap: anywhere; }
+.toast-close-button {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.toast-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background: currentcolor;
+  opacity: 0.35;
+}
+
+.toast-success { background-color: var(--lz-success-bg); color: var(--lz-success-ink); border: 1px solid var(--lz-success); }
+.toast-error { background-color: var(--lz-danger-bg); color: var(--lz-danger-ink); border: 1px solid var(--lz-danger); }
+.toast-warning { background-color: var(--lz-draft-bg-1); color: var(--lz-amber-ink); border: 1px solid var(--lz-draft-border); }
+.toast-info { background-color: var(--lz-info-bg); color: var(--lz-info-ink); border: 1px solid var(--lz-link); }
+
+.mat-mdc-dialog-surface {
+  background-color: var(--lz-paper);
+  border-radius: var(--lz-radius-dialog);
+  box-shadow: var(--lz-shadow-overlay);
 }
