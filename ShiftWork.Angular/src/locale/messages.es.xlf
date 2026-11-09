@@ -3423,7 +3423,7 @@ Opción C</target>
         <target state="translated">Asignar usuarios a <x id="INTERPOLATION" equiv-text="{{ roleName }}"/></target>
       </trans-unit>
       <trans-unit id="areas.page_title" datatype="html">
-        <source>Area Management</source>
+        <source>Area management</source>
         <target state="translated">Gestión de áreas</target>
       </trans-unit>
       <trans-unit id="areas.page_subtitle" datatype="html">
@@ -3507,7 +3507,7 @@ Opción C</target>
         <target state="translated">Crear área</target>
       </trans-unit>
       <trans-unit id="locations.page_title" datatype="html">
-        <source>Location Management</source>
+        <source>Location management</source>
         <target state="translated">Gestión de ubicaciones</target>
       </trans-unit>
       <trans-unit id="locations.page_subtitle" datatype="html">
@@ -3543,7 +3543,7 @@ Opción C</target>
         <target state="translated">Crear nueva ubicación</target>
       </trans-unit>
       <trans-unit id="locations.map_btn_title" datatype="html">
-        <source>Set Location on Map</source>
+        <source>Set location on map</source>
         <target state="translated">Establecer ubicación en el mapa</target>
       </trans-unit>
       <trans-unit id="locations.map_hint" datatype="html">
@@ -3659,7 +3659,7 @@ Opción C</target>
         <target state="translated">Crear ubicación</target>
       </trans-unit>
       <trans-unit id="locations.modal_title" datatype="html">
-        <source>Select Location</source>
+        <source>Select location</source>
         <target state="translated">Seleccionar ubicación</target>
       </trans-unit>
       <trans-unit id="locations.search_placeholder" datatype="html">
@@ -7139,6 +7139,138 @@ What would you like to do?</source>
       <trans-unit id="credentials.toast_open_failed" datatype="html">
         <source>Could not open document</source>
         <target state="translated">No se pudo abrir el documento</target>
+      </trans-unit>
+      <trans-unit id="areas.about_body" datatype="html">
+        <source>Areas organize sections within a location, such as departments, floors, or zones. Assign staff and tasks to an area for better tracking.</source>
+        <target state="translated">Las áreas organizan secciones dentro de una ubicación, como departamentos, pisos o zonas. Asigna personal y tareas a un área para un mejor seguimiento.</target>
+      </trans-unit>
+      <trans-unit id="areas.about_title" datatype="html">
+        <source>About areas</source>
+        <target state="translated">Acerca de las áreas</target>
+      </trans-unit>
+      <trans-unit id="areas.add_btn" datatype="html">
+        <source>Add area</source>
+        <target state="translated">Agregar área</target>
+      </trans-unit>
+      <trans-unit id="areas.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="areas.col_cost_code" datatype="html">
+        <source>Cost code</source>
+        <target state="translated">Código de costo</target>
+      </trans-unit>
+      <trans-unit id="areas.col_location" datatype="html">
+        <source>Location</source>
+        <target state="translated">Ubicación</target>
+      </trans-unit>
+      <trans-unit id="areas.col_name" datatype="html">
+        <source>Area</source>
+        <target state="translated">Área</target>
+      </trans-unit>
+      <trans-unit id="areas.col_status" datatype="html">
+        <source>Status</source>
+        <target state="translated">Estado</target>
+      </trans-unit>
+      <trans-unit id="areas.cost_code_hint" datatype="html">
+        <source>Hours worked in this area are grouped under this cost code when syncing to Procore</source>
+        <target state="translated">Las horas trabajadas en esta área se agrupan bajo este código de costo al sincronizar con Procore</target>
+      </trans-unit>
+      <trans-unit id="areas.cost_code_label" datatype="html">
+        <source>Cost code</source>
+        <target state="translated">Código de costo</target>
+      </trans-unit>
+      <trans-unit id="areas.cost_code_none" datatype="html">
+        <source>None</source>
+        <target state="translated">Ninguno</target>
+      </trans-unit>
+      <trans-unit id="areas.edit_aria" datatype="html">
+        <source>Edit <x id="name"/></source>
+        <target state="translated">Editar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="areas.not_available" datatype="html">
+        <source>N/A</source>
+        <target state="translated">N/D</target>
+      </trans-unit>
+      <trans-unit id="areas.toast_create_failed" datatype="html">
+        <source>Could not create the area.</source>
+        <target state="translated">No se pudo crear el área.</target>
+      </trans-unit>
+      <trans-unit id="areas.toast_created" datatype="html">
+        <source>Area created.</source>
+        <target state="translated">Área creada.</target>
+      </trans-unit>
+      <trans-unit id="areas.toast_update_failed" datatype="html">
+        <source>Could not update the area.</source>
+        <target state="translated">No se pudo actualizar el área.</target>
+      </trans-unit>
+      <trans-unit id="areas.toast_updated" datatype="html">
+        <source>Area updated.</source>
+        <target state="translated">Área actualizada.</target>
+      </trans-unit>
+      <trans-unit id="locations.add_btn" datatype="html">
+        <source>Add location</source>
+        <target state="translated">Agregar ubicación</target>
+      </trans-unit>
+      <trans-unit id="locations.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="locations.col_address" datatype="html">
+        <source>Address</source>
+        <target state="translated">Dirección</target>
+      </trans-unit>
+      <trans-unit id="locations.col_name" datatype="html">
+        <source>Location</source>
+        <target state="translated">Ubicación</target>
+      </trans-unit>
+      <trans-unit id="locations.col_status" datatype="html">
+        <source>Status</source>
+        <target state="translated">Estado</target>
+      </trans-unit>
+      <trans-unit id="locations.edit_aria" datatype="html">
+        <source>Edit <x id="name"/></source>
+        <target state="translated">Editar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="locations.meters" datatype="html">
+        <source>meters</source>
+        <target state="translated">metros</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_regenerate_action" datatype="html">
+        <source>Create new link</source>
+        <target state="translated">Crear enlace nuevo</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_regenerate_title" datatype="html">
+        <source>Create a new tag link?</source>
+        <target state="translated">¿Crear un enlace de etiqueta nuevo?</target>
+      </trans-unit>
+      <trans-unit id="locations.nfc_tag_title" datatype="html">
+        <source>Tag link</source>
+        <target state="translated">Enlace de la etiqueta</target>
+      </trans-unit>
+      <trans-unit id="locations.search_label" datatype="html">
+        <source>Search for an address</source>
+        <target state="translated">Buscar una dirección</target>
+      </trans-unit>
+      <trans-unit id="locations.toast_create_failed" datatype="html">
+        <source>Could not create the location.</source>
+        <target state="translated">No se pudo crear la ubicación.</target>
+      </trans-unit>
+      <trans-unit id="locations.toast_created" datatype="html">
+        <source>Location created.</source>
+        <target state="translated">Ubicación creada.</target>
+      </trans-unit>
+      <trans-unit id="locations.toast_geolocation_failed" datatype="html">
+        <source>Could not get your current location. The map is centered on the default.</source>
+        <target state="translated">No se pudo obtener tu ubicación actual. El mapa está centrado en la ubicación predeterminada.</target>
+      </trans-unit>
+      <trans-unit id="locations.toast_update_failed" datatype="html">
+        <source>Could not update the location.</source>
+        <target state="translated">No se pudo actualizar la ubicación.</target>
+      </trans-unit>
+      <trans-unit id="locations.toast_updated" datatype="html">
+        <source>Location updated.</source>
+        <target state="translated">Ubicación actualizada.</target>
       </trans-unit>
     </body>
   </file>

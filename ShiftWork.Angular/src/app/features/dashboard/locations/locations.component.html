@@ -1,420 +1,299 @@
-<div class="locations-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-icon">
-        <i class="fa fa-map-marker"></i>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title" i18n="@@locations.page_title">Location Management</h1>
-        <p class="page-subtitle" i18n="@@locations.page_subtitle">Manage your business locations and service areas</p>
-      </div>
-    </div>
+<div class="flex flex-col gap-4">
+  <div class="sticky top-0 z-10 bg-canvas">
+    <lz-page-header title="Location management" i18n-title="@@locations.page_title" subtitle="Manage your business locations and service areas" i18n-subtitle="@@locations.page_subtitle">
+      <ng-container lzHeaderActions>
+        <button #addBtn lzButton type="button" [variant]="panelOpen ? 'secondary' : 'primary'" [attr.variant]="panelOpen ? 'secondary' : 'primary'" (click)="openerEl = addBtn; addLocation()">
+          <mat-icon aria-hidden="true">add_location_alt</mat-icon>
+          <ng-container i18n="@@locations.add_btn">Add location</ng-container>
+        </button>
+      </ng-container>
+    </lz-page-header>
   </div>
 
-  <div class="content-grid">
-    <!-- Left Panel - Locations List -->
-    <div class="list-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="fa fa-list"></i>
-            <ng-container i18n="@@locations.list_title">Locations</ng-container>
-          </h3>
-          <span class="badge">{{ locations.length || 0 }}</span>
-        </div>
-
-        <div class="card-body">
-          <!-- Loading State -->
-          <div *ngIf="loading" class="loading-state">
-            <div class="spinner"></div>
-            <p class="loading-text" i18n="@@locations.loading">Loading locations...</p>
-          </div>
-
-          <!-- Error State -->
-          <div *ngIf="error" class="error-state">
-            <i class="fa fa-exclamation-triangle error-icon"></i>
-            <p class="error-text" i18n="@@locations.error">Error loading locations. Please try again.</p>
-          </div>
-
-          <!-- Locations List -->
-          <div *ngIf="!loading && !error" class="locations-list">
-            <div *ngFor="let location of locations; let i = index" class="location-item"
-              [class.selected]="selectedLocation?.locationId === location.locationId" (click)="editLocation(location)"
-              [style.animation-delay.ms]="i * 50">
-              <div class="location-icon">
-                <i class="fa fa-map-pin"></i>
-              </div>
-              <div class="location-info">
-                <h4 class="location-name">{{ location.name }}</h4>
-                <p class="location-address">
-                  <i class="fa fa-location-arrow"></i>
-                  {{ location.address }}
-                </p>
-                <span class="status-badge" [class.active]="location.status === 'Active'">
-                  {{ location.status }}
-                </span>
-              </div>
-              <button class="edit-btn" (click)="editLocation(location); $event.stopPropagation()">
-                <i class="fa fa-pencil"></i>
-              </button>
-            </div>
-
-            <!-- Empty State -->
-            <div *ngIf="locations.length === 0" class="empty-state">
-              <i class="fa fa-map-marker empty-icon"></i>
-              <p class="empty-text" i18n="@@locations.empty_text">No locations found</p>
-              <p class="empty-subtext" i18n="@@locations.empty_subtext">Create your first location to get started</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Panel - Map & Form -->
-    <div class="form-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="fa" [class.fa-plus]="!selectedLocation" [class.fa-edit]="selectedLocation"></i>
-            <ng-container *ngIf="selectedLocation" i18n="@@locations.form_edit">Edit Location</ng-container>
-            <ng-container *ngIf="!selectedLocation" i18n="@@locations.form_create">Create New Location</ng-container>
-          </h3>
-          <div class="header-actions">
-            <app-audit-history-button
-              *ngIf="selectedLocation"
-              [entity]="selectedLocation"
-              entityType="Location"
-              [entityId]="selectedLocation.locationId"
-              [entityDisplayName]="selectedLocation.name"
-              [companyId]="activeCompany?.companyId || ''"
-            ></app-audit-history-button>
-            <button *ngIf="selectedLocation" class="clear-btn" (click)="cancelEdit()">
-              <i class="fa fa-times"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <!-- Map Button Trigger -->
-          <div class="map-trigger-section">
-            <button type="button" class="btn-map-trigger" (click)="openMapModal()">
-              <i class="fa fa-map-marker"></i>
-              <div class="map-trigger-text">
-                <span class="trigger-title" i18n="@@locations.map_btn_title">Set Location on Map</span>
-                <span class="trigger-subtitle" *ngIf="markerPosition">
-                  Lat: {{ locationForm.get('latitude')?.value | number:'1.4-4' }},
-                  Long: {{ locationForm.get('longitude')?.value | number:'1.4-4' }}
-                </span>
-                <span class="trigger-subtitle" *ngIf="!markerPosition" i18n="@@locations.map_hint">
-                  Click to select location on map
-                </span>
-              </div>
-              <i class="fa fa-chevron-right"></i>
-            </button>
-          </div>
-
-          <!-- Form Section -->
-          <div class="form-section-full">
-            <form [formGroup]="locationForm" (ngSubmit)="saveLocation()" class="location-form">
-
-              <!-- Basic Information -->
-              <div class="form-group-section">
-                <h4 class="section-title" i18n="@@locations.basic_info">Basic Information</h4>
-
-                <div class="form-group">
-                  <label for="name" class="form-label">
-                    <i class="fa fa-building"></i>
-                    <ng-container i18n="@@locations.name_label">Location Name</ng-container> <span class="required">*</span>
-                  </label>
-                  <input type="text" id="name" class="form-input" formControlName="name"
-                    placeholder="Enter location name" i18n-placeholder="@@locations.name_placeholder">
-                </div>
-
-                <div class="form-group">
-                  <label for="status" class="form-label">
-                    <i class="fa fa-toggle-on"></i>
-                    <ng-container i18n="@@locations.status_label">Status</ng-container>
-                  </label>
-                  <select id="status" class="form-select" formControlName="status">
-                    <option value="Active" i18n="@@common.active">Active</option>
-                    <option value="Inactive" i18n="@@common.inactive">Inactive</option>
-                  </select>
-                </div>
-              </div>
-
-              <!-- Address Information -->
-              <div class="form-group-section">
-                <h4 class="section-title" i18n="@@locations.address_section">Address Information</h4>
-
-                <div class="form-group">
-                  <label for="address" class="form-label">
-                    <i class="fa fa-map-marker"></i>
-                    <ng-container i18n="@@locations.street_label">Street Address</ng-container> <span class="required">*</span>
-                  </label>
-                  <input type="text" id="address" class="form-input" formControlName="address"
-                    placeholder="123 Main Street" i18n-placeholder="@@locations.street_placeholder">
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="city" class="form-label">
-                      <i class="fa fa-building-o"></i>
-                      <ng-container i18n="@@locations.city_label">City</ng-container>
-                    </label>
-                    <input type="text" id="city" class="form-input" formControlName="city" placeholder="New York">
+  <section class="min-w-0">
+    @if (loading) {
+      <lz-alert tone="info" i18n="@@locations.loading">Loading locations...</lz-alert>
+    } @else if (error) {
+      <lz-alert tone="danger" i18n="@@locations.error">Error loading locations. Please try again.</lz-alert>
+    } @else if (locations.length === 0) {
+      <lz-empty-state icon="location_on" title="No locations found" i18n-title="@@locations.empty_text" body="Create your first location to get started" i18n-body="@@locations.empty_subtext">
+        <button lzEmptyAction lzButton variant="secondary" type="button" (click)="addLocation()">
+          <mat-icon aria-hidden="true">add_location_alt</mat-icon>
+          <ng-container i18n="@@locations.add_btn">Add location</ng-container>
+        </button>
+      </lz-empty-state>
+    } @else {
+      <lz-table-scroll>
+        <table lzTable class="min-w-2xl">
+          <thead>
+            <tr>
+              <th scope="col" i18n="@@locations.col_name">Location</th>
+              <th scope="col" i18n="@@locations.col_address">Address</th>
+              <th scope="col" i18n="@@locations.col_status">Status</th>
+              <th scope="col" class="text-right" i18n="@@locations.col_actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (location of paginate(locations, page, pageSize); track location.locationId) {
+              <tr class="cursor-pointer hover:bg-paper-alt" [class.bg-paper-alt]="selectedLocation?.locationId === location.locationId" (click)="openerEl = editBtn; editLocation(location)">
+                <td class="font-medium text-ink">{{ location.name }}</td>
+                <td>{{ location.address }}</td>
+                <td>
+                  <ng-container *ngTemplateOutlet="statusChip; context: { $implicit: location.status }" />
+                </td>
+                <td (click)="$event.stopPropagation()">
+                  <div class="flex justify-end gap-1">
+                    <button #editBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(location)" (click)="openerEl = editBtn; editLocation(location)">
+                      <mat-icon aria-hidden="true">edit</mat-icon>
+                    </button>
                   </div>
-
-                  <div class="form-group">
-                    <label for="state" class="form-label">
-                      <i class="fa fa-flag"></i>
-                      <ng-container i18n="@@locations.state_label">State</ng-container>
-                    </label>
-                    <input type="text" id="state" class="form-input" formControlName="state" placeholder="NY">
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="zipCode" class="form-label">
-                      <i class="fa fa-hashtag"></i>
-                      <ng-container i18n="@@locations.zip_label">Zip Code</ng-container>
-                    </label>
-                    <input type="text" id="zipCode" class="form-input" formControlName="zipCode" placeholder="10001">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="country" class="form-label">
-                      <i class="fa fa-globe"></i>
-                      <ng-container i18n="@@locations.country_label">Country</ng-container>
-                    </label>
-                    <input type="text" id="country" class="form-input" formControlName="country" placeholder="USA">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Geographic Coordinates -->
-              <div class="form-group-section">
-                <h4 class="section-title" i18n="@@locations.geo_section">Geographic Coordinates</h4>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="latitude" class="form-label">
-                      <i class="fa fa-compass"></i>
-                      <ng-container i18n="@@locations.lat_label">Latitude</ng-container>
-                    </label>
-                    <input type="number" id="latitude" class="form-input" formControlName="latitude"
-                      placeholder="40.7128" step="any">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="longitude" class="form-label">
-                      <i class="fa fa-compass"></i>
-                      <ng-container i18n="@@locations.lng_label">Longitude</ng-container>
-                    </label>
-                    <input type="number" id="longitude" class="form-input" formControlName="longitude"
-                      placeholder="-74.0060" step="any">
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="ratioMax" class="form-label">
-                    <i class="fa fa-circle-o"></i>
-                    <ng-container i18n="@@locations.radius_label">Service Radius (meters)</ng-container>
-                  </label>
-                  <input type="number" id="ratioMax" class="form-input" formControlName="ratioMax" placeholder="500">
-                  <small class="form-hint" i18n="@@locations.radius_hint">Defines the service area around this location</small>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">
-                    <i class="fa fa-lock"></i>
-                    <ng-container i18n="@@locations.kiosk_section">Kiosk</ng-container>
-                  </label>
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="requirePin" formControlName="requirePin">
-                    <ng-container i18n="@@locations.require_pin">Require PIN at the kiosk</ng-container>
-                  </label>
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="requirePhoto" formControlName="requirePhoto">
-                    <ng-container i18n="@@locations.require_photo">Require a photo at the kiosk</ng-container>
-                  </label>
-                  <small class="form-hint" i18n="@@locations.kiosk_hint">Turn both off for the fastest clock-in. Employees marked "No photo required" never see the camera.</small>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">
-                    <i class="fa fa-wifi"></i>
-                    <ng-container i18n="@@locations.nfc_section">NFC tag</ng-container>
-                  </label>
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="requireNfc" formControlName="requireNfc">
-                    <ng-container i18n="@@locations.require_nfc">Require an NFC tag tap to clock in or out from phones</ng-container>
-                  </label>
-                  <small class="form-hint" i18n="@@locations.require_nfc_hint">When on, employees can't use the phone's clock button at this site. Kiosks and manager entries still work.</small>
-
-                  <ng-container *ngIf="selectedLocation; else nfcAfterSave">
-                    <div class="nfc-tag" *ngIf="nfcTagUrl(selectedLocation) as tagUrl; else noNfcTag">
-                      <label for="nfcTagUrl" class="form-label" i18n="@@locations.nfc_tag_link">Tag link</label>
-                      <div class="nfc-tag-row">
-                        <input id="nfcTagUrl" class="form-input" type="text" [value]="tagUrl" readonly>
-                        <button type="button" class="btn-cancel" (click)="copyNfcTagUrl(tagUrl)" i18n="@@locations.nfc_copy">Copy</button>
-                        <button type="button" class="btn-cancel" (click)="regenerateNfcTag()" [disabled]="nfcBusy" i18n="@@locations.nfc_regenerate">Regenerate</button>
-                      </div>
-                      <small class="form-hint">
-                        <ng-container i18n="@@locations.nfc_last_tapped">Last tapped:</ng-container>
-                        {{ selectedLocation.nfcLastTappedAt ? (selectedLocation.nfcLastTappedAt | date:'medium') : '—' }}
-                      </small>
-                    </div>
-                    <ng-template #noNfcTag>
-                      <button type="button" class="btn-cancel" (click)="regenerateNfcTag()" [disabled]="nfcBusy" i18n="@@locations.nfc_create">Create tag link</button>
-                    </ng-template>
-                  </ng-container>
-                  <ng-template #nfcAfterSave>
-                    <small class="form-hint" i18n="@@locations.nfc_after_save">Save the location first, then create its tag link here.</small>
-                  </ng-template>
-                </div>
-
-                <div class="form-group">
-                  <label for="timezone" class="form-label">
-                    <i class="fa fa-clock-o"></i>
-                    <ng-container i18n="@@locations.timezone_label">Time Zone</ng-container> <span class="required">*</span>
-                  </label>
-                  <select id="timezone" class="form-select" formControlName="timezone">
-                    <option [ngValue]="null" disabled i18n="@@locations.timezone_ph">Select a Timezone</option>
-                    <option *ngFor="let tz of timezones" [value]="tz.value">{{ tz.name }}</option>
-                  </select>
-                </div>
-              </div>
-
-              <!-- Contact Information -->
-              <div class="form-group-section">
-                <h4 class="section-title" i18n="@@locations.contact_section">Contact Information</h4>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="email" class="form-label">
-                      <i class="fa fa-envelope"></i>
-                      <ng-container i18n="@@locations.email_label">Email</ng-container>
-                    </label>
-                    <input type="email" id="email" class="form-input" formControlName="email"
-                      placeholder="location@example.com" i18n-placeholder="@@locations.email_placeholder">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="phonenumber" class="form-label">
-                      <i class="fa fa-phone"></i>
-                      <ng-container i18n="@@locations.phone_label">Phone Number</ng-container>
-                    </label>
-                    <input type="text" id="phonenumber" class="form-input" formControlName="phoneNumber"
-                      placeholder="(123) 456-7890">
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="externalCode" class="form-label">
-                    <i class="fa fa-code"></i>
-                    <ng-container i18n="@@locations.ext_code_label">External Code</ng-container>
-                  </label>
-                  <input type="text" id="externalCode" class="form-input" formControlName="externalCode"
-                    placeholder="LOC-001" i18n-placeholder="@@locations.ext_code_placeholder">
-                  <small class="form-hint" i18n="@@locations.ext_code_hint">Optional reference code for external systems</small>
-                </div>
-              </div>
-
-              <!-- Form Actions -->
-              <div class="form-actions">
-                <button type="button" class="btn-cancel" *ngIf="selectedLocation" (click)="cancelEdit()">
-                  <i class="fa fa-times"></i>
-                  <ng-container i18n="@@common.cancel">Cancel</ng-container>
-                </button>
-                <button type="submit" class="btn-submit" [disabled]="!locationForm.valid">
-                  <i class="fa" [class.fa-save]="selectedLocation" [class.fa-plus]="!selectedLocation"></i>
-                  <ng-container *ngIf="selectedLocation" i18n="@@locations.update_btn">Update Location</ng-container>
-                  <ng-container *ngIf="!selectedLocation" i18n="@@locations.create_btn">Create Location</ng-container>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </lz-table-scroll>
+      <lz-pager [total]="locations.length" [page]="page" [pageSize]="pageSize" (pageChange)="page = $event" (pageSizeChange)="pageSize = $event; page = 1" />
+    }
+  </section>
 </div>
 
-
-<!-- Map Modal -->
-<div class="map-modal-overlay" *ngIf="showMapModal" (click)="closeMapModal()">
-  <div class="map-modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3 class="modal-title">
-        <i class="fa fa-map-marker"></i>
-        <ng-container i18n="@@locations.modal_title">Select Location</ng-container>
-      </h3>
-      <button class="modal-close-btn" (click)="closeMapModal()">
-        <i class="fa fa-times"></i>
+<lz-side-panel #sp [restoreFocusTo]="openerEl" [heading]="selectedLocation ? selectedLocation.name : addLocationLabel" [open]="panelOpen" [dirty]="locationForm.dirty" (closed)="cancelEdit()">
+  <app-audit-history-button lzPanelHeaderActions
+    *ngIf="selectedLocation"
+    [entity]="selectedLocation"
+    entityType="Location"
+    [entityId]="selectedLocation.locationId"
+    [entityDisplayName]="selectedLocation.name"
+    [companyId]="activeCompany?.companyId || ''"
+  ></app-audit-history-button>
+  @if (panelOpen) {
+    <div class="flex flex-col gap-6">
+      <button lzButton variant="secondary" type="button" class="w-full justify-start text-left" (click)="openMapModal()">
+        <mat-icon aria-hidden="true">pin_drop</mat-icon>
+        <span class="flex min-w-0 flex-1 flex-col">
+          <span i18n="@@locations.map_btn_title">Set location on map</span>
+          @if (markerPosition) {
+            <span class="text-[13px] font-normal text-ink-soft tabular-nums">
+              <ng-container i18n="@@locations.coord_lat">Latitude:</ng-container> {{ locationForm.get('latitude')?.value | number:'1.4-4' }},
+              <ng-container i18n="@@locations.coord_lng">Longitude:</ng-container> {{ locationForm.get('longitude')?.value | number:'1.4-4' }}
+            </span>
+          } @else {
+            <span class="text-[13px] font-normal text-ink-soft" i18n="@@locations.map_hint">Click to select location on map</span>
+          }
+        </span>
+        <mat-icon aria-hidden="true">chevron_right</mat-icon>
       </button>
+
+      <form id="location-form" [formGroup]="locationForm" (ngSubmit)="saveLocation()" class="flex flex-col gap-6">
+        <ng-container *ngTemplateOutlet="basicSection" />
+        <ng-container *ngTemplateOutlet="addressSection" />
+        <ng-container *ngTemplateOutlet="geoSection" />
+        <ng-container *ngTemplateOutlet="contactSection" />
+
+        <ng-template #basicSection>
+          <section class="flex flex-col gap-4" aria-labelledby="loc-basic-title">
+            <h3 id="loc-basic-title" class="font-display text-[15px] font-semibold" i18n="@@locations.basic_info">Basic Information</h3>
+            <lz-field label="Location Name" i18n-label="@@locations.name_label" controlId="name">
+              <input lzField type="text" id="name" formControlName="name" aria-required="true" placeholder="Enter location name" i18n-placeholder="@@locations.name_placeholder">
+            </lz-field>
+            <lz-field label="Status" i18n-label="@@locations.status_label" controlId="status">
+              <select lzField id="status" formControlName="status">
+                <option value="Active" i18n="@@common.active">Active</option>
+                <option value="Inactive" i18n="@@common.inactive">Inactive</option>
+              </select>
+            </lz-field>
+          </section>
+        </ng-template>
+
+        <ng-template #addressSection>
+          <section class="flex flex-col gap-4" aria-labelledby="loc-address-title">
+            <h3 id="loc-address-title" class="font-display text-[15px] font-semibold" i18n="@@locations.address_section">Address Information</h3>
+            <lz-field label="Street Address" i18n-label="@@locations.street_label" controlId="address">
+              <input lzField type="text" id="address" formControlName="address" aria-required="true" placeholder="123 Main Street" i18n-placeholder="@@locations.street_placeholder">
+            </lz-field>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <lz-field label="City" i18n-label="@@locations.city_label" controlId="city">
+                <input lzField type="text" id="city" formControlName="city" placeholder="New York">
+              </lz-field>
+              <lz-field label="State" i18n-label="@@locations.state_label" controlId="state">
+                <input lzField type="text" id="state" formControlName="state" placeholder="NY">
+              </lz-field>
+              <lz-field label="Zip Code" i18n-label="@@locations.zip_label" controlId="zipCode">
+                <input lzField type="text" id="zipCode" formControlName="zipCode" placeholder="10001">
+              </lz-field>
+              <lz-field label="Country" i18n-label="@@locations.country_label" controlId="country">
+                <input lzField type="text" id="country" formControlName="country" placeholder="USA">
+              </lz-field>
+            </div>
+          </section>
+        </ng-template>
+
+        <ng-template #geoSection>
+          <section class="flex flex-col gap-4" aria-labelledby="loc-geo-title">
+            <h3 id="loc-geo-title" class="font-display text-[15px] font-semibold" i18n="@@locations.geo_section">Geographic Coordinates</h3>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <lz-field label="Latitude" i18n-label="@@locations.lat_label" controlId="latitude">
+                <input lzField type="number" id="latitude" formControlName="latitude" placeholder="40.7128" step="any">
+              </lz-field>
+              <lz-field label="Longitude" i18n-label="@@locations.lng_label" controlId="longitude">
+                <input lzField type="number" id="longitude" formControlName="longitude" placeholder="-74.0060" step="any">
+              </lz-field>
+            </div>
+            <lz-field label="Service Radius (meters)" i18n-label="@@locations.radius_label" hint="Defines the service area around this location" i18n-hint="@@locations.radius_hint" controlId="ratioMax">
+              <input lzField type="number" id="ratioMax" formControlName="ratioMax" placeholder="500" [attr.aria-describedby]="'ratioMax-hint'">
+            </lz-field>
+            <lz-field label="Time Zone" i18n-label="@@locations.timezone_label" controlId="timezone">
+              <select lzField id="timezone" formControlName="timezone">
+                <option [ngValue]="null" disabled i18n="@@locations.timezone_ph">Select a Timezone</option>
+                @for (tz of timezones; track tz.value) {
+                  <option [value]="tz.value">{{ tz.name }}</option>
+                }
+              </select>
+            </lz-field>
+
+            <fieldset class="flex flex-col">
+              <legend class="mb-1 font-medium text-ink" i18n="@@locations.kiosk_section">Kiosk</legend>
+              <label class="flex min-h-12 items-center gap-2 text-ink">
+                <input type="checkbox" id="requirePin" class="size-5" formControlName="requirePin">
+                <ng-container i18n="@@locations.require_pin">Require PIN at the kiosk</ng-container>
+              </label>
+              <label class="flex min-h-12 items-center gap-2 text-ink">
+                <input type="checkbox" id="requirePhoto" class="size-5" formControlName="requirePhoto">
+                <ng-container i18n="@@locations.require_photo">Require a photo at the kiosk</ng-container>
+              </label>
+              <p class="text-[13px] text-ink-soft" i18n="@@locations.kiosk_hint">Turn both off for the fastest clock-in. Employees marked "No photo required" never see the camera.</p>
+            </fieldset>
+
+            <fieldset class="flex flex-col">
+              <legend class="mb-1 font-medium text-ink" i18n="@@locations.nfc_section">NFC tag</legend>
+              <label class="flex min-h-12 items-center gap-2 text-ink">
+                <input type="checkbox" id="requireNfc" class="size-5" formControlName="requireNfc">
+                <ng-container i18n="@@locations.require_nfc">Require an NFC tag tap to clock in or out from phones</ng-container>
+              </label>
+              <p class="text-[13px] text-ink-soft" i18n="@@locations.require_nfc_hint">When on, employees can't use the phone's clock button at this site. Kiosks and manager entries still work.</p>
+            </fieldset>
+          </section>
+        </ng-template>
+
+        <ng-template #contactSection>
+          <section class="flex flex-col gap-4" aria-labelledby="loc-contact-title">
+            <h3 id="loc-contact-title" class="font-display text-[15px] font-semibold" i18n="@@locations.contact_section">Contact Information</h3>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <lz-field label="Email" i18n-label="@@locations.email_label" controlId="email">
+                <input lzField type="email" id="email" formControlName="email" placeholder="location@example.com" i18n-placeholder="@@locations.email_placeholder">
+              </lz-field>
+              <lz-field label="Phone Number" i18n-label="@@locations.phone_label" controlId="phonenumber">
+                <input lzField type="text" id="phonenumber" formControlName="phoneNumber" placeholder="(123) 456-7890">
+              </lz-field>
+            </div>
+            <lz-field label="External Code" i18n-label="@@locations.ext_code_label" hint="Optional reference code for external systems" i18n-hint="@@locations.ext_code_hint" controlId="externalCode">
+              <input lzField type="text" id="externalCode" formControlName="externalCode" placeholder="LOC-001" i18n-placeholder="@@locations.ext_code_placeholder">
+            </lz-field>
+          </section>
+        </ng-template>
+      </form>
+
+      <ng-container *ngTemplateOutlet="nfcSection" />
+
+    @if (showMapModal) {
+      <lz-dialog-overlay size="xl" (closed)="closeMapModal()">
+        <lz-dialog-frame title="Select location" i18n-title="@@locations.modal_title" (closed)="closeMapModal()">
+          <div class="flex flex-col gap-4">
+            <label class="flex items-center gap-2">
+              <mat-icon aria-hidden="true" class="text-ink-soft">search</mat-icon>
+              <input lzField type="text" #addressSearch aria-label="Search for an address" i18n-aria-label="@@locations.search_label" placeholder="Search for an address..." i18n-placeholder="@@locations.search_placeholder">
+            </label>
+
+            <div class="h-80 w-full overflow-hidden rounded-control border border-line" data-testid="map-container">
+              <google-map [options]="mapOptions" (mapClick)="onMapClick($event)" height="100%" width="100%">
+                @if (markerPosition) {
+                  <map-marker [options]="markerOptions" (mapDragend)="onMapClick($event)" />
+                  <map-circle [center]="markerPosition" [radius]="locationForm.get('ratioMax')?.value" [options]="circleOptions" />
+                }
+              </google-map>
+            </div>
+
+            <ul class="flex flex-col gap-1 text-ink-soft">
+              <li class="flex items-center gap-2"><mat-icon aria-hidden="true">touch_app</mat-icon><span i18n="@@locations.map_info_click">Click on the map to set location</span></li>
+              <li class="flex items-center gap-2"><mat-icon aria-hidden="true">open_with</mat-icon><span i18n="@@locations.map_info_drag">Drag the marker to adjust position</span></li>
+              <li class="flex items-center gap-2"><mat-icon aria-hidden="true">radio_button_unchecked</mat-icon><span i18n="@@locations.map_info_radius">Use radius field to set service area</span></li>
+            </ul>
+
+            @if (markerPosition) {
+              <dl class="flex flex-wrap gap-x-6 gap-y-1 tabular-nums">
+                <div class="flex gap-1"><dt class="text-ink-soft" i18n="@@locations.coord_lat">Latitude:</dt><dd>{{ locationForm.get('latitude')?.value | number:'1.6-6' }}</dd></div>
+                <div class="flex gap-1"><dt class="text-ink-soft" i18n="@@locations.coord_lng">Longitude:</dt><dd>{{ locationForm.get('longitude')?.value | number:'1.6-6' }}</dd></div>
+                <div class="flex gap-1"><dt class="text-ink-soft" i18n="@@locations.coord_radius">Radius:</dt><dd>{{ locationForm.get('ratioMax')?.value }} <ng-container i18n="@@locations.meters">meters</ng-container></dd></div>
+              </dl>
+            }
+          </div>
+          <ng-container lzDialogActions>
+            <button lzButton variant="secondary" type="button" (click)="closeMapModal()" i18n="@@common.cancel">Cancel</button>
+            <button lzButton variant="secondary" type="button" (click)="confirmMapSelection()" i18n="@@locations.confirm_btn">Confirm Location</button>
+          </ng-container>
+        </lz-dialog-frame>
+      </lz-dialog-overlay>
+    }
+
+    @if (regenerateConfirmOpen) {
+      <lz-dialog-overlay dialogRole="alertdialog" (closed)="cancelRegenerate()">
+        <lz-dialog-frame title="Create a new tag link?" i18n-title="@@locations.nfc_regenerate_title" (closed)="cancelRegenerate()">
+          <p i18n="@@locations.nfc_regenerate_confirm">Create a new tag link? The current tag stops working right away and must be written again.</p>
+          <ng-container lzDialogActions>
+            <button lzButton variant="secondary" type="button" (click)="cancelRegenerate()" i18n="@@common.cancel">Cancel</button>
+            <button lzButton variant="secondary" type="button" (click)="confirmRegenerate()"><span class="text-danger-ink" i18n="@@locations.nfc_regenerate_action">Create new link</span></button>
+          </ng-container>
+        </lz-dialog-frame>
+      </lz-dialog-overlay>
+    }
     </div>
+  }
+  <ng-container lzPanelFooter>
+    <button lzButton variant="secondary" type="button" (click)="sp.requestClose()" i18n="@@common.cancel">Cancel</button>
+    <button lzButton variant="primary" type="submit" form="location-form" [disabled]="locationForm.invalid || saving || (!!selectedLocation && !locationForm.dirty)">
+      @if (selectedLocation) {
+        <ng-container i18n="@@locations.update_btn">Update Location</ng-container>
+      } @else {
+        <ng-container i18n="@@locations.create_btn">Create Location</ng-container>
+      }
+    </button>
+  </ng-container>
+</lz-side-panel>
 
-    <div class="modal-body">
-      <!-- Address Search -->
-      <div class="search-box-modal">
-        <div class="search-input-wrapper">
-          <i class="fa fa-search search-icon"></i>
-          <input type="text" class="search-input" placeholder="Search for an address..." i18n-placeholder="@@locations.search_placeholder" #addressSearch>
-        </div>
-      </div>
+<ng-template #statusChip let-status>
+  <lz-status-chip [tone]="status === 'Active' ? 'success' : 'neutral'" [dot]="true">
+    @if (status === 'Active') {
+      <ng-container i18n="@@common.active">Active</ng-container>
+    } @else {
+      <ng-container i18n="@@common.inactive">Inactive</ng-container>
+    }
+  </lz-status-chip>
+</ng-template>
 
-      <!-- Google Map -->
-      <div class="map-container-modal">
-        <google-map [options]="mapOptions" (mapClick)="onMapClick($event)" height="100%" width="100%">
-          <map-marker *ngIf="markerPosition" [options]="markerOptions" (mapDragend)="onMapClick($event)"></map-marker>
-          <map-circle *ngIf="markerPosition" [center]="markerPosition" [radius]="locationForm.get('ratioMax')?.value"
-            [options]="circleOptions"></map-circle>
-        </google-map>
-      </div>
-
-      <div class="map-info-modal">
-        <div class="info-item">
-          <i class="fa fa-crosshairs"></i>
-          <span i18n="@@locations.map_info_click">Click on the map to set location</span>
+<ng-template #nfcSection>
+  <section class="flex flex-col gap-3" aria-labelledby="loc-tag-title">
+    <h3 id="loc-tag-title" class="font-display text-[15px] font-semibold" i18n="@@locations.nfc_tag_title">Tag link</h3>
+    @if (selectedLocation) {
+      @if (nfcTagUrl(selectedLocation); as tagUrl) {
+        <lz-field label="Tag link" i18n-label="@@locations.nfc_tag_link" controlId="nfcTagUrl">
+          <input lzField type="text" id="nfcTagUrl" [value]="tagUrl" readonly>
+        </lz-field>
+        <div class="flex flex-wrap gap-2">
+          <button lzButton variant="secondary" type="button" (click)="copyNfcTagUrl(tagUrl)" i18n="@@locations.nfc_copy">Copy</button>
+          <button #regenBtn lzButton variant="secondary" type="button" (click)="regenerateNfcTag(regenBtn)" [disabled]="nfcBusy" i18n="@@locations.nfc_regenerate">Regenerate</button>
         </div>
-        <div class="info-item">
-          <i class="fa fa-arrows"></i>
-          <span i18n="@@locations.map_info_drag">Drag the marker to adjust position</span>
+        <p class="text-[13px] text-ink-soft">
+          <ng-container i18n="@@locations.nfc_last_tapped">Last tapped:</ng-container>
+          {{ selectedLocation.nfcLastTappedAt ? (selectedLocation.nfcLastTappedAt | date:'medium') : '—' }}
+        </p>
+      } @else {
+        <div>
+          <button lzButton variant="secondary" type="button" (click)="regenerateNfcTag()" [disabled]="nfcBusy" i18n="@@locations.nfc_create">Create tag link</button>
         </div>
-        <div class="info-item">
-          <i class="fa fa-circle-o"></i>
-          <span i18n="@@locations.map_info_radius">Use radius field to set service area</span>
-        </div>
-      </div>
-
-      <!-- Current Coordinates Display -->
-      <div class="coordinates-display" *ngIf="markerPosition">
-        <div class="coord-item">
-          <span class="coord-label" i18n="@@locations.coord_lat">Latitude:</span>
-          <span class="coord-value">{{ locationForm.get('latitude')?.value | number:'1.6-6' }}</span>
-        </div>
-        <div class="coord-item">
-          <span class="coord-label" i18n="@@locations.coord_lng">Longitude:</span>
-          <span class="coord-value">{{ locationForm.get('longitude')?.value | number:'1.6-6' }}</span>
-        </div>
-        <div class="coord-item">
-          <span class="coord-label" i18n="@@locations.coord_radius">Radius:</span>
-          <span class="coord-value">{{ locationForm.get('ratioMax')?.value }} meters</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal-footer">
-      <button type="button" class="btn-modal-cancel" (click)="closeMapModal()">
-        <i class="fa fa-times"></i>
-        <ng-container i18n="@@common.cancel">Cancel</ng-container>
-      </button>
-      <button type="button" class="btn-modal-confirm" (click)="confirmMapSelection()">
-        <i class="fa fa-check"></i>
-        <ng-container i18n="@@locations.confirm_btn">Confirm Location</ng-container>
-      </button>
-    </div>
-  </div>
-</div>
+      }
+    } @else {
+      <p class="text-[13px] text-ink-soft" i18n="@@locations.nfc_after_save">Save the location first, then create its tag link here.</p>
+    }
+  </section>
+</ng-template>

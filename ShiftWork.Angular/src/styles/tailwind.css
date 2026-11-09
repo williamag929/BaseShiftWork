@@ -96,3 +96,5 @@
 @source "../app/features/dashboard/pto-config-modal.component.ts";
 @source "../app/features/dashboard/crews";
 @source "../app/features/dashboard/credentials";
+@source "../app/features/dashboard/locations";
+@source "../app/features/dashboard/areas";

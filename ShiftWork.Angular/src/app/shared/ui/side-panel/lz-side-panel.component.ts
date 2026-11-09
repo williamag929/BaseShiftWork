@@ -91,8 +91,9 @@ export class LzSidePanelComponent implements OnChanges, OnDestroy {
     if (event.key !== 'Escape' || event.defaultPrevented) {
       return;
     }
-    const foreign = Array.from(this.doc.querySelectorAll('[role="dialog"][aria-modal="true"]')).some(
-      d => !this.host.nativeElement.contains(d),
+    const own = this.host.nativeElement.querySelector(':scope > [role="dialog"]');
+    const foreign = Array.from(this.doc.querySelectorAll('[role="dialog"][aria-modal="true"], [role="alertdialog"][aria-modal="true"]')).some(
+      d => d !== own,
     );
     if (foreign) {
       return;

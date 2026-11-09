@@ -13,11 +13,11 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { TIMEZONES } from 'src/app/core/data/timezones';
 import { Timezone } from 'src/app/core/models/timezone.model';
+import { paginate } from 'src/app/shared/ui';
 
 @Component({
   selector: 'app-locations',
   templateUrl: './locations.component.html',
-  styleUrls: ['./locations.component.css'],
   standalone: false
 })
 export class LocationsComponent implements OnInit {
@@ -53,6 +53,15 @@ export class LocationsComponent implements OnInit {
   };
   loading = false;
   error: any = null;
+  saving = false;
+  panelOpen = false;
+  openerEl: HTMLElement | null = null;
+  page = 1;
+  pageSize = 25;
+  readonly paginate = paginate;
+  readonly addLocationLabel = $localize`:@@locations.add_btn:Add location`;
+  regenerateConfirmOpen = false;
+  private regenerateOpener: HTMLElement | null = null;
 
   constructor(
     private locationService: LocationService,
@@ -117,7 +126,14 @@ export class LocationsComponent implements OnInit {
     }
   }
 
+  addLocation(): void {
+    this.cancelEdit();
+    this.panelOpen = true;
+  }
+
   cancelEdit(): void {
+    this.panelOpen = false;
+    this.regenerateConfirmOpen = false;
     this.selectedLocation = null;
     this.nfcBusy = false;
     this.locationForm.reset({
@@ -154,13 +170,15 @@ export class LocationsComponent implements OnInit {
         latitude: this.markerPosition.lat,
         longitude: this.markerPosition.lng
       });
+      this.locationForm.markAsDirty();
     }
   }
 
   saveLocation(): void {
-    if (!this.locationForm.valid) {
+    if (!this.locationForm.valid || this.saving) {
       return;
     }
+    this.saving = true;
 
     const formValue = this.locationForm.value;
     const locationData = {
@@ -189,17 +207,28 @@ export class LocationsComponent implements OnInit {
           if (index > -1) {
             this.locations[index] = result;
           }
-          this.toastr.success('Location updated successfully.');
+          this.saving = false;
+          this.toastr.success($localize`:@@locations.toast_updated:Location updated.`);
           this.cancelEdit();
         },
-        () => this.toastr.error('Failed to update location.')
+        () => {
+          this.saving = false;
+          this.toastr.error($localize`:@@locations.toast_update_failed:Could not update the location.`);
+        }
       );
     } else {
       const newLocation = { ...locationData, companyId: this.activeCompany.companyId } as Location;
-      this.locationService.createLocation(this.activeCompany.companyId, newLocation).subscribe((location: Location) => {
-        this.locations.push(location);
-        this.toastr.success('Location created successfully');
-        this.cancelEdit();
+      this.locationService.createLocation(this.activeCompany.companyId, newLocation).subscribe({
+        next: (location: Location) => {
+          this.saving = false;
+          this.locations.push(location);
+          this.toastr.success($localize`:@@locations.toast_created:Location created.`);
+          this.cancelEdit();
+        },
+        error: () => {
+          this.saving = false;
+          this.toastr.error($localize`:@@locations.toast_create_failed:Could not create the location.`);
+        }
       });
     }
   }
@@ -218,12 +247,44 @@ export class LocationsComponent implements OnInit {
     );
   }
 
-  regenerateNfcTag(): void {
+  regenerateNfcTag(opener?: HTMLElement): void {
     const current = this.selectedLocation;
     if (!current || this.nfcBusy) {
       return;
     }
-    if (current.nfcTagKey && !window.confirm($localize`:@@locations.nfc_regenerate_confirm:Create a new tag link? The current tag stops working right away and must be written again.`)) {
+    if (current.nfcTagKey) {
+      this.regenerateOpener = opener ?? null;
+      this.regenerateConfirmOpen = true;
+      return;
+    }
+    this.runRegenerate();
+  }
+
+  editLabel(location: Location): string {
+    return $localize`:@@locations.edit_aria:Edit ${location.name}:name:`;
+  }
+
+  cancelRegenerate(): void {
+    const opener = this.regenerateOpener;
+    this.regenerateConfirmOpen = false;
+    this.regenerateOpener = null;
+    Promise.resolve().then(() => opener?.focus());
+  }
+
+  confirmRegenerate(): void {
+    const opener = this.regenerateOpener;
+    this.regenerateConfirmOpen = false;
+    this.regenerateOpener = null;
+    this.runRegenerate(opener);
+  }
+
+  private refocus(opener?: HTMLElement | null): void {
+    Promise.resolve().then(() => (opener?.isConnected ? opener : document.getElementById('nfcTagUrl'))?.focus());
+  }
+
+  private runRegenerate(opener?: HTMLElement | null): void {
+    const current = this.selectedLocation;
+    if (!current || this.nfcBusy) {
       return;
     }
 
@@ -241,10 +302,12 @@ export class LocationsComponent implements OnInit {
         }
         this.toastr.success($localize`:@@locations.nfc_regenerated:New tag link ready. Write it to the tag.`);
         this.nfcBusy = false;
+        this.refocus(opener);
       },
       error: () => {
         this.toastr.error($localize`:@@locations.nfc_regenerate_failed:Could not create the tag link.`);
         this.nfcBusy = false;
+        this.refocus(opener);
       },
     });
   }
@@ -265,7 +328,7 @@ export class LocationsComponent implements OnInit {
             this.locationForm.patchValue({ latitude, longitude });
           }
         },
-        () => this.toastr.info('Could not get current location. Map centered on default.')
+        () => this.toastr.info($localize`:@@locations.toast_geolocation_failed:Could not get your current location. The map is centered on the default.`)
       );
     }
   }
@@ -314,6 +377,7 @@ export class LocationsComponent implements OnInit {
             longitude: this.markerPosition.lng,
             address: place.formatted_address
           });
+          this.locationForm.markAsDirty();
           if (this.map) {
             this.map.panTo(location.toJSON());
           }
@@ -347,6 +411,7 @@ export class LocationsComponent implements OnInit {
   }
 
   editLocation(location: Location): void {
+    this.panelOpen = true;
     this.selectedLocation = location;
     this.nfcBusy = false;
     this.locationForm.patchValue({

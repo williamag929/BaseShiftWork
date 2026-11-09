@@ -1,217 +1,125 @@
-<div class="areas-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-icon">
-        <i class="fa fa-th-large"></i>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title" i18n="@@areas.page_title">Area Management</h1>
-        <p class="page-subtitle" i18n="@@areas.page_subtitle">Organize your locations into functional areas</p>
-      </div>
-    </div>
+<div class="flex flex-col gap-4">
+  <div class="sticky top-0 z-10 bg-canvas">
+    <lz-page-header title="Area management" i18n-title="@@areas.page_title" subtitle="Organize your locations into functional areas" i18n-subtitle="@@areas.page_subtitle">
+      <ng-container lzHeaderActions>
+        <button #addBtn lzButton type="button" [variant]="panelOpen ? 'secondary' : 'primary'" [attr.variant]="panelOpen ? 'secondary' : 'primary'" (click)="openerEl = addBtn; addArea()">
+          <mat-icon aria-hidden="true">add</mat-icon>
+          <ng-container i18n="@@areas.add_btn">Add area</ng-container>
+        </button>
+      </ng-container>
+    </lz-page-header>
   </div>
 
-  <div class="content-grid">
-    <!-- Left Panel - Areas List -->
-    <div class="list-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="fa fa-list"></i>
-            <ng-container i18n="@@areas.list_title">Areas</ng-container>
-          </h3>
-          <span class="badge">{{ areas.length || 0 }}</span>
-        </div>
-
-        <div class="card-body">
-          <!-- Loading State -->
-          <div *ngIf="loading" class="loading-state">
-            <div class="spinner"></div>
-            <p class="loading-text" i18n="@@areas.loading">Loading areas...</p>
-          </div>
-
-          <!-- Error State -->
-          <div *ngIf="error" class="error-state">
-            <i class="fa fa-exclamation-triangle error-icon"></i>
-            <p class="error-text" i18n="@@areas.error">Error loading areas. Please try again.</p>
-          </div>
-
-          <!-- Areas List -->
-          <div *ngIf="!loading && !error" class="areas-list">
-            <div
-              *ngFor="let area of areas; let i = index"
-              class="area-item"
-              [class.selected]="selectedArea?.areaId === area.areaId"
-              (click)="editArea(area)"
-              [style.animation-delay.ms]="i * 50">
-              <div class="area-icon">
-                <i class="fa fa-map-signs"></i>
-              </div>
-              <div class="area-info">
-                <h4 class="area-name">{{ area.name }}</h4>
-                <p class="area-location">
-                  <i class="fa fa-map-marker"></i>
-                  {{ getLocationName(area.locationId) }}
-                </p>
-                <p class="area-location" *ngIf="getCostCodeLabel(area.costCodeId)">
-                  <i class="fa fa-barcode"></i>
-                  {{ getCostCodeLabel(area.costCodeId) }}
-                </p>
-                <span class="status-badge" [class.active]="area.status === 'Active'">
-                  {{ area.status }}
-                </span>
-              </div>
-              <button class="edit-btn" (click)="editArea(area); $event.stopPropagation()">
-                <i class="fa fa-pencil"></i>
-              </button>
-            </div>
-
-            <!-- Empty State -->
-            <div *ngIf="areas.length === 0" class="empty-state">
-              <i class="fa fa-th-large empty-icon"></i>
-              <p class="empty-text" i18n="@@areas.empty_text">No areas found</p>
-              <p class="empty-subtext" i18n="@@areas.empty_subtext">Create your first area to get started</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Panel - Form -->
-    <div class="form-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="fa" [class.fa-plus]="!selectedArea" [class.fa-edit]="selectedArea"></i>
-            <ng-container *ngIf="selectedArea" i18n="@@areas.form_edit">Edit Area</ng-container>
-            <ng-container *ngIf="!selectedArea" i18n="@@areas.form_create">Create New Area</ng-container>
-          </h3>
-          <div class="header-actions">
-            <app-audit-history-button
-              *ngIf="selectedArea"
-              [entity]="selectedArea"
-              entityType="Area"
-              [entityId]="selectedArea.areaId"
-              [entityDisplayName]="selectedArea.name"
-              [companyId]="activeCompany?.companyId || ''"
-            ></app-audit-history-button>
-            <button *ngIf="selectedArea" class="clear-btn" (click)="cancelEdit()">
-              <i class="fa fa-times"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <form [formGroup]="areaForm" (ngSubmit)="saveArea()" class="area-form">
-
-            <!-- Area Information Section -->
-            <div class="form-section">
-              <h4 class="section-title" i18n="@@areas.section_info">Area Information</h4>
-
-              <div class="form-group">
-                <label for="name" class="form-label">
-                  <i class="fa fa-tag"></i>
-                  <ng-container i18n="@@areas.name_label">Area Name</ng-container> <span class="required">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  class="form-input"
-                  formControlName="name"
-                  placeholder="e.g., Sales Floor, Warehouse, Kitchen"
-                  i18n-placeholder="@@areas.name_placeholder"
-                  [class.error]="areaForm.get('name')?.touched && areaForm.get('name')?.invalid">
-                <div *ngIf="areaForm.get('name')?.touched && areaForm.get('name')?.errors?.['required']"
-                     class="error-message">
-                  <i class="fa fa-exclamation-circle"></i>
-                  <ng-container i18n="@@areas.name_error">Area name is required</ng-container>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="locationId" class="form-label">
-                  <i class="fa fa-map-marker"></i>
-                  <ng-container i18n="@@areas.location_label">Location</ng-container> <span class="required">*</span>
-                </label>
-                <select
-                  id="locationId"
-                  class="form-select"
-                  formControlName="locationId"
-                  [class.error]="areaForm.get('locationId')?.touched && areaForm.get('locationId')?.invalid">
-                  <option value="" disabled i18n="@@areas.location_ph">Select a Location</option>
-                  <option *ngFor="let location of locations" [value]="location.locationId">
-                    {{ location.name }}
-                  </option>
-                </select>
-                <div *ngIf="areaForm.get('locationId')?.touched && areaForm.get('locationId')?.errors?.['required']"
-                     class="error-message">
-                  <i class="fa fa-exclamation-circle"></i>
-                  <ng-container i18n="@@areas.location_error">Location is required</ng-container>
-                </div>
-                <small class="form-hint" i18n="@@areas.location_hint">Select the location this area belongs to</small>
-              </div>
-
-              <div class="form-group">
-                <label for="costCodeId" class="form-label">
-                  <i class="fa fa-barcode"></i>
-                  Cost Code
-                </label>
-                <select id="costCodeId" class="form-select" formControlName="costCodeId">
-                  <option value="">None</option>
-                  <option *ngFor="let costCode of costCodes" [value]="costCode.costCodeId">
-                    {{ costCode.code }} — {{ costCode.name }}
-                  </option>
-                </select>
-                <small class="form-hint">Hours worked in this area are grouped under this cost code when syncing to Procore</small>
-              </div>
-
-              <div class="form-group">
-                <label for="status" class="form-label">
-                  <i class="fa fa-toggle-on"></i>
-                  <ng-container i18n="@@areas.status_label">Status</ng-container>
-                </label>
-                <select id="status" class="form-select" formControlName="status">
-                  <option value="Active" i18n="@@common.active">Active</option>
-                  <option value="Inactive" i18n="@@common.inactive">Inactive</option>
-                </select>
-                <small class="form-hint" i18n="@@areas.status_hint">Set to Inactive to temporarily disable this area</small>
-              </div>
-            </div>
-
-            <!-- Additional Information Section -->
-            <div class="form-section info-section">
-              <h4 class="section-title">
-                <i class="fa fa-info-circle"></i>
-                About Areas
-              </h4>
-              <div class="info-box">
-                <p class="info-text">
-                  <i class="fa fa-lightbulb-o"></i>
-                  <strong>Tip:</strong> Areas help you organize different sections within a location, such as departments, floors, or functional zones.
-                </p>
-                <p class="info-text">
-                  <i class="fa fa-users"></i>
-                  <strong>Usage:</strong> Assign staff and tasks to specific areas for better organization and tracking.
-                </p>
-              </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="form-actions">
-              <button type="button" class="btn-cancel" *ngIf="selectedArea" (click)="cancelEdit()">
-                <i class="fa fa-times"></i>
-                <ng-container i18n="@@common.cancel">Cancel</ng-container>
-              </button>
-              <button type="submit" class="btn-submit" [disabled]="!areaForm.valid">
-                <i class="fa" [class.fa-save]="selectedArea" [class.fa-plus]="!selectedArea"></i>
-                <ng-container *ngIf="selectedArea" i18n="@@areas.update_btn">Update Area</ng-container>
-                <ng-container *ngIf="!selectedArea" i18n="@@areas.create_btn">Create Area</ng-container>
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
+  <section class="min-w-0">
+    @if (loading) {
+      <lz-alert tone="info" i18n="@@areas.loading">Loading areas...</lz-alert>
+    } @else if (error) {
+      <lz-alert tone="danger" i18n="@@areas.error">Error loading areas. Please try again.</lz-alert>
+    } @else if (areas.length === 0) {
+      <lz-empty-state icon="dashboard" title="No areas found" i18n-title="@@areas.empty_text" body="Create your first area to get started" i18n-body="@@areas.empty_subtext">
+        <button lzEmptyAction lzButton variant="secondary" type="button" (click)="addArea()">
+          <mat-icon aria-hidden="true">add</mat-icon>
+          <ng-container i18n="@@areas.add_btn">Add area</ng-container>
+        </button>
+      </lz-empty-state>
+    } @else {
+      <lz-table-scroll>
+        <table lzTable class="min-w-3xl">
+          <thead>
+            <tr>
+              <th scope="col" i18n="@@areas.col_name">Area</th>
+              <th scope="col" i18n="@@areas.col_location">Location</th>
+              <th scope="col" i18n="@@areas.col_cost_code">Cost code</th>
+              <th scope="col" i18n="@@areas.col_status">Status</th>
+              <th scope="col" class="text-right" i18n="@@areas.col_actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (area of paginate(areas, page, pageSize); track area.areaId) {
+              <tr class="cursor-pointer hover:bg-paper-alt" [class.bg-paper-alt]="selectedArea?.areaId === area.areaId" (click)="openerEl = editBtn; editArea(area)">
+                <td class="font-medium text-ink">{{ area.name }}</td>
+                <td>{{ getLocationName(area.locationId) }}</td>
+                <td>{{ getCostCodeLabel(area.costCodeId) || '—' }}</td>
+                <td>
+                  <lz-status-chip [tone]="area.status === 'Active' ? 'success' : 'neutral'" [dot]="true">
+                    @if (area.status === 'Active') {
+                      <ng-container i18n="@@common.active">Active</ng-container>
+                    } @else {
+                      <ng-container i18n="@@common.inactive">Inactive</ng-container>
+                    }
+                  </lz-status-chip>
+                </td>
+                <td (click)="$event.stopPropagation()">
+                  <div class="flex justify-end gap-1">
+                    <button #editBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(area)" (click)="openerEl = editBtn; editArea(area)">
+                      <mat-icon aria-hidden="true">edit</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </lz-table-scroll>
+      <lz-pager [total]="areas.length" [page]="page" [pageSize]="pageSize" (pageChange)="page = $event" (pageSizeChange)="pageSize = $event; page = 1" />
+    }
+  </section>
 </div>
+
+<lz-side-panel #sp [restoreFocusTo]="openerEl" [heading]="selectedArea ? selectedArea.name : addAreaLabel" [open]="panelOpen" [dirty]="areaForm.dirty" (closed)="cancelEdit()">
+  <app-audit-history-button lzPanelHeaderActions
+    *ngIf="selectedArea"
+    [entity]="selectedArea"
+    entityType="Area"
+    [entityId]="selectedArea.areaId"
+    [entityDisplayName]="selectedArea.name"
+    [companyId]="activeCompany?.companyId || ''"
+  ></app-audit-history-button>
+  @if (panelOpen) {
+    <form id="area-form" [formGroup]="areaForm" (ngSubmit)="saveArea()" class="flex flex-col gap-4">
+      <lz-field label="Area Name" i18n-label="@@areas.name_label" controlId="name" [error]="areaForm.get('name')?.touched && areaForm.get('name')?.errors?.['required'] ? nameRequired : null">
+        <input lzField type="text" id="name" formControlName="name" aria-required="true" placeholder="e.g., Sales Floor, Warehouse, Kitchen" i18n-placeholder="@@areas.name_placeholder" [attr.aria-invalid]="areaForm.get('name')?.touched && areaForm.get('name')?.invalid ? 'true' : null" [attr.aria-describedby]="areaForm.get('name')?.touched && areaForm.get('name')?.invalid ? 'name-error' : null">
+      </lz-field>
+
+      <lz-field label="Location" i18n-label="@@areas.location_label" hint="Select the location this area belongs to" i18n-hint="@@areas.location_hint" controlId="locationId" [error]="areaForm.get('locationId')?.touched && areaForm.get('locationId')?.errors?.['required'] ? locationRequired : null">
+        <select lzField id="locationId" formControlName="locationId" aria-required="true" [attr.aria-invalid]="areaForm.get('locationId')?.touched && areaForm.get('locationId')?.invalid ? 'true' : null">
+          <option value="" disabled i18n="@@areas.location_ph">Select a Location</option>
+          @for (location of locations; track location.locationId) {
+            <option [value]="location.locationId">{{ location.name }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Cost code" i18n-label="@@areas.cost_code_label" hint="Hours worked in this area are grouped under this cost code when syncing to Procore" i18n-hint="@@areas.cost_code_hint" controlId="costCodeId">
+        <select lzField id="costCodeId" formControlName="costCodeId">
+          <option value="" i18n="@@areas.cost_code_none">None</option>
+          @for (costCode of costCodes; track costCode.costCodeId) {
+            <option [value]="costCode.costCodeId">{{ costCode.code }} — {{ costCode.name }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Status" i18n-label="@@areas.status_label" hint="Set to Inactive to temporarily disable this area" i18n-hint="@@areas.status_hint" controlId="status">
+        <select lzField id="status" formControlName="status">
+          <option value="Active" i18n="@@common.active">Active</option>
+          <option value="Inactive" i18n="@@common.inactive">Inactive</option>
+        </select>
+      </lz-field>
+
+      <lz-alert tone="info">
+        <p class="font-medium" i18n="@@areas.about_title">About areas</p>
+        <p i18n="@@areas.about_body">Areas organize sections within a location, such as departments, floors, or zones. Assign staff and tasks to an area for better tracking.</p>
+      </lz-alert>
+    </form>
+  }
+  <ng-container lzPanelFooter>
+    <button lzButton variant="secondary" type="button" (click)="sp.requestClose()" i18n="@@common.cancel">Cancel</button>
+    <button lzButton variant="primary" type="submit" form="area-form" [disabled]="areaForm.invalid || saving || (!!selectedArea && !areaForm.dirty)">
+      @if (selectedArea) {
+        <ng-container i18n="@@areas.update_btn">Update Area</ng-container>
+      } @else {
+        <ng-container i18n="@@areas.create_btn">Create Area</ng-container>
+      }
+    </button>
+  </ng-container>
+</lz-side-panel>

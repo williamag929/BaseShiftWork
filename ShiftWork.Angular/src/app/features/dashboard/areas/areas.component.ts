@@ -13,11 +13,11 @@ import { LocationService } from 'src/app/core/services/location.service';
 import { Location } from 'src/app/core/models/location.model';
 import { CostCodeService } from 'src/app/core/services/cost-code.service';
 import { CostCode } from 'src/app/core/models/cost-code.model';
+import { paginate } from 'src/app/shared/ui';
 
 @Component({
   selector: 'app-areas',
   templateUrl: './areas.component.html',
-  styleUrls: ['./areas.component.css'],
   standalone: false
 })
 export class AreasComponent implements OnInit, OnDestroy {
@@ -31,6 +31,15 @@ export class AreasComponent implements OnInit, OnDestroy {
   areaForm!: FormGroup;
   loading = false;
   error: any = null;
+  saving = false;
+  panelOpen = false;
+  openerEl: HTMLElement | null = null;
+  page = 1;
+  pageSize = 25;
+  readonly paginate = paginate;
+  readonly nameRequired = $localize`:@@areas.name_error:Area name is required`;
+  readonly locationRequired = $localize`:@@areas.location_error:Location is required`;
+  readonly addAreaLabel = $localize`:@@areas.add_btn:Add area`;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -89,6 +98,7 @@ export class AreasComponent implements OnInit, OnDestroy {
       this.areas = areas;
       this.costCodes = costCodes;
       this.loading = false;
+      this.page = Math.min(this.page, Math.max(1, Math.ceil(areas.length / this.pageSize)));
     });
 
     this.areaForm = this.fb.group({
@@ -104,7 +114,17 @@ export class AreasComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  addArea(): void {
+    this.cancelEdit();
+    this.panelOpen = true;
+  }
+
+  editLabel(area: Area): string {
+    return $localize`:@@areas.edit_aria:Edit ${area.name}:name:`;
+  }
+
   editArea(area: Area): void {
+    this.panelOpen = true;
     this.selectedArea = area;
     this.areaForm.patchValue({ ...area, costCodeId: area.costCodeId ?? '' });
   }
@@ -119,19 +139,20 @@ export class AreasComponent implements OnInit, OnDestroy {
 
   getLocationName(locationId: string | number | undefined): string {
     if (locationId === null || locationId === undefined || locationId === '') {
-      return 'N/A';
+      return $localize`:@@areas.not_available:N/A`;
     }
     // The locationId from an Area can be a string, but in the Location model it's a number.
     // We need to ensure we are comparing numbers.
     const numericLocationId = typeof locationId === 'string' ? parseInt(locationId, 10) : locationId;
     if (isNaN(numericLocationId)) {
-      return 'N/A';
+      return $localize`:@@areas.not_available:N/A`;
     }
     const location = this.locations.find(l => l.locationId === numericLocationId);
-    return location?.name || 'N/A';
+    return location?.name || $localize`:@@areas.not_available:N/A`;
   }
 
   cancelEdit(): void {
+    this.panelOpen = false;
     this.selectedArea = null;
     this.areaForm.reset({
       name: '',
@@ -148,9 +169,10 @@ export class AreasComponent implements OnInit, OnDestroy {
   }
 
   saveArea(): void {
-    if (!this.areaForm.valid) {
+    if (!this.areaForm.valid || this.saving) {
       return;
     }
+    this.saving = true;
 
     if (this.selectedArea) {
       const updatedArea: Area = this.withCostCode({
@@ -163,10 +185,14 @@ export class AreasComponent implements OnInit, OnDestroy {
           if (index > -1) {
             this.areas[index] = result;
           }
-          this.toastr.success('Area updated successfully.');
+          this.saving = false;
+          this.toastr.success($localize`:@@areas.toast_updated:Area updated.`);
           this.cancelEdit();
         },
-        () => this.toastr.error('Failed to update area.')
+        () => {
+          this.saving = false;
+          this.toastr.error($localize`:@@areas.toast_update_failed:Could not update the area.`);
+        }
       );
     } else {
       const newArea: Area = this.withCostCode({
@@ -175,11 +201,15 @@ export class AreasComponent implements OnInit, OnDestroy {
         companyId: this.activeCompany.companyId
       });
       this.areaService.createArea(newArea.companyId, newArea).subscribe(area => {
+        this.saving = false;
         this.areas.push(area);
         this.cancelEdit();
-        this.toastr.success('Area created successfully.');
+        this.toastr.success($localize`:@@areas.toast_created:Area created.`);
       },
-      () => this.toastr.error('Failed to create area.')
+      () => {
+        this.saving = false;
+        this.toastr.error($localize`:@@areas.toast_create_failed:Could not create the area.`);
+      }
       );
     }
   }
