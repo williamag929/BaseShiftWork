@@ -1,26 +1,33 @@
-<div class="assign-users-panel" [class.open]="open" *ngIf="open">
-  <div class="panel-overlay" (click)="close()"></div>
-  <div class="panel-content">
-    <div class="assign-users-header">
-      <h2 i18n="@@assign_users.title">Assign Users to {{ roleName }}</h2>
-      <button mat-icon-button (click)="close()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-    <div class="assign-users-list">
-      <mat-selection-list [(ngModel)]="selectedUserIds">
-        <mat-list-option *ngFor="let person of people" [value]="person.personId">
-          <span class="user-name">{{ person.name }}</span>
-          <span class="user-email">({{ person.email }})</span>
-        </mat-list-option>
-      </mat-selection-list>
-    </div>
-    <div class="assign-users-actions">
-      <button mat-raised-button color="primary" (click)="save()">
-        <mat-icon>save</mat-icon>
-        <ng-container i18n="@@common.save">Save</ng-container>
-      </button>
-      <button mat-button (click)="close()" i18n="@@common.cancel">Cancel</button>
-    </div>
-  </div>
-</div>
+@if (open) {
+  <lz-dialog-overlay (closed)="close()">
+    <lz-dialog-frame [title]="title" (closed)="close()">
+      <div class="flex flex-col gap-3">
+        <lz-field label="Search people" i18n-label="@@assign_users.search_label" controlId="assign-search">
+          <input lzField type="search" id="assign-search" [ngModel]="filter" (ngModelChange)="filter = $event; page = 1" placeholder="Search by name or email" i18n-placeholder="@@assign_users.search_ph">
+        </lz-field>
+        @if (filtered.length === 0) {
+          <p class="text-ink-soft" role="status" i18n="@@assign_users.none">No people found.</p>
+        } @else {
+          <ul class="flex flex-col divide-y divide-line-soft rounded-control border border-line">
+            @for (person of paginate(filtered, page, pageSize); track person.personId) {
+              <li>
+                <label class="flex min-h-12 items-center gap-3 px-3">
+                  <input type="checkbox" class="size-6 shrink-0" [checked]="selectedUserIds.includes(person.personId)" (change)="toggleUser(person.personId)">
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate font-medium text-ink">{{ person.name }}</span>
+                    <span class="block truncate text-[13px] text-ink-soft">{{ person.email }}</span>
+                  </span>
+                </label>
+              </li>
+            }
+          </ul>
+          <lz-pager [total]="filtered.length" [page]="page" [pageSize]="pageSize" (pageChange)="page = $event" (pageSizeChange)="pageSize = $event; page = 1" />
+        }
+      </div>
+      <ng-container lzDialogActions>
+        <button lzButton variant="secondary" type="button" (click)="close()" i18n="@@common.cancel">Cancel</button>
+        <button lzButton variant="primary" type="button" (click)="save()" i18n="@@common.save">Save</button>
+      </ng-container>
+    </lz-dialog-frame>
+  </lz-dialog-overlay>
+}

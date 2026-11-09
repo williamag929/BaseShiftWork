@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { Observable, forkJoin } from 'rxjs';
 import { Store } from '@ngrx/store';
@@ -11,11 +11,11 @@ import { PeopleService } from 'src/app/core/services/people.service';
 import { People } from 'src/app/core/models/people.model';
 import { CompanyUserProfileService } from 'src/app/core/services/company-user-profile.service';
 import { AssignRoleToPersonRequest } from 'src/app/core/models/company-user-profile.model';
+import { paginate } from 'src/app/shared/ui';
 
 @Component({
   selector: 'app-profiles',
   templateUrl: './profiles.component.html',
-  styleUrls: ['./profiles.component.css'],
   standalone: false
 })
 
@@ -27,6 +27,15 @@ export class ProfilesComponent implements OnInit {
   activeCompany: any;
   loading = false;
   error: any = null;
+  panelOpen = false;
+  openerEl: HTMLElement | null = null;
+  saving = false;
+  formError = '';
+  page = 1;
+  pageSize = 25;
+  readonly paginate = paginate;
+  assignOpener: HTMLElement | null = null;
+  @ViewChild('addBtn') private addBtn?: ElementRef<HTMLElement>;
 
   assignPanelOpen = false;
   assignPanelRole: Role | null = null;
@@ -58,8 +67,58 @@ export class ProfilesComponent implements OnInit {
     'Credentials':          ['credentials.read', 'credentials.create', 'credentials.update', 'credentials.delete', 'credentials.track'],
     'Safety':               ['safety.read', 'safety.create', 'safety.delete', 'safety.acknowledge', 'safety.track'],
   };
-  // Helper for iterating over object keys in the template
   objectKeys = Object.keys;
+
+  readonly statusLabels: Record<string, string> = {
+    Active: $localize`:@@common.active:Active`,
+    Inactive: $localize`:@@common.inactive:Inactive`,
+  };
+
+  private readonly groupLabels: Record<string, string> = {
+    'People': $localize`:@@roles.group_people:People`,
+    'Schedules': $localize`:@@roles.group_schedules:Schedules`,
+    'Schedule Shifts': $localize`:@@roles.group_schedule_shifts:Schedule shifts`,
+    'Shift Events': $localize`:@@roles.group_shift_events:Shift events`,
+    'Crews': $localize`:@@roles.group_crews:Crews`,
+    'Locations': $localize`:@@roles.group_locations:Locations`,
+    'Areas': $localize`:@@roles.group_areas:Areas`,
+    'Tasks': $localize`:@@roles.group_tasks:Tasks`,
+    'Roles': $localize`:@@roles.group_roles:Roles`,
+    'Permissions': $localize`:@@roles.group_permissions:Permissions`,
+    'Company Users': $localize`:@@roles.group_company_users:Company users`,
+    'Time Off': $localize`:@@roles.group_time_off:Time off`,
+    'PTO': $localize`:@@roles.group_pto:PTO`,
+    'Replacement Requests': $localize`:@@roles.group_replacement_requests:Replacement requests`,
+    'Shift Summaries': $localize`:@@roles.group_shift_summaries:Shift summaries`,
+    'Company Settings': $localize`:@@roles.group_company_settings:Company settings`,
+    'Audit History': $localize`:@@roles.group_audit_history:Audit history`,
+    'Kiosk': $localize`:@@roles.group_kiosk:Kiosk`,
+    'Bulletins': $localize`:@@roles.group_bulletins:Bulletins`,
+    'Daily Reports': $localize`:@@roles.group_daily_reports:Daily reports`,
+    'Documents': $localize`:@@roles.group_documents:Documents`,
+    'Credentials': $localize`:@@roles.group_credentials:Credentials`,
+    'Safety': $localize`:@@roles.group_safety:Safety`,
+  };
+
+  private readonly actionLabels: Record<string, string> = {
+    'read': $localize`:@@roles.perm_read:Read`,
+    'create': $localize`:@@roles.perm_create:Create`,
+    'update': $localize`:@@roles.perm_update:Update`,
+    'delete': $localize`:@@roles.perm_delete:Delete`,
+    'assign': $localize`:@@roles.perm_assign:Assign`,
+    'approve': $localize`:@@roles.perm_approve:Approve`,
+    'submit': $localize`:@@roles.perm_submit:Submit`,
+    'export': $localize`:@@roles.perm_export:Export`,
+    'upload': $localize`:@@roles.perm_upload:Upload`,
+    'manage': $localize`:@@roles.perm_manage:Manage`,
+    'acknowledge': $localize`:@@roles.perm_acknowledge:Acknowledge`,
+    'track': $localize`:@@roles.perm_track:Track`,
+    'track-reads': $localize`:@@roles.perm_track_reads:Track reads`,
+    'admin': $localize`:@@roles.perm_admin:Admin`,
+    'roles.permissions.update': $localize`:@@roles.perm_update_permissions:Update permissions`,
+    'company-users.roles.update': $localize`:@@roles.perm_update_roles:Update roles`,
+    'company-users.profile.update': $localize`:@@roles.perm_update_profile:Update profile`,
+  };
 
   constructor(
     private roleService: RoleService,
@@ -72,11 +131,145 @@ export class ProfilesComponent implements OnInit {
     this.activeCompany$ = this.store.select(selectActiveCompany);
   }
 
+  ngOnInit(): void {
+    this.activeCompany$.subscribe((company: any) => {
+      if (company) {
+        this.activeCompany = company;
+        this.loading = true;
+        this.error = null;
+        this.roleService.getRoles(company.companyId).subscribe({
+          next: (roles: Role[]) => {
+            this.roles = roles;
+            this.loading = false;
+            this.page = Math.min(this.page, Math.max(1, Math.ceil(roles.length / this.pageSize)));
+          },
+          error: (error: any) => {
+            this.error = error;
+            this.loading = false;
+          }
+        });
+      }
+    });
 
+    const permissionsGroup = this.fb.group({});
+    for (const component of this.objectKeys(this.availablePermissions)) {
+      for (const permKey of this.availablePermissions[component]) {
+        permissionsGroup.addControl(permKey, new FormControl(false));
+      }
+    }
 
-  openAssignPanel(role: Role) {
+    this.roleForm = this.fb.group({
+      name: ['', Validators.required],
+      description: ['', Validators.required],
+      status: ['Active', Validators.required],
+      permissions: permissionsGroup,
+    });
+  }
+
+  addRole(): void {
+    this.resetPanel();
+    this.panelOpen = true;
+  }
+
+  editRole(role: Role): void {
+    this.resetPanel();
+    this.selectedRole = role;
+    this.roleForm.patchValue({
+      name: role.name,
+      description: role.description,
+      status: role.status,
+    });
+
+    const permissionsGroup = this.roleForm.get('permissions') as FormGroup;
+    if (role.permissions) {
+      for (const permission of role.permissions) {
+        // Permission keys contain dots, so address them through `controls` rather than `get()`.
+        const control = permissionsGroup.controls[permission];
+        if (control) {
+          control.setValue(true);
+        }
+      }
+    }
+    this.roleForm.markAsPristine();
+    this.panelOpen = true;
+  }
+
+  cancelEdit(): void {
+    this.panelOpen = false;
+    this.resetPanel();
+  }
+
+  private resetPanel(): void {
+    this.selectedRole = null;
+    this.formError = '';
+    this.roleForm.reset({
+      name: '',
+      description: '',
+      status: 'Active',
+    });
+    (this.roleForm.get('permissions') as FormGroup).reset();
+  }
+
+  saveRole(): void {
+    if (!this.roleForm.valid || this.saving) {
+      return;
+    }
+
+    const formValue = this.roleForm.value;
+    const selectedPermissions = Object.keys(formValue.permissions)
+      .filter(p => formValue.permissions[p]);
+    this.saving = true;
+    this.formError = '';
+
+    if (this.selectedRole) {
+      const updatedRole: Role = {
+        ...this.selectedRole,
+        ...formValue,
+        permissions: selectedPermissions,
+      };
+      this.roleService.updateRole(this.activeCompany.companyId, updatedRole.roleId, updatedRole).subscribe({
+        next: (result) => {
+          const index = this.roles.findIndex(r => r.roleId === result.roleId);
+          if (index > -1) {
+            this.roles[index] = result;
+          }
+          this.saving = false;
+          this.toastr.success($localize`:@@roles.toast_updated:Role updated.`);
+          this.cancelEdit();
+        },
+        error: () => {
+          this.saving = false;
+          this.formError = $localize`:@@roles.toast_update_failed:Could not update the role.`;
+        }
+      });
+    } else {
+      const newRole: Role = {
+        name: formValue.name,
+        description: formValue.description,
+        status: formValue.status,
+        permissions: selectedPermissions,
+        companyId: this.activeCompany.companyId,
+        roleId: 0,
+      };
+      this.roleService.createRole(this.activeCompany.companyId, newRole).subscribe({
+        next: (role: Role) => {
+          this.roles.push(role);
+          this.saving = false;
+          this.cancelEdit();
+          this.toastr.success($localize`:@@roles.toast_created:Role created.`);
+        },
+        error: () => {
+          this.saving = false;
+          this.formError = $localize`:@@roles.toast_create_failed:Could not create the role.`;
+        }
+      });
+    }
+  }
+
+  openAssignPanel(role: Role, opener?: HTMLElement) {
     if (!this.activeCompany?.companyId) return;
 
+    this.assignOpener = opener ?? null;
     this.assignPanelRole = role;
     this.assignedUserIds = [];
     this.people = [];
@@ -92,33 +285,36 @@ export class ProfilesComponent implements OnInit {
           .map(p => p.personId!);
         this.assignPanelOpen = true;
       },
-      error: () => this.toastr.error('Failed to load assignment data')
+      error: () => {
+        this.assignPanelRole = null;
+        this.toastr.error($localize`:@@roles.toast_assign_load_failed:Could not load assignment data.`);
+      }
     });
   }
 
   closeAssignPanel() {
+    const opener = this.assignOpener;
     this.assignPanelOpen = false;
     this.assignPanelRole = null;
     this.assignedUserIds = [];
+    this.assignOpener = null;
+    Promise.resolve().then(() => (opener?.isConnected ? opener : this.addBtn?.nativeElement)?.focus());
   }
-
 
   saveAssignments(userIds: number[]) {
     if (!this.assignPanelRole || !this.activeCompany?.companyId) {
-      this.toastr.error('Unable to save assignments');
+      this.toastr.error($localize`:@@roles.toast_assign_unable:Unable to save assignments.`);
       return;
     }
 
     const roleId = this.assignPanelRole.roleId;
     const companyId = this.activeCompany.companyId;
 
-    // Determine which users to add and which to remove
     const usersToAdd = userIds.filter(id => !this.assignedUserIds.includes(id));
     const usersToRemove = this.assignedUserIds.filter(id => !userIds.includes(id));
 
     const requests: Observable<any>[] = [];
 
-    // Create assignment requests for new users
     usersToAdd.forEach(personId => {
       const request: AssignRoleToPersonRequest = {
         personId,
@@ -127,7 +323,7 @@ export class ProfilesComponent implements OnInit {
       requests.push(this.profileService.assignRoleToPerson(companyId, request));
     });
 
-    // For users to remove, we need to get their profile IDs first
+    // Removals need profile IDs, so fetch the role's profiles first.
     if (usersToRemove.length > 0) {
       this.profileService.getRoleProfiles(companyId, roleId).subscribe(
         (profiles) => {
@@ -137,181 +333,68 @@ export class ProfilesComponent implements OnInit {
               requests.push(this.profileService.removeRoleAssignment(companyId, profile.profileId));
             });
 
-          // Execute all requests
           this.executeAssignmentRequests(requests);
         },
-        (error) => {
-          console.error('Error loading profiles for removal:', error);
-          this.toastr.error('Error removing role assignments');
+        () => {
+          this.toastr.error($localize`:@@roles.toast_assign_remove_failed:Could not remove role assignments.`);
         }
       );
     } else {
-      // No removals, just execute additions
       this.executeAssignmentRequests(requests);
     }
   }
 
   private executeAssignmentRequests(requests: Observable<any>[]) {
     if (requests.length === 0) {
-      this.toastr.info('No changes to save');
+      this.toastr.info($localize`:@@roles.toast_assign_nochange:No changes to save.`);
       this.closeAssignPanel();
       return;
     }
 
     forkJoin(requests).subscribe(
       () => {
-        this.toastr.success('Role assignments updated successfully');
+        this.toastr.success($localize`:@@roles.toast_assign_saved:Role assignments updated.`);
         this.closeAssignPanel();
       },
-      (error) => {
-        console.error('Error saving assignments:', error);
-        this.toastr.error('Error updating role assignments');
+      () => {
+        this.toastr.error($localize`:@@roles.toast_assign_failed:Could not update role assignments.`);
         this.closeAssignPanel();
       }
     );
   }
 
-    ngOnInit(): void {
-      this.activeCompany$.subscribe((company: any) => {
-        if (company) {
-          this.activeCompany = company;
-          this.loading = true;
-          this.roleService.getRoles(company.companyId).subscribe(          
-            (roles: Role[]) => {
-              this.roles = roles;
-              this.loading = false;
-              console.log('Roles fetched:', this.roles);
-            },
-            (error: any) => {
-              this.error = error;
-              this.loading = false;
-            }
-          );
-          // Fetch people for assignment panel
-          this.peopleService.getPeople(company.companyId, 1, 1000, '').subscribe(
-            (people: People[]) => {
-              this.people = people;
-            },
-            (error: any) => {
-              // Optionally handle error
-            }
-          );
-        }
-      });
+  readonly addRoleLabel = $localize`:@@roles.form_new:New role`;
+  readonly nameError = $localize`:@@roles.name_error:Role name is required`;
+  readonly descError = $localize`:@@roles.desc_error:Description is required`;
 
-      const permissionsGroup = this.fb.group({});
-      for (const component of this.objectKeys(this.availablePermissions)) {
-        for (const permKey of this.availablePermissions[component]) {
-          permissionsGroup.addControl(permKey, new FormControl(false));
-        }
-      }
-
-      this.roleForm = this.fb.group({
-        name: ['', Validators.required],
-        description: ['', Validators.required],
-        status: ['Active', Validators.required],
-        permissions: permissionsGroup,
-      });
-    }
-
-  editRole(role: Role): void {
-    this.selectedRole = role;
-    console.log('Editing role:', role);
-    this.roleForm.patchValue({
-      name: role.name,
-      description: role.description,
-      status: role.status,
-    });
-
-    const permissionsGroup = this.roleForm.get('permissions') as FormGroup;
-    permissionsGroup.reset(); // Set all to false first
-    if (role.permissions) {
-      for (const permission of role.permissions) {
-        // When form control names contain dots, you must access them via the `controls`
-        // object rather than the `get()` method, which interprets dots as path separators.
-        const control = permissionsGroup.controls[permission];
-        if (control) {
-          control.setValue(true);
-        }
-      }
-    }
+  get assignTitle(): string {
+    return $localize`:@@assign_users.title:Assign users to ${this.assignPanelRole?.name ?? ''}:name:`;
   }
 
-  cancelEdit(): void {
-    this.selectedRole = null;
-    this.roleForm.reset({
-      name: '',
-      description: '',
-      status: 'Active',
-    });
+  roleEditLabel(role: Role): string {
+    return $localize`:@@roles.edit_aria:Edit ${role.name}:name:`;
   }
 
-  saveRole(): void {
-    if (!this.roleForm.valid) {
-      return;
-    }
-
-    const formValue = this.roleForm.value;
-    const selectedPermissions = Object.keys(formValue.permissions)
-      .filter(p => formValue.permissions[p]);
-
-    if (this.selectedRole) {
-      const updatedRole: Role = {
-        ...this.selectedRole,
-        ...formValue,
-        permissions: selectedPermissions,
-      };
-      this.roleService.updateRole(this.activeCompany.companyId, updatedRole.roleId, updatedRole).subscribe(
-        (result) => {
-          const index = this.roles.findIndex(r => r.roleId === result.roleId);
-          if (index > -1) {
-            this.roles[index] = result;
-          }
-          this.toastr.success('Role updated successfully.');
-          this.cancelEdit();
-        },
-        () => this.toastr.error('Failed to update role.')
-      );
-    } else {
-      const newRole: Role = {
-        name: formValue.name,
-        description: formValue.description,
-        status: formValue.status,
-        permissions: selectedPermissions,
-        companyId: this.activeCompany.companyId,
-        roleId: 0,
-      };
-      console.log('newRole',newRole);
-      this.roleService.createRole(this.activeCompany.companyId, newRole).subscribe((role: Role) => {
-        this.roles.push(role);
-        this.cancelEdit();
-        this.toastr.success('Role created successfully');
-      });
-    }
+  roleAssignLabel(role: Role): string {
+    return $localize`:@@roles.assign_aria:Assign users to ${role.name}:name:`;
   }
 
-  getInitials(name: string): string {
-    if (!name) return '??';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
+  groupLabel(group: string): string {
+    return this.groupLabels[group] ?? group;
   }
 
-  /** Convert an API permission key like 'crews.assign' → 'Assign' */
+  statusLabel(status: string): string {
+    return this.statusLabels[status] ?? status;
+  }
+
+  permissionCount(role: Role): number {
+    return (role.permissions as string[] | undefined)?.length ?? 0;
+  }
+
+  /** Label for an API permission key, for example 'crews.assign' becomes 'Assign'. */
   getPermissionLabel(key: string): string {
+    if (this.actionLabels[key]) return this.actionLabels[key];
     const action = key.split('.').pop() ?? key;
-    return action.charAt(0).toUpperCase() + action.slice(1);
-  }
-
-  /** Semantic icon class for a permission action */
-  getPermissionIcon(key: string): string {
-    const action = key.split('.').pop() ?? '';
-    const map: { [k: string]: string } = {
-      read: 'fa-eye', create: 'fa-plus', update: 'fa-edit', delete: 'fa-trash',
-      approve: 'fa-check', assign: 'fa-link', admin: 'fa-shield-alt',
-    };
-    return map[action] ?? 'fa-circle';
+    return this.actionLabels[action] ?? action.charAt(0).toUpperCase() + action.slice(1);
   }
 }

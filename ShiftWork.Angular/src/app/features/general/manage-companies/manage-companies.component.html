@@ -1,95 +1,192 @@
-<div class="container-fluid mt-4">
-  <h2 i18n="@@manage_companies.title">Manage Companies</h2>
-  <hr>
-  <div class="row">
-    <!-- Companies List -->
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h4 i18n="@@manage_companies.companies_heading">Companies</h4>
-          <button class="btn btn-primary btn-sm" (click)="createCompany()" i18n="@@manage_companies.create_new_btn">Create New</button>
-        </div>
-        <div class="card-body">
-          <div *ngIf="isLoading" class="text-center">
-            <div class="spinner-border" role="status">
-              <span class="visually-hidden" i18n="@@common.loading_short">Loading...</span>
-            </div>
-          </div>
-          <ul *ngIf="!isLoading" class="list-group">
-            <li *ngFor="let company of companies"
-                class="list-group-item d-flex justify-content-between align-items-center"
-                [class.active]="selectedCompany?.companyId === company.companyId">
-              {{ company.name }}
-              <div>
-                <button class="btn btn-outline-secondary btn-sm me-1" (click)="selectCompany(company)" i18n="@@manage_companies.manage_users_btn">Manage Users</button>
-                <button class="btn btn-outline-info btn-sm me-1" (click)="editCompany(company)" i18n="@@manage_companies.edit_btn">Edit</button>
-                <button class="btn btn-outline-danger btn-sm" (click)="deleteCompany(company)" i18n="@@manage_companies.delete_btn">Delete</button>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
+<div class="flex flex-col gap-4">
+  <div class="sticky top-0 z-10 bg-canvas">
+    <lz-page-header title="Manage companies" i18n-title="@@manage_companies.title">
+      <ng-container lzHeaderActions>
+        <button lzButton variant="primary" type="button" (click)="createCompany()">
+          <mat-icon aria-hidden="true">add</mat-icon>
+          <ng-container i18n="@@manage_companies.create_new_btn">Create company</ng-container>
+        </button>
+      </ng-container>
+    </lz-page-header>
+  </div>
 
-    <!-- User Management -->
-    <div class="col-md-8">
-      <div *ngIf="selectedCompany" class="card">
-        <div class="card-header">
-          <h4 i18n="@@manage_companies.users_for">Users for {{ selectedCompany.name }}</h4>
-        </div>
-        <div class="card-body">
-          <div *ngIf="isLoadingUsers" class="text-center">
-            <div class="spinner-border" role="status">
-              <span class="visually-hidden" i18n="@@common.loading_short">Loading...</span>
+  @if (loadError) {
+    <lz-alert tone="danger" i18n="@@manage_companies.load_error">Could not load companies. Try again later.</lz-alert>
+  }
+
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+    <lz-panel heading="Companies" i18n-heading="@@manage_companies.companies_heading" class="min-w-0 self-start">
+      @if (isLoading) {
+        <lz-alert tone="info" i18n="@@common.loading_short">Loading...</lz-alert>
+      } @else if (companies.length === 0) {
+        @if (!loadError) {
+          <lz-empty-state icon="business" title="No companies yet" i18n-title="@@manage_companies.empty_title" body="Create your first company to get started" i18n-body="@@manage_companies.empty_body">
+            <button lzEmptyAction lzButton variant="secondary" type="button" (click)="createCompany()">
+              <mat-icon aria-hidden="true">add</mat-icon>
+              <ng-container i18n="@@manage_companies.create_new_btn">Create company</ng-container>
+            </button>
+          </lz-empty-state>
+        }
+      } @else {
+        <lz-table-scroll>
+          <table lzTable>
+            <thead>
+              <tr>
+                <th scope="col" i18n="@@manage_companies.col_company">Company</th>
+                <th scope="col" class="text-right" i18n="@@manage_companies.col_actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (company of paginate(companies, companyPage, companyPageSize); track company.companyId) {
+                <tr [class.bg-paper-alt]="selectedCompany?.companyId === company.companyId">
+                  <td class="font-medium text-ink">{{ company.name }}</td>
+                  <td>
+                    <div class="flex flex-wrap justify-end gap-1">
+                      <button lzButton variant="secondary" type="button" [attr.aria-label]="manageUsersLabel(company)" [attr.aria-pressed]="selectedCompany?.companyId === company.companyId" (click)="selectCompany(company)" i18n="@@manage_companies.manage_users_btn">Manage users</button>
+                      <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(company)" (click)="editCompany(company)">
+                        <mat-icon aria-hidden="true">edit</mat-icon>
+                      </button>
+                      <button #delBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="deleteLabel(company)" [disabled]="deletingCompanyId === company.companyId" (click)="askDeleteCompany(company, delBtn)">
+                        <mat-icon aria-hidden="true">delete</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </lz-table-scroll>
+        <lz-pager [total]="companies.length" [page]="companyPage" [pageSize]="companyPageSize" (pageChange)="companyPage = $event" (pageSizeChange)="companyPageSize = $event; companyPage = 1" />
+      }
+    </lz-panel>
+
+    <div class="flex min-w-0 flex-col gap-4">
+      @if (selectedCompany) {
+        <lz-panel [heading]="usersHeading">
+          @if (usersError) {
+            <lz-alert tone="danger" i18n="@@manage_companies.users_load_error">Could not load users for this company.</lz-alert>
+          } @else if (isLoadingUsers) {
+            <lz-alert tone="info" i18n="@@common.loading_short">Loading...</lz-alert>
+          } @else {
+            <div class="flex flex-col gap-6">
+              <section class="flex flex-col gap-3" aria-labelledby="mc-members-title">
+                <h3 id="mc-members-title" tabindex="-1" class="font-display text-[15px] font-semibold" i18n="@@manage_companies.in_company">In company ({{ companyMembers.length }})</h3>
+                @if (companyMembers.length === 0) {
+                  <p class="text-ink-soft" i18n="@@manage_companies.no_members">No users in this company.</p>
+                } @else {
+                  <lz-table-scroll>
+                    <table lzTable>
+                      <thead>
+                        <tr>
+                          <th scope="col" i18n="@@manage_companies.col_user">User</th>
+                          <th scope="col" i18n="@@manage_companies.col_status">Status</th>
+                          <th scope="col" class="text-right" i18n="@@manage_companies.col_actions">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (member of paginate(companyMembers, memberPage, memberPageSize); track member.companyUserId) {
+                          <tr>
+                            <td>
+                              <div class="font-medium text-ink">{{ member.displayName || member.email }}</div>
+                              @if (member.displayName) {
+                                <div class="text-[13px] text-ink-soft">{{ member.email }}</div>
+                              }
+                            </td>
+                            <td>
+                              <lz-status-chip [tone]="member.isActive ? 'success' : 'neutral'" dot>
+                                @if (member.isActive) {
+                                  <ng-container i18n="@@common.active">Active</ng-container>
+                                } @else {
+                                  <ng-container i18n="@@common.inactive">Inactive</ng-container>
+                                }
+                              </lz-status-chip>
+                            </td>
+                            <td>
+                              <div class="flex flex-wrap justify-end gap-1">
+                                <button lzButton variant="secondary" type="button" [attr.aria-label]="toggleLabel(member)" [disabled]="togglingId === member.companyUserId" (click)="toggleActive(member)">
+                                  @if (member.isActive) {
+                                    <ng-container i18n="@@manage_companies.deactivate_btn">Deactivate</ng-container>
+                                  } @else {
+                                    <ng-container i18n="@@manage_companies.activate_btn">Activate</ng-container>
+                                  }
+                                </button>
+                                <button #removeBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="removeLabel(member)" (click)="askRemoveMember(member, removeBtn)">
+                                  <mat-icon aria-hidden="true">person_remove</mat-icon>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </lz-table-scroll>
+                  <lz-pager [total]="companyMembers.length" [page]="memberPage" [pageSize]="memberPageSize" (pageChange)="memberPage = $event" (pageSizeChange)="memberPageSize = $event; memberPage = 1" />
+                }
+              </section>
+
+              <section class="flex flex-col gap-3" aria-labelledby="mc-available-title">
+                <h3 id="mc-available-title" class="font-display text-[15px] font-semibold" i18n="@@manage_companies.available_users">Available users ({{ availablePeople.length }})</h3>
+                @if (availablePeople.length === 0) {
+                  <p class="text-ink-soft" i18n="@@manage_companies.no_available">No available users to add.</p>
+                } @else {
+                  <lz-table-scroll>
+                    <table lzTable>
+                      <thead>
+                        <tr>
+                          <th scope="col" i18n="@@manage_companies.col_user">User</th>
+                          <th scope="col" class="text-right" i18n="@@manage_companies.col_actions">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (person of paginate(availablePeople, availablePage, availablePageSize); track person.personId) {
+                          <tr>
+                            <td>
+                              <div class="font-medium text-ink">{{ person.name }}</div>
+                              <div class="text-[13px] text-ink-soft">{{ person.email }}</div>
+                            </td>
+                            <td>
+                              <div class="flex justify-end">
+                                <button lzButton variant="secondary" type="button" [attr.aria-label]="addLabel(person)" (click)="addUserToCompany(person)" i18n="@@manage_companies.add_btn">Add</button>
+                              </div>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </lz-table-scroll>
+                  <lz-pager [total]="availablePeople.length" [page]="availablePage" [pageSize]="availablePageSize" (pageChange)="availablePage = $event" (pageSizeChange)="availablePageSize = $event; availablePage = 1" />
+                }
+              </section>
             </div>
-          </div>
-          <div *ngIf="!isLoadingUsers" class="row">
-            <div class="col-md-6">
-              <h5 i18n="@@manage_companies.in_company">In Company ({{ companyMembers.length }})</h5>
-              <ul class="list-group">
-                <li *ngFor="let member of companyMembers" class="list-group-item d-flex justify-content-between align-items-center"
-                    [style.opacity]="member.isActive ? 1 : 0.5">
-                  <span>
-                    <strong>{{ member.displayName || member.email }}</strong>
-                    <small *ngIf="member.displayName" class="text-muted ms-1">{{ member.email }}</small>
-                    <span class="badge ms-2" [class.bg-success]="member.isActive" [class.bg-danger]="!member.isActive">
-                      <ng-container *ngIf="member.isActive" i18n="@@common.active">Active</ng-container>
-                      <ng-container *ngIf="!member.isActive" i18n="@@common.inactive">Inactive</ng-container>
-                    </span>
-                  </span>
-                  <div>
-                    <button class="btn btn-sm me-1"
-                            [class.btn-warning]="member.isActive" [class.btn-success]="!member.isActive"
-                            (click)="toggleActive(member)"
-                            [disabled]="togglingId === member.companyUserId">
-                      <ng-container *ngIf="member.isActive" i18n="@@manage_companies.deactivate_btn">Deactivate</ng-container>
-                      <ng-container *ngIf="!member.isActive" i18n="@@manage_companies.activate_btn">Activate</ng-container>
-                    </button>
-                    <button class="btn btn-danger btn-sm" (click)="removeUserFromCompany(member)" i18n="@@manage_companies.remove_btn">Remove</button>
-                  </div>
-                </li>
-                <li *ngIf="companyMembers.length === 0" class="list-group-item text-muted" i18n="@@manage_companies.no_members">No users in this company.</li>
-              </ul>
-            </div>
-            <div class="col-md-6">
-              <h5 i18n="@@manage_companies.available_users">Available Users ({{ availablePeople.length }})</h5>
-              <ul class="list-group">
-                <li *ngFor="let person of availablePeople" class="list-group-item d-flex justify-content-between align-items-center">
-                  <span>
-                    <strong>{{ person.name }}</strong>
-                    <small class="text-muted ms-1">{{ person.email }}</small>
-                  </span>
-                  <button class="btn btn-success btn-sm" (click)="addUserToCompany(person)" i18n="@@manage_companies.add_btn">Add</button>
-                </li>
-                <li *ngIf="availablePeople.length === 0" class="list-group-item text-muted" i18n="@@manage_companies.no_available">No available users to add.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div *ngIf="!selectedCompany && !isLoading" class="alert alert-info" i18n="@@manage_companies.select_hint">
-        Select a company to manage its users.
-      </div>
+          }
+        </lz-panel>
+      } @else if (!isLoading) {
+        <lz-alert tone="info" i18n="@@manage_companies.select_hint">Select a company to manage its users.</lz-alert>
+      }
     </div>
   </div>
 </div>
+
+@if (companyToDelete) {
+  <lz-dialog-overlay dialogRole="alertdialog" (closed)="cancelDeleteCompany()">
+    <lz-dialog-frame [title]="deleteCompanyTitle" (closed)="cancelDeleteCompany()">
+      <p i18n="@@manage_companies.delete_body">This company and its data will be deleted. This cannot be undone.</p>
+      <ng-container lzDialogActions>
+        <button lzButton variant="secondary" type="button" (click)="cancelDeleteCompany()" i18n="@@common.cancel">Cancel</button>
+        <button lzButton variant="secondary" type="button" (click)="confirmDeleteCompany()"><span class="text-danger-ink" i18n="@@manage_companies.delete_confirm">Delete company</span></button>
+      </ng-container>
+    </lz-dialog-frame>
+  </lz-dialog-overlay>
+}
+
+@if (memberToRemove) {
+  <lz-dialog-overlay dialogRole="alertdialog" (closed)="cancelRemoveMember()">
+    <lz-dialog-frame [title]="removeMemberTitle" (closed)="cancelRemoveMember()">
+      <p i18n="@@manage_companies.remove_body">This user will lose access to the company.</p>
+      <ng-container lzDialogActions>
+        <button lzButton variant="secondary" type="button" (click)="cancelRemoveMember()" i18n="@@common.cancel">Cancel</button>
+        <button lzButton variant="secondary" type="button" (click)="confirmRemoveMember()"><span class="text-danger-ink" i18n="@@manage_companies.remove_confirm">Remove user</span></button>
+      </ng-container>
+    </lz-dialog-frame>
+  </lz-dialog-overlay>
+}

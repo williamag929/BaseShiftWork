@@ -1,22 +1,18 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { People } from 'src/app/core/models/people.model';
-import { MatListModule } from "@angular/material/list";
+import {
+  LzButtonDirective, LzDialogFrameComponent, LzDialogOverlayComponent, LzFieldComponent, LzFieldDirective, LzPagerComponent, paginate,
+} from 'src/app/shared/ui';
 
 @Component({
   selector: 'app-assign-users-panel',
   templateUrl: './assign-users-panel.component.html',
-  styleUrls: ['./assign-users-panel.component.css'],
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatListModule
+    CommonModule, FormsModule, LzButtonDirective, LzDialogFrameComponent, LzDialogOverlayComponent, LzFieldComponent, LzFieldDirective,
+    LzPagerComponent,
   ]
 })
 export class AssignUsersPanelComponent implements OnChanges {
@@ -28,18 +24,36 @@ export class AssignUsersPanelComponent implements OnChanges {
   @Output() saveAssignments = new EventEmitter<number[]>();
 
   selectedUserIds: number[] = [];
+  filter = '';
+  page = 1;
+  pageSize = 25;
+  readonly paginate = paginate;
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['assignedUserIds']) {
       this.selectedUserIds = [...this.assignedUserIds];
     }
+    if (changes['open'] && this.open) {
+      this.filter = '';
+      this.page = 1;
+    }
+  }
+
+  get title(): string {
+    return $localize`:@@assign_users.title:Assign users to ${this.roleName}:name:`;
+  }
+
+  get filtered(): People[] {
+    const q = this.filter.trim().toLowerCase();
+    if (!q) return this.people;
+    return this.people.filter(p => (p.name || '').toLowerCase().includes(q) || (p.email || '').toLowerCase().includes(q));
   }
 
   toggleUser(userId: number) {
     if (this.selectedUserIds.includes(userId)) {
       this.selectedUserIds = this.selectedUserIds.filter(id => id !== userId);
     } else {
-      this.selectedUserIds.push(userId);
+      this.selectedUserIds = [...this.selectedUserIds, userId];
     }
   }
 

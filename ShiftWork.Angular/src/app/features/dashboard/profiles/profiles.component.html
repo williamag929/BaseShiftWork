@@ -1,176 +1,131 @@
-<div class="page-container">
-
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-left">
-      <div class="page-icon">
-        <mat-icon>admin_panel_settings</mat-icon>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title" i18n="@@roles.page_title">Roles &amp; Permissions</h1>
-        <p class="page-subtitle" i18n="@@roles.page_subtitle">Manage user roles and configure access permissions</p>
-      </div>
-      <span class="badge badge-blue" *ngIf="!loading && roles.length > 0">
-        {{ roles.length }} role(s)
-      </span>
-    </div>
-    <button mat-flat-button color="primary" class="cta-btn" (click)="cancelEdit()">
-      <mat-icon>add</mat-icon> <ng-container i18n="@@roles.new_role_btn">New Role</ng-container>
-    </button>
+<div class="flex flex-col gap-4">
+  <div class="sticky top-0 z-10 bg-canvas">
+    <lz-page-header title="Roles and permissions" i18n-title="@@roles.page_title" subtitle="Manage user roles and configure access permissions" i18n-subtitle="@@roles.page_subtitle">
+      <ng-container lzHeaderActions>
+        <button #addBtn lzButton type="button" [variant]="panelOpen || assignPanelOpen ? 'secondary' : 'primary'" [attr.variant]="panelOpen || assignPanelOpen ? 'secondary' : 'primary'" (click)="openerEl = addBtn; addRole()">
+          <mat-icon aria-hidden="true">add</mat-icon>
+          <ng-container i18n="@@roles.new_role_btn">Add role</ng-container>
+        </button>
+      </ng-container>
+    </lz-page-header>
   </div>
 
-  <!-- Two-column layout: form first (left/top), list second (right/bottom) -->
-  <div class="layout-grid">
+  @if (error) {
+    <lz-alert tone="danger" i18n="@@roles.error_text">Could not load roles. Try again later.</lz-alert>
+  }
 
-    <!-- Role Form -->
-    <div class="form-panel">
-      <div class="form-panel-header">
-        <h2>
-          <ng-container *ngIf="selectedRole" i18n="@@roles.form_edit">Edit Role</ng-container>
-          <ng-container *ngIf="!selectedRole" i18n="@@roles.form_new">New Role</ng-container>
-        </h2>
-        <button mat-icon-button *ngIf="selectedRole" (click)="cancelEdit()">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-
-      <form [formGroup]="roleForm" (ngSubmit)="saveRole()">
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label i18n="@@roles.name_label">Role Name</mat-label>
-          <input matInput formControlName="name" placeholder="e.g., Manager, Employee, Admin" i18n-placeholder="@@roles.name_placeholder">
-          <mat-error *ngIf="roleForm.get('name')?.invalid" i18n="@@roles.name_error">Role name is required</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label i18n="@@roles.desc_label">Description</mat-label>
-          <input matInput formControlName="description" placeholder="Describe the role's purpose" i18n-placeholder="@@roles.desc_placeholder">
-          <mat-error *ngIf="roleForm.get('description')?.invalid" i18n="@@roles.desc_error">Description is required</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label i18n="@@roles.status_label">Status</mat-label>
-          <mat-select formControlName="status">
-            <mat-option value="Active" i18n="@@common.active">Active</mat-option>
-            <mat-option value="Inactive" i18n="@@common.inactive">Inactive</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <!-- Permissions -->
-        <div class="perms-section">
-          <h4 class="perms-title">
-            <mat-icon>key</mat-icon>
-            <ng-container i18n="@@roles.perms_title">Permissions</ng-container>
-          </h4>
-          <div formGroupName="permissions" class="perms-list">
-            <div *ngFor="let group of objectKeys(availablePermissions)" class="perm-group">
-              <div class="perm-group-label">
-                <mat-icon>category</mat-icon>
-                {{ group }}
-              </div>
-              <div class="perm-checkboxes">
-                <mat-checkbox
-                  *ngFor="let action of availablePermissions[group]"
-                  [formControlName]="action"
-                  class="perm-check"
-                >
-                  {{ getPermissionLabel(action) }}
-                </mat-checkbox>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="form-actions">
-          <button mat-stroked-button type="button" *ngIf="selectedRole" (click)="cancelEdit()" i18n="@@common.cancel">
-            Cancel
+  <section class="min-w-0">
+    @if (loading) {
+      <lz-alert tone="info" i18n="@@roles.loading">Loading roles...</lz-alert>
+    } @else if (!error) {
+      @if (roles.length === 0) {
+        <lz-empty-state icon="shield" title="No roles yet" i18n-title="@@roles.empty_title" body="Create your first role to control access" i18n-body="@@roles.empty_text">
+          <button lzEmptyAction #emptyAddBtn lzButton variant="secondary" type="button" (click)="openerEl = emptyAddBtn; addRole()">
+            <mat-icon aria-hidden="true">add</mat-icon>
+            <ng-container i18n="@@roles.new_role_btn">Add role</ng-container>
           </button>
-          <button mat-flat-button color="primary" type="submit" [disabled]="!roleForm.valid">
-            <mat-icon>{{ selectedRole ? 'save' : 'add' }}</mat-icon>
-            <ng-container *ngIf="selectedRole" i18n="@@roles.update_btn">Update Role</ng-container>
-            <ng-container *ngIf="!selectedRole" i18n="@@roles.create_btn">Create Role</ng-container>
-          </button>
-        </div>
+        </lz-empty-state>
+      } @else {
+        <lz-table-scroll>
+          <table lzTable>
+            <thead>
+              <tr>
+                <th scope="col" i18n="@@roles.col_role">Role</th>
+                <th scope="col" i18n="@@roles.col_status">Status</th>
+                <th scope="col" i18n="@@roles.col_permissions">Permissions</th>
+                <th scope="col" class="text-right" i18n="@@roles.col_actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (role of paginate(roles, page, pageSize); track role.roleId) {
+                <tr class="cursor-pointer hover:bg-paper-alt" [class.bg-paper-alt]="selectedRole?.roleId === role.roleId" (click)="openerEl = editBtn; editRole(role)">
+                  <td>
+                    <div class="font-medium text-ink">{{ role.name }}</div>
+                    <div class="text-[13px] text-ink-soft">{{ role.description }}</div>
+                  </td>
+                  <td>
+                    <lz-status-chip [tone]="role.status === 'Active' ? 'success' : 'neutral'" dot>{{ statusLabel(role.status) }}</lz-status-chip>
+                  </td>
+                  <td class="tabular-nums">{{ permissionCount(role) }}</td>
+                  <td (click)="$event.stopPropagation()">
+                    <div class="flex justify-end gap-1">
+                      <button #editBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="roleEditLabel(role)" (click)="openerEl = editBtn; editRole(role)">
+                        <mat-icon aria-hidden="true">edit</mat-icon>
+                      </button>
+                      <button #assignBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="roleAssignLabel(role)" (click)="openAssignPanel(role, assignBtn)">
+                        <mat-icon aria-hidden="true">person_add</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </lz-table-scroll>
+        <lz-pager [total]="roles.length" [page]="page" [pageSize]="pageSize" (pageChange)="page = $event" (pageSizeChange)="pageSize = $event; page = 1" />
+      }
+    }
+  </section>
+</div>
 
+<lz-side-panel #sp [restoreFocusTo]="openerEl" [heading]="selectedRole ? selectedRole.name : addRoleLabel" [open]="panelOpen" [dirty]="roleForm.dirty" (closed)="cancelEdit()">
+  @if (panelOpen) {
+    <div class="flex flex-col gap-6">
+      @if (formError) {
+        <lz-alert tone="danger">{{ formError }}</lz-alert>
+      }
+
+      <form id="role-form" [formGroup]="roleForm" (ngSubmit)="saveRole()" class="flex flex-col gap-4">
+        <lz-field required label="Role name" i18n-label="@@roles.name_label" controlId="role-name" [error]="roleForm.get('name')?.touched && roleForm.get('name')?.invalid ? nameError : null">
+          <input lzField type="text" id="role-name" formControlName="name" aria-required="true" placeholder="For example, Manager, Employee or Admin" i18n-placeholder="@@roles.name_placeholder">
+        </lz-field>
+
+        <lz-field required label="Description" i18n-label="@@roles.desc_label" controlId="role-desc" [error]="roleForm.get('description')?.touched && roleForm.get('description')?.invalid ? descError : null">
+          <input lzField type="text" id="role-desc" formControlName="description" aria-required="true" placeholder="Describe the role's purpose" i18n-placeholder="@@roles.desc_placeholder">
+        </lz-field>
+
+        <lz-field required label="Status" i18n-label="@@roles.status_label" controlId="role-status">
+          <select lzField id="role-status" formControlName="status" aria-required="true">
+            <option value="Active" i18n="@@common.active">Active</option>
+            <option value="Inactive" i18n="@@common.inactive">Inactive</option>
+          </select>
+        </lz-field>
+
+        <section class="flex flex-col gap-3" aria-labelledby="role-perms-title" formGroupName="permissions">
+          <h3 id="role-perms-title" class="font-display text-[15px] font-semibold" i18n="@@roles.perms_title">Permissions</h3>
+          @for (group of objectKeys(availablePermissions); track group) {
+            <fieldset class="flex flex-col rounded-control border border-line px-3 pb-1 pt-2">
+              <legend class="px-1 font-medium text-ink">{{ groupLabel(group) }}</legend>
+              <div class="grid grid-cols-1 sm:grid-cols-2">
+                @for (action of availablePermissions[group]; track action) {
+                  <label class="flex min-h-12 items-center gap-3">
+                    <input type="checkbox" class="size-6 shrink-0" [formControlName]="action">
+                    <span>{{ getPermissionLabel(action) }}</span>
+                  </label>
+                }
+              </div>
+            </fieldset>
+          }
+        </section>
       </form>
     </div>
+  }
+  <ng-container lzPanelFooter>
+    <button lzButton variant="secondary" type="button" (click)="sp.requestClose()" i18n="@@common.cancel">Cancel</button>
+    <button lzButton variant="primary" type="submit" form="role-form" [disabled]="roleForm.invalid || saving">
+      @if (selectedRole) {
+        <ng-container i18n="@@roles.update_btn">Save role</ng-container>
+      } @else {
+        <ng-container i18n="@@roles.create_btn">Create role</ng-container>
+      }
+    </button>
+  </ng-container>
+</lz-side-panel>
 
-    <!-- Assign Users Overlay (standalone component) -->
-    <app-assign-users-panel
-      [open]="assignPanelOpen"
-      [people]="people"
-      [assignedUserIds]="assignedUserIds"
-      [roleName]="assignPanelRole?.name || ''"
-      (closePanel)="closeAssignPanel()"
-      (saveAssignments)="saveAssignments($event)">
-    </app-assign-users-panel>
-
-    <!-- Roles List -->
-    <div class="list-panel">
-      <div class="list-panel-header">
-        <span class="panel-title" i18n="@@roles.list_title">Roles</span>
-      </div>
-
-      <!-- Loading -->
-      <div class="loading-state" *ngIf="loading">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p i18n="@@roles.loading">Loading roles...</p>
-      </div>
-
-      <!-- Error -->
-      <div class="empty-state" *ngIf="!loading && error">
-        <div class="empty-icon error-icon">
-          <mat-icon>error_outline</mat-icon>
-        </div>
-        <h3 i18n="@@roles.error_title">Error loading roles</h3>
-        <p i18n="@@roles.error_text">Please try again later</p>
-      </div>
-
-      <!-- Roles list -->
-      <div class="roles-list" *ngIf="!loading && !error">
-        <div
-          *ngFor="let role of roles; let i = index"
-          class="role-item"
-          [class.selected]="selectedRole?.roleId === role.roleId"
-          [style.animation-delay]="(i * 0.05) + 's'"
-          (click)="editRole(role)"
-        >
-          <div class="role-avatar">{{ getInitials(role.name) }}</div>
-          <div class="role-info">
-            <h4 class="role-name">{{ role.name }}</h4>
-            <p class="role-description">{{ role.description }}</p>
-            <div class="role-meta">
-              <span class="status-chip" [class.active]="role.status === 'Active'" [class.inactive]="role.status === 'Inactive'">
-                {{ role.status }}
-              </span>
-              <span class="perm-count" *ngIf="role.permissions">
-                <mat-icon>key</mat-icon>
-                {{ role.permissions.length }}
-              </span>
-            </div>
-          </div>
-          <button
-            mat-icon-button
-            class="assign-btn"
-            matTooltip="Assign users"
-            i18n-matTooltip="@@roles.assign_users_tooltip"
-            (click)="openAssignPanel(role); $event.stopPropagation()"
-          >
-            <mat-icon>person_add</mat-icon>
-          </button>
-        </div>
-
-        <!-- Empty state -->
-        <div class="empty-state" *ngIf="roles.length === 0">
-          <div class="empty-icon">
-            <mat-icon>shield</mat-icon>
-          </div>
-          <h3 i18n="@@roles.empty_title">No roles yet</h3>
-          <p i18n="@@roles.empty_text">Create your first role using the form.</p>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
+<app-assign-users-panel
+  [open]="assignPanelOpen"
+  [people]="people"
+  [assignedUserIds]="assignedUserIds"
+  [roleName]="assignPanelRole?.name || ''"
+  (closePanel)="closeAssignPanel()"
+  (saveAssignments)="saveAssignments($event)" />

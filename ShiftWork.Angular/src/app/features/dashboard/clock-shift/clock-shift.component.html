@@ -1,95 +1,78 @@
-<div class="clock-shift-container">
-  <!-- Header -->
-  <div class="d-flex justify-content-center mb-3" *ngIf="currentUser">
-    <h2>{{ currentUser.name }}</h2>
-  </div>
+<div class="mx-auto flex max-w-[640px] flex-col gap-4">
+  <lz-page-header title="Clock in and out" i18n-title="@@clock.page_title" [subtitle]="currentUser?.name">
+    <ng-container lzHeaderActions>
+      @if (currentUser) {
+        <lz-status-chip [tone]="isOnShift ? 'success' : 'neutral'" dot data-testid="shift-state">
+          @if (isOnShift) {
+            <ng-container i18n="@@clock.state_on_shift">On shift</ng-container>
+          } @else {
+            <ng-container i18n="@@clock.state_off_shift">Not on shift</ng-container>
+          }
+        </lz-status-chip>
+      }
+    </ng-container>
+  </lz-page-header>
 
-  <!-- Schedule Info -->
-  <div *ngIf="employeeSchedule" class="schedule-info text-center mb-3">
-    <h4 i18n="@@clock.todays_schedule">Today's Schedule</h4>
-    <p><strong i18n="@@clock.location_label">Location:</strong> {{ employeeSchedule.location.name }}</p>
-    <p><strong i18n="@@clock.start_time_label">Start Time:</strong> {{ employeeSchedule.startDate | date: 'shortTime' }}</p>
-    <p><strong i18n="@@clock.end_time_label">End Time:</strong> {{ employeeSchedule.endDate | date: 'shortTime' }}</p>
-  </div>
+  @if (!currentUser) {
+    <lz-empty-state icon="login" title="Please log in to continue" i18n-title="@@clock.please_login" />
+  } @else {
+    @if (employeeSchedule) {
+      <lz-panel heading="Today's schedule" i18n-heading="@@clock.todays_schedule">
+        <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+          <dt class="font-medium" i18n="@@clock.location_label">Location</dt>
+          <dd>{{ employeeSchedule.location.name }}</dd>
+          <dt class="font-medium" i18n="@@clock.start_time_label">Start time</dt>
+          <dd>{{ employeeSchedule.startDate | date: 'shortTime' }}</dd>
+          <dt class="font-medium" i18n="@@clock.end_time_label">End time</dt>
+          <dd>{{ employeeSchedule.endDate | date: 'shortTime' }}</dd>
+        </dl>
+      </lz-panel>
+    }
 
-  <!-- Webcam View -->
-  <webcam
-    *ngIf="!webcamImage && currentUser"
-    [trigger]="triggerObservable$"
-    (imageCapture)="handleImage($event)"
-    (initError)="handleInitError($event)"
-    class="webcam-container">
-  </webcam>
-
-  <!-- Captured Photo Display -->
-  <div *ngIf="webcamImage && currentUser" class="photo-result text-center">
-    <img
-      [src]="flippedImage"
-      alt="Captured photo"
-      class="captured-photo mb-3">
-    <h3 class="success-message" i18n="@@clock.shift_updated">Shift updated thanks!</h3>
-  </div>
-
-  <!-- Countdown Display -->
-  <div *ngIf="countdown$ | async as count" class="countdown-container">
-    <div *ngIf="count > 0" class="countdown-overlay">
-      <div class="d-flex justify-content-center align-items-center h-100">
-        <h4 class="countdown-text" i18n="@@clock.countdown">
-          Capturing photo in {{ count }} seconds...
-        </h4>
+    @if (!webcamImage) {
+      <div class="overflow-hidden rounded-panel border border-line">
+        <webcam
+          [trigger]="triggerObservable$"
+          (imageCapture)="handleImage($event)"
+          (initError)="handleInitError($event)" />
       </div>
-    </div>
-  </div>
+    } @else {
+      <div class="flex flex-col items-center gap-3 text-center">
+        <img [src]="flippedImage" [alt]="capturedPhotoAlt" class="max-w-full rounded-panel">
+        <p class="font-display text-[18px] font-semibold text-success-ink" role="status" i18n="@@clock.shift_updated">Shift updated. Thank you!</p>
+      </div>
+    }
 
-  <!-- Action Buttons -->
-  <div *ngIf="!scheduling && currentUser" class="action-buttons">
-    <div class="button-group mb-3">
-      <button
-        *ngIf="!webcamImage && (!employeeStatus || !(employeeStatus === 'OnShift' || employeeStatus === 'Late' || employeeStatus === 'Early' || employeeStatus === 'ShiftEventWithoutSchedule'))"
-        type="button"
-        class="btn btn-success btn-lg me-2"
-        (click)="triggerImage(ScheduleAction.START_SHIFT)"
-        [disabled]="scheduling">
-        <i class="fa fa-play" aria-hidden="true"></i>
-        <ng-container i18n="@@clock.start_shift">Start Shift</ng-container>
-      </button>
+    @if (countdown$ | async; as count) {
+      @if (count > 0) {
+        <lz-alert tone="info" i18n="@@clock.countdown">Capturing photo in {{ count }} seconds...</lz-alert>
+      }
+    }
 
-      <button
-        *ngIf="!webcamImage && (employeeStatus === 'OnShift' || employeeStatus === 'Late' || employeeStatus === 'Early' || employeeStatus === 'ShiftEventWithoutSchedule' )"
-        type="button"
-        class="btn btn-danger btn-lg"
-        (click)="triggerImage(ScheduleAction.END_SHIFT)"
-        [disabled]="scheduling">
-        <i class="fa fa-stop" aria-hidden="true"></i>
-        <ng-container i18n="@@clock.end_shift">End Shift</ng-container>
-      </button>
-    </div>
-
-    <div class="button-group mb-3">
-      <button
-        *ngIf="!webcamImage && (employeeStatus === 'OnShift' || employeeStatus === 'Late' || employeeStatus === 'Early' || employeeStatus === 'ShiftEventWithoutSchedule' )"
-        type="button"
-        class="btn btn-primary btn-lg me-2"
-        (click)="triggerImage(ScheduleAction.START_BREAK)"
-        [disabled]="scheduling">
-        <i class="fa fa-coffee" aria-hidden="true"></i>
-        <ng-container i18n="@@clock.start_break">Start Break</ng-container>
-      </button>
-
-      <button
-        *ngIf="!webcamImage && (employeeStatus === 'OnShift' || employeeStatus === 'Late' || employeeStatus === 'Early' || employeeStatus === 'ShiftEventWithoutSchedule' )"
-        type="button"
-        class="btn btn-warning btn-lg"
-        (click)="triggerImage(ScheduleAction.END_BREAK)"
-        [disabled]="scheduling">
-        <i class="fa fa-play-circle" aria-hidden="true"></i>
-        <ng-container i18n="@@clock.end_break">End Break</ng-container>
-      </button>
-    </div>
-  </div>
-
-  <!-- No Employee Selected Message -->
-  <div *ngIf="!currentUser" class="text-center">
-    <h3 i18n="@@clock.please_login">Please log in to continue</h3>
-  </div>
+    @if (!scheduling && !webcamImage) {
+      <div class="flex flex-col gap-3">
+        @if (!isOnShift) {
+          <button lzButton variant="primary" type="button" class="w-full" (click)="triggerImage(ScheduleAction.START_SHIFT)" [disabled]="scheduling">
+            <mat-icon aria-hidden="true">play_arrow</mat-icon>
+            <ng-container i18n="@@clock.start_shift">Start shift</ng-container>
+          </button>
+        } @else {
+          <button lzButton variant="primary" type="button" class="w-full" (click)="triggerImage(ScheduleAction.END_SHIFT)" [disabled]="scheduling">
+            <mat-icon aria-hidden="true">stop</mat-icon>
+            <ng-container i18n="@@clock.end_shift">End shift</ng-container>
+          </button>
+          <div class="grid grid-cols-2 gap-3">
+            <button lzButton variant="secondary" type="button" (click)="triggerImage(ScheduleAction.START_BREAK)" [disabled]="scheduling">
+              <mat-icon aria-hidden="true">free_breakfast</mat-icon>
+              <ng-container i18n="@@clock.start_break">Start break</ng-container>
+            </button>
+            <button lzButton variant="secondary" type="button" (click)="triggerImage(ScheduleAction.END_BREAK)" [disabled]="scheduling">
+              <mat-icon aria-hidden="true">play_circle</mat-icon>
+              <ng-container i18n="@@clock.end_break">End break</ng-container>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  }
 </div>

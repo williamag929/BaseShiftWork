@@ -14,6 +14,8 @@ import { ScheduleDetail } from 'src/app/core/models/schedule-detail.model';
 import { ToastrService } from 'ngx-toastr';
 import { AwsS3Service } from 'src/app/core/services/aws-s3.service';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzPageHeaderComponent, LzPanelComponent, LzStatusChipComponent } from 'src/app/shared/ui';
 import { QuestionDialogComponent } from '../../kiosk/question-dialog/question-dialog.component';
 import { KioskService } from '../../kiosk/core/services/kiosk.service';
 import { KioskAnswer } from '../../kiosk/core/models/kiosk-answer.model';
@@ -32,9 +34,8 @@ export enum ScheduleAction {
 @Component({
   selector: 'app-clock-shift',
   templateUrl: './clock-shift.component.html',
-  styleUrls: ['./clock-shift.component.css'],
   standalone: true,
-  imports: [WebcamModule, CommonModule],
+  imports: [WebcamModule, CommonModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzPageHeaderComponent, LzPanelComponent, LzStatusChipComponent],
 })
 export class ClockShiftComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
@@ -59,6 +60,12 @@ export class ClockShiftComponent implements OnInit, OnDestroy {
   triggerObservable$: Observable<void>;
 
   readonly ScheduleAction = ScheduleAction;
+  readonly capturedPhotoAlt = $localize`:@@clock.captured_photo_alt:Captured photo`;
+
+  get isOnShift(): boolean {
+    const status = this.employeeStatus;
+    return status === 'OnShift' || status === 'Late' || status === 'Early' || status === 'ShiftEventWithoutSchedule';
+  }
 
   constructor(
     private readonly router: Router,
@@ -177,7 +184,7 @@ export class ClockShiftComponent implements OnInit, OnDestroy {
   }
 
   handleInitError(error: WebcamInitError): void {
-    this.toastr.error(error.message, 'Webcam Error');
+    this.toastr.error(error.message, $localize`:@@clock.toast_webcam_error:Webcam error`);
   }
 
   private startCountdown(): void {
@@ -191,12 +198,12 @@ export class ClockShiftComponent implements OnInit, OnDestroy {
 
   private setSchedule(action: ScheduleAction, answers?: any): void {
     if (!this.currentUser || !this.currentUser.companyId || !this.currentUser.personId) {
-      this.toastr.error('No employee selected for scheduling or companyId/personId is missing');
+      this.toastr.error($localize`:@@clock.toast_no_employee:No employee is selected, or the company or person ID is missing.`);
       return;
     }
 
     if (!this.flippedImage) {
-      this.toastr.error('No photo captured');
+      this.toastr.error($localize`:@@clock.toast_no_photo:No photo was captured.`);
       return;
     }
 
@@ -229,7 +236,7 @@ export class ClockShiftComponent implements OnInit, OnDestroy {
               .pipe(takeUntil(this.destroy$))
               .subscribe({
                 next: (event) => {
-                  this.toastr.success('Shift event created successfully');
+                  this.toastr.success($localize`:@@clock.toast_event_created:Shift event created.`);
                   if (answers) {
                     const kioskAnswers: KioskAnswer[] = Object.keys(answers).map(key => ({
                       kioskAnswerId: 0,
@@ -240,13 +247,13 @@ export class ClockShiftComponent implements OnInit, OnDestroy {
                     this.kioskService.postKioskAnswers(kioskAnswers).subscribe();
                   }
                 },
-                error: (err) => this.toastr.error('Error creating shift event')
+                error: (err) => this.toastr.error($localize`:@@clock.toast_event_failed:Could not create the shift event.`)
               });
           },
-          error: (err) => this.toastr.error('Error uploading photo')
+          error: (err) => this.toastr.error($localize`:@@clock.toast_upload_failed:Could not upload the photo.`)
         });
       },
-      error: (err) => this.toastr.error('Error getting geolocation')
+      error: (err) => this.toastr.error($localize`:@@clock.toast_geo_failed:Could not get your location.`)
     });
   }
 

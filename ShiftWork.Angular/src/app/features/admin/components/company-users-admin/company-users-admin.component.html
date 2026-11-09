@@ -1,103 +1,69 @@
-<div class="company-users-admin">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title i18n="@@company_users_admin.title">Company Users Management</mat-card-title>
-      <mat-card-subtitle i18n="@@company_users_admin.subtitle">Manage user access across companies. Deactivate users to prevent login to a specific company.</mat-card-subtitle>
-    </mat-card-header>
+<div class="flex flex-col gap-4">
+  <lz-page-header title="Company users" i18n-title="@@company_users_admin.title" subtitle="Manage user access across companies. Deactivate users to prevent login to a specific company." i18n-subtitle="@@company_users_admin.subtitle" />
 
-    <mat-card-content>
-      <!-- Company Selector -->
-      <div class="company-selector">
-        <mat-form-field appearance="outline" class="company-select">
-          <mat-label i18n="@@company_users_admin.select_company">Select Company</mat-label>
-          <mat-select [(value)]="selectedCompanyId" (selectionChange)="onCompanyChange()">
-            <mat-option *ngFor="let company of companies" [value]="company.companyId">
-              {{ company.name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <button mat-raised-button color="primary" (click)="loadUsers()" [disabled]="loading || !selectedCompanyId">
-          <mat-icon>refresh</mat-icon>
-          <ng-container i18n="@@company_users_admin.refresh_btn">Refresh</ng-container>
-        </button>
-      </div>
+  <div class="flex flex-wrap items-end gap-3">
+    <lz-field class="min-w-60 flex-1" label="Company" i18n-label="@@company_users_admin.select_company" controlId="cua-company">
+      <select lzField id="cua-company" [(ngModel)]="selectedCompanyId" (ngModelChange)="onCompanyChange()">
+        @for (company of companies; track company.companyId) {
+          <option [value]="company.companyId">{{ company.name }}</option>
+        }
+      </select>
+    </lz-field>
+    <button lzButton variant="secondary" type="button" (click)="loadUsers()" [disabled]="loading || !selectedCompanyId">
+      <mat-icon aria-hidden="true">refresh</mat-icon>
+      <ng-container i18n="@@company_users_admin.refresh_btn">Refresh</ng-container>
+    </button>
+  </div>
 
-      <!-- Loading -->
-      <div *ngIf="loading" class="loading-container">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p i18n="@@company_users_admin.loading">Loading users...</p>
-      </div>
+  @if (loadError) {
+    <lz-alert tone="danger" i18n="@@company_users_admin.load_error">Could not load company users. Try again later.</lz-alert>
+  }
 
-      <!-- Users Table -->
-      <div *ngIf="!loading && companyUsers.length > 0" class="table-container">
-        <table mat-table [dataSource]="companyUsers" class="users-table">
-
-          <!-- Email Column -->
-          <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef i18n="@@company_users_admin.col_email">Email</th>
-            <td mat-cell *matCellDef="let user">{{ user.email }}</td>
-          </ng-container>
-
-          <!-- Display Name Column -->
-          <ng-container matColumnDef="displayName">
-            <th mat-header-cell *matHeaderCellDef i18n="@@common.name">Name</th>
-            <td mat-cell *matCellDef="let user">{{ user.displayName || '—' }}</td>
-          </ng-container>
-
-          <!-- UID Type Column -->
-          <ng-container matColumnDef="uidType">
-            <th mat-header-cell *matHeaderCellDef i18n="@@company_users_admin.col_auth_type">Auth Type</th>
-            <td mat-cell *matCellDef="let user">
-              <span class="badge" [ngClass]="{
-                'badge-firebase': getUidType(user.uid) === 'Firebase',
-                'badge-api': getUidType(user.uid) === 'API',
-                'badge-invite': getUidType(user.uid) === 'Invite'
-              }">{{ getUidType(user.uid) }}</span>
-            </td>
-          </ng-container>
-
-          <!-- Status Column -->
-          <ng-container matColumnDef="isActive">
-            <th mat-header-cell *matHeaderCellDef i18n="@@common.status">Status</th>
-            <td mat-cell *matCellDef="let user">
-              <span class="status-chip" [ngClass]="user.isActive ? 'active' : 'inactive'">
-                <ng-container *ngIf="user.isActive" i18n="@@common.active">Active</ng-container>
-                <ng-container *ngIf="!user.isActive" i18n="@@common.inactive">Inactive</ng-container>
-              </span>
-            </td>
-          </ng-container>
-
-          <!-- Created At Column -->
-          <ng-container matColumnDef="createdAt">
-            <th mat-header-cell *matHeaderCellDef i18n="@@company_users_admin.col_created">Created</th>
-            <td mat-cell *matCellDef="let user">{{ user.createdAt | date:'shortDate' }}</td>
-          </ng-container>
-
-          <!-- Actions Column -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef i18n="@@company_users_admin.col_actions">Actions</th>
-            <td mat-cell *matCellDef="let user">
-              <button mat-icon-button
-                      [color]="user.isActive ? 'warn' : 'primary'"
-                      (click)="toggleActive(user)"
-                      [disabled]="togglingId === user.companyUserId"
-                      [matTooltip]="user.isActive ? 'Deactivate user' : 'Activate user'">
-                <mat-icon>{{ user.isActive ? 'person_off' : 'person' }}</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="['email', 'displayName', 'uidType', 'isActive', 'createdAt', 'actions']"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['email', 'displayName', 'uidType', 'isActive', 'createdAt', 'actions'];"
-              [ngClass]="{'inactive-row': !row.isActive}"></tr>
-        </table>
-      </div>
-
-      <!-- Empty State -->
-      <div *ngIf="!loading && companyUsers.length === 0 && selectedCompanyId" class="empty-state">
-        <mat-icon class="empty-icon">people_outline</mat-icon>
-        <p i18n="@@company_users_admin.empty">No users found for this company.</p>
-      </div>
-    </mat-card-content>
-  </mat-card>
+  @if (loading) {
+    <lz-alert tone="info" i18n="@@company_users_admin.loading">Loading users...</lz-alert>
+  } @else if (companyUsers.length > 0) {
+    <lz-table-scroll>
+      <table lzTable>
+        <thead>
+          <tr>
+            <th scope="col" i18n="@@company_users_admin.col_email">Email</th>
+            <th scope="col" i18n="@@common.name">Name</th>
+            <th scope="col" i18n="@@company_users_admin.col_auth_type">Auth type</th>
+            <th scope="col" i18n="@@common.status">Status</th>
+            <th scope="col" i18n="@@company_users_admin.col_created">Created</th>
+            <th scope="col" class="text-right" i18n="@@company_users_admin.col_actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of paginate(companyUsers, page, pageSize); track user.companyUserId) {
+            <tr [class.opacity-60]="!user.isActive">
+              <td>{{ user.email }}</td>
+              <td>{{ user.displayName || '—' }}</td>
+              <td><lz-status-chip [tone]="getUidType(user.uid) === 'Firebase' ? 'info' : 'neutral'">{{ uidTypeLabel(user.uid) }}</lz-status-chip></td>
+              <td>
+                <lz-status-chip [tone]="user.isActive ? 'success' : 'neutral'" dot>
+                  @if (user.isActive) {
+                    <ng-container i18n="@@common.active">Active</ng-container>
+                  } @else {
+                    <ng-container i18n="@@common.inactive">Inactive</ng-container>
+                  }
+                </lz-status-chip>
+              </td>
+              <td>{{ user.createdAt | date:'shortDate' }}</td>
+              <td>
+                <div class="flex justify-end">
+                  <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="toggleLabel(user)" [disabled]="togglingId === user.companyUserId" (click)="toggleActive(user)">
+                    <mat-icon aria-hidden="true">{{ user.isActive ? 'person_off' : 'person' }}</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </lz-table-scroll>
+    <lz-pager [total]="companyUsers.length" [page]="page" [pageSize]="pageSize" (pageChange)="page = $event" (pageSizeChange)="pageSize = $event; page = 1" />
+  } @else if (selectedCompanyId && !loadError) {
+    <lz-empty-state icon="people_outline" title="No users found for this company" i18n-title="@@company_users_admin.empty" />
+  }
 </div>

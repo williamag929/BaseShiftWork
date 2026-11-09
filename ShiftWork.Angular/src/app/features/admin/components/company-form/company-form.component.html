@@ -1,66 +1,66 @@
-<div class="container mt-4">
-  <h2>
-    <ng-container *ngIf="isEditMode" i18n="@@company_form.title_edit">Edit Company</ng-container>
-    <ng-container *ngIf="!isEditMode" i18n="@@company_form.title_create">Create Company</ng-container>
-  </h2>
-  <form [formGroup]="companyForm" (ngSubmit)="onSubmit()">
-    <mat-card>
-      <mat-card-content>
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label i18n="@@company_form.name_label">Name</mat-label>
-          <input matInput formControlName="name">
-        </mat-form-field>
+<div class="mx-auto flex max-w-[720px] flex-col gap-4">
+  <lz-page-header [title]="pageTitle" />
 
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label i18n="@@company_form.address_label">Address</mat-label>
-          <input matInput formControlName="address">
-        </mat-form-field>
+  @if (loadError) {
+    <lz-alert tone="danger" i18n="@@company_form.load_error">Could not load the company. Try again later.</lz-alert>
+  }
+  @if (submitError) {
+    <lz-alert tone="danger">{{ submitError }}</lz-alert>
+  }
 
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label i18n="@@company_form.phone_label">Phone Number</mat-label>
-          <input matInput formControlName="phoneNumber">
-        </mat-form-field>
+  <lz-panel>
+    <form [formGroup]="companyForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+      <lz-field required label="Name" i18n-label="@@company_form.name_label" controlId="company-name" [error]="fieldError('name')">
+        <input lzField type="text" id="company-name" formControlName="name" aria-required="true">
+      </lz-field>
 
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label i18n="@@company_form.email_label">Email</mat-label>
-          <input matInput formControlName="email">
-        </mat-form-field>
+      <lz-field required label="Address" i18n-label="@@company_form.address_label" controlId="company-address" [error]="fieldError('address')">
+        <input lzField type="text" id="company-address" formControlName="address" aria-required="true">
+      </lz-field>
 
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label i18n="@@company_form.website_label">Website</mat-label>
-          <input matInput formControlName="website">
-        </mat-form-field>
+      <lz-field required label="Phone number" i18n-label="@@company_form.phone_label" controlId="company-phone" [error]="fieldError('phoneNumber')">
+        <input lzField type="tel" id="company-phone" formControlName="phoneNumber" aria-required="true">
+      </lz-field>
 
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label i18n="@@company_form.timezone_label">Timezone</mat-label>
-          <mat-select formControlName="timeZone">
-            <mat-option [value]="null" disabled i18n="@@company_form.timezone_placeholder">Select a Timezone</mat-option>
-            <mat-option *ngFor="let tz of timezones" [value]="tz.value">{{ tz.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+      <lz-field required label="Email" i18n-label="@@company_form.email_label" controlId="company-email" [error]="fieldError('email')">
+        <input lzField type="email" id="company-email" formControlName="email" aria-required="true">
+      </lz-field>
 
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label i18n="@@company_form.external_code_label">External Code</mat-label>
-          <input matInput formControlName="externalCode">
-        </mat-form-field>
+      <lz-field label="Website" i18n-label="@@company_form.website_label" controlId="company-website">
+        <input lzField type="url" id="company-website" formControlName="website">
+      </lz-field>
 
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label i18n="@@company_form.currency_label">Currency</mat-label>
-          <input matInput formControlName="currency">
-        </mat-form-field>
+      <lz-field required label="Time zone" i18n-label="@@company_form.timezone_label" controlId="company-timezone" [error]="fieldError('timeZone')">
+        <select lzField id="company-timezone" formControlName="timeZone" aria-required="true">
+          <option value="" disabled i18n="@@company_form.timezone_placeholder">Select a time zone</option>
+          @for (tz of timezones; track tz.value) {
+            <option [value]="tz.value">{{ tz.name }}</option>
+          }
+        </select>
+      </lz-field>
 
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label i18n="@@company_form.logo_url_label">Logo URL</mat-label>
-          <input matInput formControlName="logoUrl">
-        </mat-form-field>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-raised-button color="primary" type="submit" [disabled]="companyForm.invalid">
-          <ng-container *ngIf="isEditMode" i18n="@@company_form.update_btn">Update</ng-container>
-          <ng-container *ngIf="!isEditMode" i18n="@@company_form.create_btn">Create</ng-container>
+      <lz-field label="External code" i18n-label="@@company_form.external_code_label" controlId="company-external-code">
+        <input lzField type="text" id="company-external-code" formControlName="externalCode">
+      </lz-field>
+
+      <lz-field label="Currency" i18n-label="@@company_form.currency_label" controlId="company-currency">
+        <input lzField type="text" id="company-currency" formControlName="currency">
+      </lz-field>
+
+      <lz-field label="Logo URL" i18n-label="@@company_form.logo_url_label" controlId="company-logo-url">
+        <input lzField type="url" id="company-logo-url" formControlName="logoUrl">
+      </lz-field>
+
+      <div class="flex flex-wrap justify-end gap-2">
+        <button lzButton variant="secondary" type="button" [routerLink]="['/general/manage-companies']" i18n="@@common.cancel">Cancel</button>
+        <button lzButton variant="primary" type="submit" [disabled]="companyForm.invalid || saving">
+          @if (isEditMode) {
+            <ng-container i18n="@@company_form.update_btn">Save changes</ng-container>
+          } @else {
+            <ng-container i18n="@@company_form.create_btn">Create company</ng-container>
+          }
         </button>
-        <button mat-button type="button" [routerLink]="['/general/manage-companies']" i18n="@@common.cancel">Cancel</button>
-      </mat-card-actions>
-    </mat-card>
-  </form>
+      </div>
+    </form>
+  </lz-panel>
 </div>
