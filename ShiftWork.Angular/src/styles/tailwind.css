@@ -12,6 +12,12 @@
 @source "../app/features/dashboard/schedule-grid/schedule-grid.component.ts";
 @source "../app/features/dashboard/people/people.component.html";
 @source "../app/features/dashboard/people/people.component.ts";
+@source "../app/features/auth/sign-in";
+@source "../app/features/auth/sign-up";
+@source "../app/features/auth/forgot-password";
+@source "../app/features/auth/verify-email";
+@source "../app/features/auth/accept-invite";
+@source "../app/features/company-switch";
 
 @theme inline {
   --color-navy-900: var(--lz-navy-900);

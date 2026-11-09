@@ -1,99 +1,76 @@
-<div class="auth-container">
-  <div class="auth-box">
-    <!-- Logo/Brand Section -->
-    <div class="auth-header">
-      <div class="logo-circle">
-        <i class="fa fa-lock"></i>
-      </div>
-      <h2 i18n="@@auth.login.welcome">Welcome Back</h2>
-      <p class="subtitle" i18n="@@auth.login.welcome_subtitle">Sign in to continue to your account</p>
-    </div>
+<lz-auth-shell
+  title="Sign in"
+  i18n-title="@@auth.login.title"
+  subtitle="Sign in to continue to your account"
+  i18n-subtitle="@@auth.login.welcome_subtitle"
+>
+  @if (errorMessage) {
+    <div class="mb-4"><lz-alert tone="danger">{{ errorMessage }}</lz-alert></div>
+  }
 
-    <!-- Error Alert -->
-    <div *ngIf="errorMessage" class="sign-in-alert">
-      <div class="sign-in-alert-content">
-        <i class="fa fa-exclamation-triangle"></i>
-        <span>{{ errorMessage }}</span>
-      </div>
-      <button type="button" class="sign-in-alert-close" (click)="dismissError()">
-        <i class="fa fa-times"></i>
-      </button>
-    </div>
+  <form [formGroup]="signInForm" (ngSubmit)="signIn()" class="flex flex-col gap-4">
+    <lz-field label="Email address" i18n-label="@@auth.login.email_label" controlId="email">
+      <input
+        lzField
+        type="email"
+        id="email"
+        formControlName="email"
+        autocomplete="email"
+        placeholder="Enter your email"
+        i18n-placeholder="@@auth.login.email_placeholder"
+        [attr.aria-invalid]="signInForm.get('email')?.touched && signInForm.get('email')?.invalid ? 'true' : null"
+      />
+      @if (signInForm.get('email')?.touched && signInForm.get('email')?.invalid) {
+        <p role="alert" class="mt-1 text-[13px] text-danger-ink">
+          @if (signInForm.get('email')?.errors?.['required']) {
+            <span i18n="@@auth.login.email_required">Email is required</span>
+          } @else {
+            <span i18n="@@auth.login.email_invalid">Please enter a valid email</span>
+          }
+        </p>
+      }
+    </lz-field>
 
-    <!-- Sign In Form -->
-    <form [formGroup]="signInForm" (ngSubmit)="signIn()">
-      <div class="form-group">
-        <label for="email" i18n="@@auth.login.email_label">Email address</label>
-        <div class="input-wrapper">
-          <i class="fa fa-envelope input-icon"></i>
-          <input
-            type="email"
-            class="form-control"
-            id="email"
-            formControlName="email"
-            placeholder="Enter your email"
-            i18n-placeholder="@@auth.login.email_placeholder"
-            [ngClass]="{ 'is-invalid': signInForm.get('email')?.touched && signInForm.get('email')?.invalid }"
-          />
-        </div>
-        <div *ngIf="signInForm.get('email')?.touched && signInForm.get('email')?.invalid" class="error-message">
-          <i class="fa fa-exclamation-circle"></i>
-          <span *ngIf="signInForm.get('email')?.errors?.['required']" i18n="@@auth.login.email_required">Email is required</span>
-          <span *ngIf="signInForm.get('email')?.errors?.['email']" i18n="@@auth.login.email_invalid">Please enter a valid email</span>
-        </div>
-      </div>
+    <lz-field label="Password" i18n-label="@@auth.login.password_label" controlId="password">
+      <input
+        lzField
+        type="password"
+        id="password"
+        formControlName="password"
+        autocomplete="current-password"
+        placeholder="Enter your password"
+        i18n-placeholder="@@auth.login.password_placeholder"
+        [attr.aria-invalid]="signInForm.get('password')?.touched && signInForm.get('password')?.invalid ? 'true' : null"
+      />
+      @if (signInForm.get('password')?.touched && signInForm.get('password')?.invalid) {
+        <p role="alert" class="mt-1 text-[13px] text-danger-ink" i18n="@@auth.login.password_required">Password is required</p>
+      }
+    </lz-field>
 
-      <div class="form-group">
-        <label for="password" i18n="@@auth.login.password_label">Password</label>
-        <div class="input-wrapper">
-          <i class="fa fa-lock input-icon"></i>
-          <input
-            type="password"
-            class="form-control"
-            id="password"
-            formControlName="password"
-            placeholder="Enter your password"
-            i18n-placeholder="@@auth.login.password_placeholder"
-            [ngClass]="{ 'is-invalid': signInForm.get('password')?.touched && signInForm.get('password')?.invalid }"
-          />
-        </div>
-        <div *ngIf="signInForm.get('password')?.touched && signInForm.get('password')?.invalid" class="error-message">
-          <i class="fa fa-exclamation-circle"></i>
-          <span *ngIf="signInForm.get('password')?.errors?.['required']" i18n="@@auth.login.password_required">Password is required</span>
-        </div>
-      </div>
+    <a routerLink="/auth/forgot-password" class="inline-flex min-h-12 items-center self-end font-medium text-link underline" i18n="@@auth.login.forgot_password">Forgot password?</a>
 
-      <div class="forgot-password-link">
-        <a routerLink="/auth/forgot-password" i18n="@@auth.login.forgot_password">Forgot Password?</a>
-      </div>
-
-      <button type="submit" class="btn-primary" [disabled]="!signInForm.valid || loading">
-        <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        <ng-container *ngIf="!loading" i18n="@@auth.login.title">Sign In</ng-container>
-        <ng-container *ngIf="loading" i18n="@@auth.login.signing_in">Signing in...</ng-container>
-      </button>
-    </form>
-
-    <!-- Divider -->
-    <div class="or-separator">
-      <span class="or-text" i18n="@@auth.login.or_divider">OR</span>
-    </div>
-
-    <!-- Google Sign In -->
-    <button type="button" class="btn-google" (click)="googleSignIn()" [disabled]="loading">
-      <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-      </svg>
-      <span i18n="@@auth.login.google">Log in with Google</span>
+    <button type="submit" lzButton variant="primary" class="w-full" [disabled]="!signInForm.valid || loading">
+      @if (loading) {
+        <ng-container i18n="@@auth.login.signing_in">Signing in...</ng-container>
+      } @else {
+        <ng-container i18n="@@auth.login.title">Sign in</ng-container>
+      }
     </button>
+  </form>
 
-    <!-- Sign Up Link (new company self-serve signup; employees join by invite) -->
-    <div class="auth-link">
-      <span i18n="@@auth.login.newToLoqzen">New to Loqzen?</span>
-      <a routerLink="/register" i18n="@@auth.login.createCompany">Create a company account</a>
-    </div>
+  <div class="my-4 flex items-center gap-3 text-ink-soft" aria-hidden="true">
+    <span class="h-px flex-1 bg-line"></span>
+    <span i18n="@@auth.login.or_divider">or</span>
+    <span class="h-px flex-1 bg-line"></span>
   </div>
-</div>
+
+  <button type="button" lzButton variant="secondary" class="w-full" (click)="googleSignIn()" [disabled]="loading">
+    <mat-icon aria-hidden="true">login</mat-icon>
+    <span i18n="@@auth.login.google">Log in with Google</span>
+  </button>
+
+  <p class="mt-4 text-ink-soft">
+    <span i18n="@@auth.login.newToLoqzen">New to Loqzen?</span>
+    <a routerLink="/register" class="ml-1 inline-flex min-h-12 items-center font-medium text-link underline" i18n="@@auth.login.createCompany">Create a company account</a>
+  </p>
+</lz-auth-shell>

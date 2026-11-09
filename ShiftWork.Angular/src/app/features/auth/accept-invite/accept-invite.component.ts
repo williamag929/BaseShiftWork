@@ -7,7 +7,6 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-accept-invite',
   templateUrl: './accept-invite.component.html',
-  styleUrls: ['./accept-invite.component.css'],
   standalone: false,
 })
 export class AcceptInviteComponent implements OnInit {

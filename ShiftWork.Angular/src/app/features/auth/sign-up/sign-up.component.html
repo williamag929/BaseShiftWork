@@ -1,52 +1,63 @@
-<div class="container">
-  <div class="card">
-    <div class="card-body">
-      <h3 class="card-title text-center" i18n="@@auth.register.sign_up">Sign Up</h3>
-      <form [formGroup]="signUpForm" (ngSubmit)="signUp()">
-        <div class="form-group">
-          <label for="email" i18n="@@auth.login.email_label">Email address</label>
-          <input
-            type="email"
-            class="form-control"
-            id="email"
-            formControlName="email"
-            [ngClass]="{ 'is-invalid': signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid }"
-          />
-          <div *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid" class="invalid-feedback">
-            <div *ngIf="signUpForm.get('email')?.errors?.['required']" i18n="@@auth.login.email_required">Email is required.</div>
-            <div *ngIf="signUpForm.get('email')?.errors?.['email']" i18n="@@auth.login.email_invalid">Please enter a valid email address.</div>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="password" i18n="@@auth.register.password">Password</label>
-          <input
-            type="password"
-            class="form-control"
-            id="password"
-            formControlName="password"
-            [ngClass]="{ 'is-invalid': signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid }"
-          />
-          <div *ngIf="signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid" class="invalid-feedback">
-            <div *ngIf="signUpForm.get('password')?.errors?.['required']" i18n="@@auth.login.password_required">Password is required.</div>
-            <div *ngIf="signUpForm.get('password')?.errors?.['minlength']" i18n="@@auth.register.password_short_6">Password must be at least 6 characters long.</div>
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary btn-block" [disabled]="!signUpForm.valid || loading">
-          <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-          <ng-container i18n="@@auth.register.sign_up">Sign Up</ng-container>
-        </button>
-      </form>
-      <div class="or-separator">
-        <span class="or-text" i18n="@@auth.login.or_divider">Or</span>
-      </div>
-      <button type="button" class="btn btn-google btn-block" (click)="googleSignIn()" [disabled]="loading">
-        <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        <i class="fa fa-google-plus-g"></i>
-        <ng-container i18n="@@auth.register.google">Continue with Google</ng-container>
-      </button>
-      <div class="text-center mt-3">
-        <span><ng-container i18n="@@auth.login.no_account">Already have an account?</ng-container> <a routerLink="/sign-in" i18n="@@auth.login.title">Log In</a></span>
-      </div>
-    </div>
+<lz-auth-shell title="Sign up" i18n-title="@@auth.register.sign_up">
+  <form [formGroup]="signUpForm" (ngSubmit)="signUp()" class="flex flex-col gap-4">
+    <lz-field label="Email address" i18n-label="@@auth.login.email_label" controlId="email">
+      <input
+        lzField
+        type="email"
+        id="email"
+        formControlName="email"
+        autocomplete="email"
+        [attr.aria-invalid]="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid ? 'true' : null"
+      />
+      @if (signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid) {
+        <p role="alert" class="mt-1 text-[13px] text-danger-ink">
+          @if (signUpForm.get('email')?.errors?.['required']) {
+            <span i18n="@@auth.login.email_required">Email is required</span>
+          } @else {
+            <span i18n="@@auth.login.email_invalid">Please enter a valid email</span>
+          }
+        </p>
+      }
+    </lz-field>
+
+    <lz-field label="Password" i18n-label="@@auth.register.password" controlId="password">
+      <input
+        lzField
+        type="password"
+        id="password"
+        formControlName="password"
+        autocomplete="new-password"
+        [attr.aria-invalid]="signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid ? 'true' : null"
+      />
+      @if (signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid) {
+        <p role="alert" class="mt-1 text-[13px] text-danger-ink">
+          @if (signUpForm.get('password')?.errors?.['required']) {
+            <span i18n="@@auth.login.password_required">Password is required</span>
+          } @else {
+            <span i18n="@@auth.register.password_short_6">Password must be at least 6 characters long.</span>
+          }
+        </p>
+      }
+    </lz-field>
+
+    <button type="submit" lzButton variant="primary" class="w-full" [disabled]="!signUpForm.valid || loading">
+      <ng-container i18n="@@auth.register.sign_up">Sign up</ng-container>
+    </button>
+  </form>
+
+  <div class="my-4 flex items-center gap-3 text-ink-soft" aria-hidden="true">
+    <span class="h-px flex-1 bg-line"></span>
+    <span i18n="@@auth.login.or_divider">or</span>
+    <span class="h-px flex-1 bg-line"></span>
   </div>
-</div>
+
+  <button type="button" lzButton variant="secondary" class="w-full" (click)="googleSignIn()" [disabled]="loading">
+    <mat-icon aria-hidden="true">login</mat-icon>
+    <span i18n="@@auth.register.google">Continue with Google</span>
+  </button>
+
+  <p class="mt-4 text-ink-soft">
+    <span i18n="@@auth.login.no_account">Already have an account?</span>
+    <a routerLink="/auth/sign-in" class="ml-1 inline-flex min-h-12 items-center font-medium text-link underline" i18n="@@auth.login.title">Sign in</a>
+  </p>
+</lz-auth-shell>

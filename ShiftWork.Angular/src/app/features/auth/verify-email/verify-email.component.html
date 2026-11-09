@@ -1,18 +1,15 @@
-<div class="container">
-  <div class="card">
-    <div class="card-body text-center">
-      <h3 class="card-title" i18n="@@auth.verify_email.title">Thank You for Registering</h3>
-      <div *ngIf="authService.user$ | async as user">
-        <p i18n="@@auth.verify_email.sent">We have sent a confirmation email to <strong>{{ user.email }}</strong>.</p>
-        <p i18n="@@auth.verify_email.instruction">Please check your email and click on the link to verify your email address.</p>
-      </div>
-      <button type="button" class="btn btn-primary" (click)="resendVerificationMail()" [disabled]="loading">
-        <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        <ng-container i18n="@@auth.verify_email.resend">Resend Verification Email</ng-container>
-      </button>
-      <div class="mt-3">
-        <span><ng-container i18n="@@auth.forgot_password.go_back_to">Go back to</ng-container> <a routerLink="/sign-in" i18n="@@auth.login.sign_up_link">Sign in</a></span>
-      </div>
-    </div>
-  </div>
-</div>
+<lz-auth-shell title="Thank you for registering" i18n-title="@@auth.verify_email.title">
+  @if (authService.user$ | async; as user) {
+    <p i18n="@@auth.verify_email.sent">We have sent a confirmation email to <strong>{{ user.email }}</strong>.</p>
+    <p class="mt-2 text-ink-soft" i18n="@@auth.verify_email.instruction">Please check your email and click on the link to verify your email address.</p>
+  }
+
+  <button type="button" lzButton variant="primary" class="mt-4 w-full" (click)="resendVerificationMail()" [disabled]="loading">
+    <ng-container i18n="@@auth.verify_email.resend">Resend verification email</ng-container>
+  </button>
+
+  <p class="mt-4 text-ink-soft">
+    <span i18n="@@auth.forgot_password.go_back_to">Go back to</span>
+    <a routerLink="/auth/sign-in" class="ml-1 inline-flex min-h-12 items-center font-medium text-link underline" i18n="@@auth.login.title">Sign in</a>
+  </p>
+</lz-auth-shell>

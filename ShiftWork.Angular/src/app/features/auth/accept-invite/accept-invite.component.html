@@ -1,154 +1,104 @@
-<div class="accept-invite-container">
+@if (invalidLink) {
+  <lz-auth-shell wide title="Invalid invite link" i18n-title="@@auth.accept_invite.invalid_title">
+    <lz-alert tone="danger">
+      <p i18n="@@auth.accept_invite.invalid_description">This invite link is missing required information or has already been used.</p>
+      <p class="mt-1" i18n="@@auth.accept_invite.ask_admin">Ask your administrator to send a new invite.</p>
+    </lz-alert>
+    <a routerLink="/auth/sign-in" lzButton variant="primary" class="mt-4 w-full" i18n="@@auth.accept_invite.go_sign_in">Go to sign in</a>
+  </lz-auth-shell>
+} @else if (success) {
+  <lz-auth-shell wide title="You're all set" i18n-title="@@auth.accept_invite.success_title">
+    <p i18n="@@auth.accept_invite.success_subtitle">
+      Your account is ready. Log in with <strong>{{ employeeEmail }}</strong>.
+    </p>
+    <a routerLink="/auth/sign-in" lzButton variant="primary" class="mt-4 w-full" i18n="@@auth.accept_invite.go_sign_in">Go to sign in</a>
 
-  <!-- ── Invalid / expired link ── -->
-  <div class="invite-card" *ngIf="invalidLink">
-    <div class="card-header">
-      <div class="header-icon" style="background: #fee2e2;">
-        <i class="fas fa-exclamation-triangle" style="color:#dc2626;"></i>
+    <div class="mt-6 border-t border-line pt-4">
+      <p class="font-medium" i18n="@@auth.accept_invite.or_download">Or download the mobile app</p>
+      <ul class="mt-2 flex flex-col gap-2 text-ink-soft sm:flex-row sm:gap-6">
+        <li><span class="font-medium text-ink">Google Play</span> · <span i18n="@@auth.accept_invite.coming_soon">Coming soon</span></li>
+        <li><span class="font-medium text-ink">App Store</span> · <span i18n="@@auth.accept_invite.coming_soon">Coming soon</span></li>
+      </ul>
+    </div>
+  </lz-auth-shell>
+} @else {
+  <lz-auth-shell
+    wide
+    title="Accept invitation"
+    i18n-title="@@auth.accept_invite.title"
+    subtitle="Set a password to access the Loqzen mobile app"
+    i18n-subtitle="@@auth.accept_invite.subtitle"
+  >
+    <div class="mb-4 flex items-center gap-3 rounded-control border border-line bg-paper-alt p-3">
+      <div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-neutral-bg font-semibold" aria-hidden="true">{{ getInitials(employeeName) }}</div>
+      <div class="min-w-0">
+        <p class="truncate font-medium">{{ employeeName }}</p>
+        <p class="truncate text-ink-soft">{{ employeeEmail }}</p>
       </div>
-      <h1 class="card-title" i18n="@@auth.accept_invite.invalid_title">Invalid Invite Link</h1>
-      <p class="card-subtitle">
-        <ng-container i18n="@@auth.accept_invite.invalid_description">This invite link is missing required information or has already been used.</ng-container><br>
-        <ng-container i18n="@@auth.accept_invite.ask_admin">Ask your administrator to send a new invite.</ng-container>
-      </p>
     </div>
-    <div class="card-footer" style="text-align:center; margin-top:24px;">
-      <a routerLink="/auth/sign-in" class="footer-link" i18n="@@auth.accept_invite.go_sign_in">Go to Sign In</a>
-    </div>
-  </div>
 
-  <!-- ── Success state ── -->
-  <div class="invite-card" *ngIf="success && !invalidLink">
-    <div class="card-header">
-      <div class="header-icon success-icon">
-        <i class="fas fa-check-circle"></i>
+    <form [formGroup]="inviteForm" (ngSubmit)="acceptInvite()" class="flex flex-col gap-4">
+      <div>
+        <h2 class="text-[18px] font-semibold" i18n="@@auth.accept_invite.create_password">Create your password</h2>
+        <p class="text-ink-soft" i18n="@@auth.accept_invite.create_password_desc">Set up a secure password to access your account</p>
       </div>
-      <h1 class="card-title" i18n="@@auth.accept_invite.success_title">You're All Set!</h1>
-      <p class="card-subtitle" i18n="@@auth.accept_invite.success_subtitle">
-        Your account is ready. Log in with <strong>{{ employeeEmail }}</strong>.
-      </p>
-    </div>
 
-    <div class="success-actions">
-      <a routerLink="/auth/sign-in" class="btn-signin">
-        <i class="fas fa-sign-in-alt"></i>
-        <ng-container i18n="@@auth.accept_invite.go_sign_in">Go to Sign In</ng-container>
-      </a>
-
-      <div class="app-download-section">
-        <p class="app-download-label" i18n="@@auth.accept_invite.or_download">Or download the mobile app</p>
-        <div class="app-badges">
-          <div class="app-badge coming-soon">
-            <i class="fab fa-google-play"></i>
-            <div class="badge-text">
-              <span class="badge-sub" i18n="@@auth.accept_invite.coming_soon">Coming Soon</span>
-              <span class="badge-name">Google Play</span>
-            </div>
-          </div>
-          <div class="app-badge coming-soon">
-            <i class="fab fa-apple"></i>
-            <div class="badge-text">
-              <span class="badge-sub" i18n="@@auth.accept_invite.coming_soon">Coming Soon</span>
-              <span class="badge-name">App Store</span>
-            </div>
-          </div>
+      <lz-field label="Password" i18n-label="@@auth.login.password_label" controlId="password">
+        <div class="relative">
+          <input
+            lzField
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            autocomplete="new-password"
+            class="pr-14"
+            placeholder="Enter your password (min 6 chars)"
+            i18n-placeholder="@@auth.accept_invite.password_placeholder"
+            [attr.aria-invalid]="inviteForm.get('password')?.invalid && inviteForm.get('password')?.touched ? 'true' : null"
+          />
+          <button type="button" lzButton variant="quiet" iconOnly class="absolute top-0 right-0" [attr.aria-pressed]="showPassword" aria-label="Show password" i18n-aria-label="@@auth.accept_invite.toggle_password" (click)="togglePasswordVisibility('password')">
+            <mat-icon aria-hidden="true">{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
         </div>
-      </div>
-    </div>
-  </div>
+        @if (inviteForm.get('password')?.invalid && inviteForm.get('password')?.touched) {
+          <p role="alert" class="mt-1 text-[13px] text-danger-ink" i18n="@@auth.accept_invite.password_min">Password must be at least 6 characters</p>
+        }
+      </lz-field>
 
-  <!-- ── Form state ── -->
-  <div class="invite-card" *ngIf="!success && !invalidLink">
-    <div class="card-header">
-      <div class="header-icon">
-        <i class="fas fa-envelope-open-text"></i>
-      </div>
-      <h1 class="card-title" i18n="@@auth.accept_invite.title">Accept Invitation</h1>
-      <p class="card-subtitle" i18n="@@auth.accept_invite.subtitle">Set a password to access the Loqzen mobile app</p>
-    </div>
-
-    <div class="employee-section">
-      <div class="employee-card">
-        <div class="employee-avatar">
-          <div class="avatar-placeholder">{{ getInitials(employeeName) }}</div>
+      <lz-field label="Confirm password" i18n-label="@@auth.accept_invite.confirm_password" controlId="confirmPassword">
+        <div class="relative">
+          <input
+            lzField
+            id="confirmPassword"
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            formControlName="confirmPassword"
+            autocomplete="new-password"
+            class="pr-14"
+            placeholder="Confirm your password"
+            i18n-placeholder="@@auth.accept_invite.confirm_placeholder"
+            [attr.aria-invalid]="inviteForm.hasError('passwordMismatch') && inviteForm.get('confirmPassword')?.touched ? 'true' : null"
+          />
+          <button type="button" lzButton variant="quiet" iconOnly class="absolute top-0 right-0" [attr.aria-pressed]="showConfirmPassword" aria-label="Show password" i18n-aria-label="@@auth.accept_invite.toggle_password" (click)="togglePasswordVisibility('confirmPassword')">
+            <mat-icon aria-hidden="true">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
         </div>
-        <div class="employee-details">
-          <h3 class="employee-name">{{ employeeName }}</h3>
-          <p class="employee-email">{{ employeeEmail }}</p>
-        </div>
-      </div>
-    </div>
+        @if (inviteForm.hasError('passwordMismatch') && inviteForm.get('confirmPassword')?.touched) {
+          <p role="alert" class="mt-1 text-[13px] text-danger-ink" i18n="@@auth.accept_invite.password_mismatch">Passwords do not match</p>
+        }
+      </lz-field>
 
-    <form [formGroup]="inviteForm" (ngSubmit)="acceptInvite()" class="invite-form">
-      <div class="form-section">
-        <h3 class="section-title" i18n="@@auth.accept_invite.create_password">Create Your Password</h3>
-        <p class="section-description" i18n="@@auth.accept_invite.create_password_desc">
-          Set up a secure password to access your account
-        </p>
-
-        <div class="form-group">
-          <label for="password" class="form-label">
-            <i class="fas fa-lock"></i>
-            <ng-container i18n="@@auth.login.password_label">Password</ng-container>
-          </label>
-          <div class="input-wrapper">
-            <input
-              id="password"
-              [type]="showPassword ? 'text' : 'password'"
-              formControlName="password"
-              class="form-input"
-              placeholder="Enter your password (min 6 chars)"
-              i18n-placeholder="@@auth.accept_invite.password_placeholder"
-              [class.error]="inviteForm.get('password')?.invalid && inviteForm.get('password')?.touched"
-            />
-            <button type="button" class="toggle-password" (click)="togglePasswordVisibility('password')" tabindex="-1">
-              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-            </button>
-          </div>
-          <div *ngIf="inviteForm.get('password')?.invalid && inviteForm.get('password')?.touched" class="error-message">
-            <i class="fas fa-exclamation-circle"></i>
-            <ng-container i18n="@@auth.accept_invite.password_min">Password must be at least 6 characters</ng-container>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="confirmPassword" class="form-label">
-            <i class="fas fa-lock"></i>
-            <ng-container i18n="@@auth.accept_invite.confirm_password">Confirm Password</ng-container>
-          </label>
-          <div class="input-wrapper">
-            <input
-              id="confirmPassword"
-              [type]="showConfirmPassword ? 'text' : 'password'"
-              formControlName="confirmPassword"
-              class="form-input"
-              placeholder="Confirm your password"
-              i18n-placeholder="@@auth.accept_invite.confirm_placeholder"
-              [class.error]="inviteForm.hasError('passwordMismatch') && inviteForm.get('confirmPassword')?.touched"
-            />
-            <button type="button" class="toggle-password" (click)="togglePasswordVisibility('confirmPassword')" tabindex="-1">
-              <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-            </button>
-          </div>
-          <div *ngIf="inviteForm.hasError('passwordMismatch') && inviteForm.get('confirmPassword')?.touched" class="error-message">
-            <i class="fas fa-exclamation-circle"></i>
-            <ng-container i18n="@@auth.accept_invite.password_mismatch">Passwords do not match</ng-container>
-          </div>
-        </div>
-      </div>
-
-      <button type="submit" class="btn-submit" [disabled]="inviteForm.invalid || loading">
-        <i [class]="loading ? 'fas fa-spinner fa-spin' : 'fas fa-check-circle'"></i>
-        <ng-container *ngIf="loading" i18n="@@auth.accept_invite.setting">Setting Password...</ng-container>
-        <ng-container *ngIf="!loading" i18n="@@auth.accept_invite.submit">Set Password & Activate Account</ng-container>
+      <button type="submit" lzButton variant="primary" class="w-full" [disabled]="inviteForm.invalid || loading">
+        @if (loading) {
+          <ng-container i18n="@@auth.accept_invite.setting">Setting password...</ng-container>
+        } @else {
+          <ng-container i18n="@@auth.accept_invite.submit">Set password and activate account</ng-container>
+        }
       </button>
     </form>
 
-    <div class="card-footer">
-      <p class="footer-text">
-        <ng-container i18n="@@auth.login.no_account">Already have an account?</ng-container>
-        <a routerLink="/auth/sign-in" class="footer-link" i18n="@@auth.login.title">Sign In</a>
-      </p>
-    </div>
-  </div>
-</div>
+    <p class="mt-4 text-ink-soft">
+      <span i18n="@@auth.login.no_account">Already have an account?</span>
+      <a routerLink="/auth/sign-in" class="ml-1 inline-flex min-h-12 items-center font-medium text-link underline" i18n="@@auth.login.title">Sign in</a>
+    </p>
+  </lz-auth-shell>
+}

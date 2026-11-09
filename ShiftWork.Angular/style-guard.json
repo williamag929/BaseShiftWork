@@ -3,6 +3,12 @@
     "src/app/features/dashboard/dashboard.component.*",
     "src/app/features/dashboard/nav/**",
     "src/app/features/dashboard/schedule-grid/schedule-grid.component.*",
-    "src/app/features/dashboard/people/people.component.*"
+    "src/app/features/dashboard/people/people.component.*",
+    "src/app/features/company-switch/company-switch.component.*",
+    "src/app/features/auth/sign-in/**",
+    "src/app/features/auth/sign-up/**",
+    "src/app/features/auth/forgot-password/**",
+    "src/app/features/auth/verify-email/**",
+    "src/app/features/auth/accept-invite/**"
   ]
 }

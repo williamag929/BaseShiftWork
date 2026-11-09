@@ -1,49 +1,36 @@
-<div class="company-switch-container">
-  <div class="company-box">
-    <!-- Header Section -->
-    <div class="company-header">
-      <div class="logo-circle">
-        <i class="fa fa-building"></i>
-      </div>
-      <h2 i18n="@@company_switch.title">Select Your Company</h2>
-      <p class="subtitle" i18n="@@company_switch.subtitle">Choose a company to continue</p>
-    </div>
+@let companies = companies$ | async;
+@let loading = loading$ | async;
+@let error = error$ | async;
 
-    <!-- Loading State -->
-    <div *ngIf="loading$ | async" class="loading-container">
-      <mat-spinner diameter="50"></mat-spinner>
-      <p class="loading-text" i18n="@@company_switch.loading">Loading companies...</p>
-    </div>
+<lz-auth-shell
+  [wide]="(companies?.length ?? 0) > 4"
+  title="Select your company"
+  i18n-title="@@company_switch.title"
+  subtitle="Choose a company to continue"
+  i18n-subtitle="@@company_switch.subtitle"
+>
+  @if (loading) {
+    <lz-alert tone="info" i18n="@@company_switch.loading">Loading companies...</lz-alert>
+  }
 
-    <!-- Error State -->
-    <div *ngIf="error$ | async" class="error-container">
-      <i class="fa fa-exclamation-circle error-icon"></i>
-      <p class="error-text" i18n="@@company_switch.error">Error loading companies. Please try again.</p>
-    </div>
+  @if (error) {
+    <lz-alert tone="danger" i18n="@@company_switch.error">Error loading companies. Please try again.</lz-alert>
+  }
 
-    <!-- Companies List -->
-    <div *ngIf="(companies$ | async) && (companies$ | async)!.length > 0 && !(loading$ | async)" class="companies-list">
-      <div
-        class="company-item"
-        *ngFor="let company of companies$ | async; let i = index"
-        (click)="switchCompany(company)"
-        [style.animation-delay.ms]="i * 50">
-        <div class="company-icon">
-          <i class="fa fa-briefcase"></i>
-        </div>
-        <div class="company-info">
-          <h3 class="company-name">{{company.name}}</h3>
-          <span class="company-arrow">
-            <i class="fa fa-chevron-right"></i>
-          </span>
-        </div>
-      </div>
-    </div>
+  @if (companies && companies.length > 0 && !loading) {
+    <ul class="grid gap-2" [ngClass]="companies.length > 4 ? 'sm:grid-cols-2' : ''">
+      @for (company of companies; track company.companyId) {
+        <li>
+          <button type="button" lzButton variant="secondary" class="w-full !justify-between text-left" (click)="switchCompany(company)">
+            <span class="min-w-0 truncate">{{ company.name }}</span>
+            <mat-icon aria-hidden="true">chevron_right</mat-icon>
+          </button>
+        </li>
+      }
+    </ul>
+  }
 
-    <!-- Empty State -->
-    <div *ngIf="(companies$ | async)?.length === 0 && !(loading$ | async)" class="empty-state">
-      <i class="fa fa-building-o empty-icon"></i>
-      <p class="empty-text" i18n="@@company_switch.empty">No companies available</p>
-    </div>
-  </div>
-</div>
+  @if (companies?.length === 0 && !loading && !error) {
+    <lz-alert tone="info" i18n="@@company_switch.empty">No companies available</lz-alert>
+  }
+</lz-auth-shell>

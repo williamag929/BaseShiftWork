@@ -12,7 +12,6 @@ import { filter, take } from 'rxjs/operators';
 @Component({
   selector: 'app-company-switch',
   templateUrl: './company-switch.component.html',
-  styleUrls: ['./company-switch.component.css'],
   standalone: false
 })
 export class CompanySwitchComponent implements OnInit, OnDestroy {

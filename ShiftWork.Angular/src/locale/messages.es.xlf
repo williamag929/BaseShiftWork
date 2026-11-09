@@ -446,6 +446,10 @@
         <source>Reset link sent. Check your inbox.</source>
         <target state="translated">Enlace enviado. Revisa tu correo.</target>
       </trans-unit>
+      <trans-unit id="auth.accept_invite.toggle_password" datatype="html">
+        <source>Show password</source>
+        <target state="translated">Mostrar contraseña</target>
+      </trans-unit>
       <trans-unit id="auth.accept_invite.invalid_title" datatype="html">
         <source>Invalid Invite Link</source>
         <target state="translated">Enlace de invitación inválido</target>

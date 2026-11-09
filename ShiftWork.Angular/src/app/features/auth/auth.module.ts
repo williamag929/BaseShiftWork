@@ -2,6 +2,14 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import {
+  LzAlertComponent,
+  LzAuthShellComponent,
+  LzButtonDirective,
+  LzFieldComponent,
+  LzFieldDirective,
+} from '../../shared/ui';
 
 import { SignInComponent } from './sign-in/sign-in.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
@@ -29,7 +37,12 @@ const routes: Routes = [
     CommonModule,
     ReactiveFormsModule,
     RouterModule.forChild(routes),
-    ReactiveFormsModule
+    MatIconModule,
+    LzAlertComponent,
+    LzAuthShellComponent,
+    LzButtonDirective,
+    LzFieldComponent,
+    LzFieldDirective
   ]
 })
 export class AuthModule { }
