@@ -13,3 +13,6 @@ export { LzTableDirective } from './table/lz-table.directive';
 export { LzTableScrollComponent } from './table/lz-table-scroll.component';
 export { LzDialogFrameComponent } from './dialog/lz-dialog-frame.component';
 export { LzAuthShellComponent } from './auth-shell/lz-auth-shell.component';
+export { LzSidePanelComponent } from './side-panel/lz-side-panel.component';
+export { LzPagerComponent } from './pager/lz-pager.component';
+export { paginate } from './pager/paginate';

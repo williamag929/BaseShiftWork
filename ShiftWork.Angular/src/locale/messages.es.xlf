@@ -6608,6 +6608,66 @@ What would you like to do?</source>
         <source>Add shift on <x id="day" equiv-text="day.dayName"/></source>
         <target state="translated">Añadir turno el <x id="day" equiv-text="day.dayName"/></target>
       </trans-unit>
+      <trans-unit id="people.bulk_actions" datatype="html">
+        <source>Bulk actions</source>
+        <target state="translated">Acciones en lote</target>
+      </trans-unit>
+      <trans-unit id="people.n_selected" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ selectedIds.size }}"/> selected</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ selectedIds.size }}"/> seleccionadas</target>
+      </trans-unit>
+      <trans-unit id="people.set_active" datatype="html">
+        <source>Set active</source>
+        <target state="translated">Marcar como activas</target>
+      </trans-unit>
+      <trans-unit id="people.set_inactive" datatype="html">
+        <source>Set inactive</source>
+        <target state="translated">Marcar como inactivas</target>
+      </trans-unit>
+      <trans-unit id="people.clear_selection" datatype="html">
+        <source>Clear</source>
+        <target state="translated">Borrar selección</target>
+      </trans-unit>
+      <trans-unit id="people.col_select" datatype="html">
+        <source>Select</source>
+        <target state="translated">Seleccionar</target>
+      </trans-unit>
+      <trans-unit id="people.select_person" datatype="html">
+        <source>Select <x id="name" equiv-text="person.name"/></source>
+        <target state="translated">Seleccionar a <x id="name" equiv-text="person.name"/></target>
+      </trans-unit>
+      <trans-unit id="people.section_address_access" datatype="html">
+        <source>Address and app access</source>
+        <target state="translated">Dirección y acceso a la app</target>
+      </trans-unit>
+      <trans-unit id="ui.pager.rows_per_page" datatype="html">
+        <source>Rows per page</source>
+        <target state="translated">Filas por página</target>
+      </trans-unit>
+      <trans-unit id="ui.pager.previous" datatype="html">
+        <source>Previous page</source>
+        <target state="translated">Página anterior</target>
+      </trans-unit>
+      <trans-unit id="ui.pager.next" datatype="html">
+        <source>Next page</source>
+        <target state="translated">Página siguiente</target>
+      </trans-unit>
+      <trans-unit id="ui.pager.range" datatype="html">
+        <source><x id="from" equiv-text="from"/>–<x id="to" equiv-text="to"/> of <x id="total" equiv-text="total"/></source>
+        <target state="translated"><x id="from" equiv-text="from"/>–<x id="to" equiv-text="to"/> de <x id="total" equiv-text="total"/></target>
+      </trans-unit>
+      <trans-unit id="ui.side_panel.discard_prompt" datatype="html">
+        <source>Discard your changes?</source>
+        <target state="translated">¿Descartar tus cambios?</target>
+      </trans-unit>
+      <trans-unit id="ui.side_panel.keep_editing" datatype="html">
+        <source>Keep editing</source>
+        <target state="translated">Seguir editando</target>
+      </trans-unit>
+      <trans-unit id="ui.side_panel.discard" datatype="html">
+        <source>Discard</source>
+        <target state="translated">Descartar</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

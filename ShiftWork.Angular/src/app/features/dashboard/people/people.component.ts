@@ -4,7 +4,7 @@ import { People } from 'src/app/core/models/people.model';
 import { PeopleService } from 'src/app/core/services/people.service';
 import { InviteService } from 'src/app/core/services/invite.service';
 import { ToastrService } from 'ngx-toastr';
-import { EMPTY, Observable, from } from 'rxjs';
+import { EMPTY, Observable, forkJoin, from } from 'rxjs';
 import { catchError, mergeMap, tap } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
@@ -13,6 +13,7 @@ import { Role } from 'src/app/core/models/role.model';
 import { RoleService } from 'src/app/core/services/role.service';
 import { InviteStatusResponse } from 'src/app/core/models/invite.model';
 import { PlanLimitPromptService } from 'src/app/core/services/plan-limit-prompt.service';
+import { paginate } from 'src/app/shared/ui';
 
 const INVITE_STATUS_CONCURRENCY = 6;
 
@@ -33,7 +34,16 @@ export class PeopleComponent implements OnInit {
   searchTerm = '';
   statusFilter = 'all';
   error: any = null;
-  
+
+  // List and drawer state
+  panelOpen = false;
+  page = 1;
+  pageSize = 25;
+  selectedIds = new Set<number>();
+  bulkUpdating = false;
+  readonly paginate = paginate;
+  readonly addPersonLabel = $localize`:@@people.add_person:Add person`;
+
   // Invite functionality
   showInviteDialog = false;
   selectedRolesForInvite: number[] = [];
@@ -118,7 +128,71 @@ export class PeopleComponent implements OnInit {
     return $localize`:@@people.edit_person:Edit ${person.name}:name:`;
   }
 
+  selectLabel(person: People): string {
+    return $localize`:@@people.select_person:Select ${person.name}:name:`;
+  }
+
+  setSearchTerm(value: string): void {
+    this.searchTerm = value;
+    this.page = 1;
+  }
+
+  setStatusFilter(value: string): void {
+    this.statusFilter = value;
+    this.page = 1;
+  }
+
+  addPerson(): void {
+    this.cancelEdit();
+    this.panelOpen = true;
+  }
+
+  toggleSelected(personId: number): void {
+    if (!this.selectedIds.delete(personId)) {
+      this.selectedIds.add(personId);
+    }
+  }
+
+  clearSelection(): void {
+    this.selectedIds.clear();
+  }
+
+  setSelectedStatus(status: 'Active' | 'Inactive'): void {
+    if (!this.activeCompany?.companyId || this.selectedIds.size === 0 || this.bulkUpdating) {
+      return;
+    }
+    const companyId = this.activeCompany.companyId;
+    this.bulkUpdating = true;
+    forkJoin([...this.selectedIds].map(id => this.peopleService.updatePersonStatus(companyId, id, status))).subscribe({
+      next: () => {
+        this.bulkUpdating = false;
+        this.selectedIds.clear();
+        this.toastr.success('Status updated.');
+        this.reloadPeople();
+      },
+      error: () => {
+        this.bulkUpdating = false;
+        this.toastr.error('Failed to update status.');
+        this.reloadPeople();
+      }
+    });
+  }
+
+  private reloadPeople(): void {
+    const companyId = this.activeCompany?.companyId;
+    if (!companyId) return;
+    this.peopleService.getPeople(companyId, 1, 1000).subscribe({
+      next: people => {
+        this.people = people.filter(p => p.companyId === companyId);
+        this.page = Math.min(this.page, Math.max(1, Math.ceil(this.filteredPeople.length / this.pageSize)));
+        this.loadInviteStatuses();
+      },
+      error: error => { this.error = error; }
+    });
+  }
+
   editPerson(person: People): void {
+    this.panelOpen = true;
     this.selectedPerson = person;
     // Patch form with roleIds array only
     this.personForm.patchValue({
@@ -128,6 +202,7 @@ export class PeopleComponent implements OnInit {
   }
 
   cancelEdit(): void {
+    this.panelOpen = false;
     this.selectedPerson = null;
     this.personForm.reset({
       name: '',

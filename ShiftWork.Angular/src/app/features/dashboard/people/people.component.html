@@ -2,19 +2,26 @@
 
   <lz-page-header title="People" i18n-title="@@people.page_title" subtitle="Everyone who can be scheduled or clock in at your job sites." i18n-subtitle="@@people.page_subtitle">
     <ng-container lzHeaderActions>
-      <button lzButton variant="primary" type="button" (click)="cancelEdit(); nameInput.focus()">
-        <mat-icon aria-hidden="true">person_add</mat-icon>
-        <ng-container i18n="@@people.add_person">Add person</ng-container>
-      </button>
+      @if (panelOpen) {
+        <button lzButton variant="secondary" type="button" (click)="addPerson()">
+          <mat-icon aria-hidden="true">person_add</mat-icon>
+          <ng-container i18n="@@people.add_person">Add person</ng-container>
+        </button>
+      } @else {
+        <button lzButton variant="primary" type="button" (click)="addPerson()">
+          <mat-icon aria-hidden="true">person_add</mat-icon>
+          <ng-container i18n="@@people.add_person">Add person</ng-container>
+        </button>
+      }
     </ng-container>
   </lz-page-header>
 
   <div class="flex flex-wrap items-center gap-2">
     <label class="flex items-center gap-2">
       <mat-icon aria-hidden="true" class="text-ink-soft">search</mat-icon>
-      <input type="search" class="min-h-12 w-full sm:w-72 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted " aria-label="Search people" i18n-aria-label="@@people.search_label" placeholder="Search by name or email" i18n-placeholder="@@people.search_placeholder" [value]="searchTerm" (input)="searchTerm = $any($event.target).value">
+      <input lzField type="search" class="sm:w-72" aria-label="Search people" i18n-aria-label="@@people.search_label" placeholder="Search by name or email" i18n-placeholder="@@people.search_placeholder" [value]="searchTerm" (input)="setSearchTerm($any($event.target).value)">
     </label>
-    <select class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" aria-label="Status" i18n-aria-label="@@people.status" [value]="statusFilter" (change)="statusFilter = $any($event.target).value">
+    <select lzField class="sm:w-auto" aria-label="Status" i18n-aria-label="@@people.status" [value]="statusFilter" (change)="setStatusFilter($any($event.target).value)">
       <option value="all" i18n="@@people.all_statuses">All statuses</option>
       <option value="Active" i18n="@@people.active">Active</option>
       <option value="Inactive" i18n="@@people.inactive">Inactive</option>
@@ -22,203 +29,183 @@
     <span class="ml-auto text-ink-soft tabular-nums">{{ filteredPeople.length }} / {{ people.length }}</span>
   </div>
 
-  <div class="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_26rem]">
+  @if (selectedIds.size > 0) {
+    <div class="flex flex-wrap items-center gap-2 rounded-control bg-paper-alt px-4 py-2" role="region" aria-label="Bulk actions" i18n-aria-label="@@people.bulk_actions">
+      <span class="mr-auto font-medium tabular-nums" aria-live="polite" i18n="@@people.n_selected">{{ selectedIds.size }} selected</span>
+      <button lzButton variant="secondary" type="button" [disabled]="bulkUpdating" (click)="setSelectedStatus('Active')" i18n="@@people.set_active">Set active</button>
+      <button lzButton variant="secondary" type="button" [disabled]="bulkUpdating" (click)="setSelectedStatus('Inactive')" i18n="@@people.set_inactive">Set inactive</button>
+      <button lzButton variant="quiet" type="button" [disabled]="bulkUpdating" (click)="clearSelection()" i18n="@@people.clear_selection">Clear</button>
+    </div>
+  }
 
-    <section class="min-w-0">
-      @if (loading) {
-        <p class="p-4 text-ink-soft" role="status" i18n="@@people.loading">Loading people...</p>
-      }
-      @if (error) {
-        <p class="flex items-center gap-2 rounded-panel border border-danger bg-danger-bg p-4 text-danger-ink" role="alert">
-          <mat-icon aria-hidden="true">error</mat-icon>
-          <ng-container i18n="@@people.error">Error loading people. Please try again.</ng-container>
-        </p>
-      }
-      @if (!loading && !error) {
-        <div class="overflow-x-auto rounded-panel border border-line bg-paper">
-          <table class="w-full border-collapse text-left">
-            <thead class="bg-paper-alt text-[13px] text-ink-soft">
-              <tr>
-                <th scope="col" class="px-4 py-3 font-medium" i18n="@@people.col_person">Person</th>
-                <th scope="col" class="px-4 py-3 font-medium" i18n="@@people.status">Status</th>
-                <th scope="col" class="px-4 py-3 font-medium" i18n="@@people.col_app_access">App access</th>
-                <th scope="col" class="px-4 py-3 font-medium" i18n="@@people.col_right_now">Right now</th>
-                <th scope="col" class="px-4 py-3 text-right font-medium" i18n="@@people.col_actions">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (person of filteredPeople; track person.personId) {
-                <tr class="border-b border-line-soft" [class.bg-paper-alt]="selectedPerson?.personId === person.personId">
-                  <td class="px-4 py-2">
-                    <div class="flex items-center gap-3">
-                      @if (person.photoUrl) {
-                        <img class="size-10 rounded-full object-cover" [src]="person.photoUrl" alt="">
-                      } @else {
-                        <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-neutral-bg text-[13px] font-medium text-ink" aria-hidden="true">{{ getInitials(person.name) }}</span>
-                      }
-                      <div class="min-w-0">
-                        <div class="font-medium text-ink">{{ person.name }}</div>
-                        <div class="truncate text-[13px] text-ink-soft">{{ person.email }}</div>
-                      </div>
+  <section class="min-w-0">
+    @if (loading) {
+      <lz-alert tone="info" i18n="@@people.loading">Loading people...</lz-alert>
+    }
+    @if (error) {
+      <lz-alert tone="danger" i18n="@@people.error">Error loading people. Please try again.</lz-alert>
+    }
+    @if (!loading && !error) {
+      <lz-table-scroll>
+        <table lzTable>
+          <thead>
+            <tr>
+              <th scope="col" class="w-12"><span class="sr-only" i18n="@@people.col_select">Select</span></th>
+              <th scope="col" i18n="@@people.col_person">Person</th>
+              <th scope="col" i18n="@@people.status">Status</th>
+              <th scope="col" i18n="@@people.col_app_access">App access</th>
+              <th scope="col" i18n="@@people.col_right_now">Right now</th>
+              <th scope="col" class="text-right" i18n="@@people.col_actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (person of paginate(filteredPeople, page, pageSize); track person.personId) {
+              <tr class="cursor-pointer hover:bg-paper-alt" [class.bg-paper-alt]="selectedPerson?.personId === person.personId || selectedIds.has(person.personId)" (click)="editPerson(person)">
+                <td (click)="$event.stopPropagation()">
+                  <label class="flex size-6 cursor-pointer items-center justify-center">
+                    <input type="checkbox" class="size-5" [attr.aria-label]="selectLabel(person)" [checked]="selectedIds.has(person.personId)" (change)="toggleSelected(person.personId)">
+                  </label>
+                </td>
+                <td>
+                  <div class="flex items-center gap-3">
+                    @if (person.photoUrl) {
+                      <img class="size-10 rounded-full object-cover" [src]="person.photoUrl" alt="">
+                    } @else {
+                      <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-neutral-bg text-[13px] font-medium text-ink" aria-hidden="true">{{ getInitials(person.name) }}</span>
+                    }
+                    <div class="min-w-0">
+                      <div class="font-medium text-ink">{{ person.name }}</div>
+                      <div class="truncate text-[13px] text-ink-soft">{{ person.email }}</div>
                     </div>
-                  </td>
-                  <td class="px-4 py-2">
-                    <lz-status-chip [tone]="person.status === 'Active' ? 'success' : 'neutral'">{{ person.status }}</lz-status-chip>
-                  </td>
-                  <td class="px-4 py-2">
-                    @if (getStatusBadgeText(person.personId); as badge) {
-                      <lz-status-chip [tone]="getInviteStatus(person.personId)?.status === 'Active' ? 'success' : getInviteStatus(person.personId)?.status === 'Pending' ? 'warning' : 'neutral'">{{ badge }}</lz-status-chip>
+                  </div>
+                </td>
+                <td>
+                  <lz-status-chip [tone]="person.status === 'Active' ? 'success' : 'neutral'">{{ person.status }}</lz-status-chip>
+                </td>
+                <td>
+                  @if (getStatusBadgeText(person.personId); as badge) {
+                    <lz-status-chip [tone]="getInviteStatus(person.personId)?.status === 'Active' ? 'success' : getInviteStatus(person.personId)?.status === 'Pending' ? 'warning' : 'neutral'">{{ badge }}</lz-status-chip>
+                  }
+                </td>
+                <td>
+                  @if (person.statusShiftWork) {
+                    @if (person.statusShiftWork.startsWith('OnShift')) {
+                      <lz-status-chip tone="success" [dot]="true" i18n="@@people.on_shift">On shift</lz-status-chip>
+                    } @else {
+                      <lz-status-chip tone="neutral" i18n="@@people.off_shift">Off shift</lz-status-chip>
                     }
-                  </td>
-                  <td class="px-4 py-2">
-                    @if (person.statusShiftWork) {
-                      @if (person.statusShiftWork.startsWith('OnShift')) {
-                        <lz-status-chip tone="success" [dot]="true" i18n="@@people.on_shift">On shift</lz-status-chip>
-                      } @else {
-                        <lz-status-chip tone="neutral" i18n="@@people.off_shift">Off shift</lz-status-chip>
-                      }
-                    }
-                  </td>
-                  <td class="px-4 py-2">
-                    <div class="flex justify-end gap-1">
-                      @if (person.email) {
-                        <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="getInviteIconTooltip(person.personId)" [title]="getInviteIconTooltip(person.personId)" (click)="openInviteDialog(person)">
-                          <mat-icon aria-hidden="true">{{ getInviteStatus(person.personId)?.status === 'Active' ? 'key' : 'mail' }}</mat-icon>
-                        </button>
-                      }
-                      <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(person)" (click)="editPerson(person)">
-                        <mat-icon aria-hidden="true">edit</mat-icon>
+                  }
+                </td>
+                <td (click)="$event.stopPropagation()">
+                  <div class="flex justify-end gap-1">
+                    @if (person.email) {
+                      <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="getInviteIconTooltip(person.personId)" [title]="getInviteIconTooltip(person.personId)" (click)="openInviteDialog(person)">
+                        <mat-icon aria-hidden="true">{{ getInviteStatus(person.personId)?.status === 'Active' ? 'key' : 'mail' }}</mat-icon>
                       </button>
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-          @if (filteredPeople.length === 0) {
-            <div class="p-8 text-center">
-              @if (people.length === 0) {
-                <p class="font-medium" i18n="@@people.empty_title">No people found</p>
-                <p class="text-ink-soft" i18n="@@people.empty_desc">Create your first team member to get started</p>
-              } @else {
-                <p class="font-medium" i18n="@@people.no_matches">No people match your search</p>
-              }
-            </div>
-          }
-        </div>
-      }
-    </section>
-
-    <section class="rounded-panel border border-line bg-paper p-4">
-      <div class="mb-4 flex items-center justify-between gap-2">
-        <h2 class="font-display text-[18px] font-semibold">
-          @if (selectedPerson) {
-            <ng-container i18n="@@people.form_edit">Edit person</ng-container>
+                    }
+                    <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(person)" (click)="editPerson(person)">
+                      <mat-icon aria-hidden="true">edit</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        @if (filteredPeople.length === 0) {
+          @if (people.length === 0) {
+            <lz-empty-state icon="group" title="No people found" i18n-title="@@people.empty_title" body="Create your first team member to get started" i18n-body="@@people.empty_desc">
+              <button lzEmptyAction lzButton variant="secondary" type="button" (click)="addPerson()">
+                <mat-icon aria-hidden="true">person_add</mat-icon>
+                <ng-container i18n="@@people.add_person">Add person</ng-container>
+              </button>
+            </lz-empty-state>
           } @else {
-            <ng-container i18n="@@people.form_create">Create new person</ng-container>
+            <lz-empty-state icon="search_off" title="No people match your search" i18n-title="@@people.no_matches" />
           }
-        </h2>
-        <div class="flex items-center gap-1">
-          <app-audit-history-button
-            *ngIf="selectedPerson"
-            [entity]="selectedPerson"
-            entityType="Person"
-            [entityId]="selectedPerson.personId"
-            [entityDisplayName]="selectedPerson.name"
-            [companyId]="activeCompany?.companyId || ''"
-          ></app-audit-history-button>
-          @if (selectedPerson) {
-            <button lzButton variant="quiet" iconOnly type="button" aria-label="Close" i18n-aria-label="@@people.close" (click)="cancelEdit()">
-              <mat-icon aria-hidden="true">close</mat-icon>
-            </button>
-          }
-        </div>
-      </div>
+        }
+      </lz-table-scroll>
+      <lz-pager [total]="filteredPeople.length" [page]="page" [pageSize]="pageSize" (pageChange)="page = $event" (pageSizeChange)="pageSize = $event; page = 1" />
+    }
+  </section>
+</div>
 
-      <form [formGroup]="personForm" (ngSubmit)="savePerson()" class="flex flex-col gap-6">
-        <fieldset class="m-0 grid gap-4 border-0 p-0 sm:grid-cols-2">
-          <legend class="mb-2 font-medium text-ink" i18n="@@people.section_personal">Personal information</legend>
-          <div class="sm:col-span-2">
-            <label for="name" class="mb-1 block text-[13px] font-medium text-ink-soft"><ng-container i18n="@@people.full_name">Full name</ng-container> <span aria-hidden="true">*</span></label>
-            <input #nameInput type="text" id="name" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" [class.border-danger]="personForm.get('name')?.touched && personForm.get('name')?.invalid" formControlName="name" placeholder="Enter full name" i18n-placeholder="@@people.name_placeholder">
-            @if (personForm.get('name')?.touched && personForm.get('name')?.errors?.['required']) {
-              <p class="mt-1 text-[13px] text-danger-ink" role="alert" i18n="@@people.name_required">Name is required</p>
-            }
-          </div>
-          <div>
-            <label for="email" class="mb-1 block text-[13px] font-medium text-ink-soft"><ng-container i18n="@@people.email_address">Email address</ng-container> <span aria-hidden="true">*</span></label>
-            <input type="email" id="email" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" [class.border-danger]="personForm.get('email')?.touched && personForm.get('email')?.invalid" formControlName="email" placeholder="name@example.com">
-            @if (personForm.get('email')?.touched && personForm.get('email')?.errors?.['required']) {
-              <p class="mt-1 text-[13px] text-danger-ink" role="alert" i18n="@@people.email_required">Email is required</p>
-            }
-          </div>
-          <div>
-            <label for="phone" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.phone_number">Phone number</label>
-            <input type="text" id="phone" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="phoneNumber" placeholder="(123) 456-7890">
-          </div>
-          <div>
-            <label for="pin" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.pin_code">PIN code</label>
-            <input type="text" id="pin" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="pin" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="4-digit PIN" i18n-placeholder="@@people.pin_placeholder">
-          </div>
-          <label class="flex min-h-12 items-center gap-2 self-end text-ink">
+<lz-side-panel #sp [heading]="selectedPerson ? selectedPerson.name : addPersonLabel" [open]="panelOpen" [dirty]="personForm.dirty" (closed)="cancelEdit()">
+  <app-audit-history-button lzPanelHeaderActions
+    *ngIf="selectedPerson"
+    [entity]="selectedPerson"
+    entityType="Person"
+    [entityId]="selectedPerson.personId"
+    [entityDisplayName]="selectedPerson.name"
+    [companyId]="activeCompany?.companyId || ''"
+    ></app-audit-history-button>
+  @if (panelOpen) {
+    <form id="person-form" [formGroup]="personForm" (ngSubmit)="savePerson()" class="flex flex-col gap-4">
+      <lz-field label="Full name" i18n-label="@@people.full_name" controlId="name">
+        <input lzField type="text" id="name" formControlName="name" placeholder="Enter full name" i18n-placeholder="@@people.name_placeholder" [attr.aria-invalid]="personForm.get('name')?.touched && personForm.get('name')?.invalid ? 'true' : null">
+        @if (personForm.get('name')?.touched && personForm.get('name')?.errors?.['required']) {
+          <p class="mt-1 text-[13px] text-danger-ink" role="alert" i18n="@@people.name_required">Name is required</p>
+        }
+      </lz-field>
+      <lz-field label="Email address" i18n-label="@@people.email_address" controlId="email">
+        <input lzField type="email" id="email" formControlName="email" placeholder="name@example.com" [attr.aria-invalid]="personForm.get('email')?.touched && personForm.get('email')?.invalid ? 'true' : null">
+        @if (personForm.get('email')?.touched && personForm.get('email')?.errors?.['required']) {
+          <p class="mt-1 text-[13px] text-danger-ink" role="alert" i18n="@@people.email_required">Email is required</p>
+        }
+      </lz-field>
+      <lz-field label="Phone number" i18n-label="@@people.phone_number" controlId="phone">
+        <input lzField type="text" id="phone" formControlName="phoneNumber" placeholder="(123) 456-7890">
+      </lz-field>
+      <lz-field label="Status" i18n-label="@@people.status" controlId="status">
+        <select lzField id="status" formControlName="status">
+          <option value="Active" i18n="@@people.active">Active</option>
+          <option value="Inactive" i18n="@@people.inactive">Inactive</option>
+        </select>
+      </lz-field>
+
+      <details class="rounded-control border border-line" [open]="!selectedPerson || !!(selectedPerson.address || selectedPerson.city || selectedPerson.state || selectedPerson.pin || selectedPerson.photoUrl)">
+        <summary class="flex min-h-12 cursor-pointer items-center px-4 font-medium" i18n="@@people.section_address_access">Address and app access</summary>
+        <div class="flex flex-col gap-4 border-t border-line-soft p-4">
+          <lz-field label="Street address" i18n-label="@@people.street_address" controlId="address">
+            <input lzField type="text" id="address" formControlName="address" placeholder="123 Main Street">
+          </lz-field>
+          <lz-field label="City" i18n-label="@@people.city" controlId="city">
+            <input lzField type="text" id="city" formControlName="city" placeholder="New York">
+          </lz-field>
+          <lz-field label="State" i18n-label="@@people.state" controlId="state">
+            <input lzField type="text" id="state" formControlName="state" placeholder="NY">
+          </lz-field>
+          <lz-field label="PIN code" i18n-label="@@people.pin_code" controlId="pin">
+            <input lzField type="text" id="pin" formControlName="pin" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="4-digit PIN" i18n-placeholder="@@people.pin_placeholder">
+          </lz-field>
+          <lz-field label="Photo URL" i18n-label="@@people.photo_url" controlId="photourl">
+            <input lzField type="text" id="photourl" formControlName="photoUrl" placeholder="https://example.com/photo.jpg">
+          </lz-field>
+          <label class="flex min-h-12 items-center gap-2 text-ink">
             <input type="checkbox" id="photoExempt" class="size-5" formControlName="photoExempt">
             <ng-container i18n="@@people.photo_exempt">No photo required at the kiosk</ng-container>
           </label>
-        </fieldset>
-
-        <fieldset class="m-0 grid gap-4 border-0 p-0 sm:grid-cols-2">
-          <legend class="mb-2 font-medium text-ink" i18n="@@people.section_address">Address information</legend>
-          <div class="sm:col-span-2">
-            <label for="address" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.street_address">Street address</label>
-            <input type="text" id="address" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="address" placeholder="123 Main Street">
-          </div>
-          <div>
-            <label for="city" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.city">City</label>
-            <input type="text" id="city" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="city" placeholder="New York">
-          </div>
-          <div>
-            <label for="state" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.state">State</label>
-            <input type="text" id="state" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="state" placeholder="NY">
-          </div>
-        </fieldset>
-
-        <fieldset class="m-0 grid gap-4 border-0 p-0 sm:grid-cols-2">
-          <legend class="mb-2 font-medium text-ink" i18n="@@people.section_additional">Additional information</legend>
-          <div>
-            <label for="status" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.status">Status</label>
-            <select id="status" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="status">
-              <option value="Active" i18n="@@people.active">Active</option>
-              <option value="Inactive" i18n="@@people.inactive">Inactive</option>
-            </select>
-          </div>
-          <div>
-            <label for="photourl" class="mb-1 block text-[13px] font-medium text-ink-soft" i18n="@@people.photo_url">Photo URL</label>
-            <input type="text" id="photourl" class="min-h-12 w-full rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink placeholder:text-ink-muted" formControlName="photoUrl" placeholder="https://example.com/photo.jpg">
-          </div>
-        </fieldset>
-
-        <div class="flex flex-wrap justify-end gap-2">
           @if (selectedPerson && selectedPerson.email) {
             <button lzButton variant="secondary" type="button" (click)="openInviteDialog(selectedPerson)">
               <mat-icon aria-hidden="true">mail</mat-icon>
               {{ getInviteActionLabel(selectedPerson.personId) }}
             </button>
           }
-          @if (selectedPerson) {
-            <button lzButton variant="secondary" type="button" (click)="cancelEdit()" i18n="@@common.cancel">Cancel</button>
-          }
-          <button lzButton variant="secondary" type="submit" [disabled]="!personForm.valid">
-            @if (selectedPerson) {
-              <ng-container i18n="@@people.update_btn">Update person</ng-container>
-            } @else {
-              <ng-container i18n="@@people.create_btn">Create person</ng-container>
-            }
-          </button>
         </div>
-      </form>
-    </section>
-  </div>
-</div>
+      </details>
+    </form>
+  }
+  <ng-container lzPanelFooter>
+    <button lzButton variant="secondary" type="button" (click)="sp.requestClose()" i18n="@@common.cancel">Cancel</button>
+    <button lzButton variant="primary" type="submit" form="person-form" [disabled]="!personForm.valid">
+      @if (selectedPerson) {
+        <ng-container i18n="@@people.update_btn">Update person</ng-container>
+      } @else {
+        <ng-container i18n="@@people.create_btn">Create person</ng-container>
+      }
+    </button>
+  </ng-container>
+</lz-side-panel>
 
 @if (showInviteDialog) {
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4" (click)="closeInviteDialog()">
