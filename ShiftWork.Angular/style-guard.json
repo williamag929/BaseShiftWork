@@ -34,6 +34,13 @@
     "src/app/features/dashboard/daily-reports/**",
     "src/app/features/dashboard/bulletins/**",
     "src/app/features/dashboard/safety/**",
-    "src/app/features/dashboard/documents/**"
+    "src/app/features/dashboard/documents/**",
+    "src/app/features/dashboard/procore/**",
+    "src/app/features/dashboard/company-settings.component.*",
+    "src/app/features/dashboard/billing/**",
+    "src/app/features/dashboard/profiles/**",
+    "src/app/features/dashboard/clock-shift/**",
+    "src/app/features/general/manage-companies/**",
+    "src/app/features/admin/components/**"
   ]
 }

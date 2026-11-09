@@ -1,46 +1,76 @@
-<section class="billing" *ngIf="summary as s">
-  <h1 i18n="@@billing.title">Plan &amp; Billing</h1>
+<div class="mx-auto flex max-w-[960px] flex-col gap-4">
+  <lz-page-header title="Plan and billing" i18n-title="@@billing.title" />
 
-  <mat-card class="current">
-    <mat-card-content>
-      <div class="current-plan">
-        <mat-icon>workspace_premium</mat-icon>
-        <div>
-          <div class="tier">{{ s.tier }}<span *ngIf="s.isTrial" class="trial-tag" i18n="@@billing.trial_tag"> trial</span></div>
-          <div class="sub" *ngIf="s.isTrial" i18n="@@billing.trial_days_left">{{ s.trialDaysRemaining }} days left in your free trial</div>
-          <div class="sub" *ngIf="s.hasSubscription && s.currentPeriodEnd" i18n="@@billing.renews_on">Renews on {{ s.currentPeriodEnd | date:'mediumDate' }}</div>
-          <div class="sub warn" *ngIf="s.subscriptionStatus === 'past_due'" i18n="@@billing.past_due">Payment failed. Update your card to keep your plan.</div>
-          <div class="sub" *ngIf="awaitingPayment" i18n="@@billing.activating">Activating your plan…</div>
+  @if (loadError) {
+    <lz-alert tone="danger" i18n="@@billing.load_error">Billing is unavailable right now. Please try again.</lz-alert>
+  } @else if (!summary) {
+    <lz-alert tone="info" i18n="@@billing.loading">Loading billing...</lz-alert>
+  } @else {
+    <lz-panel heading="Current plan" i18n-heading="@@billing.current_plan">
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-3">
+          <mat-icon aria-hidden="true">workspace_premium</mat-icon>
+          <div class="flex flex-col gap-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="font-display text-[26px] font-semibold" data-test="plan-tier">{{ summary.tier }}</span>
+              <lz-status-chip [tone]="stateTone" dot data-test="plan-state">{{ stateLabel }}</lz-status-chip>
+            </div>
+            @if (summary.isTrial) {
+              <p class="text-ink-soft" i18n="@@billing.trial_days_left">{{ summary.trialDaysRemaining }} days left in your free trial</p>
+            }
+            @if (summary.hasSubscription && summary.currentPeriodEnd) {
+              <p class="text-ink-soft" i18n="@@billing.renews_on">Renews on {{ summary.currentPeriodEnd | date:'mediumDate' }}</p>
+            }
+            @if (summary.subscriptionStatus === 'past_due') {
+              <p class="text-danger-ink" i18n="@@billing.past_due">Payment failed. Update your card to keep your plan.</p>
+            }
+            @if (awaitingPayment) {
+              <p class="text-ink-soft" role="status" i18n="@@billing.activating">Activating your plan...</p>
+            }
+          </div>
         </div>
-      </div>
-      <div class="usage">
-        <span i18n="@@billing.employees_label">Active employees</span>
-        <strong>{{ s.employeeCount }} / {{ s.employeeCap ?? '∞' }}</strong>
-        <mat-progress-bar *ngIf="s.employeeCap" mode="determinate" [value]="usagePercent"></mat-progress-bar>
-      </div>
-    </mat-card-content>
-  </mat-card>
 
-  <ng-container *ngIf="s.canManageBilling">
-    <button *ngIf="s.hasSubscription" data-test="manage-billing" mat-flat-button color="primary" class="cta"
-            [disabled]="busy" (click)="manage()" i18n="@@billing.manage">Manage billing</button>
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between gap-2">
+            <span i18n="@@billing.employees_label">Active employees</span>
+            <strong class="tabular-nums">{{ summary.employeeCount }} / {{ summary.employeeCap ?? '∞' }}</strong>
+          </div>
+          @if (summary.employeeCap) {
+            <div class="h-2 w-full overflow-hidden rounded-chip bg-neutral-bg" role="progressbar" [attr.aria-valuenow]="usagePercent" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="usageLabel">
+              <div class="h-full bg-info-ink" [style.width.%]="usagePercent"></div>
+            </div>
+          }
+        </div>
 
-    <div class="tiers" *ngIf="!s.hasSubscription">
-      <mat-card *ngFor="let t of tiers" class="tier-card" [class.recommended]="t.tier === 'Pro'">
-        <mat-card-title>{{ t.tier }}</mat-card-title>
-        <mat-card-content>
-          <p class="cap"><span i18n="@@billing.up_to">Up to</span> {{ t.cap }} <span i18n="@@billing.employees">employees</span></p>
-          <p [ngSwitch]="t.tier">
-            <span *ngSwitchCase="'Starter'" i18n="@@billing.tier_starter_blurb">Small crews getting organized</span>
-            <span *ngSwitchCase="'Pro'" i18n="@@billing.tier_pro_blurb">Analytics, multi-location and exports</span>
-            <span *ngSwitchCase="'Business'" i18n="@@billing.tier_business_blurb">Unlimited employees</span>
-          </p>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-flat-button color="primary" [attr.data-test]="'choose-' + t.tier" [disabled]="busy"
-                  (click)="choose(t.tier)" i18n="@@billing.choose_plan">Choose plan</button>
-        </mat-card-actions>
-      </mat-card>
-    </div>
-  </ng-container>
-</section>
+        @if (summary.canManageBilling && summary.hasSubscription) {
+          <div>
+            <button lzButton variant="primary" type="button" data-test="manage-billing" [disabled]="busy" (click)="manage()" i18n="@@billing.manage">Manage billing</button>
+          </div>
+        }
+      </div>
+    </lz-panel>
+
+    @if (summary.canManageBilling && !summary.hasSubscription) {
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        @for (t of tiers; track t.tier) {
+          <lz-panel [heading]="t.tier" class="min-w-0" [class.border-2]="t.tier === 'Pro'">
+            <div class="flex flex-col gap-3">
+              @if (t.tier === 'Pro') {
+                <div><lz-status-chip tone="info" i18n="@@billing.recommended">Recommended</lz-status-chip></div>
+              }
+              <p><span i18n="@@billing.up_to">Up to</span> {{ t.cap }} <span i18n="@@billing.employees">employees</span></p>
+              <p class="text-ink-soft" [ngSwitch]="t.tier">
+                <span *ngSwitchCase="'Starter'" i18n="@@billing.tier_starter_blurb">Small crews getting organized</span>
+                <span *ngSwitchCase="'Pro'" i18n="@@billing.tier_pro_blurb">Analytics, multi-location and exports</span>
+                <span *ngSwitchCase="'Business'" i18n="@@billing.tier_business_blurb">Unlimited employees</span>
+              </p>
+              <div>
+                <button lzButton [variant]="t.tier === 'Pro' ? 'primary' : 'secondary'" [attr.variant]="t.tier === 'Pro' ? 'primary' : 'secondary'" type="button" [attr.data-test]="'choose-' + t.tier" [disabled]="busy" (click)="choose(t.tier)" i18n="@@billing.choose_plan">Choose plan</button>
+              </div>
+            </div>
+          </lz-panel>
+        }
+      </div>
+    }
+  }
+</div>

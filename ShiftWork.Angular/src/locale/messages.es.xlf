@@ -1242,100 +1242,44 @@
         <source>Updated:</source>
         <target state="translated">Actualizado:</target>
       </trans-unit>
-      <trans-unit id="clock.title" datatype="html">
-        <source>Clock</source>
-        <target state="translated">Reloj</target>
-      </trans-unit>
-      <trans-unit id="clock.status_on" datatype="html">
-        <source>You are on the clock</source>
-        <target state="translated">Estás marcado en turno</target>
-      </trans-unit>
-      <trans-unit id="clock.status_off" datatype="html">
-        <source>Ready to start?</source>
-        <target state="translated">¿Listo para comenzar?</target>
-      </trans-unit>
-      <trans-unit id="clock.badge_on" datatype="html">
-        <source>On Clock</source>
-        <target state="translated">En turno</target>
-      </trans-unit>
-      <trans-unit id="clock.badge_off" datatype="html">
-        <source>Off Clock</source>
-        <target state="translated">Fuera de turno</target>
-      </trans-unit>
-      <trans-unit id="clock.location_captured" datatype="html">
-        <source>Location captured</source>
-        <target state="translated">Ubicación capturada</target>
-      </trans-unit>
-      <trans-unit id="clock.photo_optional" datatype="html">
-        <source>Photo optional</source>
-        <target state="translated">Foto opcional</target>
-      </trans-unit>
-      <trans-unit id="clock.device_recorded" datatype="html">
-        <source>Device recorded</source>
-        <target state="translated">Dispositivo registrado</target>
-      </trans-unit>
-      <trans-unit id="clock.clock_in" datatype="html">
-        <source>Clock In</source>
-        <target state="translated">Marcar entrada</target>
-      </trans-unit>
-      <trans-unit id="clock.clock_out" datatype="html">
-        <source>Clock Out</source>
-        <target state="translated">Marcar salida</target>
-      </trans-unit>
-      <trans-unit id="clock.add_photo" datatype="html">
-        <source>Add Photo (optional)</source>
-        <target state="translated">Añadir foto (opcional)</target>
-      </trans-unit>
-      <trans-unit id="clock.retake_photo" datatype="html">
-        <source>Retake Photo</source>
-        <target state="translated">Tomar otra foto</target>
-      </trans-unit>
-      <trans-unit id="clock.remove_photo" datatype="html">
-        <source>Remove photo</source>
-        <target state="translated">Eliminar foto</target>
-      </trans-unit>
-      <trans-unit id="clock.offline_warning" datatype="html">
-        <source>Offline · showing cached data</source>
-        <target state="translated">Sin conexión · mostrando datos en caché</target>
-      </trans-unit>
       <trans-unit id="clock.todays_schedule" datatype="html">
-        <source>Today&apos;s Schedule</source>
+        <source>Today's schedule</source>
         <target state="translated">Horario de hoy</target>
       </trans-unit>
       <trans-unit id="clock.location_label" datatype="html">
-        <source>Location:</source>
-        <target state="translated">Ubicación:</target>
+        <source>Location</source>
+        <target state="translated">Ubicación</target>
       </trans-unit>
       <trans-unit id="clock.start_time_label" datatype="html">
-        <source>Start Time:</source>
-        <target state="translated">Hora de inicio:</target>
+        <source>Start time</source>
+        <target state="translated">Hora de inicio</target>
       </trans-unit>
       <trans-unit id="clock.end_time_label" datatype="html">
-        <source>End Time:</source>
-        <target state="translated">Hora de fin:</target>
+        <source>End time</source>
+        <target state="translated">Hora de fin</target>
       </trans-unit>
       <trans-unit id="clock.shift_updated" datatype="html">
-        <source>Shift updated thanks!</source>
-        <target state="translated">¡Turno actualizado, gracias!</target>
+        <source>Shift updated. Thank you!</source>
+        <target state="translated">¡Turno actualizado! Gracias.</target>
       </trans-unit>
       <trans-unit id="clock.countdown" datatype="html">
         <source>Capturing photo in <x id="INTERPOLATION" equiv-text="{{ count }}"/> seconds...</source>
         <target state="translated">Capturando foto en <x id="INTERPOLATION" equiv-text="{{ count }}"/> segundos...</target>
       </trans-unit>
       <trans-unit id="clock.start_shift" datatype="html">
-        <source>Start Shift</source>
+        <source>Start shift</source>
         <target state="translated">Iniciar turno</target>
       </trans-unit>
       <trans-unit id="clock.end_shift" datatype="html">
-        <source>End Shift</source>
+        <source>End shift</source>
         <target state="translated">Finalizar turno</target>
       </trans-unit>
       <trans-unit id="clock.start_break" datatype="html">
-        <source>Start Break</source>
+        <source>Start break</source>
         <target state="translated">Iniciar descanso</target>
       </trans-unit>
       <trans-unit id="clock.end_break" datatype="html">
-        <source>End Break</source>
+        <source>End break</source>
         <target state="translated">Finalizar descanso</target>
       </trans-unit>
       <trans-unit id="clock.please_login" datatype="html">
@@ -2003,71 +1947,39 @@
         <target state="translated">Inactivo</target>
       </trans-unit>
       <trans-unit id="settings.page_title" datatype="html">
-        <source>Company Settings</source>
-        <target state="translated">Configuración de empresa</target>
+        <source>Company settings</source>
+        <target state="translated">Configuración de la empresa</target>
       </trans-unit>
       <trans-unit id="settings.saving" datatype="html">
         <source>Saving...</source>
         <target state="translated">Guardando...</target>
       </trans-unit>
       <trans-unit id="settings.save_btn" datatype="html">
-        <source>Save Settings</source>
-        <target state="translated">Guardar configuración</target>
+        <source>Save changes</source>
+        <target state="translated">Guardar cambios</target>
       </trans-unit>
       <trans-unit id="settings.loading" datatype="html">
         <source>Loading settings...</source>
         <target state="translated">Cargando configuración...</target>
       </trans-unit>
       <trans-unit id="settings.no_company" datatype="html">
-        <source>Select a company to view and edit its settings.</source>
-        <target state="translated">Selecciona una empresa para ver y editar su configuración.</target>
-      </trans-unit>
-      <trans-unit id="settings.tab_time_regional" datatype="html">
-        <source>Time &amp; Regional</source>
-        <target state="translated">Tiempo y región</target>
-      </trans-unit>
-      <trans-unit id="settings.tab_pay_overtime" datatype="html">
-        <source>Pay &amp; Overtime</source>
-        <target state="translated">Pago y horas extra</target>
-      </trans-unit>
-      <trans-unit id="settings.tab_pto_leave" datatype="html">
-        <source>PTO &amp; Leave</source>
-        <target state="translated">PTO y permisos</target>
-      </trans-unit>
-      <trans-unit id="settings.tab_scheduling" datatype="html">
-        <source>Scheduling</source>
-        <target state="translated">Programación</target>
-      </trans-unit>
-      <trans-unit id="settings.tab_clock_inout" datatype="html">
-        <source>Clock-In/Out</source>
-        <target state="translated">Entrada/Salida</target>
-      </trans-unit>
-      <trans-unit id="settings.tab_notifications" datatype="html">
-        <source>Notifications</source>
-        <target state="translated">Notificaciones</target>
-      </trans-unit>
-      <trans-unit id="settings.tab_system" datatype="html">
-        <source>System</source>
-        <target state="translated">Sistema</target>
-      </trans-unit>
-      <trans-unit id="settings.tab_kiosk" datatype="html">
-        <source>Kiosk</source>
-        <target state="translated">Kiosco</target>
+        <source>Select a company to view and edit its settings</source>
+        <target state="translated">Selecciona una empresa para ver y editar su configuración</target>
       </trans-unit>
       <trans-unit id="settings.time_regional_heading" datatype="html">
-        <source>Time &amp; Regional Settings</source>
-        <target state="translated">Configuración de tiempo y región</target>
+        <source>Regional</source>
+        <target state="translated">Regional</target>
       </trans-unit>
       <trans-unit id="settings.timezone" datatype="html">
-        <source>Default Time Zone</source>
+        <source>Default time zone</source>
         <target state="translated">Zona horaria predeterminada</target>
       </trans-unit>
       <trans-unit id="settings.timezone_select" datatype="html">
-        <source>Select a Timezone</source>
+        <source>Select a time zone</source>
         <target state="translated">Selecciona una zona horaria</target>
       </trans-unit>
       <trans-unit id="settings.language" datatype="html">
-        <source>Default Language</source>
+        <source>Default language</source>
         <target state="translated">Idioma predeterminado</target>
       </trans-unit>
       <trans-unit id="settings.lang_en" datatype="html">
@@ -2091,7 +2003,7 @@
         <target state="translated">Portugués</target>
       </trans-unit>
       <trans-unit id="settings.first_day" datatype="html">
-        <source>First Day of Week</source>
+        <source>First day of week</source>
         <target state="translated">Primer día de la semana</target>
       </trans-unit>
       <trans-unit id="settings.sunday" datatype="html">
@@ -2103,11 +2015,11 @@
         <target state="translated">Lunes</target>
       </trans-unit>
       <trans-unit id="settings.date_format" datatype="html">
-        <source>Date Format</source>
+        <source>Date format</source>
         <target state="translated">Formato de fecha</target>
       </trans-unit>
       <trans-unit id="settings.time_format" datatype="html">
-        <source>Time Format</source>
+        <source>Time format</source>
         <target state="translated">Formato de hora</target>
       </trans-unit>
       <trans-unit id="settings.time_12h" datatype="html">
@@ -2119,207 +2031,203 @@
         <target state="translated">24 horas</target>
       </trans-unit>
       <trans-unit id="settings.currency" datatype="html">
-        <source>Currency Symbol</source>
+        <source>Currency symbol</source>
         <target state="translated">Símbolo de moneda</target>
       </trans-unit>
       <trans-unit id="settings.pay_overtime_heading" datatype="html">
-        <source>Pay &amp; Overtime Settings</source>
-        <target state="translated">Configuración de pago y horas extra</target>
+        <source>Pay and overtime</source>
+        <target state="translated">Pago y horas extra</target>
       </trans-unit>
       <trans-unit id="settings.min_hourly_rate" datatype="html">
-        <source>Minimum Hourly Rate ($)</source>
+        <source>Minimum hourly rate ($)</source>
         <target state="translated">Tarifa mínima por hora ($)</target>
       </trans-unit>
       <trans-unit id="settings.regular_ot_pct" datatype="html">
-        <source>Regular Overtime Percentage (%)</source>
+        <source>Regular overtime percentage (%)</source>
         <target state="translated">Porcentaje de horas extra regulares (%)</target>
       </trans-unit>
       <trans-unit id="settings.ot_pct_hint" datatype="html">
-        <source>e.g., 150 = 1.5x pay</source>
-        <target state="translated">Ej.: 150 = 1.5x pago</target>
+        <source>For example, 150 = 1.5x pay</source>
+        <target state="translated">Por ejemplo, 150 = 1.5x de pago</target>
       </trans-unit>
       <trans-unit id="settings.night_ot_pct" datatype="html">
-        <source>Night Shift Overtime Percentage (%)</source>
+        <source>Night shift overtime percentage (%)</source>
         <target state="translated">Porcentaje de horas extra nocturnas (%)</target>
       </trans-unit>
       <trans-unit id="settings.holiday_ot_pct" datatype="html">
-        <source>Holiday Overtime Percentage (%)</source>
+        <source>Holiday overtime percentage (%)</source>
         <target state="translated">Porcentaje de horas extra en festivos (%)</target>
       </trans-unit>
       <trans-unit id="settings.weekend_ot_pct" datatype="html">
-        <source>Weekend Overtime Percentage (%)</source>
+        <source>Weekend overtime percentage (%)</source>
         <target state="translated">Porcentaje de horas extra en fin de semana (%)</target>
       </trans-unit>
       <trans-unit id="settings.night_start" datatype="html">
-        <source>Night Shift Start Time</source>
+        <source>Night shift start time</source>
         <target state="translated">Hora de inicio de turno nocturno</target>
       </trans-unit>
       <trans-unit id="settings.night_end" datatype="html">
-        <source>Night Shift End Time</source>
+        <source>Night shift end time</source>
         <target state="translated">Hora de fin de turno nocturno</target>
       </trans-unit>
       <trans-unit id="settings.daily_ot_threshold" datatype="html">
-        <source>Daily Overtime Threshold (hours)</source>
+        <source>Daily overtime threshold (hours)</source>
         <target state="translated">Umbral de horas extra diario (horas)</target>
       </trans-unit>
       <trans-unit id="settings.weekly_ot_threshold" datatype="html">
-        <source>Weekly Overtime Threshold (hours)</source>
+        <source>Weekly overtime threshold (hours)</source>
         <target state="translated">Umbral de horas extra semanal (horas)</target>
       </trans-unit>
       <trans-unit id="settings.pto_leave_heading" datatype="html">
-        <source>PTO &amp; Leave Settings</source>
-        <target state="translated">Configuración de PTO y permisos</target>
+        <source>Leave and PTO</source>
+        <target state="translated">Permisos y PTO</target>
       </trans-unit>
       <trans-unit id="settings.pto_accrual" datatype="html">
-        <source>Default PTO Accrual Rate (hours/month)</source>
+        <source>Default PTO accrual rate (hours/month)</source>
         <target state="translated">Tasa de acumulación de PTO predeterminada (horas/mes)</target>
       </trans-unit>
       <trans-unit id="settings.pto_max_balance" datatype="html">
-        <source>Maximum PTO Balance (hours)</source>
+        <source>Maximum PTO balance (hours)</source>
         <target state="translated">Saldo máximo de PTO (horas)</target>
       </trans-unit>
       <trans-unit id="settings.pto_rollover" datatype="html">
-        <source>Allow PTO Rollover</source>
+        <source>Allow PTO rollover</source>
         <target state="translated">Permitir acumulación de PTO</target>
       </trans-unit>
       <trans-unit id="settings.pto_rollover_max" datatype="html">
-        <source>Maximum PTO Rollover (hours)</source>
+        <source>Maximum PTO rollover (hours)</source>
         <target state="translated">Acumulación máxima de PTO (horas)</target>
       </trans-unit>
       <trans-unit id="settings.sick_accrual" datatype="html">
-        <source>Sick Leave Accrual Rate (hours/month)</source>
+        <source>Sick leave accrual rate (hours/month)</source>
         <target state="translated">Tasa de acumulación de licencia por enfermedad (horas/mes)</target>
       </trans-unit>
       <trans-unit id="settings.sick_max_balance" datatype="html">
-        <source>Sick Leave Maximum Balance (hours)</source>
+        <source>Sick leave maximum balance (hours)</source>
         <target state="translated">Saldo máximo de licencia por enfermedad (horas)</target>
       </trans-unit>
       <trans-unit id="settings.require_mgr_pto" datatype="html">
-        <source>Require Manager Approval for PTO</source>
+        <source>Require manager approval for PTO</source>
         <target state="translated">Requerir aprobación del gerente para PTO</target>
       </trans-unit>
       <trans-unit id="settings.min_notice_pto" datatype="html">
-        <source>Minimum Notice Days for PTO Request</source>
+        <source>Minimum notice days for PTO request</source>
         <target state="translated">Días mínimos de aviso para solicitar PTO</target>
       </trans-unit>
       <trans-unit id="settings.scheduling_heading" datatype="html">
-        <source>Scheduling Settings</source>
-        <target state="translated">Configuración de programación</target>
+        <source>Scheduling</source>
+        <target state="translated">Programación</target>
       </trans-unit>
       <trans-unit id="settings.auto_approve_shifts" datatype="html">
-        <source>Auto-Approve Shifts</source>
+        <source>Auto-approve shifts</source>
         <target state="translated">Aprobar turnos automáticamente</target>
       </trans-unit>
       <trans-unit id="settings.allow_swaps" datatype="html">
-        <source>Allow Employee Shift Swaps</source>
+        <source>Allow employee shift swaps</source>
         <target state="translated">Permitir intercambio de turnos</target>
       </trans-unit>
       <trans-unit id="settings.require_mgr_swaps" datatype="html">
-        <source>Require Manager Approval for Swaps</source>
+        <source>Require manager approval for swaps</source>
         <target state="translated">Requerir aprobación del gerente para intercambios</target>
       </trans-unit>
       <trans-unit id="settings.max_consecutive_days" datatype="html">
-        <source>Maximum Consecutive Work Days</source>
+        <source>Maximum consecutive work days</source>
         <target state="translated">Máximo de días consecutivos de trabajo</target>
       </trans-unit>
       <trans-unit id="settings.min_hours_between" datatype="html">
-        <source>Minimum Hours Between Shifts</source>
+        <source>Minimum hours between shifts</source>
         <target state="translated">Horas mínimas entre turnos</target>
       </trans-unit>
       <trans-unit id="settings.max_daily_hours" datatype="html">
-        <source>Maximum Daily Hours</source>
+        <source>Maximum daily hours</source>
         <target state="translated">Horas diarias máximas</target>
       </trans-unit>
       <trans-unit id="settings.max_weekly_hours" datatype="html">
-        <source>Maximum Weekly Hours</source>
+        <source>Maximum weekly hours</source>
         <target state="translated">Horas semanales máximas</target>
       </trans-unit>
       <trans-unit id="settings.allow_overlapping" datatype="html">
-        <source>Allow Overlapping Shifts</source>
+        <source>Allow overlapping shifts</source>
         <target state="translated">Permitir turnos superpuestos</target>
       </trans-unit>
       <trans-unit id="settings.clock_inout_heading" datatype="html">
-        <source>Clock-In/Out Settings</source>
-        <target state="translated">Configuración de entrada/salida</target>
+        <source>Clock in and out</source>
+        <target state="translated">Entrada y salida</target>
       </trans-unit>
       <trans-unit id="settings.grace_late" datatype="html">
-        <source>Grace Period for Late Clock-In (minutes)</source>
+        <source>Grace period for late clock-in (minutes)</source>
         <target state="translated">Período de gracia para entrada tardía (minutos)</target>
       </trans-unit>
       <trans-unit id="settings.auto_clock_out" datatype="html">
-        <source>Auto Clock-Out After (hours)</source>
+        <source>Auto clock-out after (hours)</source>
         <target state="translated">Salida automática después de (horas)</target>
       </trans-unit>
       <trans-unit id="settings.require_geo" datatype="html">
-        <source>Require Geo-Location for Clock-In</source>
+        <source>Require geolocation for clock-in</source>
         <target state="translated">Requerir geolocalización para marcar entrada</target>
       </trans-unit>
       <trans-unit id="settings.geo_fence_radius" datatype="html">
-        <source>Geo-Fence Radius (meters)</source>
+        <source>Geofence radius (meters)</source>
         <target state="translated">Radio de geocerca (metros)</target>
       </trans-unit>
       <trans-unit id="settings.allow_early_clockin" datatype="html">
-        <source>Allow Early Clock-In (minutes before shift)</source>
+        <source>Allow early clock-in (minutes before shift)</source>
         <target state="translated">Permitir entrada anticipada (minutos antes del turno)</target>
       </trans-unit>
       <trans-unit id="settings.require_break_clocks" datatype="html">
-        <source>Require Break Clocks</source>
+        <source>Require break clocks</source>
         <target state="translated">Requerir reloj de descanso</target>
       </trans-unit>
       <trans-unit id="settings.min_break_duration" datatype="html">
-        <source>Minimum Break Duration (minutes)</source>
+        <source>Minimum break duration (minutes)</source>
         <target state="translated">Duración mínima de descanso (minutos)</target>
       </trans-unit>
-      <trans-unit id="settings.notifications_heading" datatype="html">
-        <source>Notification Settings</source>
-        <target state="translated">Configuración de notificaciones</target>
-      </trans-unit>
       <trans-unit id="settings.email_notif" datatype="html">
-        <source>Enable Email Notifications</source>
+        <source>Enable email notifications</source>
         <target state="translated">Habilitar notificaciones por correo</target>
       </trans-unit>
       <trans-unit id="settings.sms_notif" datatype="html">
-        <source>Enable SMS Notifications</source>
+        <source>Enable SMS notifications</source>
         <target state="translated">Habilitar notificaciones por SMS</target>
       </trans-unit>
       <trans-unit id="settings.push_notif" datatype="html">
-        <source>Enable Push Notifications</source>
+        <source>Enable push notifications</source>
         <target state="translated">Habilitar notificaciones push</target>
       </trans-unit>
       <trans-unit id="settings.notif_triggers" datatype="html">
-        <source>Notification Triggers</source>
+        <source>Notification triggers</source>
         <target state="translated">Disparadores de notificación</target>
       </trans-unit>
       <trans-unit id="settings.notify_shift_assign" datatype="html">
-        <source>Notify on Shift Assignment</source>
+        <source>Notify on shift assignment</source>
         <target state="translated">Notificar al asignar turno</target>
       </trans-unit>
       <trans-unit id="settings.notify_shift_changes" datatype="html">
-        <source>Notify on Shift Changes</source>
+        <source>Notify on shift changes</source>
         <target state="translated">Notificar al cambiar turno</target>
       </trans-unit>
       <trans-unit id="settings.notify_pto_approval" datatype="html">
-        <source>Notify on Time-Off Approval/Denial</source>
+        <source>Notify on time-off approval or denial</source>
         <target state="translated">Notificar al aprobar/denegar permiso</target>
       </trans-unit>
       <trans-unit id="settings.notify_replacement" datatype="html">
-        <source>Notify on Replacement Request</source>
+        <source>Notify on replacement request</source>
         <target state="translated">Notificar al solicitar reemplazo</target>
       </trans-unit>
       <trans-unit id="settings.reminder_hours" datatype="html">
-        <source>Reminder Hours Before Shift</source>
+        <source>Reminder hours before shift</source>
         <target state="translated">Horas de recordatorio antes del turno</target>
       </trans-unit>
       <trans-unit id="settings.system_heading" datatype="html">
-        <source>System Settings</source>
-        <target state="translated">Configuración del sistema</target>
+        <source>Employee IDs and security</source>
+        <target state="translated">IDs de empleado y seguridad</target>
       </trans-unit>
       <trans-unit id="settings.fiscal_year" datatype="html">
-        <source>Fiscal Year Start Month</source>
+        <source>Fiscal year start month</source>
         <target state="translated">Mes de inicio del año fiscal</target>
       </trans-unit>
       <trans-unit id="settings.payroll_period" datatype="html">
-        <source>Payroll Period</source>
+        <source>Payroll period</source>
         <target state="translated">Período de nómina</target>
       </trans-unit>
       <trans-unit id="settings.payroll_weekly" datatype="html">
@@ -2327,11 +2235,11 @@
         <target state="translated">Semanal</target>
       </trans-unit>
       <trans-unit id="settings.payroll_biweekly" datatype="html">
-        <source>Bi-Weekly</source>
+        <source>Bi-weekly</source>
         <target state="translated">Quincenal</target>
       </trans-unit>
       <trans-unit id="settings.payroll_semimonthly" datatype="html">
-        <source>Semi-Monthly</source>
+        <source>Semi-monthly</source>
         <target state="translated">Dos veces al mes</target>
       </trans-unit>
       <trans-unit id="settings.payroll_monthly" datatype="html">
@@ -2339,19 +2247,19 @@
         <target state="translated">Mensual</target>
       </trans-unit>
       <trans-unit id="settings.employee_id_prefix" datatype="html">
-        <source>Employee ID Prefix</source>
+        <source>Employee ID prefix</source>
         <target state="translated">Prefijo de ID de empleado</target>
       </trans-unit>
       <trans-unit id="settings.require_2fa" datatype="html">
-        <source>Require Two-Factor Authentication</source>
+        <source>Require two-factor authentication</source>
         <target state="translated">Requerir autenticación de dos factores</target>
       </trans-unit>
       <trans-unit id="settings.session_timeout" datatype="html">
-        <source>Session Timeout (minutes)</source>
+        <source>Session timeout (minutes)</source>
         <target state="translated">Tiempo de espera de sesión (minutos)</target>
       </trans-unit>
       <trans-unit id="settings.password_expiration" datatype="html">
-        <source>Password Expiration (days)</source>
+        <source>Password expiration (days)</source>
         <target state="translated">Expiración de contraseña (días)</target>
       </trans-unit>
       <trans-unit id="settings.password_never" datatype="html">
@@ -2359,43 +2267,43 @@
         <target state="translated">0 = nunca expira</target>
       </trans-unit>
       <trans-unit id="settings.min_password_length" datatype="html">
-        <source>Minimum Password Length</source>
+        <source>Minimum password length</source>
         <target state="translated">Longitud mínima de contraseña</target>
       </trans-unit>
       <trans-unit id="settings.kiosk_heading" datatype="html">
-        <source>Kiosk Settings</source>
-        <target state="translated">Configuración de kiosco</target>
+        <source>Kiosk</source>
+        <target state="translated">Kiosco</target>
       </trans-unit>
       <trans-unit id="settings.kiosk_mode_enabled" datatype="html">
-        <source>Enable Kiosk Mode</source>
+        <source>Enable kiosk mode</source>
         <target state="translated">Habilitar modo kiosco</target>
       </trans-unit>
       <trans-unit id="settings.kiosk_pin_length" datatype="html">
-        <source>Kiosk PIN Length</source>
+        <source>Kiosk PIN length</source>
         <target state="translated">Longitud del PIN del kiosco</target>
       </trans-unit>
       <trans-unit id="settings.require_photo_clockin" datatype="html">
-        <source>Require Photo on Clock-In</source>
+        <source>Require photo on clock-in</source>
         <target state="translated">Requerir foto al marcar entrada</target>
       </trans-unit>
       <trans-unit id="settings.show_photos_kiosk" datatype="html">
-        <source>Show Employee Photos on Kiosk</source>
+        <source>Show employee photos on kiosk</source>
         <target state="translated">Mostrar fotos de empleados en kiosco</target>
       </trans-unit>
       <trans-unit id="settings.kiosk_timeout" datatype="html">
-        <source>Kiosk Timeout (seconds)</source>
+        <source>Kiosk timeout (seconds)</source>
         <target state="translated">Tiempo de espera del kiosco (segundos)</target>
       </trans-unit>
       <trans-unit id="settings.allow_question_responses" datatype="html">
-        <source>Allow Question Responses on Clock-In</source>
+        <source>Allow question responses on clock-in</source>
         <target state="translated">Permitir respuestas a preguntas al marcar entrada</target>
       </trans-unit>
       <trans-unit id="settings.kiosk_admin_password" datatype="html">
-        <source>Kiosk Admin Password</source>
+        <source>Kiosk admin password</source>
         <target state="translated">Contraseña de administrador del kiosco</target>
       </trans-unit>
       <trans-unit id="settings.kiosk_admin_ph" datatype="html">
-        <source>Leave blank to keep current password</source>
+        <source>Leave blank to keep the current password</source>
         <target state="translated">Deja en blanco para mantener la contraseña actual</target>
       </trans-unit>
       <trans-unit id="settings.kiosk_admin_hint" datatype="html">
@@ -2403,20 +2311,20 @@
         <target state="translated">Esta contraseña es necesaria para cambiar la ubicación del dispositivo kiosco. Déjala en blanco para mantener la contraseña actual.</target>
       </trans-unit>
       <trans-unit id="settings.survey_questions" datatype="html">
-        <source>Clock-Out Survey Questions</source>
+        <source>Clock-out survey questions</source>
         <target state="translated">Preguntas de encuesta de salida</target>
       </trans-unit>
       <trans-unit id="settings.add_question" datatype="html">
-        <source>+ Add Question</source>
-        <target state="translated">+ Agregar pregunta</target>
+        <source>Add question</source>
+        <target state="translated">Agregar pregunta</target>
       </trans-unit>
       <trans-unit id="settings.questions_loading" datatype="html">
-        <source>Loading questions…</source>
-        <target state="translated">Cargando preguntas…</target>
+        <source>Loading questions...</source>
+        <target state="translated">Cargando preguntas...</target>
       </trans-unit>
       <trans-unit id="settings.no_questions" datatype="html">
-        <source>No questions yet. Add one to collect employee responses at clock-out.</source>
-        <target state="translated">Sin preguntas aún. Agrega una para recopilar respuestas al marcar salida.</target>
+        <source>Add a question to collect employee responses at clock-out</source>
+        <target state="translated">Agrega una pregunta para recopilar respuestas al marcar salida</target>
       </trans-unit>
       <trans-unit id="settings.question_required_badge" datatype="html">
         <source>Required</source>
@@ -2427,35 +2335,35 @@
         <target state="translated">Inactivo</target>
       </trans-unit>
       <trans-unit id="settings.edit_question" datatype="html">
-        <source>Edit Question</source>
+        <source>Edit question</source>
         <target state="translated">Editar pregunta</target>
       </trans-unit>
       <trans-unit id="settings.new_question" datatype="html">
-        <source>New Question</source>
+        <source>New question</source>
         <target state="translated">Nueva pregunta</target>
       </trans-unit>
       <trans-unit id="settings.question_text" datatype="html">
-        <source>Question Text</source>
+        <source>Question text</source>
         <target state="translated">Texto de la pregunta</target>
       </trans-unit>
       <trans-unit id="settings.question_text_ph" datatype="html">
-        <source>Enter question…</source>
-        <target state="translated">Ingresa la pregunta…</target>
+        <source>Enter question</source>
+        <target state="translated">Ingresa la pregunta</target>
       </trans-unit>
       <trans-unit id="settings.question_type" datatype="html">
-        <source>Question Type</source>
+        <source>Question type</source>
         <target state="translated">Tipo de pregunta</target>
       </trans-unit>
       <trans-unit id="settings.q_yes_no" datatype="html">
-        <source>Yes / No</source>
-        <target state="translated">Sí / No</target>
+        <source>Yes or no</source>
+        <target state="translated">Sí o no</target>
       </trans-unit>
       <trans-unit id="settings.q_multiple_choice" datatype="html">
-        <source>Multiple Choice</source>
+        <source>Multiple choice</source>
         <target state="translated">Opción múltiple</target>
       </trans-unit>
       <trans-unit id="settings.q_free_text" datatype="html">
-        <source>Free Text</source>
+        <source>Free text</source>
         <target state="translated">Texto libre</target>
       </trans-unit>
       <trans-unit id="settings.options_label" datatype="html">
@@ -2463,8 +2371,8 @@
         <target state="translated">Opciones</target>
       </trans-unit>
       <trans-unit id="settings.options_hint" datatype="html">
-        <source>(one per line)</source>
-        <target state="translated">(una por línea)</target>
+        <source>One per line</source>
+        <target state="translated">Una por línea</target>
       </trans-unit>
       <trans-unit id="settings.options_ph" datatype="html">
         <source>Option A
@@ -2483,7 +2391,7 @@ Opción C</target>
         <target state="translated">Activo</target>
       </trans-unit>
       <trans-unit id="settings.display_order" datatype="html">
-        <source>Display Order</source>
+        <source>Display order</source>
         <target state="translated">Orden de visualización</target>
       </trans-unit>
       <trans-unit id="settings.update_btn" datatype="html">
@@ -2495,8 +2403,8 @@ Opción C</target>
         <target state="translated">Crear</target>
       </trans-unit>
       <trans-unit id="settings.saving_question" datatype="html">
-        <source>Saving…</source>
-        <target state="translated">Guardando…</target>
+        <source>Saving...</source>
+        <target state="translated">Guardando...</target>
       </trans-unit>
       <trans-unit id="settings.cancel_question" datatype="html">
         <source>Cancel</source>
@@ -3311,7 +3219,7 @@ Opción C</target>
         <target state="translated">No se pudo cargar el estado de los datos de demostración.</target>
       </trans-unit>
       <trans-unit id="roles.page_title" datatype="html">
-        <source>Roles &amp; Permissions</source>
+        <source>Roles and permissions</source>
         <target state="translated">Roles y permisos</target>
       </trans-unit>
       <trans-unit id="roles.page_subtitle" datatype="html">
@@ -3319,24 +3227,20 @@ Opción C</target>
         <target state="translated">Gestiona roles de usuario y configura permisos de acceso</target>
       </trans-unit>
       <trans-unit id="roles.new_role_btn" datatype="html">
-        <source>New Role</source>
-        <target state="translated">Nuevo rol</target>
-      </trans-unit>
-      <trans-unit id="roles.form_edit" datatype="html">
-        <source>Edit Role</source>
-        <target state="translated">Editar rol</target>
+        <source>Add role</source>
+        <target state="translated">Agregar rol</target>
       </trans-unit>
       <trans-unit id="roles.form_new" datatype="html">
-        <source>New Role</source>
+        <source>New role</source>
         <target state="translated">Nuevo rol</target>
       </trans-unit>
       <trans-unit id="roles.name_label" datatype="html">
-        <source>Role Name</source>
+        <source>Role name</source>
         <target state="translated">Nombre del rol</target>
       </trans-unit>
       <trans-unit id="roles.name_placeholder" datatype="html">
-        <source>e.g., Manager, Employee, Admin</source>
-        <target state="translated">p. ej., Gerente, Empleado, Administrador</target>
+        <source>For example, Manager, Employee or Admin</source>
+        <target state="translated">Por ejemplo, Gerente, Empleado o Administrador</target>
       </trans-unit>
       <trans-unit id="roles.name_error" datatype="html">
         <source>Role name is required</source>
@@ -3363,11 +3267,11 @@ Opción C</target>
         <target state="translated">Permisos</target>
       </trans-unit>
       <trans-unit id="roles.update_btn" datatype="html">
-        <source>Update Role</source>
-        <target state="translated">Actualizar rol</target>
+        <source>Save role</source>
+        <target state="translated">Guardar rol</target>
       </trans-unit>
       <trans-unit id="roles.create_btn" datatype="html">
-        <source>Create Role</source>
+        <source>Create role</source>
         <target state="translated">Crear rol</target>
       </trans-unit>
       <trans-unit id="roles.list_title" datatype="html">
@@ -3378,29 +3282,21 @@ Opción C</target>
         <source>Loading roles...</source>
         <target state="translated">Cargando roles...</target>
       </trans-unit>
-      <trans-unit id="roles.error_title" datatype="html">
-        <source>Error loading roles</source>
-        <target state="translated">Error al cargar roles</target>
-      </trans-unit>
       <trans-unit id="roles.error_text" datatype="html">
-        <source>Please try again later</source>
-        <target state="translated">Por favor intenta de nuevo más tarde</target>
+        <source>Could not load roles. Try again later.</source>
+        <target state="translated">No se pudieron cargar los roles. Inténtalo de nuevo más tarde.</target>
       </trans-unit>
       <trans-unit id="roles.empty_title" datatype="html">
         <source>No roles yet</source>
         <target state="translated">Sin roles aún</target>
       </trans-unit>
       <trans-unit id="roles.empty_text" datatype="html">
-        <source>Create your first role using the form.</source>
-        <target state="translated">Crea tu primer rol usando el formulario.</target>
-      </trans-unit>
-      <trans-unit id="roles.assign_users_tooltip" datatype="html">
-        <source>Assign users</source>
-        <target state="translated">Asignar usuarios</target>
+        <source>Create your first role to control access</source>
+        <target state="translated">Crea tu primer rol para controlar el acceso</target>
       </trans-unit>
       <trans-unit id="assign_users.title" datatype="html">
-        <source>Assign Users to <x id="INTERPOLATION" equiv-text="{{ roleName }}"/></source>
-        <target state="translated">Asignar usuarios a <x id="INTERPOLATION" equiv-text="{{ roleName }}"/></target>
+        <source>Assign users to <x id="name"/></source>
+        <target state="translated">Asignar usuarios a <x id="name"/></target>
       </trans-unit>
       <trans-unit id="areas.page_title" datatype="html">
         <source>Area management</source>
@@ -4687,11 +4583,11 @@ Opción C</target>
         <target state="translated">Seleccionar</target>
       </trans-unit>
       <trans-unit id="company_form.title_edit" datatype="html">
-        <source>Edit Company</source>
+        <source>Edit company</source>
         <target state="translated">Editar empresa</target>
       </trans-unit>
       <trans-unit id="company_form.title_create" datatype="html">
-        <source>Create Company</source>
+        <source>Create company</source>
         <target state="translated">Crear empresa</target>
       </trans-unit>
       <trans-unit id="company_form.name_label" datatype="html">
@@ -4703,7 +4599,7 @@ Opción C</target>
         <target state="translated">Dirección</target>
       </trans-unit>
       <trans-unit id="company_form.phone_label" datatype="html">
-        <source>Phone Number</source>
+        <source>Phone number</source>
         <target state="translated">Número de teléfono</target>
       </trans-unit>
       <trans-unit id="company_form.email_label" datatype="html">
@@ -4715,60 +4611,44 @@ Opción C</target>
         <target state="translated">Sitio web</target>
       </trans-unit>
       <trans-unit id="company_form.timezone_label" datatype="html">
-        <source>Timezone</source>
+        <source>Time zone</source>
         <target state="translated">Zona horaria</target>
       </trans-unit>
-      <trans-unit id="company_form.timezone_ph" datatype="html">
-        <source>Select a Timezone</source>
-        <target state="translated">Selecciona una zona horaria</target>
-      </trans-unit>
       <trans-unit id="company_form.timezone_placeholder" datatype="html">
-        <source>Select a Timezone</source>
+        <source>Select a time zone</source>
         <target state="translated">Selecciona una zona horaria</target>
-      </trans-unit>
-      <trans-unit id="company_form.ext_code_label" datatype="html">
-        <source>External Code</source>
-        <target state="translated">Código externo</target>
       </trans-unit>
       <trans-unit id="company_form.external_code_label" datatype="html">
-        <source>External Code</source>
+        <source>External code</source>
         <target state="translated">Código externo</target>
       </trans-unit>
       <trans-unit id="company_form.currency_label" datatype="html">
         <source>Currency</source>
         <target state="translated">Moneda</target>
       </trans-unit>
-      <trans-unit id="company_form.logo_label" datatype="html">
-        <source>Logo URL</source>
-        <target state="translated">URL del logotipo</target>
-      </trans-unit>
       <trans-unit id="company_form.logo_url_label" datatype="html">
         <source>Logo URL</source>
         <target state="translated">URL del logotipo</target>
       </trans-unit>
       <trans-unit id="company_form.update_btn" datatype="html">
-        <source>Update</source>
-        <target state="translated">Actualizar</target>
+        <source>Save changes</source>
+        <target state="translated">Guardar cambios</target>
       </trans-unit>
       <trans-unit id="company_form.create_btn" datatype="html">
-        <source>Create</source>
-        <target state="translated">Crear</target>
+        <source>Create company</source>
+        <target state="translated">Crear empresa</target>
       </trans-unit>
       <trans-unit id="company_users_admin.title" datatype="html">
-        <source>Company Users Management</source>
-        <target state="translated">Gestión de usuarios de la empresa</target>
+        <source>Company users</source>
+        <target state="translated">Usuarios de la empresa</target>
       </trans-unit>
       <trans-unit id="company_users_admin.subtitle" datatype="html">
         <source>Manage user access across companies. Deactivate users to prevent login to a specific company.</source>
         <target state="translated">Gestiona el acceso de usuarios en empresas. Desactiva usuarios para evitar el inicio de sesión en una empresa específica.</target>
       </trans-unit>
-      <trans-unit id="company_users_admin.select_label" datatype="html">
-        <source>Select Company</source>
-        <target state="translated">Seleccionar empresa</target>
-      </trans-unit>
       <trans-unit id="company_users_admin.select_company" datatype="html">
-        <source>Select Company</source>
-        <target state="translated">Seleccionar empresa</target>
+        <source>Company</source>
+        <target state="translated">Empresa</target>
       </trans-unit>
       <trans-unit id="company_users_admin.refresh_btn" datatype="html">
         <source>Refresh</source>
@@ -4782,21 +4662,9 @@ Opción C</target>
         <source>Email</source>
         <target state="translated">Correo</target>
       </trans-unit>
-      <trans-unit id="company_users_admin.col_name" datatype="html">
-        <source>Name</source>
-        <target state="translated">Nombre</target>
-      </trans-unit>
-      <trans-unit id="company_users_admin.col_auth" datatype="html">
-        <source>Auth Type</source>
-        <target state="translated">Tipo de autenticación</target>
-      </trans-unit>
       <trans-unit id="company_users_admin.col_auth_type" datatype="html">
-        <source>Auth Type</source>
+        <source>Auth type</source>
         <target state="translated">Tipo de autenticación</target>
-      </trans-unit>
-      <trans-unit id="company_users_admin.col_status" datatype="html">
-        <source>Status</source>
-        <target state="translated">Estado</target>
       </trans-unit>
       <trans-unit id="company_users_admin.col_created" datatype="html">
         <source>Created</source>
@@ -4806,109 +4674,45 @@ Opción C</target>
         <source>Actions</source>
         <target state="translated">Acciones</target>
       </trans-unit>
-      <trans-unit id="company_users_admin.active" datatype="html">
-        <source>Active</source>
-        <target state="translated">Activo</target>
-      </trans-unit>
-      <trans-unit id="company_users_admin.inactive" datatype="html">
-        <source>Inactive</source>
-        <target state="translated">Inactivo</target>
-      </trans-unit>
-      <trans-unit id="company_users_admin.deactivate_tip" datatype="html">
-        <source>Deactivate user</source>
-        <target state="translated">Desactivar usuario</target>
-      </trans-unit>
-      <trans-unit id="company_users_admin.activate_tip" datatype="html">
-        <source>Activate user</source>
-        <target state="translated">Activar usuario</target>
-      </trans-unit>
       <trans-unit id="company_users_admin.empty" datatype="html">
-        <source>No users found for this company.</source>
-        <target state="translated">No se encontraron usuarios para esta empresa.</target>
+        <source>No users found for this company</source>
+        <target state="translated">No se encontraron usuarios para esta empresa</target>
       </trans-unit>
       <trans-unit id="manage_companies.title" datatype="html">
-        <source>Manage Companies</source>
+        <source>Manage companies</source>
         <target state="translated">Gestionar empresas</target>
-      </trans-unit>
-      <trans-unit id="manage_companies.companies_title" datatype="html">
-        <source>Companies</source>
-        <target state="translated">Empresas</target>
       </trans-unit>
       <trans-unit id="manage_companies.companies_heading" datatype="html">
         <source>Companies</source>
         <target state="translated">Empresas</target>
       </trans-unit>
-      <trans-unit id="manage_companies.create_btn" datatype="html">
-        <source>Create New</source>
-        <target state="translated">Crear nuevo</target>
-      </trans-unit>
       <trans-unit id="manage_companies.create_new_btn" datatype="html">
-        <source>Create New</source>
-        <target state="translated">Crear nuevo</target>
-      </trans-unit>
-      <trans-unit id="manage_companies.manage_users" datatype="html">
-        <source>Manage Users</source>
-        <target state="translated">Gestionar usuarios</target>
+        <source>Create company</source>
+        <target state="translated">Crear empresa</target>
       </trans-unit>
       <trans-unit id="manage_companies.manage_users_btn" datatype="html">
-        <source>Manage Users</source>
+        <source>Manage users</source>
         <target state="translated">Gestionar usuarios</target>
       </trans-unit>
-      <trans-unit id="manage_companies.edit_btn" datatype="html">
-        <source>Edit</source>
-        <target state="translated">Editar</target>
-      </trans-unit>
-      <trans-unit id="manage_companies.delete_btn" datatype="html">
-        <source>Delete</source>
-        <target state="translated">Eliminar</target>
-      </trans-unit>
-      <trans-unit id="manage_companies.users_title" datatype="html">
-        <source>Users for <x id="INTERPOLATION" equiv-text="{{ companyName }}"/></source>
-        <target state="translated">Usuarios de <x id="INTERPOLATION" equiv-text="{{ companyName }}"/></target>
-      </trans-unit>
       <trans-unit id="manage_companies.users_for" datatype="html">
-        <source>Users for <x id="INTERPOLATION" equiv-text="{{ selectedCompany.name }}"/></source>
-        <target state="translated">Usuarios de <x id="INTERPOLATION" equiv-text="{{ selectedCompany.name }}"/></target>
+        <source>Users for <x id="name"/></source>
+        <target state="translated">Usuarios de <x id="name"/></target>
       </trans-unit>
       <trans-unit id="manage_companies.in_company" datatype="html">
-        <source>In Company (<x id="INTERPOLATION" equiv-text="{{ companyMembers.length }}"/>)</source>
-        <target state="translated">En la empresa (<x id="INTERPOLATION" equiv-text="{{ companyMembers.length }}"/>)</target>
-      </trans-unit>
-      <trans-unit id="manage_companies.available" datatype="html">
-        <source>Available Users (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
-        <target state="translated">Usuarios disponibles (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</target>
+        <source>In company (<x id="INTERPOLATION"/>)</source>
+        <target state="translated">En la empresa (<x id="INTERPOLATION"/>)</target>
       </trans-unit>
       <trans-unit id="manage_companies.available_users" datatype="html">
-        <source>Available Users (<x id="INTERPOLATION" equiv-text="{{ availablePeople.length }}"/>)</source>
-        <target state="translated">Usuarios disponibles (<x id="INTERPOLATION" equiv-text="{{ availablePeople.length }}"/>)</target>
-      </trans-unit>
-      <trans-unit id="manage_companies.deactivate" datatype="html">
-        <source>Deactivate</source>
-        <target state="translated">Desactivar</target>
+        <source>Available users (<x id="INTERPOLATION"/>)</source>
+        <target state="translated">Usuarios disponibles (<x id="INTERPOLATION"/>)</target>
       </trans-unit>
       <trans-unit id="manage_companies.deactivate_btn" datatype="html">
         <source>Deactivate</source>
         <target state="translated">Desactivar</target>
       </trans-unit>
-      <trans-unit id="manage_companies.activate" datatype="html">
-        <source>Activate</source>
-        <target state="translated">Activar</target>
-      </trans-unit>
       <trans-unit id="manage_companies.activate_btn" datatype="html">
         <source>Activate</source>
         <target state="translated">Activar</target>
-      </trans-unit>
-      <trans-unit id="manage_companies.remove" datatype="html">
-        <source>Remove</source>
-        <target state="translated">Quitar</target>
-      </trans-unit>
-      <trans-unit id="manage_companies.remove_btn" datatype="html">
-        <source>Remove</source>
-        <target state="translated">Quitar</target>
-      </trans-unit>
-      <trans-unit id="manage_companies.add" datatype="html">
-        <source>Add</source>
-        <target state="translated">Agregar</target>
       </trans-unit>
       <trans-unit id="manage_companies.add_btn" datatype="html">
         <source>Add</source>
@@ -5001,14 +4805,6 @@ Opción C</target>
       <trans-unit id="index.version" datatype="html">
         <source>Version 1.0.0</source>
         <target state="translated">Versión 1.0.0</target>
-      </trans-unit>
-      <trans-unit id="clock.clock_out_hint" datatype="html">
-        <source>Clock out when done</source>
-        <target state="translated">Marca salida cuando termines</target>
-      </trans-unit>
-      <trans-unit id="clock.clock_in_hint" datatype="html">
-        <source>Clock in to start your shift</source>
-        <target state="translated">Marca entrada para iniciar tu turno</target>
       </trans-unit>
       <trans-unit id="profile.footer" datatype="html">
         <source>ShiftWork Mobile · v1.0.0</source>
@@ -5337,34 +5133,6 @@ Opción C</target>
       <trans-unit id="auth.onboarding.explore_pro_features" datatype="html">
         <source>Explore Pro Features</source>
         <target state="translated">Explorar funciones Pro</target>
-      </trans-unit>
-      <trans-unit id="clock.on_clock" datatype="html">
-        <source>You are on the clock</source>
-        <target state="translated">Estás en turno</target>
-      </trans-unit>
-      <trans-unit id="clock.ready" datatype="html">
-        <source>Ready to start?</source>
-        <target state="translated">¿Listo para empezar?</target>
-      </trans-unit>
-      <trans-unit id="clock.status_in" datatype="html">
-        <source>On Clock</source>
-        <target state="translated">En turno</target>
-      </trans-unit>
-      <trans-unit id="clock.status_out" datatype="html">
-        <source>Off Clock</source>
-        <target state="translated">Fuera de turno</target>
-      </trans-unit>
-      <trans-unit id="clock.info_location" datatype="html">
-        <source>Location captured</source>
-        <target state="translated">Ubicación capturada</target>
-      </trans-unit>
-      <trans-unit id="clock.info_photo" datatype="html">
-        <source>Photo optional</source>
-        <target state="translated">Foto opcional</target>
-      </trans-unit>
-      <trans-unit id="clock.info_device" datatype="html">
-        <source>Device recorded</source>
-        <target state="translated">Dispositivo registrado</target>
       </trans-unit>
       <trans-unit id="bulletins.filter_unread_count" datatype="html">
         <source>Unread (<x id="count"/>)</source>
@@ -8011,6 +7779,994 @@ What would you like to do?</source>
       <trans-unit id="safety.compliance_error" datatype="html">
         <source>Could not load compliance data.</source>
         <target state="translated">No se pudieron cargar los datos de cumplimiento.</target>
+      </trans-unit>
+      <trans-unit id="assign_users.none" datatype="html">
+        <source>No people found.</source>
+        <target state="translated">No se encontraron personas.</target>
+      </trans-unit>
+      <trans-unit id="assign_users.search_label" datatype="html">
+        <source>Search people</source>
+        <target state="translated">Buscar personas</target>
+      </trans-unit>
+      <trans-unit id="assign_users.search_ph" datatype="html">
+        <source>Search by name or email</source>
+        <target state="translated">Buscar por nombre o correo</target>
+      </trans-unit>
+      <trans-unit id="billing.activating" datatype="html">
+        <source>Activating your plan...</source>
+        <target state="translated">Activando tu plan...</target>
+      </trans-unit>
+      <trans-unit id="billing.choose_plan" datatype="html">
+        <source>Choose plan</source>
+        <target state="translated">Elegir plan</target>
+      </trans-unit>
+      <trans-unit id="billing.current_plan" datatype="html">
+        <source>Current plan</source>
+        <target state="translated">Plan actual</target>
+      </trans-unit>
+      <trans-unit id="billing.employees" datatype="html">
+        <source>employees</source>
+        <target state="translated">empleados</target>
+      </trans-unit>
+      <trans-unit id="billing.employees_label" datatype="html">
+        <source>Active employees</source>
+        <target state="translated">Empleados activos</target>
+      </trans-unit>
+      <trans-unit id="billing.load_error" datatype="html">
+        <source>Billing is unavailable right now. Please try again.</source>
+        <target state="translated">La facturación no está disponible en este momento. Inténtalo de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="billing.loading" datatype="html">
+        <source>Loading billing...</source>
+        <target state="translated">Cargando facturación...</target>
+      </trans-unit>
+      <trans-unit id="billing.manage" datatype="html">
+        <source>Manage billing</source>
+        <target state="translated">Administrar facturación</target>
+      </trans-unit>
+      <trans-unit id="billing.past_due" datatype="html">
+        <source>Payment failed. Update your card to keep your plan.</source>
+        <target state="translated">El pago falló. Actualiza tu tarjeta para conservar tu plan.</target>
+      </trans-unit>
+      <trans-unit id="billing.recommended" datatype="html">
+        <source>Recommended</source>
+        <target state="translated">Recomendado</target>
+      </trans-unit>
+      <trans-unit id="billing.renews_on" datatype="html">
+        <source>Renews on <x id="INTERPOLATION"/></source>
+        <target state="translated">Se renueva el <x id="INTERPOLATION"/></target>
+      </trans-unit>
+      <trans-unit id="billing.state_active" datatype="html">
+        <source>Active</source>
+        <target state="translated">Activo</target>
+      </trans-unit>
+      <trans-unit id="billing.state_free" datatype="html">
+        <source>No subscription</source>
+        <target state="translated">Sin suscripción</target>
+      </trans-unit>
+      <trans-unit id="billing.state_past_due" datatype="html">
+        <source>Past due</source>
+        <target state="translated">Pago vencido</target>
+      </trans-unit>
+      <trans-unit id="billing.state_trial" datatype="html">
+        <source>Trial</source>
+        <target state="translated">Prueba</target>
+      </trans-unit>
+      <trans-unit id="billing.tier_business_blurb" datatype="html">
+        <source>Unlimited employees</source>
+        <target state="translated">Empleados ilimitados</target>
+      </trans-unit>
+      <trans-unit id="billing.tier_pro_blurb" datatype="html">
+        <source>Analytics, multi-location and exports</source>
+        <target state="translated">Analítica, múltiples ubicaciones y exportaciones</target>
+      </trans-unit>
+      <trans-unit id="billing.tier_starter_blurb" datatype="html">
+        <source>Small crews getting organized</source>
+        <target state="translated">Cuadrillas pequeñas que se están organizando</target>
+      </trans-unit>
+      <trans-unit id="billing.title" datatype="html">
+        <source>Plan and billing</source>
+        <target state="translated">Plan y facturación</target>
+      </trans-unit>
+      <trans-unit id="billing.toast_canceled" datatype="html">
+        <source>Checkout canceled. No charge was made.</source>
+        <target state="translated">Pago cancelado. No se realizó ningún cargo.</target>
+      </trans-unit>
+      <trans-unit id="billing.toast_received" datatype="html">
+        <source>Payment received. Activating your plan...</source>
+        <target state="translated">Pago recibido. Activando tu plan...</target>
+      </trans-unit>
+      <trans-unit id="billing.trial_days_left" datatype="html">
+        <source><x id="INTERPOLATION"/> days left in your free trial</source>
+        <target state="translated">Quedan <x id="INTERPOLATION"/> días de tu prueba gratuita</target>
+      </trans-unit>
+      <trans-unit id="billing.up_to" datatype="html">
+        <source>Up to</source>
+        <target state="translated">Hasta</target>
+      </trans-unit>
+      <trans-unit id="billing.usage_aria" datatype="html">
+        <source>Employee usage</source>
+        <target state="translated">Uso de empleados</target>
+      </trans-unit>
+      <trans-unit id="clock.captured_photo_alt" datatype="html">
+        <source>Captured photo</source>
+        <target state="translated">Foto capturada</target>
+      </trans-unit>
+      <trans-unit id="clock.page_title" datatype="html">
+        <source>Clock in and out</source>
+        <target state="translated">Entrada y salida</target>
+      </trans-unit>
+      <trans-unit id="clock.state_off_shift" datatype="html">
+        <source>Not on shift</source>
+        <target state="translated">Fuera de turno</target>
+      </trans-unit>
+      <trans-unit id="clock.state_on_shift" datatype="html">
+        <source>On shift</source>
+        <target state="translated">En turno</target>
+      </trans-unit>
+      <trans-unit id="clock.toast_event_created" datatype="html">
+        <source>Shift event created.</source>
+        <target state="translated">Evento de turno creado.</target>
+      </trans-unit>
+      <trans-unit id="clock.toast_event_failed" datatype="html">
+        <source>Could not create the shift event.</source>
+        <target state="translated">No se pudo crear el evento de turno.</target>
+      </trans-unit>
+      <trans-unit id="clock.toast_geo_failed" datatype="html">
+        <source>Could not get your location.</source>
+        <target state="translated">No se pudo obtener tu ubicación.</target>
+      </trans-unit>
+      <trans-unit id="clock.toast_no_employee" datatype="html">
+        <source>No employee is selected, or the company or person ID is missing.</source>
+        <target state="translated">No hay ningún empleado seleccionado o falta el ID de empresa o persona.</target>
+      </trans-unit>
+      <trans-unit id="clock.toast_no_photo" datatype="html">
+        <source>No photo was captured.</source>
+        <target state="translated">No se capturó ninguna foto.</target>
+      </trans-unit>
+      <trans-unit id="clock.toast_upload_failed" datatype="html">
+        <source>Could not upload the photo.</source>
+        <target state="translated">No se pudo subir la foto.</target>
+      </trans-unit>
+      <trans-unit id="clock.toast_webcam_error" datatype="html">
+        <source>Webcam error</source>
+        <target state="translated">Error de cámara web</target>
+      </trans-unit>
+      <trans-unit id="common.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">Cerrar</target>
+      </trans-unit>
+      <trans-unit id="company_form.create_error" datatype="html">
+        <source>Could not create the company.</source>
+        <target state="translated">No se pudo crear la empresa.</target>
+      </trans-unit>
+      <trans-unit id="company_form.email_invalid" datatype="html">
+        <source>Enter a valid email address</source>
+        <target state="translated">Ingresa un correo electrónico válido</target>
+      </trans-unit>
+      <trans-unit id="company_form.field_required" datatype="html">
+        <source>This field is required</source>
+        <target state="translated">Este campo es obligatorio</target>
+      </trans-unit>
+      <trans-unit id="company_form.load_error" datatype="html">
+        <source>Could not load the company. Try again later.</source>
+        <target state="translated">No se pudo cargar la empresa. Inténtalo de nuevo más tarde.</target>
+      </trans-unit>
+      <trans-unit id="company_form.toast_created" datatype="html">
+        <source>Company created.</source>
+        <target state="translated">Empresa creada.</target>
+      </trans-unit>
+      <trans-unit id="company_form.toast_updated" datatype="html">
+        <source>Company updated.</source>
+        <target state="translated">Empresa actualizada.</target>
+      </trans-unit>
+      <trans-unit id="company_form.update_error" datatype="html">
+        <source>Could not update the company.</source>
+        <target state="translated">No se pudo actualizar la empresa.</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.activate_aria" datatype="html">
+        <source>Activate <x id="email"/></source>
+        <target state="translated">Activar a <x id="email"/></target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.auth_api" datatype="html">
+        <source>API</source>
+        <target state="translated">API</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.auth_firebase" datatype="html">
+        <source>Firebase</source>
+        <target state="translated">Firebase</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.auth_invite" datatype="html">
+        <source>Invite</source>
+        <target state="translated">Invitación</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.auth_unknown" datatype="html">
+        <source>Unknown</source>
+        <target state="translated">Desconocido</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.deactivate_aria" datatype="html">
+        <source>Deactivate <x id="email"/></source>
+        <target state="translated">Desactivar a <x id="email"/></target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.load_error" datatype="html">
+        <source>Could not load company users. Try again later.</source>
+        <target state="translated">No se pudieron cargar los usuarios de la empresa. Inténtalo de nuevo más tarde.</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.toast_activated" datatype="html">
+        <source>User <x id="email"/> activated.</source>
+        <target state="translated">Usuario <x id="email"/> activado.</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.toast_deactivated" datatype="html">
+        <source>User <x id="email"/> deactivated.</source>
+        <target state="translated">Usuario <x id="email"/> desactivado.</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.toast_load_failed" datatype="html">
+        <source>Could not load company users.</source>
+        <target state="translated">No se pudieron cargar los usuarios de la empresa.</target>
+      </trans-unit>
+      <trans-unit id="company_users_admin.toast_status_failed" datatype="html">
+        <source>Could not update the user status.</source>
+        <target state="translated">No se pudo actualizar el estado del usuario.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.activate_aria" datatype="html">
+        <source>Activate <x id="name"/></source>
+        <target state="translated">Activar a <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="manage_companies.add_aria" datatype="html">
+        <source>Add <x id="name"/></source>
+        <target state="translated">Agregar a <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="manage_companies.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.col_company" datatype="html">
+        <source>Company</source>
+        <target state="translated">Empresa</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.col_status" datatype="html">
+        <source>Status</source>
+        <target state="translated">Estado</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.col_user" datatype="html">
+        <source>User</source>
+        <target state="translated">Usuario</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.deactivate_aria" datatype="html">
+        <source>Deactivate <x id="name"/></source>
+        <target state="translated">Desactivar a <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="manage_companies.delete_aria" datatype="html">
+        <source>Delete <x id="name"/></source>
+        <target state="translated">Eliminar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="manage_companies.delete_body" datatype="html">
+        <source>This company and its data will be deleted. This cannot be undone.</source>
+        <target state="translated">Esta empresa y sus datos se eliminarán. Esta acción no se puede deshacer.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.delete_confirm" datatype="html">
+        <source>Delete company</source>
+        <target state="translated">Eliminar empresa</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.delete_title" datatype="html">
+        <source>Delete <x id="name"/>?</source>
+        <target state="translated">¿Eliminar <x id="name"/>?</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.edit_aria" datatype="html">
+        <source>Edit <x id="name"/></source>
+        <target state="translated">Editar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="manage_companies.empty_body" datatype="html">
+        <source>Create your first company to get started</source>
+        <target state="translated">Crea tu primera empresa para empezar</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.empty_title" datatype="html">
+        <source>No companies yet</source>
+        <target state="translated">Aún no hay empresas</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.load_error" datatype="html">
+        <source>Could not load companies. Try again later.</source>
+        <target state="translated">No se pudieron cargar las empresas. Inténtalo de nuevo más tarde.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.manage_users_aria" datatype="html">
+        <source>Manage users for <x id="name"/></source>
+        <target state="translated">Gestionar usuarios de <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="manage_companies.remove_aria" datatype="html">
+        <source>Remove <x id="name"/></source>
+        <target state="translated">Quitar a <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="manage_companies.remove_body" datatype="html">
+        <source>This user will lose access to the company.</source>
+        <target state="translated">Este usuario perderá el acceso a la empresa.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.remove_confirm" datatype="html">
+        <source>Remove user</source>
+        <target state="translated">Quitar usuario</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.remove_title" datatype="html">
+        <source>Remove <x id="name"/> from this company?</source>
+        <target state="translated">¿Quitar a <x id="name"/> de esta empresa?</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.toast_activated" datatype="html">
+        <source><x id="user"/> activated.</source>
+        <target state="translated"><x id="user"/> activado.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.toast_add_failed" datatype="html">
+        <source>Could not add the user.</source>
+        <target state="translated">No se pudo agregar al usuario.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.toast_added" datatype="html">
+        <source><x id="person"/> added to <x id="company"/>.</source>
+        <target state="translated"><x id="person"/> se agregó a <x id="company"/>.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.toast_deactivated" datatype="html">
+        <source><x id="user"/> deactivated.</source>
+        <target state="translated"><x id="user"/> desactivado.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.toast_delete_failed" datatype="html">
+        <source>Could not delete the company.</source>
+        <target state="translated">No se pudo eliminar la empresa.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.toast_deleted" datatype="html">
+        <source>Company deleted.</source>
+        <target state="translated">Empresa eliminada.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.toast_load_failed" datatype="html">
+        <source>Could not load companies.</source>
+        <target state="translated">No se pudieron cargar las empresas.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.toast_remove_failed" datatype="html">
+        <source>Could not remove the user.</source>
+        <target state="translated">No se pudo quitar al usuario.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.toast_removed" datatype="html">
+        <source><x id="user"/> removed from <x id="company"/>.</source>
+        <target state="translated"><x id="user"/> se quitó de <x id="company"/>.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.toast_status_failed" datatype="html">
+        <source>Could not update the user status.</source>
+        <target state="translated">No se pudo actualizar el estado del usuario.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.toast_users_load_failed" datatype="html">
+        <source>Could not load users for this company.</source>
+        <target state="translated">No se pudieron cargar los usuarios de esta empresa.</target>
+      </trans-unit>
+      <trans-unit id="manage_companies.users_load_error" datatype="html">
+        <source>Could not load users for this company.</source>
+        <target state="translated">No se pudieron cargar los usuarios de esta empresa.</target>
+      </trans-unit>
+      <trans-unit id="procore.auto_push" datatype="html">
+        <source>Auto-push manpower when a daily report is submitted</source>
+        <target state="translated">Enviar automáticamente la mano de obra al enviar un reporte diario</target>
+      </trans-unit>
+      <trans-unit id="procore.base_url_hint" datatype="html">
+        <source>Sandbox: https://sandbox.procore.com</source>
+        <target state="translated">Sandbox: https://sandbox.procore.com</target>
+      </trans-unit>
+      <trans-unit id="procore.base_url_label" datatype="html">
+        <source>API base URL</source>
+        <target state="translated">URL base de la API</target>
+      </trans-unit>
+      <trans-unit id="procore.client_id_label" datatype="html">
+        <source>Client ID</source>
+        <target state="translated">ID de cliente</target>
+      </trans-unit>
+      <trans-unit id="procore.client_id_ph" datatype="html">
+        <source>OAuth application client ID</source>
+        <target state="translated">ID de cliente de la aplicación OAuth</target>
+      </trans-unit>
+      <trans-unit id="procore.client_secret_label" datatype="html">
+        <source>Client secret</source>
+        <target state="translated">Secreto de cliente</target>
+      </trans-unit>
+      <trans-unit id="procore.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="procore.col_employee" datatype="html">
+        <source>Employee</source>
+        <target state="translated">Empleado</target>
+      </trans-unit>
+      <trans-unit id="procore.col_location" datatype="html">
+        <source>Location</source>
+        <target state="translated">Ubicación</target>
+      </trans-unit>
+      <trans-unit id="procore.col_project_id" datatype="html">
+        <source>Procore project ID</source>
+        <target state="translated">ID de proyecto de Procore</target>
+      </trans-unit>
+      <trans-unit id="procore.col_worker_id" datatype="html">
+        <source>Procore worker ID</source>
+        <target state="translated">ID de trabajador de Procore</target>
+      </trans-unit>
+      <trans-unit id="procore.company_id_hint" datatype="html">
+        <source>Sent as the Procore-Company-Id header</source>
+        <target state="translated">Se envía como encabezado Procore-Company-Id</target>
+      </trans-unit>
+      <trans-unit id="procore.company_id_label" datatype="html">
+        <source>Procore company ID</source>
+        <target state="translated">ID de empresa de Procore</target>
+      </trans-unit>
+      <trans-unit id="procore.company_id_ph" datatype="html">
+        <source>For example, 598134</source>
+        <target state="translated">Por ejemplo, 598134</target>
+      </trans-unit>
+      <trans-unit id="procore.connection_heading" datatype="html">
+        <source>Connection</source>
+        <target state="translated">Conexión</target>
+      </trans-unit>
+      <trans-unit id="procore.employees_heading" datatype="html">
+        <source>Employee mapping</source>
+        <target state="translated">Asignación de empleados</target>
+      </trans-unit>
+      <trans-unit id="procore.employees_hint" datatype="html">
+        <source>Enter each employee's Procore worker or party ID. Required for timesheet sync. Unmapped employees are skipped when timecards are pushed.</source>
+        <target state="translated">Ingresa el ID de trabajador o de parte de Procore de cada empleado. Es obligatorio para la sincronización de hojas de horas. Los empleados sin asignar se omiten al enviar las tarjetas de tiempo.</target>
+      </trans-unit>
+      <trans-unit id="procore.enable" datatype="html">
+        <source>Enable integration</source>
+        <target state="translated">Habilitar la integración</target>
+      </trans-unit>
+      <trans-unit id="procore.last_sync" datatype="html">
+        <source>Last sync:</source>
+        <target state="translated">Última sincronización:</target>
+      </trans-unit>
+      <trans-unit id="procore.load_error" datatype="html">
+        <source>Could not load Procore settings. Try again later.</source>
+        <target state="translated">No se pudo cargar la configuración de Procore. Inténtalo de nuevo más tarde.</target>
+      </trans-unit>
+      <trans-unit id="procore.loading" datatype="html">
+        <source>Loading Procore settings...</source>
+        <target state="translated">Cargando la configuración de Procore...</target>
+      </trans-unit>
+      <trans-unit id="procore.mapped" datatype="html">
+        <source>mapped</source>
+        <target state="translated">asignados</target>
+      </trans-unit>
+      <trans-unit id="procore.never_synced" datatype="html">
+        <source>Last sync: never</source>
+        <target state="translated">Última sincronización: nunca</target>
+      </trans-unit>
+      <trans-unit id="procore.no_employees" datatype="html">
+        <source>No employees to map</source>
+        <target state="translated">No hay empleados para asignar</target>
+      </trans-unit>
+      <trans-unit id="procore.no_employees_body" datatype="html">
+        <source>Add employees first, then map them to Procore workers</source>
+        <target state="translated">Agrega empleados primero y luego asígnalos a trabajadores de Procore</target>
+      </trans-unit>
+      <trans-unit id="procore.no_locations" datatype="html">
+        <source>No locations to map</source>
+        <target state="translated">No hay ubicaciones para asignar</target>
+      </trans-unit>
+      <trans-unit id="procore.no_locations_body" datatype="html">
+        <source>Add locations first, then map them to Procore projects</source>
+        <target state="translated">Agrega ubicaciones primero y luego asígnalas a proyectos de Procore</target>
+      </trans-unit>
+      <trans-unit id="procore.no_match" datatype="html">
+        <source>No employees match your search.</source>
+        <target state="translated">Ningún empleado coincide con tu búsqueda.</target>
+      </trans-unit>
+      <trans-unit id="procore.not_synced_chip" datatype="html">
+        <source>Not synced</source>
+        <target state="translated">Sin sincronizar</target>
+      </trans-unit>
+      <trans-unit id="procore.page_subtitle" datatype="html">
+        <source>Push daily-log manpower (workers and hours) to Procore</source>
+        <target state="translated">Envía a Procore la mano de obra del registro diario (trabajadores y horas)</target>
+      </trans-unit>
+      <trans-unit id="procore.page_title" datatype="html">
+        <source>Procore integration</source>
+        <target state="translated">Integración con Procore</target>
+      </trans-unit>
+      <trans-unit id="procore.project_id_aria" datatype="html">
+        <source>Procore project ID for <x id="name"/></source>
+        <target state="translated">ID de proyecto de Procore para <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="procore.project_id_ph" datatype="html">
+        <source>Procore project ID</source>
+        <target state="translated">ID de proyecto de Procore</target>
+      </trans-unit>
+      <trans-unit id="procore.projects_heading" datatype="html">
+        <source>Project mapping</source>
+        <target state="translated">Asignación de proyectos</target>
+      </trans-unit>
+      <trans-unit id="procore.projects_hint" datatype="html">
+        <source>Enter each location's Procore project ID. Only mapped locations push to Procore.</source>
+        <target state="translated">Ingresa el ID de proyecto de Procore de cada ubicación. Solo las ubicaciones asignadas se envían a Procore.</target>
+      </trans-unit>
+      <trans-unit id="procore.save_btn" datatype="html">
+        <source>Save connection</source>
+        <target state="translated">Guardar conexión</target>
+      </trans-unit>
+      <trans-unit id="procore.save_mapping_aria" datatype="html">
+        <source>Save mapping for <x id="name"/></source>
+        <target state="translated">Guardar asignación de <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="procore.saving" datatype="html">
+        <source>Saving...</source>
+        <target state="translated">Guardando...</target>
+      </trans-unit>
+      <trans-unit id="procore.search_label" datatype="html">
+        <source>Search employees</source>
+        <target state="translated">Buscar empleados</target>
+      </trans-unit>
+      <trans-unit id="procore.search_ph" datatype="html">
+        <source>Search by name, email or ID</source>
+        <target state="translated">Buscar por nombre, correo o ID</target>
+      </trans-unit>
+      <trans-unit id="procore.secret_keep_ph" datatype="html">
+        <source>Leave blank to keep the current secret</source>
+        <target state="translated">Deja en blanco para conservar el secreto actual</target>
+      </trans-unit>
+      <trans-unit id="procore.secret_ph" datatype="html">
+        <source>OAuth application client secret</source>
+        <target state="translated">Secreto de cliente de la aplicación OAuth</target>
+      </trans-unit>
+      <trans-unit id="procore.secret_stored_hint" datatype="html">
+        <source>A secret is already stored. Enter a new value only to replace it.</source>
+        <target state="translated">Ya hay un secreto guardado. Ingresa un valor nuevo solo para reemplazarlo.</target>
+      </trans-unit>
+      <trans-unit id="procore.state_disabled" datatype="html">
+        <source>Disabled</source>
+        <target state="translated">Deshabilitada</target>
+      </trans-unit>
+      <trans-unit id="procore.state_enabled" datatype="html">
+        <source>Enabled</source>
+        <target state="translated">Habilitada</target>
+      </trans-unit>
+      <trans-unit id="procore.test_btn" datatype="html">
+        <source>Test connection</source>
+        <target state="translated">Probar conexión</target>
+      </trans-unit>
+      <trans-unit id="procore.testing" datatype="html">
+        <source>Testing...</source>
+        <target state="translated">Probando...</target>
+      </trans-unit>
+      <trans-unit id="procore.timesheet_sync" datatype="html">
+        <source>Also sync per-employee timesheets (Procore timecard entries)</source>
+        <target state="translated">Sincronizar también las hojas de horas por empleado (entradas de tarjeta de tiempo de Procore)</target>
+      </trans-unit>
+      <trans-unit id="procore.toast_connected" datatype="html">
+        <source>Connected to Procore.</source>
+        <target state="translated">Conectado a Procore.</target>
+      </trans-unit>
+      <trans-unit id="procore.toast_mapping_failed" datatype="html">
+        <source>Could not save mapping for <x id="name"/>.</source>
+        <target state="translated">No se pudo guardar la asignación de <x id="name"/>.</target>
+      </trans-unit>
+      <trans-unit id="procore.toast_mapping_saved" datatype="html">
+        <source>Mapping saved for <x id="name"/>.</source>
+        <target state="translated">Asignación guardada para <x id="name"/>.</target>
+      </trans-unit>
+      <trans-unit id="procore.toast_save_failed" datatype="html">
+        <source>Could not save the connection.</source>
+        <target state="translated">No se pudo guardar la conexión.</target>
+      </trans-unit>
+      <trans-unit id="procore.toast_saved" datatype="html">
+        <source>Procore connection saved.</source>
+        <target state="translated">Conexión de Procore guardada.</target>
+      </trans-unit>
+      <trans-unit id="procore.toast_test_failed" datatype="html">
+        <source>Connection test failed.</source>
+        <target state="translated">La prueba de conexión falló.</target>
+      </trans-unit>
+      <trans-unit id="procore.toast_worker_saved" datatype="html">
+        <source>Procore worker ID saved for <x id="name"/>.</source>
+        <target state="translated">ID de trabajador de Procore guardado para <x id="name"/>.</target>
+      </trans-unit>
+      <trans-unit id="procore.token_url_label" datatype="html">
+        <source>Token URL</source>
+        <target state="translated">URL del token</target>
+      </trans-unit>
+      <trans-unit id="procore.worker_id_aria" datatype="html">
+        <source>Procore worker ID for <x id="name"/></source>
+        <target state="translated">ID de trabajador de Procore de <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="procore.worker_id_ph" datatype="html">
+        <source>Procore worker ID</source>
+        <target state="translated">ID de trabajador de Procore</target>
+      </trans-unit>
+      <trans-unit id="roles.assign_aria" datatype="html">
+        <source>Assign users to <x id="name"/></source>
+        <target state="translated">Asignar usuarios a <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="roles.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="roles.col_permissions" datatype="html">
+        <source>Permissions</source>
+        <target state="translated">Permisos</target>
+      </trans-unit>
+      <trans-unit id="roles.col_role" datatype="html">
+        <source>Role</source>
+        <target state="translated">Rol</target>
+      </trans-unit>
+      <trans-unit id="roles.col_status" datatype="html">
+        <source>Status</source>
+        <target state="translated">Estado</target>
+      </trans-unit>
+      <trans-unit id="roles.edit_aria" datatype="html">
+        <source>Edit <x id="name"/></source>
+        <target state="translated">Editar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="roles.group_areas" datatype="html">
+        <source>Areas</source>
+        <target state="translated">Áreas</target>
+      </trans-unit>
+      <trans-unit id="roles.group_audit_history" datatype="html">
+        <source>Audit history</source>
+        <target state="translated">Historial de auditoría</target>
+      </trans-unit>
+      <trans-unit id="roles.group_bulletins" datatype="html">
+        <source>Bulletins</source>
+        <target state="translated">Boletines</target>
+      </trans-unit>
+      <trans-unit id="roles.group_company_settings" datatype="html">
+        <source>Company settings</source>
+        <target state="translated">Configuración de la empresa</target>
+      </trans-unit>
+      <trans-unit id="roles.group_company_users" datatype="html">
+        <source>Company users</source>
+        <target state="translated">Usuarios de la empresa</target>
+      </trans-unit>
+      <trans-unit id="roles.group_credentials" datatype="html">
+        <source>Credentials</source>
+        <target state="translated">Credenciales</target>
+      </trans-unit>
+      <trans-unit id="roles.group_crews" datatype="html">
+        <source>Crews</source>
+        <target state="translated">Cuadrillas</target>
+      </trans-unit>
+      <trans-unit id="roles.group_daily_reports" datatype="html">
+        <source>Daily reports</source>
+        <target state="translated">Reportes diarios</target>
+      </trans-unit>
+      <trans-unit id="roles.group_documents" datatype="html">
+        <source>Documents</source>
+        <target state="translated">Documentos</target>
+      </trans-unit>
+      <trans-unit id="roles.group_kiosk" datatype="html">
+        <source>Kiosk</source>
+        <target state="translated">Kiosco</target>
+      </trans-unit>
+      <trans-unit id="roles.group_locations" datatype="html">
+        <source>Locations</source>
+        <target state="translated">Ubicaciones</target>
+      </trans-unit>
+      <trans-unit id="roles.group_people" datatype="html">
+        <source>People</source>
+        <target state="translated">Personas</target>
+      </trans-unit>
+      <trans-unit id="roles.group_permissions" datatype="html">
+        <source>Permissions</source>
+        <target state="translated">Permisos</target>
+      </trans-unit>
+      <trans-unit id="roles.group_pto" datatype="html">
+        <source>PTO</source>
+        <target state="translated">PTO</target>
+      </trans-unit>
+      <trans-unit id="roles.group_replacement_requests" datatype="html">
+        <source>Replacement requests</source>
+        <target state="translated">Solicitudes de reemplazo</target>
+      </trans-unit>
+      <trans-unit id="roles.group_roles" datatype="html">
+        <source>Roles</source>
+        <target state="translated">Roles</target>
+      </trans-unit>
+      <trans-unit id="roles.group_safety" datatype="html">
+        <source>Safety</source>
+        <target state="translated">Seguridad</target>
+      </trans-unit>
+      <trans-unit id="roles.group_schedule_shifts" datatype="html">
+        <source>Schedule shifts</source>
+        <target state="translated">Turnos programados</target>
+      </trans-unit>
+      <trans-unit id="roles.group_schedules" datatype="html">
+        <source>Schedules</source>
+        <target state="translated">Horarios</target>
+      </trans-unit>
+      <trans-unit id="roles.group_shift_events" datatype="html">
+        <source>Shift events</source>
+        <target state="translated">Eventos de turno</target>
+      </trans-unit>
+      <trans-unit id="roles.group_shift_summaries" datatype="html">
+        <source>Shift summaries</source>
+        <target state="translated">Resúmenes de turnos</target>
+      </trans-unit>
+      <trans-unit id="roles.group_tasks" datatype="html">
+        <source>Tasks</source>
+        <target state="translated">Tareas</target>
+      </trans-unit>
+      <trans-unit id="roles.group_time_off" datatype="html">
+        <source>Time off</source>
+        <target state="translated">Permisos de ausencia</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_acknowledge" datatype="html">
+        <source>Acknowledge</source>
+        <target state="translated">Confirmar</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_admin" datatype="html">
+        <source>Admin</source>
+        <target state="translated">Administrar</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_approve" datatype="html">
+        <source>Approve</source>
+        <target state="translated">Aprobar</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_assign" datatype="html">
+        <source>Assign</source>
+        <target state="translated">Asignar</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_create" datatype="html">
+        <source>Create</source>
+        <target state="translated">Crear</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_delete" datatype="html">
+        <source>Delete</source>
+        <target state="translated">Eliminar</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_export" datatype="html">
+        <source>Export</source>
+        <target state="translated">Exportar</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_manage" datatype="html">
+        <source>Manage</source>
+        <target state="translated">Gestionar</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_read" datatype="html">
+        <source>Read</source>
+        <target state="translated">Ver</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_submit" datatype="html">
+        <source>Submit</source>
+        <target state="translated">Enviar</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_track" datatype="html">
+        <source>Track</source>
+        <target state="translated">Dar seguimiento</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_track_reads" datatype="html">
+        <source>Track reads</source>
+        <target state="translated">Seguimiento de lecturas</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_update" datatype="html">
+        <source>Update</source>
+        <target state="translated">Actualizar</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_update_permissions" datatype="html">
+        <source>Update permissions</source>
+        <target state="translated">Actualizar permisos</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_update_profile" datatype="html">
+        <source>Update profile</source>
+        <target state="translated">Actualizar perfil</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_update_roles" datatype="html">
+        <source>Update roles</source>
+        <target state="translated">Actualizar roles</target>
+      </trans-unit>
+      <trans-unit id="roles.perm_upload" datatype="html">
+        <source>Upload</source>
+        <target state="translated">Subir</target>
+      </trans-unit>
+      <trans-unit id="roles.toast_assign_failed" datatype="html">
+        <source>Could not update role assignments.</source>
+        <target state="translated">No se pudieron actualizar las asignaciones de rol.</target>
+      </trans-unit>
+      <trans-unit id="roles.toast_assign_load_failed" datatype="html">
+        <source>Could not load assignment data.</source>
+        <target state="translated">No se pudieron cargar los datos de asignación.</target>
+      </trans-unit>
+      <trans-unit id="roles.toast_assign_nochange" datatype="html">
+        <source>No changes to save.</source>
+        <target state="translated">No hay cambios que guardar.</target>
+      </trans-unit>
+      <trans-unit id="roles.toast_assign_remove_failed" datatype="html">
+        <source>Could not remove role assignments.</source>
+        <target state="translated">No se pudieron quitar las asignaciones de rol.</target>
+      </trans-unit>
+      <trans-unit id="roles.toast_assign_saved" datatype="html">
+        <source>Role assignments updated.</source>
+        <target state="translated">Asignaciones de rol actualizadas.</target>
+      </trans-unit>
+      <trans-unit id="roles.toast_assign_unable" datatype="html">
+        <source>Unable to save assignments.</source>
+        <target state="translated">No se pueden guardar las asignaciones.</target>
+      </trans-unit>
+      <trans-unit id="roles.toast_create_failed" datatype="html">
+        <source>Could not create the role.</source>
+        <target state="translated">No se pudo crear el rol.</target>
+      </trans-unit>
+      <trans-unit id="roles.toast_created" datatype="html">
+        <source>Role created.</source>
+        <target state="translated">Rol creado.</target>
+      </trans-unit>
+      <trans-unit id="roles.toast_update_failed" datatype="html">
+        <source>Could not update the role.</source>
+        <target state="translated">No se pudo actualizar el rol.</target>
+      </trans-unit>
+      <trans-unit id="roles.toast_updated" datatype="html">
+        <source>Role updated.</source>
+        <target state="translated">Rol actualizado.</target>
+      </trans-unit>
+      <trans-unit id="settings.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="settings.col_question" datatype="html">
+        <source>Question</source>
+        <target state="translated">Pregunta</target>
+      </trans-unit>
+      <trans-unit id="settings.col_status" datatype="html">
+        <source>Status</source>
+        <target state="translated">Estado</target>
+      </trans-unit>
+      <trans-unit id="settings.col_type" datatype="html">
+        <source>Type</source>
+        <target state="translated">Tipo</target>
+      </trans-unit>
+      <trans-unit id="settings.delete_question_aria" datatype="html">
+        <source>Delete <x id="name"/></source>
+        <target state="translated">Eliminar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="settings.delete_question_body" datatype="html">
+        <source>This question will be deleted. This cannot be undone.</source>
+        <target state="translated">Esta pregunta se eliminará. Esta acción no se puede deshacer.</target>
+      </trans-unit>
+      <trans-unit id="settings.delete_question_confirm" datatype="html">
+        <source>Delete question</source>
+        <target state="translated">Eliminar pregunta</target>
+      </trans-unit>
+      <trans-unit id="settings.delete_question_title" datatype="html">
+        <source>Delete <x id="name"/>?</source>
+        <target state="translated">¿Eliminar <x id="name"/>?</target>
+      </trans-unit>
+      <trans-unit id="settings.edit_question_aria" datatype="html">
+        <source>Edit <x id="name"/></source>
+        <target state="translated">Editar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="settings.load_error" datatype="html">
+        <source>Could not load company settings. Try again later.</source>
+        <target state="translated">No se pudo cargar la configuración de la empresa. Inténtalo de nuevo más tarde.</target>
+      </trans-unit>
+      <trans-unit id="settings.month_1" datatype="html">
+        <source>January</source>
+        <target state="translated">Enero</target>
+      </trans-unit>
+      <trans-unit id="settings.month_10" datatype="html">
+        <source>October</source>
+        <target state="translated">Octubre</target>
+      </trans-unit>
+      <trans-unit id="settings.month_11" datatype="html">
+        <source>November</source>
+        <target state="translated">Noviembre</target>
+      </trans-unit>
+      <trans-unit id="settings.month_12" datatype="html">
+        <source>December</source>
+        <target state="translated">Diciembre</target>
+      </trans-unit>
+      <trans-unit id="settings.month_2" datatype="html">
+        <source>February</source>
+        <target state="translated">Febrero</target>
+      </trans-unit>
+      <trans-unit id="settings.month_3" datatype="html">
+        <source>March</source>
+        <target state="translated">Marzo</target>
+      </trans-unit>
+      <trans-unit id="settings.month_4" datatype="html">
+        <source>April</source>
+        <target state="translated">Abril</target>
+      </trans-unit>
+      <trans-unit id="settings.month_5" datatype="html">
+        <source>May</source>
+        <target state="translated">Mayo</target>
+      </trans-unit>
+      <trans-unit id="settings.month_6" datatype="html">
+        <source>June</source>
+        <target state="translated">Junio</target>
+      </trans-unit>
+      <trans-unit id="settings.month_7" datatype="html">
+        <source>July</source>
+        <target state="translated">Julio</target>
+      </trans-unit>
+      <trans-unit id="settings.month_8" datatype="html">
+        <source>August</source>
+        <target state="translated">Agosto</target>
+      </trans-unit>
+      <trans-unit id="settings.month_9" datatype="html">
+        <source>September</source>
+        <target state="translated">Septiembre</target>
+      </trans-unit>
+      <trans-unit id="settings.no_company_title" datatype="html">
+        <source>No company selected</source>
+        <target state="translated">No hay ninguna empresa seleccionada</target>
+      </trans-unit>
+      <trans-unit id="settings.no_questions_title" datatype="html">
+        <source>No questions yet</source>
+        <target state="translated">Aún no hay preguntas</target>
+      </trans-unit>
+      <trans-unit id="settings.notif_channels" datatype="html">
+        <source>Channels</source>
+        <target state="translated">Canales</target>
+      </trans-unit>
+      <trans-unit id="settings.questions_load_error" datatype="html">
+        <source>Could not load kiosk questions.</source>
+        <target state="translated">No se pudieron cargar las preguntas del kiosco.</target>
+      </trans-unit>
+      <trans-unit id="settings.section_company" datatype="html">
+        <source>Company</source>
+        <target state="translated">Empresa</target>
+      </trans-unit>
+      <trans-unit id="settings.section_integrations" datatype="html">
+        <source>Integrations</source>
+        <target state="translated">Integraciones</target>
+      </trans-unit>
+      <trans-unit id="settings.section_notifications" datatype="html">
+        <source>Notifications</source>
+        <target state="translated">Notificaciones</target>
+      </trans-unit>
+      <trans-unit id="settings.section_time_pay" datatype="html">
+        <source>Time and pay</source>
+        <target state="translated">Tiempo y pago</target>
+      </trans-unit>
+      <trans-unit id="settings.toast_init_failed" datatype="html">
+        <source>Unable to initialize settings. Please try again.</source>
+        <target state="translated">No se pudo inicializar la configuración. Inténtalo de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="settings.toast_load_failed" datatype="html">
+        <source>Could not load settings.</source>
+        <target state="translated">No se pudo cargar la configuración.</target>
+      </trans-unit>
+      <trans-unit id="settings.toast_question_create_failed" datatype="html">
+        <source>Could not create the question.</source>
+        <target state="translated">No se pudo crear la pregunta.</target>
+      </trans-unit>
+      <trans-unit id="settings.toast_question_created" datatype="html">
+        <source>Question created.</source>
+        <target state="translated">Pregunta creada.</target>
+      </trans-unit>
+      <trans-unit id="settings.toast_question_delete_failed" datatype="html">
+        <source>Could not delete the question.</source>
+        <target state="translated">No se pudo eliminar la pregunta.</target>
+      </trans-unit>
+      <trans-unit id="settings.toast_question_deleted" datatype="html">
+        <source>Question deleted.</source>
+        <target state="translated">Pregunta eliminada.</target>
+      </trans-unit>
+      <trans-unit id="settings.toast_question_update_failed" datatype="html">
+        <source>Could not update the question.</source>
+        <target state="translated">No se pudo actualizar la pregunta.</target>
+      </trans-unit>
+      <trans-unit id="settings.toast_question_updated" datatype="html">
+        <source>Question updated.</source>
+        <target state="translated">Pregunta actualizada.</target>
+      </trans-unit>
+      <trans-unit id="settings.toast_questions_load_failed" datatype="html">
+        <source>Could not load kiosk questions.</source>
+        <target state="translated">No se pudieron cargar las preguntas del kiosco.</target>
+      </trans-unit>
+      <trans-unit id="settings.toast_save_failed" datatype="html">
+        <source>Could not save settings.</source>
+        <target state="translated">No se pudo guardar la configuración.</target>
+      </trans-unit>
+      <trans-unit id="settings.toast_saved" datatype="html">
+        <source>Settings saved.</source>
+        <target state="translated">Configuración guardada.</target>
+      </trans-unit>
+      <trans-unit id="billing.banner_trial" datatype="html">
+        <source>Your free trial ends soon. Choose a plan to keep Pro features.</source>
+        <target state="translated">Tu prueba gratuita termina pronto. Elige un plan para conservar las funciones Pro.</target>
+      </trans-unit>
+      <trans-unit id="billing.banner_limit" datatype="html">
+        <source>You've reached your plan's employee limit.</source>
+        <target state="translated">Has alcanzado el límite de empleados de tu plan.</target>
+      </trans-unit>
+      <trans-unit id="billing.banner_cta" datatype="html">
+        <source>See plans</source>
+        <target state="translated">Ver planes</target>
       </trans-unit>
     </body>
   </file>

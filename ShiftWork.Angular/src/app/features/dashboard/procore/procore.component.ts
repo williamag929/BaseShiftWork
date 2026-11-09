@@ -12,11 +12,11 @@ import { PeopleService } from 'src/app/core/services/people.service';
 import { ProcoreConnection } from 'src/app/core/models/procore-connection.model';
 import { Location } from 'src/app/core/models/location.model';
 import { People } from 'src/app/core/models/people.model';
+import { paginate } from 'src/app/shared/ui';
 
 @Component({
   selector: 'app-procore',
   templateUrl: './procore.component.html',
-  styleUrls: ['./procore.component.css'],
   standalone: false
 })
 export class ProcoreComponent implements OnInit, OnDestroy {
@@ -32,6 +32,14 @@ export class ProcoreComponent implements OnInit, OnDestroy {
   saving = false;
   testing = false;
   error: any = null;
+  readonly paginate = paginate;
+  locPage = 1;
+  locPageSize = 25;
+  empPage = 1;
+  empPageSize = 25;
+  readonly secretStoredHint = $localize`:@@procore.secret_stored_hint:A secret is already stored. Enter a new value only to replace it.`;
+  readonly secretKeepPlaceholder = $localize`:@@procore.secret_keep_ph:Leave blank to keep the current secret`;
+  readonly secretPlaceholder = $localize`:@@procore.secret_ph:OAuth application client secret`;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -106,6 +114,29 @@ export class ProcoreComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  get syncTone(): 'success' | 'danger' | 'neutral' {
+    const status = (this.connection?.lastSyncStatus || '').toLowerCase();
+    if (/fail|error/.test(status)) {
+      return 'danger';
+    }
+    if (/success|ok|complete/.test(status)) {
+      return 'success';
+    }
+    return 'neutral';
+  }
+
+  projectIdLabel(location: Location): string {
+    return $localize`:@@procore.project_id_aria:Procore project ID for ${location.name}:name:`;
+  }
+
+  workerIdLabel(person: People): string {
+    return $localize`:@@procore.worker_id_aria:Procore worker ID for ${person.name}:name:`;
+  }
+
+  saveMappingLabel(item: { name: string }): string {
+    return $localize`:@@procore.save_mapping_aria:Save mapping for ${item.name}:name:`;
+  }
+
   get mappedCount(): number {
     return this.locations.filter(l => !!l.externalCode).length;
   }
@@ -130,8 +161,8 @@ export class ProcoreComponent implements OnInit, OnDestroy {
       return;
     }
     this.peopleService.updatePerson(this.activeCompany.companyId, person.personId, person).subscribe({
-      next: () => this.toastr.success(`Procore worker ID saved for ${person.name}.`),
-      error: () => this.toastr.error(`Failed to save mapping for ${person.name}.`)
+      next: () => this.toastr.success($localize`:@@procore.toast_worker_saved:Procore worker ID saved for ${person.name}:name:.`),
+      error: () => this.toastr.error($localize`:@@procore.toast_mapping_failed:Could not save mapping for ${person.name}:name:.`)
     });
   }
 
@@ -150,11 +181,11 @@ export class ProcoreComponent implements OnInit, OnDestroy {
         this.connection = connection;
         this.connectionForm.patchValue({ clientSecret: '' });
         this.saving = false;
-        this.toastr.success('Procore connection saved.');
+        this.toastr.success($localize`:@@procore.toast_saved:Procore connection saved.`);
       },
       error: () => {
         this.saving = false;
-        this.toastr.error('Failed to save connection.');
+        this.toastr.error($localize`:@@procore.toast_save_failed:Could not save the connection.`);
       }
     });
   }
@@ -168,14 +199,14 @@ export class ProcoreComponent implements OnInit, OnDestroy {
       next: (result) => {
         this.testing = false;
         if (result.success) {
-          this.toastr.success(result.message || 'Connected to Procore.');
+          this.toastr.success(result.message || $localize`:@@procore.toast_connected:Connected to Procore.`);
         } else {
-          this.toastr.warning(result.message || 'Connection test failed.');
+          this.toastr.warning(result.message || $localize`:@@procore.toast_test_failed:Connection test failed.`);
         }
       },
       error: () => {
         this.testing = false;
-        this.toastr.error('Connection test failed.');
+        this.toastr.error($localize`:@@procore.toast_test_failed:Connection test failed.`);
       }
     });
   }
@@ -185,8 +216,8 @@ export class ProcoreComponent implements OnInit, OnDestroy {
       return;
     }
     this.locationService.updateLocation(this.activeCompany.companyId, location.locationId, location).subscribe({
-      next: () => this.toastr.success(`Mapping saved for ${location.name}.`),
-      error: () => this.toastr.error(`Failed to save mapping for ${location.name}.`)
+      next: () => this.toastr.success($localize`:@@procore.toast_mapping_saved:Mapping saved for ${location.name}:name:.`),
+      error: () => this.toastr.error($localize`:@@procore.toast_mapping_failed:Could not save mapping for ${location.name}:name:.`)
     });
   }
 }

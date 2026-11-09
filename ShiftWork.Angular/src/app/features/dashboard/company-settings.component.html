@@ -1,565 +1,478 @@
-<div class="settings-container" *ngIf="settings">
-  <div class="settings-header">
-    <h1 i18n="@@settings.page_title">Company Settings</h1>
-    <button class="btn-save" (click)="saveSettings()" [disabled]="saving || loading">
-      <ng-container *ngIf="saving" i18n="@@settings.saving">Saving...</ng-container>
-      <ng-container *ngIf="!saving" i18n="@@settings.save_btn">Save Settings</ng-container>
-    </button>
+<div class="flex flex-col gap-4">
+  <div class="sticky top-0 z-10 bg-canvas">
+    <lz-page-header title="Company settings" i18n-title="@@settings.page_title">
+      <ng-container lzHeaderActions>
+        @if (settings) {
+          <button lzButton type="submit" form="company-settings-form" [attr.variant]="questionDialogOpen ? 'secondary' : 'primary'" [variant]="questionDialogOpen ? 'secondary' : 'primary'" [disabled]="saving || loading">
+            @if (saving) {
+              <ng-container i18n="@@settings.saving">Saving...</ng-container>
+            } @else {
+              <ng-container i18n="@@settings.save_btn">Save changes</ng-container>
+            }
+          </button>
+        }
+      </ng-container>
+    </lz-page-header>
   </div>
 
-  <!-- Tab Navigation -->
-  <div class="tabs">
-    <button
-      class="tab"
-      [class.active]="activeTab === 'time-regional'"
-      (click)="setActiveTab('time-regional')"
-      i18n="@@settings.tab_time_regional">
-      Time & Regional
-    </button>
-    <button
-      class="tab"
-      [class.active]="activeTab === 'pay-overtime'"
-      (click)="setActiveTab('pay-overtime')"
-      i18n="@@settings.tab_pay_overtime">
-      Pay & Overtime
-    </button>
-    <button
-      class="tab"
-      [class.active]="activeTab === 'pto-leave'"
-      (click)="setActiveTab('pto-leave')"
-      i18n="@@settings.tab_pto_leave">
-      PTO & Leave
-    </button>
-    <button
-      class="tab"
-      [class.active]="activeTab === 'scheduling'"
-      (click)="setActiveTab('scheduling')"
-      i18n="@@settings.tab_scheduling">
-      Scheduling
-    </button>
-    <button
-      class="tab"
-      [class.active]="activeTab === 'clock-inout'"
-      (click)="setActiveTab('clock-inout')"
-      i18n="@@settings.tab_clock_inout">
-      Clock-In/Out
-    </button>
-    <button
-      class="tab"
-      [class.active]="activeTab === 'notifications'"
-      (click)="setActiveTab('notifications')"
-      i18n="@@settings.tab_notifications">
-      Notifications
-    </button>
-    <button
-      class="tab"
-      [class.active]="activeTab === 'system'"
-      (click)="setActiveTab('system')"
-      i18n="@@settings.tab_system">
-      System
-    </button>
-    <button
-      class="tab"
-      [class.active]="activeTab === 'kiosk'"
-      (click)="setActiveTab('kiosk')"
-      i18n="@@settings.tab_kiosk">
-      Kiosk
-    </button>
-  </div>
+  @if (loadError) {
+    <lz-alert tone="danger" i18n="@@settings.load_error">Could not load company settings. Try again later.</lz-alert>
+  }
 
-  <!-- Tab Content -->
-  <div class="tab-content" *ngIf="!loading">
+  @if (loading) {
+    <lz-alert tone="info" i18n="@@settings.loading">Loading settings...</lz-alert>
+  } @else if (settings) {
+    <form id="company-settings-form" class="flex flex-col gap-4" (ngSubmit)="saveSettings()">
+    <lz-panel heading="Company" i18n-heading="@@settings.section_company" id="settings-company">
+      <div class="flex flex-col gap-8">
+    <section class="flex flex-col gap-4" aria-labelledby="settings-time_regional_heading-title">
+      <h3 id="settings-time_regional_heading-title" class="font-display text-[15px] font-semibold" i18n="@@settings.time_regional_heading">Regional</h3>
+      <div class="flex max-w-xl flex-col gap-4">
+        <lz-field label="Default time zone" i18n-label="@@settings.timezone" controlId="defaultTimeZone">
+          <select lzField id="defaultTimeZone" name="defaultTimeZone" [(ngModel)]="settings.defaultTimeZone">
+            <option value="" disabled i18n="@@settings.timezone_select">Select a time zone</option>
+            @for (tz of timezones; track tz.value) {
+              <option [value]="tz.value">{{ tz.name }}</option>
+            }
+          </select>
+        </lz-field>
+        <lz-field label="Default language" i18n-label="@@settings.language" controlId="defaultLanguage">
+          <select lzField id="defaultLanguage" name="defaultLanguage" [(ngModel)]="settings.defaultLanguage">
+            <option value="en" i18n="@@settings.lang_en">English</option>
+            <option value="es" i18n="@@settings.lang_es">Spanish</option>
+            <option value="fr" i18n="@@settings.lang_fr">French</option>
+            <option value="de" i18n="@@settings.lang_de">German</option>
+            <option value="pt" i18n="@@settings.lang_pt">Portuguese</option>
+          </select>
+        </lz-field>
+        <lz-field label="First day of week" i18n-label="@@settings.first_day" controlId="firstDayOfWeek">
+          <select lzField id="firstDayOfWeek" name="firstDayOfWeek" [(ngModel)]="settings.firstDayOfWeek">
+            <option value="Sunday" i18n="@@settings.sunday">Sunday</option>
+            <option value="Monday" i18n="@@settings.monday">Monday</option>
+          </select>
+        </lz-field>
+        <lz-field label="Date format" i18n-label="@@settings.date_format" controlId="dateFormat">
+          <select lzField id="dateFormat" name="dateFormat" [(ngModel)]="settings.dateFormat">
+            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+          </select>
+        </lz-field>
+        <lz-field label="Time format" i18n-label="@@settings.time_format" controlId="timeFormat">
+          <select lzField id="timeFormat" name="timeFormat" [(ngModel)]="settings.timeFormat">
+            <option value="12" i18n="@@settings.time_12h">12-hour</option>
+            <option value="24" i18n="@@settings.time_24h">24-hour</option>
+          </select>
+        </lz-field>
+        <lz-field label="Currency symbol" i18n-label="@@settings.currency" controlId="currencySymbol">
+          <input lzField type="text" id="currencySymbol" name="currencySymbol" [(ngModel)]="settings.currencySymbol" placeholder="$">
+        </lz-field>
+      </div>
+    </section>
+    <section class="flex flex-col gap-4" aria-labelledby="settings-system_heading-title">
+      <h3 id="settings-system_heading-title" class="font-display text-[15px] font-semibold" i18n="@@settings.system_heading">Employee IDs and security</h3>
+      <div class="flex max-w-xl flex-col gap-4">
+        <lz-field label="Fiscal year start month" i18n-label="@@settings.fiscal_year" controlId="fiscalYearStartMonth">
+          <select lzField id="fiscalYearStartMonth" name="fiscalYearStartMonth" [(ngModel)]="settings.fiscalYearStartMonth">
+            <option [value]="1" i18n="@@settings.month_1">January</option>
+            <option [value]="2" i18n="@@settings.month_2">February</option>
+            <option [value]="3" i18n="@@settings.month_3">March</option>
+            <option [value]="4" i18n="@@settings.month_4">April</option>
+            <option [value]="5" i18n="@@settings.month_5">May</option>
+            <option [value]="6" i18n="@@settings.month_6">June</option>
+            <option [value]="7" i18n="@@settings.month_7">July</option>
+            <option [value]="8" i18n="@@settings.month_8">August</option>
+            <option [value]="9" i18n="@@settings.month_9">September</option>
+            <option [value]="10" i18n="@@settings.month_10">October</option>
+            <option [value]="11" i18n="@@settings.month_11">November</option>
+            <option [value]="12" i18n="@@settings.month_12">December</option>
+          </select>
+        </lz-field>
+        <lz-field label="Employee ID prefix" i18n-label="@@settings.employee_id_prefix" controlId="employeeIdPrefix">
+          <input lzField type="text" id="employeeIdPrefix" name="employeeIdPrefix" [(ngModel)]="settings.employeeIdPrefix" placeholder="EMP">
+        </lz-field>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="requireTwoFactorAuth" name="requireTwoFactorAuth" [(ngModel)]="settings.requireTwoFactorAuth">
+          <span i18n="@@settings.require_2fa">Require two-factor authentication</span>
+        </label>
+        <lz-field label="Session timeout (minutes)" i18n-label="@@settings.session_timeout" controlId="sessionTimeout">
+          <input lzField type="number" id="sessionTimeout" name="sessionTimeout" [(ngModel)]="settings.sessionTimeout" min="5" step="1">
+        </lz-field>
+        <lz-field label="Password expiration (days)" i18n-label="@@settings.password_expiration" controlId="passwordExpirationDays" hint="0 = never expires" i18n-hint="@@settings.password_never">
+          <input lzField type="number" id="passwordExpirationDays" name="passwordExpirationDays" [(ngModel)]="settings.passwordExpirationDays" min="0" step="1" aria-describedby="passwordExpirationDays-hint">
+        </lz-field>
+        <lz-field label="Minimum password length" i18n-label="@@settings.min_password_length" controlId="minimumPasswordLength">
+          <input lzField type="number" id="minimumPasswordLength" name="minimumPasswordLength" [(ngModel)]="settings.minimumPasswordLength" min="4" step="1">
+        </lz-field>
+      </div>
+    </section>
+      </div>
+    </lz-panel>
 
-    <!-- Time & Regional Settings -->
-    <div *ngIf="activeTab === 'time-regional'" class="settings-section">
-      <h2 i18n="@@settings.time_regional_heading">Time & Regional Settings</h2>
+    <lz-panel heading="Time and pay" i18n-heading="@@settings.section_time_pay" id="settings-time-pay">
+      <div class="flex flex-col gap-8">
+    <section class="flex flex-col gap-4" aria-labelledby="settings-pay_overtime_heading-title">
+      <h3 id="settings-pay_overtime_heading-title" class="font-display text-[15px] font-semibold" i18n="@@settings.pay_overtime_heading">Pay and overtime</h3>
+      <div class="flex max-w-xl flex-col gap-4">
+        <lz-field label="Payroll period" i18n-label="@@settings.payroll_period" controlId="payrollPeriod">
+          <select lzField id="payrollPeriod" name="payrollPeriod" [(ngModel)]="settings.payrollPeriod">
+            <option value="Weekly" i18n="@@settings.payroll_weekly">Weekly</option>
+            <option value="BiWeekly" i18n="@@settings.payroll_biweekly">Bi-weekly</option>
+            <option value="SemiMonthly" i18n="@@settings.payroll_semimonthly">Semi-monthly</option>
+            <option value="Monthly" i18n="@@settings.payroll_monthly">Monthly</option>
+          </select>
+        </lz-field>
+        <lz-field label="Minimum hourly rate ($)" i18n-label="@@settings.min_hourly_rate" controlId="minimumHourlyRate">
+          <input lzField type="number" id="minimumHourlyRate" name="minimumHourlyRate" [(ngModel)]="settings.minimumHourlyRate" min="0" step="0.01">
+        </lz-field>
+        <lz-field label="Regular overtime percentage (%)" i18n-label="@@settings.regular_ot_pct" controlId="regularOvertimePercentage" hint="For example, 150 = 1.5x pay" i18n-hint="@@settings.ot_pct_hint">
+          <input lzField type="number" id="regularOvertimePercentage" name="regularOvertimePercentage" [(ngModel)]="settings.regularOvertimePercentage" min="100" step="1" aria-describedby="regularOvertimePercentage-hint">
+        </lz-field>
+        <lz-field label="Night shift overtime percentage (%)" i18n-label="@@settings.night_ot_pct" controlId="nightShiftOvertimePercentage">
+          <input lzField type="number" id="nightShiftOvertimePercentage" name="nightShiftOvertimePercentage" [(ngModel)]="settings.nightShiftOvertimePercentage" min="100" step="1">
+        </lz-field>
+        <lz-field label="Holiday overtime percentage (%)" i18n-label="@@settings.holiday_ot_pct" controlId="holidayOvertimePercentage">
+          <input lzField type="number" id="holidayOvertimePercentage" name="holidayOvertimePercentage" [(ngModel)]="settings.holidayOvertimePercentage" min="100" step="1">
+        </lz-field>
+        <lz-field label="Weekend overtime percentage (%)" i18n-label="@@settings.weekend_ot_pct" controlId="weekendOvertimePercentage">
+          <input lzField type="number" id="weekendOvertimePercentage" name="weekendOvertimePercentage" [(ngModel)]="settings.weekendOvertimePercentage" min="100" step="1">
+        </lz-field>
+        <lz-field label="Night shift start time" i18n-label="@@settings.night_start" controlId="nightShiftStartTime">
+          <input lzField type="time" id="nightShiftStartTime" name="nightShiftStartTime" [(ngModel)]="settings.nightShiftStartTime">
+        </lz-field>
+        <lz-field label="Night shift end time" i18n-label="@@settings.night_end" controlId="nightShiftEndTime">
+          <input lzField type="time" id="nightShiftEndTime" name="nightShiftEndTime" [(ngModel)]="settings.nightShiftEndTime">
+        </lz-field>
+        <lz-field label="Daily overtime threshold (hours)" i18n-label="@@settings.daily_ot_threshold" controlId="dailyOvertimeThreshold">
+          <input lzField type="number" id="dailyOvertimeThreshold" name="dailyOvertimeThreshold" [(ngModel)]="settings.dailyOvertimeThreshold" min="0" step="0.5">
+        </lz-field>
+        <lz-field label="Weekly overtime threshold (hours)" i18n-label="@@settings.weekly_ot_threshold" controlId="weeklyOvertimeThreshold">
+          <input lzField type="number" id="weeklyOvertimeThreshold" name="weeklyOvertimeThreshold" [(ngModel)]="settings.weeklyOvertimeThreshold" min="0" step="0.5">
+        </lz-field>
+      </div>
+    </section>
+    <section class="flex flex-col gap-4" aria-labelledby="settings-pto_leave_heading-title">
+      <h3 id="settings-pto_leave_heading-title" class="font-display text-[15px] font-semibold" i18n="@@settings.pto_leave_heading">Leave and PTO</h3>
+      <div class="flex max-w-xl flex-col gap-4">
+        <lz-field label="Default PTO accrual rate (hours/month)" i18n-label="@@settings.pto_accrual" controlId="defaultPtoAccrualRate">
+          <input lzField type="number" id="defaultPtoAccrualRate" name="defaultPtoAccrualRate" [(ngModel)]="settings.defaultPtoAccrualRate" min="0" step="0.5">
+        </lz-field>
+        <lz-field label="Maximum PTO balance (hours)" i18n-label="@@settings.pto_max_balance" controlId="maximumPtoBalance">
+          <input lzField type="number" id="maximumPtoBalance" name="maximumPtoBalance" [(ngModel)]="settings.maximumPtoBalance" min="0" step="1">
+        </lz-field>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="ptoRolloverAllowed" name="ptoRolloverAllowed" [(ngModel)]="settings.ptoRolloverAllowed">
+          <span i18n="@@settings.pto_rollover">Allow PTO rollover</span>
+        </label>
+        @if (settings.ptoRolloverAllowed) {
+          <lz-field label="Maximum PTO rollover (hours)" i18n-label="@@settings.pto_rollover_max" controlId="maximumPtoRollover">
+            <input lzField type="number" id="maximumPtoRollover" name="maximumPtoRollover" [(ngModel)]="settings.maximumPtoRollover" min="0" step="1">
+          </lz-field>
+        }
+        <lz-field label="Sick leave accrual rate (hours/month)" i18n-label="@@settings.sick_accrual" controlId="sickLeaveAccrualRate">
+          <input lzField type="number" id="sickLeaveAccrualRate" name="sickLeaveAccrualRate" [(ngModel)]="settings.sickLeaveAccrualRate" min="0" step="0.5">
+        </lz-field>
+        <lz-field label="Sick leave maximum balance (hours)" i18n-label="@@settings.sick_max_balance" controlId="sickLeaveMaximumBalance">
+          <input lzField type="number" id="sickLeaveMaximumBalance" name="sickLeaveMaximumBalance" [(ngModel)]="settings.sickLeaveMaximumBalance" min="0" step="1">
+        </lz-field>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="requireManagerApprovalForPto" name="requireManagerApprovalForPto" [(ngModel)]="settings.requireManagerApprovalForPto">
+          <span i18n="@@settings.require_mgr_pto">Require manager approval for PTO</span>
+        </label>
+        <lz-field label="Minimum notice days for PTO request" i18n-label="@@settings.min_notice_pto" controlId="minimumNoticeDaysForPto">
+          <input lzField type="number" id="minimumNoticeDaysForPto" name="minimumNoticeDaysForPto" [(ngModel)]="settings.minimumNoticeDaysForPto" min="0" step="1">
+        </lz-field>
+      </div>
+    </section>
+    <section class="flex flex-col gap-4" aria-labelledby="settings-scheduling_heading-title">
+      <h3 id="settings-scheduling_heading-title" class="font-display text-[15px] font-semibold" i18n="@@settings.scheduling_heading">Scheduling</h3>
+      <div class="flex max-w-xl flex-col gap-4">
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="autoApproveShifts" name="autoApproveShifts" [(ngModel)]="settings.autoApproveShifts">
+          <span i18n="@@settings.auto_approve_shifts">Auto-approve shifts</span>
+        </label>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="allowEmployeeShiftSwaps" name="allowEmployeeShiftSwaps" [(ngModel)]="settings.allowEmployeeShiftSwaps">
+          <span i18n="@@settings.allow_swaps">Allow employee shift swaps</span>
+        </label>
+        @if (settings.allowEmployeeShiftSwaps) {
+          <label class="flex min-h-12 items-center gap-3">
+            <input type="checkbox" class="size-6 shrink-0" id="requireManagerApprovalForSwaps" name="requireManagerApprovalForSwaps" [(ngModel)]="settings.requireManagerApprovalForSwaps">
+            <span i18n="@@settings.require_mgr_swaps">Require manager approval for swaps</span>
+          </label>
+        }
+        <lz-field label="Maximum consecutive work days" i18n-label="@@settings.max_consecutive_days" controlId="maximumConsecutiveWorkDays">
+          <input lzField type="number" id="maximumConsecutiveWorkDays" name="maximumConsecutiveWorkDays" [(ngModel)]="settings.maximumConsecutiveWorkDays" min="1" step="1">
+        </lz-field>
+        <lz-field label="Minimum hours between shifts" i18n-label="@@settings.min_hours_between" controlId="minimumHoursBetweenShifts">
+          <input lzField type="number" id="minimumHoursBetweenShifts" name="minimumHoursBetweenShifts" [(ngModel)]="settings.minimumHoursBetweenShifts" min="0" step="0.5">
+        </lz-field>
+        <lz-field label="Maximum daily hours" i18n-label="@@settings.max_daily_hours" controlId="maximumDailyHours">
+          <input lzField type="number" id="maximumDailyHours" name="maximumDailyHours" [(ngModel)]="settings.maximumDailyHours" min="1" step="0.5">
+        </lz-field>
+        <lz-field label="Maximum weekly hours" i18n-label="@@settings.max_weekly_hours" controlId="maximumWeeklyHours">
+          <input lzField type="number" id="maximumWeeklyHours" name="maximumWeeklyHours" [(ngModel)]="settings.maximumWeeklyHours" min="1" step="0.5">
+        </lz-field>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="allowOverlappingShifts" name="allowOverlappingShifts" [(ngModel)]="settings.allowOverlappingShifts">
+          <span i18n="@@settings.allow_overlapping">Allow overlapping shifts</span>
+        </label>
+      </div>
+    </section>
+    <section class="flex flex-col gap-4" aria-labelledby="settings-clock_inout_heading-title">
+      <h3 id="settings-clock_inout_heading-title" class="font-display text-[15px] font-semibold" i18n="@@settings.clock_inout_heading">Clock in and out</h3>
+      <div class="flex max-w-xl flex-col gap-4">
+        <lz-field label="Grace period for late clock-in (minutes)" i18n-label="@@settings.grace_late" controlId="gracePeriodLateClockIn">
+          <input lzField type="number" id="gracePeriodLateClockIn" name="gracePeriodLateClockIn" [(ngModel)]="settings.gracePeriodLateClockIn" min="0" step="1">
+        </lz-field>
+        <lz-field label="Auto clock-out after (hours)" i18n-label="@@settings.auto_clock_out" controlId="autoClockOutAfter">
+          <input lzField type="number" id="autoClockOutAfter" name="autoClockOutAfter" [(ngModel)]="settings.autoClockOutAfter" min="1" step="1">
+        </lz-field>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="requireGeoLocationForClockIn" name="requireGeoLocationForClockIn" [(ngModel)]="settings.requireGeoLocationForClockIn">
+          <span i18n="@@settings.require_geo">Require geolocation for clock-in</span>
+        </label>
+        @if (settings.requireGeoLocationForClockIn) {
+          <lz-field label="Geofence radius (meters)" i18n-label="@@settings.geo_fence_radius" controlId="geoFenceRadius">
+            <input lzField type="number" id="geoFenceRadius" name="geoFenceRadius" [(ngModel)]="settings.geoFenceRadius" min="10" step="10">
+          </lz-field>
+        }
+        <lz-field label="Allow early clock-in (minutes before shift)" i18n-label="@@settings.allow_early_clockin" controlId="allowEarlyClockIn">
+          <input lzField type="number" id="allowEarlyClockIn" name="allowEarlyClockIn" [(ngModel)]="settings.allowEarlyClockIn" min="0" step="1">
+        </lz-field>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="requireBreakClocks" name="requireBreakClocks" [(ngModel)]="settings.requireBreakClocks">
+          <span i18n="@@settings.require_break_clocks">Require break clocks</span>
+        </label>
+        @if (settings.requireBreakClocks) {
+          <lz-field label="Minimum break duration (minutes)" i18n-label="@@settings.min_break_duration" controlId="minimumBreakDuration">
+            <input lzField type="number" id="minimumBreakDuration" name="minimumBreakDuration" [(ngModel)]="settings.minimumBreakDuration" min="0" step="1">
+          </lz-field>
+        }
+      </div>
+    </section>
+      </div>
+    </lz-panel>
 
-      <div class="form-group">
-        <label for="defaultTimeZone" i18n="@@settings.timezone">Default Time Zone</label>
-        <select id="defaultTimeZone" [(ngModel)]="settings.defaultTimeZone">
-          <option value="" disabled i18n="@@settings.timezone_select">Select a Timezone</option>
-          <option *ngFor="let tz of timezones" [value]="tz.value">{{ tz.name }}</option>
-        </select>
+    <lz-panel heading="Notifications" i18n-heading="@@settings.section_notifications" id="settings-notifications">
+      <div class="flex flex-col gap-8">
+    <section class="flex flex-col gap-4" aria-labelledby="settings-notif_channels-title">
+      <h3 id="settings-notif_channels-title" class="font-display text-[15px] font-semibold" i18n="@@settings.notif_channels">Channels</h3>
+      <div class="flex max-w-xl flex-col gap-4">
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="emailNotificationsEnabled" name="emailNotificationsEnabled" [(ngModel)]="settings.emailNotificationsEnabled">
+          <span i18n="@@settings.email_notif">Enable email notifications</span>
+        </label>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="smsNotificationsEnabled" name="smsNotificationsEnabled" [(ngModel)]="settings.smsNotificationsEnabled">
+          <span i18n="@@settings.sms_notif">Enable SMS notifications</span>
+        </label>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="pushNotificationsEnabled" name="pushNotificationsEnabled" [(ngModel)]="settings.pushNotificationsEnabled">
+          <span i18n="@@settings.push_notif">Enable push notifications</span>
+        </label>
+      </div>
+    </section>
+    <section class="flex flex-col gap-4" aria-labelledby="settings-notif_triggers-title">
+      <h3 id="settings-notif_triggers-title" class="font-display text-[15px] font-semibold" i18n="@@settings.notif_triggers">Notification triggers</h3>
+      <div class="flex max-w-xl flex-col gap-4">
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="notifyOnShiftAssignment" name="notifyOnShiftAssignment" [(ngModel)]="settings.notifyOnShiftAssignment">
+          <span i18n="@@settings.notify_shift_assign">Notify on shift assignment</span>
+        </label>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="notifyOnShiftChanges" name="notifyOnShiftChanges" [(ngModel)]="settings.notifyOnShiftChanges">
+          <span i18n="@@settings.notify_shift_changes">Notify on shift changes</span>
+        </label>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="notifyOnTimeOffApproval" name="notifyOnTimeOffApproval" [(ngModel)]="settings.notifyOnTimeOffApproval">
+          <span i18n="@@settings.notify_pto_approval">Notify on time-off approval or denial</span>
+        </label>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="notifyOnReplacementRequest" name="notifyOnReplacementRequest" [(ngModel)]="settings.notifyOnReplacementRequest">
+          <span i18n="@@settings.notify_replacement">Notify on replacement request</span>
+        </label>
+        <lz-field label="Reminder hours before shift" i18n-label="@@settings.reminder_hours" controlId="reminderHoursBeforeShift">
+          <input lzField type="number" id="reminderHoursBeforeShift" name="reminderHoursBeforeShift" [(ngModel)]="settings.reminderHoursBeforeShift" min="0" step="1">
+        </lz-field>
+      </div>
+    </section>
+      </div>
+    </lz-panel>
+
+    <lz-panel heading="Integrations" i18n-heading="@@settings.section_integrations" id="settings-integrations">
+      <div class="flex flex-col gap-8">
+    <section class="flex flex-col gap-4" aria-labelledby="settings-kiosk_heading-title">
+      <h3 id="settings-kiosk_heading-title" class="font-display text-[15px] font-semibold" i18n="@@settings.kiosk_heading">Kiosk</h3>
+      <div class="flex max-w-xl flex-col gap-4">
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="kioskModeEnabled" name="kioskModeEnabled" [(ngModel)]="settings.kioskModeEnabled">
+          <span i18n="@@settings.kiosk_mode_enabled">Enable kiosk mode</span>
+        </label>
+        <lz-field label="Kiosk PIN length" i18n-label="@@settings.kiosk_pin_length" controlId="kioskPinLength">
+          <input lzField type="number" id="kioskPinLength" name="kioskPinLength" [(ngModel)]="settings.kioskPinLength" min="4" max="8" step="1">
+        </lz-field>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="requirePhotoOnClockIn" name="requirePhotoOnClockIn" [(ngModel)]="settings.requirePhotoOnClockIn">
+          <span i18n="@@settings.require_photo_clockin">Require photo on clock-in</span>
+        </label>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="showEmployeePhotosOnKiosk" name="showEmployeePhotosOnKiosk" [(ngModel)]="settings.showEmployeePhotosOnKiosk">
+          <span i18n="@@settings.show_photos_kiosk">Show employee photos on kiosk</span>
+        </label>
+        <lz-field label="Kiosk timeout (seconds)" i18n-label="@@settings.kiosk_timeout" controlId="kioskTimeout">
+          <input lzField type="number" id="kioskTimeout" name="kioskTimeout" [(ngModel)]="settings.kioskTimeout" min="10" step="5">
+        </lz-field>
+        <label class="flex min-h-12 items-center gap-3">
+          <input type="checkbox" class="size-6 shrink-0" id="allowQuestionResponsesOnClockIn" name="allowQuestionResponsesOnClockIn" [(ngModel)]="settings.allowQuestionResponsesOnClockIn">
+          <span i18n="@@settings.allow_question_responses">Allow question responses on clock-in</span>
+        </label>
+        <lz-field label="Kiosk admin password" i18n-label="@@settings.kiosk_admin_password" controlId="kioskAdminPassword" hint="This password is required to change the kiosk device location. Leave blank to keep the current password unchanged." i18n-hint="@@settings.kiosk_admin_hint">
+          <input lzField type="password" id="kioskAdminPassword" name="kioskAdminPassword" [(ngModel)]="settings.kioskAdminPassword" autocomplete="new-password" placeholder="Leave blank to keep the current password" i18n-placeholder="@@settings.kiosk_admin_ph" aria-describedby="kioskAdminPassword-hint">
+        </lz-field>
+      </div>
+    </section>
+    <section class="flex flex-col gap-4" aria-labelledby="settings-survey-title">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h3 id="settings-survey-title" class="font-display text-[15px] font-semibold" i18n="@@settings.survey_questions">Clock-out survey questions</h3>
+        <button #addQuestionBtn lzButton variant="secondary" type="button" (click)="openNewQuestionForm(addQuestionBtn)">
+          <mat-icon aria-hidden="true">add</mat-icon>
+          <ng-container i18n="@@settings.add_question">Add question</ng-container>
+        </button>
       </div>
 
-      <div class="form-group">
-        <label for="defaultLanguage" i18n="@@settings.language">Default Language</label>
-        <select id="defaultLanguage" [(ngModel)]="settings.defaultLanguage">
-          <option value="en" i18n="@@settings.lang_en">English</option>
-          <option value="es" i18n="@@settings.lang_es">Spanish</option>
-          <option value="fr" i18n="@@settings.lang_fr">French</option>
-          <option value="de" i18n="@@settings.lang_de">German</option>
-          <option value="pt" i18n="@@settings.lang_pt">Portuguese</option>
-        </select>
+      @if (kioskQuestionsLoading) {
+        <lz-alert tone="info" i18n="@@settings.questions_loading">Loading questions...</lz-alert>
+      } @else if (questionsError) {
+        <lz-alert tone="danger" i18n="@@settings.questions_load_error">Could not load kiosk questions.</lz-alert>
+      } @else if (kioskQuestions.length === 0) {
+        <lz-empty-state icon="quiz" title="No questions yet" i18n-title="@@settings.no_questions_title" body="Add a question to collect employee responses at clock-out" i18n-body="@@settings.no_questions">
+          <button lzEmptyAction lzButton variant="secondary" type="button" (click)="openNewQuestionForm(emptyAddBtn)" #emptyAddBtn>
+            <mat-icon aria-hidden="true">add</mat-icon>
+            <ng-container i18n="@@settings.add_question">Add question</ng-container>
+          </button>
+        </lz-empty-state>
+      } @else {
+        <lz-table-scroll>
+          <table lzTable>
+            <thead>
+              <tr>
+                <th scope="col" i18n="@@settings.col_question">Question</th>
+                <th scope="col" i18n="@@settings.col_type">Type</th>
+                <th scope="col" i18n="@@settings.col_status">Status</th>
+                <th scope="col" class="text-right" i18n="@@settings.col_actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (q of paginate(kioskQuestions, qPage, qPageSize); track q.kioskQuestionId) {
+                <tr>
+                  <td class="font-medium text-ink">{{ q.questionText }}</td>
+                  <td>{{ questionTypeLabel(q.questionType) }}</td>
+                  <td>
+                    <div class="flex flex-wrap gap-1">
+                      @if (q.isRequired) {
+                        <lz-status-chip tone="info" i18n="@@settings.question_required_badge">Required</lz-status-chip>
+                      }
+                      <lz-status-chip [tone]="q.isActive ? 'success' : 'neutral'" dot>
+                        @if (q.isActive) {
+                          <ng-container i18n="@@settings.q_active">Active</ng-container>
+                        } @else {
+                          <ng-container i18n="@@settings.question_inactive_badge">Inactive</ng-container>
+                        }
+                      </lz-status-chip>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="flex justify-end gap-1">
+                      <button #editBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editQuestionLabel(q)" (click)="openEditQuestionForm(q, editBtn)">
+                        <mat-icon aria-hidden="true">edit</mat-icon>
+                      </button>
+                      <button #delBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="deleteQuestionLabel(q)" [disabled]="deletingQuestionId === q.kioskQuestionId" (click)="askDeleteQuestion(q, delBtn)">
+                        <mat-icon aria-hidden="true">delete</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </lz-table-scroll>
+        <lz-pager [total]="kioskQuestions.length" [page]="qPage" [pageSize]="qPageSize" (pageChange)="qPage = $event" (pageSizeChange)="qPageSize = $event; qPage = 1" />
+      }
+    </section>
+
       </div>
-
-      <div class="form-group">
-        <label for="firstDayOfWeek" i18n="@@settings.first_day">First Day of Week</label>
-        <select id="firstDayOfWeek" [(ngModel)]="settings.firstDayOfWeek">
-          <option value="Sunday" i18n="@@settings.sunday">Sunday</option>
-          <option value="Monday" i18n="@@settings.monday">Monday</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="dateFormat" i18n="@@settings.date_format">Date Format</label>
-        <select id="dateFormat" [(ngModel)]="settings.dateFormat">
-          <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-          <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-          <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="timeFormat" i18n="@@settings.time_format">Time Format</label>
-        <select id="timeFormat" [(ngModel)]="settings.timeFormat">
-          <option value="12" i18n="@@settings.time_12h">12-hour</option>
-          <option value="24" i18n="@@settings.time_24h">24-hour</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="currencySymbol" i18n="@@settings.currency">Currency Symbol</label>
-        <input type="text" id="currencySymbol" [(ngModel)]="settings.currencySymbol" placeholder="$">
-      </div>
-    </div>
-
-    <!-- Pay & Overtime Settings -->
-    <div *ngIf="activeTab === 'pay-overtime'" class="settings-section">
-      <h2 i18n="@@settings.pay_overtime_heading">Pay & Overtime Settings</h2>
-
-      <div class="form-group">
-        <label for="minimumHourlyRate" i18n="@@settings.min_hourly_rate">Minimum Hourly Rate ($)</label>
-        <input type="number" id="minimumHourlyRate" [(ngModel)]="settings.minimumHourlyRate" min="0" step="0.01">
-      </div>
-
-      <div class="form-group">
-        <label for="regularOvertimePercentage" i18n="@@settings.regular_ot_pct">Regular Overtime Percentage (%)</label>
-        <input type="number" id="regularOvertimePercentage" [(ngModel)]="settings.regularOvertimePercentage" min="100" step="1">
-        <small i18n="@@settings.ot_pct_hint">e.g., 150 = 1.5x pay</small>
-      </div>
-
-      <div class="form-group">
-        <label for="nightShiftOvertimePercentage" i18n="@@settings.night_ot_pct">Night Shift Overtime Percentage (%)</label>
-        <input type="number" id="nightShiftOvertimePercentage" [(ngModel)]="settings.nightShiftOvertimePercentage" min="100" step="1">
-      </div>
-
-      <div class="form-group">
-        <label for="holidayOvertimePercentage" i18n="@@settings.holiday_ot_pct">Holiday Overtime Percentage (%)</label>
-        <input type="number" id="holidayOvertimePercentage" [(ngModel)]="settings.holidayOvertimePercentage" min="100" step="1">
-      </div>
-
-      <div class="form-group">
-        <label for="weekendOvertimePercentage" i18n="@@settings.weekend_ot_pct">Weekend Overtime Percentage (%)</label>
-        <input type="number" id="weekendOvertimePercentage" [(ngModel)]="settings.weekendOvertimePercentage" min="100" step="1">
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="nightShiftStartTime" i18n="@@settings.night_start">Night Shift Start Time</label>
-          <input type="time" id="nightShiftStartTime" [(ngModel)]="settings.nightShiftStartTime">
-        </div>
-
-        <div class="form-group">
-          <label for="nightShiftEndTime" i18n="@@settings.night_end">Night Shift End Time</label>
-          <input type="time" id="nightShiftEndTime" [(ngModel)]="settings.nightShiftEndTime">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="dailyOvertimeThreshold" i18n="@@settings.daily_ot_threshold">Daily Overtime Threshold (hours)</label>
-        <input type="number" id="dailyOvertimeThreshold" [(ngModel)]="settings.dailyOvertimeThreshold" min="0" step="0.5">
-      </div>
-
-      <div class="form-group">
-        <label for="weeklyOvertimeThreshold" i18n="@@settings.weekly_ot_threshold">Weekly Overtime Threshold (hours)</label>
-        <input type="number" id="weeklyOvertimeThreshold" [(ngModel)]="settings.weeklyOvertimeThreshold" min="0" step="0.5">
-      </div>
-    </div>
-
-    <!-- PTO & Leave Settings -->
-    <div *ngIf="activeTab === 'pto-leave'" class="settings-section">
-      <h2 i18n="@@settings.pto_leave_heading">PTO & Leave Settings</h2>
-
-      <div class="form-group">
-        <label for="defaultPtoAccrualRate" i18n="@@settings.pto_accrual">Default PTO Accrual Rate (hours/month)</label>
-        <input type="number" id="defaultPtoAccrualRate" [(ngModel)]="settings.defaultPtoAccrualRate" min="0" step="0.5">
-      </div>
-
-      <div class="form-group">
-        <label for="maximumPtoBalance" i18n="@@settings.pto_max_balance">Maximum PTO Balance (hours)</label>
-        <input type="number" id="maximumPtoBalance" [(ngModel)]="settings.maximumPtoBalance" min="0" step="1">
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="ptoRolloverAllowed" [(ngModel)]="settings.ptoRolloverAllowed">
-        <label for="ptoRolloverAllowed" i18n="@@settings.pto_rollover">Allow PTO Rollover</label>
-      </div>
-
-      <div class="form-group" *ngIf="settings.ptoRolloverAllowed">
-        <label for="maximumPtoRollover" i18n="@@settings.pto_rollover_max">Maximum PTO Rollover (hours)</label>
-        <input type="number" id="maximumPtoRollover" [(ngModel)]="settings.maximumPtoRollover" min="0" step="1">
-      </div>
-
-      <div class="form-group">
-        <label for="sickLeaveAccrualRate" i18n="@@settings.sick_accrual">Sick Leave Accrual Rate (hours/month)</label>
-        <input type="number" id="sickLeaveAccrualRate" [(ngModel)]="settings.sickLeaveAccrualRate" min="0" step="0.5">
-      </div>
-
-      <div class="form-group">
-        <label for="sickLeaveMaximumBalance" i18n="@@settings.sick_max_balance">Sick Leave Maximum Balance (hours)</label>
-        <input type="number" id="sickLeaveMaximumBalance" [(ngModel)]="settings.sickLeaveMaximumBalance" min="0" step="1">
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="requireManagerApprovalForPto" [(ngModel)]="settings.requireManagerApprovalForPto">
-        <label for="requireManagerApprovalForPto" i18n="@@settings.require_mgr_pto">Require Manager Approval for PTO</label>
-      </div>
-
-      <div class="form-group">
-        <label for="minimumNoticeDaysForPto" i18n="@@settings.min_notice_pto">Minimum Notice Days for PTO Request</label>
-        <input type="number" id="minimumNoticeDaysForPto" [(ngModel)]="settings.minimumNoticeDaysForPto" min="0" step="1">
-      </div>
-    </div>
-
-    <!-- Scheduling Settings -->
-    <div *ngIf="activeTab === 'scheduling'" class="settings-section">
-      <h2 i18n="@@settings.scheduling_heading">Scheduling Settings</h2>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="autoApproveShifts" [(ngModel)]="settings.autoApproveShifts">
-        <label for="autoApproveShifts" i18n="@@settings.auto_approve_shifts">Auto-Approve Shifts</label>
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="allowEmployeeShiftSwaps" [(ngModel)]="settings.allowEmployeeShiftSwaps">
-        <label for="allowEmployeeShiftSwaps" i18n="@@settings.allow_swaps">Allow Employee Shift Swaps</label>
-      </div>
-
-      <div class="form-group checkbox" *ngIf="settings.allowEmployeeShiftSwaps">
-        <input type="checkbox" id="requireManagerApprovalForSwaps" [(ngModel)]="settings.requireManagerApprovalForSwaps">
-        <label for="requireManagerApprovalForSwaps" i18n="@@settings.require_mgr_swaps">Require Manager Approval for Swaps</label>
-      </div>
-
-      <div class="form-group">
-        <label for="maximumConsecutiveWorkDays" i18n="@@settings.max_consecutive_days">Maximum Consecutive Work Days</label>
-        <input type="number" id="maximumConsecutiveWorkDays" [(ngModel)]="settings.maximumConsecutiveWorkDays" min="1" step="1">
-      </div>
-
-      <div class="form-group">
-        <label for="minimumHoursBetweenShifts" i18n="@@settings.min_hours_between">Minimum Hours Between Shifts</label>
-        <input type="number" id="minimumHoursBetweenShifts" [(ngModel)]="settings.minimumHoursBetweenShifts" min="0" step="0.5">
-      </div>
-
-      <div class="form-group">
-        <label for="maximumDailyHours" i18n="@@settings.max_daily_hours">Maximum Daily Hours</label>
-        <input type="number" id="maximumDailyHours" [(ngModel)]="settings.maximumDailyHours" min="1" step="0.5">
-      </div>
-
-      <div class="form-group">
-        <label for="maximumWeeklyHours" i18n="@@settings.max_weekly_hours">Maximum Weekly Hours</label>
-        <input type="number" id="maximumWeeklyHours" [(ngModel)]="settings.maximumWeeklyHours" min="1" step="0.5">
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="allowOverlappingShifts" [(ngModel)]="settings.allowOverlappingShifts">
-        <label for="allowOverlappingShifts" i18n="@@settings.allow_overlapping">Allow Overlapping Shifts</label>
-      </div>
-    </div>
-
-    <!-- Clock-In/Out Settings -->
-    <div *ngIf="activeTab === 'clock-inout'" class="settings-section">
-      <h2 i18n="@@settings.clock_inout_heading">Clock-In/Out Settings</h2>
-
-      <div class="form-group">
-        <label for="gracePeriodLateClockIn" i18n="@@settings.grace_late">Grace Period for Late Clock-In (minutes)</label>
-        <input type="number" id="gracePeriodLateClockIn" [(ngModel)]="settings.gracePeriodLateClockIn" min="0" step="1">
-      </div>
-
-      <div class="form-group">
-        <label for="autoClockOutAfter" i18n="@@settings.auto_clock_out">Auto Clock-Out After (hours)</label>
-        <input type="number" id="autoClockOutAfter" [(ngModel)]="settings.autoClockOutAfter" min="1" step="1">
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="requireGeoLocationForClockIn" [(ngModel)]="settings.requireGeoLocationForClockIn">
-        <label for="requireGeoLocationForClockIn" i18n="@@settings.require_geo">Require Geo-Location for Clock-In</label>
-      </div>
-
-      <div class="form-group" *ngIf="settings.requireGeoLocationForClockIn">
-        <label for="geoFenceRadius" i18n="@@settings.geo_fence_radius">Geo-Fence Radius (meters)</label>
-        <input type="number" id="geoFenceRadius" [(ngModel)]="settings.geoFenceRadius" min="10" step="10">
-      </div>
-
-      <div class="form-group">
-        <label for="allowEarlyClockIn" i18n="@@settings.allow_early_clockin">Allow Early Clock-In (minutes before shift)</label>
-        <input type="number" id="allowEarlyClockIn" [(ngModel)]="settings.allowEarlyClockIn" min="0" step="1">
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="requireBreakClocks" [(ngModel)]="settings.requireBreakClocks">
-        <label for="requireBreakClocks" i18n="@@settings.require_break_clocks">Require Break Clocks</label>
-      </div>
-
-      <div class="form-group" *ngIf="settings.requireBreakClocks">
-        <label for="minimumBreakDuration" i18n="@@settings.min_break_duration">Minimum Break Duration (minutes)</label>
-        <input type="number" id="minimumBreakDuration" [(ngModel)]="settings.minimumBreakDuration" min="0" step="1">
-      </div>
-    </div>
-
-    <!-- Notification Settings -->
-    <div *ngIf="activeTab === 'notifications'" class="settings-section">
-      <h2 i18n="@@settings.notifications_heading">Notification Settings</h2>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="emailNotificationsEnabled" [(ngModel)]="settings.emailNotificationsEnabled">
-        <label for="emailNotificationsEnabled" i18n="@@settings.email_notif">Enable Email Notifications</label>
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="smsNotificationsEnabled" [(ngModel)]="settings.smsNotificationsEnabled">
-        <label for="smsNotificationsEnabled" i18n="@@settings.sms_notif">Enable SMS Notifications</label>
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="pushNotificationsEnabled" [(ngModel)]="settings.pushNotificationsEnabled">
-        <label for="pushNotificationsEnabled" i18n="@@settings.push_notif">Enable Push Notifications</label>
-      </div>
-
-      <h3 i18n="@@settings.notif_triggers">Notification Triggers</h3>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="notifyOnShiftAssignment" [(ngModel)]="settings.notifyOnShiftAssignment">
-        <label for="notifyOnShiftAssignment" i18n="@@settings.notify_shift_assign">Notify on Shift Assignment</label>
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="notifyOnShiftChanges" [(ngModel)]="settings.notifyOnShiftChanges">
-        <label for="notifyOnShiftChanges" i18n="@@settings.notify_shift_changes">Notify on Shift Changes</label>
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="notifyOnTimeOffApproval" [(ngModel)]="settings.notifyOnTimeOffApproval">
-        <label for="notifyOnTimeOffApproval" i18n="@@settings.notify_pto_approval">Notify on Time-Off Approval/Denial</label>
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="notifyOnReplacementRequest" [(ngModel)]="settings.notifyOnReplacementRequest">
-        <label for="notifyOnReplacementRequest" i18n="@@settings.notify_replacement">Notify on Replacement Request</label>
-      </div>
-
-      <div class="form-group">
-        <label for="reminderHoursBeforeShift" i18n="@@settings.reminder_hours">Reminder Hours Before Shift</label>
-        <input type="number" id="reminderHoursBeforeShift" [(ngModel)]="settings.reminderHoursBeforeShift" min="0" step="1">
-      </div>
-    </div>
-
-    <!-- System Settings -->
-    <div *ngIf="activeTab === 'system'" class="settings-section">
-      <h2 i18n="@@settings.system_heading">System Settings</h2>
-
-      <div class="form-group">
-        <label for="fiscalYearStartMonth" i18n="@@settings.fiscal_year">Fiscal Year Start Month</label>
-        <select id="fiscalYearStartMonth" [(ngModel)]="settings.fiscalYearStartMonth">
-          <option [value]="1">January</option>
-          <option [value]="2">February</option>
-          <option [value]="3">March</option>
-          <option [value]="4">April</option>
-          <option [value]="5">May</option>
-          <option [value]="6">June</option>
-          <option [value]="7">July</option>
-          <option [value]="8">August</option>
-          <option [value]="9">September</option>
-          <option [value]="10">October</option>
-          <option [value]="11">November</option>
-          <option [value]="12">December</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="payrollPeriod" i18n="@@settings.payroll_period">Payroll Period</label>
-        <select id="payrollPeriod" [(ngModel)]="settings.payrollPeriod">
-          <option value="Weekly" i18n="@@settings.payroll_weekly">Weekly</option>
-          <option value="BiWeekly" i18n="@@settings.payroll_biweekly">Bi-Weekly</option>
-          <option value="SemiMonthly" i18n="@@settings.payroll_semimonthly">Semi-Monthly</option>
-          <option value="Monthly" i18n="@@settings.payroll_monthly">Monthly</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="employeeIdPrefix" i18n="@@settings.employee_id_prefix">Employee ID Prefix</label>
-        <input type="text" id="employeeIdPrefix" [(ngModel)]="settings.employeeIdPrefix" placeholder="EMP">
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="requireTwoFactorAuth" [(ngModel)]="settings.requireTwoFactorAuth">
-        <label for="requireTwoFactorAuth" i18n="@@settings.require_2fa">Require Two-Factor Authentication</label>
-      </div>
-
-      <div class="form-group">
-        <label for="sessionTimeout" i18n="@@settings.session_timeout">Session Timeout (minutes)</label>
-        <input type="number" id="sessionTimeout" [(ngModel)]="settings.sessionTimeout" min="5" step="1">
-      </div>
-
-      <div class="form-group">
-        <label for="passwordExpirationDays" i18n="@@settings.password_expiration">Password Expiration (days)</label>
-        <input type="number" id="passwordExpirationDays" [(ngModel)]="settings.passwordExpirationDays" min="0" step="1">
-        <small i18n="@@settings.password_never">0 = never expires</small>
-      </div>
-
-      <div class="form-group">
-        <label for="minimumPasswordLength" i18n="@@settings.min_password_length">Minimum Password Length</label>
-        <input type="number" id="minimumPasswordLength" [(ngModel)]="settings.minimumPasswordLength" min="4" step="1">
-      </div>
-    </div>
-
-    <!-- Kiosk Settings -->
-    <div *ngIf="activeTab === 'kiosk'" class="settings-section">
-      <h2 i18n="@@settings.kiosk_heading">Kiosk Settings</h2>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="kioskModeEnabled" [(ngModel)]="settings.kioskModeEnabled">
-        <label for="kioskModeEnabled" i18n="@@settings.kiosk_mode_enabled">Enable Kiosk Mode</label>
-      </div>
-
-      <div class="form-group">
-        <label for="kioskPinLength" i18n="@@settings.kiosk_pin_length">Kiosk PIN Length</label>
-        <input type="number" id="kioskPinLength" [(ngModel)]="settings.kioskPinLength" min="4" max="8" step="1">
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="requirePhotoOnClockIn" [(ngModel)]="settings.requirePhotoOnClockIn">
-        <label for="requirePhotoOnClockIn" i18n="@@settings.require_photo_clockin">Require Photo on Clock-In</label>
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="showEmployeePhotosOnKiosk" [(ngModel)]="settings.showEmployeePhotosOnKiosk">
-        <label for="showEmployeePhotosOnKiosk" i18n="@@settings.show_photos_kiosk">Show Employee Photos on Kiosk</label>
-      </div>
-
-      <div class="form-group">
-        <label for="kioskTimeout" i18n="@@settings.kiosk_timeout">Kiosk Timeout (seconds)</label>
-        <input type="number" id="kioskTimeout" [(ngModel)]="settings.kioskTimeout" min="10" step="5">
-      </div>
-
-      <div class="form-group checkbox">
-        <input type="checkbox" id="allowQuestionResponsesOnClockIn" [(ngModel)]="settings.allowQuestionResponsesOnClockIn">
-        <label for="allowQuestionResponsesOnClockIn" i18n="@@settings.allow_question_responses">Allow Question Responses on Clock-In</label>
-      </div>
-
-      <div class="form-group">
-        <label for="kioskAdminPassword" i18n="@@settings.kiosk_admin_password">Kiosk Admin Password</label>
-        <input type="password" id="kioskAdminPassword" [(ngModel)]="settings.kioskAdminPassword"
-               placeholder="Leave blank to keep current password"
-               i18n-placeholder="@@settings.kiosk_admin_ph"
-               autocomplete="new-password">
-        <small class="help-text" i18n="@@settings.kiosk_admin_hint">
-          This password is required to change the kiosk device location.
-          Leave blank to keep the current password unchanged.
-        </small>
-      </div>
-
-      <!-- ── Clock-Out Survey Questions ──────────────────────────────────────── -->
-      <div class="settings-subsection">
-        <div class="subsection-header">
-          <h3 i18n="@@settings.survey_questions">Clock-Out Survey Questions</h3>
-          <button class="btn-add" (click)="openNewQuestionForm()" type="button" i18n="@@settings.add_question">+ Add Question</button>
-        </div>
-
-        <div *ngIf="kioskQuestionsLoading" class="loading-inline" i18n="@@settings.questions_loading">Loading questions…</div>
-
-        <div *ngIf="!kioskQuestionsLoading && kioskQuestions.length === 0 && !showQuestionForm" class="empty-hint"
-             i18n="@@settings.no_questions">
-          No questions yet. Add one to collect employee responses at clock-out.
-        </div>
-
-        <!-- Question list -->
-        <div *ngIf="kioskQuestions.length > 0" class="question-list">
-          <div *ngFor="let q of kioskQuestions" class="question-row">
-            <div class="question-info">
-              <span class="question-text">{{ q.questionText }}</span>
-              <span class="question-meta">
-                {{ q.questionType | titlecase }}
-                <span *ngIf="q.isRequired" class="badge-required" i18n="@@settings.question_required_badge">Required</span>
-                <span *ngIf="!q.isActive" class="badge-inactive" i18n="@@settings.question_inactive_badge">Inactive</span>
-              </span>
-            </div>
-            <div class="question-actions">
-              <button class="btn-icon" (click)="openEditQuestionForm(q)" title="Edit" type="button">✏️</button>
-              <button class="btn-icon btn-danger" (click)="deleteQuestion(q)" title="Delete" type="button">🗑️</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Inline add/edit form -->
-        <div *ngIf="showQuestionForm" class="question-form">
-          <h4>
-            <ng-container *ngIf="editingQuestion" i18n="@@settings.edit_question">Edit Question</ng-container>
-            <ng-container *ngIf="!editingQuestion" i18n="@@settings.new_question">New Question</ng-container>
-          </h4>
-
-          <div class="form-group">
-            <label i18n="@@settings.question_text">Question Text</label>
-            <input type="text" [(ngModel)]="questionForm.questionText"
-                   placeholder="Enter question…"
-                   i18n-placeholder="@@settings.question_text_ph"
-                   maxlength="500">
-          </div>
-
-          <div class="form-group">
-            <label i18n="@@settings.question_type">Question Type</label>
-            <select [(ngModel)]="questionForm.questionType">
-              <option value="yes_no" i18n="@@settings.q_yes_no">Yes / No</option>
-              <option value="multiple_choice" i18n="@@settings.q_multiple_choice">Multiple Choice</option>
-              <option value="text" i18n="@@settings.q_free_text">Free Text</option>
-            </select>
-          </div>
-
-          <div class="form-group" *ngIf="questionForm.questionType === 'multiple_choice'">
-            <label>
-              <ng-container i18n="@@settings.options_label">Options</ng-container>
-              <small i18n="@@settings.options_hint">(one per line)</small>
-            </label>
-            <textarea [(ngModel)]="questionOptionsText" rows="4" placeholder="Option A&#10;Option B&#10;Option C"></textarea>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group checkbox">
-              <input type="checkbox" id="qIsRequired" [(ngModel)]="questionForm.isRequired">
-              <label for="qIsRequired" i18n="@@settings.q_required">Required</label>
-            </div>
-            <div class="form-group checkbox">
-              <input type="checkbox" id="qIsActive" [(ngModel)]="questionForm.isActive">
-              <label for="qIsActive" i18n="@@settings.q_active">Active</label>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label i18n="@@settings.display_order">Display Order</label>
-            <input type="number" [(ngModel)]="questionForm.displayOrder" min="0" step="1" style="width:80px">
-          </div>
-
-          <div class="form-actions">
-            <button class="btn-save" (click)="saveQuestion()" [disabled]="savingQuestion || !questionForm.questionText.trim()" type="button">
-              <ng-container *ngIf="savingQuestion" i18n="@@settings.saving_question">Saving…</ng-container>
-              <ng-container *ngIf="!savingQuestion && editingQuestion" i18n="@@settings.update_btn">Update</ng-container>
-              <ng-container *ngIf="!savingQuestion && !editingQuestion" i18n="@@settings.create_btn">Create</ng-container>
-            </button>
-            <button class="btn-cancel" (click)="cancelQuestionForm()" type="button" i18n="@@settings.cancel_question">Cancel</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-
-  <div *ngIf="loading" class="loading-message" i18n="@@settings.loading">
-    Loading settings...
-  </div>
+    </lz-panel>
+    </form>
+  } @else if (!loadError) {
+    <lz-empty-state icon="business" title="No company selected" i18n-title="@@settings.no_company_title" body="Select a company to view and edit its settings" i18n-body="@@settings.no_company" />
+  }
 </div>
 
-<!-- Empty state when no company is selected or settings not loaded -->
-<div *ngIf="!loading && !settings" class="loading-message" i18n="@@settings.no_company">
-  Select a company to view and edit its settings.
-</div>
+@if (questionDialogOpen) {
+  <lz-dialog-overlay (closed)="cancelQuestionForm()">
+    <lz-dialog-frame [title]="questionDialogTitle" (closed)="cancelQuestionForm()">
+      <form id="kiosk-question-form" class="flex flex-col gap-4" (ngSubmit)="saveQuestion()">
+        @if (questionError) {
+          <lz-alert tone="danger">{{ questionError }}</lz-alert>
+        }
+        <lz-field required label="Question text" i18n-label="@@settings.question_text" controlId="q-text">
+          <input lzField type="text" id="q-text" name="questionText" [(ngModel)]="questionForm.questionText" maxlength="500" aria-required="true" placeholder="Enter question" i18n-placeholder="@@settings.question_text_ph">
+        </lz-field>
+
+        <lz-field label="Question type" i18n-label="@@settings.question_type" controlId="q-type">
+          <select lzField id="q-type" name="questionType" [(ngModel)]="questionForm.questionType">
+            <option value="yes_no" i18n="@@settings.q_yes_no">Yes or no</option>
+            <option value="multiple_choice" i18n="@@settings.q_multiple_choice">Multiple choice</option>
+            <option value="text" i18n="@@settings.q_free_text">Free text</option>
+          </select>
+        </lz-field>
+
+        @if (questionForm.questionType === 'multiple_choice') {
+          <lz-field label="Options" i18n-label="@@settings.options_label" controlId="q-options" hint="One per line" i18n-hint="@@settings.options_hint">
+            <textarea lzField id="q-options" name="questionOptions" [(ngModel)]="questionOptionsText" rows="4" placeholder="Option A&#10;Option B&#10;Option C" i18n-placeholder="@@settings.options_ph" aria-describedby="q-options-hint"></textarea>
+          </lz-field>
+        }
+
+        <div class="flex flex-col">
+          <label class="flex min-h-12 items-center gap-3">
+            <input type="checkbox" class="size-6 shrink-0" id="qIsRequired" name="qIsRequired" [(ngModel)]="questionForm.isRequired">
+            <span i18n="@@settings.q_required">Required</span>
+          </label>
+          <label class="flex min-h-12 items-center gap-3">
+            <input type="checkbox" class="size-6 shrink-0" id="qIsActive" name="qIsActive" [(ngModel)]="questionForm.isActive">
+            <span i18n="@@settings.q_active">Active</span>
+          </label>
+        </div>
+
+        <lz-field label="Display order" i18n-label="@@settings.display_order" controlId="q-order">
+          <input lzField type="number" id="q-order" name="displayOrder" [(ngModel)]="questionForm.displayOrder" min="0" step="1" class="max-w-32">
+        </lz-field>
+      </form>
+      <ng-container lzDialogActions>
+        <button lzButton variant="secondary" type="button" (click)="cancelQuestionForm()" i18n="@@settings.cancel_question">Cancel</button>
+        <button lzButton variant="primary" type="submit" form="kiosk-question-form" [disabled]="savingQuestion || !questionForm.questionText.trim()">
+          @if (savingQuestion) {
+            <ng-container i18n="@@settings.saving_question">Saving...</ng-container>
+          } @else if (editingQuestion) {
+            <ng-container i18n="@@settings.update_btn">Update</ng-container>
+          } @else {
+            <ng-container i18n="@@settings.create_btn">Create</ng-container>
+          }
+        </button>
+      </ng-container>
+    </lz-dialog-frame>
+  </lz-dialog-overlay>
+}
+
+@if (questionToDelete) {
+  <lz-dialog-overlay dialogRole="alertdialog" (closed)="cancelDeleteQuestion()">
+    <lz-dialog-frame [title]="deleteQuestionTitle" (closed)="cancelDeleteQuestion()">
+      <p i18n="@@settings.delete_question_body">This question will be deleted. This cannot be undone.</p>
+      <ng-container lzDialogActions>
+        <button lzButton variant="secondary" type="button" (click)="cancelDeleteQuestion()" i18n="@@common.cancel">Cancel</button>
+        <button lzButton variant="secondary" type="button" (click)="confirmDeleteQuestion()"><span class="text-danger-ink" i18n="@@settings.delete_question_confirm">Delete question</span></button>
+      </ng-container>
+    </lz-dialog-frame>
+  </lz-dialog-overlay>
+}

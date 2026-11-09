@@ -1,189 +1,191 @@
-<div class="procore-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-icon">
-        <i class="fa fa-cloud-upload"></i>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title">Procore Integration</h1>
-        <p class="page-subtitle">Push daily-log manpower (workers &amp; hours) from ShiftWork to Procore</p>
-      </div>
-      <div class="header-status" *ngIf="connection">
-        <span class="status-pill" [class.on]="connection.enabled">
-          <i class="fa" [class.fa-check-circle]="connection.enabled" [class.fa-pause-circle]="!connection.enabled"></i>
-          {{ connection.enabled ? 'Enabled' : 'Disabled' }}
-        </span>
-      </div>
-    </div>
+<div class="flex flex-col gap-4">
+  <div class="sticky top-0 z-10 bg-canvas">
+    <lz-page-header title="Procore integration" i18n-title="@@procore.page_title" subtitle="Push daily-log manpower (workers and hours) to Procore" i18n-subtitle="@@procore.page_subtitle">
+      <ng-container lzHeaderActions>
+        @if (connection) {
+          <lz-status-chip [tone]="connection.enabled ? 'success' : 'neutral'" dot>
+            @if (connection.enabled) {
+              <ng-container i18n="@@procore.state_enabled">Enabled</ng-container>
+            } @else {
+              <ng-container i18n="@@procore.state_disabled">Disabled</ng-container>
+            }
+          </lz-status-chip>
+        }
+      </ng-container>
+    </lz-page-header>
   </div>
 
-  <div *ngIf="loading" class="loading-state">
-    <div class="spinner"></div>
-    <p class="loading-text">Loading Procore settings...</p>
-  </div>
+  @if (error) {
+    <lz-alert tone="danger" i18n="@@procore.load_error">Could not load Procore settings. Try again later.</lz-alert>
+  }
 
-  <div *ngIf="!loading" class="content-grid">
-    <!-- Left: Connection settings -->
-    <div class="form-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fa fa-plug"></i> Connection</h3>
-        </div>
-        <div class="card-body">
-          <form [formGroup]="connectionForm" (ngSubmit)="saveConnection()" class="procore-form">
-            <div class="form-section">
-              <div class="form-group">
-                <label class="form-label"><i class="fa fa-building"></i> Procore Company ID</label>
-                <input type="text" class="form-input" formControlName="procoreCompanyId" placeholder="e.g., 598134">
-                <small class="form-hint">Sent as the Procore-Company-Id header</small>
-              </div>
+  @if (loading) {
+    <lz-alert tone="info" i18n="@@procore.loading">Loading Procore settings...</lz-alert>
+  } @else if (!error) {
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+      <lz-panel heading="Connection" i18n-heading="@@procore.connection_heading" class="min-w-0 self-start">
+        <form [formGroup]="connectionForm" (ngSubmit)="saveConnection()" class="flex flex-col gap-4">
+          <lz-field label="Procore company ID" i18n-label="@@procore.company_id_label" controlId="procore-company-id" hint="Sent as the Procore-Company-Id header" i18n-hint="@@procore.company_id_hint">
+            <input lzField type="text" id="procore-company-id" formControlName="procoreCompanyId" placeholder="For example, 598134" i18n-placeholder="@@procore.company_id_ph" aria-describedby="procore-company-id-hint">
+          </lz-field>
 
-              <div class="form-group">
-                <label class="form-label"><i class="fa fa-id-badge"></i> Client ID</label>
-                <input type="text" class="form-input" formControlName="clientId" placeholder="OAuth application client id">
-              </div>
+          <lz-field label="Client ID" i18n-label="@@procore.client_id_label" controlId="procore-client-id">
+            <input lzField type="text" id="procore-client-id" formControlName="clientId" placeholder="OAuth application client ID" i18n-placeholder="@@procore.client_id_ph">
+          </lz-field>
 
-              <div class="form-group">
-                <label class="form-label"><i class="fa fa-key"></i> Client Secret</label>
-                <input type="password" class="form-input" formControlName="clientSecret"
-                  [placeholder]="connection?.hasClientSecret ? '•••••••• (leave blank to keep current)' : 'OAuth application client secret'">
-                <small class="form-hint" *ngIf="connection?.hasClientSecret">A secret is already stored. Enter a new value only to replace it.</small>
-              </div>
+          <lz-field label="Client secret" i18n-label="@@procore.client_secret_label" controlId="procore-client-secret" [hint]="connection?.hasClientSecret ? secretStoredHint : undefined">
+            <input lzField type="password" id="procore-client-secret" formControlName="clientSecret" autocomplete="new-password" [placeholder]="connection?.hasClientSecret ? secretKeepPlaceholder : secretPlaceholder" [attr.aria-describedby]="connection?.hasClientSecret ? 'procore-client-secret-hint' : null">
+          </lz-field>
 
-              <div class="form-group">
-                <label class="form-label"><i class="fa fa-link"></i> API Base URL <span class="required">*</span></label>
-                <input type="text" class="form-input" formControlName="baseUrl" placeholder="https://api.procore.com">
-                <small class="form-hint">Sandbox: https://sandbox.procore.com</small>
-              </div>
+          <lz-field required label="API base URL" i18n-label="@@procore.base_url_label" controlId="procore-base-url" hint="Sandbox: https://sandbox.procore.com" i18n-hint="@@procore.base_url_hint">
+            <input lzField type="text" id="procore-base-url" formControlName="baseUrl" aria-required="true" placeholder="https://api.procore.com" aria-describedby="procore-base-url-hint">
+          </lz-field>
 
-              <div class="form-group">
-                <label class="form-label"><i class="fa fa-exchange"></i> Token URL <span class="required">*</span></label>
-                <input type="text" class="form-input" formControlName="tokenUrl" placeholder="https://login.procore.com/oauth/token">
-              </div>
+          <lz-field required label="Token URL" i18n-label="@@procore.token_url_label" controlId="procore-token-url">
+            <input lzField type="text" id="procore-token-url" formControlName="tokenUrl" aria-required="true" placeholder="https://login.procore.com/oauth/token">
+          </lz-field>
 
-              <div class="form-group toggle-group">
-                <label class="toggle">
-                  <input type="checkbox" formControlName="enabled">
-                  <span>Enable integration</span>
-                </label>
-                <label class="toggle">
-                  <input type="checkbox" formControlName="autoPushOnSubmit">
-                  <span>Auto-push manpower when a daily report is submitted</span>
-                </label>
-                <label class="toggle">
-                  <input type="checkbox" formControlName="timesheetSyncEnabled">
-                  <span>Also sync per-employee timesheets (Procore timecard entries)</span>
-                </label>
-              </div>
-            </div>
+          <div class="flex flex-col">
+            <label class="flex min-h-12 items-center gap-3">
+              <input type="checkbox" class="size-6 shrink-0" formControlName="enabled">
+              <span i18n="@@procore.enable">Enable integration</span>
+            </label>
+            <label class="flex min-h-12 items-center gap-3">
+              <input type="checkbox" class="size-6 shrink-0" formControlName="autoPushOnSubmit">
+              <span i18n="@@procore.auto_push">Auto-push manpower when a daily report is submitted</span>
+            </label>
+            <label class="flex min-h-12 items-center gap-3">
+              <input type="checkbox" class="size-6 shrink-0" formControlName="timesheetSyncEnabled">
+              <span i18n="@@procore.timesheet_sync">Also sync per-employee timesheets (Procore timecard entries)</span>
+            </label>
+          </div>
 
-            <div class="form-actions">
-              <button type="button" class="btn-secondary" (click)="testConnection()"
-                [disabled]="testing || !connection">
-                <i class="fa" [class.fa-spinner]="testing" [class.fa-spin]="testing" [class.fa-bolt]="!testing"></i>
-                {{ testing ? 'Testing...' : 'Test Connection' }}
-              </button>
-              <button type="submit" class="btn-submit" [disabled]="!connectionForm.valid || saving">
-                <i class="fa" [class.fa-spinner]="saving" [class.fa-spin]="saving" [class.fa-save]="!saving"></i>
-                {{ saving ? 'Saving...' : 'Save Connection' }}
-              </button>
-            </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button lzButton variant="secondary" type="button" (click)="testConnection()" [disabled]="testing || !connection">
+              @if (testing) {
+                <ng-container i18n="@@procore.testing">Testing...</ng-container>
+              } @else {
+                <ng-container i18n="@@procore.test_btn">Test connection</ng-container>
+              }
+            </button>
+            <button lzButton variant="primary" type="submit" [disabled]="!connectionForm.valid || saving">
+              @if (saving) {
+                <ng-container i18n="@@procore.saving">Saving...</ng-container>
+              } @else {
+                <ng-container i18n="@@procore.save_btn">Save connection</ng-container>
+              }
+            </button>
+          </div>
 
-            <div class="info-section" *ngIf="connection?.lastSyncAt">
-              <p class="info-text">
-                <i class="fa fa-history"></i>
-                Last sync: {{ connection?.lastSyncAt | date:'medium' }} — <strong>{{ connection?.lastSyncStatus }}</strong>
-              </p>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right: Location -> Procore project mapping -->
-    <div class="list-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fa fa-map-signs"></i> Project Mapping</h3>
-          <span class="badge">{{ mappedCount }}/{{ locations.length }} mapped</span>
-        </div>
-        <div class="card-body">
-          <p class="section-hint">
-            <i class="fa fa-info-circle"></i>
-            Enter each location's Procore <strong>Project ID</strong>. Only mapped locations push to Procore.
+          <p class="flex flex-wrap items-center gap-2 text-[13px] text-ink-soft" data-testid="last-sync">
+            @if (connection?.lastSyncAt) {
+              <span><ng-container i18n="@@procore.last_sync">Last sync:</ng-container> {{ connection?.lastSyncAt | date:'medium' }}</span>
+              <lz-status-chip [tone]="syncTone" dot>{{ connection?.lastSyncStatus }}</lz-status-chip>
+            } @else {
+              <span i18n="@@procore.never_synced">Last sync: never</span>
+              <lz-status-chip tone="neutral" dot i18n="@@procore.not_synced_chip">Not synced</lz-status-chip>
+            }
           </p>
+        </form>
+      </lz-panel>
 
-          <div class="mapping-list">
-            <div class="mapping-item" *ngFor="let location of locations">
-              <div class="mapping-info">
-                <h4 class="mapping-name">{{ location.name }}</h4>
-                <p class="mapping-sub">{{ location.city }}{{ location.state ? ', ' + location.state : '' }}</p>
-              </div>
-              <div class="mapping-input">
-                <input type="text" class="form-input" [(ngModel)]="location.externalCode"
-                  [ngModelOptions]="{ standalone: true }" placeholder="Procore Project ID">
-                <button class="btn-map" (click)="saveMapping(location)" title="Save mapping">
-                  <i class="fa fa-save"></i>
-                </button>
-              </div>
-            </div>
+      <div class="flex min-w-0 flex-col gap-4">
+        <lz-panel heading="Project mapping" i18n-heading="@@procore.projects_heading">
+          <ng-container lzPanelActions>
+            <lz-status-chip tone="neutral">{{ mappedCount }}/{{ locations.length }} <ng-container i18n="@@procore.mapped">mapped</ng-container></lz-status-chip>
+          </ng-container>
+          <p class="mb-3 text-ink-soft" i18n="@@procore.projects_hint">Enter each location's Procore project ID. Only mapped locations push to Procore.</p>
 
-            <div *ngIf="locations.length === 0" class="empty-state">
-              <i class="fa fa-map-o empty-icon"></i>
-              <p class="empty-text">No locations to map</p>
-            </div>
-          </div>
-        </div>
+          @if (locations.length === 0) {
+            <lz-empty-state icon="map" title="No locations to map" i18n-title="@@procore.no_locations" body="Add locations first, then map them to Procore projects" i18n-body="@@procore.no_locations_body" />
+          } @else {
+            <lz-table-scroll>
+              <table lzTable>
+                <thead>
+                  <tr>
+                    <th scope="col" i18n="@@procore.col_location">Location</th>
+                    <th scope="col" i18n="@@procore.col_project_id">Procore project ID</th>
+                    <th scope="col" class="text-right" i18n="@@procore.col_actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (location of paginate(locations, locPage, locPageSize); track location.locationId) {
+                    <tr>
+                      <td>
+                        <div class="font-medium text-ink">{{ location.name }}</div>
+                        <div class="text-[13px] text-ink-soft">{{ location.city }}{{ location.state ? ', ' + location.state : '' }}</div>
+                      </td>
+                      <td>
+                        <input lzField type="text" class="min-w-40" [(ngModel)]="location.externalCode" [ngModelOptions]="{ standalone: true }" [attr.aria-label]="projectIdLabel(location)" placeholder="Procore project ID" i18n-placeholder="@@procore.project_id_ph">
+                      </td>
+                      <td>
+                        <div class="flex justify-end">
+                          <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="saveMappingLabel(location)" (click)="saveMapping(location)">
+                            <mat-icon aria-hidden="true">save</mat-icon>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </lz-table-scroll>
+            <lz-pager [total]="locations.length" [page]="locPage" [pageSize]="locPageSize" (pageChange)="locPage = $event" (pageSizeChange)="locPageSize = $event; locPage = 1" />
+          }
+        </lz-panel>
+
+        <lz-panel heading="Employee mapping" i18n-heading="@@procore.employees_heading">
+          <ng-container lzPanelActions>
+            <lz-status-chip tone="neutral">{{ mappedEmployeeCount }}/{{ people.length }} <ng-container i18n="@@procore.mapped">mapped</ng-container></lz-status-chip>
+          </ng-container>
+          <p class="mb-3 text-ink-soft" i18n="@@procore.employees_hint">Enter each employee's Procore worker or party ID. Required for timesheet sync. Unmapped employees are skipped when timecards are pushed.</p>
+
+          @if (people.length === 0) {
+            <lz-empty-state icon="person" title="No employees to map" i18n-title="@@procore.no_employees" body="Add employees first, then map them to Procore workers" i18n-body="@@procore.no_employees_body" />
+          } @else {
+            <lz-field label="Search employees" i18n-label="@@procore.search_label" controlId="procore-search" class="mb-3">
+              <input lzField type="search" id="procore-search" [ngModel]="peopleFilter" (ngModelChange)="peopleFilter = $event; empPage = 1" [ngModelOptions]="{ standalone: true }" placeholder="Search by name, email or ID" i18n-placeholder="@@procore.search_ph">
+            </lz-field>
+
+            @if (filteredPeople.length === 0) {
+              <p class="text-ink-soft" role="status" i18n="@@procore.no_match">No employees match your search.</p>
+            } @else {
+              <lz-table-scroll>
+                <table lzTable>
+                  <thead>
+                    <tr>
+                      <th scope="col" i18n="@@procore.col_employee">Employee</th>
+                      <th scope="col" i18n="@@procore.col_worker_id">Procore worker ID</th>
+                      <th scope="col" class="text-right" i18n="@@procore.col_actions">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (person of paginate(filteredPeople, empPage, empPageSize); track person.personId) {
+                      <tr>
+                        <td>
+                          <div class="font-medium text-ink">{{ person.name }}</div>
+                          <div class="text-[13px] text-ink-soft">{{ person.email }}</div>
+                        </td>
+                        <td>
+                          <input lzField type="text" class="min-w-40" [(ngModel)]="person.externalCode" [ngModelOptions]="{ standalone: true }" [attr.aria-label]="workerIdLabel(person)" placeholder="Procore worker ID" i18n-placeholder="@@procore.worker_id_ph">
+                        </td>
+                        <td>
+                          <div class="flex justify-end">
+                            <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="saveMappingLabel(person)" (click)="saveEmployeeMapping(person)">
+                              <mat-icon aria-hidden="true">save</mat-icon>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </lz-table-scroll>
+              <lz-pager [total]="filteredPeople.length" [page]="empPage" [pageSize]="empPageSize" (pageChange)="empPage = $event" (pageSizeChange)="empPageSize = $event; empPage = 1" />
+            }
+          }
+        </lz-panel>
       </div>
     </div>
-
-    <!-- Employee -> Procore worker mapping -->
-    <div class="employee-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fa fa-users"></i> Employee Mapping</h3>
-          <span class="badge">{{ mappedEmployeeCount }}/{{ people.length }} mapped</span>
-        </div>
-        <div class="card-body">
-          <p class="section-hint">
-            <i class="fa fa-info-circle"></i>
-            Enter each employee's Procore <strong>worker / party ID</strong>. Required for
-            <strong>timesheet sync</strong> — unmapped employees are skipped when timecards are pushed.
-          </p>
-
-          <div class="employee-search">
-            <i class="fa fa-search"></i>
-            <input type="text" class="form-input" [(ngModel)]="peopleFilter"
-              [ngModelOptions]="{ standalone: true }" placeholder="Search employees by name or email…">
-          </div>
-
-          <div class="mapping-list employee-list">
-            <div class="mapping-item" *ngFor="let person of filteredPeople">
-              <div class="mapping-info">
-                <h4 class="mapping-name">{{ person.name }}</h4>
-                <p class="mapping-sub">{{ person.email }}</p>
-              </div>
-              <div class="mapping-input">
-                <input type="text" class="form-input" [(ngModel)]="person.externalCode"
-                  [ngModelOptions]="{ standalone: true }" placeholder="Procore worker ID">
-                <button class="btn-map" (click)="saveEmployeeMapping(person)" title="Save mapping">
-                  <i class="fa fa-save"></i>
-                </button>
-              </div>
-            </div>
-
-            <div *ngIf="people.length === 0" class="empty-state">
-              <i class="fa fa-user-o empty-icon"></i>
-              <p class="empty-text">No employees to map</p>
-            </div>
-            <div *ngIf="people.length > 0 && filteredPeople.length === 0" class="empty-state">
-              <i class="fa fa-search empty-icon"></i>
-              <p class="empty-text">No employees match "{{ peopleFilter }}"</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  }
 </div>

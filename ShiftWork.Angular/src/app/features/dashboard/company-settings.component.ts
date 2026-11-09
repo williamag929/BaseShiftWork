@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -8,6 +8,12 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { Company } from 'src/app/core/models/company.model';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import {
+  LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzDialogOverlayComponent, LzEmptyStateComponent, LzFieldComponent,
+  LzFieldDirective, LzPageHeaderComponent, LzPagerComponent, LzPanelComponent, LzStatusChipComponent, LzTableDirective,
+  LzTableScrollComponent, paginate,
+} from 'src/app/shared/ui';
 import { CompanySettingsService } from 'src/app/core/services/company-settings.service';
 import { CompanySettings } from 'src/app/core/models/company-settings.model';
 import { TIMEZONES } from 'src/app/core/data/timezones';
@@ -18,16 +24,22 @@ import { KioskQuestion, CreateKioskQuestionDto } from '../kiosk/core/models/kios
 @Component({
   selector: 'app-company-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatSnackBarModule],
-  templateUrl: './company-settings.component.html',
-  styleUrls: ['./company-settings.component.css']
+  imports: [
+    CommonModule, FormsModule, MatSnackBarModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzDialogFrameComponent,
+    LzDialogOverlayComponent, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzPageHeaderComponent, LzPagerComponent,
+    LzPanelComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
+  ],
+  templateUrl: './company-settings.component.html'
 })
 export class CompanySettingsComponent implements OnInit, OnDestroy {
   settings: CompanySettings | null = null;
   loading = false;
   saving = false;
   activeCompany: any;
-  activeTab: string = 'time-regional';
+  loadError = false;
+  readonly paginate = paginate;
+  qPage = 1;
+  qPageSize = 25;
   timezones: Timezone[] = TIMEZONES;
   company$: Observable<Company | null>;
   companyId: string | null = null;
@@ -36,6 +48,13 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
   // ── Kiosk question management ────────────────────────────────────────────────
   kioskQuestions: KioskQuestion[] = [];
   kioskQuestionsLoading = false;
+  questionsError = false;
+  questionError = '';
+  questionToDelete: KioskQuestion | null = null;
+  deletingQuestionId: number | null = null;
+  private questionOpener: HTMLElement | null = null;
+  private deleteOpener: HTMLElement | null = null;
+  @ViewChild('addQuestionBtn') addQuestionBtn?: ElementRef<HTMLButtonElement>;
   showQuestionForm = false;
   editingQuestion: KioskQuestion | null = null;
   questionForm: CreateKioskQuestionDto = this.blankQuestionForm();
@@ -68,6 +87,7 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
         tap(() => {
           this.loading = true;
+          this.loadError = false;
         }),
         switchMap(company => {
           if (!company || !company.companyId) {
@@ -92,10 +112,12 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
             catchError(err => {
               if (err.status === 404) {
                 console.error('Settings still not found after retry:', err);
-                this.snackBar.open('Unable to initialize settings. Please try again.', 'Close', { duration: 5000 });
+                this.loadError = true;
+                this.snackBar.open($localize`:@@settings.toast_init_failed:Unable to initialize settings. Please try again.`, this.closeLabel, { duration: 5000 });
               } else {
                 console.error('Failed to load settings:', err);
-                this.snackBar.open('Failed to load settings', 'Close', { duration: 3000 });
+                this.loadError = true;
+                this.snackBar.open($localize`:@@settings.toast_load_failed:Could not load settings.`, this.closeLabel, { duration: 3000 });
               }
               this.loading = false;
               return of(null);
@@ -106,6 +128,8 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
       .subscribe(settings => {
         if (settings) {
           this.settings = settings;
+          this.kioskQuestions = [];
+          this.loadKioskQuestions();
         }
         this.loading = false;
       });
@@ -122,22 +146,15 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
     this.saving = true;
     this.settingsService.updateSettings(this.companyId, this.settings).subscribe({
       next: () => {
-        this.snackBar.open('Settings saved successfully', 'Close', { duration: 3000 });
+        this.snackBar.open($localize`:@@settings.toast_saved:Settings saved.`, this.closeLabel, { duration: 3000 });
         this.saving = false;
       },
       error: (error) => {
         console.error('Failed to save settings:', error);
-        this.snackBar.open('Failed to save settings', 'Close', { duration: 3000 });
+        this.snackBar.open($localize`:@@settings.toast_save_failed:Could not save settings.`, this.closeLabel, { duration: 3000 });
         this.saving = false;
       }
     });
-  }
-
-  setActiveTab(tab: string): void {
-    this.activeTab = tab;
-    if (tab === 'kiosk' && this.companyId && this.kioskQuestions.length === 0) {
-      this.loadKioskQuestions();
-    }
   }
 
   // ── Kiosk question management ────────────────────────────────────────────────
@@ -145,26 +162,67 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
   loadKioskQuestions(): void {
     if (!this.companyId) return;
     this.kioskQuestionsLoading = true;
+    this.questionsError = false;
     this.kioskService.getManagementQuestions(this.companyId).subscribe({
       next: (questions) => {
         this.kioskQuestions = questions;
         this.kioskQuestionsLoading = false;
       },
       error: () => {
-        this.snackBar.open('Failed to load kiosk questions', 'Close', { duration: 3000 });
+        this.questionsError = true;
+        this.snackBar.open($localize`:@@settings.toast_questions_load_failed:Could not load kiosk questions.`, this.closeLabel, { duration: 3000 });
         this.kioskQuestionsLoading = false;
       }
     });
   }
 
-  openNewQuestionForm(): void {
+  get closeLabel(): string {
+    return $localize`:@@common.close:Close`;
+  }
+
+  get questionDialogOpen(): boolean {
+    return this.showQuestionForm;
+  }
+
+  get questionDialogTitle(): string {
+    return this.editingQuestion
+      ? $localize`:@@settings.edit_question:Edit question`
+      : $localize`:@@settings.new_question:New question`;
+  }
+
+  get deleteQuestionTitle(): string {
+    return $localize`:@@settings.delete_question_title:Delete ${this.questionToDelete?.questionText ?? ''}:name:?`;
+  }
+
+  questionTypeLabel(type: string): string {
+    switch (type) {
+      case 'yes_no': return $localize`:@@settings.q_yes_no:Yes or no`;
+      case 'multiple_choice': return $localize`:@@settings.q_multiple_choice:Multiple choice`;
+      case 'text': return $localize`:@@settings.q_free_text:Free text`;
+      default: return type;
+    }
+  }
+
+  editQuestionLabel(q: KioskQuestion): string {
+    return $localize`:@@settings.edit_question_aria:Edit ${q.questionText}:name:`;
+  }
+
+  deleteQuestionLabel(q: KioskQuestion): string {
+    return $localize`:@@settings.delete_question_aria:Delete ${q.questionText}:name:`;
+  }
+
+  openNewQuestionForm(opener?: HTMLElement): void {
+    this.questionOpener = opener ?? null;
+    this.questionError = '';
     this.editingQuestion = null;
     this.questionForm = this.blankQuestionForm();
     this.questionOptionsText = '';
     this.showQuestionForm = true;
   }
 
-  openEditQuestionForm(q: KioskQuestion): void {
+  openEditQuestionForm(q: KioskQuestion, opener?: HTMLElement): void {
+    this.questionOpener = opener ?? null;
+    this.questionError = '';
     this.editingQuestion = q;
     this.questionForm = {
       questionText: q.questionText,
@@ -181,6 +239,13 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
   cancelQuestionForm(): void {
     this.showQuestionForm = false;
     this.editingQuestion = null;
+    this.restoreQuestionFocus();
+  }
+
+  private restoreQuestionFocus(): void {
+    const opener = this.questionOpener;
+    this.questionOpener = null;
+    Promise.resolve().then(() => (opener?.isConnected ? opener : this.addQuestionBtn?.nativeElement)?.focus());
   }
 
   saveQuestion(): void {
@@ -191,6 +256,7 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
       : [];
 
     this.savingQuestion = true;
+    this.questionError = '';
 
     if (this.editingQuestion) {
       this.kioskService.updateQuestion(this.companyId, this.editingQuestion.kioskQuestionId, this.questionForm).subscribe({
@@ -199,10 +265,11 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
           if (idx !== -1) this.kioskQuestions[idx] = updated;
           this.showQuestionForm = false;
           this.savingQuestion = false;
-          this.snackBar.open('Question updated', 'Close', { duration: 2000 });
+          this.restoreQuestionFocus();
+          this.snackBar.open($localize`:@@settings.toast_question_updated:Question updated.`, this.closeLabel, { duration: 2000 });
         },
         error: () => {
-          this.snackBar.open('Failed to update question', 'Close', { duration: 3000 });
+          this.questionError = $localize`:@@settings.toast_question_update_failed:Could not update the question.`;
           this.savingQuestion = false;
         }
       });
@@ -212,26 +279,49 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
           this.kioskQuestions.push(created);
           this.showQuestionForm = false;
           this.savingQuestion = false;
-          this.snackBar.open('Question created', 'Close', { duration: 2000 });
+          this.restoreQuestionFocus();
+          this.snackBar.open($localize`:@@settings.toast_question_created:Question created.`, this.closeLabel, { duration: 2000 });
         },
         error: () => {
-          this.snackBar.open('Failed to create question', 'Close', { duration: 3000 });
+          this.questionError = $localize`:@@settings.toast_question_create_failed:Could not create the question.`;
           this.savingQuestion = false;
         }
       });
     }
   }
 
-  deleteQuestion(q: KioskQuestion): void {
-    if (!this.companyId) return;
-    if (!confirm(`Delete "${q.questionText}"?`)) return;
+  askDeleteQuestion(q: KioskQuestion, opener: HTMLElement): void {
+    this.deleteOpener = opener;
+    this.questionToDelete = q;
+  }
 
+  cancelDeleteQuestion(): void {
+    const opener = this.deleteOpener;
+    this.questionToDelete = null;
+    this.deleteOpener = null;
+    Promise.resolve().then(() => opener?.focus());
+  }
+
+  confirmDeleteQuestion(): void {
+    const q = this.questionToDelete;
+    if (!q || !this.companyId) return;
+    const opener = this.deleteOpener;
+    this.questionToDelete = null;
+    this.deleteOpener = null;
+    this.deletingQuestionId = q.kioskQuestionId;
     this.kioskService.deleteQuestion(this.companyId, q.kioskQuestionId).subscribe({
       next: () => {
         this.kioskQuestions = this.kioskQuestions.filter(x => x.kioskQuestionId !== q.kioskQuestionId);
-        this.snackBar.open('Question deleted', 'Close', { duration: 2000 });
+        this.qPage = Math.min(this.qPage, Math.max(1, Math.ceil(this.kioskQuestions.length / this.qPageSize)));
+        this.deletingQuestionId = null;
+        this.snackBar.open($localize`:@@settings.toast_question_deleted:Question deleted.`, this.closeLabel, { duration: 2000 });
+        Promise.resolve().then(() => this.addQuestionBtn?.nativeElement.focus());
       },
-      error: () => this.snackBar.open('Failed to delete question', 'Close', { duration: 3000 })
+      error: () => {
+        this.deletingQuestionId = null;
+        this.snackBar.open($localize`:@@settings.toast_question_delete_failed:Could not delete the question.`, this.closeLabel, { duration: 3000 });
+        Promise.resolve().then(() => opener?.focus());
+      }
     });
   }
 

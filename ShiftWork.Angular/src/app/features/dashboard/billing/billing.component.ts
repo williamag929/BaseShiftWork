@@ -3,14 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Subscription, filter, interval, switchMap, take, takeWhile } from 'rxjs';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { BillingService } from 'src/app/core/services/billing.service';
+import { LzAlertComponent, LzButtonDirective, LzPageHeaderComponent, LzPanelComponent, LzStatusChipComponent, LzTone } from 'src/app/shared/ui';
 import { BillingSummary, PaidTier } from 'src/app/core/models/billing.model';
 
 interface TierCard { tier: PaidTier; cap: string; }
@@ -18,14 +16,14 @@ interface TierCard { tier: PaidTier; cap: string; }
 @Component({
   selector: 'app-billing',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressBarModule],
-  templateUrl: './billing.component.html',
-  styleUrls: ['./billing.component.css']
+  imports: [CommonModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzPageHeaderComponent, LzPanelComponent, LzStatusChipComponent],
+  templateUrl: './billing.component.html'
 })
 export class BillingComponent implements OnInit, OnDestroy {
   summary: BillingSummary | null = null;
   companyId = '';
   busy = false;
+  loadError = false;
   awaitingPayment = false;
   readonly tiers: TierCard[] = [
     { tier: 'Starter', cap: '25' },
@@ -47,7 +45,7 @@ export class BillingComponent implements OnInit, OnDestroy {
       this.load();
       this.subs.add(this.route.queryParamMap.pipe(take(1)).subscribe(p => {
         if (p.get('checkout') === 'success') this.waitForActivation();
-        if (p.get('checkout') === 'cancel') this.toastr.info('Checkout canceled. No charge was made.');
+        if (p.get('checkout') === 'cancel') this.toastr.info($localize`:@@billing.toast_canceled:Checkout canceled. No charge was made.`);
       }));
     }));
   }
@@ -57,6 +55,26 @@ export class BillingComponent implements OnInit, OnDestroy {
   get usagePercent(): number {
     const s = this.summary;
     return s?.employeeCap ? Math.min(100, (s.employeeCount / s.employeeCap) * 100) : 0;
+  }
+
+  get usageLabel(): string {
+    return $localize`:@@billing.usage_aria:Employee usage`;
+  }
+
+  get stateTone(): LzTone {
+    const s = this.summary;
+    if (s?.subscriptionStatus === 'past_due') return 'danger';
+    if (s?.isTrial) return 'info';
+    if (s?.hasSubscription) return 'success';
+    return 'neutral';
+  }
+
+  get stateLabel(): string {
+    const s = this.summary;
+    if (s?.subscriptionStatus === 'past_due') return $localize`:@@billing.state_past_due:Past due`;
+    if (s?.isTrial) return $localize`:@@billing.state_trial:Trial`;
+    if (s?.hasSubscription) return $localize`:@@billing.state_active:Active`;
+    return $localize`:@@billing.state_free:No subscription`;
   }
 
   choose(tier: PaidTier): void {
@@ -77,15 +95,15 @@ export class BillingComponent implements OnInit, OnDestroy {
 
   private load(): void {
     this.billing.getSummary(this.companyId).subscribe({
-      next: s => { this.summary = s; this.billing.refresh(this.companyId); },
-      error: err => this.fail(err)
+      next: s => { this.summary = s; this.loadError = false; this.billing.refresh(this.companyId); },
+      error: err => { this.loadError = true; this.fail(err); }
     });
   }
 
   // Stripe confirms payment via webhook a moment after redirecting back, so poll briefly instead of showing a stale plan.
   private waitForActivation(): void {
     this.awaitingPayment = true;
-    this.toastr.success('Payment received. Activating your plan…');
+    this.toastr.success($localize`:@@billing.toast_received:Payment received. Activating your plan...`);
     this.subs.add(interval(2000).pipe(
       take(10),
       switchMap(() => this.billing.getSummary(this.companyId)),
@@ -98,6 +116,6 @@ export class BillingComponent implements OnInit, OnDestroy {
 
   private fail(err: any): void {
     this.busy = false;
-    this.toastr.error(err?.error?.message ?? 'Billing is unavailable right now. Please try again.');
+    this.toastr.error(err?.error?.message ?? $localize`:@@billing.load_error:Billing is unavailable right now. Please try again.`);
   }
 }

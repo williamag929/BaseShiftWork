@@ -105,3 +105,11 @@
 @source "../app/features/dashboard/bulletins";
 @source "../app/features/dashboard/safety";
 @source "../app/features/dashboard/documents";
+@source "../app/features/dashboard/procore";
+@source "../app/features/dashboard/company-settings.component.html";
+@source "../app/features/dashboard/company-settings.component.ts";
+@source "../app/features/dashboard/billing";
+@source "../app/features/dashboard/profiles";
+@source "../app/features/dashboard/clock-shift";
+@source "../app/features/general/manage-companies";
+@source "../app/features/admin/components";
