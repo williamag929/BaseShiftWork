@@ -245,4 +245,27 @@ describe('PinDialogComponent', () => {
     expect(input().value).toBe('123456');
     expect(input().getAttribute('maxlength')).toBe('6');
   });
+
+  it('never shows the field error or alert while tapping keypad keys', async () => {
+    await open();
+    press('1');
+    press('2');
+    input().dispatchEvent(new Event('blur'));
+    q<HTMLButtonElement>('[data-testid="pin-backspace"]').click();
+    await flush();
+    expect(q('app-pin-dialog lz-alert')).toBeNull();
+    expect(q('#kiosk-pin-error')).toBeNull();
+  });
+
+  it('shows the length error after submitting an incomplete PIN and clears it when complete', async () => {
+    await open();
+    press('1');
+    q<HTMLFormElement>('#kiosk-pin-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await flush();
+    expect(q('#kiosk-pin-error')!.textContent).toContain('4 digits');
+    expect(verifyPin).not.toHaveBeenCalled();
+    ['2', '3', '4'].forEach(press);
+    await flush();
+    expect(q('#kiosk-pin-error')).toBeNull();
+  });
 });

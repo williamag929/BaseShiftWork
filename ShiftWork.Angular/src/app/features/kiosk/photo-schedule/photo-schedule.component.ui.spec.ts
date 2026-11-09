@@ -98,4 +98,14 @@ describe('PhotoScheduleComponent (design system)', () => {
       expect(el().scrollWidth).toBeLessThanOrEqual(el().clientWidth);
     }
   });
+
+  it('sets scheduling before the countdown starts', async () => {
+    status = 'OnShift:OnTime';
+    await setup();
+    const c = fixture.componentInstance as any;
+    spyOn(c, 'startCountdown').and.callFake(() => expect(c.scheduling).toBeTrue());
+    spyOn(window, 'setTimeout').and.returnValue(0 as any);
+    c.startScheduling();
+    expect(c.startCountdown).toHaveBeenCalled();
+  });
 });

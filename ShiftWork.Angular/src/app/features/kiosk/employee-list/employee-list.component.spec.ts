@@ -120,6 +120,12 @@ describe('EmployeeListComponent (design system)', () => {
     expect(el().querySelector('lz-empty-state')).toBeNull();
   });
 
+  it('shows loading, not the empty state, before the company has emitted', async () => {
+    await setup();
+    const c = TestBed.createComponent(EmployeeListComponent).componentInstance;
+    expect(c.loading).toBeTrue();
+  });
+
   it('shows a loading status while employees load and neither empty nor error', async () => {
     const pending = new Subject<any[]>();
     await setup(() => pending);

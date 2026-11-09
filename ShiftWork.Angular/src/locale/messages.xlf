@@ -3319,9 +3319,6 @@ Option C</source>
       <trans-unit id="kiosk_employees.legend_toggle_aria" datatype="html">
         <source>Toggle timing legend visibility</source>
       </trans-unit>
-      <trans-unit id="kiosk_employees.legend_info_aria" datatype="html">
-        <source>Legend information</source>
-      </trans-unit>
       <trans-unit id="kiosk_employees.wake_lock_active_title" datatype="html">
         <source>Screen wake lock active to prevent sleep</source>
       </trans-unit>
@@ -3491,9 +3488,6 @@ Option C</source>
         <source>PIN is required.</source>
       </trans-unit>
       <trans-unit id="kiosk_pin.pin_length" datatype="html">
-        <source>PIN must be 4 digits.</source>
-      </trans-unit>
-      <trans-unit id="kiosk_pin.error_length" datatype="html">
         <source>PIN must be 4 digits.</source>
       </trans-unit>
       <trans-unit id="kiosk_pin.submit" datatype="html">

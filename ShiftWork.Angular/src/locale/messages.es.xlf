@@ -4258,10 +4258,6 @@ Opción C</target>
         <source>Toggle timing legend visibility</source>
         <target state="translated">Mostrar u ocultar leyenda de tiempos</target>
       </trans-unit>
-      <trans-unit id="kiosk_employees.legend_info_aria" datatype="html">
-        <source>Legend information</source>
-        <target state="translated">Información de la leyenda</target>
-      </trans-unit>
       <trans-unit id="kiosk_employees.wake_lock_active_title" datatype="html">
         <source>Screen wake lock active to prevent sleep</source>
         <target state="translated">Bloqueo de pantalla activo para evitar el apagado</target>
@@ -4487,10 +4483,6 @@ Opción C</target>
         <target state="translated">El PIN es requerido.</target>
       </trans-unit>
       <trans-unit id="kiosk_pin.pin_length" datatype="html">
-        <source>PIN must be 4 digits.</source>
-        <target state="translated">El PIN debe tener 4 dígitos.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_pin.error_length" datatype="html">
         <source>PIN must be 4 digits.</source>
         <target state="translated">El PIN debe tener 4 dígitos.</target>
       </trans-unit>

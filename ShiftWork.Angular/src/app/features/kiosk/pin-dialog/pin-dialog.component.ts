@@ -35,6 +35,7 @@ export class PinDialogComponent implements OnInit {
   pinForm: FormGroup;
   pinLength = 4;
   verifying = false;
+  submitted = false;
   errorMessage = '';
   readonly digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
@@ -71,7 +72,7 @@ export class PinDialogComponent implements OnInit {
 
   get fieldError(): string | null {
     const control = this.pinForm.get('pin');
-    if (!control?.touched || !control.errors) {
+    if (!this.submitted || !control?.errors) {
       return null;
     }
     return control.hasError('required')
@@ -100,7 +101,7 @@ export class PinDialogComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.pinForm.get('pin')?.markAsTouched();
+    this.submitted = true;
     if (this.pinForm.valid && !this.verifying) {
       this.verifying = true;
       this.errorMessage = '';
@@ -132,6 +133,7 @@ export class PinDialogComponent implements OnInit {
 
   private fail(message: string): void {
     this.errorMessage = message;
+    this.submitted = false;
     this.pinForm.reset();
   }
 }

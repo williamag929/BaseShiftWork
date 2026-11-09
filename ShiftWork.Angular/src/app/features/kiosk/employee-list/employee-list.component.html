@@ -35,7 +35,7 @@
       </span>
     }
     @if (wakeLock.isSupported()) {
-      <span class="inline-flex items-center gap-2 rounded-chip px-3 py-1 text-base font-medium"
+      <span class="inline-flex items-center gap-2 rounded-chip px-3 py-1 text-lg font-medium"
             [class.bg-success-bg]="wakeLock.isActive()" [class.text-success-ink]="wakeLock.isActive()"
             [class.bg-neutral-bg]="!wakeLock.isActive()" [class.text-ink-muted]="!wakeLock.isActive()"
             i18n-title="@@kiosk_employees.wake_lock_active_title" title="Screen wake lock active to prevent sleep">
@@ -47,14 +47,14 @@
         }
       </span>
     } @else {
-      <span class="inline-flex items-center rounded-chip bg-neutral-bg px-3 py-1 text-base font-medium text-ink-muted"
+      <span class="inline-flex items-center rounded-chip bg-neutral-bg px-3 py-1 text-lg font-medium text-ink-muted"
             i18n-title="@@kiosk_employees.wake_lock_unsupported_title" title="Wake lock not supported on this device"
             i18n="@@kiosk_employees.wake_lock_unsupported">Wake lock unsupported</span>
     }
   </div>
 
   @if (showLegend) {
-    <div id="kiosk-legend" role="region" class="flex flex-wrap items-center gap-3 text-base"
+    <div id="kiosk-legend" role="region" class="flex flex-wrap items-center gap-3 text-lg"
          i18n-aria-label="@@kiosk_employees.legend_aria" aria-label="Timing legend">
       <span class="rounded-chip bg-success-bg px-3 py-1 font-medium text-success-ink"
             i18n-title="@@kiosk_employees.ontime_title" title="Arrived within 5 minutes of scheduled start"
@@ -102,7 +102,7 @@
             <span class="text-lg font-medium">{{ employee.name }}</span>
 
             @if (getTiming(employee.statusShiftWork); as timing) {
-              <span class="rounded-chip px-3 py-1 text-base font-medium"
+              <span class="rounded-chip px-3 py-1 text-lg font-medium"
                     [class.bg-success-bg]="timing === 'OnTime'" [class.text-success-ink]="timing === 'OnTime'"
                     [class.bg-(--lz-draft-bg-1)]="timing === 'Early'" [class.text-amber-ink]="timing === 'Early'"
                     [class.bg-danger-bg]="timing === 'Late'" [class.text-danger-ink]="timing === 'Late'"
@@ -119,24 +119,24 @@
             }
 
             @if (isInProgress(employee) || isOnShift(employee.statusShiftWork)) {
-              <span class="text-base font-semibold text-success-ink"
+              <span class="text-lg font-semibold text-success-ink"
                     i18n-title="@@kiosk_employees.on_shift_title" title="Currently on shift"
                     i18n="@@kiosk_employees.on_shift_label">On shift</span>
             } @else if (hasPendingScheduleToday(employee)) {
-              <span class="text-base text-ink-soft"
+              <span class="text-lg text-ink-soft"
                     i18n-title="@@kiosk_employees.pending_title" title="Has a pending schedule for today"
                     i18n="@@kiosk_employees.pending_label">Pending today</span>
             }
 
             @if (canStartShift(employee)) {
-              <span class="inline-flex items-center gap-1 text-base font-medium text-success-ink"
+              <span class="inline-flex items-center gap-1 text-lg font-medium text-success-ink"
                     i18n-title="@@kiosk_employees.start_shift_title" title="Start shift">
                 <mat-icon aria-hidden="true">play_circle</mat-icon>
                 <ng-container i18n="@@kiosk_employees.start_btn">Start</ng-container>
               </span>
             }
             @if (canEndShift(employee)) {
-              <span class="inline-flex items-center gap-1 text-base font-medium text-danger-ink"
+              <span class="inline-flex items-center gap-1 text-lg font-medium text-danger-ink"
                     i18n-title="@@kiosk_employees.end_shift_title" title="End shift">
                 <mat-icon aria-hidden="true">stop_circle</mat-icon>
                 <ng-container i18n="@@kiosk_employees.end_btn">End</ng-container>

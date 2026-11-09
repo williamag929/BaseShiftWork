@@ -81,7 +81,8 @@ describe('Audit history (design system)', () => {
       expect(el.querySelector('lz-dialog-frame')).not.toBeNull();
       expect(el.querySelector('h2')!.textContent).toContain('Ana Perez');
       expect(el.querySelector('button[aria-label="Close"]')).not.toBeNull();
-      expect(el.querySelectorAll('button[variant="primary"]').length).toBeLessThanOrEqual(1);
+      const visiblePrimary = Array.from(el.querySelectorAll<HTMLElement>('button[variant="primary"]')).filter(b => b.offsetParent !== null);
+      expect(visiblePrimary.length).toBeLessThanOrEqual(1);
     });
 
     it('shows a single empty state when there are no changes, never the timeline empty state too', async () => {
@@ -89,6 +90,26 @@ describe('Audit history (design system)', () => {
       const el = f.nativeElement as HTMLElement;
       expect(el.querySelectorAll('lz-empty-state').length).toBe(1);
       expect(el.querySelector('app-audit-history-timeline')).toBeNull();
+    });
+
+    it('keeps applied filters mounted and visible across tab switches', async () => {
+      const f = await open(1);
+      const el = f.nativeElement as HTMLElement;
+      const service = TestBed.inject(AuditHistoryService) as jasmine.SpyObj<AuditHistoryService>;
+      const select = el.querySelector('#audit-action-type') as HTMLSelectElement;
+      select.value = 'Created';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      (el.querySelector('app-audit-history-filters button[variant="primary"]') as HTMLButtonElement).click();
+      f.detectChanges();
+      const calls = service.getAuditHistoryForEntity.calls.count();
+      const tabs = Array.from(el.querySelectorAll<HTMLButtonElement>('lz-segmented button'));
+      tabs[2].click();
+      f.detectChanges();
+      tabs[0].click();
+      f.detectChanges();
+      expect((el.querySelector('#audit-action-type') as HTMLSelectElement).value).toBe('Created');
+      expect(el.querySelector('app-audit-history-filters')!.textContent).toContain('Showing filtered results');
+      expect(service.getAuditHistoryForEntity.calls.count()).toBe(calls);
     });
 
     it('switches between tabs with pressed state and shows the summary', async () => {

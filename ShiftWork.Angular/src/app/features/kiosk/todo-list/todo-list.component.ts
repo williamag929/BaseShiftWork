@@ -12,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class TodoListComponent implements OnInit {
   tasks: any[] = [];
-  loading = false;
+  loading = true;
   error: any = null;
 
   constructor(

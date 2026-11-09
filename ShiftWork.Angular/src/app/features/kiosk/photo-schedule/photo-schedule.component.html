@@ -47,7 +47,7 @@
     <div class="space-y-4">
       @if (wakeLock.isSupported()) {
         <div class="flex justify-center">
-          <span class="inline-flex items-center gap-2 rounded-chip px-3 py-1 text-base font-medium"
+          <span class="inline-flex items-center gap-2 rounded-chip px-3 py-1 text-lg font-medium"
                 [class.bg-success-bg]="wakeLock.isActive()" [class.text-success-ink]="wakeLock.isActive()"
                 [class.bg-neutral-bg]="!wakeLock.isActive()" [class.text-ink-muted]="!wakeLock.isActive()"
                 i18n-title="@@kiosk_photo.wake_lock_title" title="Screen wake lock active to prevent sleep">

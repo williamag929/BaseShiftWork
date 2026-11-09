@@ -24,12 +24,12 @@ import { ShiftEventService } from 'src/app/core/services/shift-event.service';
 @Component({
   selector: 'app-employee-list',
   templateUrl: './employee-list.component.html',
-    standalone: false
+  standalone: false
 })
 export class EmployeeListComponent implements OnInit, OnDestroy {
   employees: Person[] = [];
   filteredEmployees: Person[] = [];
-  loading = false;
+  loading = true;
   refreshing = false;
   error: any = null;
   activeCompany$: Observable<Company | null>;

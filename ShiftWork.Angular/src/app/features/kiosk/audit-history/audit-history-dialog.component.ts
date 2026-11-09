@@ -55,9 +55,13 @@ export interface AuditHistoryDialogData {
           i18n-ariaLabel="@@audit.views_aria"
         />
 
+        <app-audit-history-filters [hidden]="activeTab !== 'entity'" [showEntityTypeFilter]="false" (filtersApplied)="onFiltersApplied($event)" />
+        @if (showRelatedEntities) {
+          <app-audit-history-filters [hidden]="activeTab !== 'related'" [showEntityTypeFilter]="true" (filtersApplied)="onRelatedFiltersApplied($event)" />
+        }
+
         @switch (activeTab) {
           @case ('entity') {
-            <app-audit-history-filters [showEntityTypeFilter]="false" (filtersApplied)="onFiltersApplied($event)" />
 
             @if (loading) {
               <div role="status" class="flex items-center justify-center gap-3 py-10 text-ink-soft">
@@ -79,8 +83,6 @@ export interface AuditHistoryDialogData {
             }
           }
           @case ('related') {
-            <app-audit-history-filters [showEntityTypeFilter]="true" (filtersApplied)="onRelatedFiltersApplied($event)" />
-
             @if (loadingRelated) {
               <div role="status" class="flex items-center justify-center gap-3 py-10 text-ink-soft">
                 <mat-spinner diameter="32" aria-hidden="true" />
