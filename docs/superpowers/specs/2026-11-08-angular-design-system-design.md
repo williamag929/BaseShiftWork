@@ -117,9 +117,9 @@ Text contrast ≥ 4.5:1 (all token pairs above pass). Interactive targets ≥ 48
 | Plan | Scope |
 |---|---|
 | A | Foundation: Tailwind + tokens + fonts, Material theme, style guard, core components, shell + nav, Schedule grid, People |
-| B | Schedule modals (add/edit, conflict, repeat, sick, time off, history, replacement), Overview, Timesheets, Time off approvals |
-| C | Workforce + Job sites screens (crews, credentials, people-management, locations, areas, cost codes, tasks, active sites, daily reports) |
-| D | Field communication + Integrations (bulletins, safety, documents, procore, kiosk admin), company settings, billing, profiles |
-| E | Public/auth surfaces: sign-in, registration, accept-invite, forgot-password, onboarding, company-switch, kiosk web |
+| B (done) | Schedule modals (add/edit, conflict, repeat, sick, time off, history, replacement), Overview, Timesheets, Time off approvals |
+| C (done) | Workforce + Job sites screens (crews, credentials, people-management, locations, areas, cost codes, tasks, active sites, daily reports) |
+| D (done) | Field communication + Integrations (bulletins, safety, documents, procore, kiosk admin), company settings, billing, profiles |
+| E (done) | Public/auth surfaces: sign-in, registration, accept-invite, forgot-password, onboarding, company-switch, kiosk web |
 | F | Remove Bootstrap, ng-bootstrap, font-awesome, bootstrap-icons; enable Tailwind preflight; delete `.bak` files |
 | Later | Share `tokens` with Mobile/Kiosk (NativeWind or a generated TS token file) |

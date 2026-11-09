@@ -57,5 +57,39 @@
     "src/app/features/kiosk/analog-clock/**",
     "src/app/features/registration/**",
     "src/app/features/onboarding/**"
+  ],
+  "exempt": [
+    {
+      "path": "src/app/features/dashboard/schedules/**",
+      "reason": "Legacy schedules list; only reachable via dashboard-routing.module, which no module imports (dead)"
+    },
+    {
+      "path": "src/app/features/dashboard/schedule-edit/**",
+      "reason": "Legacy NgbModal editor still opened by schedule.component; to be replaced in Plan F"
+    },
+    {
+      "path": "src/app/features/dashboard/roles/**",
+      "reason": "Legacy roles page; only reachable via dashboard-routing.module, which no module imports (dead)"
+    },
+    {
+      "path": "src/app/features/sign-in/**",
+      "reason": "Dead duplicate of features/auth/sign-in; not referenced by any module or route"
+    },
+    {
+      "path": "src/app/features/sign-up/**",
+      "reason": "Dead duplicate of features/auth/sign-up; not referenced by any module or route"
+    },
+    {
+      "path": "src/app/features/forgot-password/**",
+      "reason": "Dead duplicate of features/auth/forgot-password; not referenced by any module or route"
+    },
+    {
+      "path": "src/app/features/verify-email/**",
+      "reason": "Dead duplicate of features/auth/verify-email; not referenced by any module or route"
+    },
+    {
+      "path": "**/*.bak",
+      "reason": "Backup files, not compiled"
+    }
   ]
 }

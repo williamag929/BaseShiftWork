@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { findViolations, run } from './style-guard.mjs';
+import { fileURLToPath } from 'node:url';
+import { findViolations, run, uncoveredTemplates } from './style-guard.mjs';
 
 const rules = (path, content) => findViolations(path, content).map((v) => v.rule);
 
@@ -88,4 +89,26 @@ test('run fails on migrated entries that match no files', () => {
     console.log = orig;
   }
   for (const e of ['src/typo/*.css', 'src/{a,b}.css', 'src/dir']) assert.ok(logs.includes(`${e}: matches no files`), e);
+});
+
+test('routed screens are all migrated', () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  assert.deepEqual(uncoveredTemplates(root), []);
+});
+
+test('exempt entries need a reason', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sg-'));
+  fs.mkdirSync(path.join(root, 'src/app'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'src/app/a.html'), '<p></p>');
+  const logs = [];
+  const orig = console.log;
+  console.log = (m) => logs.push(m);
+  try {
+    fs.writeFileSync(path.join(root, 'style-guard.json'), JSON.stringify({ migrated: [], exempt: [{ path: 'src/app/a.html', reason: 'legacy' }] }));
+    assert.equal(run(root), 0);
+    fs.writeFileSync(path.join(root, 'style-guard.json'), JSON.stringify({ migrated: [], exempt: [{ path: 'src/app/a.html' }] }));
+    assert.equal(run(root), 1);
+  } finally {
+    console.log = orig;
+  }
 });

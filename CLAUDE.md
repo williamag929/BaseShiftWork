@@ -63,6 +63,8 @@ Three client surfaces share one API:
 - **State** → NgRx for global state. Local component state for UI-only concerns.
 - **Navigation** → add new routes to `DASHBOARD_ROUTES` in `dashboard.module.ts`. Add nav links to `features/dashboard/nav/nav.config.ts`.
 - **Sidebar sections:** Scheduling → Workforce → Job sites → Field communication → Integrations (defined in features/dashboard/nav/nav.config.ts)
+- **Design system** → all routed screens use `shared/ui`; new screens must be added to `style-guard.json` (`npm run lint:styles` fails for unlisted templates).
+- **List + form** → forms never sit beside lists; open them in `lz-side-panel`. Lists over 25 rows are paged with `lz-pager`.
 - **Material Icons** → use Google Material icons in `<mat-icon>`. No custom SVGs unless necessary.
 
 ### Mobile (React Native / Expo)

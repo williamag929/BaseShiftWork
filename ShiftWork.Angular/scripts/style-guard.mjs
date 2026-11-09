@@ -81,6 +81,12 @@ function expandGlob(pattern, root) {
   return files;
 }
 
+export function uncoveredTemplates(root) {
+  const config = JSON.parse(fs.readFileSync(path.join(root, 'style-guard.json'), 'utf8'));
+  const covered = new Set([...config.migrated, ...(config.exempt ?? []).map((e) => e.path)].flatMap((e) => expandGlob(e, root)));
+  return expandGlob('src/app/**/*.html', root).filter((f) => !covered.has(f)).sort();
+}
+
 export function run(root) {
   const config = JSON.parse(fs.readFileSync(path.join(root, 'style-guard.json'), 'utf8'));
   let failed = false;
@@ -93,6 +99,15 @@ export function run(root) {
     }
     matched.forEach((f) => all.add(f));
   }
+  for (const e of config.exempt ?? []) {
+    if (!e.reason) {
+      console.log(`${e.path}: exempt entry needs a reason`);
+      failed = true;
+    }
+  }
+  const uncovered = uncoveredTemplates(root);
+  for (const f of uncovered) console.log(`${f}: template is neither migrated nor exempt`);
+  if (uncovered.length) failed = true;
   const files = [...all].sort();
   const violations = files.flatMap((f) => findViolations(f, fs.readFileSync(path.join(root, f), 'utf8')));
   for (const v of violations) console.log(`${v.path}:${v.line} ${v.rule} ${v.text}`);
