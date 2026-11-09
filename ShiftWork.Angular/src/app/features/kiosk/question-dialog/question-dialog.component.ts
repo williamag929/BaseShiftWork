@@ -3,20 +3,19 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { KioskQuestion } from '../core/models/kiosk-question.model';
 import { CommonModule } from '@angular/common';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatButtonModule } from '@angular/material/button';
+import { LzButtonDirective } from 'src/app/shared/ui/button/lz-button.directive';
+import { LzDialogFrameComponent } from 'src/app/shared/ui/dialog/lz-dialog-frame.component';
 
 @Component({
   selector: 'app-question-dialog',
   templateUrl: './question-dialog.component.html',
-  styleUrls: ['./question-dialog.component.css'],
   standalone: true,
   imports: [
     CommonModule,
     MatDialogModule,
-    MatRadioModule,
-    MatButtonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    LzButtonDirective,
+    LzDialogFrameComponent
   ]
 })
 export class QuestionDialogComponent {
@@ -34,6 +33,14 @@ export class QuestionDialogComponent {
       group[q.kioskQuestionId] = ['', Validators.required];
     });
     this.form = this.fb.group(group);
+  }
+
+  get closable(): boolean {
+    return !this.dialogRef.disableClose;
+  }
+
+  onClose(): void {
+    this.dialogRef.close();
   }
 
   onSubmit(): void {

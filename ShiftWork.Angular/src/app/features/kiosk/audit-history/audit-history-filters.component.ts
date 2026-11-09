@@ -1,13 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { LzButtonDirective } from 'src/app/shared/ui/button/lz-button.directive';
+import { LzFieldComponent } from 'src/app/shared/ui/field/lz-field.component';
+import { LzFieldDirective } from 'src/app/shared/ui/field/lz-field.directive';
 import { AuditActionType, AuditEntityType } from 'src/app/core/models/audit-history.model';
 
 export interface AuditFilterParams {
@@ -27,173 +24,62 @@ export interface AuditFilterParams {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    LzButtonDirective,
+    LzFieldComponent,
+    LzFieldDirective
   ],
   template: `
-    <form [formGroup]="filterForm" class="audit-filters">
-      <div class="filters-row">
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Action Type</mat-label>
-          <mat-select formControlName="actionType">
-            <mat-option value="">All Actions</mat-option>
-            <mat-option value="Created">Created</mat-option>
-            <mat-option value="Updated">Updated</mat-option>
-            <mat-option value="Deleted">Deleted</mat-option>
-          </mat-select>
-        </mat-form-field>
+    <form [formGroup]="filterForm" class="mb-4 space-y-3 rounded-panel border border-line bg-paper-alt p-4">
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <lz-field label="Action type" i18n-label="@@audit.action_type" controlId="audit-action-type">
+          <select lzField id="audit-action-type" formControlName="actionType">
+            <option value="" i18n="@@audit.all_actions">All actions</option>
+            <option value="Created" i18n="@@audit.created">Created</option>
+            <option value="Updated" i18n="@@audit.updated">Updated</option>
+            <option value="Deleted" i18n="@@audit.deleted">Deleted</option>
+          </select>
+        </lz-field>
 
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Entity Type</mat-label>
-          <mat-select formControlName="entityType">
-            <mat-option value="">All Entities</mat-option>
-            <mat-option *ngFor="let entity of entityTypes" [value]="entity">
-              {{ entity }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+        @if (showEntityTypeFilter) {
+          <lz-field label="Entity type" i18n-label="@@audit.entity_type" controlId="audit-entity-type">
+            <select lzField id="audit-entity-type" formControlName="entityType">
+              <option value="" i18n="@@audit.all_entities">All entities</option>
+              @for (entity of entityTypes; track entity) {
+                <option [value]="entity">{{ entity }}</option>
+              }
+            </select>
+          </lz-field>
+        }
 
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>From Date</mat-label>
-          <input
-            matInput
-            [matDatepicker]="startPicker"
-            formControlName="startDate"
-            readonly
-          />
-          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-          <mat-datepicker #startPicker></mat-datepicker>
-        </mat-form-field>
+        <lz-field label="From date" i18n-label="@@audit.from_date" controlId="audit-start-date">
+          <input lzField id="audit-start-date" type="date" [value]="dateValue('startDate')" (change)="onDateInput('startDate', $event)" />
+        </lz-field>
 
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>To Date</mat-label>
-          <input
-            matInput
-            [matDatepicker]="endPicker"
-            formControlName="endDate"
-            readonly
-          />
-          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-          <mat-datepicker #endPicker></mat-datepicker>
-        </mat-form-field>
+        <lz-field label="To date" i18n-label="@@audit.to_date" controlId="audit-end-date">
+          <input lzField id="audit-end-date" type="date" [value]="dateValue('endDate')" (change)="onDateInput('endDate', $event)" />
+        </lz-field>
       </div>
 
-      <div class="filter-actions">
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="onApplyFilters()"
-          class="apply-btn"
-        >
-          <mat-icon>filter_list</mat-icon>
-          Apply Filters
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" lzButton variant="primary" (click)="onApplyFilters()">
+          <mat-icon aria-hidden="true">filter_list</mat-icon>
+          <ng-container i18n="@@audit.apply">Apply filters</ng-container>
         </button>
-        <button
-          mat-stroked-button
-          (click)="onResetFilters()"
-          class="reset-btn"
-        >
-          <mat-icon>clear</mat-icon>
-          Reset
+        <button type="button" lzButton variant="secondary" (click)="onResetFilters()">
+          <mat-icon aria-hidden="true">clear</mat-icon>
+          <ng-container i18n="@@audit.reset">Reset</ng-container>
         </button>
-      </div>
-
-      <div class="filter-info">
-        <small *ngIf="hasActiveFilters()">
-          Showing filtered results • <a (click)="onResetFilters()" class="reset-link">Clear filters</a>
-        </small>
-        <small *ngIf="!hasActiveFilters()">
-          No filters applied
-        </small>
+        <span class="ml-auto text-ink-soft" role="status">
+          @if (hasActiveFilters()) {
+            <ng-container i18n="@@audit.filtered">Showing filtered results</ng-container>
+          } @else {
+            <ng-container i18n="@@audit.no_filters">No filters applied</ng-container>
+          }
+        </span>
       </div>
     </form>
-  `,
-  styles: [`
-    .audit-filters {
-      background: #f9f9f9;
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      padding: 16px;
-      margin-bottom: 20px;
-    }
-
-    .filters-row {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-
-    .filter-field {
-      flex: 1;
-      min-width: 200px;
-      max-width: 250px;
-    }
-
-    .filter-actions {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .apply-btn, .reset-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .filter-info {
-      font-size: 12px;
-      color: #666;
-      padding-top: 8px;
-      border-top: 1px solid #e0e0e0;
-    }
-
-    .reset-link {
-      color: #2196f3;
-      cursor: pointer;
-      text-decoration: underline;
-
-      &:hover {
-        color: #1976d2;
-      }
-    }
-
-    /* Responsive */
-    @media (max-width: 1200px) {
-      .filters-row {
-        flex-direction: column;
-      }
-
-      .filter-field {
-        max-width: 100%;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .audit-filters {
-        padding: 12px;
-      }
-
-      .filters-row {
-        gap: 12px;
-      }
-
-      .filter-actions {
-        flex-direction: column;
-      }
-
-      .apply-btn, .reset-btn {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-  `]
+  `
 })
 export class AuditHistoryFiltersComponent implements OnInit {
   @Output() filtersApplied = new EventEmitter<AuditFilterParams>();
@@ -248,6 +134,20 @@ export class AuditHistoryFiltersComponent implements OnInit {
     });
 
     this.onApplyFilters();
+  }
+
+  dateValue(name: 'startDate' | 'endDate'): string {
+    const value = this.filterForm.get(name)?.value as Date | null;
+    if (!value) {
+      return '';
+    }
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`;
+  }
+
+  onDateInput(name: 'startDate' | 'endDate', event: Event): void {
+    const raw = (event.target as HTMLInputElement).value;
+    this.filterForm.get(name)?.setValue(raw ? new Date(`${raw}T00:00:00`) : null);
   }
 
   hasActiveFilters(): boolean {

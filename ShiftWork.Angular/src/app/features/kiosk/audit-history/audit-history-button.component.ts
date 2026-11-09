@@ -1,10 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { People } from 'src/app/core/models/people.model';
+import { LzButtonDirective } from 'src/app/shared/ui/button/lz-button.directive';
 import { AuditHistoryDialogComponent, AuditHistoryDialogData } from './audit-history-dialog.component';
 
 /**
@@ -14,27 +12,20 @@ import { AuditHistoryDialogComponent, AuditHistoryDialogData } from './audit-his
 @Component({
   selector: 'app-audit-history-button',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatTooltipModule],
+  imports: [CommonModule, MatIconModule, LzButtonDirective],
   template: `
     <button
-      mat-icon-button
+      type="button"
+      lzButton
+      variant="quiet"
+      iconOnly
       (click)="openAuditHistory()"
-      matTooltip="View audit history for this {{ entityType }}"
-      [attr.aria-label]="'View history for ' + entityType"
-      class="audit-button"
+      [attr.title]="buttonTitle"
+      [attr.aria-label]="buttonLabel"
     >
-      <mat-icon>history</mat-icon>
+      <mat-icon aria-hidden="true">history</mat-icon>
     </button>
-  `,
-  styles: [`
-    .audit-button {
-      color: #2196f3;
-
-      &:hover {
-        background-color: rgba(33, 150, 243, 0.1);
-      }
-    }
-  `]
+  `
 })
 export class AuditHistoryButtonComponent {
   @Input() entity!: any; // Can be Person, Schedule, Location, etc.
@@ -44,6 +35,14 @@ export class AuditHistoryButtonComponent {
   @Input() companyId!: string;
 
   constructor(private dialog: MatDialog) {}
+
+  get buttonLabel(): string {
+    return $localize`:@@audit.button_aria:View history for ${this.entityType}:ENTITY:`;
+  }
+
+  get buttonTitle(): string {
+    return $localize`:@@audit.button_title:View audit history for this ${this.entityType}:ENTITY:`;
+  }
 
   openAuditHistory(): void {
     const dialogData: AuditHistoryDialogData = {
@@ -58,7 +57,7 @@ export class AuditHistoryButtonComponent {
       width: '95vw',
       maxWidth: '1000px',
       maxHeight: '90vh',
-      panelClass: 'audit-history-dialog-panel'
+      panelClass: 'lz-dialog-surface'
     });
   }
 }

@@ -41,6 +41,16 @@
     "src/app/features/dashboard/profiles/**",
     "src/app/features/dashboard/clock-shift/**",
     "src/app/features/general/manage-companies/**",
-    "src/app/features/admin/components/**"
+    "src/app/features/admin/components/**",
+    "src/app/features/kiosk/kiosk.component.*",
+    "src/app/features/kiosk/employee-list/**",
+    "src/app/features/kiosk/todo-list/**",
+    "src/app/features/kiosk/todo-detail/**",
+    "src/app/features/kiosk/photo-schedule/**",
+    "src/app/features/kiosk/pin-dialog/**",
+    "src/app/features/kiosk/admin-password-dialog/**",
+    "src/app/features/kiosk/location-select-dialog/**",
+    "src/app/features/kiosk/question-dialog/**",
+    "src/app/features/kiosk/audit-history/**"
   ]
 }

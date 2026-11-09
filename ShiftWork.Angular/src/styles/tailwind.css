@@ -113,3 +113,19 @@
 @source "../app/features/dashboard/clock-shift";
 @source "../app/features/general/manage-companies";
 @source "../app/features/admin/components";
+@source "../app/features/kiosk/kiosk.component.html";
+@source "../app/features/kiosk/kiosk.component.ts";
+@source "../app/features/kiosk/employee-list";
+@source "../app/features/kiosk/todo-list";
+@source "../app/features/kiosk/todo-detail";
+@source "../app/features/kiosk/photo-schedule";
+@source "../app/features/kiosk/pin-dialog";
+@source "../app/features/kiosk/admin-password-dialog";
+@source "../app/features/kiosk/location-select-dialog";
+@source "../app/features/kiosk/question-dialog";
+@source "../app/features/kiosk/audit-history";
+
+/* MatDialog-opened dialogs render an lz-dialog-frame; this aligns the Material surface radius with it. */
+.lz-dialog-surface .mat-mdc-dialog-container {
+  --mdc-dialog-container-shape: var(--lz-radius-dialog);
+}

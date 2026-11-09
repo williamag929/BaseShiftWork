@@ -12,7 +12,8 @@ import { Location } from 'src/app/core/models/location.model';
 import { RouterOutlet } from "@angular/router";
 import { DatePipe, CommonModule } from '@angular/common';
 import { AnalogClockComponent } from "./analog-clock/analog-clock.component";
-import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { LzButtonDirective } from 'src/app/shared/ui/button/lz-button.directive';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
@@ -21,9 +22,9 @@ import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 @Component({
   selector: 'app-kiosk',
   templateUrl: './kiosk.component.html',
-  styleUrls: ['./kiosk.component.css'],
   standalone: true,
-  imports: [RouterOutlet, DatePipe, AnalogClockComponent, MatButtonModule, CommonModule]
+  host: { class: 'block h-screen overflow-hidden' },
+  imports: [RouterOutlet, DatePipe, AnalogClockComponent, MatIconModule, LzButtonDirective, CommonModule]
 })
 export class KioskComponent implements OnInit, OnDestroy {
   timeSubscription!: Subscription;
@@ -73,6 +74,8 @@ export class KioskComponent implements OnInit, OnDestroy {
     this.locationService.getLocations(this.activeCompany.companyId).subscribe(locations => {
       const dialogRef = this.dialog.open(LocationSelectDialogComponent, {
         width: '400px',
+        maxWidth: '95vw',
+        panelClass: 'lz-dialog-surface',
         data: { locations },
         disableClose: !this.kioskService.hasDeviceLocation() // Can't close if no location assigned
       });
@@ -93,6 +96,8 @@ export class KioskComponent implements OnInit, OnDestroy {
     // Open admin password dialog first
     const passwordDialogRef = this.dialog.open(AdminPasswordDialogComponent, {
       width: '350px',
+      maxWidth: '95vw',
+      panelClass: 'lz-dialog-surface',
       disableClose: true,
       data: { companyId: this.activeCompany?.companyId }
     });

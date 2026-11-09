@@ -319,4 +319,83 @@ describe('KioskComponent', () => {
       expect(() => component.ngOnDestroy()).not.toThrow();
     });
   });
+
+  // ── Design system shell ───────────────────────────────────────────────────────
+
+  describe('shell layout', () => {
+    const host = () => fixture.nativeElement as HTMLElement;
+    const el = () => host().querySelector('.flex.h-full') as HTMLElement;
+
+    function render(width: number): void {
+      host().style.display = 'block';
+      host().style.width = `${width}px`;
+      fixture.detectChanges();
+    }
+
+    it('renders exactly one h1 and keeps the company name out of the heading outline', () => {
+      render(1280);
+      expect(host().querySelectorAll('h1').length).toBe(1);
+      expect(host().querySelector('h1')!.textContent).toContain('Employee kiosk');
+      expect(host().querySelector('[data-testid="company-name"]')!.tagName).toBe('P');
+    });
+
+    it('keeps the untouched analog clock and uses tokens, not the old gradient header', () => {
+      render(1280);
+      expect(host().querySelector('app-analog-clock')).not.toBeNull();
+      const header = host().querySelector('header') as HTMLElement;
+      expect(header.className).toContain('bg-navy-900');
+      expect(getComputedStyle(header).backgroundImage).toBe('none');
+    });
+
+    it('shows the digital clock below 768px and the analog clock from 768px', () => {
+      render(1280);
+      expect(getComputedStyle(host().querySelector('[data-testid="digital-clock"]')!).display).toBe('block');
+    });
+
+    it('hides the device settings button until a location is selected', () => {
+      render(1280);
+      expect(host().querySelector('button[aria-label="Change device location"]')).toBeNull();
+      selectedLocationSubject.next(mockLocation);
+      fixture.detectChanges();
+      expect(host().querySelector('button[aria-label="Change device location"]')).not.toBeNull();
+    });
+
+    it('keeps the device settings button a 56px icon-only secondary target', () => {
+      selectedLocationSubject.next(mockLocation);
+      render(768);
+      const button = host().querySelector('button[aria-label="Change device location"]') as HTMLElement;
+      expect(button.hasAttribute('lzbutton') || button.classList.contains('rounded-control')).toBeTrue();
+      const box = button.getBoundingClientRect();
+      expect(box.width).toBeGreaterThanOrEqual(56);
+      expect(box.height).toBeGreaterThanOrEqual(56);
+      expect(button.querySelector('mat-icon')!.getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('uses text-lg or larger for header and footer text', () => {
+      render(1280);
+      const label = host().querySelector('h1') as HTMLElement;
+      expect(parseFloat(getComputedStyle(label).fontSize)).toBeGreaterThanOrEqual(18);
+      const footer = host().querySelector('footer > div') as HTMLElement;
+      expect(parseFloat(getComputedStyle(footer).fontSize)).toBeGreaterThanOrEqual(18);
+    });
+
+    for (const width of [768, 1280]) {
+      it(`has no horizontal overflow at ${width}px`, () => {
+        render(width);
+        expect(host().scrollWidth).toBeLessThanOrEqual(host().clientWidth);
+        expect(el().scrollWidth).toBeLessThanOrEqual(el().clientWidth);
+      });
+    }
+
+    it('opens dialogs with the kiosk panel class', () => {
+      selectedLocationSubject.next(mockLocation);
+      fixture.detectChanges();
+      dialogSpy.open.calls.reset();
+      component.openLocationSettings();
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        AdminPasswordDialogComponent,
+        jasmine.objectContaining({ panelClass: 'lz-dialog-surface', disableClose: true }),
+      );
+    });
+  });
 });

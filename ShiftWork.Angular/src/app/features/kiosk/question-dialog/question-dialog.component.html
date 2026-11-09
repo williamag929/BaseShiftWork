@@ -1,15 +1,23 @@
-<h1 mat-dialog-title i18n="@@kiosk_questions.title">Please answer the following questions</h1>
-<div mat-dialog-content>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div *ngFor="let question of questions">
-      <p>{{ question.questionText }}</p>
-      <mat-radio-group [formControlName]="question.kioskQuestionId">
-        <mat-radio-button value="Yes" i18n="@@kiosk_questions.yes">Yes</mat-radio-button>
-        <mat-radio-button value="No" i18n="@@kiosk_questions.no">No</mat-radio-button>
-      </mat-radio-group>
-    </div>
+<lz-dialog-frame title="Please answer the following questions" i18n-title="@@kiosk_questions.title" [closable]="closable" (closed)="onClose()">
+  <form id="kiosk-questions-form" [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+    @for (question of questions; track question.kioskQuestionId) {
+      <fieldset class="m-0 space-y-2 border-0 p-0">
+        <legend class="mb-2 p-0 text-lg font-medium">{{ question.questionText }}</legend>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="flex min-h-14 items-center gap-3 rounded-control border border-line-strong bg-paper px-4 text-lg has-checked:border-ink has-checked:bg-info-bg">
+            <input type="radio" class="size-6 shrink-0 accent-(--lz-link)" value="Yes" formControlName="{{ question.kioskQuestionId }}">
+            <span i18n="@@kiosk_questions.yes">Yes</span>
+          </label>
+          <label class="flex min-h-14 items-center gap-3 rounded-control border border-line-strong bg-paper px-4 text-lg has-checked:border-ink has-checked:bg-info-bg">
+            <input type="radio" class="size-6 shrink-0 accent-(--lz-link)" value="No" formControlName="{{ question.kioskQuestionId }}">
+            <span i18n="@@kiosk_questions.no">No</span>
+          </label>
+        </div>
+      </fieldset>
+    }
   </form>
-</div>
-<div mat-dialog-actions>
-  <button mat-button (click)="onSubmit()" [disabled]="!form.valid" i18n="@@kiosk_questions.submit_btn">Submit</button>
-</div>
+
+  <div lzDialogActions class="flex w-full gap-3">
+    <button type="button" lzButton variant="primary" class="min-h-14! flex-1 text-lg!" (click)="onSubmit()" [disabled]="!form.valid" i18n="@@kiosk_questions.submit_btn">Submit</button>
+  </div>
+</lz-dialog-frame>

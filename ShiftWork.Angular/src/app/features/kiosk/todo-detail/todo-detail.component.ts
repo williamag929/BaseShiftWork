@@ -8,7 +8,6 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-todo-detail',
   templateUrl: './todo-detail.component.html',
-  styleUrls: ['./todo-detail.component.css'],
   standalone: false
 })
 export class TodoDetailComponent implements OnInit {
@@ -32,11 +31,12 @@ export class TodoDetailComponent implements OnInit {
           this.taskShiftService.getTaskShift(company.companyId, +taskId).subscribe(
             task => {
               this.task = task;
+              this.loading = false;
             },
             error => {
               this.error = error;
               this.loading = false;
-              this.toastr.error('Error loading task');
+              this.toastr.error($localize`:@@kiosk_todo_detail.toast_load_error:Error loading task`);
             }
           );
         }

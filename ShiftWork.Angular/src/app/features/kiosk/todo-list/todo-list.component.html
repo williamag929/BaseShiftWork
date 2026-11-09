@@ -1,16 +1,26 @@
-<div *ngIf="loading" class="text-center">
-  <div class="spinner-border" role="status">
-    <span class="sr-only" i18n="@@common.loading_short">Loading...</span>
-  </div>
-</div>
-<div *ngIf="error" class="alert alert-danger" i18n="@@kiosk_todo.error">
-  Error loading tasks.
-</div>
-<div class="container">
-  <div class="list-group">
-    <a *ngFor="let task of tasks" (click)="viewTask(task)" class="list-group-item list-group-item-action">
-      <h5 class="mb-1">{{ task.name }}</h5>
-      <p class="mb-1">{{ task.description }}</p>
-    </a>
-  </div>
+<div class="space-y-4 p-6">
+  @if (loading) {
+    <div role="status" class="flex items-center justify-center gap-3 py-10 text-lg text-ink-soft">
+      <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
+      <span i18n="@@common.loading_short">Loading...</span>
+    </div>
+  } @else if (error) {
+    <lz-alert tone="danger" class="text-lg" i18n="@@kiosk_todo.error">Error loading tasks.</lz-alert>
+  } @else if (tasks.length === 0) {
+    <lz-empty-state icon="checklist" title="No tasks found." i18n-title="@@kiosk_todo.empty" />
+  } @else {
+    <ul class="m-0 flex list-none flex-col gap-3 p-0">
+      @for (task of tasks; track task.id) {
+        <li>
+          <button type="button" (click)="viewTask(task)"
+                  class="flex min-h-14 w-full flex-col items-start gap-1 rounded-panel border border-line bg-paper p-4 text-left font-[inherit] text-ink">
+            <span class="text-lg font-medium">{{ task.name }}</span>
+            @if (task.description) {
+              <span class="text-lg text-ink-soft">{{ task.description }}</span>
+            }
+          </button>
+        </li>
+      }
+    </ul>
+  }
 </div>

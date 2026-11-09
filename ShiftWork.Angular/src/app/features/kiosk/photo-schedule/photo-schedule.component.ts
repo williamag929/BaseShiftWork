@@ -23,6 +23,11 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { QuestionDialogComponent } from '../question-dialog/question-dialog.component';
 import { AwsS3Service } from 'src/app/core/services/aws-s3.service';
 import { WakeLockService } from '../core/services/wake-lock.service';
+import { MatIconModule } from '@angular/material/icon';
+import { LzAlertComponent } from 'src/app/shared/ui/alert/lz-alert.component';
+import { LzButtonDirective } from 'src/app/shared/ui/button/lz-button.directive';
+import { LzEmptyStateComponent } from 'src/app/shared/ui/empty-state/lz-empty-state.component';
+import { LzPanelComponent } from 'src/app/shared/ui/panel/lz-panel.component';
 import { Company } from 'src/app/core/models/company.model';
 import { Location } from 'src/app/core/models/location.model';
 
@@ -36,9 +41,8 @@ export enum ScheduleAction {
 @Component({
   selector: 'app-photo-schedule',
   standalone: true,
-  imports: [WebcamModule, CommonModule, MatDialogModule],
+  imports: [WebcamModule, CommonModule, MatDialogModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzPanelComponent],
   templateUrl: './photo-schedule.component.html',
-  styleUrls: ['./photo-schedule.component.css'],
 })
 export class PhotoScheduleComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
@@ -60,6 +64,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
   webcamImage: WebcamImage | null = null;
   flippedImage: string | null = null;
   scheduling = false;
+  questionDialogOpen = false;
   activeCompany$: Observable<Company | null>;
   activeCompany: Company | null = null;
 
@@ -92,28 +97,6 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
 
   canEndShift(): boolean {
     return this.isOnShiftStatus(this.employeeStatus);
-  }
-
-  // Timing parsing for UI badge (Late/Early/OnTime/NoSchedule)
-  getTimingFromStatus(status: string | null | undefined): string | null {
-    if (!status) return null;
-    const parts = status.split(':');
-    return parts.length > 1 ? parts[1] : null;
-  }
-
-  getTimingBadgeClass(timing: string | null): string {
-    switch (timing) {
-      case 'OnTime':
-        return 'bg-success';
-      case 'Early':
-        return 'bg-warning text-dark';
-      case 'Late':
-        return 'bg-danger';
-      case 'NoSchedule':
-        return 'bg-secondary';
-      default:
-        return 'bg-secondary';
-    }
   }
 
   constructor(
@@ -209,12 +192,16 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     if (action === ScheduleAction.END_SHIFT) {
       this.kioskService.getKioskQuestions(this.activeCompany.companyId).subscribe(questions => {
         if (questions && questions.length > 0) {
+          this.questionDialogOpen = true;
           const dialogRef = this.dialog.open(QuestionDialogComponent, {
             width: '400px',
+            maxWidth: '95vw',
+            panelClass: 'lz-dialog-surface',
             data: { questions }
           });
 
           dialogRef.afterClosed().subscribe((answers: { [key: string]: string } | null) => {
+            this.questionDialogOpen = false;
             // Proceed even if answers are null (user skipped/cancelled); end shift should still work
             this.startScheduling(action, answers || undefined);
           });
@@ -264,7 +251,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
 
   handleInitError(error: WebcamInitError): void {
     console.error('Webcam initialization error:', error);
-    this.toastr.error('Webcam initialization error. Please check permissions and refresh.');
+    this.toastr.error($localize`:@@kiosk_photo.toast_webcam_error:Webcam initialization error. Check permissions and refresh.`);
   }
 
   private startCountdown(): void {
@@ -281,7 +268,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     console.log('Setting schedule with action:', action);
     console.log('Selected employee:', this.selectedEmployee);
     if (!this.selectedEmployee || !this.selectedEmployee.companyId || !this.selectedEmployee.personId) {
-      this.toastr.error('No employee selected for scheduling or companyId/personId is missing');
+      this.toastr.error($localize`:@@kiosk_photo.toast_no_employee:No employee selected, or company or person ID is missing`);
       return;
     }
 
@@ -289,7 +276,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
 
     if (!this.flippedImage) {
       console.log('No flipped image available');
-      this.toastr.error('No photo captured');
+      this.toastr.error($localize`:@@kiosk_photo.toast_no_photo:No photo captured`);
       return;
     }
     console.log('Preparing to upload photo and create shift event');
@@ -306,7 +293,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (coords: GeolocationCoordinates | null) => {
         if (!coords) {
-          this.toastr.warning('Location unavailable — clocking in without GPS coordinates.');
+          this.toastr.warning($localize`:@@kiosk_photo.toast_no_gps:Location unavailable. Clocking in without GPS coordinates.`);
         }
         const geoLocation = coords ? `{${coords.latitude},${coords.longitude}}` : '';
 
@@ -334,7 +321,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
               .subscribe({
                 next: (event: ShiftEvent) => {
                   console.log('Shift event created on server:', event);
-                  this.toastr.success('Shift event created successfully');
+                  this.toastr.success($localize`:@@kiosk_photo.toast_event_created:Shift event created`);
                   // Optimistically update local status and notify kiosk list immediately
                   if (action === ScheduleAction.START_SHIFT) {
                     // Optimistic update; server will enrich with timing (Late/Early/OnTime)
@@ -381,14 +368,14 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
                 },
                 error: (err: any) => {
                   console.error('Error creating shift event', err);
-                  const msg = err?.message || 'Error creating shift event';
+                  const msg = err?.message || $localize`:@@kiosk_photo.toast_event_error:Error creating shift event`;
                   this.toastr.error(msg);
                 }
               });
           },
           error: (err: any) => {
             console.error('Error uploading photo to S3', err);
-            const msg = err?.message || 'Error uploading photo';
+            const msg = err?.message || $localize`:@@kiosk_photo.toast_upload_error:Error uploading photo`;
             this.toastr.error(msg);
           }
         });
@@ -397,7 +384,7 @@ export class PhotoScheduleComponent implements OnInit, OnDestroy {
         // This branch is only reached if catchError itself re-throws, which it does not.
         // Handled defensively in case of unexpected Observable error propagation.
         console.error('Unexpected error in clock-in flow', err);
-        this.toastr.error('An unexpected error occurred. Please try again.');
+        this.toastr.error($localize`:@@kiosk_photo.toast_unexpected:An unexpected error occurred. Try again.`);
       }
     });
   }

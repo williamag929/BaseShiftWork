@@ -8,7 +8,6 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-todo-list',
   templateUrl: './todo-list.component.html',
-  styleUrls: ['./todo-list.component.css'],
   standalone: false
 })
 export class TodoListComponent implements OnInit {
@@ -35,7 +34,7 @@ export class TodoListComponent implements OnInit {
           error => {
             this.error = error;
             this.loading = false;
-            this.toastr.error('Error loading tasks');
+            this.toastr.error($localize`:@@kiosk_todo.toast_load_error:Error loading tasks`);
           }
         );
       }

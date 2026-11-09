@@ -1,15 +1,39 @@
-<h1 mat-dialog-title i18n="@@kiosk_pin.title">Enter PIN for {{ data.name }}</h1>
-<div mat-dialog-content>
-  <form [formGroup]="pinForm" (ngSubmit)="onSubmit()">
-    <mat-form-field>
-      <mat-label i18n="@@kiosk_pin.pin_label">PIN</mat-label>
-      <input matInput formControlName="pin" type="password" maxlength="4" autocomplete="off">
-      <mat-error *ngIf="pinForm.get('pin')?.hasError('required')" i18n="@@kiosk_pin.error_required">PIN is required.</mat-error>
-      <mat-error *ngIf="pinForm.get('pin')?.hasError('minlength') || pinForm.get('pin')?.hasError('maxlength')" i18n="@@kiosk_pin.error_length">PIN must be 4 digits.</mat-error>
-    </mat-form-field>
+<lz-dialog-frame title="Enter PIN for {{ data.name }}" i18n-title="@@kiosk_pin.title" [closable]="true" (closed)="onNoClick()">
+  <form id="kiosk-pin-form" [formGroup]="pinForm" (ngSubmit)="onSubmit()" class="space-y-4" novalidate>
+    <lz-field label="PIN" i18n-label="@@kiosk_pin.pin_label" controlId="kiosk-pin" [error]="fieldError">
+      <input lzField id="kiosk-pin" formControlName="pin" type="password" inputmode="none" autocomplete="off"
+             class="min-h-16! text-center text-2xl! tracking-widest"
+             [attr.maxlength]="pinLength" cdkFocusInitial
+             [attr.aria-invalid]="fieldError ? 'true' : null"
+             [attr.aria-describedby]="fieldError ? 'kiosk-pin-error' : null" />
+    </lz-field>
+
+    @if (errorMessage) {
+      <lz-alert tone="danger" class="text-lg">{{ errorMessage }}</lz-alert>
+    }
+
+    <div class="grid grid-cols-3 gap-3" role="group" aria-label="PIN keypad" i18n-aria-label="@@kiosk_pin.keypad_aria">
+      @for (digit of digits; track digit) {
+        <button type="button" data-testid="pin-key"
+                class="min-h-16 min-w-16 rounded-control border border-line-strong bg-paper text-2xl font-semibold text-ink"
+                (click)="pressDigit(digit)">{{ digit }}</button>
+      }
+      <button type="button" data-testid="pin-clear"
+              class="min-h-16 min-w-16 rounded-control border border-line-strong bg-paper text-lg font-medium text-ink"
+              (click)="clearPin()" i18n="@@kiosk_pin.clear_btn">Clear</button>
+      <button type="button" data-testid="pin-key"
+              class="min-h-16 min-w-16 rounded-control border border-line-strong bg-paper text-2xl font-semibold text-ink"
+              (click)="pressDigit('0')">0</button>
+      <button type="button" data-testid="pin-backspace"
+              class="inline-flex min-h-16 min-w-16 items-center justify-center rounded-control border border-line-strong bg-paper text-ink"
+              (click)="backspace()" aria-label="Delete last digit" i18n-aria-label="@@kiosk_pin.backspace_aria">
+        <mat-icon aria-hidden="true">backspace</mat-icon>
+      </button>
+    </div>
   </form>
-</div>
-<div mat-dialog-actions>
-  <button mat-button (click)="onNoClick()" i18n="@@common.cancel">Cancel</button>
-  <button mat-button [disabled]="!pinForm.valid" (click)="onSubmit()" i18n="@@kiosk_pin.submit_btn">Submit</button>
-</div>
+
+  <div lzDialogActions class="flex w-full gap-3">
+    <button type="button" lzButton variant="secondary" class="min-h-14! flex-1 text-lg!" (click)="onNoClick()" i18n="@@common.cancel">Cancel</button>
+    <button type="button" lzButton variant="primary" class="min-h-14! flex-1 text-lg!" [disabled]="!pinForm.valid || verifying" (click)="onSubmit()" i18n="@@kiosk_pin.submit_btn">Submit</button>
+  </div>
+</lz-dialog-frame>

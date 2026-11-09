@@ -24,8 +24,7 @@ import { ShiftEventService } from 'src/app/core/services/shift-event.service';
 @Component({
   selector: 'app-employee-list',
   templateUrl: './employee-list.component.html',
-  styleUrls: ['./employee-list.component.css'],
-  standalone: false
+    standalone: false
 })
 export class EmployeeListComponent implements OnInit, OnDestroy {
   employees: Person[] = [];
@@ -119,7 +118,7 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
           (error: any) => {
             this.error = error;
             this.loading = false;
-            this.toastr.error('Error loading employees');
+            this.toastr.error($localize`:@@kiosk_employees.toast_load_error:Error loading employees`);
           }
         );
       }
@@ -282,29 +281,14 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
     return timing;
   }
 
-  getTimingBadgeClass(timing: string | null): string {
-    switch (timing) {
-      case 'OnTime':
-        return 'bg-success';
-      case 'Early':
-        return 'bg-warning text-dark';
-      case 'Late':
-        return 'bg-danger';
-      case 'NoSchedule':
-        return 'bg-secondary';
-      default:
-        return 'bg-secondary';
-    }
-  }
-
   selectEmployee(employee: Person): void {
     if (!employee || !employee.personId) {
-      this.toastr.error('Invalid employee selected');
+      this.toastr.error($localize`:@@kiosk_employees.toast_invalid_employee:Invalid employee selected`);
       return;
     }
 
     if (!this.activeCompany) {
-      this.toastr.error('No active company selected');
+      this.toastr.error($localize`:@@kiosk_employees.toast_no_company:No active company selected`);
       return;
     }
 
@@ -329,7 +313,9 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
         }
 
         const dialogRef = this.dialog.open(PinDialogComponent, {
-          width: '250px',
+          width: '24rem',
+          maxWidth: '95vw',
+          panelClass: 'lz-dialog-surface',
           data: { name: employee.name, personId: employee.personId, companyId: this.activeCompany?.companyId }
         });
 
@@ -341,7 +327,7 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
         });
       },
       (error: any) => {
-        this.toastr.error('Error loading schedules');
+        this.toastr.error($localize`:@@kiosk_employees.toast_schedules_error:Error loading schedules`);
       }
     );
   }

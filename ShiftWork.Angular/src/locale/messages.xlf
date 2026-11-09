@@ -3287,10 +3287,10 @@ Option C</source>
         <source>Employee Kiosk</source>
       </trans-unit>
       <trans-unit id="kiosk.label" datatype="html">
-        <source>Employee Kiosk</source>
+        <source>Employee kiosk</source>
       </trans-unit>
       <trans-unit id="kiosk.change_location_title" datatype="html">
-        <source>Change Location</source>
+        <source>Change location</source>
       </trans-unit>
       <trans-unit id="kiosk.change_location_aria" datatype="html">
         <source>Change device location</source>
@@ -3299,7 +3299,7 @@ Option C</source>
         <source>Secure Employee Time Tracking System</source>
       </trans-unit>
       <trans-unit id="kiosk.footer_system" datatype="html">
-        <source>Secure Employee Time Tracking System</source>
+        <source>Secure employee time tracking system</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.search_ph" datatype="html">
         <source>Search employees...</source>
@@ -3326,7 +3326,7 @@ Option C</source>
         <source>Screen wake lock active to prevent sleep</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.wake_lock_unsupported_title" datatype="html">
-        <source>Wake Lock not supported on this device</source>
+        <source>Wake lock not supported on this device</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.legend_aria" datatype="html">
         <source>Timing legend</source>
@@ -3335,7 +3335,7 @@ Option C</source>
         <source>Arrived within 5 minutes of scheduled start</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.ontime" datatype="html">
-        <source>OnTime</source>
+        <source>On time</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.early_title" datatype="html">
         <source>Arrived before scheduled start</source>
@@ -3353,7 +3353,7 @@ Option C</source>
         <source>Refreshing statuses</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.badge_ontime" datatype="html">
-        <source>OnTime</source>
+        <source>On time</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.badge_early" datatype="html">
         <source>Early</source>
@@ -3362,16 +3362,16 @@ Option C</source>
         <source>Late</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.screen_locked" datatype="html">
-        <source>Screen Locked</source>
+        <source>Screen locked</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.screen_sleep" datatype="html">
-        <source>Screen May Sleep</source>
+        <source>Screen may sleep</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.screen_may_sleep" datatype="html">
         <source>Screen May Sleep</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.wake_lock_unsupported" datatype="html">
-        <source>Wake Lock Unsupported</source>
+        <source>Wake lock unsupported</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.error" datatype="html">
         <source>Error loading employees.</source>
@@ -3386,7 +3386,7 @@ Option C</source>
         <source>Currently on shift</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.on_shift_label" datatype="html">
-        <source>On Shift</source>
+        <source>On shift</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.on_shift" datatype="html">
         <source>On Shift</source>
@@ -3401,10 +3401,10 @@ Option C</source>
         <source>Pending today</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.start_shift_title" datatype="html">
-        <source>Start Shift</source>
+        <source>Start shift</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.end_shift_title" datatype="html">
-        <source>End Shift</source>
+        <source>End shift</source>
       </trans-unit>
       <trans-unit id="kiosk_employees.start_btn" datatype="html">
         <source>Start</source>
@@ -3413,16 +3413,16 @@ Option C</source>
         <source>End</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.todays_schedule" datatype="html">
-        <source>Today&apos;s Schedule</source>
+        <source>Today&apos;s schedule</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.location_label" datatype="html">
         <source>Location:</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.start_time_label" datatype="html">
-        <source>Start Time:</source>
+        <source>Start time:</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.end_time_label" datatype="html">
-        <source>End Time:</source>
+        <source>End time:</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.start_label" datatype="html">
         <source>Start Time:</source>
@@ -3446,34 +3446,34 @@ Option C</source>
         <source>Screen wake lock active to prevent sleep</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.screen_locked" datatype="html">
-        <source>Screen Locked</source>
+        <source>Screen locked</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.screen_may_sleep" datatype="html">
-        <source>Screen May Sleep</source>
+        <source>Screen may sleep</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.start_shift" datatype="html">
         <source>Start Shift</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.start_shift_btn" datatype="html">
-        <source>Start Shift</source>
+        <source>Start shift</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.end_shift" datatype="html">
         <source>End Shift</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.end_shift_btn" datatype="html">
-        <source>End Shift</source>
+        <source>End shift</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.start_break" datatype="html">
         <source>Start Break</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.start_break_btn" datatype="html">
-        <source>Start Break</source>
+        <source>Start break</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.end_break" datatype="html">
         <source>End Break</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.end_break_btn" datatype="html">
-        <source>End Break</source>
+        <source>End break</source>
       </trans-unit>
       <trans-unit id="kiosk_photo.no_employee" datatype="html">
         <source>Please select an employee to continue</source>
@@ -3518,7 +3518,7 @@ Option C</source>
         <source>Submit</source>
       </trans-unit>
       <trans-unit id="kiosk_admin_pwd.title" datatype="html">
-        <source>Admin Password Required</source>
+        <source>Admin password required</source>
       </trans-unit>
       <trans-unit id="kiosk_admin_pwd.description" datatype="html">
         <source>Enter administrator password to change device location assignment:</source>
@@ -3527,7 +3527,7 @@ Option C</source>
         <source>Admin Password</source>
       </trans-unit>
       <trans-unit id="kiosk_admin_pwd.password_label" datatype="html">
-        <source>Admin Password</source>
+        <source>Admin password</source>
       </trans-unit>
       <trans-unit id="kiosk_admin_pwd.verifying" datatype="html">
         <source>Verifying...</source>
@@ -3548,7 +3548,7 @@ Option C</source>
         <source>Error loading task.</source>
       </trans-unit>
       <trans-unit id="kiosk_location.title" datatype="html">
-        <source>Select Location</source>
+        <source>Select location</source>
       </trans-unit>
       <trans-unit id="kiosk_location.label" datatype="html">
         <source>Locations</source>
@@ -5002,6 +5002,213 @@ What would you like to do?</source>
       </trans-unit>
       <trans-unit id="people.field_required" datatype="html">
         <source>This field is required</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.search_aria" datatype="html">
+        <source>Search employees</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.toast_load_error" datatype="html">
+        <source>Error loading employees</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.toast_invalid_employee" datatype="html">
+        <source>Invalid employee selected</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.toast_no_company" datatype="html">
+        <source>No active company selected</source>
+      </trans-unit>
+      <trans-unit id="kiosk_employees.toast_schedules_error" datatype="html">
+        <source>Error loading schedules</source>
+      </trans-unit>
+      <trans-unit id="kiosk_todo.empty" datatype="html">
+        <source>No tasks found.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_todo.toast_load_error" datatype="html">
+        <source>Error loading tasks</source>
+      </trans-unit>
+      <trans-unit id="kiosk_todo_detail.toast_load_error" datatype="html">
+        <source>Error loading task</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.keypad_aria" datatype="html">
+        <source>PIN keypad</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.clear_btn" datatype="html">
+        <source>Clear</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.backspace_aria" datatype="html">
+        <source>Delete last digit</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.error_digits" datatype="html">
+        <source>PIN must be <x id="LENGTH"/> digits.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.invalid" datatype="html">
+        <source>Invalid PIN. Try again.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.too_many" datatype="html">
+        <source>Too many attempts. Wait a few minutes and try again.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_pin.verify_error" datatype="html">
+        <source>Error verifying PIN</source>
+      </trans-unit>
+      <trans-unit id="kiosk_admin_pwd.enter_password" datatype="html">
+        <source>Enter a password</source>
+      </trans-unit>
+      <trans-unit id="kiosk_admin_pwd.incorrect" datatype="html">
+        <source>Incorrect password</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.toast_webcam_error" datatype="html">
+        <source>Webcam initialization error. Check permissions and refresh.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.toast_no_employee" datatype="html">
+        <source>No employee selected, or company or person ID is missing</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.toast_no_photo" datatype="html">
+        <source>No photo captured</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.toast_no_gps" datatype="html">
+        <source>Location unavailable. Clocking in without GPS coordinates.</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.toast_event_created" datatype="html">
+        <source>Shift event created</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.toast_event_error" datatype="html">
+        <source>Error creating shift event</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.toast_upload_error" datatype="html">
+        <source>Error uploading photo</source>
+      </trans-unit>
+      <trans-unit id="kiosk_photo.toast_unexpected" datatype="html">
+        <source>An unexpected error occurred. Try again.</source>
+      </trans-unit>
+      <trans-unit id="audit.button_aria" datatype="html">
+        <source>View history for <x id="ENTITY"/></source>
+      </trans-unit>
+      <trans-unit id="audit.button_title" datatype="html">
+        <source>View audit history for this <x id="ENTITY"/></source>
+      </trans-unit>
+      <trans-unit id="audit.timeline_empty" datatype="html">
+        <source>No audit history available</source>
+      </trans-unit>
+      <trans-unit id="audit.from_label" datatype="html">
+        <source>From:</source>
+      </trans-unit>
+      <trans-unit id="audit.to_label" datatype="html">
+        <source>To:</source>
+      </trans-unit>
+      <trans-unit id="audit.source_label" datatype="html">
+        <source>Source:</source>
+      </trans-unit>
+      <trans-unit id="audit.unknown" datatype="html">
+        <source>Unknown</source>
+      </trans-unit>
+      <trans-unit id="audit.created" datatype="html">
+        <source>Created</source>
+      </trans-unit>
+      <trans-unit id="audit.updated" datatype="html">
+        <source>Updated</source>
+      </trans-unit>
+      <trans-unit id="audit.deleted" datatype="html">
+        <source>Deleted</source>
+      </trans-unit>
+      <trans-unit id="audit.just_now" datatype="html">
+        <source>Just now</source>
+      </trans-unit>
+      <trans-unit id="audit.minutes_ago" datatype="html">
+        <source><x id="MINUTES"/>m ago</source>
+      </trans-unit>
+      <trans-unit id="audit.hours_ago" datatype="html">
+        <source><x id="HOURS"/>h ago</source>
+      </trans-unit>
+      <trans-unit id="audit.days_ago" datatype="html">
+        <source><x id="DAYS"/>d ago</source>
+      </trans-unit>
+      <trans-unit id="audit.empty_value" datatype="html">
+        <source>(empty)</source>
+      </trans-unit>
+      <trans-unit id="audit.action_type" datatype="html">
+        <source>Action type</source>
+      </trans-unit>
+      <trans-unit id="audit.all_actions" datatype="html">
+        <source>All actions</source>
+      </trans-unit>
+      <trans-unit id="audit.entity_type" datatype="html">
+        <source>Entity type</source>
+      </trans-unit>
+      <trans-unit id="audit.all_entities" datatype="html">
+        <source>All entities</source>
+      </trans-unit>
+      <trans-unit id="audit.from_date" datatype="html">
+        <source>From date</source>
+      </trans-unit>
+      <trans-unit id="audit.to_date" datatype="html">
+        <source>To date</source>
+      </trans-unit>
+      <trans-unit id="audit.apply" datatype="html">
+        <source>Apply filters</source>
+      </trans-unit>
+      <trans-unit id="audit.reset" datatype="html">
+        <source>Reset</source>
+      </trans-unit>
+      <trans-unit id="audit.filtered" datatype="html">
+        <source>Showing filtered results</source>
+      </trans-unit>
+      <trans-unit id="audit.no_filters" datatype="html">
+        <source>No filters applied</source>
+      </trans-unit>
+      <trans-unit id="audit.views_aria" datatype="html">
+        <source>Audit history views</source>
+      </trans-unit>
+      <trans-unit id="audit.loading" datatype="html">
+        <source>Loading audit history...</source>
+      </trans-unit>
+      <trans-unit id="audit.loading_related" datatype="html">
+        <source>Loading related audit history...</source>
+      </trans-unit>
+      <trans-unit id="audit.related_empty" datatype="html">
+        <source>No related changes found</source>
+      </trans-unit>
+      <trans-unit id="audit.stats_heading" datatype="html">
+        <source>Change statistics</source>
+      </trans-unit>
+      <trans-unit id="audit.total_changes" datatype="html">
+        <source>Total changes</source>
+      </trans-unit>
+      <trans-unit id="audit.fields_heading" datatype="html">
+        <source>Fields modified</source>
+      </trans-unit>
+      <trans-unit id="audit.no_fields" datatype="html">
+        <source>No field-level changes recorded</source>
+      </trans-unit>
+      <trans-unit id="audit.last_modified_heading" datatype="html">
+        <source>Last modified</source>
+      </trans-unit>
+      <trans-unit id="audit.by_label" datatype="html">
+        <source>By:</source>
+      </trans-unit>
+      <trans-unit id="audit.when_label" datatype="html">
+        <source>When:</source>
+      </trans-unit>
+      <trans-unit id="audit.no_changes_available" datatype="html">
+        <source>No changes available</source>
+      </trans-unit>
+      <trans-unit id="audit.dialog_title" datatype="html">
+        <source>Audit history - <x id="NAME"/></source>
+      </trans-unit>
+      <trans-unit id="audit.dialog_subtitle" datatype="html">
+        <source>Entity: <x id="ENTITY"/></source>
+      </trans-unit>
+      <trans-unit id="audit.entity_empty" datatype="html">
+        <source>No changes found for this <x id="ENTITY"/></source>
+      </trans-unit>
+      <trans-unit id="audit.tab_entity" datatype="html">
+        <source>Entity changes</source>
+      </trans-unit>
+      <trans-unit id="audit.tab_related" datatype="html">
+        <source>Related changes (shifts and schedules)</source>
+      </trans-unit>
+      <trans-unit id="audit.tab_summary" datatype="html">
+        <source>Summary</source>
+      </trans-unit>
+      <trans-unit id="audit.field_changes" datatype="html">
+        <source><x id="COUNT"/> changes</source>
       </trans-unit>
     </body>
   </file>
