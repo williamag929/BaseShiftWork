@@ -13,16 +13,16 @@
     [style.left.px]="tooltipLeft"
   >
     <!-- Header row: progress counter + close -->
-    <div class="tour-header">
-      <div class="tour-dots">
+    <div class="mb-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-1.5">
         <span
           *ngFor="let s of tour.steps; let i = index"
-          class="tour-dot"
-          [class.active]="i === stepIndex"
+          class="h-[7px] w-[7px] rounded-full transition-colors"
+          [ngClass]="i === stepIndex ? 'bg-[var(--lz-navy-800)]' : 'bg-[var(--lz-line)]'"
         ></span>
       </div>
       <button
-        class="tour-close-btn"
+        class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--lz-neutral-bg)] text-[var(--lz-ink-soft)] hover:bg-[var(--lz-line)] hover:text-[var(--lz-ink)]"
         (click)="endTour()"
         aria-label="Close tour"
         title="Close tour"
@@ -34,36 +34,36 @@
     </div>
 
     <!-- Content -->
-    <h4 class="tour-title">{{ step.title }}</h4>
-    <p class="tour-text">{{ step.content }}</p>
+    <h4 class="m-0 mb-2 text-[15px] font-bold leading-snug text-[var(--lz-ink)]">{{ step.title }}</h4>
+    <p class="m-0 mb-3.5 text-[13.5px] leading-relaxed text-[var(--lz-ink-muted)]">{{ step.content }}</p>
 
     <!-- Progress bar -->
-    <div class="tour-progress-bar">
+    <div class="mb-3.5 h-[3px] overflow-hidden rounded-full bg-[var(--lz-line-soft)]">
       <div
-        class="tour-progress-fill"
+        class="h-full rounded-full bg-[var(--lz-navy-800)] transition-[width]"
         [style.width.%]="((stepIndex + 1) / totalSteps) * 100"
       ></div>
     </div>
 
     <!-- Action row -->
-    <div class="tour-actions">
-      <button class="btn-tour-skip" (click)="endTour()">Skip</button>
-      <div class="tour-nav-btns">
+    <div class="flex items-center justify-between gap-2">
+      <button class="bg-transparent py-1 text-xs text-[var(--lz-ink-soft)] hover:text-[var(--lz-ink)]" (click)="endTour()">Skip</button>
+      <div class="flex gap-2">
         <button
           *ngIf="stepIndex > 0"
-          class="btn-tour-back"
+          class="rounded-[var(--lz-radius-control)] bg-[var(--lz-neutral-bg)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--lz-ink)] hover:bg-[var(--lz-line)]"
           (click)="prev()"
         >
           ← Back
         </button>
-        <button class="btn-tour-next" (click)="next()">
+        <button class="rounded-[var(--lz-radius-control)] bg-[var(--lz-navy-800)] px-4 py-1.5 text-[13px] font-semibold text-[var(--lz-paper)] hover:bg-[var(--lz-navy-700)]" (click)="next()">
           {{ stepIndex === totalSteps - 1 ? 'Finish 🎉' : 'Next →' }}
         </button>
       </div>
     </div>
 
     <!-- Step counter label -->
-    <div class="tour-step-label">{{ stepIndex + 1 }} of {{ totalSteps }}</div>
+    <div class="mt-2.5 text-right text-[11px] text-[var(--lz-ink-soft)]">{{ stepIndex + 1 }} of {{ totalSteps }}</div>
   </div>
 
 </ng-container>
