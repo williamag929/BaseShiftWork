@@ -22,6 +22,98 @@ class HostComponent {
   count = 0;
 }
 
+@Component({
+  standalone: true,
+  imports: [LzDialogOverlayComponent, LzDialogFrameComponent],
+  template: `
+    @if (lower) {
+      <lz-dialog-overlay (closed)="lowerCount = lowerCount + 1"><lz-dialog-frame title="Lower"><button id="lower-btn">L</button></lz-dialog-frame></lz-dialog-overlay>
+    }
+    @if (top) {
+      <lz-dialog-overlay placement="end" ariaLabel="Top" (closed)="topCount = topCount + 1"><button id="top-btn">T</button></lz-dialog-overlay>
+    }
+  `,
+})
+class StackHostComponent {
+  lower = true;
+  top = true;
+  lowerCount = 0;
+  topCount = 0;
+}
+
+@Component({
+  standalone: true,
+  imports: [LzDialogOverlayComponent, LzDialogFrameComponent],
+  template: `
+    <lz-dialog-overlay (closed)="overlayCount = overlayCount + 1">
+      <lz-dialog-frame title="Closable" (closed)="frameCount = frameCount + 1"><input id="in" /></lz-dialog-frame>
+    </lz-dialog-overlay>
+  `,
+})
+class ClosableHostComponent {
+  overlayCount = 0;
+  frameCount = 0;
+}
+
+describe('LzDialogOverlayComponent stacking', () => {
+  const escape = (target: EventTarget) => target.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+  async function stack() {
+    const f = TestBed.createComponent(StackHostComponent);
+    f.detectChanges();
+    await f.whenStable();
+    f.detectChanges();
+    return f;
+  }
+
+  it('Escape on body closes only the top overlay, then the lower one once the top is gone', async () => {
+    const f = await stack();
+    escape(document.body);
+    expect(f.componentInstance.topCount).toBe(1);
+    expect(f.componentInstance.lowerCount).toBe(0);
+    f.componentInstance.top = false;
+    f.detectChanges();
+    escape(document.body);
+    expect(f.componentInstance.topCount).toBe(1);
+    expect(f.componentInstance.lowerCount).toBe(1);
+  });
+
+  it('a drawer mounted after a dialog overlay closes on body Escape', async () => {
+    const f = await stack();
+    escape(document.body);
+    expect(f.componentInstance.topCount).toBe(1);
+  });
+
+  it('a foreign modal later in the DOM still blocks the lower overlay, one earlier does not', async () => {
+    const f = await stack();
+    f.componentInstance.top = false;
+    f.detectChanges();
+    const after = document.createElement('div');
+    after.setAttribute('role', 'dialog');
+    after.setAttribute('aria-modal', 'true');
+    document.body.appendChild(after);
+    escape(document.body);
+    expect(f.componentInstance.lowerCount).toBe(0);
+    after.remove();
+    const before = document.createElement('div');
+    before.setAttribute('role', 'alertdialog');
+    before.setAttribute('aria-modal', 'true');
+    document.body.insertBefore(before, document.body.firstChild);
+    escape(document.body);
+    expect(f.componentInstance.lowerCount).toBe(1);
+    before.remove();
+  });
+
+  it('Escape inside a closable frame is emitted by the frame exactly once and not by the overlay', async () => {
+    const f = TestBed.createComponent(ClosableHostComponent);
+    f.detectChanges();
+    await f.whenStable();
+    escape(f.nativeElement.querySelector('#in'));
+    expect(f.componentInstance.frameCount).toBe(1);
+    expect(f.componentInstance.overlayCount).toBe(0);
+  });
+});
+
 describe('LzDialogOverlayComponent', () => {
   let f: ComponentFixture<HostComponent>;
   const root = () => f.nativeElement as HTMLElement;

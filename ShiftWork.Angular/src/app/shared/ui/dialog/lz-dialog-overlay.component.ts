@@ -7,6 +7,7 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  NgZone,
   OnDestroy,
   OnInit,
   Output,
@@ -38,9 +39,8 @@ import { LzDialogFrameComponent } from './lz-dialog-frame.component';
         cdkTrapFocusAutoCapture
         [attr.aria-labelledby]="frame ? frame.titleId : null"
         [attr.aria-label]="frame ? null : ariaLabel"
-        class="relative bg-paper shadow-overlay"
+        class="relative w-full bg-paper shadow-overlay"
         [class.my-auto]="placement === 'center'"
-        [class.w-full]="true"
         [class.max-w-lg]="placement === 'center' && size === 'md'"
         [class.max-w-xl]="placement === 'center' && size === 'lg'"
         [class.max-w-3xl]="placement === 'center' && size === 'xl'"
@@ -59,6 +59,7 @@ import { LzDialogFrameComponent } from './lz-dialog-frame.component';
 export class LzDialogOverlayComponent implements OnInit, OnDestroy {
   private readonly doc = inject(DOCUMENT);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly zone = inject(NgZone);
   private readonly onDocKeydown = (event: KeyboardEvent): void => {
     if (event.key !== 'Escape') {
       return;
@@ -67,11 +68,12 @@ export class LzDialogOverlayComponent implements OnInit, OnDestroy {
     if (target instanceof Node && this.host.nativeElement.querySelector('lz-dialog-frame')?.contains(target)) {
       return;
     }
-    const foreign = Array.from(
+    const el = this.host.nativeElement;
+    const stackedAbove = Array.from(
       this.doc.querySelectorAll('[role="dialog"][aria-modal="true"], [role="alertdialog"][aria-modal="true"]'),
-    ).some(d => !this.host.nativeElement.contains(d));
-    if (!foreign) {
-      this.closed.emit();
+    ).some(d => !el.contains(d) && !!(el.compareDocumentPosition(d) & Node.DOCUMENT_POSITION_FOLLOWING));
+    if (!stackedAbove) {
+      this.zone.run(() => this.closed.emit());
     }
   };
 
@@ -83,7 +85,7 @@ export class LzDialogOverlayComponent implements OnInit, OnDestroy {
   @Output() closed = new EventEmitter<void>();
 
   ngOnInit(): void {
-    this.doc.addEventListener('keydown', this.onDocKeydown);
+    this.zone.runOutsideAngular(() => this.doc.addEventListener('keydown', this.onDocKeydown));
   }
 
   ngOnDestroy(): void {
