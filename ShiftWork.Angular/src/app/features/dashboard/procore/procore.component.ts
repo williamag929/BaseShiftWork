@@ -116,10 +116,10 @@ export class ProcoreComponent implements OnInit, OnDestroy {
 
   get syncTone(): 'success' | 'danger' | 'neutral' {
     const status = (this.connection?.lastSyncStatus || '').trim().toLowerCase();
-    if (['failed', 'failure', 'error'].includes(status)) {
+    if (['failed'].includes(status)) {
       return 'danger';
     }
-    if (['success', 'succeeded', 'ok', 'completed', 'complete'].includes(status)) {
+    if (['pushed'].includes(status)) {
       return 'success';
     }
     return 'neutral';

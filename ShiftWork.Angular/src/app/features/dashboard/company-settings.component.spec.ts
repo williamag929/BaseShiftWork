@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { provideMockStore } from '@ngrx/store/testing';
-import { Observable, of, throwError } from 'rxjs';
+import { MockStore, provideMockStore } from '@ngrx/store/testing';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { CompanySettingsService } from 'src/app/core/services/company-settings.service';
 import { CompanySettings } from 'src/app/core/models/company-settings.model';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
@@ -38,11 +38,12 @@ describe('CompanySettingsComponent (Loqzen design system)', () => {
   let settingsService: Record<string, jasmine.Spy>;
   let kiosk: Record<string, jasmine.Spy>;
   let snack: { open: jasmine.Spy };
+  let claims$: BehaviorSubject<any>;
   const el = () => fixture.nativeElement as HTMLElement;
 
   afterEach(() => selectActiveCompany.clearResult());
 
-  async function setup(opts: { settings?: Observable<CompanySettings>; questions?: KioskQuestion[] | Observable<KioskQuestion[]>; company?: any; perms?: string[] } = {}) {
+  async function setup(opts: { settings?: Observable<CompanySettings>; questions?: KioskQuestion[] | Observable<KioskQuestion[]>; company?: any; perms?: string[]; lateClaims?: boolean } = {}) {
     settingsService = {
       getSettings: jasmine.createSpy('getSettings').and.returnValue(opts.settings ?? of(settings())),
       updateSettings: jasmine.createSpy('updateSettings').and.returnValue(of(undefined)),
@@ -55,6 +56,7 @@ describe('CompanySettingsComponent (Loqzen design system)', () => {
       deleteQuestion: jasmine.createSpy('deleteQuestion').and.returnValue(of(undefined)),
     };
     snack = { open: jasmine.createSpy('open') };
+    claims$ = new BehaviorSubject<any>(opts.lateClaims ? null : { permissions: opts.perms ?? ['kiosk.questions.manage'] });
     await TestBed.configureTestingModule({
       imports: [CompanySettingsComponent],
       providers: [
@@ -62,7 +64,7 @@ describe('CompanySettingsComponent (Loqzen design system)', () => {
         provideMockStore({ selectors: [{ selector: selectActiveCompany, value: opts.company === undefined ? { companyId: 'c1' } : opts.company }] }),
         { provide: CompanySettingsService, useValue: settingsService },
         { provide: KioskService, useValue: kiosk },
-        { provide: PermissionService, useValue: { hasPermission: (k: string) => (opts.perms ?? ['kiosk.questions.manage']).includes(k) } },
+        { provide: PermissionService, useValue: { permissions$: claims$.asObservable() } },
       ],
     }).overrideProvider(MatSnackBar, { useValue: snack }).compileComponents();
     fixture = TestBed.createComponent(CompanySettingsComponent);
@@ -239,6 +241,37 @@ describe('CompanySettingsComponent (Loqzen design system)', () => {
       expect(kiosk['getManagementQuestions']).not.toHaveBeenCalled();
       expect(el().textContent).not.toContain('Clock-out survey questions');
       expect(el().querySelector('#kioskModeEnabled')).not.toBeNull();
+    });
+
+    it('claims arriving after settings: block hidden first, then appears and loads exactly once with rows', async () => {
+      await setup({ questions: [question(1), question(2)], lateClaims: true });
+      expect(el().textContent).not.toContain('Clock-out survey questions');
+      expect(kiosk['getManagementQuestions']).not.toHaveBeenCalled();
+      claims$.next({ permissions: ['kiosk.questions.manage'] });
+      await settle();
+      claims$.next({ permissions: ['kiosk.questions.manage', 'other'] });
+      await settle();
+      expect(kiosk['getManagementQuestions']).toHaveBeenCalledTimes(1);
+      expect(el().querySelectorAll('lz-table-scroll tbody tr').length).toBe(2);
+    });
+
+    it('claims that never grant the permission never request the questions', async () => {
+      await setup({ questions: [question(1)], lateClaims: true });
+      claims$.next({ permissions: ['company-settings.read'] });
+      await settle();
+      expect(kiosk['getManagementQuestions']).not.toHaveBeenCalled();
+      expect(el().textContent).not.toContain('Clock-out survey questions');
+    });
+
+    it('a company switch reloads the questions once', async () => {
+      await setup({ questions: [question(1)] });
+      expect(kiosk['getManagementQuestions']).toHaveBeenCalledTimes(1);
+      const store = TestBed.inject(MockStore);
+      store.overrideSelector(selectActiveCompany, { companyId: 'c2' } as any);
+      store.refreshState();
+      await settle();
+      expect(kiosk['getManagementQuestions']).toHaveBeenCalledTimes(2);
+      expect(kiosk['getManagementQuestions'].calls.mostRecent().args[0]).toBe('c2');
     });
 
     it('a 403 on the questions shows an inline message, no toast, and the rest of the form still saves', async () => {

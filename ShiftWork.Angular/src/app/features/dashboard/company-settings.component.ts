@@ -50,6 +50,8 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
   kioskQuestions: KioskQuestion[] = [];
   kioskQuestionsLoading = false;
   questionsError = false;
+  canManageQuestions = false;
+  private questionsLoadedFor: string | null = null;
   questionError = '';
   questionToDelete: KioskQuestion | null = null;
   deletingQuestionId: number | null = null;
@@ -70,6 +72,11 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar
   ) {
     this.company$ = this.store.select(selectActiveCompany);
+
+    this.permissionService.permissions$.pipe(takeUntil(this.destroy$)).subscribe(claims => {
+      this.canManageQuestions = !!claims?.permissions?.includes('kiosk.questions.manage');
+      this.loadQuestionsOnce();
+    });
 
 
     this.company$.subscribe((company: any) => {
@@ -131,7 +138,8 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
         if (settings) {
           this.settings = settings;
           this.kioskQuestions = [];
-          this.loadKioskQuestions();
+          this.questionsLoadedFor = null;
+          this.loadQuestionsOnce();
         }
         this.loading = false;
       });
@@ -161,6 +169,13 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
 
   // ── Kiosk question management ────────────────────────────────────────────────
 
+  private loadQuestionsOnce(): void {
+    if (this.canManageQuestions && this.companyId && this.settings && this.questionsLoadedFor !== this.companyId) {
+      this.questionsLoadedFor = this.companyId;
+      this.loadKioskQuestions();
+    }
+  }
+
   loadKioskQuestions(): void {
     if (!this.companyId || !this.canManageQuestions) return;
     this.kioskQuestionsLoading = true;
@@ -175,10 +190,6 @@ export class CompanySettingsComponent implements OnInit, OnDestroy {
         this.kioskQuestionsLoading = false;
       }
     });
-  }
-
-  get canManageQuestions(): boolean {
-    return this.permissionService.hasPermission('kiosk.questions.manage');
   }
 
   get closeLabel(): string {

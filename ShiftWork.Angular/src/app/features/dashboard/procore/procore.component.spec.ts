@@ -19,7 +19,7 @@ import { ProcoreComponent } from './procore.component';
 
 const connection = (over: Partial<ProcoreConnection> = {}): ProcoreConnection => ({
   procoreCompanyId: '598134', clientId: 'cid', hasClientSecret: true, baseUrl: 'https://api.procore.com', tokenUrl: 'https://login.procore.com/oauth/token',
-  enabled: true, autoPushOnSubmit: true, timesheetSyncEnabled: false, lastSyncAt: '2026-01-15T10:00:00Z', lastSyncStatus: 'Success', ...over,
+  enabled: true, autoPushOnSubmit: true, timesheetSyncEnabled: false, lastSyncAt: '2026-01-15T10:00:00Z', lastSyncStatus: 'Pushed', ...over,
 } as ProcoreConnection);
 const loc = (i: number) => ({ locationId: i, name: `Site ${i}`, city: 'Newark', state: 'NJ', companyId: 'c1', externalCode: i === 1 ? 'P-1' : '' });
 const person = (i: number) => ({ personId: i, name: `Person ${i}`, email: `p${i}@x.com`, companyId: 'c1', externalCode: '' });
@@ -93,9 +93,16 @@ describe('ProcoreComponent (Loqzen design system)', () => {
     expect(headerChip.textContent!.trim()).toBe('Enabled');
     const line = el().querySelector('[data-testid="last-sync"]')!;
     expect(line.textContent).toContain('Last sync:');
-    expect(line.querySelector('lz-status-chip')!.textContent!.trim()).toBe('Success');
+    expect(line.querySelector('lz-status-chip')!.textContent!.trim()).toBe('Pushed');
     await setup({ conn: connection({ lastSyncStatus: 'Failed', enabled: false }) });
     expect(el().querySelector('lz-page-header lz-status-chip')!.textContent!.trim()).toBe('Disabled');
+  });
+
+  it('maps the backend sync statuses Pushed, Failed and Skipped to success, danger and neutral', async () => {
+    for (const [status, tone] of [['Pushed', 'success'], ['Failed', 'danger'], ['Skipped', 'neutral'], ['pushed', 'success']]) {
+      await setup({ conn: connection({ lastSyncStatus: status }) });
+      expect(fixture.componentInstance.syncTone).withContext(status).toBe(tone as any);
+    }
   });
 
   it('says so when it has never synced', async () => {
