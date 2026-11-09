@@ -44,3 +44,13 @@ describe('LzEmptyStateComponent', () => {
     f.nativeElement.remove();
   });
 });
+
+describe('LzEmptyStateComponent native tooltip', () => {
+  it('does not leave a title attribute on the host when the input is set statically', () => {
+    @Component({ standalone: true, imports: [LzEmptyStateComponent], template: `<lz-empty-state icon="inbox" title="Nothing here"></lz-empty-state>` })
+    class TitleHost {}
+    const f = TestBed.createComponent(TitleHost);
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('lz-empty-state').hasAttribute('title')).toBeFalse();
+  });
+});

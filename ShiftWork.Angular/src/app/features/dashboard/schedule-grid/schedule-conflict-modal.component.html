@@ -1,93 +1,83 @@
-<div class="fixed inset-0 z-[999] flex items-start justify-center overflow-y-auto p-4">
-  <div class="fixed inset-0 bg-navy-900/40" aria-hidden="true" (click)="onDismiss()"></div>
-  <div
-    role="alertdialog"
-    aria-modal="true"
-    cdkTrapFocus
-    cdkTrapFocusAutoCapture
-    [attr.aria-labelledby]="frame.titleId"
-    class="relative my-auto w-full max-w-xl rounded-dialog border border-line bg-paper shadow-overlay"
-  >
-    <lz-dialog-frame #frame [title]="dialogTitle" [subtitle]="dialogSubtitle" (closed)="onDismiss()">
-      <div class="space-y-4">
-        <!-- Bulk summary -->
-        <ng-container *ngIf="isBulk && info.bulkSummary as bulk">
-          <div class="flex flex-wrap gap-2">
-            <lz-status-chip tone="success"><span class="font-semibold">{{ bulk.createdCount }}</span>&nbsp;<ng-container i18n="@@conflict_modal.created">created</ng-container></lz-status-chip>
-            <lz-status-chip tone="warning"><span class="font-semibold">{{ bulk.skippedCount }}</span>&nbsp;<ng-container i18n="@@conflict_modal.skipped">skipped</ng-container></lz-status-chip>
-          </div>
+<lz-dialog-overlay dialogRole="alertdialog" size="lg" (closed)="onDismiss()">
+  <lz-dialog-frame [title]="dialogTitle" [subtitle]="dialogSubtitle" (closed)="onDismiss()">
+    <div class="space-y-4">
+      <!-- Bulk summary -->
+      <ng-container *ngIf="isBulk && info.bulkSummary as bulk">
+        <div class="flex flex-wrap gap-2">
+          <lz-status-chip tone="success"><span class="font-semibold">{{ bulk.createdCount }}</span>&nbsp;<ng-container i18n="@@conflict_modal.created">created</ng-container></lz-status-chip>
+          <lz-status-chip tone="warning"><span class="font-semibold">{{ bulk.skippedCount }}</span>&nbsp;<ng-container i18n="@@conflict_modal.skipped">skipped</ng-container></lz-status-chip>
+        </div>
 
-          <section *ngIf="bulk.skipped.length > 0">
-            <h3 class="mb-2 font-display text-[15px] font-semibold" i18n="@@conflict_modal.skipped_shifts">Skipped shifts</h3>
-            <ul class="m-0 list-none space-y-2 p-0">
-              <li
-                *ngFor="let entry of bulk.skipped"
-                data-testid="conflict-row"
-                class="flex items-start gap-3 rounded-control border border-line p-3"
-              >
-                <mat-icon aria-hidden="true" class="shrink-0 text-amber-ink">warning</mat-icon>
-                <div class="min-w-0">
-                  <p class="m-0 font-medium">{{ entry.personName }}</p>
-                  <p class="m-0 text-ink-soft">{{ fmtUTC(entry.date) }} — {{ entry.reason }}</p>
-                </div>
-              </li>
-            </ul>
-          </section>
-        </ng-container>
-
-        <!-- Single shift -->
-        <ng-container *ngIf="!isBulk">
-          <section>
-            <h3 class="mb-2 font-display text-[15px] font-semibold" i18n="@@conflict_modal.requested_shift">Requested shift</h3>
-            <p class="m-0 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span class="inline-flex items-center gap-1 font-medium"><mat-icon aria-hidden="true">person</mat-icon>{{ info.personName }}</span>
-              <span class="text-ink-soft">{{ fmtUTC(info.requestedStart) }} – {{ fmtUTC(info.requestedEnd) }}</span>
-            </p>
-          </section>
-
-          <section *ngIf="info.conflictingShift">
-            <h3 class="mb-2 font-display text-[15px] font-semibold" i18n="@@conflict_modal.conflicts_with">Conflicts with existing shift</h3>
-            <div data-testid="conflict-row" class="flex items-start gap-3 rounded-control border border-line p-3">
+        <section *ngIf="bulk.skipped.length > 0">
+          <h3 class="mb-2 font-display text-[15px] font-semibold" i18n="@@conflict_modal.skipped_shifts">Skipped shifts</h3>
+          <ul class="m-0 list-none space-y-2 p-0">
+            <li
+              *ngFor="let entry of bulk.skipped"
+              data-testid="conflict-row"
+              class="flex items-start gap-3 rounded-control border border-line p-3"
+            >
               <mat-icon aria-hidden="true" class="shrink-0 text-amber-ink">warning</mat-icon>
               <div class="min-w-0">
-                <p class="m-0 font-medium">{{ fmtUTC(info.conflictingShift.start) }} – {{ fmtUTC(info.conflictingShift.end) }}</p>
-                <p class="m-0 text-ink-soft">{{ info.conflictingShift.locationName }}</p>
+                <p class="m-0 font-medium">{{ entry.personName }}</p>
+                <p class="m-0 text-ink-soft">{{ fmtUTC(entry.date) }} — {{ entry.reason }}</p>
               </div>
+            </li>
+          </ul>
+        </section>
+      </ng-container>
+
+      <!-- Single shift -->
+      <ng-container *ngIf="!isBulk">
+        <section>
+          <h3 class="mb-2 font-display text-[15px] font-semibold" i18n="@@conflict_modal.requested_shift">Requested shift</h3>
+          <p class="m-0 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span class="inline-flex items-center gap-1 font-medium"><mat-icon aria-hidden="true">person</mat-icon>{{ info.personName }}</span>
+            <span class="text-ink-soft">{{ fmtUTC(info.requestedStart) }} – {{ fmtUTC(info.requestedEnd) }}</span>
+          </p>
+        </section>
+
+        <section *ngIf="info.conflictingShift">
+          <h3 class="mb-2 font-display text-[15px] font-semibold" i18n="@@conflict_modal.conflicts_with">Conflicts with existing shift</h3>
+          <div data-testid="conflict-row" class="flex items-start gap-3 rounded-control border border-line p-3">
+            <mat-icon aria-hidden="true" class="shrink-0 text-amber-ink">warning</mat-icon>
+            <div class="min-w-0">
+              <p class="m-0 font-medium">{{ fmtUTC(info.conflictingShift.start) }} – {{ fmtUTC(info.conflictingShift.end) }}</p>
+              <p class="m-0 text-ink-soft">{{ info.conflictingShift.locationName }}</p>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <section *ngIf="info.violations.length > 0">
-            <h3 class="mb-2 flex flex-wrap items-center gap-2 font-display text-[15px] font-semibold">
-              <ng-container i18n="@@conflict_modal.policy_violations">Policy violations</ng-container>
-              <lz-status-chip tone="danger" *ngIf="errorCount > 0">{{ errorCount }} error{{ errorCount > 1 ? 's' : '' }}</lz-status-chip>
-              <lz-status-chip tone="warning" *ngIf="warningCount > 0">{{ warningCount }} warning{{ warningCount > 1 ? 's' : '' }}</lz-status-chip>
-            </h3>
-            <ul class="m-0 list-none space-y-2 p-0">
-              <li
-                *ngFor="let v of info.violations"
-                data-testid="conflict-row"
-                class="flex items-start gap-3 rounded-control border border-line p-3"
-              >
-                <mat-icon aria-hidden="true" class="shrink-0" [class.text-danger-ink]="v.severity === 'error'" [class.text-amber-ink]="v.severity !== 'error'">{{ v.severity === 'error' ? 'error' : 'warning' }}</mat-icon>
-                <div class="min-w-0 flex-1">
-                  <p class="m-0 font-medium">{{ v.rule }}</p>
-                  <p class="m-0 text-ink-soft">{{ v.detail }}</p>
-                </div>
-                <lz-status-chip [tone]="v.severity === 'error' ? 'danger' : 'warning'">
-                  <ng-container *ngIf="v.severity === 'error'" i18n="@@conflict_modal.error_badge">Error</ng-container>
-                  <ng-container *ngIf="v.severity !== 'error'" i18n="@@conflict_modal.warning_badge">Warning</ng-container>
-                </lz-status-chip>
-              </li>
-            </ul>
-          </section>
-        </ng-container>
+        <section *ngIf="info.violations.length > 0">
+          <h3 class="mb-2 flex flex-wrap items-center gap-2 font-display text-[15px] font-semibold">
+            <ng-container i18n="@@conflict_modal.policy_violations">Policy violations</ng-container>
+            <lz-status-chip tone="danger" *ngIf="errorCount > 0">{{ errorCount }} error{{ errorCount > 1 ? 's' : '' }}</lz-status-chip>
+            <lz-status-chip tone="warning" *ngIf="warningCount > 0">{{ warningCount }} warning{{ warningCount > 1 ? 's' : '' }}</lz-status-chip>
+          </h3>
+          <ul class="m-0 list-none space-y-2 p-0">
+            <li
+              *ngFor="let v of info.violations"
+              data-testid="conflict-row"
+              class="flex items-start gap-3 rounded-control border border-line p-3"
+            >
+              <mat-icon aria-hidden="true" class="shrink-0" [class.text-danger-ink]="v.severity === 'error'" [class.text-amber-ink]="v.severity !== 'error'">{{ v.severity === 'error' ? 'error' : 'warning' }}</mat-icon>
+              <div class="min-w-0 flex-1">
+                <p class="m-0 font-medium">{{ v.rule }}</p>
+                <p class="m-0 text-ink-soft">{{ v.detail }}</p>
+              </div>
+              <lz-status-chip [tone]="v.severity === 'error' ? 'danger' : 'warning'">
+                <ng-container *ngIf="v.severity === 'error'" i18n="@@conflict_modal.error_badge">Error</ng-container>
+                <ng-container *ngIf="v.severity !== 'error'" i18n="@@conflict_modal.warning_badge">Warning</ng-container>
+              </lz-status-chip>
+            </li>
+          </ul>
+        </section>
+      </ng-container>
 
-        <lz-alert tone="info" *ngIf="isBulk" i18n="@@conflict_modal.hint_bulk">Skipped shifts were not created. Fix the conflicts in the grid and retry.</lz-alert>
-        <lz-alert tone="info" *ngIf="!isBulk && hasErrors" i18n="@@conflict_modal.hint_errors">Adjust the shift times or resolve conflicts before saving.</lz-alert>
-        <lz-alert tone="warning" *ngIf="!isBulk && !hasErrors" i18n="@@conflict_modal.hint_warnings">This shift exceeds policy thresholds. Saving it will create a warning record.</lz-alert>
-      </div>
+      <lz-alert tone="info" *ngIf="isBulk" i18n="@@conflict_modal.hint_bulk">Skipped shifts were not created. Fix the conflicts in the grid and retry.</lz-alert>
+      <lz-alert tone="info" *ngIf="!isBulk && hasErrors" i18n="@@conflict_modal.hint_errors">Adjust the shift times or resolve conflicts before saving.</lz-alert>
+      <lz-alert tone="warning" *ngIf="!isBulk && !hasErrors" i18n="@@conflict_modal.hint_warnings">This shift exceeds policy thresholds. Saving it will create a warning record.</lz-alert>
+    </div>
 
-      <button lzDialogActions lzButton variant="primary" type="button" (click)="onDismiss()" i18n="@@conflict_modal.got_it">Got it</button>
-    </lz-dialog-frame>
-  </div>
-</div>
+    <button lzDialogActions lzButton variant="primary" type="button" (click)="onDismiss()" i18n="@@conflict_modal.got_it">Got it</button>
+  </lz-dialog-frame>
+</lz-dialog-overlay>

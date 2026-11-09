@@ -36,3 +36,13 @@ describe('LzAuthShellComponent', () => {
     expect(card().classList.contains('max-w-md')).toBeFalse();
   });
 });
+
+describe('LzAuthShellComponent native tooltip', () => {
+  it('does not leave a title attribute on the host when the input is set statically', () => {
+    @Component({ standalone: true, imports: [LzAuthShellComponent], template: `<lz-auth-shell title="Sign in"></lz-auth-shell>` })
+    class TitleHost {}
+    const f = TestBed.createComponent(TitleHost);
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('lz-auth-shell').hasAttribute('title')).toBeFalse();
+  });
+});

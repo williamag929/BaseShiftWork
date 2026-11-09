@@ -1,163 +1,153 @@
-<div class="fixed inset-0 z-[999] flex items-start justify-center overflow-y-auto p-4">
-  <div class="fixed inset-0 bg-navy-900/40" aria-hidden="true" (click)="onClose()"></div>
-  <div
-    role="dialog"
-    aria-modal="true"
-    cdkTrapFocus
-    cdkTrapFocusAutoCapture
-    [attr.aria-labelledby]="frame.titleId"
-    class="relative my-auto w-full max-w-3xl rounded-dialog border border-line bg-paper shadow-overlay"
-  >
-    <lz-dialog-frame #frame title="Shift history" i18n-title="@@shift_history.title" [subtitle]="personName" (closed)="onClose()">
-      <div class="space-y-4">
-        <div class="grid gap-4 sm:grid-cols-2">
-          <lz-field label="Date range" i18n-label="@@shift_history.date_range" controlId="date-range">
-            <select lzField id="date-range" cdkFocusInitial [(ngModel)]="dateRange" (change)="onDateRangeChange()">
-              <option value="week" i18n="@@shift_history.past_week">Past week</option>
-              <option value="month" i18n="@@shift_history.past_month">Past month</option>
-              <option value="quarter" i18n="@@shift_history.past_3_months">Past 3 months</option>
-              <option value="year" i18n="@@shift_history.past_year">Past year</option>
-              <option value="all" i18n="@@shift_history.all_history">All history</option>
-            </select>
-          </lz-field>
-          <lz-field label="Status" i18n-label="@@shift_history.status_filter" controlId="status-filter">
-            <select lzField id="status-filter" [(ngModel)]="statusFilter">
-              <option value="all" i18n="@@shift_history.all_status">All</option>
-              <option value="completed" i18n="@@shift_history.completed">Completed</option>
-              <option value="missed" i18n="@@shift_history.missed">Missed</option>
-              <option value="sick" i18n="@@shift_history.sick">Sick</option>
-            </select>
-          </lz-field>
-        </div>
+<lz-dialog-overlay size="xl" (closed)="onClose()">
+  <lz-dialog-frame title="Shift history" i18n-title="@@shift_history.title" [subtitle]="personName" (closed)="onClose()">
+    <div class="space-y-4">
+      <div class="grid gap-4 sm:grid-cols-2">
+        <lz-field label="Date range" i18n-label="@@shift_history.date_range" controlId="date-range">
+          <select lzField id="date-range" cdkFocusInitial [(ngModel)]="dateRange" (change)="onDateRangeChange()">
+            <option value="week" i18n="@@shift_history.past_week">Past week</option>
+            <option value="month" i18n="@@shift_history.past_month">Past month</option>
+            <option value="quarter" i18n="@@shift_history.past_3_months">Past 3 months</option>
+            <option value="year" i18n="@@shift_history.past_year">Past year</option>
+            <option value="all" i18n="@@shift_history.all_history">All history</option>
+          </select>
+        </lz-field>
+        <lz-field label="Status" i18n-label="@@shift_history.status_filter" controlId="status-filter">
+          <select lzField id="status-filter" [(ngModel)]="statusFilter">
+            <option value="all" i18n="@@shift_history.all_status">All</option>
+            <option value="completed" i18n="@@shift_history.completed">Completed</option>
+            <option value="missed" i18n="@@shift_history.missed">Missed</option>
+            <option value="sick" i18n="@@shift_history.sick">Sick</option>
+          </select>
+        </lz-field>
+      </div>
 
-        <lz-alert tone="info" *ngIf="loading"><ng-container i18n="@@shift_history.loading">Loading shift history...</ng-container></lz-alert>
-        <lz-alert tone="danger" *ngIf="errorMessage && !loading">{{ errorMessage }}</lz-alert>
-        <lz-alert tone="danger" *ngIf="actionError && !loading">{{ actionError }}</lz-alert>
+      <lz-alert tone="info" *ngIf="loading"><ng-container i18n="@@shift_history.loading">Loading shift history...</ng-container></lz-alert>
+      <lz-alert tone="danger" *ngIf="errorMessage && !loading">{{ errorMessage }}</lz-alert>
+      <lz-alert tone="danger" *ngIf="actionError && !loading">{{ actionError }}</lz-alert>
 
-        <lz-empty-state
-          *ngIf="!loading && !errorMessage && filteredEntries.length === 0"
-          icon="event_busy"
-          title="No shift history found for the selected period"
-          i18n-title="@@shift_history.no_data"
-        />
+      <lz-empty-state
+        *ngIf="!loading && !errorMessage && filteredEntries.length === 0"
+        icon="event_busy"
+        title="No shift history found for the selected period"
+        i18n-title="@@shift_history.no_data"
+      />
 
-        <ul class="m-0 list-none space-y-3 p-0" *ngIf="!loading && !errorMessage && filteredEntries.length > 0">
-          <li *ngFor="let entry of filteredEntries" class="grid gap-3 rounded-control border border-line p-3 sm:grid-cols-[8rem_1fr]">
+      <ul class="m-0 list-none space-y-3 p-0" *ngIf="!loading && !errorMessage && filteredEntries.length > 0">
+        <li *ngFor="let entry of filteredEntries" class="grid gap-3 rounded-control border border-line p-3 sm:grid-cols-[8rem_1fr]">
+          <div>
+            <p class="m-0 font-medium">{{ entry.date | date: 'MMM d, y' }}</p>
+            <p class="m-0 text-ink-soft">{{ entry.date | date: 'EEEE' }}</p>
+          </div>
+
+          <div class="min-w-0 space-y-3">
             <div>
-              <p class="m-0 font-medium">{{ entry.date | date: 'MMM d, y' }}</p>
-              <p class="m-0 text-ink-soft">{{ entry.date | date: 'EEEE' }}</p>
+              <lz-status-chip [tone]="getStatusTone(entry.status)">
+                <mat-icon aria-hidden="true" class="size-4! text-base!">{{ getStatusIcon(entry.status) }}</mat-icon>
+                {{ getStatusLabel(entry.status) }}
+              </lz-status-chip>
             </div>
 
-            <div class="min-w-0 space-y-3">
-              <div>
-                <lz-status-chip [tone]="getStatusTone(entry.status)">
-                  <mat-icon aria-hidden="true" class="size-4! text-base!">{{ getStatusIcon(entry.status) }}</mat-icon>
-                  {{ getStatusLabel(entry.status) }}
-                </lz-status-chip>
+            <div class="space-y-2" *ngIf="entry.status === 'completed' || entry.status === 'partial'">
+              <p class="m-0 flex flex-wrap items-center gap-2">
+                <mat-icon aria-hidden="true" class="text-ink-soft">login</mat-icon>
+                <span class="text-ink-soft" i18n="@@shift_history.clock_in">Clock in:</span>
+                <span class="font-medium">{{ formatTime(entry.clockIn) }}</span>
+              </p>
+              <p class="m-0 flex flex-wrap items-center gap-2" *ngIf="entry.clockOut">
+                <mat-icon aria-hidden="true" class="text-ink-soft">logout</mat-icon>
+                <span class="text-ink-soft" i18n="@@shift_history.clock_out">Clock out:</span>
+                <span class="font-medium">{{ formatTime(entry.clockOut) }}</span>
+              </p>
+              <p class="m-0 flex flex-wrap items-center gap-2" *ngIf="entry.duration">
+                <mat-icon aria-hidden="true" class="text-ink-soft">schedule</mat-icon>
+                <span class="text-ink-soft" i18n="@@shift_history.duration">Duration:</span>
+                <span class="font-medium">{{ entry.duration }}</span>
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <button lzButton variant="secondary" type="button" (click)="startEditClockTimes(entry)">
+                  <mat-icon aria-hidden="true">edit</mat-icon>
+                  <ng-container i18n="@@shift_history.edit_clock">Edit clock times</ng-container>
+                </button>
+                <button lzButton variant="secondary" type="button" *ngIf="canManualClockOut(entry)" (click)="manualClockOut(entry)">
+                  <mat-icon aria-hidden="true">logout</mat-icon>
+                  <ng-container i18n="@@shift_history.manual_clock_out">Manual clock out</ng-container>
+                </button>
               </div>
 
-              <div class="space-y-2" *ngIf="entry.status === 'completed' || entry.status === 'partial'">
+              <div class="rounded-control bg-paper-alt p-3" *ngIf="editingClockEntryKey === entry.date.toDateString()">
+                <div class="grid gap-3 sm:grid-cols-2">
+                  <lz-field label="Clock in" i18n-label="@@shift_history.clock_in_label" [controlId]="'clock-in-' + entry.date.getTime()">
+                    <input lzField type="time" [id]="'clock-in-' + entry.date.getTime()" [(ngModel)]="editClockInTime" />
+                  </lz-field>
+                  <lz-field label="Clock out" i18n-label="@@shift_history.clock_out_label" [controlId]="'clock-out-' + entry.date.getTime()">
+                    <input lzField type="time" [id]="'clock-out-' + entry.date.getTime()" [(ngModel)]="editClockOutTime" />
+                  </lz-field>
+                </div>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <button lzButton variant="secondary" type="button" (click)="saveClockTimes(entry)" i18n="@@common.save">Save</button>
+                  <button lzButton variant="quiet" type="button" (click)="cancelEditClockTimes()" i18n="@@common.cancel">Cancel</button>
+                </div>
+              </div>
+            </div>
+
+            <ul class="m-0 list-none space-y-2 p-0" *ngIf="entry.schedules.length > 0">
+              <li *ngFor="let schedule of entry.schedules" class="space-y-2">
                 <p class="m-0 flex flex-wrap items-center gap-2">
-                  <mat-icon aria-hidden="true" class="text-ink-soft">login</mat-icon>
-                  <span class="text-ink-soft" i18n="@@shift_history.clock_in">Clock in:</span>
-                  <span class="font-medium">{{ formatTime(entry.clockIn) }}</span>
+                  <mat-icon aria-hidden="true" class="text-ink-soft">event</mat-icon>
+                  <span *ngIf="editingScheduleId !== schedule.scheduleId">
+                    {{ schedule.startDate | date: 'shortTime' : 'UTC' }} - {{ schedule.endDate | date: 'shortTime' : 'UTC' }}
+                  </span>
+                  <lz-status-chip [tone]="schedule.status === 'unpublished' ? 'warning' : 'neutral'">{{ schedule.status }}</lz-status-chip>
                 </p>
-                <p class="m-0 flex flex-wrap items-center gap-2" *ngIf="entry.clockOut">
-                  <mat-icon aria-hidden="true" class="text-ink-soft">logout</mat-icon>
-                  <span class="text-ink-soft" i18n="@@shift_history.clock_out">Clock out:</span>
-                  <span class="font-medium">{{ formatTime(entry.clockOut) }}</span>
-                </p>
-                <p class="m-0 flex flex-wrap items-center gap-2" *ngIf="entry.duration">
-                  <mat-icon aria-hidden="true" class="text-ink-soft">schedule</mat-icon>
-                  <span class="text-ink-soft" i18n="@@shift_history.duration">Duration:</span>
-                  <span class="font-medium">{{ entry.duration }}</span>
-                </p>
-                <div class="flex flex-wrap gap-2">
-                  <button lzButton variant="secondary" type="button" (click)="startEditClockTimes(entry)">
+
+                <div class="flex flex-wrap gap-2" *ngIf="editingScheduleId !== schedule.scheduleId">
+                  <button lzButton variant="secondary" type="button" (click)="startEditSchedule(schedule)">
                     <mat-icon aria-hidden="true">edit</mat-icon>
-                    <ng-container i18n="@@shift_history.edit_clock">Edit clock times</ng-container>
+                    <ng-container i18n="@@shift_history.edit_time">Edit time</ng-container>
                   </button>
-                  <button lzButton variant="secondary" type="button" *ngIf="canManualClockOut(entry)" (click)="manualClockOut(entry)">
-                    <mat-icon aria-hidden="true">logout</mat-icon>
-                    <ng-container i18n="@@shift_history.manual_clock_out">Manual clock out</ng-container>
+                  <button lzButton variant="secondary" type="button" *ngIf="isUnpublished(schedule)" (click)="approveSchedule(schedule)">
+                    <mat-icon aria-hidden="true">check_circle</mat-icon>
+                    <ng-container i18n="@@shift_history.approve">Approve</ng-container>
+                  </button>
+                  <button lzButton variant="secondary" type="button" *ngIf="canApproveMissed(entry)" (click)="approveMissedShift(entry)">
+                    <mat-icon aria-hidden="true">done_all</mat-icon>
+                    <ng-container i18n="@@shift_history.approve_missed">Approve missed</ng-container>
                   </button>
                 </div>
 
-                <div class="rounded-control bg-paper-alt p-3" *ngIf="editingClockEntryKey === entry.date.toDateString()">
+                <div class="rounded-control bg-paper-alt p-3" *ngIf="editingScheduleId === schedule.scheduleId">
                   <div class="grid gap-3 sm:grid-cols-2">
-                    <lz-field label="Clock in" i18n-label="@@shift_history.clock_in_label" [controlId]="'clock-in-' + entry.date.getTime()">
-                      <input lzField type="time" [id]="'clock-in-' + entry.date.getTime()" [(ngModel)]="editClockInTime" />
+                    <lz-field label="Start" i18n-label="@@shift_history.start" [controlId]="'edit-start-' + schedule.scheduleId">
+                      <input lzField type="time" [id]="'edit-start-' + schedule.scheduleId" [(ngModel)]="editStartTime" />
                     </lz-field>
-                    <lz-field label="Clock out" i18n-label="@@shift_history.clock_out_label" [controlId]="'clock-out-' + entry.date.getTime()">
-                      <input lzField type="time" [id]="'clock-out-' + entry.date.getTime()" [(ngModel)]="editClockOutTime" />
+                    <lz-field label="End" i18n-label="@@shift_history.end" [controlId]="'edit-end-' + schedule.scheduleId">
+                      <input lzField type="time" [id]="'edit-end-' + schedule.scheduleId" [(ngModel)]="editEndTime" />
                     </lz-field>
                   </div>
                   <div class="mt-3 flex flex-wrap gap-2">
-                    <button lzButton variant="secondary" type="button" (click)="saveClockTimes(entry)" i18n="@@common.save">Save</button>
-                    <button lzButton variant="quiet" type="button" (click)="cancelEditClockTimes()" i18n="@@common.cancel">Cancel</button>
+                    <button lzButton variant="secondary" type="button" (click)="saveScheduleTime(schedule)" i18n="@@common.save">Save</button>
+                    <button lzButton variant="quiet" type="button" (click)="cancelEditSchedule()" i18n="@@common.cancel">Cancel</button>
                   </div>
                 </div>
-              </div>
+              </li>
+            </ul>
 
-              <ul class="m-0 list-none space-y-2 p-0" *ngIf="entry.schedules.length > 0">
-                <li *ngFor="let schedule of entry.schedules" class="space-y-2">
-                  <p class="m-0 flex flex-wrap items-center gap-2">
-                    <mat-icon aria-hidden="true" class="text-ink-soft">event</mat-icon>
-                    <span *ngIf="editingScheduleId !== schedule.scheduleId">
-                      {{ schedule.startDate | date: 'shortTime' : 'UTC' }} - {{ schedule.endDate | date: 'shortTime' : 'UTC' }}
-                    </span>
-                    <lz-status-chip [tone]="schedule.status === 'unpublished' ? 'warning' : 'neutral'">{{ schedule.status }}</lz-status-chip>
-                  </p>
+            <ul class="m-0 list-none space-y-1 p-0" *ngIf="entry.events.length > 0 && (entry.status === 'sick' || entry.status === 'timeoff')">
+              <li *ngFor="let event of entry.events" class="flex items-start gap-2">
+                <mat-icon aria-hidden="true" class="shrink-0 text-ink-soft">info</mat-icon>
+                <span>{{ event.description || event.eventType }}</span>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </div>
 
-                  <div class="flex flex-wrap gap-2" *ngIf="editingScheduleId !== schedule.scheduleId">
-                    <button lzButton variant="secondary" type="button" (click)="startEditSchedule(schedule)">
-                      <mat-icon aria-hidden="true">edit</mat-icon>
-                      <ng-container i18n="@@shift_history.edit_time">Edit time</ng-container>
-                    </button>
-                    <button lzButton variant="secondary" type="button" *ngIf="isUnpublished(schedule)" (click)="approveSchedule(schedule)">
-                      <mat-icon aria-hidden="true">check_circle</mat-icon>
-                      <ng-container i18n="@@shift_history.approve">Approve</ng-container>
-                    </button>
-                    <button lzButton variant="secondary" type="button" *ngIf="canApproveMissed(entry)" (click)="approveMissedShift(entry)">
-                      <mat-icon aria-hidden="true">done_all</mat-icon>
-                      <ng-container i18n="@@shift_history.approve_missed">Approve missed</ng-container>
-                    </button>
-                  </div>
-
-                  <div class="rounded-control bg-paper-alt p-3" *ngIf="editingScheduleId === schedule.scheduleId">
-                    <div class="grid gap-3 sm:grid-cols-2">
-                      <lz-field label="Start" i18n-label="@@shift_history.start" [controlId]="'edit-start-' + schedule.scheduleId">
-                        <input lzField type="time" [id]="'edit-start-' + schedule.scheduleId" [(ngModel)]="editStartTime" />
-                      </lz-field>
-                      <lz-field label="End" i18n-label="@@shift_history.end" [controlId]="'edit-end-' + schedule.scheduleId">
-                        <input lzField type="time" [id]="'edit-end-' + schedule.scheduleId" [(ngModel)]="editEndTime" />
-                      </lz-field>
-                    </div>
-                    <div class="mt-3 flex flex-wrap gap-2">
-                      <button lzButton variant="secondary" type="button" (click)="saveScheduleTime(schedule)" i18n="@@common.save">Save</button>
-                      <button lzButton variant="quiet" type="button" (click)="cancelEditSchedule()" i18n="@@common.cancel">Cancel</button>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-
-              <ul class="m-0 list-none space-y-1 p-0" *ngIf="entry.events.length > 0 && (entry.status === 'sick' || entry.status === 'timeoff')">
-                <li *ngFor="let event of entry.events" class="flex items-start gap-2">
-                  <mat-icon aria-hidden="true" class="shrink-0 text-ink-soft">info</mat-icon>
-                  <span>{{ event.description || event.eventType }}</span>
-                </li>
-              </ul>
-            </div>
-          </li>
-        </ul>
-      </div>
-
-      <p lzDialogActions class="m-0 mr-auto flex flex-wrap gap-x-4 gap-y-1 text-ink-soft" *ngIf="!loading && filteredEntries.length > 0">
-        <span><ng-container i18n="@@shift_history.total_shifts">Total shifts:</ng-container> <strong class="text-ink">{{ filteredEntries.length }}</strong></span>
-        <span><ng-container i18n="@@shift_history.completed_stat">Completed:</ng-container> <strong class="text-ink">{{ getCompletedCount() }}</strong></span>
-        <span><ng-container i18n="@@shift_history.missed_stat">Missed:</ng-container> <strong class="text-ink">{{ getMissedCount() }}</strong></span>
-      </p>
-      <button lzDialogActions lzButton variant="primary" type="button" (click)="onClose()" i18n="@@shift_history.close">Close</button>
-    </lz-dialog-frame>
-  </div>
-</div>
+    <p lzDialogActions class="m-0 mr-auto flex flex-wrap gap-x-4 gap-y-1 text-ink-soft" *ngIf="!loading && filteredEntries.length > 0">
+      <span><ng-container i18n="@@shift_history.total_shifts">Total shifts:</ng-container> <strong class="text-ink">{{ filteredEntries.length }}</strong></span>
+      <span><ng-container i18n="@@shift_history.completed_stat">Completed:</ng-container> <strong class="text-ink">{{ getCompletedCount() }}</strong></span>
+      <span><ng-container i18n="@@shift_history.missed_stat">Missed:</ng-container> <strong class="text-ink">{{ getMissedCount() }}</strong></span>
+    </p>
+    <button lzDialogActions lzButton variant="primary" type="button" (click)="onClose()" i18n="@@shift_history.close">Close</button>
+  </lz-dialog-frame>
+</lz-dialog-overlay>

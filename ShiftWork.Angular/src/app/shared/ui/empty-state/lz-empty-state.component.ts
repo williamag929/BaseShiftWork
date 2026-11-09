@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'flex flex-col items-center gap-2 px-4 py-10 text-center' },
+  host: { class: 'flex flex-col items-center gap-2 px-4 py-10 text-center', '[attr.title]': 'null' },
   template: `
     <mat-icon aria-hidden="true" class="size-10! text-4xl text-ink-muted">{{ icon }}</mat-icon>
     <h3 class="font-display text-base font-semibold">{{ title }}</h3>

@@ -1,98 +1,88 @@
-<div class="fixed inset-0 z-[999] flex items-start justify-center overflow-y-auto p-4">
-  <div class="fixed inset-0 bg-navy-900/40" aria-hidden="true" (click)="onClose()"></div>
-  <div
-    role="dialog"
-    aria-modal="true"
-    cdkTrapFocus
-    cdkTrapFocusAutoCapture
-    [attr.aria-labelledby]="frame.titleId"
-    class="relative my-auto w-full max-w-lg rounded-dialog border border-line bg-paper shadow-overlay"
-  >
-    <lz-dialog-frame #frame title="Repeat shift pattern" i18n-title="@@repeat_pattern.title" (closed)="onClose()">
-      <div class="space-y-4">
-        <lz-field label="Employee" i18n-label="@@repeat_pattern.employee" controlId="person-name">
-          <input lzField type="text" id="person-name" [value]="personName" disabled />
-        </lz-field>
+<lz-dialog-overlay (closed)="onClose()">
+  <lz-dialog-frame title="Repeat shift pattern" i18n-title="@@repeat_pattern.title" (closed)="onClose()">
+    <div class="space-y-4">
+      <lz-field label="Employee" i18n-label="@@repeat_pattern.employee" controlId="person-name">
+        <input lzField type="text" id="person-name" [value]="personName" disabled />
+      </lz-field>
 
-        <lz-field label="Pattern type" i18n-label="@@repeat_pattern.pattern_type" controlId="pattern-type">
-          <select lzField id="pattern-type" cdkFocusInitial [(ngModel)]="patternType">
-            <option value="daily" i18n="@@repeat_pattern.daily">Daily</option>
-            <option value="weekly" i18n="@@repeat_pattern.weekly">Weekly</option>
-            <option value="biweekly" i18n="@@repeat_pattern.biweekly">Bi-weekly (every 2 weeks)</option>
-            <option value="monthly" i18n="@@repeat_pattern.monthly">Monthly</option>
-          </select>
-        </lz-field>
+      <lz-field label="Pattern type" i18n-label="@@repeat_pattern.pattern_type" controlId="pattern-type">
+        <select lzField id="pattern-type" cdkFocusInitial [(ngModel)]="patternType">
+          <option value="daily" i18n="@@repeat_pattern.daily">Daily</option>
+          <option value="weekly" i18n="@@repeat_pattern.weekly">Weekly</option>
+          <option value="biweekly" i18n="@@repeat_pattern.biweekly">Bi-weekly (every 2 weeks)</option>
+          <option value="monthly" i18n="@@repeat_pattern.monthly">Monthly</option>
+        </select>
+      </lz-field>
 
-        <div *ngIf="patternType === 'daily' || patternType === 'monthly'">
-          <label class="mb-1 block font-medium" for="repeat-every" i18n="@@repeat_pattern.repeat_every">Repeat every</label>
-          <div class="flex items-center gap-3">
-            <input lzField class="!w-24" type="number" id="repeat-every" [(ngModel)]="repeatEvery" min="1" />
-            <span>
-              <ng-container *ngIf="patternType === 'daily'" i18n="@@repeat_pattern.days_unit">day(s)</ng-container>
-              <ng-container *ngIf="patternType !== 'daily'" i18n="@@repeat_pattern.months_unit">month(s)</ng-container>
-            </span>
-          </div>
+      <div *ngIf="patternType === 'daily' || patternType === 'monthly'">
+        <label class="mb-1 block font-medium" for="repeat-every" i18n="@@repeat_pattern.repeat_every">Repeat every</label>
+        <div class="flex items-center gap-3">
+          <input lzField class="!w-24" type="number" id="repeat-every" [(ngModel)]="repeatEvery" min="1" />
+          <span>
+            <ng-container *ngIf="patternType === 'daily'" i18n="@@repeat_pattern.days_unit">day(s)</ng-container>
+            <ng-container *ngIf="patternType !== 'daily'" i18n="@@repeat_pattern.months_unit">month(s)</ng-container>
+          </span>
         </div>
-
-        <fieldset *ngIf="patternType === 'weekly' || patternType === 'biweekly'">
-          <legend class="mb-1 font-medium" i18n="@@repeat_pattern.repeat_on">Repeat on</legend>
-          <div class="flex flex-wrap gap-2">
-            <button
-              *ngFor="let day of dayNames; let i = index"
-              type="button"
-              lzButton
-              variant="secondary"
-              iconOnly
-              [class]="selectedDaysOfWeek[i] ? 'border-2! border-ink! bg-neutral-bg! font-semibold' : ''"
-              [attr.aria-pressed]="selectedDaysOfWeek[i]"
-              (click)="toggleDay(i)"
-            >{{ day }}</button>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend class="mb-1 font-medium" i18n="@@repeat_pattern.end">End</legend>
-          <div class="flex min-h-12 flex-wrap items-center gap-3">
-            <label class="flex min-h-12 items-center gap-3">
-              <input type="radio" name="endType" value="occurrences" class="size-5 accent-ink" [(ngModel)]="endType" />
-              <span i18n="@@repeat_pattern.after">After</span>
-            </label>
-            <input
-              lzField
-              class="!w-24"
-              type="number"
-              min="1"
-              aria-label="Number of occurrences"
-              i18n-aria-label="@@repeat_pattern.occurrences_aria"
-              [(ngModel)]="occurrences"
-              [disabled]="endType !== 'occurrences'"
-            />
-            <span i18n="@@repeat_pattern.occurrences">occurrence(s)</span>
-          </div>
-          <div class="flex min-h-12 flex-wrap items-center gap-3">
-            <label class="flex min-h-12 items-center gap-3">
-              <input type="radio" name="endType" value="date" class="size-5 accent-ink" [(ngModel)]="endType" />
-              <span i18n="@@repeat_pattern.on_date">On</span>
-            </label>
-            <input
-              lzField
-              class="!w-auto"
-              type="date"
-              aria-label="End date"
-              i18n-aria-label="@@repeat_pattern.end_date_aria"
-              [(ngModel)]="endDate"
-              [disabled]="endType !== 'date'"
-            />
-          </div>
-        </fieldset>
-
-        <lz-alert tone="info" i18n="@@repeat_pattern.info_msg">This will create multiple shifts based on your pattern. Review them in the schedule grid.</lz-alert>
-
-        <lz-alert tone="danger" *ngIf="errorMessage">{{ errorMessage }}</lz-alert>
       </div>
 
-      <button lzDialogActions lzButton variant="secondary" type="button" (click)="onClose()" i18n="@@common.cancel">Cancel</button>
-      <button lzDialogActions lzButton variant="primary" type="button" (click)="onSubmit()" i18n="@@repeat_pattern.create">Create shifts</button>
-    </lz-dialog-frame>
-  </div>
-</div>
+      <fieldset *ngIf="patternType === 'weekly' || patternType === 'biweekly'">
+        <legend class="mb-1 font-medium" i18n="@@repeat_pattern.repeat_on">Repeat on</legend>
+        <div class="flex flex-wrap gap-2">
+          <button
+            *ngFor="let day of dayNames; let i = index"
+            type="button"
+            lzButton
+            variant="secondary"
+            iconOnly
+            [class]="selectedDaysOfWeek[i] ? 'border-2! border-ink! bg-neutral-bg! font-semibold' : ''"
+            [attr.aria-pressed]="selectedDaysOfWeek[i]"
+            (click)="toggleDay(i)"
+          >{{ day }}</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="mb-1 font-medium" i18n="@@repeat_pattern.end">End</legend>
+        <div class="flex min-h-12 flex-wrap items-center gap-3">
+          <label class="flex min-h-12 items-center gap-3">
+            <input type="radio" name="endType" value="occurrences" class="size-5 accent-ink" [(ngModel)]="endType" />
+            <span i18n="@@repeat_pattern.after">After</span>
+          </label>
+          <input
+            lzField
+            class="!w-24"
+            type="number"
+            min="1"
+            aria-label="Number of occurrences"
+            i18n-aria-label="@@repeat_pattern.occurrences_aria"
+            [(ngModel)]="occurrences"
+            [disabled]="endType !== 'occurrences'"
+          />
+          <span i18n="@@repeat_pattern.occurrences">occurrence(s)</span>
+        </div>
+        <div class="flex min-h-12 flex-wrap items-center gap-3">
+          <label class="flex min-h-12 items-center gap-3">
+            <input type="radio" name="endType" value="date" class="size-5 accent-ink" [(ngModel)]="endType" />
+            <span i18n="@@repeat_pattern.on_date">On</span>
+          </label>
+          <input
+            lzField
+            class="!w-auto"
+            type="date"
+            aria-label="End date"
+            i18n-aria-label="@@repeat_pattern.end_date_aria"
+            [(ngModel)]="endDate"
+            [disabled]="endType !== 'date'"
+          />
+        </div>
+      </fieldset>
+
+      <lz-alert tone="info" i18n="@@repeat_pattern.info_msg">This will create multiple shifts based on your pattern. Review them in the schedule grid.</lz-alert>
+
+      <lz-alert tone="danger" *ngIf="errorMessage">{{ errorMessage }}</lz-alert>
+    </div>
+
+    <button lzDialogActions lzButton variant="secondary" type="button" (click)="onClose()" i18n="@@common.cancel">Cancel</button>
+    <button lzDialogActions lzButton variant="primary" type="button" (click)="onSubmit()" i18n="@@repeat_pattern.create">Create shifts</button>
+  </lz-dialog-frame>
+</lz-dialog-overlay>

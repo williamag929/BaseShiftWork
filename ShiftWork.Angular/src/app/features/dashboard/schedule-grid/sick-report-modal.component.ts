@@ -1,8 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { A11yModule } from '@angular/cdk/a11y';
 import { MatIconModule } from '@angular/material/icon';
-import { LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzFieldComponent, LzFieldDirective } from 'src/app/shared/ui';
+import { LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzDialogOverlayComponent, LzFieldComponent, LzFieldDirective } from 'src/app/shared/ui';
 import { FormsModule } from '@angular/forms';
 
 export interface SickReportRequest {
@@ -18,7 +17,7 @@ export interface SickReportRequest {
 @Component({
   selector: 'app-sick-report-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, A11yModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzFieldComponent, LzFieldDirective],
+  imports: [CommonModule, FormsModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzDialogOverlayComponent, LzFieldComponent, LzFieldDirective],
   templateUrl: './sick-report-modal.component.html'
 })
 export class SickReportModalComponent implements OnInit {

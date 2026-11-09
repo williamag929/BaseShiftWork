@@ -1,68 +1,58 @@
-<div class="fixed inset-0 z-[999] flex items-start justify-center overflow-y-auto p-4">
-  <div class="fixed inset-0 bg-navy-900/40" aria-hidden="true" (click)="onClose()"></div>
-  <div
-    role="dialog"
-    aria-modal="true"
-    cdkTrapFocus
-    cdkTrapFocusAutoCapture
-    [attr.aria-labelledby]="frame.titleId"
-    class="relative my-auto w-full max-w-lg rounded-dialog border border-line bg-paper shadow-overlay"
-  >
-    <lz-dialog-frame #frame title="Request time off" i18n-title="@@time_off_modal.title" (closed)="onClose()">
-      <div class="space-y-4">
-        <lz-field label="Employee" i18n-label="@@time_off_modal.employee" controlId="person-name">
-          <input lzField type="text" id="person-name" [value]="personName" disabled />
+<lz-dialog-overlay (closed)="onClose()">
+  <lz-dialog-frame title="Request time off" i18n-title="@@time_off_modal.title" (closed)="onClose()">
+    <div class="space-y-4">
+      <lz-field label="Employee" i18n-label="@@time_off_modal.employee" controlId="person-name">
+        <input lzField type="text" id="person-name" [value]="personName" disabled />
+      </lz-field>
+
+      <lz-field label="Request type" i18n-label="@@time_off_modal.request_type" controlId="request-type">
+        <select lzField id="request-type" cdkFocusInitial [(ngModel)]="requestType">
+          <option *ngFor="let type of requestTypes" [value]="type.value">{{ type.label }}</option>
+        </select>
+      </lz-field>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <lz-field label="Start date" i18n-label="@@time_off_modal.start_date" controlId="start-date">
+          <input lzField type="date" id="start-date" [(ngModel)]="startDate" />
         </lz-field>
-
-        <lz-field label="Request type" i18n-label="@@time_off_modal.request_type" controlId="request-type">
-          <select lzField id="request-type" cdkFocusInitial [(ngModel)]="requestType">
-            <option *ngFor="let type of requestTypes" [value]="type.value">{{ type.label }}</option>
-          </select>
+        <lz-field label="End date" i18n-label="@@time_off_modal.end_date" controlId="end-date">
+          <input lzField type="date" id="end-date" [(ngModel)]="endDate" />
         </lz-field>
-
-        <div class="grid gap-4 sm:grid-cols-2">
-          <lz-field label="Start date" i18n-label="@@time_off_modal.start_date" controlId="start-date">
-            <input lzField type="date" id="start-date" [(ngModel)]="startDate" />
-          </lz-field>
-          <lz-field label="End date" i18n-label="@@time_off_modal.end_date" controlId="end-date">
-            <input lzField type="date" id="end-date" [(ngModel)]="endDate" />
-          </lz-field>
-        </div>
-
-        <label class="flex min-h-12 items-center gap-3">
-          <input type="checkbox" class="size-5 accent-ink" [(ngModel)]="isPartialDay" />
-          <span i18n="@@time_off_modal.partial_day">Partial day</span>
-        </label>
-
-        <div class="grid gap-4 sm:grid-cols-2" *ngIf="isPartialDay">
-          <lz-field label="Start time" i18n-label="@@time_off_modal.start_time" controlId="partial-start">
-            <input lzField type="time" id="partial-start" [(ngModel)]="partialStartTime" />
-          </lz-field>
-          <lz-field label="End time" i18n-label="@@time_off_modal.end_time" controlId="partial-end">
-            <input lzField type="time" id="partial-end" [(ngModel)]="partialEndTime" />
-          </lz-field>
-        </div>
-
-        <lz-field label="Reason (optional)" i18n-label="@@time_off_modal.reason" controlId="reason">
-          <textarea
-            lzField
-            id="reason"
-            class="py-2"
-            rows="3"
-            placeholder="Provide additional details..."
-            i18n-placeholder="@@time_off_modal.reason_ph"
-            [(ngModel)]="reason"
-          ></textarea>
-        </lz-field>
-
-        <lz-alert tone="danger" *ngIf="errorMessage">{{ errorMessage }}</lz-alert>
       </div>
 
-      <button lzDialogActions lzButton variant="secondary" type="button" (click)="onClose()" [disabled]="submitting" i18n="@@common.cancel">Cancel</button>
-      <button lzDialogActions lzButton variant="primary" type="button" (click)="onSubmit()" [disabled]="submitting">
-        <ng-container *ngIf="!submitting" i18n="@@time_off_modal.submit">Request time off</ng-container>
-        <ng-container *ngIf="submitting" i18n="@@time_off_modal.submitting">Submitting...</ng-container>
-      </button>
-    </lz-dialog-frame>
-  </div>
-</div>
+      <label class="flex min-h-12 items-center gap-3">
+        <input type="checkbox" class="size-5 accent-ink" [(ngModel)]="isPartialDay" />
+        <span i18n="@@time_off_modal.partial_day">Partial day</span>
+      </label>
+
+      <div class="grid gap-4 sm:grid-cols-2" *ngIf="isPartialDay">
+        <lz-field label="Start time" i18n-label="@@time_off_modal.start_time" controlId="partial-start">
+          <input lzField type="time" id="partial-start" [(ngModel)]="partialStartTime" />
+        </lz-field>
+        <lz-field label="End time" i18n-label="@@time_off_modal.end_time" controlId="partial-end">
+          <input lzField type="time" id="partial-end" [(ngModel)]="partialEndTime" />
+        </lz-field>
+      </div>
+
+      <lz-field label="Reason (optional)" i18n-label="@@time_off_modal.reason" controlId="reason">
+        <textarea
+          lzField
+          id="reason"
+          class="py-2"
+          rows="3"
+          placeholder="Provide additional details..."
+          i18n-placeholder="@@time_off_modal.reason_ph"
+          [(ngModel)]="reason"
+        ></textarea>
+      </lz-field>
+
+      <lz-alert tone="danger" *ngIf="errorMessage">{{ errorMessage }}</lz-alert>
+    </div>
+
+    <button lzDialogActions lzButton variant="secondary" type="button" (click)="onClose()" [disabled]="submitting" i18n="@@common.cancel">Cancel</button>
+    <button lzDialogActions lzButton variant="primary" type="button" (click)="onSubmit()" [disabled]="submitting">
+      <ng-container *ngIf="!submitting" i18n="@@time_off_modal.submit">Request time off</ng-container>
+      <ng-container *ngIf="submitting" i18n="@@time_off_modal.submitting">Submitting...</ng-container>
+    </button>
+  </lz-dialog-frame>
+</lz-dialog-overlay>

@@ -42,3 +42,13 @@ describe('LzPanelComponent', () => {
     f.nativeElement.remove();
   });
 });
+
+describe('LzPanelComponent native tooltip', () => {
+  it('does not leave a title attribute on the host when the input is set statically', () => {
+    @Component({ standalone: true, imports: [LzPanelComponent], template: `<lz-panel heading="Team" title="Team tip"></lz-panel>` })
+    class TitleHost {}
+    const f = TestBed.createComponent(TitleHost);
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('lz-panel').hasAttribute('title')).toBeFalse();
+  });
+});

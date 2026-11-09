@@ -33,3 +33,13 @@ describe('LzPageHeaderComponent', () => {
     expect(root.querySelector('#meta')).not.toBeNull();
   });
 });
+
+describe('LzPageHeaderComponent native tooltip', () => {
+  it('does not leave a title attribute on the host when the input is set statically', () => {
+    @Component({ standalone: true, imports: [LzPageHeaderComponent], template: `<lz-page-header title="People"></lz-page-header>` })
+    class TitleHost {}
+    const f = TestBed.createComponent(TitleHost);
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('lz-page-header').hasAttribute('title')).toBeFalse();
+  });
+});

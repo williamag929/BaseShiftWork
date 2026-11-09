@@ -1,8 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { A11yModule } from '@angular/cdk/a11y';
 import { MatIconModule } from '@angular/material/icon';
-import { LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzStatusChipComponent, type LzTone } from 'src/app/shared/ui';
+import { LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzDialogOverlayComponent, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzStatusChipComponent, type LzTone } from 'src/app/shared/ui';
 import { FormsModule } from '@angular/forms';
 import { ShiftEventService } from 'src/app/core/services/shift-event.service';
 import { ScheduleService } from 'src/app/core/services/schedule.service';
@@ -22,7 +21,7 @@ interface ShiftHistoryEntry {
 @Component({
   selector: 'app-shift-history-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, A11yModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzStatusChipComponent],
+  imports: [CommonModule, FormsModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzDialogOverlayComponent, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzStatusChipComponent],
   templateUrl: './shift-history-modal.component.html'
 })
 export class ShiftHistoryModalComponent implements OnInit {

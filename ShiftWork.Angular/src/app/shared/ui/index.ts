@@ -17,3 +17,4 @@ export { LzSidePanelComponent } from './side-panel/lz-side-panel.component';
 export { LzPagerComponent } from './pager/lz-pager.component';
 export { paginate } from './pager/paginate';
 export { LzPortalDirective } from './portal/lz-portal.directive';
+export { LzDialogOverlayComponent } from './dialog/lz-dialog-overlay.component';

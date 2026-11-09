@@ -1,8 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { A11yModule } from '@angular/cdk/a11y';
 import { MatIconModule } from '@angular/material/icon';
-import { LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzStatusChipComponent } from 'src/app/shared/ui';
+import { LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzDialogOverlayComponent, LzStatusChipComponent } from 'src/app/shared/ui';
 
 /** A single scheduling-rule infraction detected for the proposed shift. */
 export interface ConflictViolation {
@@ -46,7 +45,7 @@ export interface ScheduleConflictInfo {
 @Component({
   selector: 'app-schedule-conflict-modal',
   standalone: true,
-  imports: [CommonModule, A11yModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzStatusChipComponent],
+  imports: [CommonModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzDialogFrameComponent, LzDialogOverlayComponent, LzStatusChipComponent],
   templateUrl: './schedule-conflict-modal.component.html'
 })
 export class ScheduleConflictModalComponent {

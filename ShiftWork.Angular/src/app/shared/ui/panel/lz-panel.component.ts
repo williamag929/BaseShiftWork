@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   selector: 'lz-panel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'block rounded-panel border border-line bg-paper' },
+  host: { class: 'block rounded-panel border border-line bg-paper', '[attr.title]': 'null' },
   template: `
     <div
       class="flex flex-wrap items-center gap-2"

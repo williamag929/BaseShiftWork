@@ -4,6 +4,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   selector: 'lz-page-header',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[attr.title]': 'null' },
   template: `
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div class="min-w-0">

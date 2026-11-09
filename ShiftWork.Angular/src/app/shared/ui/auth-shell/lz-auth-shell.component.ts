@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, Input, booleanAttribute } from '@an
   selector: 'lz-auth-shell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'flex min-h-screen items-center justify-center bg-canvas p-4' },
+  host: { class: 'flex min-h-screen items-center justify-center bg-canvas p-4', '[attr.title]': 'null' },
   template: `
     <div
       class="w-full rounded-panel border border-line bg-paper p-6"
