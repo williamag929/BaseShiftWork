@@ -181,6 +181,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   cancelUpload(): void {
     this.panelOpen = false;
     if (!this.uploading) {
+      if (this.fileInput) this.fileInput.nativeElement.value = '';
       this.selectedFile = null;
       this.uploadForm.reset({ type: 'Other', version: '1.0', accessLevel: 'Public' });
     }

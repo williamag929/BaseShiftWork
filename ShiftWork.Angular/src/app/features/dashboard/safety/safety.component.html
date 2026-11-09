@@ -59,6 +59,12 @@
                   @if (c.description) {
                     <div class="max-w-md text-[13px] text-ink-soft">{{ c.description }}</div>
                   }
+                  @if (c.textContent) {
+                    <p class="mt-1 max-w-md whitespace-pre-line text-ink" data-testid="content-text">{{ c.textContent }}</p>
+                  }
+                  @if (c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser) {
+                    <p class="mt-1 max-w-md text-[13px] text-amber-ink" data-testid="ack-prompt" i18n="@@safety.ack_prompt">Please review and acknowledge this safety content before continuing.</p>
+                  }
                   <div class="text-[13px] text-ink-soft">{{ c.createdByName }} · {{ locationName(c.locationId) }}</div>
                 </td>
                 <td>{{ typeLabels[c.type] || c.type }}</td>
@@ -76,7 +82,7 @@
                 <td>
                   <div>{{ c.createdAt | date:'mediumDate' }}</div>
                   @if (c.scheduledFor) {
-                    <div class="text-[13px] text-ink-soft"><ng-container i18n="@@safety.scheduled_on">Scheduled</ng-container> {{ c.scheduledFor | date:'MMM d, y' }}</div>
+                    <div class="text-[13px] text-ink-soft"><ng-container i18n="@@safety.scheduled_on">Scheduled</ng-container> {{ c.scheduledFor | date:'mediumDate' }}</div>
                   }
                 </td>
                 <td>
@@ -107,9 +113,6 @@
                 <tr data-testid="compliance-row">
                   <td colspan="5" class="bg-paper-alt">
                     <div class="flex flex-col gap-3">
-                      @if (c.textContent) {
-                        <p class="whitespace-pre-line">{{ c.textContent }}</p>
-                      }
                       @if (compliance(c.safetyContentId); as status) {
                         <div class="flex flex-wrap items-center gap-3">
                           <lz-status-chip [tone]="completionPct(status) >= 80 ? 'success' : 'warning'" [dot]="true">{{ status.totalCompleted }} / {{ status.totalAssigned }} <ng-container i18n="@@safety.compliance_acknowledged">acknowledged</ng-container> ({{ completionPct(status) }}%)</lz-status-chip>
@@ -125,6 +128,8 @@
                             }
                           </div>
                         }
+                      } @else if (complianceFailed.has(c.safetyContentId)) {
+                        <lz-alert tone="danger" i18n="@@safety.compliance_error">Could not load compliance data.</lz-alert>
                       } @else {
                         <lz-alert tone="info" i18n="@@safety.compliance_loading">Loading compliance...</lz-alert>
                       }

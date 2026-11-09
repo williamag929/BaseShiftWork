@@ -153,6 +153,21 @@ describe('BulletinsComponent (Loqzen design system)', () => {
     expect(el().textContent).toContain('Hello');
   });
 
+  it('converts expiresAt from local midnight to ISO on submit and sends null when empty', async () => {
+    await setup(paged([]));
+    for (const expires of ['', '2026-12-01']) {
+      await click(el().querySelector('lz-page-header button'));
+      for (const [id, value] of [['#bulletin-title', 'T'], ['#bulletin-content', 'C'], ['#bulletin-expires', expires]]) {
+        const input = panel()!.querySelector(id) as HTMLInputElement;
+        input.value = value; input.dispatchEvent(new Event('input'));
+      }
+      await settle();
+      await click(panel()!.querySelector('button[type="submit"]'));
+      const sent = svc['createBulletin'].calls.mostRecent().args[1].expiresAt;
+      expect(sent).toEqual(expires ? new Date(`${expires}T00:00:00`).toISOString() : null);
+    }
+  });
+
   it('renders only 25 rows when the server reports 120 and requests the next page', async () => {
     await setup(paged(many(25), 120));
     expect(el().querySelectorAll('tbody tr').length).toBe(25);

@@ -171,6 +171,67 @@ describe('DocumentsComponent (Loqzen design system)', () => {
     expect(picker).toHaveBeenCalledTimes(3);
   });
 
+  it('marks the dropzone as required for assistive tech', async () => {
+    await setup(paged([]));
+    await click(el().querySelector('lz-page-header button'));
+    expect(panel()!.querySelector('[data-testid="dropzone"]')!.getAttribute('aria-required')).toBe('true');
+  });
+
+  it('dropping a file sets selectedFile only and does not start an upload', async () => {
+    await setup(paged([]));
+    await click(el().querySelector('lz-page-header button'));
+    const transfer = new DataTransfer();
+    transfer.items.add(new File(['x'], 'dropped.pdf', { type: 'application/pdf' }));
+    const event = new DragEvent('drop', { dataTransfer: transfer, bubbles: true, cancelable: true });
+    panel()!.querySelector('[data-testid="dropzone"]')!.dispatchEvent(event);
+    await settle();
+    expect(event.defaultPrevented).toBeTrue();
+    expect(fixture.componentInstance.selectedFile!.name).toBe('dropped.pdf');
+    expect(svc['initiateUpload']).not.toHaveBeenCalled();
+  });
+
+  it('clears the hidden file input after cancel and after a successful upload', async () => {
+    await setup(paged([]));
+    await click(el().querySelector('lz-page-header button'));
+    let input = panel()!.querySelector('#fileInput') as HTMLInputElement;
+    chooseFile();
+    await settle();
+    expect(input.value).not.toBe('');
+    fixture.componentInstance.cancelUpload();
+    await settle();
+    expect(input.value).toBe('');
+    expect(fixture.componentInstance.selectedFile).toBeNull();
+
+    await click(el().querySelector('lz-page-header button'));
+    input = panel()!.querySelector('#fileInput') as HTMLInputElement;
+    await type('#document-title', 'Manual');
+    chooseFile();
+    await settle();
+    expect(input.value).not.toBe('');
+    await click(panel()!.querySelector('button[type="submit"]'));
+    expect(input.value).toBe('');
+  });
+
+  it('changing the type or location filter resets to page 1', async () => {
+    await setup(paged(many(25), 120));
+    await click(el().querySelector('lz-pager [aria-label="Next page"]'));
+    expect(fixture.componentInstance.page).toBe(2);
+    const type = el().querySelector('#doc-filter-type') as HTMLSelectElement;
+    type.value = 'Manual';
+    type.dispatchEvent(new Event('change'));
+    await settle();
+    expect(fixture.componentInstance.page).toBe(1);
+    expect(svc['getDocuments'].calls.mostRecent().args[2]).toBe('Manual');
+    await click(el().querySelector('lz-pager [aria-label="Next page"]'));
+    expect(fixture.componentInstance.page).toBe(2);
+    const loc = el().querySelector('#doc-filter-location') as HTMLSelectElement;
+    loc.selectedIndex = 1;
+    loc.dispatchEvent(new Event('change'));
+    await settle();
+    expect(fixture.componentInstance.page).toBe(1);
+    expect(svc['getDocuments'].calls.mostRecent().args[1]).toBe(7);
+  });
+
   it('uploads through the presigned S3 flow and closes the panel', async () => {
     await setup(paged([]));
     await click(el().querySelector('lz-page-header button'));

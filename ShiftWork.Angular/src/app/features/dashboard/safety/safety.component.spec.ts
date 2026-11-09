@@ -134,6 +134,77 @@ describe('SafetyComponent (Loqzen design system)', () => {
     expect(el().querySelector('tbody lz-status-chip')!.textContent).toContain('Acknowledged');
   });
 
+  it('shows the safety text and the acknowledge prompt by default, only for required unacknowledged items', async () => {
+    await setup(paged([
+      content(1, { textContent: 'Line one\nLine two' }),
+      content(2, { isAcknowledgedByCurrentUser: true }),
+      content(3, { isAcknowledgmentRequired: false })
+    ]));
+    const rows = el().querySelectorAll('tbody tr');
+    const text = rows[0].querySelector('[data-testid="content-text"]') as HTMLElement;
+    expect(text.textContent).toContain('Line one');
+    expect(text.getBoundingClientRect().height).toBeGreaterThan(0);
+    expect(getComputedStyle(text).whiteSpace).toBe('pre-line');
+    expect(rows[0].querySelector('[data-testid="ack-prompt"]')!.textContent).toContain('Please review and acknowledge this safety content before continuing.');
+    expect(rows[1].querySelector('[data-testid="ack-prompt"]')).toBeNull();
+    expect(rows[2].querySelector('[data-testid="ack-prompt"]')).toBeNull();
+    expect(rows[1].querySelector('[data-testid="content-text"]')).toBeNull();
+  });
+
+  it('the compliance toggle is its own control and does not hide the text', async () => {
+    await setup(paged([content(1, { textContent: 'Body text' })]));
+    const toggle = el().querySelector('[aria-label="View compliance for Talk 1"]') as HTMLElement;
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    await click(toggle);
+    expect(el().querySelector('[data-testid="content-text"]')!.textContent).toContain('Body text');
+    expect(el().querySelector('[data-testid="compliance-row"] [data-testid="content-text"]')).toBeNull();
+  });
+
+  it('a failed acknowledgment keeps the item unacknowledged and toasts an error', async () => {
+    await setup(paged([content(1)]));
+    svc['acknowledge'].and.returnValue(throwError(() => new Error('boom')));
+    await click(el().querySelector('[aria-label="I acknowledge Talk 1"]'));
+    expect((TestBed.inject(ToastrService) as any).error).toHaveBeenCalledWith('Could not save your acknowledgment.');
+    expect(el().querySelector('tbody lz-status-chip')!.textContent).toContain('Action required');
+    expect(el().querySelector('[data-testid="ack-prompt"]')).not.toBeNull();
+    expect(el().querySelector('[aria-label="I acknowledge Talk 1"]')).not.toBeNull();
+  });
+
+  it('shows an error state in the expanded row when compliance fails to load', async () => {
+    await setup(paged([content(1)]));
+    svc['getAcknowledgmentStatus'].and.returnValue(throwError(() => new Error('boom')));
+    await click(el().querySelector('[aria-label="View compliance for Talk 1"]'));
+    const row = el().querySelector('[data-testid="compliance-row"]')!;
+    expect(row.textContent).toContain('Could not load compliance data.');
+    expect(row.textContent).not.toContain('Loading compliance');
+    expect(row.querySelector('lz-alert[role="alert"]')).not.toBeNull();
+  });
+
+  it('shows the scheduled date with the locale medium format', async () => {
+    await setup(paged([content(1, { scheduledFor: '2026-03-05T12:00:00Z' })]));
+    expect(el().querySelector('tbody tr')!.textContent).toContain('Mar 5, 2026');
+  });
+
+  it('converts scheduledFor from local midnight to ISO on submit and sends null when empty', async () => {
+    await setup(paged([]));
+    await click(el().querySelector('lz-page-header button'));
+    for (const [id, value] of [['#safety-title', 'T'], ['#safety-description', 'D']]) {
+      const input = panel()!.querySelector(id) as HTMLInputElement;
+      input.value = value; input.dispatchEvent(new Event('input'));
+    }
+    await settle();
+    await click(panel()!.querySelector('button[type="submit"]'));
+    expect(svc['createContent'].calls.mostRecent().args[1].scheduledFor).toBeNull();
+    await click(el().querySelector('lz-page-header button'));
+    for (const [id, value] of [['#safety-title', 'T'], ['#safety-description', 'D'], ['#safety-scheduled', '2026-12-01']]) {
+      const input = panel()!.querySelector(id) as HTMLInputElement;
+      input.value = value; input.dispatchEvent(new Event('input'));
+    }
+    await settle();
+    await click(panel()!.querySelector('button[type="submit"]'));
+    expect(svc['createContent'].calls.mostRecent().args[1].scheduledFor).toBe(new Date('2026-12-01T00:00:00').toISOString());
+  });
+
   it('renders no form until the panel opens and only inside lz-side-panel', async () => {
     await setup(paged([content(1)]));
     expect(el().querySelector('form')).toBeNull();

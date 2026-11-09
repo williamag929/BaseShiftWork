@@ -42,6 +42,7 @@ export class SafetyComponent implements OnInit, OnDestroy {
 
   complianceMap = new Map<string, AcknowledgmentStatus>();
   expandedId: string | null = null;
+  complianceFailed = new Set<string>();
 
   form!: FormGroup;
 
@@ -194,9 +195,13 @@ export class SafetyComponent implements OnInit, OnDestroy {
     }
     this.expandedId = content.safetyContentId;
     if (!this.complianceMap.has(content.safetyContentId)) {
+      this.complianceFailed.delete(content.safetyContentId);
       this.safetyService.getAcknowledgmentStatus(this.activeCompany.companyId, content.safetyContentId).subscribe({
         next: status => this.complianceMap.set(content.safetyContentId, status),
-        error: () => this.toastr.error($localize`:@@safety.toast_compliance_failed:Could not load compliance data.`)
+        error: () => {
+          this.complianceFailed.add(content.safetyContentId);
+          this.toastr.error($localize`:@@safety.toast_compliance_failed:Could not load compliance data.`);
+        }
       });
     }
   }

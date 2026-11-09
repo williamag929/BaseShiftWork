@@ -8008,6 +8008,10 @@ What would you like to do?</source>
         <source>View content for <x id="name"/></source>
         <target state="translated">Ver contenido de <x id="name"/></target>
       </trans-unit>
+      <trans-unit id="safety.compliance_error" datatype="html">
+        <source>Could not load compliance data.</source>
+        <target state="translated">No se pudieron cargar los datos de cumplimiento.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
