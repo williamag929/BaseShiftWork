@@ -10,11 +10,11 @@ import { LocationService } from 'src/app/core/services/location.service';
 import { DailyReport } from 'src/app/core/models/daily-report.model';
 import { Location } from 'src/app/core/models/location.model';
 import { PermissionService } from 'src/app/core/services/permission.service';
+import { type LzSummaryItem, type LzTone } from 'src/app/shared/ui';
 
 @Component({
   selector: 'app-daily-reports',
   templateUrl: './daily-reports.component.html',
-  styleUrls: ['./daily-reports.component.css'],
   standalone: false
 })
 export class DailyReportsComponent implements OnInit, OnDestroy {
@@ -32,6 +32,7 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
   errorMessage: string | null = null;
   accessDenied = false;
 
+  private readonly noDataLabel = $localize`:@@daily_reports.no_weather:No data`;
   private destroy$ = new Subject<void>();
 
   get canApprove(): boolean { return this.permissionService.hasPermission('reports.approve'); }
@@ -62,7 +63,7 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
           this.loadReport();
         }
       },
-      error: () => this.toastr.error('Failed to load locations')
+      error: () => this.toastr.error($localize`:@@daily_reports.toast_locations_failed:Could not load locations.`)
     });
   }
 
@@ -81,7 +82,7 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
         if (err?.status === 403) {
           this.accessDenied = true;
         } else {
-          this.errorMessage = 'Failed to load report. Check your connection and try again.';
+          this.errorMessage = $localize`:@@daily_reports.load_error:Could not load the report. Check your connection and try again.`;
         }
         this.loading = false;
       }
@@ -99,9 +100,9 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
     this.loadReport();
   }
 
-  onDateChange(event: any): void {
-    const d: Date = event.value;
-    this.selectedDate = this.formatDate(d);
+  onDateChange(value: string): void {
+    if (!value) return;
+    this.selectedDate = value;
     this.report = null;
     this.errorMessage = null;
     this.accessDenied = false;
@@ -120,11 +121,11 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
       next: updated => {
         this.report = updated;
         this.saving = false;
-        this.toastr.success('Draft saved');
+        this.toastr.success($localize`:@@daily_reports.toast_draft_saved:Draft saved.`);
       },
       error: () => {
         this.saving = false;
-        this.toastr.error('Failed to save');
+        this.toastr.error($localize`:@@daily_reports.toast_save_failed:Could not save the draft.`);
       }
     });
   }
@@ -141,11 +142,11 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
       next: updated => {
         this.report = updated;
         this.saving = false;
-        this.toastr.success('Report submitted');
+        this.toastr.success($localize`:@@daily_reports.toast_submitted:Report submitted.`);
       },
       error: () => {
         this.saving = false;
-        this.toastr.error('Failed to submit');
+        this.toastr.error($localize`:@@daily_reports.toast_submit_failed:Could not submit the report.`);
       }
     });
   }
@@ -162,11 +163,11 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
       next: updated => {
         this.report = updated;
         this.saving = false;
-        this.toastr.success('Report approved');
+        this.toastr.success($localize`:@@daily_reports.toast_approved:Report approved.`);
       },
       error: () => {
         this.saving = false;
-        this.toastr.error('Failed to approve');
+        this.toastr.error($localize`:@@daily_reports.toast_approve_failed:Could not approve the report.`);
       }
     });
   }
@@ -187,6 +188,41 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
     this.loadReport();
   }
 
+  get primaryAction(): 'submit' | 'approve' {
+    return this.canApprove && this.report?.status === 'Submitted' ? 'approve' : 'submit';
+  }
+
+  statusTone(status: string): LzTone {
+    switch (status) {
+      case 'Approved': return 'success';
+      case 'Submitted': return 'info';
+      default: return 'warning';
+    }
+  }
+
+  statusLabel(status: string): string {
+    switch (status) {
+      case 'Approved': return $localize`:@@daily_reports.status_approved:Approved`;
+      case 'Submitted': return $localize`:@@daily_reports.status_submitted:Submitted`;
+      default: return $localize`:@@daily_reports.status_draft:Draft`;
+    }
+  }
+
+  private summarySource: DailyReport | null = null;
+  private summaryCache: LzSummaryItem[] = [];
+
+  /** Rebuilt only when the report object changes so the OnPush strip keeps a stable input. */
+  get summaryItems(): LzSummaryItem[] {
+    if (this.summarySource !== this.report) {
+      this.summarySource = this.report;
+      this.summaryCache = this.report ? [
+        { id: 'employees', count: this.report.totalEmployees, label: $localize`:@@daily_reports.employees:Employees`, tone: 'neutral' },
+        { id: 'hours', count: Math.round(this.report.totalHours * 10) / 10, label: $localize`:@@daily_reports.total_hours:Total hours`, tone: 'neutral' },
+      ] : [];
+    }
+    return this.summaryCache;
+  }
+
   statusColor(status: string): string {
     switch (status) {
       case 'Approved':  return 'primary';
@@ -197,8 +233,8 @@ export class DailyReportsComponent implements OnInit, OnDestroy {
 
   weatherDesc(): string {
     const w = this.report?.weatherData as any;
-    if (!w) return 'No data';
-    return w.description ?? 'No data';
+    if (!w) return this.noDataLabel;
+    return w.description ?? this.noDataLabel;
   }
 
   weatherTemp(): string {

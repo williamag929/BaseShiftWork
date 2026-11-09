@@ -98,3 +98,7 @@
 @source "../app/features/dashboard/credentials";
 @source "../app/features/dashboard/locations";
 @source "../app/features/dashboard/areas";
+@source "../app/features/dashboard/cost-codes";
+@source "../app/features/dashboard/tasks";
+@source "../app/features/dashboard/active-sites";
+@source "../app/features/dashboard/daily-reports";

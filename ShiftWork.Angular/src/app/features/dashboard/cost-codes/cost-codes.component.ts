@@ -10,11 +10,11 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { LocationService } from 'src/app/core/services/location.service';
 import { Location } from 'src/app/core/models/location.model';
+import { paginate } from 'src/app/shared/ui';
 
 @Component({
   selector: 'app-cost-codes',
   templateUrl: './cost-codes.component.html',
-  styleUrls: ['./cost-codes.component.css'],
   standalone: false
 })
 export class CostCodesComponent implements OnInit, OnDestroy {
@@ -27,6 +27,16 @@ export class CostCodesComponent implements OnInit, OnDestroy {
   costCodeForm!: FormGroup;
   loading = false;
   error: any = null;
+  saving = false;
+  panelOpen = false;
+  openerEl: HTMLElement | null = null;
+  page = 1;
+  pageSize = 25;
+  readonly paginate = paginate;
+  readonly codeRequired = $localize`:@@cost_codes.code_error:Code is required`;
+  readonly nameRequired = $localize`:@@cost_codes.name_error:Name is required`;
+  readonly addLabel = $localize`:@@cost_codes.add_btn:Add cost code`;
+  readonly allLocationsLabel = $localize`:@@cost_codes.all_locations:All locations`;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -76,6 +86,7 @@ export class CostCodesComponent implements OnInit, OnDestroy {
       this.locations = locations;
       this.costCodes = costCodes;
       this.loading = false;
+      this.page = Math.min(this.page, Math.max(1, Math.ceil(costCodes.length / this.pageSize)));
     });
 
     this.costCodeForm = this.fb.group({
@@ -93,7 +104,17 @@ export class CostCodesComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  addCostCode(): void {
+    this.cancelEdit();
+    this.panelOpen = true;
+  }
+
+  editLabel(costCode: CostCode): string {
+    return $localize`:@@cost_codes.edit_aria:Edit ${costCode.code}:code:`;
+  }
+
   editCostCode(costCode: CostCode): void {
+    this.panelOpen = true;
     this.selectedCostCode = costCode;
     this.costCodeForm.patchValue({
       code: costCode.code,
@@ -103,21 +124,23 @@ export class CostCodesComponent implements OnInit, OnDestroy {
       externalCode: costCode.externalCode ?? '',
       status: costCode.status ?? 'Active'
     });
+    this.costCodeForm.markAsPristine();
   }
 
   getLocationName(locationId: string | number | undefined | null): string {
     if (locationId === null || locationId === undefined || locationId === '') {
-      return 'All locations';
+      return this.allLocationsLabel;
     }
     const numericLocationId = typeof locationId === 'string' ? parseInt(locationId, 10) : locationId;
     if (isNaN(numericLocationId)) {
-      return 'All locations';
+      return this.allLocationsLabel;
     }
     const location = this.locations.find(l => l.locationId === numericLocationId);
-    return location?.name || 'All locations';
+    return location?.name || this.allLocationsLabel;
   }
 
   cancelEdit(): void {
+    this.panelOpen = false;
     this.selectedCostCode = null;
     this.costCodeForm.reset({
       code: '',
@@ -140,9 +163,10 @@ export class CostCodesComponent implements OnInit, OnDestroy {
   }
 
   saveCostCode(): void {
-    if (!this.costCodeForm.valid) {
+    if (!this.costCodeForm.valid || this.saving) {
       return;
     }
+    this.saving = true;
 
     if (this.selectedCostCode) {
       const updated = this.normalize(this.selectedCostCode);
@@ -152,10 +176,14 @@ export class CostCodesComponent implements OnInit, OnDestroy {
           if (index > -1) {
             this.costCodes[index] = result;
           }
-          this.toastr.success('Cost code updated successfully.');
+          this.saving = false;
+          this.toastr.success($localize`:@@cost_codes.toast_updated:Cost code updated.`);
           this.cancelEdit();
         },
-        () => this.toastr.error('Failed to update cost code.')
+        () => {
+          this.saving = false;
+          this.toastr.error($localize`:@@cost_codes.toast_update_failed:Could not update the cost code.`);
+        }
       );
     } else {
       const newCostCode = this.normalize({
@@ -164,11 +192,15 @@ export class CostCodesComponent implements OnInit, OnDestroy {
       });
       this.costCodeService.createCostCode(newCostCode.companyId, newCostCode).subscribe(
         (costCode) => {
+          this.saving = false;
           this.costCodes.push(costCode);
           this.cancelEdit();
-          this.toastr.success('Cost code created successfully.');
+          this.toastr.success($localize`:@@cost_codes.toast_created:Cost code created.`);
         },
-        () => this.toastr.error('Failed to create cost code.')
+        () => {
+          this.saving = false;
+          this.toastr.error($localize`:@@cost_codes.toast_create_failed:Could not create the cost code.`);
+        }
       );
     }
   }

@@ -1,271 +1,145 @@
-<div class="tasks-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-icon">
-        <i class="fa fa-tasks"></i>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title" i18n="@@tasks.page_title">Task Management</h1>
-        <p class="page-subtitle" i18n="@@tasks.page_subtitle">Define and organize tasks for your team</p>
-      </div>
-    </div>
+<div class="flex flex-col gap-4">
+  <div class="sticky top-0 z-10 bg-canvas">
+    <lz-page-header title="Tasks" i18n-title="@@tasks.page_title" subtitle="Define and organize tasks for your team" i18n-subtitle="@@tasks.page_subtitle">
+      <ng-container lzHeaderActions>
+        <button #addBtn lzButton type="button" [variant]="panelOpen ? 'secondary' : 'primary'" [attr.variant]="panelOpen ? 'secondary' : 'primary'" (click)="openerEl = addBtn; addTask()">
+          <mat-icon aria-hidden="true">add</mat-icon>
+          <ng-container i18n="@@tasks.add_btn">Add task</ng-container>
+        </button>
+      </ng-container>
+    </lz-page-header>
   </div>
 
-  <div class="content-grid">
-    <!-- Left Panel - Tasks List -->
-    <div class="list-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="fa fa-list"></i>
-            <ng-container i18n="@@tasks.list_title">Tasks</ng-container>
-          </h3>
-          <span class="badge">{{ tasks.length || 0 }}</span>
-        </div>
-
-        <div class="card-body">
-          <!-- Loading State -->
-          <div *ngIf="loading" class="loading-state">
-            <div class="spinner"></div>
-            <p class="loading-text" i18n="@@tasks.loading">Loading tasks...</p>
-          </div>
-
-          <!-- Error State -->
-          <div *ngIf="error" class="error-state">
-            <i class="fa fa-exclamation-triangle error-icon"></i>
-            <p class="error-text" i18n="@@tasks.error">Error loading tasks. Please try again.</p>
-          </div>
-
-          <!-- Tasks List -->
-          <div *ngIf="!loading && !error" class="tasks-list">
-            <div
-              *ngFor="let task of tasks; let i = index"
-              class="task-item"
-              [class.selected]="selectedTask?.taskShiftId === task.taskShiftId"
-              (click)="editTask(task)"
-              [style.animation-delay.ms]="i * 50">
-              <div class="task-icon">
-                <i class="fa fa-check-square-o"></i>
-              </div>
-              <div class="task-info">
-                <h4 class="task-title">{{ task.title || task.description }}</h4>
-                <p class="task-description" *ngIf="task.title">{{ task.description }}</p>
-                <div class="task-meta">
-                  <span class="meta-item">
-                    <i class="fa fa-map-marker"></i>
-                    {{ getLocationName(task.locationId) }}
-                  </span>
-                  <span class="meta-item" *ngIf="task.areaId">
-                    <i class="fa fa-map-signs"></i>
-                    {{ getAreaName(task.areaId) }}
-                  </span>
-                  <span class="meta-item" *ngIf="task.personId">
-                    <i class="fa fa-user"></i>
-                    {{ getPersonName(task.personId) }}
-                  </span>
-                </div>
-                <span class="status-badge" [class.active]="task.status === 'Active'">
-                  {{ task.status || 'Active' }}
-                </span>
-              </div>
-              <button class="edit-btn" (click)="editTask(task); $event.stopPropagation()">
-                <i class="fa fa-pencil"></i>
-              </button>
-            </div>
-
-            <!-- Empty State -->
-            <div *ngIf="tasks.length === 0" class="empty-state">
-              <i class="fa fa-tasks empty-icon"></i>
-              <p class="empty-text" i18n="@@tasks.empty_text">No tasks found</p>
-              <p class="empty-subtext" i18n="@@tasks.empty_subtext">Create your first task to get started</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Panel - Form -->
-    <div class="form-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="fa" [class.fa-plus]="!selectedTask" [class.fa-edit]="selectedTask"></i>
-            <ng-container *ngIf="selectedTask" i18n="@@tasks.form_edit">Edit Task</ng-container>
-            <ng-container *ngIf="!selectedTask" i18n="@@tasks.form_create">Create New Task</ng-container>
-          </h3>
-          <div class="header-actions">
-            <app-audit-history-button
-              *ngIf="selectedTask"
-              [entity]="selectedTask"
-              entityType="Task"
-              [entityId]="selectedTask.taskShiftId"
-              [entityDisplayName]="selectedTask.title || selectedTask.description || 'Task'"
-              [companyId]="activeCompany?.companyId || ''"
-            ></app-audit-history-button>
-            <button *ngIf="selectedTask" class="clear-btn" (click)="cancelEdit()">
-              <i class="fa fa-times"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <form [formGroup]="taskForm" (ngSubmit)="saveTask()" class="task-form">
-
-            <!-- Task Details Section -->
-            <div class="form-section">
-              <h4 class="section-title" i18n="@@tasks.section_details">Task Details</h4>
-
-              <div class="form-group">
-                <label for="title" class="form-label">
-                  <i class="fa fa-header"></i>
-                  <ng-container i18n="@@tasks.title_label">Task Title</ng-container> <span class="required">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="title"
-                  class="form-input"
-                  formControlName="title"
-                  placeholder="e.g., Clean lobby area, Stock inventory"
-                  i18n-placeholder="@@tasks.title_placeholder"
-                  [class.error]="taskForm.get('title')?.touched && taskForm.get('title')?.invalid">
-                <div *ngIf="taskForm.get('title')?.touched && taskForm.get('title')?.errors?.['required']"
-                     class="error-message">
-                  <i class="fa fa-exclamation-circle"></i>
-                  <ng-container i18n="@@tasks.title_error">Task title is required</ng-container>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="description" class="form-label">
-                  <i class="fa fa-align-left"></i>
-                  <ng-container i18n="@@tasks.desc_label">Description</ng-container> <span class="required">*</span>
-                </label>
-                <textarea
-                  id="description"
-                  class="form-textarea"
-                  formControlName="description"
-                  rows="4"
-                  placeholder="Provide detailed instructions for completing this task..."
-                  i18n-placeholder="@@tasks.desc_placeholder"
-                  [class.error]="taskForm.get('description')?.touched && taskForm.get('description')?.invalid"></textarea>
-                <div *ngIf="taskForm.get('description')?.touched && taskForm.get('description')?.errors?.['required']"
-                     class="error-message">
-                  <i class="fa fa-exclamation-circle"></i>
-                  <ng-container i18n="@@tasks.desc_error">Description is required</ng-container>
-                </div>
-              </div>
-            </div>
-
-            <!-- Location & Area Section -->
-            <div class="form-section">
-              <h4 class="section-title" i18n="@@tasks.location_section">Location & Area</h4>
-
-              <div class="form-group">
-                <label for="locationId" class="form-label">
-                  <i class="fa fa-map-marker"></i>
-                  <ng-container i18n="@@tasks.location_label">Location</ng-container> <span class="required">*</span>
-                </label>
-                <select
-                  id="locationId"
-                  class="form-select"
-                  formControlName="locationId"
-                  [class.error]="taskForm.get('locationId')?.touched && taskForm.get('locationId')?.invalid">
-                  <option value="" disabled i18n="@@tasks.location_ph">Select a Location</option>
-                  <option *ngFor="let location of locations" [value]="location.locationId">
-                    {{ location.name }}
-                  </option>
-                </select>
-                <div *ngIf="taskForm.get('locationId')?.touched && taskForm.get('locationId')?.errors?.['required']"
-                     class="error-message">
-                  <i class="fa fa-exclamation-circle"></i>
-                  <ng-container i18n="@@tasks.location_error">Location is required</ng-container>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="areaId" class="form-label">
-                  <i class="fa fa-map-signs"></i>
-                  <ng-container i18n="@@tasks.area_label">Area</ng-container>
-                </label>
-                <select id="areaId" class="form-select" formControlName="areaId">
-                  <option value="" i18n="@@tasks.area_ph">None (General task)</option>
-                  <option *ngFor="let area of areas" [value]="area.areaId">
-                    {{ area.name }}
-                  </option>
-                </select>
-                <small class="form-hint" i18n="@@tasks.area_hint">Optional: Assign to a specific area within the location</small>
-              </div>
-            </div>
-
-            <!-- Assignment Section -->
-            <div class="form-section">
-              <h4 class="section-title" i18n="@@tasks.assignment_section">Assignment</h4>
-
-              <div class="form-group">
-                <label for="personId" class="form-label">
-                  <i class="fa fa-user"></i>
-                  <ng-container i18n="@@tasks.person_label">Assigned Person</ng-container>
-                </label>
-                <select id="personId" class="form-select" formControlName="personId">
-                  <option value="" i18n="@@tasks.person_ph">Unassigned</option>
-                  <option *ngFor="let person of people" [value]="person.personId">
-                    {{ person.name }}
-                  </option>
-                </select>
-                <small class="form-hint" i18n="@@tasks.person_hint">Optional: Assign this task to a specific team member</small>
-              </div>
-
-              <div class="form-group">
-                <label for="status" class="form-label">
-                  <i class="fa fa-toggle-on"></i>
-                  <ng-container i18n="@@tasks.status_label">Status</ng-container>
-                </label>
-                <select id="status" class="form-select" formControlName="status">
-                  <option value="Active" i18n="@@common.active">Active</option>
-                  <option value="Inactive" i18n="@@common.inactive">Inactive</option>
-                </select>
-                <small class="form-hint" i18n="@@tasks.status_hint">Set to Inactive to temporarily disable this task</small>
-              </div>
-            </div>
-
-            <!-- Information Section -->
-            <div class="form-section info-section">
-              <h4 class="section-title">
-                <i class="fa fa-info-circle"></i>
-                About Tasks
-              </h4>
-              <div class="info-box">
-                <p class="info-text">
-                  <i class="fa fa-lightbulb-o"></i>
-                  <strong>Tip:</strong> Tasks define recurring or regular duties that need to be performed at your locations.
-                </p>
-                <p class="info-text">
-                  <i class="fa fa-clock-o"></i>
-                  <strong>Scheduling:</strong> Once created, tasks can be assigned to shifts and tracked through the schedule system.
-                </p>
-                <p class="info-text">
-                  <i class="fa fa-check-circle"></i>
-                  <strong>Best Practice:</strong> Use clear, action-oriented titles and detailed descriptions for better clarity.
-                </p>
-              </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="form-actions">
-              <button type="button" class="btn-cancel" *ngIf="selectedTask" (click)="cancelEdit()">
-                <i class="fa fa-times"></i>
-                <ng-container i18n="@@common.cancel">Cancel</ng-container>
-              </button>
-              <button type="submit" class="btn-submit" [disabled]="!taskForm.valid">
-                <i class="fa" [class.fa-save]="selectedTask" [class.fa-plus]="!selectedTask"></i>
-                <ng-container *ngIf="selectedTask" i18n="@@tasks.update_btn">Update Task</ng-container>
-                <ng-container *ngIf="!selectedTask" i18n="@@tasks.create_btn">Create Task</ng-container>
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
+  <section class="min-w-0">
+    @if (loading) {
+      <lz-alert tone="info" i18n="@@tasks.loading">Loading tasks...</lz-alert>
+    } @else if (error) {
+      <lz-alert tone="danger" i18n="@@tasks.error">Error loading tasks. Please try again.</lz-alert>
+    } @else if (tasks.length === 0) {
+      <lz-empty-state icon="checklist" title="No tasks yet" i18n-title="@@tasks.empty_text" body="Create your first task to get started" i18n-body="@@tasks.empty_subtext">
+        <button lzEmptyAction lzButton variant="secondary" type="button" (click)="addTask()">
+          <mat-icon aria-hidden="true">add</mat-icon>
+          <ng-container i18n="@@tasks.add_btn">Add task</ng-container>
+        </button>
+      </lz-empty-state>
+    } @else {
+      <lz-table-scroll>
+        <table lzTable class="min-w-3xl">
+          <thead>
+            <tr>
+              <th scope="col" i18n="@@tasks.col_task">Task</th>
+              <th scope="col" i18n="@@tasks.col_location">Location</th>
+              <th scope="col" i18n="@@tasks.col_area">Area</th>
+              <th scope="col" i18n="@@tasks.col_person">Assigned to</th>
+              <th scope="col" i18n="@@tasks.col_status">Status</th>
+              <th scope="col" class="text-right" i18n="@@tasks.col_actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (task of paginate(tasks, page, pageSize); track task.taskShiftId) {
+              <tr class="cursor-pointer hover:bg-paper-alt" [class.bg-paper-alt]="selectedTask?.taskShiftId === task.taskShiftId" (click)="openerEl = editBtn; editTask(task)">
+                <td>
+                  <div class="font-medium text-ink">{{ task.title || task.description }}</div>
+                  @if (task.title && task.description) {
+                    <div class="max-w-md truncate text-[13px] text-ink-soft">{{ task.description }}</div>
+                  }
+                </td>
+                <td>{{ getLocationName(task.locationId) || '—' }}</td>
+                <td>{{ (task.areaId && getAreaName(task.areaId)) || '—' }}</td>
+                <td>{{ (task.personId && getPersonName(task.personId)) || '—' }}</td>
+                <td>
+                  <lz-status-chip [tone]="(task.status || 'Active') === 'Active' ? 'success' : 'neutral'" [dot]="true">
+                    @if ((task.status || 'Active') === 'Active') {
+                      <ng-container i18n="@@common.active">Active</ng-container>
+                    } @else {
+                      <ng-container i18n="@@common.inactive">Inactive</ng-container>
+                    }
+                  </lz-status-chip>
+                </td>
+                <td (click)="$event.stopPropagation()">
+                  <div class="flex justify-end gap-1">
+                    <button #editBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(task)" (click)="openerEl = editBtn; editTask(task)">
+                      <mat-icon aria-hidden="true">edit</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </lz-table-scroll>
+      <lz-pager [total]="tasks.length" [page]="page" [pageSize]="pageSize" (pageChange)="page = $event" (pageSizeChange)="pageSize = $event; page = 1" />
+    }
+  </section>
 </div>
+
+<lz-side-panel #sp [restoreFocusTo]="openerEl" [heading]="selectedTask ? (selectedTask.title || selectedTask.description || addLabel) : addLabel" [open]="panelOpen" [dirty]="taskForm.dirty" (closed)="cancelEdit()">
+  <app-audit-history-button lzPanelHeaderActions
+    *ngIf="selectedTask"
+    [entity]="selectedTask"
+    entityType="Task"
+    [entityId]="selectedTask.taskShiftId"
+    [entityDisplayName]="selectedTask.title || selectedTask.description || 'Task'"
+    [companyId]="activeCompany?.companyId || ''"
+  ></app-audit-history-button>
+  @if (panelOpen) {
+    <form id="task-form" [formGroup]="taskForm" (ngSubmit)="saveTask()" class="flex flex-col gap-4">
+      <lz-field label="Task title" i18n-label="@@tasks.title_label" controlId="title" required [error]="taskForm.get('title')?.touched && taskForm.get('title')?.errors?.['required'] ? titleRequired : null">
+        <input lzField type="text" id="title" formControlName="title" aria-required="true" placeholder="e.g., Clean lobby area, stock inventory" i18n-placeholder="@@tasks.title_placeholder" [attr.aria-invalid]="taskForm.get('title')?.touched && taskForm.get('title')?.invalid ? 'true' : null" [attr.aria-describedby]="taskForm.get('title')?.touched && taskForm.get('title')?.invalid ? 'title-error' : null">
+      </lz-field>
+
+      <lz-field label="Description" i18n-label="@@tasks.desc_label" controlId="description" required [error]="taskForm.get('description')?.touched && taskForm.get('description')?.errors?.['required'] ? descriptionRequired : null">
+        <textarea lzField id="description" formControlName="description" rows="4" aria-required="true" class="py-2" placeholder="Provide detailed instructions for completing this task..." i18n-placeholder="@@tasks.desc_placeholder" [attr.aria-invalid]="taskForm.get('description')?.touched && taskForm.get('description')?.invalid ? 'true' : null" [attr.aria-describedby]="taskForm.get('description')?.touched && taskForm.get('description')?.invalid ? 'description-error' : null"></textarea>
+      </lz-field>
+
+      <lz-field label="Location" i18n-label="@@tasks.location_label" controlId="locationId" required [error]="taskForm.get('locationId')?.touched && taskForm.get('locationId')?.errors?.['required'] ? locationRequired : null">
+        <select lzField id="locationId" formControlName="locationId" aria-required="true" [attr.aria-invalid]="taskForm.get('locationId')?.touched && taskForm.get('locationId')?.invalid ? 'true' : null" [attr.aria-describedby]="taskForm.get('locationId')?.touched && taskForm.get('locationId')?.invalid ? 'locationId-error' : null">
+          <option value="" disabled i18n="@@tasks.location_ph">Select a location</option>
+          @for (location of locations; track location.locationId) {
+            <option [value]="location.locationId">{{ location.name }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Area" i18n-label="@@tasks.area_label" hint="Optional: assign to a specific area within the location" i18n-hint="@@tasks.area_hint" controlId="areaId">
+        <select lzField id="areaId" formControlName="areaId" aria-describedby="areaId-hint">
+          <option value="" i18n="@@tasks.area_ph">None (general task)</option>
+          @for (area of areas; track area.areaId) {
+            <option [value]="area.areaId">{{ area.name }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Assigned person" i18n-label="@@tasks.person_label" hint="Optional: assign this task to a specific team member" i18n-hint="@@tasks.person_hint" controlId="personId">
+        <select lzField id="personId" formControlName="personId" aria-describedby="personId-hint">
+          <option value="" i18n="@@tasks.person_ph">Unassigned</option>
+          @for (person of people; track person.personId) {
+            <option [value]="person.personId">{{ person.name }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Status" i18n-label="@@tasks.status_label" hint="Set to inactive to temporarily disable this task" i18n-hint="@@tasks.status_hint" controlId="status">
+        <select lzField id="status" formControlName="status" aria-describedby="status-hint">
+          <option value="Active" i18n="@@common.active">Active</option>
+          <option value="Inactive" i18n="@@common.inactive">Inactive</option>
+        </select>
+      </lz-field>
+
+      <lz-alert tone="info">
+        <p class="font-medium" i18n="@@tasks.about_title">About tasks</p>
+        <p i18n="@@tasks.about_body">Tasks define recurring or regular duties at your locations. Once created, they can be assigned to shifts and tracked through the schedule. Use clear, action-oriented titles and detailed descriptions.</p>
+      </lz-alert>
+    </form>
+  }
+  <ng-container lzPanelFooter>
+    <button lzButton variant="secondary" type="button" (click)="sp.requestClose()" i18n="@@common.cancel">Cancel</button>
+    <button lzButton variant="primary" type="submit" form="task-form" [disabled]="taskForm.invalid || saving || (!!selectedTask && !taskForm.dirty)">
+      @if (selectedTask) {
+        <ng-container i18n="@@tasks.update_btn">Update task</ng-container>
+      } @else {
+        <ng-container i18n="@@tasks.create_btn">Create task</ng-container>
+      }
+    </button>
+  </ng-container>
+</lz-side-panel>

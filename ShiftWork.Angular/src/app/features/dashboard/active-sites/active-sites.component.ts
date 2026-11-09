@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -11,15 +12,21 @@ import { ActiveSiteService } from 'src/app/core/services/active-site.service';
 import { PermissionService } from 'src/app/core/services/permission.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ActiveSiteStatus, ActiveSiteRosterEntry } from 'src/app/core/models/active-site-status.model';
+import {
+  LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzPageHeaderComponent, LzPanelComponent,
+  LzStatusChipComponent, LzTableDirective, LzTableScrollComponent, type LzTone,
+} from 'src/app/shared/ui';
 
 const AUTO_REFRESH_MS = 60_000;
 
 @Component({
   selector: 'app-active-sites',
   templateUrl: './active-sites.component.html',
-  styleUrls: ['./active-sites.component.css'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzPageHeaderComponent,
+    LzPanelComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
+  ],
 })
 export class ActiveSitesComponent implements OnInit, OnDestroy {
   sites: ActiveSiteStatus[] = [];
@@ -80,7 +87,7 @@ export class ActiveSitesComponent implements OnInit, OnDestroy {
         this.loading = false;
       },
       error: () => {
-        this.error = 'Failed to load active site status.';
+        this.error = $localize`:@@active_sites.load_error:Could not load active site status.`;
         this.loading = false;
       },
     });
@@ -90,23 +97,44 @@ export class ActiveSitesComponent implements OnInit, OnDestroy {
     return entry.geofenceStatus === 'Outside' && !entry.geofenceReviewed;
   }
 
-  geofenceBadgeClass(entry: ActiveSiteRosterEntry): string {
+  geofenceTone(entry: ActiveSiteRosterEntry): LzTone {
     if (entry.geofenceStatus === 'Outside') {
-      return entry.geofenceReviewed ? 'badge badge-outside-reviewed' : 'badge badge-outside';
+      return entry.geofenceReviewed ? 'warning' : 'danger';
     }
-    if (entry.geofenceStatus === 'Inside') {
-      return 'badge badge-inside';
-    }
-    return 'badge badge-unknown';
+    return entry.geofenceStatus === 'Inside' ? 'success' : 'neutral';
   }
 
-  timingBadgeClass(entry: ActiveSiteRosterEntry): string {
-    switch (entry.timingStatus) {
-      case 'Late': return 'badge badge-late';
-      case 'Early': return 'badge badge-early';
-      case 'NoSchedule': return 'badge badge-unknown';
-      default: return 'badge badge-ontime';
+  geofenceLabel(entry: ActiveSiteRosterEntry): string {
+    if (entry.geofenceStatus === 'Outside') {
+      return entry.geofenceReviewed
+        ? $localize`:@@active_sites.geofence_outside_reviewed:Outside, reviewed`
+        : $localize`:@@active_sites.geofence_outside:Outside`;
     }
+    return entry.geofenceStatus === 'Inside'
+      ? $localize`:@@active_sites.geofence_inside:Inside`
+      : $localize`:@@active_sites.geofence_unknown:Unknown`;
+  }
+
+  timingTone(entry: ActiveSiteRosterEntry): LzTone {
+    switch (entry.timingStatus) {
+      case 'Late': return 'warning';
+      case 'Early': return 'info';
+      case 'NoSchedule': return 'neutral';
+      default: return 'success';
+    }
+  }
+
+  timingLabel(entry: ActiveSiteRosterEntry): string {
+    switch (entry.timingStatus) {
+      case 'Late': return $localize`:@@active_sites.timing_late:Late`;
+      case 'Early': return $localize`:@@active_sites.timing_early:Early`;
+      case 'NoSchedule': return $localize`:@@active_sites.timing_no_schedule:No schedule`;
+      default: return $localize`:@@active_sites.timing_on_time:On time`;
+    }
+  }
+
+  reviewLabel(entry: ActiveSiteRosterEntry): string {
+    return $localize`:@@active_sites.review_aria:Mark ${entry.name}:name: as reviewed`;
   }
 
   markReviewed(site: ActiveSiteStatus, entry: ActiveSiteRosterEntry): void {
@@ -118,7 +146,7 @@ export class ActiveSitesComponent implements OnInit, OnDestroy {
         entry.geofenceReviewed = true;
       },
       error: () => {
-        this.error = 'Failed to mark flag as reviewed.';
+        this.error = $localize`:@@active_sites.review_error:Could not mark the flag as reviewed.`;
       },
     });
   }

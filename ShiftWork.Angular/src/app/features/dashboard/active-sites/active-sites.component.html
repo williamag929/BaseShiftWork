@@ -1,92 +1,99 @@
-<div class="active-sites-container" *ngIf="canView; else noAccess">
-  <div class="page-header">
-    <div class="header-text">
-      <h1 class="page-title">Active Sites</h1>
-      <p class="page-subtitle">Who's on shift right now, by job site</p>
+<div class="flex flex-col gap-4">
+  <div class="sticky top-0 z-10 bg-canvas">
+    <lz-page-header title="Active sites" i18n-title="@@active_sites.page_title" subtitle="Who's on shift right now, by job site" i18n-subtitle="@@active_sites.page_subtitle">
+      @if (canView && lastRefreshedAt) {
+        <p lzHeaderMeta class="text-[13px] text-ink-soft" i18n="@@active_sites.updated">Updated {{ lastRefreshedAt | date:'shortTime' }}</p>
+      }
+      @if (canView) {
+        <ng-container lzHeaderActions>
+          <button lzButton variant="primary" type="button" (click)="refresh()" [disabled]="loading">
+            <mat-icon aria-hidden="true">refresh</mat-icon>
+            <ng-container i18n="@@active_sites.refresh">Refresh</ng-container>
+          </button>
+        </ng-container>
+      }
+    </lz-page-header>
+  </div>
+
+  @if (!canView) {
+    <lz-empty-state icon="lock" title="You don't have permission to view this page" i18n-title="@@active_sites.no_access"></lz-empty-state>
+  } @else {
+    @if (error) {
+      <lz-alert tone="danger">{{ error }}</lz-alert>
+    }
+
+    @if (loading && sites.length === 0) {
+      <lz-alert tone="info" i18n="@@active_sites.loading">Loading active sites...</lz-alert>
+    } @else if (sites.length === 0 && !error) {
+      <lz-empty-state icon="location_on" title="No one is currently clocked in" i18n-title="@@active_sites.empty_text"></lz-empty-state>
+    }
+
+    <div class="flex min-w-0 flex-col gap-4">
+      @for (site of sites; track site.locationId) {
+        <lz-panel [heading]="site.name">
+          <lz-status-chip lzPanelActions tone="info" [dot]="true" i18n="@@active_sites.on_shift">{{ site.onShiftCount }} on shift</lz-status-chip>
+          <div class="flex min-w-0 flex-col gap-3">
+            @if (site.address) {
+              <p class="text-ink-soft">{{ site.address }}</p>
+            }
+            @if (site.roster.length > 0) {
+              <lz-table-scroll>
+                <table lzTable class="min-w-3xl">
+                  <thead>
+                    <tr>
+                      <th scope="col"><span class="sr-only" i18n="@@active_sites.col_photo">Photo</span></th>
+                      <th scope="col" i18n="@@active_sites.col_name">Name</th>
+                      <th scope="col" i18n="@@active_sites.col_role">Role</th>
+                      <th scope="col" i18n="@@active_sites.col_clocked_in">Clocked in</th>
+                      <th scope="col" i18n="@@active_sites.col_timing">Timing</th>
+                      <th scope="col" i18n="@@active_sites.col_geofence">Geofence</th>
+                      @if (canReview) {
+                        <th scope="col" class="text-right" i18n="@@active_sites.col_actions">Actions</th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (entry of site.roster; track entry.shiftEventId) {
+                      <tr [class.bg-danger-bg]="isFlagged(entry)">
+                        <td>
+                          @if (entry.photoUrl) {
+                            <img [src]="entry.photoUrl" alt="" class="size-8 rounded-full object-cover">
+                          } @else {
+                            <span aria-hidden="true" class="flex size-8 items-center justify-center rounded-full bg-neutral-bg text-[13px] font-medium text-ink-soft">{{ entry.name.charAt(0) }}</span>
+                          }
+                        </td>
+                        <td class="font-medium text-ink">{{ entry.name }}</td>
+                        <td>{{ entry.roleName || '—' }}</td>
+                        <td>{{ entry.clockInTime | date:'shortTime' }}</td>
+                        <td><lz-status-chip [tone]="timingTone(entry)" [dot]="true">{{ timingLabel(entry) }}</lz-status-chip></td>
+                        <td>
+                          <lz-status-chip [tone]="geofenceTone(entry)" [dot]="true">
+                            {{ geofenceLabel(entry) }}
+                            @if (entry.geofenceStatus === 'Outside' && entry.geofenceDistanceMeters; as d) {
+                              <ng-container i18n="@@active_sites.away">· {{ d | number:'1.0-0' }} m away</ng-container>
+                            }
+                          </lz-status-chip>
+                        </td>
+                        @if (canReview) {
+                          <td>
+                            @if (isFlagged(entry)) {
+                              <div class="flex justify-end">
+                                <button lzButton variant="secondary" type="button" [attr.aria-label]="reviewLabel(entry)" (click)="markReviewed(site, entry)" i18n="@@active_sites.mark_reviewed">Mark reviewed</button>
+                              </div>
+                            }
+                          </td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </lz-table-scroll>
+            } @else {
+              <p class="text-ink-soft" i18n="@@active_sites.no_roster">No one is currently clocked in here.</p>
+            }
+          </div>
+        </lz-panel>
+      }
     </div>
-    <div class="header-actions">
-      <span class="last-refreshed" *ngIf="lastRefreshedAt">
-        Updated {{ lastRefreshedAt | date:'shortTime' }}
-      </span>
-      <button type="button" class="btn-refresh" (click)="refresh()" [disabled]="loading">
-        <i class="fa fa-refresh" [class.fa-spin]="loading"></i>
-        Refresh
-      </button>
-    </div>
-  </div>
-
-  <div *ngIf="error" class="error-state">
-    <i class="fa fa-exclamation-triangle"></i>
-    {{ error }}
-  </div>
-
-  <div *ngIf="loading && sites.length === 0" class="loading-state">
-    <div class="spinner"></div>
-    <p>Loading active sites...</p>
-  </div>
-
-  <div *ngIf="!loading && sites.length === 0 && !error" class="empty-state">
-    <i class="fa fa-map-marker"></i>
-    <p>No one is currently clocked in.</p>
-  </div>
-
-  <div class="sites-grid">
-    <div class="site-card" *ngFor="let site of sites">
-      <div class="site-card-header">
-        <div>
-          <h3 class="site-name">{{ site.name }}</h3>
-          <p class="site-address" *ngIf="site.address">{{ site.address }}</p>
-        </div>
-        <span class="on-shift-count">{{ site.onShiftCount }} on shift</span>
-      </div>
-
-      <table class="roster-table" *ngIf="site.roster.length > 0">
-        <thead>
-          <tr>
-            <th></th>
-            <th>Name</th>
-            <th>Role</th>
-            <th>Clocked in</th>
-            <th>Timing</th>
-            <th>Geofence</th>
-            <th *ngIf="canReview"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let entry of site.roster" [class.flagged-row]="isFlagged(entry)">
-            <td class="avatar-cell">
-              <img *ngIf="entry.photoUrl" [src]="entry.photoUrl" [alt]="entry.name" class="avatar" />
-              <div *ngIf="!entry.photoUrl" class="avatar avatar-placeholder">{{ entry.name.charAt(0) }}</div>
-            </td>
-            <td>{{ entry.name }}</td>
-            <td>{{ entry.roleName || '—' }}</td>
-            <td>{{ entry.clockInTime | date:'shortTime' }}</td>
-            <td><span [ngClass]="timingBadgeClass(entry)">{{ entry.timingStatus }}</span></td>
-            <td>
-              <span [ngClass]="geofenceBadgeClass(entry)">
-                {{ entry.geofenceStatus }}
-                <ng-container *ngIf="entry.geofenceStatus === 'Outside' && entry.geofenceDistanceMeters as d">
-                  &middot; {{ d | number:'1.0-0' }}m away
-                </ng-container>
-              </span>
-            </td>
-            <td *ngIf="canReview">
-              <button type="button" class="btn-review" *ngIf="isFlagged(entry)" (click)="markReviewed(site, entry)">
-                Mark reviewed
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <p class="no-roster" *ngIf="site.roster.length === 0">No one currently clocked in here.</p>
-    </div>
-  </div>
+  }
 </div>
-
-<ng-template #noAccess>
-  <div class="no-access-state">
-    <i class="fa fa-lock"></i>
-    <p>You don't have permission to view this page.</p>
-  </div>
-</ng-template>

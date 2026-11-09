@@ -1667,7 +1667,7 @@
         <target state="translated">Reconocido</target>
       </trans-unit>
       <trans-unit id="daily_reports.page_title" datatype="html">
-        <source>Daily Reports</source>
+        <source>Daily reports</source>
         <target state="translated">Reportes diarios</target>
       </trans-unit>
       <trans-unit id="daily_reports.page_subtitle" datatype="html">
@@ -1711,11 +1711,11 @@
         <target state="translated">Cargando reporte...</target>
       </trans-unit>
       <trans-unit id="daily_reports.report_for" datatype="html">
-        <source>— report for</source>
-        <target state="translated">— reporte del</target>
+        <source>Report for</source>
+        <target state="translated">Reporte del</target>
       </trans-unit>
       <trans-unit id="daily_reports.save_draft" datatype="html">
-        <source>Save Draft</source>
+        <source>Save draft</source>
         <target state="translated">Guardar borrador</target>
       </trans-unit>
       <trans-unit id="daily_reports.submit" datatype="html">
@@ -1731,11 +1731,11 @@
         <target state="translated">Empleados</target>
       </trans-unit>
       <trans-unit id="daily_reports.total_hours" datatype="html">
-        <source>Total Hours</source>
+        <source>Total hours</source>
         <target state="translated">Total de horas</target>
       </trans-unit>
       <trans-unit id="daily_reports.supervisor_notes" datatype="html">
-        <source>Supervisor Notes</source>
+        <source>Supervisor notes</source>
         <target state="translated">Notas del supervisor</target>
       </trans-unit>
       <trans-unit id="daily_reports.notes_label" datatype="html">
@@ -1747,7 +1747,7 @@
         <target state="translated">Agrega notas de turno, incidentes u observaciones...</target>
       </trans-unit>
       <trans-unit id="daily_reports.photos_media" datatype="html">
-        <source>Photos &amp; Media</source>
+        <source>Photos and media</source>
         <target state="translated">Fotos y medios</target>
       </trans-unit>
       <trans-unit id="daily_reports.no_report" datatype="html">
@@ -3743,16 +3743,12 @@ Opción C</target>
         <target state="translated">Sin miembros aún. Agrega personas arriba.</target>
       </trans-unit>
       <trans-unit id="tasks.page_title" datatype="html">
-        <source>Task Management</source>
-        <target state="translated">Gestión de tareas</target>
+        <source>Tasks</source>
+        <target state="translated">Tareas</target>
       </trans-unit>
       <trans-unit id="tasks.page_subtitle" datatype="html">
         <source>Define and organize tasks for your team</source>
         <target state="translated">Define y organiza tareas para tu equipo</target>
-      </trans-unit>
-      <trans-unit id="tasks.list_title" datatype="html">
-        <source>Tasks</source>
-        <target state="translated">Tareas</target>
       </trans-unit>
       <trans-unit id="tasks.loading" datatype="html">
         <source>Loading tasks...</source>
@@ -3760,39 +3756,27 @@ Opción C</target>
       </trans-unit>
       <trans-unit id="tasks.error" datatype="html">
         <source>Error loading tasks. Please try again.</source>
-        <target state="translated">Error al cargar tareas. Por favor intenta de nuevo.</target>
+        <target state="translated">Error al cargar las tareas. Intenta de nuevo.</target>
       </trans-unit>
       <trans-unit id="tasks.empty_text" datatype="html">
-        <source>No tasks found</source>
-        <target state="translated">No se encontraron tareas</target>
+        <source>No tasks yet</source>
+        <target state="translated">Aún no hay tareas</target>
       </trans-unit>
       <trans-unit id="tasks.empty_subtext" datatype="html">
         <source>Create your first task to get started</source>
         <target state="translated">Crea tu primera tarea para comenzar</target>
       </trans-unit>
-      <trans-unit id="tasks.form_edit" datatype="html">
-        <source>Edit Task</source>
-        <target state="translated">Editar tarea</target>
-      </trans-unit>
-      <trans-unit id="tasks.form_create" datatype="html">
-        <source>Create New Task</source>
-        <target state="translated">Crear nueva tarea</target>
-      </trans-unit>
-      <trans-unit id="tasks.section_details" datatype="html">
-        <source>Task Details</source>
-        <target state="translated">Detalles de la tarea</target>
-      </trans-unit>
       <trans-unit id="tasks.title_label" datatype="html">
-        <source>Task Title</source>
+        <source>Task title</source>
         <target state="translated">Título de la tarea</target>
       </trans-unit>
       <trans-unit id="tasks.title_placeholder" datatype="html">
-        <source>e.g., Clean lobby area, Stock inventory</source>
-        <target state="translated">p. ej., Limpiar vestíbulo, Reponer inventario</target>
+        <source>e.g., Clean lobby area, stock inventory</source>
+        <target state="translated">p. ej., Limpiar el vestíbulo, reponer inventario</target>
       </trans-unit>
       <trans-unit id="tasks.title_error" datatype="html">
         <source>Task title is required</source>
-        <target state="translated">El título de la tarea es requerido</target>
+        <target state="translated">El título de la tarea es obligatorio</target>
       </trans-unit>
       <trans-unit id="tasks.desc_label" datatype="html">
         <source>Description</source>
@@ -3804,42 +3788,34 @@ Opción C</target>
       </trans-unit>
       <trans-unit id="tasks.desc_error" datatype="html">
         <source>Description is required</source>
-        <target state="translated">La descripción es requerida</target>
-      </trans-unit>
-      <trans-unit id="tasks.location_section" datatype="html">
-        <source>Location &amp; Area</source>
-        <target state="translated">Ubicación y área</target>
+        <target state="translated">La descripción es obligatoria</target>
       </trans-unit>
       <trans-unit id="tasks.location_label" datatype="html">
         <source>Location</source>
         <target state="translated">Ubicación</target>
       </trans-unit>
       <trans-unit id="tasks.location_ph" datatype="html">
-        <source>Select a Location</source>
+        <source>Select a location</source>
         <target state="translated">Selecciona una ubicación</target>
       </trans-unit>
       <trans-unit id="tasks.location_error" datatype="html">
         <source>Location is required</source>
-        <target state="translated">La ubicación es requerida</target>
+        <target state="translated">La ubicación es obligatoria</target>
       </trans-unit>
       <trans-unit id="tasks.area_label" datatype="html">
         <source>Area</source>
         <target state="translated">Área</target>
       </trans-unit>
       <trans-unit id="tasks.area_ph" datatype="html">
-        <source>None (General task)</source>
+        <source>None (general task)</source>
         <target state="translated">Ninguna (tarea general)</target>
       </trans-unit>
       <trans-unit id="tasks.area_hint" datatype="html">
-        <source>Optional: Assign to a specific area within the location</source>
-        <target state="translated">Opcional: Asigna a un área específica dentro de la ubicación</target>
-      </trans-unit>
-      <trans-unit id="tasks.assignment_section" datatype="html">
-        <source>Assignment</source>
-        <target state="translated">Asignación</target>
+        <source>Optional: assign to a specific area within the location</source>
+        <target state="translated">Opcional: asigna a un área específica dentro de la ubicación</target>
       </trans-unit>
       <trans-unit id="tasks.person_label" datatype="html">
-        <source>Assigned Person</source>
+        <source>Assigned person</source>
         <target state="translated">Persona asignada</target>
       </trans-unit>
       <trans-unit id="tasks.person_ph" datatype="html">
@@ -3847,23 +3823,23 @@ Opción C</target>
         <target state="translated">Sin asignar</target>
       </trans-unit>
       <trans-unit id="tasks.person_hint" datatype="html">
-        <source>Optional: Assign this task to a specific team member</source>
-        <target state="translated">Opcional: Asigna esta tarea a un miembro específico del equipo</target>
+        <source>Optional: assign this task to a specific team member</source>
+        <target state="translated">Opcional: asigna esta tarea a un miembro específico del equipo</target>
       </trans-unit>
       <trans-unit id="tasks.status_label" datatype="html">
         <source>Status</source>
         <target state="translated">Estado</target>
       </trans-unit>
       <trans-unit id="tasks.status_hint" datatype="html">
-        <source>Set to Inactive to temporarily disable this task</source>
-        <target state="translated">Establece como Inactivo para deshabilitar temporalmente esta tarea</target>
+        <source>Set to inactive to temporarily disable this task</source>
+        <target state="translated">Establécela como inactiva para deshabilitar temporalmente esta tarea</target>
       </trans-unit>
       <trans-unit id="tasks.update_btn" datatype="html">
-        <source>Update Task</source>
+        <source>Update task</source>
         <target state="translated">Actualizar tarea</target>
       </trans-unit>
       <trans-unit id="tasks.create_btn" datatype="html">
-        <source>Create Task</source>
+        <source>Create task</source>
         <target state="translated">Crear tarea</target>
       </trans-unit>
       <trans-unit id="time_off_approvals.page_title" datatype="html">
@@ -7271,6 +7247,390 @@ What would you like to do?</source>
       <trans-unit id="locations.toast_updated" datatype="html">
         <source>Location updated.</source>
         <target state="translated">Ubicación actualizada.</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.page_title" datatype="html">
+        <source>Cost codes</source>
+        <target state="translated">Códigos de costo</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.page_subtitle" datatype="html">
+        <source>Define cost codes used for Procore daily log manpower reporting</source>
+        <target state="translated">Define los códigos de costo usados en el reporte de mano de obra del registro diario de Procore</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.add_btn" datatype="html">
+        <source>Add cost code</source>
+        <target state="translated">Agregar código de costo</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.loading" datatype="html">
+        <source>Loading cost codes...</source>
+        <target state="translated">Cargando códigos de costo...</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.error" datatype="html">
+        <source>Error loading cost codes. Please try again.</source>
+        <target state="translated">Error al cargar los códigos de costo. Intenta de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.empty_text" datatype="html">
+        <source>No cost codes yet</source>
+        <target state="translated">Aún no hay códigos de costo</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.empty_subtext" datatype="html">
+        <source>Create your first cost code to get started</source>
+        <target state="translated">Crea tu primer código de costo para comenzar</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.col_code" datatype="html">
+        <source>Code</source>
+        <target state="translated">Código</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.col_name" datatype="html">
+        <source>Name</source>
+        <target state="translated">Nombre</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.col_location" datatype="html">
+        <source>Location</source>
+        <target state="translated">Ubicación</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.col_procore" datatype="html">
+        <source>Procore ID</source>
+        <target state="translated">ID de Procore</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.col_status" datatype="html">
+        <source>Status</source>
+        <target state="translated">Estado</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.edit_aria" datatype="html">
+        <source>Edit <x id="code"/></source>
+        <target state="translated">Editar <x id="code"/></target>
+      </trans-unit>
+      <trans-unit id="cost_codes.all_locations" datatype="html">
+        <source>All locations</source>
+        <target state="translated">Todas las ubicaciones</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.code_error" datatype="html">
+        <source>Code is required</source>
+        <target state="translated">El código es obligatorio</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.name_error" datatype="html">
+        <source>Name is required</source>
+        <target state="translated">El nombre es obligatorio</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.code_label" datatype="html">
+        <source>Code</source>
+        <target state="translated">Código</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.code_placeholder" datatype="html">
+        <source>e.g., 01-100, 03-300</source>
+        <target state="translated">p. ej., 01-100, 03-300</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.name_label" datatype="html">
+        <source>Name</source>
+        <target state="translated">Nombre</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.name_placeholder" datatype="html">
+        <source>e.g., Site supervision, concrete labor</source>
+        <target state="translated">p. ej., Supervisión de obra, mano de obra de concreto</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.description_label" datatype="html">
+        <source>Description</source>
+        <target state="translated">Descripción</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.description_placeholder" datatype="html">
+        <source>Optional description</source>
+        <target state="translated">Descripción opcional</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.location_label" datatype="html">
+        <source>Location scope</source>
+        <target state="translated">Alcance por ubicación</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.location_hint" datatype="html">
+        <source>Leave blank to make this cost code available to every location</source>
+        <target state="translated">Déjalo en blanco para que este código de costo esté disponible en todas las ubicaciones</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.location_all" datatype="html">
+        <source>All locations (company-wide)</source>
+        <target state="translated">Todas las ubicaciones (toda la empresa)</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.external_label" datatype="html">
+        <source>Procore cost code ID</source>
+        <target state="translated">ID del código de costo de Procore</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.external_hint" datatype="html">
+        <source>Maps this cost code to its Procore equivalent for daily log push</source>
+        <target state="translated">Vincula este código de costo con su equivalente en Procore para enviar el registro diario</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.external_placeholder" datatype="html">
+        <source>Set automatically when synced with Procore</source>
+        <target state="translated">Se asigna automáticamente al sincronizar con Procore</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.status_label" datatype="html">
+        <source>Status</source>
+        <target state="translated">Estado</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.status_hint" datatype="html">
+        <source>Set to inactive to hide this cost code from reporting</source>
+        <target state="translated">Establécelo como inactivo para ocultar este código de costo de los reportes</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.about_title" datatype="html">
+        <source>About cost codes</source>
+        <target state="translated">Acerca de los códigos de costo</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.about_body" datatype="html">
+        <source>Cost codes group labor hours for budget tracking and mirror the cost codes in your Procore project. When a daily report is submitted, manpower hours are pushed to Procore grouped by these cost codes.</source>
+        <target state="translated">Los códigos de costo agrupan las horas de trabajo para el seguimiento del presupuesto y reflejan los códigos de costo de tu proyecto en Procore. Cuando se envía un reporte diario, las horas de mano de obra se envían a Procore agrupadas por estos códigos de costo.</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.update_btn" datatype="html">
+        <source>Update cost code</source>
+        <target state="translated">Actualizar código de costo</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.create_btn" datatype="html">
+        <source>Create cost code</source>
+        <target state="translated">Crear código de costo</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.toast_updated" datatype="html">
+        <source>Cost code updated.</source>
+        <target state="translated">Código de costo actualizado.</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.toast_update_failed" datatype="html">
+        <source>Could not update the cost code.</source>
+        <target state="translated">No se pudo actualizar el código de costo.</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.toast_created" datatype="html">
+        <source>Cost code created.</source>
+        <target state="translated">Código de costo creado.</target>
+      </trans-unit>
+      <trans-unit id="cost_codes.toast_create_failed" datatype="html">
+        <source>Could not create the cost code.</source>
+        <target state="translated">No se pudo crear el código de costo.</target>
+      </trans-unit>
+      <trans-unit id="tasks.add_btn" datatype="html">
+        <source>Add task</source>
+        <target state="translated">Agregar tarea</target>
+      </trans-unit>
+      <trans-unit id="tasks.col_task" datatype="html">
+        <source>Task</source>
+        <target state="translated">Tarea</target>
+      </trans-unit>
+      <trans-unit id="tasks.col_location" datatype="html">
+        <source>Location</source>
+        <target state="translated">Ubicación</target>
+      </trans-unit>
+      <trans-unit id="tasks.col_area" datatype="html">
+        <source>Area</source>
+        <target state="translated">Área</target>
+      </trans-unit>
+      <trans-unit id="tasks.col_person" datatype="html">
+        <source>Assigned to</source>
+        <target state="translated">Asignada a</target>
+      </trans-unit>
+      <trans-unit id="tasks.col_status" datatype="html">
+        <source>Status</source>
+        <target state="translated">Estado</target>
+      </trans-unit>
+      <trans-unit id="tasks.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="tasks.edit_aria" datatype="html">
+        <source>Edit <x id="name"/></source>
+        <target state="translated">Editar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="tasks.about_title" datatype="html">
+        <source>About tasks</source>
+        <target state="translated">Acerca de las tareas</target>
+      </trans-unit>
+      <trans-unit id="tasks.about_body" datatype="html">
+        <source>Tasks define recurring or regular duties at your locations. Once created, they can be assigned to shifts and tracked through the schedule. Use clear, action-oriented titles and detailed descriptions.</source>
+        <target state="translated">Las tareas definen funciones recurrentes o regulares en tus ubicaciones. Una vez creadas, se pueden asignar a turnos y seguir desde el horario. Usa títulos claros y orientados a la acción, y descripciones detalladas.</target>
+      </trans-unit>
+      <trans-unit id="tasks.toast_updated" datatype="html">
+        <source>Task updated.</source>
+        <target state="translated">Tarea actualizada.</target>
+      </trans-unit>
+      <trans-unit id="tasks.toast_update_failed" datatype="html">
+        <source>Could not update the task.</source>
+        <target state="translated">No se pudo actualizar la tarea.</target>
+      </trans-unit>
+      <trans-unit id="tasks.toast_created" datatype="html">
+        <source>Task created.</source>
+        <target state="translated">Tarea creada.</target>
+      </trans-unit>
+      <trans-unit id="tasks.toast_create_failed" datatype="html">
+        <source>Could not create the task.</source>
+        <target state="translated">No se pudo crear la tarea.</target>
+      </trans-unit>
+      <trans-unit id="active_sites.page_title" datatype="html">
+        <source>Active sites</source>
+        <target state="translated">Sitios activos</target>
+      </trans-unit>
+      <trans-unit id="active_sites.page_subtitle" datatype="html">
+        <source>Who&apos;s on shift right now, by job site</source>
+        <target state="translated">Quién está en turno ahora, por sitio de trabajo</target>
+      </trans-unit>
+      <trans-unit id="active_sites.updated" datatype="html">
+        <source>Updated <x id="INTERPOLATION" equiv-text="{{ lastRefreshedAt | date:'shortTime' }}"/></source>
+        <target state="translated">Actualizado <x id="INTERPOLATION" equiv-text="{{ lastRefreshedAt | date:'shortTime' }}"/></target>
+      </trans-unit>
+      <trans-unit id="active_sites.refresh" datatype="html">
+        <source>Refresh</source>
+        <target state="translated">Actualizar</target>
+      </trans-unit>
+      <trans-unit id="active_sites.no_access" datatype="html">
+        <source>You don&apos;t have permission to view this page</source>
+        <target state="translated">No tienes permiso para ver esta página</target>
+      </trans-unit>
+      <trans-unit id="active_sites.loading" datatype="html">
+        <source>Loading active sites...</source>
+        <target state="translated">Cargando sitios activos...</target>
+      </trans-unit>
+      <trans-unit id="active_sites.empty_text" datatype="html">
+        <source>No one is currently clocked in</source>
+        <target state="translated">Nadie ha registrado entrada por ahora</target>
+      </trans-unit>
+      <trans-unit id="active_sites.on_shift" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ site.onShiftCount }}"/> on shift</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ site.onShiftCount }}"/> en turno</target>
+      </trans-unit>
+      <trans-unit id="active_sites.col_photo" datatype="html">
+        <source>Photo</source>
+        <target state="translated">Foto</target>
+      </trans-unit>
+      <trans-unit id="active_sites.col_name" datatype="html">
+        <source>Name</source>
+        <target state="translated">Nombre</target>
+      </trans-unit>
+      <trans-unit id="active_sites.col_role" datatype="html">
+        <source>Role</source>
+        <target state="translated">Rol</target>
+      </trans-unit>
+      <trans-unit id="active_sites.col_clocked_in" datatype="html">
+        <source>Clocked in</source>
+        <target state="translated">Entrada</target>
+      </trans-unit>
+      <trans-unit id="active_sites.col_timing" datatype="html">
+        <source>Timing</source>
+        <target state="translated">Puntualidad</target>
+      </trans-unit>
+      <trans-unit id="active_sites.col_geofence" datatype="html">
+        <source>Geofence</source>
+        <target state="translated">Geocerca</target>
+      </trans-unit>
+      <trans-unit id="active_sites.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="active_sites.away" datatype="html">
+        <source>· <x id="INTERPOLATION" equiv-text="{{ d | number:'1.0-0' }}"/> m away</source>
+        <target state="translated">· a <x id="INTERPOLATION" equiv-text="{{ d | number:'1.0-0' }}"/> m</target>
+      </trans-unit>
+      <trans-unit id="active_sites.mark_reviewed" datatype="html">
+        <source>Mark reviewed</source>
+        <target state="translated">Marcar como revisado</target>
+      </trans-unit>
+      <trans-unit id="active_sites.review_aria" datatype="html">
+        <source>Mark <x id="name"/> as reviewed</source>
+        <target state="translated">Marcar a <x id="name"/> como revisado</target>
+      </trans-unit>
+      <trans-unit id="active_sites.no_roster" datatype="html">
+        <source>No one is currently clocked in here.</source>
+        <target state="translated">Nadie ha registrado entrada aquí por ahora.</target>
+      </trans-unit>
+      <trans-unit id="active_sites.load_error" datatype="html">
+        <source>Could not load active site status.</source>
+        <target state="translated">No se pudo cargar el estado de los sitios activos.</target>
+      </trans-unit>
+      <trans-unit id="active_sites.review_error" datatype="html">
+        <source>Could not mark the flag as reviewed.</source>
+        <target state="translated">No se pudo marcar la alerta como revisada.</target>
+      </trans-unit>
+      <trans-unit id="active_sites.geofence_outside_reviewed" datatype="html">
+        <source>Outside, reviewed</source>
+        <target state="translated">Fuera, revisado</target>
+      </trans-unit>
+      <trans-unit id="active_sites.geofence_outside" datatype="html">
+        <source>Outside</source>
+        <target state="translated">Fuera</target>
+      </trans-unit>
+      <trans-unit id="active_sites.geofence_inside" datatype="html">
+        <source>Inside</source>
+        <target state="translated">Dentro</target>
+      </trans-unit>
+      <trans-unit id="active_sites.geofence_unknown" datatype="html">
+        <source>Unknown</source>
+        <target state="translated">Desconocido</target>
+      </trans-unit>
+      <trans-unit id="active_sites.timing_late" datatype="html">
+        <source>Late</source>
+        <target state="translated">Tarde</target>
+      </trans-unit>
+      <trans-unit id="active_sites.timing_early" datatype="html">
+        <source>Early</source>
+        <target state="translated">Temprano</target>
+      </trans-unit>
+      <trans-unit id="active_sites.timing_no_schedule" datatype="html">
+        <source>No schedule</source>
+        <target state="translated">Sin horario</target>
+      </trans-unit>
+      <trans-unit id="active_sites.timing_on_time" datatype="html">
+        <source>On time</source>
+        <target state="translated">A tiempo</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.load_error" datatype="html">
+        <source>Could not load the report. Check your connection and try again.</source>
+        <target state="translated">No se pudo cargar el reporte. Revisa tu conexión e intenta de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.status_approved" datatype="html">
+        <source>Approved</source>
+        <target state="translated">Aprobado</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.status_submitted" datatype="html">
+        <source>Submitted</source>
+        <target state="translated">Enviado</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.status_draft" datatype="html">
+        <source>Draft</source>
+        <target state="translated">Borrador</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.summary_label" datatype="html">
+        <source>Shift summary</source>
+        <target state="translated">Resumen del turno</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.weather" datatype="html">
+        <source>Weather</source>
+        <target state="translated">Clima</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.no_weather" datatype="html">
+        <source>No data</source>
+        <target state="translated">Sin datos</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.toast_locations_failed" datatype="html">
+        <source>Could not load locations.</source>
+        <target state="translated">No se pudieron cargar las ubicaciones.</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.toast_draft_saved" datatype="html">
+        <source>Draft saved.</source>
+        <target state="translated">Borrador guardado.</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.toast_save_failed" datatype="html">
+        <source>Could not save the draft.</source>
+        <target state="translated">No se pudo guardar el borrador.</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.toast_submitted" datatype="html">
+        <source>Report submitted.</source>
+        <target state="translated">Reporte enviado.</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.toast_submit_failed" datatype="html">
+        <source>Could not submit the report.</source>
+        <target state="translated">No se pudo enviar el reporte.</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.toast_approved" datatype="html">
+        <source>Report approved.</source>
+        <target state="translated">Reporte aprobado.</target>
+      </trans-unit>
+      <trans-unit id="daily_reports.toast_approve_failed" datatype="html">
+        <source>Could not approve the report.</source>
+        <target state="translated">No se pudo aprobar el reporte.</target>
       </trans-unit>
     </body>
   </file>

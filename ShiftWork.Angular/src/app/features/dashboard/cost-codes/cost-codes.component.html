@@ -1,221 +1,122 @@
-<div class="costcodes-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-icon">
-        <i class="fa fa-barcode"></i>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title">Cost Code Management</h1>
-        <p class="page-subtitle">Define cost codes used for Procore daily log manpower reporting</p>
-      </div>
-    </div>
+<div class="flex flex-col gap-4">
+  <div class="sticky top-0 z-10 bg-canvas">
+    <lz-page-header title="Cost codes" i18n-title="@@cost_codes.page_title" subtitle="Define cost codes used for Procore daily log manpower reporting" i18n-subtitle="@@cost_codes.page_subtitle">
+      <ng-container lzHeaderActions>
+        <button #addBtn lzButton type="button" [variant]="panelOpen ? 'secondary' : 'primary'" [attr.variant]="panelOpen ? 'secondary' : 'primary'" (click)="openerEl = addBtn; addCostCode()">
+          <mat-icon aria-hidden="true">add</mat-icon>
+          <ng-container i18n="@@cost_codes.add_btn">Add cost code</ng-container>
+        </button>
+      </ng-container>
+    </lz-page-header>
   </div>
 
-  <div class="content-grid">
-    <!-- Left Panel - Cost Codes List -->
-    <div class="list-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="fa fa-list"></i>
-            Cost Codes
-          </h3>
-          <span class="badge">{{ costCodes.length || 0 }}</span>
-        </div>
-
-        <div class="card-body">
-          <div *ngIf="loading" class="loading-state">
-            <div class="spinner"></div>
-            <p class="loading-text">Loading cost codes...</p>
-          </div>
-
-          <div *ngIf="error" class="error-state">
-            <i class="fa fa-exclamation-triangle error-icon"></i>
-            <p class="error-text">Error loading cost codes. Please try again.</p>
-          </div>
-
-          <div *ngIf="!loading && !error" class="costcodes-list">
-            <div
-              *ngFor="let costCode of costCodes; let i = index"
-              class="costcode-item"
-              [class.selected]="selectedCostCode?.costCodeId === costCode.costCodeId"
-              (click)="editCostCode(costCode)"
-              [style.animation-delay.ms]="i * 50">
-              <div class="costcode-icon">
-                <i class="fa fa-barcode"></i>
-              </div>
-              <div class="costcode-info">
-                <h4 class="costcode-name">{{ costCode.code }} — {{ costCode.name }}</h4>
-                <p class="costcode-location">
-                  <i class="fa fa-map-marker"></i>
-                  {{ getLocationName(costCode.locationId) }}
-                </p>
-                <span class="status-badge" [class.active]="costCode.status === 'Active'">
-                  {{ costCode.status }}
-                </span>
-                <span class="status-badge synced" *ngIf="costCode.externalCode">
-                  <i class="fa fa-link"></i> Procore
-                </span>
-              </div>
-              <button class="edit-btn" (click)="editCostCode(costCode); $event.stopPropagation()">
-                <i class="fa fa-pencil"></i>
-              </button>
-            </div>
-
-            <div *ngIf="costCodes.length === 0" class="empty-state">
-              <i class="fa fa-barcode empty-icon"></i>
-              <p class="empty-text">No cost codes found</p>
-              <p class="empty-subtext">Create your first cost code to get started</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Panel - Form -->
-    <div class="form-panel">
-      <div class="panel-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="fa" [class.fa-plus]="!selectedCostCode" [class.fa-edit]="selectedCostCode"></i>
-            {{ selectedCostCode ? 'Edit Cost Code' : 'Create New Cost Code' }}
-          </h3>
-          <div class="header-actions">
-            <button *ngIf="selectedCostCode" class="clear-btn" (click)="cancelEdit()">
-              <i class="fa fa-times"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <form [formGroup]="costCodeForm" (ngSubmit)="saveCostCode()" class="costcode-form">
-
-            <div class="form-section">
-              <h4 class="section-title">Cost Code Information</h4>
-
-              <div class="form-group">
-                <label for="code" class="form-label">
-                  <i class="fa fa-hashtag"></i>
-                  Code <span class="required">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="code"
-                  class="form-input"
-                  formControlName="code"
-                  placeholder="e.g., 01-100, 03-300"
-                  [class.error]="costCodeForm.get('code')?.touched && costCodeForm.get('code')?.invalid">
-                <div *ngIf="costCodeForm.get('code')?.touched && costCodeForm.get('code')?.errors?.['required']"
-                     class="error-message">
-                  <i class="fa fa-exclamation-circle"></i>
-                  Code is required
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="name" class="form-label">
-                  <i class="fa fa-tag"></i>
-                  Name <span class="required">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  class="form-input"
-                  formControlName="name"
-                  placeholder="e.g., Site Supervision, Concrete Labor"
-                  [class.error]="costCodeForm.get('name')?.touched && costCodeForm.get('name')?.invalid">
-                <div *ngIf="costCodeForm.get('name')?.touched && costCodeForm.get('name')?.errors?.['required']"
-                     class="error-message">
-                  <i class="fa fa-exclamation-circle"></i>
-                  Name is required
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="description" class="form-label">
-                  <i class="fa fa-align-left"></i>
-                  Description
-                </label>
-                <input
-                  type="text"
-                  id="description"
-                  class="form-input"
-                  formControlName="description"
-                  placeholder="Optional description">
-              </div>
-
-              <div class="form-group">
-                <label for="locationId" class="form-label">
-                  <i class="fa fa-map-marker"></i>
-                  Location Scope
-                </label>
-                <select id="locationId" class="form-select" formControlName="locationId">
-                  <option value="">All locations (company-wide)</option>
-                  <option *ngFor="let location of locations" [value]="location.locationId">
-                    {{ location.name }}
-                  </option>
-                </select>
-                <small class="form-hint">Leave blank to make this cost code available to every location</small>
-              </div>
-
-              <div class="form-group">
-                <label for="externalCode" class="form-label">
-                  <i class="fa fa-link"></i>
-                  Procore Cost Code ID
-                </label>
-                <input
-                  type="text"
-                  id="externalCode"
-                  class="form-input"
-                  formControlName="externalCode"
-                  placeholder="Set automatically when synced with Procore">
-                <small class="form-hint">Maps this cost code to its Procore equivalent for daily log push</small>
-              </div>
-
-              <div class="form-group">
-                <label for="status" class="form-label">
-                  <i class="fa fa-toggle-on"></i>
-                  Status
-                </label>
-                <select id="status" class="form-select" formControlName="status">
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-                <small class="form-hint">Set to Inactive to hide this cost code from reporting</small>
-              </div>
-            </div>
-
-            <div class="form-section info-section">
-              <h4 class="section-title">
-                <i class="fa fa-info-circle"></i>
-                About Cost Codes
-              </h4>
-              <div class="info-box">
-                <p class="info-text">
-                  <i class="fa fa-lightbulb-o"></i>
-                  <strong>Tip:</strong> Cost codes group labor hours for budget tracking. They mirror the cost codes in your Procore project's WBS.
-                </p>
-                <p class="info-text">
-                  <i class="fa fa-cloud-upload"></i>
-                  <strong>Procore:</strong> When a daily report is submitted, manpower hours are pushed to Procore grouped by these cost codes.
-                </p>
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button type="button" class="btn-cancel" *ngIf="selectedCostCode" (click)="cancelEdit()">
-                <i class="fa fa-times"></i>
-                Cancel
-              </button>
-              <button type="submit" class="btn-submit" [disabled]="!costCodeForm.valid">
-                <i class="fa" [class.fa-save]="selectedCostCode" [class.fa-plus]="!selectedCostCode"></i>
-                {{ selectedCostCode ? 'Update Cost Code' : 'Create Cost Code' }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
+  <section class="min-w-0">
+    @if (loading) {
+      <lz-alert tone="info" i18n="@@cost_codes.loading">Loading cost codes...</lz-alert>
+    } @else if (error) {
+      <lz-alert tone="danger" i18n="@@cost_codes.error">Error loading cost codes. Please try again.</lz-alert>
+    } @else if (costCodes.length === 0) {
+      <lz-empty-state icon="tag" title="No cost codes yet" i18n-title="@@cost_codes.empty_text" body="Create your first cost code to get started" i18n-body="@@cost_codes.empty_subtext">
+        <button lzEmptyAction lzButton variant="secondary" type="button" (click)="addCostCode()">
+          <mat-icon aria-hidden="true">add</mat-icon>
+          <ng-container i18n="@@cost_codes.add_btn">Add cost code</ng-container>
+        </button>
+      </lz-empty-state>
+    } @else {
+      <lz-table-scroll>
+        <table lzTable class="min-w-3xl">
+          <thead>
+            <tr>
+              <th scope="col" i18n="@@cost_codes.col_code">Code</th>
+              <th scope="col" i18n="@@cost_codes.col_name">Name</th>
+              <th scope="col" i18n="@@cost_codes.col_location">Location</th>
+              <th scope="col" i18n="@@cost_codes.col_procore">Procore ID</th>
+              <th scope="col" i18n="@@cost_codes.col_status">Status</th>
+              <th scope="col" class="text-right" i18n="@@cost_codes.col_actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (costCode of paginate(costCodes, page, pageSize); track costCode.costCodeId) {
+              <tr class="cursor-pointer hover:bg-paper-alt" [class.bg-paper-alt]="selectedCostCode?.costCodeId === costCode.costCodeId" (click)="openerEl = editBtn; editCostCode(costCode)">
+                <td class="font-medium text-ink">{{ costCode.code }}</td>
+                <td>{{ costCode.name }}</td>
+                <td>{{ getLocationName(costCode.locationId) }}</td>
+                <td>{{ costCode.externalCode || '—' }}</td>
+                <td>
+                  <lz-status-chip [tone]="costCode.status === 'Active' ? 'success' : 'neutral'" [dot]="true">
+                    @if (costCode.status === 'Active') {
+                      <ng-container i18n="@@common.active">Active</ng-container>
+                    } @else {
+                      <ng-container i18n="@@common.inactive">Inactive</ng-container>
+                    }
+                  </lz-status-chip>
+                </td>
+                <td (click)="$event.stopPropagation()">
+                  <div class="flex justify-end gap-1">
+                    <button #editBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(costCode)" (click)="openerEl = editBtn; editCostCode(costCode)">
+                      <mat-icon aria-hidden="true">edit</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </lz-table-scroll>
+      <lz-pager [total]="costCodes.length" [page]="page" [pageSize]="pageSize" (pageChange)="page = $event" (pageSizeChange)="pageSize = $event; page = 1" />
+    }
+  </section>
 </div>
+
+<lz-side-panel #sp [restoreFocusTo]="openerEl" [heading]="selectedCostCode ? selectedCostCode.code + ' — ' + selectedCostCode.name : addLabel" [open]="panelOpen" [dirty]="costCodeForm.dirty" (closed)="cancelEdit()">
+  @if (panelOpen) {
+    <form id="cost-code-form" [formGroup]="costCodeForm" (ngSubmit)="saveCostCode()" class="flex flex-col gap-4">
+      <lz-field label="Code" i18n-label="@@cost_codes.code_label" controlId="code" required [error]="costCodeForm.get('code')?.touched && costCodeForm.get('code')?.errors?.['required'] ? codeRequired : null">
+        <input lzField type="text" id="code" formControlName="code" aria-required="true" placeholder="e.g., 01-100, 03-300" i18n-placeholder="@@cost_codes.code_placeholder" [attr.aria-invalid]="costCodeForm.get('code')?.touched && costCodeForm.get('code')?.invalid ? 'true' : null" [attr.aria-describedby]="costCodeForm.get('code')?.touched && costCodeForm.get('code')?.invalid ? 'code-error' : null">
+      </lz-field>
+
+      <lz-field label="Name" i18n-label="@@cost_codes.name_label" controlId="name" required [error]="costCodeForm.get('name')?.touched && costCodeForm.get('name')?.errors?.['required'] ? nameRequired : null">
+        <input lzField type="text" id="name" formControlName="name" aria-required="true" placeholder="e.g., Site supervision, concrete labor" i18n-placeholder="@@cost_codes.name_placeholder" [attr.aria-invalid]="costCodeForm.get('name')?.touched && costCodeForm.get('name')?.invalid ? 'true' : null" [attr.aria-describedby]="costCodeForm.get('name')?.touched && costCodeForm.get('name')?.invalid ? 'name-error' : null">
+      </lz-field>
+
+      <lz-field label="Description" i18n-label="@@cost_codes.description_label" controlId="description">
+        <input lzField type="text" id="description" formControlName="description" placeholder="Optional description" i18n-placeholder="@@cost_codes.description_placeholder">
+      </lz-field>
+
+      <lz-field label="Location scope" i18n-label="@@cost_codes.location_label" hint="Leave blank to make this cost code available to every location" i18n-hint="@@cost_codes.location_hint" controlId="locationId">
+        <select lzField id="locationId" formControlName="locationId" aria-describedby="locationId-hint">
+          <option value="" i18n="@@cost_codes.location_all">All locations (company-wide)</option>
+          @for (location of locations; track location.locationId) {
+            <option [value]="location.locationId">{{ location.name }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Procore cost code ID" i18n-label="@@cost_codes.external_label" hint="Maps this cost code to its Procore equivalent for daily log push" i18n-hint="@@cost_codes.external_hint" controlId="externalCode">
+        <input lzField type="text" id="externalCode" formControlName="externalCode" aria-describedby="externalCode-hint" placeholder="Set automatically when synced with Procore" i18n-placeholder="@@cost_codes.external_placeholder">
+      </lz-field>
+
+      <lz-field label="Status" i18n-label="@@cost_codes.status_label" hint="Set to inactive to hide this cost code from reporting" i18n-hint="@@cost_codes.status_hint" controlId="status">
+        <select lzField id="status" formControlName="status" aria-describedby="status-hint">
+          <option value="Active" i18n="@@common.active">Active</option>
+          <option value="Inactive" i18n="@@common.inactive">Inactive</option>
+        </select>
+      </lz-field>
+
+      <lz-alert tone="info">
+        <p class="font-medium" i18n="@@cost_codes.about_title">About cost codes</p>
+        <p i18n="@@cost_codes.about_body">Cost codes group labor hours for budget tracking and mirror the cost codes in your Procore project. When a daily report is submitted, manpower hours are pushed to Procore grouped by these cost codes.</p>
+      </lz-alert>
+    </form>
+  }
+  <ng-container lzPanelFooter>
+    <button lzButton variant="secondary" type="button" (click)="sp.requestClose()" i18n="@@common.cancel">Cancel</button>
+    <button lzButton variant="primary" type="submit" form="cost-code-form" [disabled]="costCodeForm.invalid || saving || (!!selectedCostCode && !costCodeForm.dirty)">
+      @if (selectedCostCode) {
+        <ng-container i18n="@@cost_codes.update_btn">Update cost code</ng-container>
+      } @else {
+        <ng-container i18n="@@cost_codes.create_btn">Create cost code</ng-container>
+      }
+    </button>
+  </ng-container>
+</lz-side-panel>

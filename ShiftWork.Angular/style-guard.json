@@ -27,6 +27,10 @@
     "src/app/features/dashboard/crews/**",
     "src/app/features/dashboard/credentials/**",
     "src/app/features/dashboard/locations/**",
-    "src/app/features/dashboard/areas/**"
+    "src/app/features/dashboard/areas/**",
+    "src/app/features/dashboard/cost-codes/**",
+    "src/app/features/dashboard/tasks/**",
+    "src/app/features/dashboard/active-sites/**",
+    "src/app/features/dashboard/daily-reports/**"
   ]
 }

@@ -18,12 +18,12 @@ import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { Observable, Subject, forkJoin } from 'rxjs';
 import { filter, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { paginate } from 'src/app/shared/ui';
 import { AuditHistoryButtonComponent } from '../../kiosk/audit-history/audit-history-button.component';
 
 @Component({
   selector: 'app-tasks',
   templateUrl: './tasks.component.html',
-  styleUrls: ['./tasks.component.css'],
   standalone: true,
   imports: [ReactiveFormsModule, SharedModule, NgbModule, AuditHistoryButtonComponent]
 })
@@ -38,6 +38,16 @@ export class TasksComponent implements OnInit, OnDestroy {
   people: People[] = [];
   loading = false;
   error: any = null;
+  saving = false;
+  panelOpen = false;
+  openerEl: HTMLElement | null = null;
+  page = 1;
+  pageSize = 25;
+  readonly paginate = paginate;
+  readonly titleRequired = $localize`:@@tasks.title_error:Task title is required`;
+  readonly descriptionRequired = $localize`:@@tasks.desc_error:Description is required`;
+  readonly locationRequired = $localize`:@@tasks.location_error:Location is required`;
+  readonly addLabel = $localize`:@@tasks.add_btn:Add task`;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -59,7 +69,7 @@ export class TasksComponent implements OnInit, OnDestroy {
       title: ['', Validators.required],
       description: ['', Validators.required],
       locationId: ['', Validators.required],
-      areaId: ['', Validators.required],
+      areaId: [''],
       personId: [''],
       status: ['Active', Validators.required],
     });
@@ -69,7 +79,7 @@ export class TasksComponent implements OnInit, OnDestroy {
       tap(company => {
         this.activeCompany = company;
         this.loading = true;
-        console.log('Active company set:', this.activeCompany);
+        this.error = null;
       }),
       switchMap(company =>
         forkJoin({
@@ -87,11 +97,11 @@ export class TasksComponent implements OnInit, OnDestroy {
         this.areas = areas;
         this.people = people;
         this.loading = false;
+        this.page = Math.min(this.page, Math.max(1, Math.ceil(tasks.length / this.pageSize)));
       },
       error: err => {
         this.error = err;
         this.loading = false;
-        this.toastr.error('Failed to load initial data for tasks.');
       }
     });
   }
@@ -101,12 +111,30 @@ export class TasksComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  addTask(): void {
+    this.cancelEdit();
+    this.panelOpen = true;
+  }
+
+  editLabel(task: TaskShift): string {
+    return $localize`:@@tasks.edit_aria:Edit ${task.title || task.description || ''}:name:`;
+  }
+
   editTask(task: TaskShift): void {
+    this.panelOpen = true;
     this.selectedTask = task;
-    this.taskForm.patchValue(task);
+    this.taskForm.patchValue({
+      ...task,
+      description: task.description ?? '',
+      locationId: task.locationId ?? '',
+      areaId: task.areaId ?? '',
+      personId: task.personId ?? '',
+      status: task.status ?? 'Active',
+    });
   }
 
   cancelEdit(): void {
+    this.panelOpen = false;
     this.selectedTask = null;
     this.taskForm.reset({
       title: '',
@@ -118,44 +146,60 @@ export class TasksComponent implements OnInit, OnDestroy {
     });
   }
 
+  private optionalId(raw: unknown): number | null {
+    return raw === '' || raw === null || raw === undefined ? null : Number(raw);
+  }
+
+  private payload(): Partial<TaskShift> {
+    const raw = this.taskForm.value;
+    return {
+      ...raw,
+      locationId: this.optionalId(raw.locationId),
+      areaId: this.optionalId(raw.areaId),
+      personId: this.optionalId(raw.personId),
+    } as Partial<TaskShift>;
+  }
+
   saveTask(): void {
-    if (!this.taskForm.valid) {
+    if (!this.taskForm.valid || this.saving) {
       return;
     }
+    this.saving = true;
 
     if (this.selectedTask) {
-      const updatedTask: TaskShift = {
-        ...this.selectedTask,
-        ...this.taskForm.value,
-      };
-      // Note: You will need to implement `updateTaskShift` in your TaskShiftService.
+      const updatedTask = { ...this.selectedTask, ...this.payload() } as TaskShift;
       this.taskShiftService
         .updateTaskShift(this.activeCompany.companyId, updatedTask.taskShiftId, updatedTask)
         .subscribe(
           (result) => {
-            console.log('Task updated:', result);
             const index = this.tasks.findIndex((t) => t.taskShiftId === result.taskShiftId);
             if (index > -1) {
               const updatedTasks = [...this.tasks];
               updatedTasks[index] = result;
               this.tasks = updatedTasks;
             }
-            this.toastr.success('Task updated successfully.');
+            this.saving = false;
+            this.toastr.success($localize`:@@tasks.toast_updated:Task updated.`);
             this.cancelEdit();
           },
-          () => this.toastr.error('Failed to update task.')
+          () => {
+            this.saving = false;
+            this.toastr.error($localize`:@@tasks.toast_update_failed:Could not update the task.`);
+          }
         );
     } else {
-      const newTask: Omit<TaskShift, 'taskShiftId'> = {
-        ...this.taskForm.value,
-        companyId: this.activeCompany.companyId,
-      };
-      this.taskShiftService.createTaskShift(this.activeCompany.companyId, newTask as TaskShift).subscribe(task => {
-        this.tasks = [...this.tasks, task];
-        this.cancelEdit();
-        this.toastr.success('Task created successfully');
-      },
-      () => this.toastr.error('Failed to create Task.')
+      const newTask = { ...this.payload(), companyId: this.activeCompany.companyId } as Omit<TaskShift, 'taskShiftId'>;
+      this.taskShiftService.createTaskShift(this.activeCompany.companyId, newTask as TaskShift).subscribe(
+        task => {
+          this.saving = false;
+          this.tasks = [...this.tasks, task];
+          this.cancelEdit();
+          this.toastr.success($localize`:@@tasks.toast_created:Task created.`);
+        },
+        () => {
+          this.saving = false;
+          this.toastr.error($localize`:@@tasks.toast_create_failed:Could not create the task.`);
+        }
       );
     }
   }
