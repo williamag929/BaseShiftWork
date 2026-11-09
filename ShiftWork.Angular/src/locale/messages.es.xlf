@@ -10,65 +10,9 @@
         <source>Save</source>
         <target state="translated">Guardar</target>
       </trans-unit>
-      <trans-unit id="common.ok" datatype="html">
-        <source>OK</source>
-        <target state="translated">Aceptar</target>
-      </trans-unit>
       <trans-unit id="common.back" datatype="html">
         <source>Back</source>
         <target state="translated">Atrás</target>
-      </trans-unit>
-      <trans-unit id="common.continue" datatype="html">
-        <source>Continue</source>
-        <target state="translated">Continuar</target>
-      </trans-unit>
-      <trans-unit id="common.loading" datatype="html">
-        <source>Loading…</source>
-        <target state="translated">Cargando…</target>
-      </trans-unit>
-      <trans-unit id="common.error" datatype="html">
-        <source>Error</source>
-        <target state="translated">Error</target>
-      </trans-unit>
-      <trans-unit id="common.try_again" datatype="html">
-        <source>Try again</source>
-        <target state="translated">Intentar de nuevo</target>
-      </trans-unit>
-      <trans-unit id="common.or" datatype="html">
-        <source>Or</source>
-        <target state="translated">O</target>
-      </trans-unit>
-      <trans-unit id="common.done" datatype="html">
-        <source>Done</source>
-        <target state="translated">Listo</target>
-      </trans-unit>
-      <trans-unit id="common.edit" datatype="html">
-        <source>Edit</source>
-        <target state="translated">Editar</target>
-      </trans-unit>
-      <trans-unit id="common.delete" datatype="html">
-        <source>Delete</source>
-        <target state="translated">Eliminar</target>
-      </trans-unit>
-      <trans-unit id="common.confirm" datatype="html">
-        <source>Confirm</source>
-        <target state="translated">Confirmar</target>
-      </trans-unit>
-      <trans-unit id="common.yes" datatype="html">
-        <source>Yes</source>
-        <target state="translated">Sí</target>
-      </trans-unit>
-      <trans-unit id="common.no" datatype="html">
-        <source>No</source>
-        <target state="translated">No</target>
-      </trans-unit>
-      <trans-unit id="common.retry" datatype="html">
-        <source>Retry</source>
-        <target state="translated">Reintentar</target>
-      </trans-unit>
-      <trans-unit id="common.archive" datatype="html">
-        <source>Archive</source>
-        <target state="translated">Archivar</target>
       </trans-unit>
       <trans-unit id="common.name" datatype="html">
         <source>Name</source>
@@ -98,10 +42,6 @@
         <source>Sign In</source>
         <target state="translated">Iniciar sesión</target>
       </trans-unit>
-      <trans-unit id="auth.login.subtitle" datatype="html">
-        <source>Sign in to your account</source>
-        <target state="translated">Inicia sesión en tu cuenta</target>
-      </trans-unit>
       <trans-unit id="auth.login.email_label" datatype="html">
         <source>Email address</source>
         <target state="translated">Correo electrónico</target>
@@ -122,14 +62,6 @@
         <source>Password is required.</source>
         <target state="translated">La contraseña es requerida.</target>
       </trans-unit>
-      <trans-unit id="auth.login.submit" datatype="html">
-        <source>Log in</source>
-        <target state="translated">Iniciar sesión</target>
-      </trans-unit>
-      <trans-unit id="auth.login.submitting" datatype="html">
-        <source>Signing in…</source>
-        <target state="translated">Iniciando sesión…</target>
-      </trans-unit>
       <trans-unit id="auth.login.google" datatype="html">
         <source>Log in with Google</source>
         <target state="translated">Iniciar sesión con Google</target>
@@ -142,14 +74,6 @@
         <source>Create a company account</source>
         <target state="translated">Crear una cuenta de empresa</target>
       </trans-unit>
-      <trans-unit id="auth.login.biometric" datatype="html">
-        <source>Sign in with <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/></source>
-        <target state="translated">Iniciar sesión con <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/></target>
-      </trans-unit>
-      <trans-unit id="auth.login.or_continue" datatype="html">
-        <source>or continue with</source>
-        <target state="translated">o continuar con</target>
-      </trans-unit>
       <trans-unit id="auth.login.forgot_password" datatype="html">
         <source>Forgot Password?</source>
         <target state="translated">¿Olvidaste tu contraseña?</target>
@@ -157,18 +81,6 @@
       <trans-unit id="auth.login.no_account" datatype="html">
         <source>Don&apos;t have an account?</source>
         <target state="translated">¿No tienes cuenta?</target>
-      </trans-unit>
-      <trans-unit id="auth.login.sign_up_link" datatype="html">
-        <source>Sign Up</source>
-        <target state="translated">Registrarse</target>
-      </trans-unit>
-      <trans-unit id="auth.login.create_one" datatype="html">
-        <source>Create one</source>
-        <target state="translated">Crea una</target>
-      </trans-unit>
-      <trans-unit id="auth.login.welcome" datatype="html">
-        <source>Welcome Back</source>
-        <target state="translated">Bienvenido de nuevo</target>
       </trans-unit>
       <trans-unit id="auth.login.welcome_subtitle" datatype="html">
         <source>Sign in to continue to your account</source>
@@ -190,26 +102,6 @@
         <source>Signing in...</source>
         <target state="translated">Iniciando sesión...</target>
       </trans-unit>
-      <trans-unit id="auth.register.title" datatype="html">
-        <source>Create Account</source>
-        <target state="translated">Crear cuenta</target>
-      </trans-unit>
-      <trans-unit id="auth.register.subtitle" datatype="html">
-        <source>Join ShiftWork in 3 easy steps</source>
-        <target state="translated">Únete en 3 sencillos pasos</target>
-      </trans-unit>
-      <trans-unit id="auth.register.step_account" datatype="html">
-        <source>Your Account</source>
-        <target state="translated">Tu cuenta</target>
-      </trans-unit>
-      <trans-unit id="auth.register.step_company" datatype="html">
-        <source>Your Company</source>
-        <target state="translated">Tu empresa</target>
-      </trans-unit>
-      <trans-unit id="auth.register.step_review" datatype="html">
-        <source>Review &amp; Create</source>
-        <target state="translated">Revisar y crear</target>
-      </trans-unit>
       <trans-unit id="auth.register.full_name" datatype="html">
         <source>Full name</source>
         <target state="translated">Nombre completo</target>
@@ -226,10 +118,6 @@
         <source>Min 8 characters</source>
         <target state="translated">Mín. 8 caracteres</target>
       </trans-unit>
-      <trans-unit id="auth.register.password_short" datatype="html">
-        <source>Password must be at least 8 characters long.</source>
-        <target state="translated">La contraseña debe tener al menos 8 caracteres.</target>
-      </trans-unit>
       <trans-unit id="auth.register.password_short_6" datatype="html">
         <source>Password must be at least 6 characters long.</source>
         <target state="translated">La contraseña debe tener al menos 6 caracteres.</target>
@@ -242,25 +130,9 @@
         <source>Company email</source>
         <target state="translated">Correo de la empresa</target>
       </trans-unit>
-      <trans-unit id="auth.register.company_phone" datatype="html">
-        <source>Company Phone (optional)</source>
-        <target state="translated">Teléfono de la empresa (opcional)</target>
-      </trans-unit>
       <trans-unit id="auth.register.submit" datatype="html">
         <source>Create account</source>
         <target state="translated">Crear cuenta</target>
-      </trans-unit>
-      <trans-unit id="auth.register.creating" datatype="html">
-        <source>Creating…</source>
-        <target state="translated">Creando…</target>
-      </trans-unit>
-      <trans-unit id="auth.register.free_plan_note" datatype="html">
-        <source>You&apos;ll start on the Free plan with sample data to explore.</source>
-        <target state="translated">Comenzarás en el plan gratuito con datos de muestra.</target>
-      </trans-unit>
-      <trans-unit id="auth.register.already_account" datatype="html">
-        <source>Already have an account? Sign in</source>
-        <target state="translated">¿Ya tienes cuenta? Inicia sesión</target>
       </trans-unit>
       <trans-unit id="auth.register.sign_up" datatype="html">
         <source>Sign Up</source>
@@ -269,14 +141,6 @@
       <trans-unit id="auth.register.google" datatype="html">
         <source>Continue with Google</source>
         <target state="translated">Continuar con Google</target>
-      </trans-unit>
-      <trans-unit id="auth.onboarding.title" datatype="html">
-        <source>Welcome to <x id="INTERPOLATION" equiv-text="{{ appName }}"/>!</source>
-        <target state="translated">¡Bienvenido a <x id="INTERPOLATION" equiv-text="{{ appName }}"/>!</target>
-      </trans-unit>
-      <trans-unit id="auth.onboarding.subtitle" datatype="html">
-        <source>Your account is ready. Let&apos;s get you started.</source>
-        <target state="translated">Tu cuenta está lista. Comencemos.</target>
       </trans-unit>
       <trans-unit id="auth.onboarding.account_setup" datatype="html">
         <source>Your account is set up and ready to go.</source>
@@ -338,30 +202,6 @@
         <source>Your workspace is clean and ready for real data.</source>
         <target state="translated">Tu espacio de trabajo está listo para datos reales.</target>
       </trans-unit>
-      <trans-unit id="auth.onboarding.demo_hidden_ok" datatype="html">
-        <source>Demo data hidden.</source>
-        <target state="translated">Datos ocultos.</target>
-      </trans-unit>
-      <trans-unit id="auth.onboarding.demo_hidden_fail" datatype="html">
-        <source>Failed to hide demo data.</source>
-        <target state="translated">No se pudieron ocultar los datos de demostración.</target>
-      </trans-unit>
-      <trans-unit id="auth.onboarding.demo_reset_ok" datatype="html">
-        <source>Demo data reset to defaults.</source>
-        <target state="translated">Datos de demostración restaurados.</target>
-      </trans-unit>
-      <trans-unit id="auth.onboarding.demo_reset_fail" datatype="html">
-        <source>Failed to reset demo data.</source>
-        <target state="translated">No se pudieron restaurar los datos de demostración.</target>
-      </trans-unit>
-      <trans-unit id="auth.onboarding.demo_removed_ok" datatype="html">
-        <source>Demo data removed. Workspace is clean.</source>
-        <target state="translated">Datos eliminados. Tu espacio de trabajo está limpio.</target>
-      </trans-unit>
-      <trans-unit id="auth.onboarding.demo_removed_fail" datatype="html">
-        <source>Failed to delete demo data.</source>
-        <target state="translated">No se pudieron eliminar los datos de demostración.</target>
-      </trans-unit>
       <trans-unit id="auth.onboarding.sandbox_hidden_ok" datatype="html">
         <source>Demo data has been hidden.</source>
         <target state="translated">Los datos de demostración han sido ocultados.</target>
@@ -386,10 +226,6 @@
         <source>Failed to delete sandbox data.</source>
         <target state="translated">No se pudieron eliminar los datos de demostración.</target>
       </trans-unit>
-      <trans-unit id="auth.onboarding.free_plan" datatype="html">
-        <source>Free Plan</source>
-        <target state="translated">Plan gratuito</target>
-      </trans-unit>
       <trans-unit id="auth.onboarding.free_plan_heading" datatype="html">
         <source>You&apos;re on the Free plan</source>
         <target state="translated">Estás en el plan gratuito</target>
@@ -406,17 +242,9 @@
         <source>Go to dashboard</source>
         <target state="translated">Ir al panel</target>
       </trans-unit>
-      <trans-unit id="auth.forgot_password.title" datatype="html">
-        <source>Forgot Password</source>
-        <target state="translated">Recuperar contraseña</target>
-      </trans-unit>
       <trans-unit id="auth.forgot_password.reset_title" datatype="html">
         <source>Reset Password</source>
         <target state="translated">Restablecer contraseña</target>
-      </trans-unit>
-      <trans-unit id="auth.forgot_password.subtitle" datatype="html">
-        <source>Enter your email to reset your password.</source>
-        <target state="translated">Ingresa tu correo para restablecer tu contraseña.</target>
       </trans-unit>
       <trans-unit id="auth.forgot_password.instruction" datatype="html">
         <source>Please enter your email address to request a password reset.</source>
@@ -426,25 +254,13 @@
         <source>Email address</source>
         <target state="translated">Correo electrónico</target>
       </trans-unit>
-      <trans-unit id="auth.forgot_password.submit" datatype="html">
-        <source>Send reset link</source>
-        <target state="translated">Enviar enlace</target>
-      </trans-unit>
       <trans-unit id="auth.forgot_password.reset_submit" datatype="html">
         <source>Reset Password</source>
         <target state="translated">Restablecer contraseña</target>
       </trans-unit>
-      <trans-unit id="auth.forgot_password.back_to_login" datatype="html">
-        <source>Back to Sign In</source>
-        <target state="translated">Volver a iniciar sesión</target>
-      </trans-unit>
       <trans-unit id="auth.forgot_password.go_back_to" datatype="html">
         <source>Go back to</source>
         <target state="translated">Volver a</target>
-      </trans-unit>
-      <trans-unit id="auth.forgot_password.sent" datatype="html">
-        <source>Reset link sent. Check your inbox.</source>
-        <target state="translated">Enlace enviado. Revisa tu correo.</target>
       </trans-unit>
       <trans-unit id="auth.accept_invite.toggle_password" datatype="html">
         <source>Show password</source>
@@ -542,10 +358,6 @@
         <source>Resend verification email</source>
         <target state="translated">Reenviar correo de verificación</target>
       </trans-unit>
-      <trans-unit id="auth.verify_email.back" datatype="html">
-        <source>Go back to Sign in</source>
-        <target state="translated">Volver a iniciar sesión</target>
-      </trans-unit>
       <trans-unit id="registration.title" datatype="html">
         <source>Create your Loqzen account</source>
         <target state="translated">Crea tu cuenta de Loqzen</target>
@@ -553,18 +365,6 @@
       <trans-unit id="registration.subtitle" datatype="html">
         <source>Get started in just a few steps — it&apos;s free</source>
         <target state="translated">Comienza en pocos pasos — es gratis</target>
-      </trans-unit>
-      <trans-unit id="registration.step_account" datatype="html">
-        <source>Account</source>
-        <target state="translated">Cuenta</target>
-      </trans-unit>
-      <trans-unit id="registration.step_company" datatype="html">
-        <source>Company</source>
-        <target state="translated">Empresa</target>
-      </trans-unit>
-      <trans-unit id="registration.step_confirm" datatype="html">
-        <source>Confirm</source>
-        <target state="translated">Confirmar</target>
       </trans-unit>
       <trans-unit id="registration.step1_section" datatype="html">
         <source>Your account details</source>
@@ -654,10 +454,6 @@
         <source>Creating account…</source>
         <target state="translated">Creando cuenta…</target>
       </trans-unit>
-      <trans-unit id="registration.sign_in_link" datatype="html">
-        <source>Already have an account? Sign in</source>
-        <target state="translated">¿Ya tienes cuenta? Inicia sesión</target>
-      </trans-unit>
       <trans-unit id="bulletins.page_subtitle" datatype="html">
         <source>Company-wide announcements and updates</source>
         <target state="translated">Anuncios y actualizaciones de la empresa</target>
@@ -746,25 +542,9 @@
         <source>Retry</source>
         <target state="translated">Reintentar</target>
       </trans-unit>
-      <trans-unit id="bulletins.unread_badge" datatype="html">
-        <source>unread</source>
-        <target state="translated">sin leer</target>
-      </trans-unit>
       <trans-unit id="bulletins.expires_card" datatype="html">
         <source>Expires</source>
         <target state="translated">Vence</target>
-      </trans-unit>
-      <trans-unit id="bulletins.unread_tooltip" datatype="html">
-        <source>Unread</source>
-        <target state="translated">No leído</target>
-      </trans-unit>
-      <trans-unit id="bulletins.read_tooltip" datatype="html">
-        <source>Read</source>
-        <target state="translated">Leído</target>
-      </trans-unit>
-      <trans-unit id="bulletins.reads_tooltip" datatype="html">
-        <source>Total reads</source>
-        <target state="translated">Total de lecturas</target>
       </trans-unit>
       <trans-unit id="documents.page_subtitle" datatype="html">
         <source>Manuals, procedures, SDS sheets, and policies</source>
@@ -974,10 +754,6 @@
         <source>Retry</source>
         <target state="translated">Reintentar</target>
       </trans-unit>
-      <trans-unit id="safety.pending_badge" datatype="html">
-        <source>pending</source>
-        <target state="translated">pendiente</target>
-      </trans-unit>
       <trans-unit id="safety.scheduled_on" datatype="html">
         <source>Scheduled</source>
         <target state="translated">Programado</target>
@@ -989,242 +765,6 @@
       <trans-unit id="safety.compliance_acknowledged" datatype="html">
         <source>acknowledged</source>
         <target state="translated">reconocidos</target>
-      </trans-unit>
-      <trans-unit id="upgrade.title" datatype="html">
-        <source>Upgrade to Pro</source>
-        <target state="translated">Actualizar a Pro</target>
-      </trans-unit>
-      <trans-unit id="upgrade.subtitle" datatype="html">
-        <source>Unlock the full power of ShiftWork for your team.</source>
-        <target state="translated">Desbloquea todo el potencial de ShiftWork para tu equipo.</target>
-      </trans-unit>
-      <trans-unit id="upgrade.col_feature" datatype="html">
-        <source>Feature</source>
-        <target state="translated">Función</target>
-      </trans-unit>
-      <trans-unit id="upgrade.feat_kiosk" datatype="html">
-        <source>Kiosk Clock-In / Out</source>
-        <target state="translated">Reloj de entrada/salida en kiosco</target>
-      </trans-unit>
-      <trans-unit id="upgrade.feat_basic_schedule" datatype="html">
-        <source>Basic Scheduling</source>
-        <target state="translated">Programación básica</target>
-      </trans-unit>
-      <trans-unit id="upgrade.feat_sandbox" datatype="html">
-        <source>Sandbox Demo Data</source>
-        <target state="translated">Datos de demostración</target>
-      </trans-unit>
-      <trans-unit id="upgrade.feat_remove_sandbox" datatype="html">
-        <source>Remove Sandbox Data</source>
-        <target state="translated">Eliminar datos de demostración</target>
-      </trans-unit>
-      <trans-unit id="upgrade.feat_advanced" datatype="html">
-        <source>Advanced Scheduling</source>
-        <target state="translated">Programación avanzada</target>
-      </trans-unit>
-      <trans-unit id="upgrade.feat_analytics" datatype="html">
-        <source>Analytics &amp; Reports</source>
-        <target state="translated">Análisis y reportes</target>
-      </trans-unit>
-      <trans-unit id="upgrade.feat_multilocation" datatype="html">
-        <source>Multi-Location Support</source>
-        <target state="translated">Soporte multi-ubicación</target>
-      </trans-unit>
-      <trans-unit id="upgrade.feat_export" datatype="html">
-        <source>Data Export</source>
-        <target state="translated">Exportación de datos</target>
-      </trans-unit>
-      <trans-unit id="upgrade.price_info" datatype="html">
-        <source>Pro plan — contact sales for pricing</source>
-        <target state="translated">Plan Pro — contacta ventas para precio</target>
-      </trans-unit>
-      <trans-unit id="upgrade.submit" datatype="html">
-        <source>Upgrade to Pro Now</source>
-        <target state="translated">Mejorar a Pro ahora</target>
-      </trans-unit>
-      <trans-unit id="upgrade.processing" datatype="html">
-        <source>Processing…</source>
-        <target state="translated">Procesando…</target>
-      </trans-unit>
-      <trans-unit id="upgrade.back_dashboard" datatype="html">
-        <source>← Back to Dashboard</source>
-        <target state="translated">← Volver al panel</target>
-      </trans-unit>
-      <trans-unit id="upgrade.plan_free" datatype="html">
-        <source>Free</source>
-        <target state="translated">Gratis</target>
-      </trans-unit>
-      <trans-unit id="upgrade.plan_pro" datatype="html">
-        <source>Pro ⭐</source>
-        <target state="translated">Pro ⭐</target>
-      </trans-unit>
-      <trans-unit id="upgrade.subtitle_web" datatype="html">
-        <source>Unlock the full power of Loqzen for your team.</source>
-        <target state="translated">Desbloquea todo el poder de Loqzen para tu equipo.</target>
-      </trans-unit>
-      <trans-unit id="nav.home" datatype="html">
-        <source>Home</source>
-        <target state="translated">Inicio</target>
-      </trans-unit>
-      <trans-unit id="nav.clock" datatype="html">
-        <source>Clock</source>
-        <target state="translated">Reloj</target>
-      </trans-unit>
-      <trans-unit id="nav.schedule" datatype="html">
-        <source>Schedule</source>
-        <target state="translated">Horario</target>
-      </trans-unit>
-      <trans-unit id="nav.grid" datatype="html">
-        <source>Grid</source>
-        <target state="translated">Cuadrícula</target>
-      </trans-unit>
-      <trans-unit id="nav.profile" datatype="html">
-        <source>Profile</source>
-        <target state="translated">Perfil</target>
-      </trans-unit>
-      <trans-unit id="nav.ai" datatype="html">
-        <source>AI</source>
-        <target state="translated">IA</target>
-      </trans-unit>
-      <trans-unit id="nav.documents" datatype="html">
-        <source>Docs</source>
-        <target state="translated">Documentos</target>
-      </trans-unit>
-      <trans-unit id="nav.bulletins" datatype="html">
-        <source>Bulletins</source>
-        <target state="translated">Boletines</target>
-      </trans-unit>
-      <trans-unit id="nav.safety" datatype="html">
-        <source>Safety</source>
-        <target state="translated">Seguridad</target>
-      </trans-unit>
-      <trans-unit id="nav.report" datatype="html">
-        <source>Report</source>
-        <target state="translated">Reporte</target>
-      </trans-unit>
-      <trans-unit id="nav.time_off" datatype="html">
-        <source>Time Off</source>
-        <target state="translated">Tiempo libre</target>
-      </trans-unit>
-      <trans-unit id="nav.weekly_schedule" datatype="html">
-        <source>Weekly Schedule</source>
-        <target state="translated">Horario semanal</target>
-      </trans-unit>
-      <trans-unit id="nav.upgrade" datatype="html">
-        <source>Upgrade to Pro</source>
-        <target state="translated">Mejorar a Pro</target>
-      </trans-unit>
-      <trans-unit id="nav.web_overview" datatype="html">
-        <source>Overview</source>
-        <target state="translated">Resumen</target>
-      </trans-unit>
-      <trans-unit id="nav.web_schedule_grid" datatype="html">
-        <source>Schedule Grid</source>
-        <target state="translated">Cuadrícula de horario</target>
-      </trans-unit>
-      <trans-unit id="nav.web_shift_summaries" datatype="html">
-        <source>Shift Summaries</source>
-        <target state="translated">Resúmenes de turno</target>
-      </trans-unit>
-      <trans-unit id="nav.web_people" datatype="html">
-        <source>People</source>
-        <target state="translated">Personas</target>
-      </trans-unit>
-      <trans-unit id="nav.web_areas" datatype="html">
-        <source>Areas</source>
-        <target state="translated">Áreas</target>
-      </trans-unit>
-      <trans-unit id="nav.web_locations" datatype="html">
-        <source>Locations</source>
-        <target state="translated">Ubicaciones</target>
-      </trans-unit>
-      <trans-unit id="nav.web_tasks" datatype="html">
-        <source>Tasks</source>
-        <target state="translated">Tareas</target>
-      </trans-unit>
-      <trans-unit id="nav.web_crews" datatype="html">
-        <source>Crews</source>
-        <target state="translated">Cuadrillas</target>
-      </trans-unit>
-      <trans-unit id="nav.web_user_profiles" datatype="html">
-        <source>User Profiles</source>
-        <target state="translated">Perfiles de usuario</target>
-      </trans-unit>
-      <trans-unit id="nav.web_analytics" datatype="html">
-        <source>Analytics</source>
-        <target state="translated">Analíticas</target>
-      </trans-unit>
-      <trans-unit id="nav.web_pto_management" datatype="html">
-        <source>PTO Management</source>
-        <target state="translated">Gestión de PTO</target>
-      </trans-unit>
-      <trans-unit id="nav.web_time_off_approvals" datatype="html">
-        <source>Time-Off Approvals</source>
-        <target state="translated">Aprobaciones de permisos</target>
-      </trans-unit>
-      <trans-unit id="nav.web_kiosks" datatype="html">
-        <source>Kiosks</source>
-        <target state="translated">Kioscos</target>
-      </trans-unit>
-      <trans-unit id="nav.web_daily_reports" datatype="html">
-        <source>Daily Reports</source>
-        <target state="translated">Reportes diarios</target>
-      </trans-unit>
-      <trans-unit id="nav.web_documents" datatype="html">
-        <source>Documents</source>
-        <target state="translated">Documentos</target>
-      </trans-unit>
-      <trans-unit id="nav.web_safety" datatype="html">
-        <source>Safety</source>
-        <target state="translated">Seguridad</target>
-      </trans-unit>
-      <trans-unit id="nav.web_settings" datatype="html">
-        <source>Settings</source>
-        <target state="translated">Configuración</target>
-      </trans-unit>
-      <trans-unit id="nav.web_company_users" datatype="html">
-        <source>Company Users</source>
-        <target state="translated">Usuarios de la empresa</target>
-      </trans-unit>
-      <trans-unit id="nav.web_help" datatype="html">
-        <source>Help</source>
-        <target state="translated">Ayuda</target>
-      </trans-unit>
-      <trans-unit id="nav.web_more_options" datatype="html">
-        <source>More Options</source>
-        <target state="translated">Más opciones</target>
-      </trans-unit>
-      <trans-unit id="nav.web_section_main" datatype="html">
-        <source>Main Menu</source>
-        <target state="translated">Menú principal</target>
-      </trans-unit>
-      <trans-unit id="nav.web_section_mgmt" datatype="html">
-        <source>Management</source>
-        <target state="translated">Gestión</target>
-      </trans-unit>
-      <trans-unit id="nav.web_section_pto" datatype="html">
-        <source>PTO</source>
-        <target state="translated">PTO</target>
-      </trans-unit>
-      <trans-unit id="nav.web_section_kiosks" datatype="html">
-        <source>Kiosks</source>
-        <target state="translated">Kioscos</target>
-      </trans-unit>
-      <trans-unit id="nav.web_section_comms" datatype="html">
-        <source>Field Communications</source>
-        <target state="translated">Comunicaciones de campo</target>
-      </trans-unit>
-      <trans-unit id="nav.web_section_resources" datatype="html">
-        <source>Resources</source>
-        <target state="translated">Recursos</target>
-      </trans-unit>
-      <trans-unit id="nav.web_my_profile" datatype="html">
-        <source>My Profile</source>
-        <target state="translated">Mi perfil</target>
-      </trans-unit>
-      <trans-unit id="nav.web_logout" datatype="html">
-        <source>Logout</source>
-        <target state="translated">Cerrar sesión</target>
       </trans-unit>
       <trans-unit id="nav.web_help_tour" datatype="html">
         <source>Help tour</source>
@@ -1306,10 +846,6 @@
         <source>Refreshing data...</source>
         <target state="translated">Actualizando datos...</target>
       </trans-unit>
-      <trans-unit id="overview.shift_pulse" datatype="html">
-        <source>Shift Pulse</source>
-        <target state="translated">Pulso de turno</target>
-      </trans-unit>
       <trans-unit id="overview.clock_activity" datatype="html">
         <source>Clock-in activity</source>
         <target state="translated">Actividad de marcaje</target>
@@ -1330,14 +866,6 @@
         <source>check-ins/hour</source>
         <target state="translated">marcajes/hora</target>
       </trans-unit>
-      <trans-unit id="overview.late_dropped" datatype="html">
-        <source>Late arrivals dropped 9% compared to last week</source>
-        <target state="translated">Las llegadas tarde bajaron un 9% comparado con la semana pasada</target>
-      </trans-unit>
-      <trans-unit id="overview.action_queue" datatype="html">
-        <source>Action Queue</source>
-        <target state="translated">Cola de acciones</target>
-      </trans-unit>
       <trans-unit id="overview.alerts_title" datatype="html">
         <source>Operational alerts</source>
         <target state="translated">Alertas operativas</target>
@@ -1349,10 +877,6 @@
       <trans-unit id="overview.review_team" datatype="html">
         <source>Review team impact</source>
         <target state="translated">Ver impacto del equipo</target>
-      </trans-unit>
-      <trans-unit id="overview.by_location" datatype="html">
-        <source>By Location</source>
-        <target state="translated">Por ubicación</target>
       </trans-unit>
       <trans-unit id="overview.gps_compliance" datatype="html">
         <source>GPS and attendance compliance</source>
@@ -1370,49 +894,13 @@
         <source>late</source>
         <target state="translated">tarde</target>
       </trans-unit>
-      <trans-unit id="overview.breaches" datatype="html">
-        <source>breaches</source>
-        <target state="translated">infracciones</target>
-      </trans-unit>
       <trans-unit id="overview.gps_ring" datatype="html">
         <source>GPS</source>
         <target state="translated">GPS</target>
       </trans-unit>
-      <trans-unit id="overview.next_moves" datatype="html">
-        <source>Next Moves</source>
-        <target state="translated">Próximas acciones</target>
-      </trans-unit>
       <trans-unit id="overview.recommended_actions" datatype="html">
         <source>Recommended actions</source>
         <target state="translated">Acciones recomendadas</target>
-      </trans-unit>
-      <trans-unit id="overview.action_balance" datatype="html">
-        <source>Balance schedules for overtime hotspots</source>
-        <target state="translated">Equilibrar horarios para puntos críticos de horas extra</target>
-      </trans-unit>
-      <trans-unit id="overview.action_balance_desc" datatype="html">
-        <source>Auto-reassign 5 shifts with one-click optimization.</source>
-        <target state="translated">Reasigna automáticamente 5 turnos con un clic.</target>
-      </trans-unit>
-      <trans-unit id="overview.action_pto" datatype="html">
-        <source>Resolve pending PTO approvals</source>
-        <target state="translated">Resolver aprobaciones de PTO pendientes</target>
-      </trans-unit>
-      <trans-unit id="overview.action_pto_desc" datatype="html">
-        <source>3 requests are impacting coverage for tomorrow morning.</source>
-        <target state="translated">3 solicitudes afectan la cobertura de mañana por la mañana.</target>
-      </trans-unit>
-      <trans-unit id="overview.action_coach" datatype="html">
-        <source>Coach frequent late arrivals</source>
-        <target state="translated">Orientar a empleados con llegadas tarde frecuentes</target>
-      </trans-unit>
-      <trans-unit id="overview.action_coach_desc" datatype="html">
-        <source>4 employees exceeded lateness threshold this week.</source>
-        <target state="translated">4 empleados superaron el umbral de tardanza esta semana.</target>
-      </trans-unit>
-      <trans-unit id="overview.roadmap" datatype="html">
-        <source>Roadmap</source>
-        <target state="translated">Hoja de ruta</target>
       </trans-unit>
       <trans-unit id="overview.next_features" datatype="html">
         <source>Recommended features for next version</source>
@@ -1422,173 +910,17 @@
         <source>Expected impact:</source>
         <target state="translated">Impacto esperado:</target>
       </trans-unit>
-      <trans-unit id="dashboard.greeting_morning" datatype="html">
-        <source>Good morning</source>
-        <target state="translated">Buenos días</target>
-      </trans-unit>
-      <trans-unit id="dashboard.greeting_afternoon" datatype="html">
-        <source>Good afternoon</source>
-        <target state="translated">Buenas tardes</target>
-      </trans-unit>
-      <trans-unit id="dashboard.greeting_evening" datatype="html">
-        <source>Good evening</source>
-        <target state="translated">Buenas noches</target>
-      </trans-unit>
-      <trans-unit id="dashboard.status_live" datatype="html">
-        <source>Live</source>
-        <target state="translated">En vivo</target>
-      </trans-unit>
-      <trans-unit id="dashboard.status_offline" datatype="html">
-        <source>Offline</source>
-        <target state="translated">Sin conexión</target>
-      </trans-unit>
-      <trans-unit id="dashboard.on_clock" datatype="html">
-        <source>On clock</source>
-        <target state="translated">En turno</target>
-      </trans-unit>
-      <trans-unit id="dashboard.updated_at" datatype="html">
-        <source>Updated <x id="INTERPOLATION" equiv-text="{{ time }}"/></source>
-        <target state="translated">Actualizado <x id="INTERPOLATION" equiv-text="{{ time }}"/></target>
-      </trans-unit>
-      <trans-unit id="dashboard.quick_clock_in" datatype="html">
-        <source>Clock In</source>
-        <target state="translated">Marcar entrada</target>
-      </trans-unit>
-      <trans-unit id="dashboard.quick_clock_out" datatype="html">
-        <source>Clock Out</source>
-        <target state="translated">Marcar salida</target>
-      </trans-unit>
-      <trans-unit id="dashboard.quick_schedule" datatype="html">
-        <source>Schedule</source>
-        <target state="translated">Horario</target>
-      </trans-unit>
-      <trans-unit id="dashboard.quick_time_off" datatype="html">
-        <source>Time Off</source>
-        <target state="translated">Tiempo libre</target>
-      </trans-unit>
-      <trans-unit id="profile.title" datatype="html">
-        <source>Profile</source>
-        <target state="translated">Perfil</target>
-      </trans-unit>
-      <trans-unit id="profile.security_section" datatype="html">
-        <source>Security</source>
-        <target state="translated">Seguridad</target>
-      </trans-unit>
-      <trans-unit id="profile.biometric_label" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ biometricType }}"/> Login</source>
-        <target state="translated">Inicio con <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/></target>
-      </trans-unit>
-      <trans-unit id="profile.biometric_desc" datatype="html">
-        <source>Use <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/> to sign in quickly</source>
-        <target state="translated">Usa <x id="INTERPOLATION" equiv-text="{{ biometricType }}"/> para iniciar sesión rápidamente</target>
-      </trans-unit>
-      <trans-unit id="profile.change_pin" datatype="html">
-        <source>Change PIN</source>
-        <target state="translated">Cambiar PIN</target>
-      </trans-unit>
-      <trans-unit id="profile.change_pin_desc" datatype="html">
-        <source>Update your 4-digit PIN for kiosk access</source>
-        <target state="translated">Actualiza tu PIN de 4 dígitos para el kiosco</target>
-      </trans-unit>
-      <trans-unit id="profile.current_pin" datatype="html">
-        <source>Current PIN</source>
-        <target state="translated">PIN actual</target>
-      </trans-unit>
-      <trans-unit id="profile.new_pin" datatype="html">
-        <source>New PIN</source>
-        <target state="translated">Nuevo PIN</target>
-      </trans-unit>
-      <trans-unit id="profile.confirm_pin" datatype="html">
-        <source>Confirm New PIN</source>
-        <target state="translated">Confirmar nuevo PIN</target>
-      </trans-unit>
-      <trans-unit id="profile.current_pin_placeholder" datatype="html">
-        <source>Enter current PIN</source>
-        <target state="translated">Ingresa tu PIN actual</target>
-      </trans-unit>
-      <trans-unit id="profile.new_pin_placeholder" datatype="html">
-        <source>Enter new 4-digit PIN</source>
-        <target state="translated">Ingresa nuevo PIN de 4 dígitos</target>
-      </trans-unit>
-      <trans-unit id="profile.confirm_pin_placeholder" datatype="html">
-        <source>Re-enter new PIN</source>
-        <target state="translated">Repite el nuevo PIN</target>
-      </trans-unit>
-      <trans-unit id="profile.update_pin" datatype="html">
-        <source>Update PIN</source>
-        <target state="translated">Actualizar PIN</target>
-      </trans-unit>
-      <trans-unit id="profile.sign_out" datatype="html">
-        <source>Sign Out</source>
-        <target state="translated">Cerrar sesión</target>
-      </trans-unit>
-      <trans-unit id="profile.language" datatype="html">
-        <source>Language</source>
-        <target state="translated">Idioma</target>
-      </trans-unit>
-      <trans-unit id="profile.language_en" datatype="html">
-        <source>English</source>
-        <target state="translated">Inglés</target>
-      </trans-unit>
-      <trans-unit id="profile.language_es" datatype="html">
-        <source>Spanish</source>
-        <target state="translated">Español</target>
-      </trans-unit>
       <trans-unit id="bulletins.title" datatype="html">
         <source>Bulletins</source>
         <target state="translated">Boletines</target>
-      </trans-unit>
-      <trans-unit id="bulletins.empty" datatype="html">
-        <source>No bulletins yet.</source>
-        <target state="translated">Aún no hay boletines.</target>
-      </trans-unit>
-      <trans-unit id="bulletins.unread_one" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unread bulletin</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> boletín sin leer</target>
-      </trans-unit>
-      <trans-unit id="bulletins.unread_other" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unread bulletins</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> boletines sin leer</target>
-      </trans-unit>
-      <trans-unit id="bulletins.mark_read" datatype="html">
-        <source>Mark as read</source>
-        <target state="translated">Marcar como leído</target>
-      </trans-unit>
-      <trans-unit id="bulletins.acknowledge" datatype="html">
-        <source>Acknowledge</source>
-        <target state="translated">Reconocer</target>
       </trans-unit>
       <trans-unit id="documents.title" datatype="html">
         <source>Documents</source>
         <target state="translated">Documentos</target>
       </trans-unit>
-      <trans-unit id="documents.empty" datatype="html">
-        <source>No documents available.</source>
-        <target state="translated">No hay documentos disponibles.</target>
-      </trans-unit>
-      <trans-unit id="documents.download" datatype="html">
-        <source>Download</source>
-        <target state="translated">Descargar</target>
-      </trans-unit>
-      <trans-unit id="documents.open" datatype="html">
-        <source>Open</source>
-        <target state="translated">Abrir</target>
-      </trans-unit>
       <trans-unit id="safety.title" datatype="html">
         <source>Safety</source>
         <target state="translated">Seguridad</target>
-      </trans-unit>
-      <trans-unit id="safety.empty" datatype="html">
-        <source>No safety content.</source>
-        <target state="translated">Sin contenido de seguridad.</target>
-      </trans-unit>
-      <trans-unit id="safety.required" datatype="html">
-        <source>Required</source>
-        <target state="translated">Requerido</target>
-      </trans-unit>
-      <trans-unit id="safety.acknowledged" datatype="html">
-        <source>Acknowledged</source>
-        <target state="translated">Reconocido</target>
       </trans-unit>
       <trans-unit id="daily_reports.page_title" datatype="html">
         <source>Daily reports</source>
@@ -1754,10 +1086,6 @@
         <source>4-digit PIN</source>
         <target state="translated">PIN de 4 dígitos</target>
       </trans-unit>
-      <trans-unit id="people.team_members" datatype="html">
-        <source>Team members</source>
-        <target state="translated">Miembros del equipo</target>
-      </trans-unit>
       <trans-unit id="people.loading" datatype="html">
         <source>Loading people...</source>
         <target state="translated">Cargando personas...</target>
@@ -1773,26 +1101,6 @@
       <trans-unit id="people.empty_desc" datatype="html">
         <source>Create your first team member to get started</source>
         <target state="translated">Crea el primer miembro del equipo para comenzar</target>
-      </trans-unit>
-      <trans-unit id="people.form_edit" datatype="html">
-        <source>Edit person</source>
-        <target state="translated">Editar persona</target>
-      </trans-unit>
-      <trans-unit id="people.form_create" datatype="html">
-        <source>Create new person</source>
-        <target state="translated">Crear nueva persona</target>
-      </trans-unit>
-      <trans-unit id="people.section_personal" datatype="html">
-        <source>Personal information</source>
-        <target state="translated">Información personal</target>
-      </trans-unit>
-      <trans-unit id="people.section_address" datatype="html">
-        <source>Address information</source>
-        <target state="translated">Información de dirección</target>
-      </trans-unit>
-      <trans-unit id="people.section_additional" datatype="html">
-        <source>Additional information</source>
-        <target state="translated">Información adicional</target>
       </trans-unit>
       <trans-unit id="people.full_name" datatype="html">
         <source>Full name</source>
@@ -1937,14 +1245,6 @@
       <trans-unit id="people.sending" datatype="html">
         <source>Sending...</source>
         <target state="translated">Enviando...</target>
-      </trans-unit>
-      <trans-unit id="people.required_badge" datatype="html">
-        <source>Required</source>
-        <target state="translated">Requerido</target>
-      </trans-unit>
-      <trans-unit id="people.inactive_badge" datatype="html">
-        <source>Inactive</source>
-        <target state="translated">Inactivo</target>
       </trans-unit>
       <trans-unit id="settings.page_title" datatype="html">
         <source>Company settings</source>
@@ -2410,25 +1710,9 @@ Opción C</target>
         <source>Cancel</source>
         <target state="translated">Cancelar</target>
       </trans-unit>
-      <trans-unit id="schedule_grid.all_locations" datatype="html">
-        <source>All Locations (Grouped)</source>
-        <target state="translated">Todas las ubicaciones (agrupadas)</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.all_employees" datatype="html">
-        <source>All Employees</source>
-        <target state="translated">Todos los empleados</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.add_schedule_btn" datatype="html">
-        <source>Add Schedule</source>
-        <target state="translated">Agregar horario</target>
-      </trans-unit>
       <trans-unit id="schedule_grid.all_published" datatype="html">
         <source>All shifts published</source>
         <target state="translated">Todos los turnos publicados</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.unpublished_shifts" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unpublished shifts</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> turnos sin publicar</target>
       </trans-unit>
       <trans-unit id="schedule_grid.search_ph" datatype="html">
         <source>Search</source>
@@ -2438,10 +1722,6 @@ Opción C</target>
         <source>Show void records</source>
         <target state="translated">Mostrar registros anulados</target>
       </trans-unit>
-      <trans-unit id="schedule_grid.select_all" datatype="html">
-        <source>Select All</source>
-        <target state="translated">Seleccionar todo</target>
-      </trans-unit>
       <trans-unit id="schedule_grid.clear_selection" datatype="html">
         <source>Clear</source>
         <target state="translated">Limpiar</target>
@@ -2449,10 +1729,6 @@ Opción C</target>
       <trans-unit id="schedule_grid.copy" datatype="html">
         <source>Copy</source>
         <target state="translated">Copiar</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.update_status" datatype="html">
-        <source>Update Status:</source>
-        <target state="translated">Actualizar estado:</target>
       </trans-unit>
       <trans-unit id="schedule_grid.status_published" datatype="html">
         <source>Published</source>
@@ -2474,45 +1750,9 @@ Opción C</target>
         <source>Void</source>
         <target state="translated">Anulado</target>
       </trans-unit>
-      <trans-unit id="schedule_grid.stat_unpublished" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unpublished</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> sin publicar</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.stat_warnings" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> warnings</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> advertencias</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.stat_open_shifts" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> open shifts</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> turnos abiertos</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.stat_empty" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> empty</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> vacíos</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.stat_published" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> published</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> publicados</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.stat_req_confirm" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> require confirmation</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> requieren confirmación</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.stat_leave_pending" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> leave pending</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> permisos pendientes</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.stat_unavailable" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ count }}"/> unavailable</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ count }}"/> no disponibles</target>
-      </trans-unit>
       <trans-unit id="schedule_grid.loading" datatype="html">
         <source>Loading schedule...</source>
         <target state="translated">Cargando horario...</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.open_shifts_header" datatype="html">
-        <source>Open shifts</source>
-        <target state="translated">Turnos abiertos</target>
       </trans-unit>
       <trans-unit id="schedule_grid.click_to_add" datatype="html">
         <source>Click + to add</source>
@@ -2566,14 +1806,6 @@ Opción C</target>
         <source>Done</source>
         <target state="translated">Listo</target>
       </trans-unit>
-      <trans-unit id="schedule_grid.locked_badge" datatype="html">
-        <source>LOCKED</source>
-        <target state="translated">BLOQUEADO</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.void_badge" datatype="html">
-        <source>VOID</source>
-        <target state="translated">ANULADO</target>
-      </trans-unit>
       <trans-unit id="schedule_grid.unavailable" datatype="html">
         <source>Unavailable</source>
         <target state="translated">No disponible</target>
@@ -2581,10 +1813,6 @@ Opción C</target>
       <trans-unit id="schedule_grid.refresh" datatype="html">
         <source>Refresh</source>
         <target state="translated">Actualizar</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.share" datatype="html">
-        <source>Share</source>
-        <target state="translated">Compartir</target>
       </trans-unit>
       <trans-unit id="schedule_grid.bulk_builder" datatype="html">
         <source>Bulk Schedule Builder</source>
@@ -2694,18 +1922,6 @@ Opción C</target>
         <source>Has time off</source>
         <target state="translated">Tiene permiso</target>
       </trans-unit>
-      <trans-unit id="add_modal.edit_schedule" datatype="html">
-        <source>Edit Schedule</source>
-        <target state="translated">Editar horario</target>
-      </trans-unit>
-      <trans-unit id="add_modal.add_schedule" datatype="html">
-        <source>Add Schedule</source>
-        <target state="translated">Agregar horario</target>
-      </trans-unit>
-      <trans-unit id="add_modal.select_person" datatype="html">
-        <source>Select Person</source>
-        <target state="translated">Seleccionar persona</target>
-      </trans-unit>
       <trans-unit id="add_modal.select_person_ph" datatype="html">
         <source>Select a person</source>
         <target state="translated">Selecciona una persona</target>
@@ -2773,10 +1989,6 @@ Opción C</target>
       <trans-unit id="add_modal.delete_shift" datatype="html">
         <source>Delete shift</source>
         <target state="translated">Eliminar turno</target>
-      </trans-unit>
-      <trans-unit id="add_modal.save" datatype="html">
-        <source>Save</source>
-        <target state="translated">Guardar</target>
       </trans-unit>
       <trans-unit id="sick_report.title" datatype="html">
         <source>Report sick</source>
@@ -3062,10 +2274,6 @@ Opción C</target>
         <source>Got it</source>
         <target state="translated">Entendido</target>
       </trans-unit>
-      <trans-unit id="conflict_modal.close" datatype="html">
-        <source>Close</source>
-        <target state="translated">Cerrar</target>
-      </trans-unit>
       <trans-unit id="shift_history.title" datatype="html">
         <source>Shift history</source>
         <target state="translated">Historial de turnos</target>
@@ -3186,38 +2394,6 @@ Opción C</target>
         <source>Close</source>
         <target state="translated">Cerrar</target>
       </trans-unit>
-      <trans-unit id="errors.something_wrong" datatype="html">
-        <source>Something went wrong</source>
-        <target state="translated">Algo salió mal</target>
-      </trans-unit>
-      <trans-unit id="errors.unexpected" datatype="html">
-        <source>An unexpected error occurred.</source>
-        <target state="translated">Ocurrió un error inesperado.</target>
-      </trans-unit>
-      <trans-unit id="errors.network" datatype="html">
-        <source>Network error. Please check your connection.</source>
-        <target state="translated">Error de red. Verifica tu conexión.</target>
-      </trans-unit>
-      <trans-unit id="errors.not_found" datatype="html">
-        <source>Not found.</source>
-        <target state="translated">No encontrado.</target>
-      </trans-unit>
-      <trans-unit id="errors.unauthorized" datatype="html">
-        <source>You are not authorized to perform this action.</source>
-        <target state="translated">No estás autorizado para realizar esta acción.</target>
-      </trans-unit>
-      <trans-unit id="errors.load_failed" datatype="html">
-        <source>Could not load data.</source>
-        <target state="translated">No se pudieron cargar los datos.</target>
-      </trans-unit>
-      <trans-unit id="errors.save_failed" datatype="html">
-        <source>Could not save changes.</source>
-        <target state="translated">No se pudieron guardar los cambios.</target>
-      </trans-unit>
-      <trans-unit id="errors.sandbox_load" datatype="html">
-        <source>Could not load sandbox status.</source>
-        <target state="translated">No se pudo cargar el estado de los datos de demostración.</target>
-      </trans-unit>
       <trans-unit id="roles.page_title" datatype="html">
         <source>Roles and permissions</source>
         <target state="translated">Roles y permisos</target>
@@ -3274,10 +2450,6 @@ Opción C</target>
         <source>Create role</source>
         <target state="translated">Crear rol</target>
       </trans-unit>
-      <trans-unit id="roles.list_title" datatype="html">
-        <source>Roles</source>
-        <target state="translated">Roles</target>
-      </trans-unit>
       <trans-unit id="roles.loading" datatype="html">
         <source>Loading roles...</source>
         <target state="translated">Cargando roles...</target>
@@ -3306,10 +2478,6 @@ Opción C</target>
         <source>Organize your locations into functional areas</source>
         <target state="translated">Organiza tus ubicaciones en áreas funcionales</target>
       </trans-unit>
-      <trans-unit id="areas.list_title" datatype="html">
-        <source>Areas</source>
-        <target state="translated">Áreas</target>
-      </trans-unit>
       <trans-unit id="areas.loading" datatype="html">
         <source>Loading areas...</source>
         <target state="translated">Cargando áreas...</target>
@@ -3325,18 +2493,6 @@ Opción C</target>
       <trans-unit id="areas.empty_subtext" datatype="html">
         <source>Create your first area to get started</source>
         <target state="translated">Crea tu primera área para comenzar</target>
-      </trans-unit>
-      <trans-unit id="areas.form_edit" datatype="html">
-        <source>Edit Area</source>
-        <target state="translated">Editar área</target>
-      </trans-unit>
-      <trans-unit id="areas.form_create" datatype="html">
-        <source>Create New Area</source>
-        <target state="translated">Crear nueva área</target>
-      </trans-unit>
-      <trans-unit id="areas.section_info" datatype="html">
-        <source>Area Information</source>
-        <target state="translated">Información del área</target>
       </trans-unit>
       <trans-unit id="areas.name_label" datatype="html">
         <source>Area name</source>
@@ -3390,10 +2546,6 @@ Opción C</target>
         <source>Manage your business locations and service areas</source>
         <target state="translated">Gestiona las ubicaciones de tu empresa y áreas de servicio</target>
       </trans-unit>
-      <trans-unit id="locations.list_title" datatype="html">
-        <source>Locations</source>
-        <target state="translated">Ubicaciones</target>
-      </trans-unit>
       <trans-unit id="locations.loading" datatype="html">
         <source>Loading locations...</source>
         <target state="translated">Cargando ubicaciones...</target>
@@ -3409,14 +2561,6 @@ Opción C</target>
       <trans-unit id="locations.empty_subtext" datatype="html">
         <source>Create your first location to get started</source>
         <target state="translated">Crea tu primera ubicación para comenzar</target>
-      </trans-unit>
-      <trans-unit id="locations.form_edit" datatype="html">
-        <source>Edit Location</source>
-        <target state="translated">Editar ubicación</target>
-      </trans-unit>
-      <trans-unit id="locations.form_create" datatype="html">
-        <source>Create New Location</source>
-        <target state="translated">Crear nueva ubicación</target>
       </trans-unit>
       <trans-unit id="locations.map_btn_title" datatype="html">
         <source>Set location on map</source>
@@ -3762,10 +2906,6 @@ Opción C</target>
         <source>End date</source>
         <target state="translated">Fecha de fin</target>
       </trans-unit>
-      <trans-unit id="time_off_approvals.per_page" datatype="html">
-        <source>Per Page</source>
-        <target state="translated">Por página</target>
-      </trans-unit>
       <trans-unit id="time_off_approvals.loading" datatype="html">
         <source>Loading time-off requests...</source>
         <target state="translated">Cargando solicitudes de permiso...</target>
@@ -3789,10 +2929,6 @@ Opción C</target>
       <trans-unit id="time_off_approvals.duration_label" datatype="html">
         <source>Duration</source>
         <target state="translated">Duración</target>
-      </trans-unit>
-      <trans-unit id="time_off_approvals.time_label" datatype="html">
-        <source>Time</source>
-        <target state="translated">Hora</target>
       </trans-unit>
       <trans-unit id="time_off_approvals.hours_label" datatype="html">
         <source>Hours</source>
@@ -3825,14 +2961,6 @@ Opción C</target>
       <trans-unit id="time_off_approvals.deny_btn" datatype="html">
         <source>Deny</source>
         <target state="translated">Denegar</target>
-      </trans-unit>
-      <trans-unit id="time_off_approvals.prev_page" datatype="html">
-        <source>Previous</source>
-        <target state="translated">Anterior</target>
-      </trans-unit>
-      <trans-unit id="time_off_approvals.next_page" datatype="html">
-        <source>Next</source>
-        <target state="translated">Siguiente</target>
       </trans-unit>
       <trans-unit id="pto_config.title" datatype="html">
         <source>Configure PTO for <x id="INTERPOLATION" equiv-text="{{ person?.name }}"/></source>
@@ -3934,10 +3062,6 @@ Opción C</target>
         <source>Table</source>
         <target state="translated">Tabla</target>
       </trans-unit>
-      <trans-unit id="shift_summaries.select_all" datatype="html">
-        <source>Select all</source>
-        <target state="translated">Seleccionar todo</target>
-      </trans-unit>
       <trans-unit id="shift_summaries.apply_bulk" datatype="html">
         <source>Apply to selected</source>
         <target state="translated">Aplicar a la selección</target>
@@ -4014,10 +3138,6 @@ Opción C</target>
         <source>Total hours</source>
         <target state="translated">Horas totales</target>
       </trans-unit>
-      <trans-unit id="shift_summaries.status_label" datatype="html">
-        <source>Status</source>
-        <target state="translated">Estado</target>
-      </trans-unit>
       <trans-unit id="people_mgmt.page_title" datatype="html">
         <source>Time off settings</source>
         <target state="translated">Ajustes de ausencias</target>
@@ -4025,10 +3145,6 @@ Opción C</target>
       <trans-unit id="people_mgmt.page_subtitle" datatype="html">
         <source>Manage employees, configure PTO, and track team information</source>
         <target state="translated">Gestiona empleados, configura PTO y rastrea información del equipo</target>
-      </trans-unit>
-      <trans-unit id="people_mgmt.search_title" datatype="html">
-        <source>Search Employees</source>
-        <target state="translated">Buscar empleados</target>
       </trans-unit>
       <trans-unit id="people_mgmt.search_label" datatype="html">
         <source>Search by name or email</source>
@@ -4066,14 +3182,6 @@ Opción C</target>
         <source>No contact information available</source>
         <target state="translated">Sin información de contacto disponible</target>
       </trans-unit>
-      <trans-unit id="people_mgmt.prev_btn" datatype="html">
-        <source>Previous</source>
-        <target state="translated">Anterior</target>
-      </trans-unit>
-      <trans-unit id="people_mgmt.next_btn" datatype="html">
-        <source>Next</source>
-        <target state="translated">Siguiente</target>
-      </trans-unit>
       <trans-unit id="schedule.title" datatype="html">
         <source>Schedule</source>
         <target state="translated">Horario</target>
@@ -4086,46 +3194,6 @@ Opción C</target>
         <source>Error loading schedule.</source>
         <target state="translated">Error al cargar el horario.</target>
       </trans-unit>
-      <trans-unit id="schedules.title" datatype="html">
-        <source>Schedules</source>
-        <target state="translated">Horarios</target>
-      </trans-unit>
-      <trans-unit id="schedules.add_btn" datatype="html">
-        <source>Add Schedule</source>
-        <target state="translated">Agregar horario</target>
-      </trans-unit>
-      <trans-unit id="schedules.error" datatype="html">
-        <source>Error loading schedules.</source>
-        <target state="translated">Error al cargar los horarios.</target>
-      </trans-unit>
-      <trans-unit id="schedules.col_person" datatype="html">
-        <source>Person</source>
-        <target state="translated">Persona</target>
-      </trans-unit>
-      <trans-unit id="schedules.col_location" datatype="html">
-        <source>Location</source>
-        <target state="translated">Ubicación</target>
-      </trans-unit>
-      <trans-unit id="schedules.col_area" datatype="html">
-        <source>Area</source>
-        <target state="translated">Área</target>
-      </trans-unit>
-      <trans-unit id="schedules.col_start" datatype="html">
-        <source>Start Time</source>
-        <target state="translated">Hora de inicio</target>
-      </trans-unit>
-      <trans-unit id="schedules.col_end" datatype="html">
-        <source>End Time</source>
-        <target state="translated">Hora de fin</target>
-      </trans-unit>
-      <trans-unit id="schedules.col_status" datatype="html">
-        <source>Status</source>
-        <target state="translated">Estado</target>
-      </trans-unit>
-      <trans-unit id="schedules.col_actions" datatype="html">
-        <source>Actions</source>
-        <target state="translated">Acciones</target>
-      </trans-unit>
       <trans-unit id="schedule_edit.title_edit" datatype="html">
         <source>Edit Schedule</source>
         <target state="translated">Editar horario</target>
@@ -4133,10 +3201,6 @@ Opción C</target>
       <trans-unit id="schedule_edit.title_create" datatype="html">
         <source>Create Schedule</source>
         <target state="translated">Crear horario</target>
-      </trans-unit>
-      <trans-unit id="schedule_edit.title_add" datatype="html">
-        <source>Add Schedule</source>
-        <target state="translated">Agregar horario</target>
       </trans-unit>
       <trans-unit id="schedule_edit.name_label" datatype="html">
         <source>Name</source>
@@ -4178,41 +3242,9 @@ Opción C</target>
         <source>Area</source>
         <target state="translated">Área</target>
       </trans-unit>
-      <trans-unit id="schedule_edit.start_label" datatype="html">
-        <source>Start Time</source>
-        <target state="translated">Hora de inicio</target>
-      </trans-unit>
-      <trans-unit id="schedule_edit.start_time_label" datatype="html">
-        <source>Start Time</source>
-        <target state="translated">Hora de inicio</target>
-      </trans-unit>
-      <trans-unit id="schedule_edit.end_label" datatype="html">
-        <source>End Time</source>
-        <target state="translated">Hora de fin</target>
-      </trans-unit>
-      <trans-unit id="schedule_edit.end_time_label" datatype="html">
-        <source>End Time</source>
-        <target state="translated">Hora de fin</target>
-      </trans-unit>
       <trans-unit id="schedule_edit.status_label" datatype="html">
         <source>Status</source>
         <target state="translated">Estado</target>
-      </trans-unit>
-      <trans-unit id="schedule_edit.pending" datatype="html">
-        <source>Pending</source>
-        <target state="translated">Pendiente</target>
-      </trans-unit>
-      <trans-unit id="schedule_edit.approved" datatype="html">
-        <source>Approved</source>
-        <target state="translated">Aprobado</target>
-      </trans-unit>
-      <trans-unit id="schedule_edit.rejected" datatype="html">
-        <source>Rejected</source>
-        <target state="translated">Rechazado</target>
-      </trans-unit>
-      <trans-unit id="kiosk.employee_kiosk" datatype="html">
-        <source>Employee Kiosk</source>
-        <target state="translated">Kiosco de empleados</target>
       </trans-unit>
       <trans-unit id="kiosk.label" datatype="html">
         <source>Employee kiosk</source>
@@ -4225,10 +3257,6 @@ Opción C</target>
       <trans-unit id="kiosk.change_location_aria" datatype="html">
         <source>Change device location</source>
         <target state="translated">Cambiar ubicación del dispositivo</target>
-      </trans-unit>
-      <trans-unit id="kiosk.footer_tracking" datatype="html">
-        <source>Secure Employee Time Tracking System</source>
-        <target state="translated">Sistema seguro de control de tiempo de empleados</target>
       </trans-unit>
       <trans-unit id="kiosk.footer_system" datatype="html">
         <source>Secure employee time tracking system</source>
@@ -4318,10 +3346,6 @@ Opción C</target>
         <source>Screen may sleep</source>
         <target state="translated">La pantalla puede apagarse</target>
       </trans-unit>
-      <trans-unit id="kiosk_employees.screen_may_sleep" datatype="html">
-        <source>Screen May Sleep</source>
-        <target state="translated">La pantalla puede apagarse</target>
-      </trans-unit>
       <trans-unit id="kiosk_employees.wake_lock_unsupported" datatype="html">
         <source>Wake lock unsupported</source>
         <target state="translated">Wake Lock no disponible</target>
@@ -4346,19 +3370,11 @@ Opción C</target>
         <source>On shift</source>
         <target state="translated">En turno</target>
       </trans-unit>
-      <trans-unit id="kiosk_employees.on_shift" datatype="html">
-        <source>On Shift</source>
-        <target state="translated">En turno</target>
-      </trans-unit>
       <trans-unit id="kiosk_employees.pending_title" datatype="html">
         <source>Has a pending schedule for today</source>
         <target state="translated">Tiene un horario pendiente para hoy</target>
       </trans-unit>
       <trans-unit id="kiosk_employees.pending_label" datatype="html">
-        <source>Pending today</source>
-        <target state="translated">Pendiente hoy</target>
-      </trans-unit>
-      <trans-unit id="kiosk_employees.pending_today" datatype="html">
         <source>Pending today</source>
         <target state="translated">Pendiente hoy</target>
       </trans-unit>
@@ -4394,21 +3410,9 @@ Opción C</target>
         <source>End time:</source>
         <target state="translated">Hora de fin:</target>
       </trans-unit>
-      <trans-unit id="kiosk_photo.start_label" datatype="html">
-        <source>Start Time:</source>
-        <target state="translated">Hora de inicio:</target>
-      </trans-unit>
-      <trans-unit id="kiosk_photo.end_label" datatype="html">
-        <source>End Time:</source>
-        <target state="translated">Hora de fin:</target>
-      </trans-unit>
       <trans-unit id="kiosk_photo.captured_alt" datatype="html">
         <source>Captured photo</source>
         <target state="translated">Foto capturada</target>
-      </trans-unit>
-      <trans-unit id="kiosk_photo.success" datatype="html">
-        <source>Shift updated thanks!</source>
-        <target state="translated">¡Turno actualizado!</target>
       </trans-unit>
       <trans-unit id="kiosk_photo.success_message" datatype="html">
         <source>Shift updated thanks!</source>
@@ -4422,41 +3426,17 @@ Opción C</target>
         <source>Screen wake lock active to prevent sleep</source>
         <target state="translated">Bloqueo de pantalla activo para evitar el apagado</target>
       </trans-unit>
-      <trans-unit id="kiosk_photo.screen_locked" datatype="html">
-        <source>Screen locked</source>
-        <target state="translated">Pantalla bloqueada</target>
-      </trans-unit>
-      <trans-unit id="kiosk_photo.screen_may_sleep" datatype="html">
-        <source>Screen may sleep</source>
-        <target state="translated">La pantalla puede apagarse</target>
-      </trans-unit>
-      <trans-unit id="kiosk_photo.start_shift" datatype="html">
-        <source>Start Shift</source>
-        <target state="translated">Iniciar turno</target>
-      </trans-unit>
       <trans-unit id="kiosk_photo.start_shift_btn" datatype="html">
         <source>Start shift</source>
         <target state="translated">Iniciar turno</target>
-      </trans-unit>
-      <trans-unit id="kiosk_photo.end_shift" datatype="html">
-        <source>End Shift</source>
-        <target state="translated">Finalizar turno</target>
       </trans-unit>
       <trans-unit id="kiosk_photo.end_shift_btn" datatype="html">
         <source>End shift</source>
         <target state="translated">Finalizar turno</target>
       </trans-unit>
-      <trans-unit id="kiosk_photo.start_break" datatype="html">
-        <source>Start Break</source>
-        <target state="translated">Iniciar descanso</target>
-      </trans-unit>
       <trans-unit id="kiosk_photo.start_break_btn" datatype="html">
         <source>Start break</source>
         <target state="translated">Iniciar descanso</target>
-      </trans-unit>
-      <trans-unit id="kiosk_photo.end_break" datatype="html">
-        <source>End Break</source>
-        <target state="translated">Finalizar descanso</target>
       </trans-unit>
       <trans-unit id="kiosk_photo.end_break_btn" datatype="html">
         <source>End break</source>
@@ -4474,21 +3454,9 @@ Opción C</target>
         <source>PIN</source>
         <target state="translated">PIN</target>
       </trans-unit>
-      <trans-unit id="kiosk_pin.pin_required" datatype="html">
-        <source>PIN is required.</source>
-        <target state="translated">El PIN es requerido.</target>
-      </trans-unit>
       <trans-unit id="kiosk_pin.error_required" datatype="html">
         <source>PIN is required.</source>
         <target state="translated">El PIN es requerido.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_pin.pin_length" datatype="html">
-        <source>PIN must be 4 digits.</source>
-        <target state="translated">El PIN debe tener 4 dígitos.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_pin.submit" datatype="html">
-        <source>Submit</source>
-        <target state="translated">Enviar</target>
       </trans-unit>
       <trans-unit id="kiosk_pin.submit_btn" datatype="html">
         <source>Submit</source>
@@ -4506,10 +3474,6 @@ Opción C</target>
         <source>No</source>
         <target state="translated">No</target>
       </trans-unit>
-      <trans-unit id="kiosk_questions.submit" datatype="html">
-        <source>Submit</source>
-        <target state="translated">Enviar</target>
-      </trans-unit>
       <trans-unit id="kiosk_questions.submit_btn" datatype="html">
         <source>Submit</source>
         <target state="translated">Enviar</target>
@@ -4521,10 +3485,6 @@ Opción C</target>
       <trans-unit id="kiosk_admin_pwd.description" datatype="html">
         <source>Enter administrator password to change device location assignment:</source>
         <target state="translated">Ingresa la contraseña del administrador para cambiar la asignación de ubicación del dispositivo:</target>
-      </trans-unit>
-      <trans-unit id="kiosk_admin_pwd.pwd_label" datatype="html">
-        <source>Admin Password</source>
-        <target state="translated">Contraseña de administrador</target>
       </trans-unit>
       <trans-unit id="kiosk_admin_pwd.password_label" datatype="html">
         <source>Admin password</source>
@@ -4538,17 +3498,9 @@ Opción C</target>
         <source>Verify</source>
         <target state="translated">Verificar</target>
       </trans-unit>
-      <trans-unit id="kiosk_todo.loading" datatype="html">
-        <source>Loading...</source>
-        <target state="translated">Cargando...</target>
-      </trans-unit>
       <trans-unit id="kiosk_todo.error" datatype="html">
         <source>Error loading tasks.</source>
         <target state="translated">Error al cargar tareas.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_todo_detail.loading" datatype="html">
-        <source>Loading...</source>
-        <target state="translated">Cargando...</target>
       </trans-unit>
       <trans-unit id="kiosk_todo_detail.error" datatype="html">
         <source>Error loading task.</source>
@@ -4557,10 +3509,6 @@ Opción C</target>
       <trans-unit id="kiosk_location.title" datatype="html">
         <source>Select location</source>
         <target state="translated">Seleccionar ubicación</target>
-      </trans-unit>
-      <trans-unit id="kiosk_location.label" datatype="html">
-        <source>Locations</source>
-        <target state="translated">Ubicaciones</target>
       </trans-unit>
       <trans-unit id="kiosk_location.locations_label" datatype="html">
         <source>Locations</source>
@@ -4742,939 +3690,13 @@ Opción C</target>
         <source>No companies available</source>
         <target state="translated">No hay empresas disponibles</target>
       </trans-unit>
-      <trans-unit id="auth.company_select.loading" datatype="html">
-        <source>Loading your companies…</source>
-        <target state="translated">Cargando tus empresas…</target>
-      </trans-unit>
-      <trans-unit id="auth.company_select.no_companies" datatype="html">
-        <source>No companies found</source>
-        <target state="translated">No se encontraron empresas</target>
-      </trans-unit>
-      <trans-unit id="auth.company_select.not_linked" datatype="html">
-        <source>Your account is not linked to any companies.</source>
-        <target state="translated">Tu cuenta no está vinculada a ninguna empresa.</target>
-      </trans-unit>
-      <trans-unit id="auth.company_select.welcome" datatype="html">
-        <source>Welcome back!</source>
-        <target state="translated">¡Bienvenido de nuevo!</target>
-      </trans-unit>
-      <trans-unit id="auth.company_select.select" datatype="html">
-        <source>Select a company to continue</source>
-        <target state="translated">Selecciona una empresa para continuar</target>
-      </trans-unit>
-      <trans-unit id="auth.pin_verify.title" datatype="html">
-        <source>Enter Your PIN</source>
-        <target state="translated">Ingresa tu PIN</target>
-      </trans-unit>
-      <trans-unit id="auth.pin_verify.subtitle" datatype="html">
-        <source>Enter your 4-digit PIN to continue</source>
-        <target state="translated">Ingresa tu PIN de 4 dígitos para continuar</target>
-      </trans-unit>
-      <trans-unit id="auth.pin_verify.error" datatype="html">
-        <source>Invalid PIN. Please try again.</source>
-        <target state="translated">PIN inválido. Por favor intenta de nuevo.</target>
-      </trans-unit>
-      <trans-unit id="auth.pin_verify.delete" datatype="html">
-        <source>Delete</source>
-        <target state="translated">Eliminar</target>
-      </trans-unit>
-      <trans-unit id="index.title" datatype="html">
-        <source>ShiftWork Mobile</source>
-        <target state="translated">ShiftWork Móvil</target>
-      </trans-unit>
-      <trans-unit id="index.subtitle" datatype="html">
-        <source>Workforce Management</source>
-        <target state="translated">Gestión de personal</target>
-      </trans-unit>
-      <trans-unit id="index.get_started" datatype="html">
-        <source>Get Started</source>
-        <target state="translated">Comenzar</target>
-      </trans-unit>
-      <trans-unit id="index.info" datatype="html">
-        <source>Clock in/out • View Schedules • Track Hours</source>
-        <target state="translated">Marcar entrada/salida • Ver horarios • Registrar horas</target>
-      </trans-unit>
-      <trans-unit id="index.version" datatype="html">
-        <source>Version 1.0.0</source>
-        <target state="translated">Versión 1.0.0</target>
-      </trans-unit>
-      <trans-unit id="profile.footer" datatype="html">
-        <source>ShiftWork Mobile · v1.0.0</source>
-        <target state="translated">ShiftWork Mobile · v1.0.0</target>
-      </trans-unit>
-      <trans-unit id="schedule.offline_cached" datatype="html">
-        <source>Offline · cached data</source>
-        <target state="translated">Sin conexión · datos en caché</target>
-      </trans-unit>
-      <trans-unit id="schedule.shifts_label" datatype="html">
-        <source>Shifts</source>
-        <target state="translated">Turnos</target>
-      </trans-unit>
-      <trans-unit id="schedule.no_shifts" datatype="html">
-        <source>No shifts</source>
-        <target state="translated">Sin turnos</target>
-      </trans-unit>
-      <trans-unit id="schedule.no_shifts_msg" datatype="html">
-        <source>No shifts scheduled for this period.</source>
-        <target state="translated">No hay turnos programados para este período.</target>
-      </trans-unit>
-      <trans-unit id="schedule.shift_meta" datatype="html">
-        <source>Shift #<x id="INTERPOLATION" equiv-text="{{ id }}"/> · <x id="INTERPOLATION_1" equiv-text="{{ status }}"/></source>
-        <target state="translated">Turno #<x id="INTERPOLATION" equiv-text="{{ id }}"/> · <x id="INTERPOLATION_1" equiv-text="{{ status }}"/></target>
-      </trans-unit>
-      <trans-unit id="schedule.clocked_events" datatype="html">
-        <source>Clocked Events</source>
-        <target state="translated">Eventos marcados</target>
-      </trans-unit>
-      <trans-unit id="schedule.no_events" datatype="html">
-        <source>No events</source>
-        <target state="translated">Sin eventos</target>
-      </trans-unit>
-      <trans-unit id="schedule.no_events_msg" datatype="html">
-        <source>No events recorded for this period.</source>
-        <target state="translated">No se registraron eventos para este período.</target>
-      </trans-unit>
-      <trans-unit id="schedule.view_title" datatype="html">
-        <source>Schedule View</source>
-        <target state="translated">Vista de horario</target>
-      </trans-unit>
-      <trans-unit id="schedule.view_by" datatype="html">
-        <source>View By</source>
-        <target state="translated">Ver por</target>
-      </trans-unit>
-      <trans-unit id="schedule.navigate" datatype="html">
-        <source>Navigate</source>
-        <target state="translated">Navegar</target>
-      </trans-unit>
-      <trans-unit id="schedule.prev" datatype="html">
-        <source>Prev</source>
-        <target state="translated">Anterior</target>
-      </trans-unit>
-      <trans-unit id="schedule.next_btn" datatype="html">
-        <source>Next</source>
-        <target state="translated">Siguiente</target>
-      </trans-unit>
-      <trans-unit id="schedule.mode_day" datatype="html">
-        <source>Day</source>
-        <target state="translated">Día</target>
-      </trans-unit>
-      <trans-unit id="schedule.mode_week" datatype="html">
-        <source>Week</source>
-        <target state="translated">Semana</target>
-      </trans-unit>
-      <trans-unit id="schedule.mode_month" datatype="html">
-        <source>Month</source>
-        <target state="translated">Mes</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.title" datatype="html">
-        <source>My Weekly Schedule</source>
-        <target state="translated">Mi horario semanal</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.pull_refresh" datatype="html">
-        <source>Pull to refresh</source>
-        <target state="translated">Jalar para actualizar</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.total_hours" datatype="html">
-        <source>Total Hours</source>
-        <target state="translated">Total de horas</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.days_scheduled" datatype="html">
-        <source>Days Scheduled</source>
-        <target state="translated">Días programados</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.last_updated" datatype="html">
-        <source>Last updated: <x id="INTERPOLATION" equiv-text="{{ time }}"/></source>
-        <target state="translated">Actualizado: <x id="INTERPOLATION" equiv-text="{{ time }}"/></target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.syncing" datatype="html">
-        <source>🔄 Syncing...</source>
-        <target state="translated">🔄 Sincronizando...</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.loading" datatype="html">
-        <source>Loading schedule...</source>
-        <target state="translated">Cargando horario...</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.retry" datatype="html">
-        <source>Retry</source>
-        <target state="translated">Reintentar</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.no_shifts" datatype="html">
-        <source>No shifts</source>
-        <target state="translated">Sin turnos</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.no_shifts_scheduled" datatype="html">
-        <source>No shifts scheduled</source>
-        <target state="translated">Sin turnos programados</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.no_shifts_msg" datatype="html">
-        <source>Check back later or contact your manager.</source>
-        <target state="translated">Revisa más tarde o contacta a tu manager.</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.shift_details" datatype="html">
-        <source>Shift Details</source>
-        <target state="translated">Detalles del turno</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.date" datatype="html">
-        <source>Date</source>
-        <target state="translated">Fecha</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.time" datatype="html">
-        <source>Time</source>
-        <target state="translated">Hora</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.duration" datatype="html">
-        <source>Duration</source>
-        <target state="translated">Duración</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.notes" datatype="html">
-        <source>Notes</source>
-        <target state="translated">Notas</target>
-      </trans-unit>
-      <trans-unit id="weekly_schedule.close" datatype="html">
-        <source>Close</source>
-        <target state="translated">Cerrar</target>
-      </trans-unit>
-      <trans-unit id="ai_chat.title" datatype="html">
-        <source>AI Assistant</source>
-        <target state="translated">Asistente IA</target>
-      </trans-unit>
-      <trans-unit id="ai_chat.mcp_online" datatype="html">
-        <source>MCP Online</source>
-        <target state="translated">MCP en línea</target>
-      </trans-unit>
-      <trans-unit id="ai_chat.offline" datatype="html">
-        <source>Offline</source>
-        <target state="translated">Sin conexión</target>
-      </trans-unit>
-      <trans-unit id="ai_chat.checking" datatype="html">
-        <source>Checking…</source>
-        <target state="translated">Verificando…</target>
-      </trans-unit>
-      <trans-unit id="ai_chat.thinking" datatype="html">
-        <source>Thinking…</source>
-        <target state="translated">Pensando…</target>
-      </trans-unit>
-      <trans-unit id="ai_chat.placeholder" datatype="html">
-        <source>Ask me about schedules…</source>
-        <target state="translated">Pregúntame sobre horarios…</target>
-      </trans-unit>
-      <trans-unit id="ai_chat.quick_schedule" datatype="html">
-        <source>📅 My Schedule</source>
-        <target state="translated">📅 Mi horario</target>
-      </trans-unit>
-      <trans-unit id="ai_chat.quick_tools" datatype="html">
-        <source>🔧 Tools</source>
-        <target state="translated">🔧 Herramientas</target>
-      </trans-unit>
-      <trans-unit id="ai_chat.quick_unpublished" datatype="html">
-        <source>📝 Unpublished</source>
-        <target state="translated">📝 Sin publicar</target>
-      </trans-unit>
-      <trans-unit id="ai_chat.quick_ping" datatype="html">
-        <source>🏓 Ping</source>
-        <target state="translated">🏓 Ping</target>
-      </trans-unit>
-      <trans-unit id="schedule_grid.unable_to_load" datatype="html">
-        <source>Unable to load</source>
-        <target state="translated">No se pudo cargar</target>
-      </trans-unit>
-      <trans-unit id="bulletin_detail.not_found" datatype="html">
-        <source>Bulletin not found.</source>
-        <target state="translated">Boletín no encontrado.</target>
-      </trans-unit>
-      <trans-unit id="bulletin_detail.go_back" datatype="html">
-        <source>Go Back</source>
-        <target state="translated">Volver</target>
-      </trans-unit>
-      <trans-unit id="bulletin_detail.expires" datatype="html">
-        <source>Expires <x id="INTERPOLATION" equiv-text="{{ date }}"/></source>
-        <target state="translated">Vence <x id="INTERPOLATION" equiv-text="{{ date }}"/></target>
-      </trans-unit>
-      <trans-unit id="bulletin_detail.attachments" datatype="html">
-        <source>Attachments</source>
-        <target state="translated">Adjuntos</target>
-      </trans-unit>
-      <trans-unit id="bulletin_detail.attachment_label" datatype="html">
-        <source>Attachment <x id="INTERPOLATION" equiv-text="{{ number }}"/></source>
-        <target state="translated">Adjunto <x id="INTERPOLATION" equiv-text="{{ number }}"/></target>
-      </trans-unit>
-      <trans-unit id="bulletin_detail.marked_read" datatype="html">
-        <source>Marked as read</source>
-        <target state="translated">Marcado como leído</target>
-      </trans-unit>
-      <trans-unit id="document_detail.back" datatype="html">
-        <source>Documents</source>
-        <target state="translated">Documentos</target>
-      </trans-unit>
-      <trans-unit id="document_detail.open_btn" datatype="html">
-        <source>Open Document</source>
-        <target state="translated">Abrir documento</target>
-      </trans-unit>
-      <trans-unit id="document_detail.description" datatype="html">
-        <source>DESCRIPTION</source>
-        <target state="translated">DESCRIPCIÓN</target>
-      </trans-unit>
-      <trans-unit id="document_detail.version" datatype="html">
-        <source>Version</source>
-        <target state="translated">Versión</target>
-      </trans-unit>
-      <trans-unit id="document_detail.file_size" datatype="html">
-        <source>File Size</source>
-        <target state="translated">Tamaño de archivo</target>
-      </trans-unit>
-      <trans-unit id="document_detail.uploaded_by" datatype="html">
-        <source>Uploaded By</source>
-        <target state="translated">Subido por</target>
-      </trans-unit>
-      <trans-unit id="document_detail.added" datatype="html">
-        <source>Added</source>
-        <target state="translated">Agregado</target>
-      </trans-unit>
-      <trans-unit id="document_detail.total_opens" datatype="html">
-        <source>Total Opens</source>
-        <target state="translated">Total de aperturas</target>
-      </trans-unit>
-      <trans-unit id="document_detail.access" datatype="html">
-        <source>Access</source>
-        <target state="translated">Acceso</target>
-      </trans-unit>
-      <trans-unit id="document_detail.tags" datatype="html">
-        <source>TAGS</source>
-        <target state="translated">ETIQUETAS</target>
-      </trans-unit>
-      <trans-unit id="safety_detail.back" datatype="html">
-        <source>Safety</source>
-        <target state="translated">Seguridad</target>
-      </trans-unit>
-      <trans-unit id="safety_detail.watch_video" datatype="html">
-        <source>Watch Video</source>
-        <target state="translated">Ver video</target>
-      </trans-unit>
-      <trans-unit id="safety_detail.open_document" datatype="html">
-        <source>Open Document</source>
-        <target state="translated">Abrir documento</target>
-      </trans-unit>
-      <trans-unit id="safety_detail.scroll_hint" datatype="html">
-        <source>Scroll to the bottom to enable acknowledgment</source>
-        <target state="translated">Desplázate hasta abajo para habilitar el reconocimiento</target>
-      </trans-unit>
-      <trans-unit id="safety_detail.acknowledged" datatype="html">
-        <source>You have acknowledged this content.</source>
-        <target state="translated">Has reconocido este contenido.</target>
-      </trans-unit>
-      <trans-unit id="safety_detail.scroll_prompt" datatype="html">
-        <source>Read to the end to enable acknowledgment</source>
-        <target state="translated">Lee hasta el final para habilitar el reconocimiento</target>
-      </trans-unit>
-      <trans-unit id="safety_detail.i_acknowledge" datatype="html">
-        <source>I Acknowledge</source>
-        <target state="translated">Reconozco</target>
-      </trans-unit>
-      <trans-unit id="bulletins.check_back" datatype="html">
-        <source>Check back later for updates</source>
-        <target state="translated">Vuelve más tarde para ver actualizaciones</target>
-      </trans-unit>
-      <trans-unit id="documents.search_placeholder" datatype="html">
-        <source>Search documents...</source>
-        <target state="translated">Buscar documentos...</target>
-      </trans-unit>
-      <trans-unit id="auth.register.company_label" datatype="html">
-        <source>Company</source>
-        <target state="translated">Empresa</target>
-      </trans-unit>
-      <trans-unit id="auth.register.already_account_prompt" datatype="html">
-        <source>Already have an account?</source>
-        <target state="translated">¿Ya tienes cuenta?</target>
-      </trans-unit>
-      <trans-unit id="auth.register.sign_in_link" datatype="html">
-        <source>Sign in</source>
-        <target state="translated">Iniciar sesión</target>
-      </trans-unit>
-      <trans-unit id="auth.accept_invite.invalid_msg" datatype="html">
-        <source>Invalid invite link. Please use the link from your invitation email.</source>
-        <target state="translated">Enlace inválido. Usa el enlace de tu correo de invitación.</target>
-      </trans-unit>
-      <trans-unit id="auth.accept_invite.welcome" datatype="html">
-        <source>Welcome!</source>
-        <target state="translated">¡Bienvenido!</target>
-      </trans-unit>
-      <trans-unit id="auth.accept_invite.welcome_name" datatype="html">
-        <source>Welcome, <x id="INTERPOLATION" equiv-text="{{ name }}"/>!</source>
-        <target state="translated">¡Bienvenido, <x id="INTERPOLATION" equiv-text="{{ name }}"/>!</target>
-      </trans-unit>
-      <trans-unit id="auth.accept_invite.activating" datatype="html">
-        <source>Activating...</source>
-        <target state="translated">Activando...</target>
-      </trans-unit>
-      <trans-unit id="auth.accept_invite.activate_btn" datatype="html">
-        <source>Activate Account</source>
-        <target state="translated">Activar cuenta</target>
-      </trans-unit>
-      <trans-unit id="auth.company_select.contact_admin" datatype="html">
-        <source>Contact your administrator.</source>
-        <target state="translated">Contacta a tu administrador.</target>
-      </trans-unit>
-      <trans-unit id="auth.onboarding.demo_sample_title" datatype="html">
-        <source>Sample data included</source>
-        <target state="translated">Datos de muestra incluidos</target>
-      </trans-unit>
-      <trans-unit id="auth.onboarding.upgrade_title" datatype="html">
-        <source>Upgrade for more power</source>
-        <target state="translated">Mejora para obtener más funciones</target>
-      </trans-unit>
-      <trans-unit id="auth.onboarding.explore_pro_features" datatype="html">
-        <source>Explore Pro Features</source>
-        <target state="translated">Explorar funciones Pro</target>
-      </trans-unit>
       <trans-unit id="bulletins.filter_unread_count" datatype="html">
         <source>Unread (<x id="count"/>)</source>
         <target state="translated">No leídos (<x id="count"/>)</target>
       </trans-unit>
-      <trans-unit id="bulletins.empty_title" datatype="html">
-        <source>No bulletins</source>
-        <target state="translated">Sin boletines</target>
-      </trans-unit>
       <trans-unit id="safety.tab_pending_count" datatype="html">
         <source>Pending acknowledgment (<x id="count"/>)</source>
         <target state="translated">Reconocimiento pendiente (<x id="count"/>)</target>
-      </trans-unit>
-      <trans-unit id="safety.empty_pending_title" datatype="html">
-        <source>All caught up!</source>
-        <target state="translated">¡Todo al día!</target>
-      </trans-unit>
-      <trans-unit id="safety.empty_pending_msg" datatype="html">
-        <source>No pending acknowledgments</source>
-        <target state="translated">Sin reconocimientos pendientes</target>
-      </trans-unit>
-      <trans-unit id="safety.empty_all_title" datatype="html">
-        <source>No safety content</source>
-        <target state="translated">Sin contenido de seguridad</target>
-      </trans-unit>
-      <trans-unit id="safety.empty_all_msg" datatype="html">
-        <source>Check back later</source>
-        <target state="translated">Vuelve más tarde</target>
-      </trans-unit>
-      <trans-unit id="daily_report.title" datatype="html">
-        <source>Daily Report</source>
-        <target state="translated">Reporte diario</target>
-      </trans-unit>
-      <trans-unit id="daily_report.weather" datatype="html">
-        <source>WEATHER</source>
-        <target state="translated">CLIMA</target>
-      </trans-unit>
-      <trans-unit id="daily_report.weather_meta" datatype="html">
-        <source>Feels <x id="INTERPOLATION" equiv-text="{{ feels }}"/>° · Wind <x id="INTERPOLATION_1" equiv-text="{{ wind }}"/> mph · <x id="INTERPOLATION_2" equiv-text="{{ humidity }}"/>% humidity</source>
-        <target state="translated">Sensación <x id="INTERPOLATION" equiv-text="{{ feels }}"/>° · Viento <x id="INTERPOLATION_1" equiv-text="{{ wind }}"/> mph · <x id="INTERPOLATION_2" equiv-text="{{ humidity }}"/>% humedad</target>
-      </trans-unit>
-      <trans-unit id="daily_report.attendance" datatype="html">
-        <source>ATTENDANCE</source>
-        <target state="translated">ASISTENCIA</target>
-      </trans-unit>
-      <trans-unit id="daily_report.employees" datatype="html">
-        <source>Employees</source>
-        <target state="translated">Empleados</target>
-      </trans-unit>
-      <trans-unit id="daily_report.hours" datatype="html">
-        <source>Hours</source>
-        <target state="translated">Horas</target>
-      </trans-unit>
-      <trans-unit id="daily_report.attachments" datatype="html">
-        <source>ATTACHMENTS</source>
-        <target state="translated">ADJUNTOS</target>
-      </trans-unit>
-      <trans-unit id="daily_report.add" datatype="html">
-        <source>Add</source>
-        <target state="translated">Agregar</target>
-      </trans-unit>
-      <trans-unit id="daily_report.photos_count" datatype="html">
-        <source>Photos (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
-        <target state="translated">Fotos (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</target>
-      </trans-unit>
-      <trans-unit id="daily_report.notes_count" datatype="html">
-        <source>Notes (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
-        <target state="translated">Notas (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</target>
-      </trans-unit>
-      <trans-unit id="daily_report.empty_attachments" datatype="html">
-        <source>No attachments yet. Tap Add to include photos or notes.</source>
-        <target state="translated">Sin adjuntos. Toca Agregar para incluir fotos o notas.</target>
-      </trans-unit>
-      <trans-unit id="daily_report.shift_notes" datatype="html">
-        <source>SHIFT NOTES</source>
-        <target state="translated">NOTAS DE TURNO</target>
-      </trans-unit>
-      <trans-unit id="daily_report.notes_placeholder" datatype="html">
-        <source>Add shift notes, incidents, observations...</source>
-        <target state="translated">Agrega notas de turno, incidentes, observaciones...</target>
-      </trans-unit>
-      <trans-unit id="daily_report.saving" datatype="html">
-        <source>Saving…</source>
-        <target state="translated">Guardando…</target>
-      </trans-unit>
-      <trans-unit id="daily_report.save_draft" datatype="html">
-        <source>Save Draft</source>
-        <target state="translated">Guardar borrador</target>
-      </trans-unit>
-      <trans-unit id="daily_report.submit" datatype="html">
-        <source>Submit Report</source>
-        <target state="translated">Enviar reporte</target>
-      </trans-unit>
-      <trans-unit id="daily_report.approve" datatype="html">
-        <source>Approve</source>
-        <target state="translated">Aprobar</target>
-      </trans-unit>
-      <trans-unit id="daily_report.no_access" datatype="html">
-        <source>You don&apos;t have access to daily reports.</source>
-        <target state="translated">No tienes acceso a los reportes diarios.</target>
-      </trans-unit>
-      <trans-unit id="daily_report.not_found" datatype="html">
-        <source>No report found for this location.</source>
-        <target state="translated">No se encontró reporte para esta ubicación.</target>
-      </trans-unit>
-      <trans-unit id="daily_report.add_note" datatype="html">
-        <source>Add Note</source>
-        <target state="translated">Agregar nota</target>
-      </trans-unit>
-      <trans-unit id="daily_report.note_placeholder" datatype="html">
-        <source>Enter note text...</source>
-        <target state="translated">Ingresa el texto de la nota...</target>
-      </trans-unit>
-      <trans-unit id="time_off.title" datatype="html">
-        <source>Request Time Off</source>
-        <target state="translated">Solicitar tiempo libre</target>
-      </trans-unit>
-      <trans-unit id="time_off.back" datatype="html">
-        <source>← Back</source>
-        <target state="translated">← Atrás</target>
-      </trans-unit>
-      <trans-unit id="time_off.balance_label" datatype="html">
-        <source>Available PTO Balance</source>
-        <target state="translated">Saldo PTO disponible</target>
-      </trans-unit>
-      <trans-unit id="time_off.balance_hours" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ value }}"/> hours</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ value }}"/> horas</target>
-      </trans-unit>
-      <trans-unit id="time_off.type_label" datatype="html">
-        <source>Type</source>
-        <target state="translated">Tipo</target>
-      </trans-unit>
-      <trans-unit id="time_off.start_date" datatype="html">
-        <source>Start Date</source>
-        <target state="translated">Fecha de inicio</target>
-      </trans-unit>
-      <trans-unit id="time_off.end_date" datatype="html">
-        <source>End Date</source>
-        <target state="translated">Fecha de fin</target>
-      </trans-unit>
-      <trans-unit id="time_off.estimated_hours" datatype="html">
-        <source>Estimated Hours</source>
-        <target state="translated">Horas estimadas</target>
-      </trans-unit>
-      <trans-unit id="time_off.business_days" datatype="html">
-        <source>Based on <x id="INTERPOLATION" equiv-text="{{ days }}"/> business days</source>
-        <target state="translated">Basado en <x id="INTERPOLATION" equiv-text="{{ days }}"/> días hábiles</target>
-      </trans-unit>
-      <trans-unit id="time_off.reason_label" datatype="html">
-        <source>Reason (Optional)</source>
-        <target state="translated">Razón (opcional)</target>
-      </trans-unit>
-      <trans-unit id="time_off.reason_placeholder" datatype="html">
-        <source>Why are you requesting time off?</source>
-        <target state="translated">¿Por qué solicitas tiempo libre?</target>
-      </trans-unit>
-      <trans-unit id="time_off.submitting" datatype="html">
-        <source>Submitting...</source>
-        <target state="translated">Enviando...</target>
-      </trans-unit>
-      <trans-unit id="time_off.submit" datatype="html">
-        <source>Submit Request</source>
-        <target state="translated">Enviar solicitud</target>
-      </trans-unit>
-      <trans-unit id="upgrade.feature" datatype="html">
-        <source>Feature</source>
-        <target state="translated">Función</target>
-      </trans-unit>
-      <trans-unit id="upgrade.upgrade_btn" datatype="html">
-        <source>Upgrade to Pro Now</source>
-        <target state="translated">Actualizar a Pro ahora</target>
-      </trans-unit>
-      <trans-unit id="upgrade.back" datatype="html">
-        <source>← Back</source>
-        <target state="translated">← Atrás</target>
-      </trans-unit>
-      <trans-unit id="documents.empty_title" datatype="html">
-        <source>No documents</source>
-        <target state="translated">Sin documentos</target>
-      </trans-unit>
-      <trans-unit id="documents.empty_msg" datatype="html">
-        <source>No documents available for your account</source>
-        <target state="translated">No hay documentos disponibles para tu cuenta</target>
-      </trans-unit>
-      <trans-unit id="tabs.home" datatype="html">
-        <source>Home</source>
-        <target state="translated">Inicio</target>
-      </trans-unit>
-      <trans-unit id="tabs.clock" datatype="html">
-        <source>Clock</source>
-        <target state="translated">Reloj</target>
-      </trans-unit>
-      <trans-unit id="tabs.schedule" datatype="html">
-        <source>Schedule</source>
-        <target state="translated">Horario</target>
-      </trans-unit>
-      <trans-unit id="tabs.profile" datatype="html">
-        <source>Profile</source>
-        <target state="translated">Perfil</target>
-      </trans-unit>
-      <trans-unit id="tabs.ai" datatype="html">
-        <source>AI</source>
-        <target state="translated">IA</target>
-      </trans-unit>
-      <trans-unit id="tabs.docs" datatype="html">
-        <source>Docs</source>
-        <target state="translated">Docs</target>
-      </trans-unit>
-      <trans-unit id="tabs.bulletins" datatype="html">
-        <source>Bulletins</source>
-        <target state="translated">Boletines</target>
-      </trans-unit>
-      <trans-unit id="tabs.safety" datatype="html">
-        <source>Safety</source>
-        <target state="translated">Seguridad</target>
-      </trans-unit>
-      <trans-unit id="tabs.report" datatype="html">
-        <source>Report</source>
-        <target state="translated">Reporte</target>
-      </trans-unit>
-      <trans-unit id="tabs.upgrade" datatype="html">
-        <source>Upgrade to Pro</source>
-        <target state="translated">Actualizar a Pro</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.admin_aria" datatype="html">
-        <source>Admin settings</source>
-        <target state="translated">Configuración de administrador</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.clock_aria" datatype="html">
-        <source>Clock in or out for <x id="INTERPOLATION" equiv-text="{{ name }}"/></source>
-        <target state="translated">Marcar entrada o salida para <x id="INTERPOLATION" equiv-text="{{ name }}"/></target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.on_shift" datatype="html">
-        <source>On Shift</source>
-        <target state="translated">En turno</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.load_employees_error" datatype="html">
-        <source>Could not load employees.</source>
-        <target state="translated">No se pudieron cargar los empleados.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.retry" datatype="html">
-        <source>Retry</source>
-        <target state="translated">Reintentar</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.search_placeholder" datatype="html">
-        <source>Search employee…</source>
-        <target state="translated">Buscar empleado…</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.tap_hint" datatype="html">
-        <source>Tap your name to clock in or out</source>
-        <target state="translated">Toca tu nombre para marcar entrada o salida</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.no_employees" datatype="html">
-        <source>No employees found.</source>
-        <target state="translated">No se encontraron empleados.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.enter_pin" datatype="html">
-        <source>Enter your PIN</source>
-        <target state="translated">Ingresa tu PIN</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.pin_incorrect" datatype="html">
-        <source>Incorrect PIN. Please try again.</source>
-        <target state="translated">PIN incorrecto. Intenta de nuevo.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.pin_failed" datatype="html">
-        <source>Verification failed. Check your connection.</source>
-        <target state="translated">Falló la verificación. Revisa tu conexión.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.cancel" datatype="html">
-        <source>Cancel</source>
-        <target state="translated">Cancelar</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.camera_required" datatype="html">
-        <source>Camera access is required to clock in.</source>
-        <target state="translated">Se requiere acceso a la cámara para marcar entrada.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.grant_camera" datatype="html">
-        <source>Grant Camera Access</source>
-        <target state="translated">Permitir acceso a la cámara</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.hello_prompt" datatype="html">
-        <source>Hello, <x id="INTERPOLATION" equiv-text="{{ name }}"/>.
-What would you like to do?</source>
-        <target state="translated">Hola, <x id="INTERPOLATION" equiv-text="{{ name }}"/>.
-¿Qué deseas hacer?</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.clock_in" datatype="html">
-        <source>Clock In</source>
-        <target state="translated">Marcar entrada</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.clock_in_sub" datatype="html">
-        <source>Start your shift</source>
-        <target state="translated">Comienza tu turno</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.clock_out" datatype="html">
-        <source>Clock Out</source>
-        <target state="translated">Marcar salida</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.clock_out_sub" datatype="html">
-        <source>End your shift</source>
-        <target state="translated">Termina tu turno</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.back" datatype="html">
-        <source>← Back</source>
-        <target state="translated">← Atrás</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.look_at_camera" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ action }}"/> — look at the camera</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ action }}"/> — mira a la cámara</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.change" datatype="html">
-        <source>← Change</source>
-        <target state="translated">← Cambiar</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.questions_heading" datatype="html">
-        <source>A few quick questions</source>
-        <target state="translated">Unas preguntas rápidas</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.please_answer" datatype="html">
-        <source>Please answer: <x id="INTERPOLATION" equiv-text="{{ question }}"/></source>
-        <target state="translated">Por favor responde: <x id="INTERPOLATION" equiv-text="{{ question }}"/></target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.submit_failed" datatype="html">
-        <source>Submission failed. Please try again.</source>
-        <target state="translated">Falló el envío. Intenta de nuevo.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.yes" datatype="html">
-        <source>Yes</source>
-        <target state="translated">Sí</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.no" datatype="html">
-        <source>No</source>
-        <target state="translated">No</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.answer_placeholder" datatype="html">
-        <source>Your answer…</source>
-        <target state="translated">Tu respuesta…</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.submit_clock_in" datatype="html">
-        <source>Submit &amp; Clock In</source>
-        <target state="translated">Enviar y marcar entrada</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.submit_clock_out" datatype="html">
-        <source>Submit &amp; Clock Out</source>
-        <target state="translated">Enviar y marcar salida</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.recording" datatype="html">
-        <source>Recording…</source>
-        <target state="translated">Registrando…</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.clocked_in" datatype="html">
-        <source>Clocked In</source>
-        <target state="translated">Entrada registrada</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.clocked_out" datatype="html">
-        <source>Clocked Out</source>
-        <target state="translated">Salida registrada</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.employee_fallback" datatype="html">
-        <source>Employee</source>
-        <target state="translated">Empleado</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.clock_record_error" datatype="html">
-        <source>Could not record your clock event. Please notify your manager.</source>
-        <target state="translated">No se pudo registrar tu marcación. Notifica a tu supervisor.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.returning_in" datatype="html">
-        <source>Returning in <x id="INTERPOLATION" equiv-text="{{ count }}"/>s…</source>
-        <target state="translated">Regresando en <x id="INTERPOLATION" equiv-text="{{ count }}"/>s…</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.no_messages" datatype="html">
-        <source>No messages</source>
-        <target state="translated">Sin mensajes</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.all_set" datatype="html">
-        <source>You&apos;re all set. Have a great shift!</source>
-        <target state="translated">Todo listo. ¡Que tengas un buen turno!</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.done" datatype="html">
-        <source>Done</source>
-        <target state="translated">Listo</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.skip_all" datatype="html">
-        <source>Skip all · Done</source>
-        <target state="translated">Omitir todo · Listo</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.bulletin_badge" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ priority }}"/> BULLETIN</source>
-        <target state="translated">BOLETÍN <x id="INTERPOLATION" equiv-text="{{ priority }}"/></target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.safety_badge" datatype="html">
-        <source>SAFETY · <x id="INTERPOLATION" equiv-text="{{ type }}"/></source>
-        <target state="translated">SEGURIDAD · <x id="INTERPOLATION" equiv-text="{{ type }}"/></target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.got_it_done" datatype="html">
-        <source>Got it · Done</source>
-        <target state="translated">Entendido · Listo</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.got_it_next" datatype="html">
-        <source>Got it · Next</source>
-        <target state="translated">Entendido · Siguiente</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.ack_done" datatype="html">
-        <source>I Acknowledge · Done</source>
-        <target state="translated">Reconozco · Listo</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.ack_next" datatype="html">
-        <source>I Acknowledge · Next</source>
-        <target state="translated">Reconozco · Siguiente</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.noted_done" datatype="html">
-        <source>Noted · Done</source>
-        <target state="translated">Anotado · Listo</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.noted_next" datatype="html">
-        <source>Noted · Next</source>
-        <target state="translated">Anotado · Siguiente</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.setup_login_subtitle" datatype="html">
-        <source>Sign in to set up this kiosk</source>
-        <target state="translated">Inicia sesión para configurar este kiosco</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.setup_company_subtitle" datatype="html">
-        <source>Connect this device to your company</source>
-        <target state="translated">Conecta este dispositivo a tu empresa</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.setup_location_subtitle" datatype="html">
-        <source>Select the location for this kiosk</source>
-        <target state="translated">Selecciona la ubicación de este kiosco</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.enter_email" datatype="html">
-        <source>Please enter your email.</source>
-        <target state="translated">Por favor ingresa tu correo.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.no_company_assigned" datatype="html">
-        <source>This account has no company assigned. Use manual Company ID instead.</source>
-        <target state="translated">Esta cuenta no tiene empresa asignada. Usa el ID de empresa manual.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.user_not_found" datatype="html">
-        <source>User not found. Check your email or enter the Company ID manually.</source>
-        <target state="translated">Usuario no encontrado. Revisa tu correo o ingresa el ID de empresa manualmente.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.enter_company_id" datatype="html">
-        <source>Please enter a Company ID.</source>
-        <target state="translated">Por favor ingresa un ID de empresa.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.connect_failed" datatype="html">
-        <source>Could not connect. Check the Company ID and network.</source>
-        <target state="translated">No se pudo conectar. Revisa el ID de empresa y la red.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.select_location_error" datatype="html">
-        <source>Please select a location.</source>
-        <target state="translated">Por favor selecciona una ubicación.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.activate_failed" datatype="html">
-        <source>Failed to activate device. Please try again.</source>
-        <target state="translated">No se pudo activar el dispositivo. Intenta de nuevo.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.email_placeholder" datatype="html">
-        <source>Email address</source>
-        <target state="translated">Correo electrónico</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.sign_in" datatype="html">
-        <source>Sign In</source>
-        <target state="translated">Iniciar sesión</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.manual_company_link" datatype="html">
-        <source>Enter Company ID manually →</source>
-        <target state="translated">Ingresar ID de empresa manualmente →</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.company_id_placeholder" datatype="html">
-        <source>Company ID</source>
-        <target state="translated">ID de empresa</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.connect" datatype="html">
-        <source>Connect</source>
-        <target state="translated">Conectar</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.email_signin_link" datatype="html">
-        <source>← Sign in with email</source>
-        <target state="translated">← Iniciar sesión con correo</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.available_locations" datatype="html">
-        <source>Available Locations</source>
-        <target state="translated">Ubicaciones disponibles</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.activate_kiosk" datatype="html">
-        <source>Activate Kiosk</source>
-        <target state="translated">Activar kiosco</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.start_over" datatype="html">
-        <source>← Start over</source>
-        <target state="translated">← Empezar de nuevo</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.admin_settings" datatype="html">
-        <source>Admin Settings</source>
-        <target state="translated">Configuración de administrador</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.enter_admin_password" datatype="html">
-        <source>Enter Admin Password</source>
-        <target state="translated">Ingresa la contraseña de administrador</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.admin_password_ph" datatype="html">
-        <source>Admin password</source>
-        <target state="translated">Contraseña de administrador</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.incorrect_password" datatype="html">
-        <source>Incorrect password.</source>
-        <target state="translated">Contraseña incorrecta.</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.verify" datatype="html">
-        <source>Verify</source>
-        <target state="translated">Verificar</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.admin_menu_title" datatype="html">
-        <source>What would you like to do?</source>
-        <target state="translated">¿Qué deseas hacer?</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.current_location" datatype="html">
-        <source>Current location: <x id="INTERPOLATION" equiv-text="{{ location }}"/></source>
-        <target state="translated">Ubicación actual: <x id="INTERPOLATION" equiv-text="{{ location }}"/></target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.change_location" datatype="html">
-        <source>Change Location</source>
-        <target state="translated">Cambiar ubicación</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.change_location_sub" datatype="html">
-        <source>Assign this device to a different location</source>
-        <target state="translated">Asignar este dispositivo a otra ubicación</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.reset_device" datatype="html">
-        <source>Reset Device</source>
-        <target state="translated">Restablecer dispositivo</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.reset_device_sub" datatype="html">
-        <source>Remove enrollment — re-setup required</source>
-        <target state="translated">Eliminar inscripción — requiere configurar de nuevo</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.back_plain" datatype="html">
-        <source>Back</source>
-        <target state="translated">Atrás</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.select_location" datatype="html">
-        <source>Select Location</source>
-        <target state="translated">Seleccionar ubicación</target>
-      </trans-unit>
-      <trans-unit id="kiosk_app.save_location" datatype="html">
-        <source>Save Location</source>
-        <target state="translated">Guardar ubicación</target>
       </trans-unit>
       <trans-unit id="analytics.preset_today" datatype="html">
         <source>Today</source>
@@ -5759,22 +3781,6 @@ What would you like to do?</source>
       <trans-unit id="analytics.export_all_csv" datatype="html">
         <source>All rows (CSV)</source>
         <target state="translated">Todas las filas (CSV)</target>
-      </trans-unit>
-      <trans-unit id="analytics.kpi_worked" datatype="html">
-        <source>Worked hours</source>
-        <target state="translated">Horas trabajadas</target>
-      </trans-unit>
-      <trans-unit id="analytics.kpi_scheduled" datatype="html">
-        <source>Scheduled hours</source>
-        <target state="translated">Horas programadas</target>
-      </trans-unit>
-      <trans-unit id="analytics.kpi_on_time" datatype="html">
-        <source>On-time %</source>
-        <target state="translated">% Puntualidad</target>
-      </trans-unit>
-      <trans-unit id="analytics.kpi_open_shifts" datatype="html">
-        <source>Open shifts</source>
-        <target state="translated">Turnos abiertos</target>
       </trans-unit>
       <trans-unit id="analytics.no_change" datatype="html">
         <source>no change</source>
@@ -6159,10 +4165,6 @@ What would you like to do?</source>
       <trans-unit id="nav.account.company_users" datatype="html">
         <source>Company users</source>
         <target state="translated">Usuarios de la empresa</target>
-      </trans-unit>
-      <trans-unit id="nav.account.help" datatype="html">
-        <source>Help</source>
-        <target state="translated">Ayuda</target>
       </trans-unit>
       <trans-unit id="nav.account.logout" datatype="html">
         <source>Log out</source>
@@ -9111,6 +7113,136 @@ What would you like to do?</source>
       <trans-unit id="onboarding.steps_label" datatype="html">
         <source>Your four setup steps</source>
         <target state="translated">Tus cuatro pasos de configuración</target>
+      </trans-unit>
+      <trans-unit id="ngb.alert.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">Cerrar</target>
+      </trans-unit>
+      <trans-unit id="ngb.carousel.slide-number" datatype="html">
+        <source> Slide <x id="INTERPOLATION" equiv-text="ueryList&lt;NgbSli"/> of <x id="INTERPOLATION_1" equiv-text="EventSource = N"/> </source>
+        <target state="translated"> Diapositiva <x id="INTERPOLATION" equiv-text="ueryList&lt;NgbSli"/> de <x id="INTERPOLATION_1" equiv-text="EventSource = N"/> </target>
+      </trans-unit>
+      <trans-unit id="ngb.carousel.previous" datatype="html">
+        <source>Previous</source>
+        <target state="translated">Anterior</target>
+      </trans-unit>
+      <trans-unit id="ngb.carousel.next" datatype="html">
+        <source>Next</source>
+        <target state="translated">Siguiente</target>
+      </trans-unit>
+      <trans-unit id="ngb.datepicker.previous-month" datatype="html">
+        <source>Previous month</source>
+        <target state="translated">Mes anterior</target>
+      </trans-unit>
+      <trans-unit id="ngb.datepicker.next-month" datatype="html">
+        <source>Next month</source>
+        <target state="translated">Mes siguiente</target>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.HH" datatype="html">
+        <source>HH</source>
+        <target state="translated">HH</target>
+      </trans-unit>
+      <trans-unit id="ngb.toast.close-aria" datatype="html">
+        <source>Close</source>
+        <target state="translated">Cerrar</target>
+      </trans-unit>
+      <trans-unit id="ngb.datepicker.select-month" datatype="html">
+        <source>Select month</source>
+        <target state="translated">Seleccionar mes</target>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.first" datatype="html">
+        <source>««</source>
+        <target state="translated">««</target>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.hours" datatype="html">
+        <source>Hours</source>
+        <target state="translated">Horas</target>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.previous" datatype="html">
+        <source>«</source>
+        <target state="translated">«</target>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.MM" datatype="html">
+        <source>MM</source>
+        <target state="translated">MM</target>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.next" datatype="html">
+        <source>»</source>
+        <target state="translated">»</target>
+      </trans-unit>
+      <trans-unit id="ngb.datepicker.select-year" datatype="html">
+        <source>Select year</source>
+        <target state="translated">Seleccionar año</target>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.minutes" datatype="html">
+        <source>Minutes</source>
+        <target state="translated">Minutos</target>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.last" datatype="html">
+        <source>»»</source>
+        <target state="translated">»»</target>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.first-aria" datatype="html">
+        <source>First</source>
+        <target state="translated">Primera</target>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.increment-hours" datatype="html">
+        <source>Increment hours</source>
+        <target state="translated">Aumentar horas</target>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.previous-aria" datatype="html">
+        <source>Previous</source>
+        <target state="translated">Anterior</target>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.decrement-hours" datatype="html">
+        <source>Decrement hours</source>
+        <target state="translated">Disminuir horas</target>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.next-aria" datatype="html">
+        <source>Next</source>
+        <target state="translated">Siguiente</target>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.increment-minutes" datatype="html">
+        <source>Increment minutes</source>
+        <target state="translated">Aumentar minutos</target>
+      </trans-unit>
+      <trans-unit id="ngb.pagination.last-aria" datatype="html">
+        <source>Last</source>
+        <target state="translated">Última</target>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.decrement-minutes" datatype="html">
+        <source>Decrement minutes</source>
+        <target state="translated">Disminuir minutos</target>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.SS" datatype="html">
+        <source>SS</source>
+        <target state="translated">SS</target>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.seconds" datatype="html">
+        <source>Seconds</source>
+        <target state="translated">Segundos</target>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.increment-seconds" datatype="html">
+        <source>Increment seconds</source>
+        <target state="translated">Aumentar segundos</target>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.decrement-seconds" datatype="html">
+        <source>Decrement seconds</source>
+        <target state="translated">Disminuir segundos</target>
+      </trans-unit>
+      <trans-unit id="ngb.timepicker.PM" datatype="html">
+        <source><x id="INTERPOLATION"/></source>
+        <target state="translated"><x id="INTERPOLATION"/></target>
+      </trans-unit>
+      <trans-unit id="ngb.progressbar.value" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="barConfig);
+	pu"/></source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="barConfig);
+	pu"/></target>
+      </trans-unit>
+      <trans-unit id="nav.web_help_tour_aria" datatype="html">
+        <source>Start help tour</source>
+        <target state="translated">Iniciar tour de ayuda</target>
       </trans-unit>
     </body>
   </file>
