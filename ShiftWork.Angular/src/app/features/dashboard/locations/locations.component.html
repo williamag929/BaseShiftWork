@@ -93,8 +93,8 @@
 
         <ng-template #basicSection>
           <section class="flex flex-col gap-4" aria-labelledby="loc-basic-title">
-            <h3 id="loc-basic-title" class="font-display text-[15px] font-semibold" i18n="@@locations.basic_info">Basic Information</h3>
-            <lz-field label="Location Name" i18n-label="@@locations.name_label" controlId="name">
+            <h3 id="loc-basic-title" class="font-display text-[15px] font-semibold" i18n="@@locations.basic_info">Basic information</h3>
+            <lz-field label="Location name" i18n-label="@@locations.name_label" controlId="name" required>
               <input lzField type="text" id="name" formControlName="name" aria-required="true" placeholder="Enter location name" i18n-placeholder="@@locations.name_placeholder">
             </lz-field>
             <lz-field label="Status" i18n-label="@@locations.status_label" controlId="status">
@@ -108,8 +108,8 @@
 
         <ng-template #addressSection>
           <section class="flex flex-col gap-4" aria-labelledby="loc-address-title">
-            <h3 id="loc-address-title" class="font-display text-[15px] font-semibold" i18n="@@locations.address_section">Address Information</h3>
-            <lz-field label="Street Address" i18n-label="@@locations.street_label" controlId="address">
+            <h3 id="loc-address-title" class="font-display text-[15px] font-semibold" i18n="@@locations.address_section">Address information</h3>
+            <lz-field label="Street address" i18n-label="@@locations.street_label" controlId="address" required>
               <input lzField type="text" id="address" formControlName="address" aria-required="true" placeholder="123 Main Street" i18n-placeholder="@@locations.street_placeholder">
             </lz-field>
             <div class="grid gap-4 sm:grid-cols-2">
@@ -119,7 +119,7 @@
               <lz-field label="State" i18n-label="@@locations.state_label" controlId="state">
                 <input lzField type="text" id="state" formControlName="state" placeholder="NY">
               </lz-field>
-              <lz-field label="Zip Code" i18n-label="@@locations.zip_label" controlId="zipCode">
+              <lz-field label="Zip code" i18n-label="@@locations.zip_label" controlId="zipCode">
                 <input lzField type="text" id="zipCode" formControlName="zipCode" placeholder="10001">
               </lz-field>
               <lz-field label="Country" i18n-label="@@locations.country_label" controlId="country">
@@ -131,7 +131,7 @@
 
         <ng-template #geoSection>
           <section class="flex flex-col gap-4" aria-labelledby="loc-geo-title">
-            <h3 id="loc-geo-title" class="font-display text-[15px] font-semibold" i18n="@@locations.geo_section">Geographic Coordinates</h3>
+            <h3 id="loc-geo-title" class="font-display text-[15px] font-semibold" i18n="@@locations.geo_section">Geographic coordinates</h3>
             <div class="grid gap-4 sm:grid-cols-2">
               <lz-field label="Latitude" i18n-label="@@locations.lat_label" controlId="latitude">
                 <input lzField type="number" id="latitude" formControlName="latitude" placeholder="40.7128" step="any">
@@ -140,12 +140,12 @@
                 <input lzField type="number" id="longitude" formControlName="longitude" placeholder="-74.0060" step="any">
               </lz-field>
             </div>
-            <lz-field label="Service Radius (meters)" i18n-label="@@locations.radius_label" hint="Defines the service area around this location" i18n-hint="@@locations.radius_hint" controlId="ratioMax">
+            <lz-field label="Service radius (meters)" i18n-label="@@locations.radius_label" hint="Defines the service area around this location" i18n-hint="@@locations.radius_hint" controlId="ratioMax">
               <input lzField type="number" id="ratioMax" formControlName="ratioMax" placeholder="500" [attr.aria-describedby]="'ratioMax-hint'">
             </lz-field>
-            <lz-field label="Time Zone" i18n-label="@@locations.timezone_label" controlId="timezone">
+            <lz-field label="Time zone" i18n-label="@@locations.timezone_label" controlId="timezone">
               <select lzField id="timezone" formControlName="timezone">
-                <option [ngValue]="null" disabled i18n="@@locations.timezone_ph">Select a Timezone</option>
+                <option [ngValue]="null" disabled i18n="@@locations.timezone_ph">Select a time zone</option>
                 @for (tz of timezones; track tz.value) {
                   <option [value]="tz.value">{{ tz.name }}</option>
                 }
@@ -178,16 +178,16 @@
 
         <ng-template #contactSection>
           <section class="flex flex-col gap-4" aria-labelledby="loc-contact-title">
-            <h3 id="loc-contact-title" class="font-display text-[15px] font-semibold" i18n="@@locations.contact_section">Contact Information</h3>
+            <h3 id="loc-contact-title" class="font-display text-[15px] font-semibold" i18n="@@locations.contact_section">Contact information</h3>
             <div class="grid gap-4 sm:grid-cols-2">
               <lz-field label="Email" i18n-label="@@locations.email_label" controlId="email">
                 <input lzField type="email" id="email" formControlName="email" placeholder="location@example.com" i18n-placeholder="@@locations.email_placeholder">
               </lz-field>
-              <lz-field label="Phone Number" i18n-label="@@locations.phone_label" controlId="phonenumber">
+              <lz-field label="Phone number" i18n-label="@@locations.phone_label" controlId="phonenumber">
                 <input lzField type="text" id="phonenumber" formControlName="phoneNumber" placeholder="(123) 456-7890">
               </lz-field>
             </div>
-            <lz-field label="External Code" i18n-label="@@locations.ext_code_label" hint="Optional reference code for external systems" i18n-hint="@@locations.ext_code_hint" controlId="externalCode">
+            <lz-field label="External code" i18n-label="@@locations.ext_code_label" hint="Optional reference code for external systems" i18n-hint="@@locations.ext_code_hint" controlId="externalCode">
               <input lzField type="text" id="externalCode" formControlName="externalCode" placeholder="LOC-001" i18n-placeholder="@@locations.ext_code_placeholder">
             </lz-field>
           </section>
@@ -230,7 +230,7 @@
           </div>
           <ng-container lzDialogActions>
             <button lzButton variant="secondary" type="button" (click)="closeMapModal()" i18n="@@common.cancel">Cancel</button>
-            <button lzButton variant="secondary" type="button" (click)="confirmMapSelection()" i18n="@@locations.confirm_btn">Confirm Location</button>
+            <button lzButton variant="secondary" type="button" (click)="confirmMapSelection()" i18n="@@locations.confirm_btn">Confirm location</button>
           </ng-container>
         </lz-dialog-frame>
       </lz-dialog-overlay>
@@ -253,9 +253,9 @@
     <button lzButton variant="secondary" type="button" (click)="sp.requestClose()" i18n="@@common.cancel">Cancel</button>
     <button lzButton variant="primary" type="submit" form="location-form" [disabled]="locationForm.invalid || saving || (!!selectedLocation && !locationForm.dirty)">
       @if (selectedLocation) {
-        <ng-container i18n="@@locations.update_btn">Update Location</ng-container>
+        <ng-container i18n="@@locations.update_btn">Update location</ng-container>
       } @else {
-        <ng-container i18n="@@locations.create_btn">Create Location</ng-container>
+        <ng-container i18n="@@locations.create_btn">Create location</ng-container>
       }
     </button>
   </ng-container>

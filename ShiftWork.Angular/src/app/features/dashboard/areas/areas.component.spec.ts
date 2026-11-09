@@ -125,6 +125,14 @@ describe('AreasComponent (Loqzen design system)', () => {
     expect(panel()!.querySelector('h2')!.textContent).toContain('Add area');
   });
 
+  it('marks required fields with a visible asterisk', async () => {
+    await setup([]);
+    await click(el().querySelector('lz-page-header button'));
+    for (const id of ['name', 'locationId']) {
+      expect(panel()!.querySelector(`lz-field label[for="${id}"]`)!.textContent).toContain('*');
+    }
+  });
+
   it('renders only 25 rows of 120 and pages forward', async () => {
     await setup(many(120));
     expect(el().querySelectorAll('tbody tr').length).toBe(25);

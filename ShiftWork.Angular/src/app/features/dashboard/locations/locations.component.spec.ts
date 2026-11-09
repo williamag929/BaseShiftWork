@@ -126,6 +126,37 @@ describe('LocationsComponent (Loqzen design system)', () => {
     expect(panel()!.querySelector('h2')!.textContent).toContain('Add location');
   });
 
+  it('clamps the page when a reload returns fewer locations', async () => {
+    await setup(many(26));
+    await click(el().querySelector('lz-pager [aria-label="Next page"]'));
+    expect(el().querySelectorAll('tbody tr').length).toBe(1);
+    service['getLocations'].and.returnValue(of(many(25)));
+    fixture.componentInstance.ngOnInit();
+    await settle();
+    expect(fixture.componentInstance.page).toBe(1);
+    expect(el().querySelectorAll('tbody tr').length).toBe(25);
+  });
+
+  it('marks required fields with a visible asterisk and aria-required', async () => {
+    await setup([]);
+    await click(el().querySelector('lz-page-header button'));
+    for (const id of ['name', 'address']) {
+      expect(panel()!.querySelector(`lz-field label[for="${id}"]`)!.textContent).toContain('*');
+      expect(panel()!.querySelector(`#${id}`)!.getAttribute('aria-required')).toBe('true');
+    }
+  });
+
+  it('closing the panel programmatically also closes the map dialog and restores body scroll', async () => {
+    await setup([]);
+    await click(el().querySelector('lz-page-header button'));
+    fixture.componentInstance.openMapModal();
+    expect(document.body.style.overflow).toBe('hidden');
+    fixture.componentInstance.cancelEdit();
+    await settle();
+    expect(fixture.componentInstance.showMapModal).toBeFalse();
+    expect(document.body.style.overflow).toBe('auto');
+  });
+
   it('renders only 25 rows of 120 and pages forward', async () => {
     await setup(many(120));
     expect(el().querySelectorAll('tbody tr').length).toBe(25);
@@ -140,7 +171,7 @@ describe('LocationsComponent (Loqzen design system)', () => {
     expect(panel()!.querySelector('h2')!.textContent).toContain('HQ');
     expect((panel()!.querySelector('#name') as HTMLInputElement).value).toBe('HQ');
     expect((panel()!.querySelector('#latitude') as HTMLInputElement).value).toBe('40.7');
-    expect(panel()!.querySelector('lz-field label[for="address"]')!.textContent).toContain('Street Address');
+    expect(panel()!.querySelector('lz-field label[for="address"]')!.textContent).toContain('Street address');
   });
 
   it('creating a location calls the service, shows a localized toast and closes the panel', async () => {
@@ -250,7 +281,7 @@ describe('LocationsComponent (Loqzen design system)', () => {
       await openMap();
       fixture.componentInstance.onMapClick({ latLng: { toJSON: () => ({ lat: 1, lng: 2 }) } } as any);
       await settle();
-      await click(dialogButton('Confirm Location'));
+      await click(dialogButton('Confirm location'));
       await click(panel()!.querySelector('[aria-label="Close"]'));
       expect(panel()!.textContent).toContain('Discard your changes?');
     });

@@ -3463,11 +3463,11 @@ Opción C</target>
         <target state="translated">Información del área</target>
       </trans-unit>
       <trans-unit id="areas.name_label" datatype="html">
-        <source>Area Name</source>
+        <source>Area name</source>
         <target state="translated">Nombre del área</target>
       </trans-unit>
       <trans-unit id="areas.name_placeholder" datatype="html">
-        <source>e.g., Sales Floor, Warehouse, Kitchen</source>
+        <source>e.g., sales floor, warehouse, kitchen</source>
         <target state="translated">p. ej., Área de ventas, Almacén, Cocina</target>
       </trans-unit>
       <trans-unit id="areas.name_error" datatype="html">
@@ -3479,7 +3479,7 @@ Opción C</target>
         <target state="translated">Ubicación</target>
       </trans-unit>
       <trans-unit id="areas.location_ph" datatype="html">
-        <source>Select a Location</source>
+        <source>Select a location</source>
         <target state="translated">Selecciona una ubicación</target>
       </trans-unit>
       <trans-unit id="areas.location_error" datatype="html">
@@ -3499,11 +3499,11 @@ Opción C</target>
         <target state="translated">Establece como Inactivo para deshabilitar temporalmente esta área</target>
       </trans-unit>
       <trans-unit id="areas.update_btn" datatype="html">
-        <source>Update Area</source>
+        <source>Update area</source>
         <target state="translated">Actualizar área</target>
       </trans-unit>
       <trans-unit id="areas.create_btn" datatype="html">
-        <source>Create Area</source>
+        <source>Create area</source>
         <target state="translated">Crear área</target>
       </trans-unit>
       <trans-unit id="locations.page_title" datatype="html">
@@ -3551,11 +3551,11 @@ Opción C</target>
         <target state="translated">Haz clic para seleccionar la ubicación en el mapa</target>
       </trans-unit>
       <trans-unit id="locations.basic_info" datatype="html">
-        <source>Basic Information</source>
+        <source>Basic information</source>
         <target state="translated">Información básica</target>
       </trans-unit>
       <trans-unit id="locations.name_label" datatype="html">
-        <source>Location Name</source>
+        <source>Location name</source>
         <target state="translated">Nombre de la ubicación</target>
       </trans-unit>
       <trans-unit id="locations.name_placeholder" datatype="html">
@@ -3567,11 +3567,11 @@ Opción C</target>
         <target state="translated">Estado</target>
       </trans-unit>
       <trans-unit id="locations.address_section" datatype="html">
-        <source>Address Information</source>
+        <source>Address information</source>
         <target state="translated">Información de dirección</target>
       </trans-unit>
       <trans-unit id="locations.street_label" datatype="html">
-        <source>Street Address</source>
+        <source>Street address</source>
         <target state="translated">Dirección</target>
       </trans-unit>
       <trans-unit id="locations.street_placeholder" datatype="html">
@@ -3587,7 +3587,7 @@ Opción C</target>
         <target state="translated">Estado</target>
       </trans-unit>
       <trans-unit id="locations.zip_label" datatype="html">
-        <source>Zip Code</source>
+        <source>Zip code</source>
         <target state="translated">Código postal</target>
       </trans-unit>
       <trans-unit id="locations.country_label" datatype="html">
@@ -3595,7 +3595,7 @@ Opción C</target>
         <target state="translated">País</target>
       </trans-unit>
       <trans-unit id="locations.geo_section" datatype="html">
-        <source>Geographic Coordinates</source>
+        <source>Geographic coordinates</source>
         <target state="translated">Coordenadas geográficas</target>
       </trans-unit>
       <trans-unit id="locations.lat_label" datatype="html">
@@ -3607,7 +3607,7 @@ Opción C</target>
         <target state="translated">Longitud</target>
       </trans-unit>
       <trans-unit id="locations.radius_label" datatype="html">
-        <source>Service Radius (meters)</source>
+        <source>Service radius (meters)</source>
         <target state="translated">Radio de servicio (metros)</target>
       </trans-unit>
       <trans-unit id="locations.radius_hint" datatype="html">
@@ -3615,15 +3615,15 @@ Opción C</target>
         <target state="translated">Define el área de servicio alrededor de esta ubicación</target>
       </trans-unit>
       <trans-unit id="locations.timezone_label" datatype="html">
-        <source>Time Zone</source>
+        <source>Time zone</source>
         <target state="translated">Zona horaria</target>
       </trans-unit>
       <trans-unit id="locations.timezone_ph" datatype="html">
-        <source>Select a Timezone</source>
+        <source>Select a time zone</source>
         <target state="translated">Selecciona una zona horaria</target>
       </trans-unit>
       <trans-unit id="locations.contact_section" datatype="html">
-        <source>Contact Information</source>
+        <source>Contact information</source>
         <target state="translated">Información de contacto</target>
       </trans-unit>
       <trans-unit id="locations.email_label" datatype="html">
@@ -3635,11 +3635,11 @@ Opción C</target>
         <target state="translated">ubicacion@ejemplo.com</target>
       </trans-unit>
       <trans-unit id="locations.phone_label" datatype="html">
-        <source>Phone Number</source>
+        <source>Phone number</source>
         <target state="translated">Número de teléfono</target>
       </trans-unit>
       <trans-unit id="locations.ext_code_label" datatype="html">
-        <source>External Code</source>
+        <source>External code</source>
         <target state="translated">Código externo</target>
       </trans-unit>
       <trans-unit id="locations.ext_code_placeholder" datatype="html">
@@ -3651,11 +3651,11 @@ Opción C</target>
         <target state="translated">Código de referencia opcional para sistemas externos</target>
       </trans-unit>
       <trans-unit id="locations.update_btn" datatype="html">
-        <source>Update Location</source>
+        <source>Update location</source>
         <target state="translated">Actualizar ubicación</target>
       </trans-unit>
       <trans-unit id="locations.create_btn" datatype="html">
-        <source>Create Location</source>
+        <source>Create location</source>
         <target state="translated">Crear ubicación</target>
       </trans-unit>
       <trans-unit id="locations.modal_title" datatype="html">
@@ -3691,7 +3691,7 @@ Opción C</target>
         <target state="translated">Radio:</target>
       </trans-unit>
       <trans-unit id="locations.confirm_btn" datatype="html">
-        <source>Confirm Location</source>
+        <source>Confirm location</source>
         <target state="translated">Confirmar ubicación</target>
       </trans-unit>
       <trans-unit id="crews.page_title" datatype="html">

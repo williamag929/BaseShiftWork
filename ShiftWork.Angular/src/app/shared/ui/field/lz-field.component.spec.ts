@@ -58,3 +58,20 @@ describe('LzFieldComponent', () => {
     expect(root.querySelector('[role=alert]')!.id).toBe('nm-error');
   });
 });
+
+@Component({
+  standalone: true,
+  imports: [LzFieldComponent, LzFieldDirective],
+  template: `<lz-field label="Name" controlId="nm" required><input lzField id="nm" /></lz-field>`,
+})
+class RequiredHostComponent {}
+
+describe('LzFieldComponent required cue', () => {
+  it('shows a visible asterisk hidden from screen readers when required', () => {
+    const f = TestBed.createComponent(RequiredHostComponent);
+    f.detectChanges();
+    const mark = f.nativeElement.querySelector('label span') as HTMLElement;
+    expect(mark.textContent!.trim()).toBe('*');
+    expect(mark.getAttribute('aria-hidden')).toBe('true');
+  });
+});

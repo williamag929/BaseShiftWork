@@ -82,6 +82,7 @@ export class LocationsComponent implements OnInit {
         this.locationService.getLocations(company.companyId).subscribe(locations => {
           this.locations = locations;
           this.loading = false;
+          this.page = Math.min(this.page, Math.max(1, Math.ceil(locations.length / this.pageSize)));
         },
           (error: any) => {
             this.error = error;
@@ -134,6 +135,8 @@ export class LocationsComponent implements OnInit {
   cancelEdit(): void {
     this.panelOpen = false;
     this.regenerateConfirmOpen = false;
+    this.showMapModal = false;
+    document.body.style.overflow = 'auto';
     this.selectedLocation = null;
     this.nfcBusy = false;
     this.locationForm.reset({

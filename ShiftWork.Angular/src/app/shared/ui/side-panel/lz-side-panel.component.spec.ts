@@ -135,6 +135,39 @@ describe('LzSidePanelComponent', () => {
     expect(panel().textContent).not.toContain('Discard your changes?');
   });
 
+  for (const role of ['dialog', 'alertdialog']) {
+    it(`Escape is ignored while a nested aria-modal ${role} inside the panel host is open, and works again after it closes`, async () => {
+      host.dirty = true;
+      await open();
+      const nested = document.createElement('div');
+      nested.setAttribute('role', role);
+      nested.setAttribute('aria-modal', 'true');
+      document.querySelector('lz-side-panel')!.appendChild(nested);
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      detect();
+      expect(host.closes).toBe(0);
+      expect(panel().textContent).not.toContain('Discard your changes?');
+      nested.remove();
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      detect();
+      expect(panel().textContent).toContain('Discard your changes?');
+      expect(host.closes).toBe(0);
+    });
+
+    it(`Escape still closes a clean panel once a nested ${role} is gone`, async () => {
+      await open();
+      const nested = document.createElement('div');
+      nested.setAttribute('role', role);
+      nested.setAttribute('aria-modal', 'true');
+      document.querySelector('lz-side-panel')!.appendChild(nested);
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      expect(host.closes).toBe(0);
+      nested.remove();
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      expect(host.closes).toBe(1);
+    });
+  }
+
   it('Keep editing moves focus to the close button', async () => {
     host.dirty = true;
     await open();

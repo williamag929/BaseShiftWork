@@ -77,13 +77,13 @@
   ></app-audit-history-button>
   @if (panelOpen) {
     <form id="area-form" [formGroup]="areaForm" (ngSubmit)="saveArea()" class="flex flex-col gap-4">
-      <lz-field label="Area Name" i18n-label="@@areas.name_label" controlId="name" [error]="areaForm.get('name')?.touched && areaForm.get('name')?.errors?.['required'] ? nameRequired : null">
-        <input lzField type="text" id="name" formControlName="name" aria-required="true" placeholder="e.g., Sales Floor, Warehouse, Kitchen" i18n-placeholder="@@areas.name_placeholder" [attr.aria-invalid]="areaForm.get('name')?.touched && areaForm.get('name')?.invalid ? 'true' : null" [attr.aria-describedby]="areaForm.get('name')?.touched && areaForm.get('name')?.invalid ? 'name-error' : null">
+      <lz-field label="Area name" i18n-label="@@areas.name_label" controlId="name" required [error]="areaForm.get('name')?.touched && areaForm.get('name')?.errors?.['required'] ? nameRequired : null">
+        <input lzField type="text" id="name" formControlName="name" aria-required="true" placeholder="e.g., sales floor, warehouse, kitchen" i18n-placeholder="@@areas.name_placeholder" [attr.aria-invalid]="areaForm.get('name')?.touched && areaForm.get('name')?.invalid ? 'true' : null" [attr.aria-describedby]="areaForm.get('name')?.touched && areaForm.get('name')?.invalid ? 'name-error' : null">
       </lz-field>
 
-      <lz-field label="Location" i18n-label="@@areas.location_label" hint="Select the location this area belongs to" i18n-hint="@@areas.location_hint" controlId="locationId" [error]="areaForm.get('locationId')?.touched && areaForm.get('locationId')?.errors?.['required'] ? locationRequired : null">
+      <lz-field label="Location" i18n-label="@@areas.location_label" hint="Select the location this area belongs to" i18n-hint="@@areas.location_hint" controlId="locationId" required [error]="areaForm.get('locationId')?.touched && areaForm.get('locationId')?.errors?.['required'] ? locationRequired : null">
         <select lzField id="locationId" formControlName="locationId" aria-required="true" [attr.aria-invalid]="areaForm.get('locationId')?.touched && areaForm.get('locationId')?.invalid ? 'true' : null">
-          <option value="" disabled i18n="@@areas.location_ph">Select a Location</option>
+          <option value="" disabled i18n="@@areas.location_ph">Select a location</option>
           @for (location of locations; track location.locationId) {
             <option [value]="location.locationId">{{ location.name }}</option>
           }
@@ -116,9 +116,9 @@
     <button lzButton variant="secondary" type="button" (click)="sp.requestClose()" i18n="@@common.cancel">Cancel</button>
     <button lzButton variant="primary" type="submit" form="area-form" [disabled]="areaForm.invalid || saving || (!!selectedArea && !areaForm.dirty)">
       @if (selectedArea) {
-        <ng-container i18n="@@areas.update_btn">Update Area</ng-container>
+        <ng-container i18n="@@areas.update_btn">Update area</ng-container>
       } @else {
-        <ng-container i18n="@@areas.create_btn">Create Area</ng-container>
+        <ng-container i18n="@@areas.create_btn">Create area</ng-container>
       }
     </button>
   </ng-container>
