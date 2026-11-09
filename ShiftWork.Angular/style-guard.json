@@ -31,6 +31,9 @@
     "src/app/features/dashboard/cost-codes/**",
     "src/app/features/dashboard/tasks/**",
     "src/app/features/dashboard/active-sites/**",
-    "src/app/features/dashboard/daily-reports/**"
+    "src/app/features/dashboard/daily-reports/**",
+    "src/app/features/dashboard/bulletins/**",
+    "src/app/features/dashboard/safety/**",
+    "src/app/features/dashboard/documents/**"
   ]
 }

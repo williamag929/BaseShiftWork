@@ -102,3 +102,6 @@
 @source "../app/features/dashboard/tasks";
 @source "../app/features/dashboard/active-sites";
 @source "../app/features/dashboard/daily-reports";
+@source "../app/features/dashboard/bulletins";
+@source "../app/features/dashboard/safety";
+@source "../app/features/dashboard/documents";

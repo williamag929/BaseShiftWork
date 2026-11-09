@@ -1,221 +1,214 @@
-<div class="page-container">
-
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-left">
-      <div class="page-icon">
-        <mat-icon>health_and_safety</mat-icon>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title" i18n="@@safety.title">Safety</h1>
-        <p class="page-subtitle" i18n="@@safety.page_subtitle">Trainings, toolbox talks, and mandatory acknowledgments</p>
-      </div>
-      <span class="badge badge-red" *ngIf="pendingCount() > 0">{{ pendingCount() }} <ng-container i18n="@@safety.pending_badge">pending</ng-container></span>
-    </div>
-    <button mat-flat-button color="primary" class="cta-btn" *ngIf="canCreate" (click)="showForm = !showForm">
-      <mat-icon>add</mat-icon>
-      <ng-container i18n="@@safety.new_btn">New Content</ng-container>
-    </button>
-  </div>
-
-  <!-- Create Form -->
-  <div class="form-panel" *ngIf="showForm && canCreate">
-    <div class="form-panel-header">
-      <h2 i18n="@@safety.form_heading">New Safety Content</h2>
-      <button mat-icon-button (click)="showForm = false"><mat-icon>close</mat-icon></button>
-    </div>
-    <form [formGroup]="form">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label i18n="@@safety.form_title">Title</mat-label>
-        <input matInput formControlName="title" placeholder="e.g. Ladder Safety Toolbox Talk" />
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label i18n="@@safety.form_description">Description</mat-label>
-        <input matInput formControlName="description" placeholder="Brief summary" />
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label i18n="@@safety.form_text_content">Content Text</mat-label>
-        <textarea matInput formControlName="textContent" rows="5" placeholder="Full safety content text..."></textarea>
-      </mat-form-field>
-      <div class="form-cols">
-        <mat-form-field appearance="outline">
-          <mat-label i18n="@@safety.form_type">Type</mat-label>
-          <mat-select formControlName="type">
-            <mat-option *ngFor="let t of types" [value]="t">{{ t }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label i18n="@@safety.form_status">Status</mat-label>
-          <mat-select formControlName="status">
-            <mat-option *ngFor="let s of statuses" [value]="s">{{ s }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label i18n="@@safety.form_location">Location Scope</mat-label>
-          <mat-select formControlName="locationId">
-            <mat-option [value]="null" i18n="@@safety.form_all_locations">All locations</mat-option>
-            <mat-option *ngFor="let l of locations" [value]="l.locationId">{{ l.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label i18n="@@safety.form_scheduled">Scheduled For</mat-label>
-          <input matInput [matDatepicker]="schedPicker" formControlName="scheduledFor" />
-          <mat-datepicker-toggle matSuffix [for]="schedPicker"></mat-datepicker-toggle>
-          <mat-datepicker #schedPicker></mat-datepicker>
-        </mat-form-field>
-      </div>
-      <div class="ack-check-row">
-        <mat-checkbox formControlName="isAcknowledgmentRequired" i18n="@@safety.form_require_ack">
-          Require employee acknowledgment
-        </mat-checkbox>
-      </div>
-      <div class="form-actions">
-        <button mat-stroked-button type="button" (click)="showForm = false" i18n="@@common.cancel">Cancel</button>
-        <button mat-flat-button color="primary" type="button" (click)="submit()" [disabled]="form.invalid">
-          <mat-icon>send</mat-icon>
-          <ng-container i18n="@@safety.form_publish">Publish</ng-container>
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <!-- Tab Bar -->
-  <div class="filter-bar">
-    <button class="filter-btn" [class.active]="activeTab === 'all'" (click)="activeTab = 'all'" i18n="@@safety.tab_all">
-      All Content
-    </button>
-    <button class="filter-btn filter-btn-warn" [class.active]="activeTab === 'pending'" (click)="activeTab = 'pending'">
-      <mat-icon>pending_actions</mat-icon>
-      <ng-container i18n="@@safety.tab_pending">Pending Ack</ng-container>
-      <span class="filter-pill red" *ngIf="pendingCount() > 0">{{ pendingCount() }}</span>
-    </button>
-  </div>
-
-  <!-- Error Banner -->
-  <div class="error-banner" *ngIf="errorMessage && !loading">
-    <mat-icon>error_outline</mat-icon>
-    <span>{{ errorMessage }}</span>
-    <button mat-stroked-button (click)="retry()" i18n="@@safety.retry">Retry</button>
-  </div>
-
-  <!-- Loading -->
-  <div class="loading-state" *ngIf="loading">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p i18n="@@safety.loading">Loading safety content...</p>
-  </div>
-
-  <!-- Content List -->
-  <div class="content-list" *ngIf="!loading">
-    <article
-      *ngFor="let c of (activeTab === 'all' ? contents : pending)"
-      class="content-card"
-      [class.is-acknowledged]="c.isAcknowledgedByCurrentUser"
-      [class.needs-action]="c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser">
-
-      <div class="status-strip" [class.strip-done]="c.isAcknowledgedByCurrentUser" [class.strip-action]="c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser"></div>
-
-      <div class="content-body">
-        <!-- Top Row: badges + archive -->
-        <div class="content-top">
-          <div class="content-badges">
-            <span class="type-badge">{{ c.type }}</span>
-            <span class="action-badge" *ngIf="c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser">
-              <mat-icon>notification_important</mat-icon>
-              <ng-container i18n="@@safety.action_required">Action Required</ng-container>
-            </span>
-            <span class="done-badge" *ngIf="c.isAcknowledgedByCurrentUser">
-              <mat-icon>check_circle</mat-icon>
-              <ng-container i18n="@@safety.acknowledged_badge">Acknowledged</ng-container>
-            </span>
-          </div>
-          <button mat-icon-button class="archive-btn" *ngIf="canArchive" matTooltip="Archive" i18n-matTooltip="@@common.archive" (click)="archive(c, $event)">
-            <mat-icon>archive</mat-icon>
+<div class="flex flex-col gap-4">
+  <div class="sticky top-0 z-10 bg-canvas">
+    <lz-page-header title="Safety" i18n-title="@@safety.title" subtitle="Trainings, toolbox talks, and mandatory acknowledgments" i18n-subtitle="@@safety.page_subtitle">
+      <ng-container lzHeaderActions>
+        @if (canCreate) {
+          <button #addBtn lzButton type="button" [variant]="panelOpen ? 'secondary' : 'primary'" [attr.variant]="panelOpen ? 'secondary' : 'primary'" (click)="openerEl = addBtn; openNew()">
+            <mat-icon aria-hidden="true">add</mat-icon>
+            <ng-container i18n="@@safety.new_btn">New content</ng-container>
           </button>
-        </div>
-
-        <!-- Title + Description -->
-        <h3 class="content-title">{{ c.title }}</h3>
-        <p class="content-desc" *ngIf="c.description">{{ c.description }}</p>
-
-        <!-- Full text -->
-        <div class="content-text" *ngIf="c.textContent">{{ c.textContent }}</div>
-
-        <!-- External link -->
-        <a *ngIf="c.contentUrl" [href]="c.contentUrl" target="_blank" mat-stroked-button class="url-btn" (click)="$event.stopPropagation()">
-          <mat-icon>open_in_new</mat-icon>
-          <ng-container i18n="@@safety.view_content">View Content</ng-container>
-        </a>
-
-        <!-- Acknowledge CTA -->
-        <div class="ack-cta" *ngIf="c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser">
-          <div class="ack-prompt">
-            <mat-icon>info_outline</mat-icon>
-            <span i18n="@@safety.ack_prompt">Please review and acknowledge this safety content before continuing.</span>
-          </div>
-          <button mat-flat-button color="primary" (click)="acknowledge(c)">
-            <mat-icon>how_to_reg</mat-icon>
-            <ng-container i18n="@@safety.i_acknowledge">I Acknowledge</ng-container>
-          </button>
-        </div>
-
-        <!-- Footer -->
-        <div class="content-footer">
-          <span class="footer-item"><mat-icon>person_outline</mat-icon> {{ c.createdByName }}</span>
-          <span class="footer-item"><mat-icon>place</mat-icon> {{ locationName(c.locationId) }}</span>
-          <span class="footer-item"><mat-icon>calendar_today</mat-icon> {{ c.createdAt | date:'mediumDate' }}</span>
-          <span class="footer-item sched" *ngIf="c.scheduledFor">
-            <mat-icon>event</mat-icon>
-            <ng-container i18n="@@safety.scheduled_on">Scheduled</ng-container> {{ c.scheduledFor | date:'MMM d, y' }}
-          </span>
-        </div>
-
-        <!-- Compliance Toggle -->
-        <div class="compliance-toggle">
-          <button mat-stroked-button class="compliance-btn" (click)="toggleCompliance(c)">
-            <mat-icon>{{ expandedId === c.safetyContentId ? 'expand_less' : 'bar_chart' }}</mat-icon>
-            <ng-container *ngIf="expandedId === c.safetyContentId" i18n="@@safety.hide_compliance">Hide Compliance</ng-container>
-            <ng-container *ngIf="expandedId !== c.safetyContentId" i18n="@@safety.view_compliance">View Compliance</ng-container>
-          </button>
-        </div>
-
-        <div class="compliance-panel" *ngIf="expandedId === c.safetyContentId && compliance(c.safetyContentId) as status">
-          <div class="compliance-header">
-            <span class="compliance-fraction">{{ status.totalCompleted }} / {{ status.totalAssigned }} <ng-container i18n="@@safety.compliance_acknowledged">acknowledged</ng-container></span>
-            <span class="compliance-pct" [class.pct-good]="completionPct(status) >= 80">{{ completionPct(status) }}%</span>
-          </div>
-          <mat-progress-bar mode="determinate" [value]="completionPct(status)" class="compliance-bar"></mat-progress-bar>
-          <div class="pending-chips" *ngIf="status.pending.length > 0">
-            <span class="pending-label" i18n="@@safety.still_pending">Still pending:</span>
-            <span *ngFor="let p of status.pending" class="person-chip">{{ p.name }}</span>
-          </div>
-        </div>
-      </div>
-    </article>
-
-    <!-- Empty State -->
-    <div class="empty-state" *ngIf="(activeTab === 'all' ? contents : pending).length === 0">
-      <div class="empty-icon">
-        <mat-icon>verified_user</mat-icon>
-      </div>
-      <h3>
-        <ng-container *ngIf="activeTab === 'pending'" i18n="@@safety.empty_pending">All caught up!</ng-container>
-        <ng-container *ngIf="activeTab !== 'pending'" i18n="@@safety.empty_all">No safety content yet</ng-container>
-      </h3>
-      <p>
-        <ng-container *ngIf="activeTab === 'pending'" i18n="@@safety.empty_pending_desc">No pending acknowledgments — great job.</ng-container>
-        <ng-container *ngIf="activeTab !== 'pending'" i18n="@@safety.empty_all_desc">Create your first toolbox talk or safety training.</ng-container>
-      </p>
-    </div>
+        }
+      </ng-container>
+    </lz-page-header>
   </div>
 
-  <!-- Paginator (all tab only — pending is always a subset of the current page) -->
-  <mat-paginator
-    *ngIf="!loading && activeTab === 'all' && totalCount > pageSize"
-    [length]="totalCount"
-    [pageSize]="pageSize"
-    [pageSizeOptions]="[10, 25, 50]"
-    [pageIndex]="page - 1"
-    (page)="onPageChange($event)"
-    showFirstLastButtons>
-  </mat-paginator>
+  <div>
+    <lz-segmented [options]="tabOptions" [value]="activeTab" ariaLabel="Safety content view" i18n-ariaLabel="@@safety.tabs_aria" (valueChange)="setTab($event)" />
+  </div>
+
+  <section #listRegion tabindex="-1" class="min-w-0 outline-none">
+    @if (loading) {
+      <lz-alert tone="info" i18n="@@safety.loading">Loading safety content...</lz-alert>
+    } @else if (errorMessage) {
+      <lz-alert tone="danger">
+        <div class="flex flex-wrap items-center gap-3">
+          <span>{{ errorMessage }}</span>
+          <button lzButton variant="secondary" type="button" (click)="retry()" i18n="@@safety.retry">Retry</button>
+        </div>
+      </lz-alert>
+    } @else if (visibleContents.length === 0) {
+      @if (activeTab === 'pending') {
+        <lz-empty-state icon="verified_user" title="All caught up!" i18n-title="@@safety.empty_pending" body="No pending acknowledgments. Great job." i18n-body="@@safety.empty_pending_desc" />
+      } @else {
+        <lz-empty-state icon="verified_user" title="No safety content yet" i18n-title="@@safety.empty_all" body="Create your first toolbox talk or safety training." i18n-body="@@safety.empty_all_desc">
+          @if (canCreate) {
+            <button #emptyAdd lzEmptyAction lzButton variant="secondary" type="button" (click)="openerEl = emptyAdd; openNew()">
+              <mat-icon aria-hidden="true">add</mat-icon>
+              <ng-container i18n="@@safety.new_btn">New content</ng-container>
+            </button>
+          }
+        </lz-empty-state>
+      }
+    } @else {
+      <lz-table-scroll>
+        <table lzTable class="min-w-4xl">
+          <thead>
+            <tr>
+              <th scope="col" i18n="@@safety.col_content">Content</th>
+              <th scope="col" i18n="@@safety.form_type">Type</th>
+              <th scope="col" i18n="@@safety.col_acknowledgment">Acknowledgment</th>
+              <th scope="col" i18n="@@safety.col_added">Added</th>
+              <th scope="col" class="text-right" i18n="@@safety.col_actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of visibleContents; track c.safetyContentId) {
+              <tr>
+                <td>
+                  <div class="font-medium text-ink">{{ c.title }}</div>
+                  @if (c.description) {
+                    <div class="max-w-md text-[13px] text-ink-soft">{{ c.description }}</div>
+                  }
+                  <div class="text-[13px] text-ink-soft">{{ c.createdByName }} · {{ locationName(c.locationId) }}</div>
+                </td>
+                <td>{{ typeLabels[c.type] || c.type }}</td>
+                <td>
+                  <lz-status-chip [tone]="c.isAcknowledgedByCurrentUser ? 'success' : c.isAcknowledgmentRequired ? 'warning' : 'neutral'" [dot]="true">
+                    @if (c.isAcknowledgedByCurrentUser) {
+                      <ng-container i18n="@@safety.acknowledged_badge">Acknowledged</ng-container>
+                    } @else if (c.isAcknowledgmentRequired) {
+                      <ng-container i18n="@@safety.action_required">Action required</ng-container>
+                    } @else {
+                      <ng-container i18n="@@safety.not_required">Not required</ng-container>
+                    }
+                  </lz-status-chip>
+                </td>
+                <td>
+                  <div>{{ c.createdAt | date:'mediumDate' }}</div>
+                  @if (c.scheduledFor) {
+                    <div class="text-[13px] text-ink-soft"><ng-container i18n="@@safety.scheduled_on">Scheduled</ng-container> {{ c.scheduledFor | date:'MMM d, y' }}</div>
+                  }
+                </td>
+                <td>
+                  <div class="flex flex-wrap justify-end gap-1">
+                    @if (c.isAcknowledgmentRequired && !c.isAcknowledgedByCurrentUser) {
+                      <button lzButton variant="secondary" type="button" [attr.aria-label]="acknowledgeLabel(c)" (click)="acknowledge(c)">
+                        <mat-icon aria-hidden="true">how_to_reg</mat-icon>
+                        <ng-container i18n="@@safety.i_acknowledge">I acknowledge</ng-container>
+                      </button>
+                    }
+                    @if (c.contentUrl) {
+                      <a lzButton variant="quiet" iconOnly [href]="c.contentUrl" target="_blank" rel="noopener" [attr.aria-label]="viewContentLabel(c)">
+                        <mat-icon aria-hidden="true">open_in_new</mat-icon>
+                      </a>
+                    }
+                    <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="complianceLabel(c)" [attr.aria-expanded]="expandedId === c.safetyContentId" (click)="toggleCompliance(c)">
+                      <mat-icon aria-hidden="true">{{ expandedId === c.safetyContentId ? 'expand_less' : 'bar_chart' }}</mat-icon>
+                    </button>
+                    @if (canArchive) {
+                      <button #archiveBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="archiveLabel(c)" (click)="askArchive(c, archiveBtn)">
+                        <mat-icon aria-hidden="true">archive</mat-icon>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+              @if (expandedId === c.safetyContentId) {
+                <tr data-testid="compliance-row">
+                  <td colspan="5" class="bg-paper-alt">
+                    <div class="flex flex-col gap-3">
+                      @if (c.textContent) {
+                        <p class="whitespace-pre-line">{{ c.textContent }}</p>
+                      }
+                      @if (compliance(c.safetyContentId); as status) {
+                        <div class="flex flex-wrap items-center gap-3">
+                          <lz-status-chip [tone]="completionPct(status) >= 80 ? 'success' : 'warning'" [dot]="true">{{ status.totalCompleted }} / {{ status.totalAssigned }} <ng-container i18n="@@safety.compliance_acknowledged">acknowledged</ng-container> ({{ completionPct(status) }}%)</lz-status-chip>
+                          <div class="h-2 min-w-40 flex-1 rounded-chip bg-neutral-bg" aria-hidden="true">
+                            <div class="h-2 rounded-chip bg-success" [style.width.%]="completionPct(status)"></div>
+                          </div>
+                        </div>
+                        @if (status.pending.length > 0) {
+                          <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-ink-soft" i18n="@@safety.still_pending">Still pending:</span>
+                            @for (p of status.pending; track p.personId) {
+                              <lz-status-chip tone="neutral">{{ p.name }}</lz-status-chip>
+                            }
+                          </div>
+                        }
+                      } @else {
+                        <lz-alert tone="info" i18n="@@safety.compliance_loading">Loading compliance...</lz-alert>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </lz-table-scroll>
+    }
+    @if (!loading && !errorMessage && activeTab === 'all') {
+      <lz-pager [total]="totalCount" [page]="page" [pageSize]="pageSize" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)" />
+    }
+  </section>
 </div>
+
+<lz-side-panel #sp [restoreFocusTo]="openerEl" [heading]="addLabel" [open]="panelOpen" [dirty]="form.dirty" (closed)="cancelForm()">
+  @if (panelOpen) {
+    <form id="safety-form" [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
+      <lz-field label="Title" i18n-label="@@safety.form_title" controlId="safety-title" required [error]="form.get('title')?.touched && form.get('title')?.errors?.['required'] ? titleRequired : null">
+        <input lzField type="text" id="safety-title" formControlName="title" aria-required="true" placeholder="e.g. Ladder safety toolbox talk" i18n-placeholder="@@safety.form_title_ph" [attr.aria-invalid]="form.get('title')?.touched && form.get('title')?.invalid ? 'true' : null" [attr.aria-describedby]="form.get('title')?.touched && form.get('title')?.invalid ? 'safety-title-error' : null">
+      </lz-field>
+
+      <lz-field label="Description" i18n-label="@@safety.form_description" controlId="safety-description" required [error]="form.get('description')?.touched && form.get('description')?.errors?.['required'] ? descriptionRequired : null">
+        <input lzField type="text" id="safety-description" formControlName="description" aria-required="true" placeholder="Brief summary" i18n-placeholder="@@safety.form_description_ph" [attr.aria-invalid]="form.get('description')?.touched && form.get('description')?.invalid ? 'true' : null" [attr.aria-describedby]="form.get('description')?.touched && form.get('description')?.invalid ? 'safety-description-error' : null">
+      </lz-field>
+
+      <lz-field label="Content text" i18n-label="@@safety.form_text_content" controlId="safety-text">
+        <textarea lzField id="safety-text" formControlName="textContent" rows="5" class="py-2" placeholder="Full safety content text..." i18n-placeholder="@@safety.form_text_ph"></textarea>
+      </lz-field>
+
+      <lz-field label="Type" i18n-label="@@safety.form_type" controlId="safety-type">
+        <select lzField id="safety-type" formControlName="type">
+          @for (t of types; track t) {
+            <option [value]="t">{{ typeLabels[t] }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Status" i18n-label="@@safety.form_status" controlId="safety-status">
+        <select lzField id="safety-status" formControlName="status">
+          @for (s of statuses; track s) {
+            <option [value]="s">{{ statusLabels[s] }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Location scope" i18n-label="@@safety.form_location" controlId="safety-location">
+        <select lzField id="safety-location" formControlName="locationId">
+          <option [ngValue]="null" i18n="@@safety.form_all_locations">All locations</option>
+          @for (l of locations; track l.locationId) {
+            <option [ngValue]="l.locationId">{{ l.name }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Scheduled for" i18n-label="@@safety.form_scheduled" controlId="safety-scheduled">
+        <input lzField type="date" id="safety-scheduled" formControlName="scheduledFor">
+      </lz-field>
+
+      <label class="flex min-h-12 items-center gap-3">
+        <input type="checkbox" class="size-6 shrink-0" formControlName="isAcknowledgmentRequired">
+        <span i18n="@@safety.form_require_ack">Require employee acknowledgment</span>
+      </label>
+    </form>
+  }
+  <ng-container lzPanelFooter>
+    <button lzButton variant="secondary" type="button" (click)="sp.requestClose()" i18n="@@common.cancel">Cancel</button>
+    <button lzButton variant="primary" type="submit" form="safety-form" [disabled]="form.invalid || saving">
+      <ng-container i18n="@@safety.form_publish">Publish</ng-container>
+    </button>
+  </ng-container>
+</lz-side-panel>
+
+@if (contentToArchive) {
+  <lz-dialog-overlay dialogRole="alertdialog" (closed)="cancelArchive()">
+    <lz-dialog-frame [title]="archiveTitle()" (closed)="cancelArchive()">
+      <p i18n="@@safety.archive_body">This content will be removed from the list for everyone.</p>
+      <ng-container lzDialogActions>
+        <button lzButton variant="secondary" type="button" (click)="cancelArchive()" i18n="@@common.cancel">Cancel</button>
+        <button lzButton variant="secondary" type="button" (click)="confirmArchive()"><span class="text-danger-ink" i18n="@@safety.archive_confirm">Archive content</span></button>
+      </ng-container>
+    </lz-dialog-frame>
+  </lz-dialog-overlay>
+}

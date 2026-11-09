@@ -1,182 +1,173 @@
-<div class="page-container">
-
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-left">
-      <div class="page-icon">
-        <mat-icon>campaign</mat-icon>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title" i18n="@@bulletins.title">Bulletins</h1>
-        <p class="page-subtitle" i18n="@@bulletins.page_subtitle">Company-wide announcements and updates</p>
-      </div>
-      <span class="badge badge-blue" *ngIf="unreadCount() > 0">{{ unreadCount() }} <ng-container i18n="@@bulletins.unread_badge">unread</ng-container></span>
-    </div>
-    <button mat-flat-button color="primary" class="cta-btn" *ngIf="canCreate" (click)="showForm = !showForm">
-      <mat-icon>add</mat-icon>
-      <ng-container i18n="@@bulletins.new_btn">New Bulletin</ng-container>
-    </button>
+<div class="flex flex-col gap-4">
+  <div class="sticky top-0 z-10 bg-canvas">
+    <lz-page-header title="Bulletins" i18n-title="@@bulletins.title" subtitle="Company-wide announcements and updates" i18n-subtitle="@@bulletins.page_subtitle">
+      <ng-container lzHeaderActions>
+        @if (canCreate) {
+          <button #addBtn lzButton type="button" [variant]="panelOpen ? 'secondary' : 'primary'" [attr.variant]="panelOpen ? 'secondary' : 'primary'" (click)="openerEl = addBtn; openNew()">
+            <mat-icon aria-hidden="true">add</mat-icon>
+            <ng-container i18n="@@bulletins.new_btn">New bulletin</ng-container>
+          </button>
+        }
+      </ng-container>
+    </lz-page-header>
   </div>
 
-  <!-- Create Form -->
-  <div class="form-panel" *ngIf="showForm && canCreate">
-    <div class="form-panel-header">
-      <h2 i18n="@@bulletins.form_heading">New Bulletin</h2>
-      <button mat-icon-button (click)="showForm = false"><mat-icon>close</mat-icon></button>
-    </div>
-    <form [formGroup]="form">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label i18n="@@bulletins.form_title">Title</mat-label>
-        <input matInput formControlName="title" placeholder="Enter bulletin title" i18n-placeholder="@@bulletins.form_title_ph" />
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label i18n="@@bulletins.form_content">Content</mat-label>
-        <textarea matInput formControlName="content" rows="4" placeholder="Write your message..." i18n-placeholder="@@bulletins.form_content_ph"></textarea>
-      </mat-form-field>
-      <div class="form-cols">
-        <mat-form-field appearance="outline">
-          <mat-label i18n="@@bulletins.form_type">Type</mat-label>
-          <mat-select formControlName="type">
-            <mat-option *ngFor="let t of types" [value]="t">{{ t }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label i18n="@@bulletins.form_priority">Priority</mat-label>
-          <mat-select formControlName="priority">
-            <mat-option *ngFor="let p of priorities" [value]="p">{{ p }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label i18n="@@bulletins.form_location">Location Scope</mat-label>
-          <mat-select formControlName="locationId">
-            <mat-option [value]="null" i18n="@@bulletins.form_all_locations">All locations</mat-option>
-            <mat-option *ngFor="let l of locations" [value]="l.locationId">{{ l.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label i18n="@@bulletins.form_status">Status</mat-label>
-          <mat-select formControlName="status">
-            <mat-option *ngFor="let s of statuses" [value]="s">{{ s }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label i18n="@@bulletins.form_expires">Expires At</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="expiresAt" />
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
-      </div>
-      <div class="form-actions">
-        <button mat-stroked-button type="button" (click)="showForm = false" i18n="@@common.cancel">Cancel</button>
-        <button mat-flat-button color="primary" type="button" (click)="submit()" [disabled]="form.invalid">
-          <mat-icon>send</mat-icon>
-          <ng-container i18n="@@bulletins.form_publish">Publish</ng-container>
-        </button>
-      </div>
-    </form>
+  <div>
+    <lz-segmented [options]="filterOptions" [value]="activeFilter" ariaLabel="Filter bulletins" i18n-ariaLabel="@@bulletins.filter_aria" (valueChange)="setFilter($event)" />
   </div>
 
-  <!-- Filter Bar -->
-  <div class="filter-bar">
-    <button class="filter-btn" [class.active]="activeFilter === 'all'" (click)="setFilter('all')" i18n="@@bulletins.filter_all">
-      All
-    </button>
-    <button class="filter-btn" [class.active]="activeFilter === 'unread'" (click)="setFilter('unread')">
-      <ng-container i18n="@@bulletins.filter_unread">Unread</ng-container>
-      <span class="filter-pill blue" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
-    </button>
-    <button class="filter-btn filter-btn-warn" [class.active]="activeFilter === 'urgent'" (click)="setFilter('urgent')">
-      <mat-icon>warning_amber</mat-icon>
-      <ng-container i18n="@@bulletins.filter_urgent">Urgent</ng-container>
-    </button>
-  </div>
-
-  <!-- Error Banner -->
-  <div class="error-banner" *ngIf="errorMessage && !loading">
-    <mat-icon>error_outline</mat-icon>
-    <span>{{ errorMessage }}</span>
-    <button mat-stroked-button (click)="retry()" i18n="@@bulletins.retry">Retry</button>
-  </div>
-
-  <!-- Loading -->
-  <div class="loading-state" *ngIf="loading">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p i18n="@@bulletins.loading">Loading bulletins...</p>
-  </div>
-
-  <!-- Bulletin List -->
-  <div class="bulletin-list" *ngIf="!loading">
-    <article
-      *ngFor="let b of filtered"
-      class="bulletin-card"
-      [class.unread]="!b.isReadByCurrentUser"
-      (click)="markAsRead(b)">
-
-      <div class="priority-strip" [ngClass]="'strip-' + b.priority.toLowerCase()"></div>
-
-      <div class="bulletin-body">
-        <div class="bulletin-top">
-          <div class="bulletin-badges">
-            <span class="type-badge">{{ b.type }}</span>
-            <span class="priority-badge" [ngClass]="'prio-' + b.priority.toLowerCase()">{{ b.priority }}</span>
-            <span class="unread-dot" *ngIf="!b.isReadByCurrentUser" matTooltip="Unread" i18n-matTooltip="@@bulletins.unread_tooltip"></span>
-          </div>
-          <div class="bulletin-controls">
-            <span class="read-check" *ngIf="b.isReadByCurrentUser" matTooltip="Read" i18n-matTooltip="@@bulletins.read_tooltip">
-              <mat-icon>check_circle</mat-icon>
-            </span>
-            <span class="reads-counter" matTooltip="Total reads" i18n-matTooltip="@@bulletins.reads_tooltip">
-              <mat-icon>visibility</mat-icon> {{ b.totalReads }}
-            </span>
-            <button mat-icon-button class="archive-btn" *ngIf="canArchive" matTooltip="Archive" i18n-matTooltip="@@common.archive" (click)="archive(b, $event)">
-              <mat-icon>archive</mat-icon>
-            </button>
-          </div>
+  <section #listRegion tabindex="-1" class="min-w-0 outline-none">
+    @if (loading) {
+      <lz-alert tone="info" i18n="@@bulletins.loading">Loading bulletins...</lz-alert>
+    } @else if (errorMessage) {
+      <lz-alert tone="danger">
+        <div class="flex flex-wrap items-center gap-3">
+          <span>{{ errorMessage }}</span>
+          <button lzButton variant="secondary" type="button" (click)="retry()" i18n="@@bulletins.retry">Retry</button>
         </div>
-
-        <h3 class="bulletin-title">{{ b.title }}</h3>
-        <p class="bulletin-content">{{ b.content }}</p>
-
-        <div class="bulletin-footer">
-          <span class="footer-item">
-            <mat-icon>person_outline</mat-icon> {{ b.createdByName }}
-          </span>
-          <span class="footer-item">
-            <mat-icon>place</mat-icon> {{ locationName(b.locationId) }}
-          </span>
-          <span class="footer-item">
-            <mat-icon>calendar_today</mat-icon> {{ b.publishedAt | date:'mediumDate' }}
-          </span>
-          <span class="footer-item expires" *ngIf="b.expiresAt">
-            <mat-icon>schedule</mat-icon>
-            <ng-container i18n="@@bulletins.expires_card">Expires</ng-container> {{ b.expiresAt | date:'mediumDate' }}
-          </span>
-        </div>
-      </div>
-    </article>
-
-    <!-- Empty State -->
-    <div class="empty-state" *ngIf="filtered.length === 0">
-      <div class="empty-icon">
-        <mat-icon>inbox</mat-icon>
-      </div>
-      <h3 i18n="@@bulletins.no_bulletins">No bulletins</h3>
-      <p>
-        <ng-container *ngIf="activeFilter === 'unread'" i18n="@@bulletins.empty_unread">All caught up — no unread bulletins.</ng-container>
-        <ng-container *ngIf="activeFilter === 'urgent'" i18n="@@bulletins.empty_urgent">No urgent bulletins right now.</ng-container>
-        <ng-container *ngIf="activeFilter !== 'unread' && activeFilter !== 'urgent'" i18n="@@bulletins.empty_all">No bulletins yet. Create the first one.</ng-container>
-      </p>
-    </div>
-  </div>
-
-  <!-- Paginator -->
-  <mat-paginator
-    *ngIf="!loading && totalCount > pageSize"
-    [length]="totalCount"
-    [pageSize]="pageSize"
-    [pageSizeOptions]="[10, 25, 50]"
-    [pageIndex]="page - 1"
-    (page)="onPageChange($event)"
-    showFirstLastButtons>
-  </mat-paginator>
+      </lz-alert>
+    } @else if (filtered.length === 0) {
+      <lz-empty-state icon="inbox" [title]="activeFilter === 'unread' ? allCaughtUp : activeFilter === 'urgent' ? noUrgent : noBulletins" [body]="activeFilter === 'all' ? emptyAllBody : undefined">
+        @if (activeFilter === 'all' && canCreate) {
+          <button #emptyAdd lzEmptyAction lzButton variant="secondary" type="button" (click)="openerEl = emptyAdd; openNew()">
+            <mat-icon aria-hidden="true">add</mat-icon>
+            <ng-container i18n="@@bulletins.new_btn">New bulletin</ng-container>
+          </button>
+        }
+      </lz-empty-state>
+    } @else {
+      <lz-table-scroll>
+        <table lzTable class="min-w-4xl">
+          <thead>
+            <tr>
+              <th scope="col" i18n="@@bulletins.col_bulletin">Bulletin</th>
+              <th scope="col" i18n="@@bulletins.form_type">Type</th>
+              <th scope="col" i18n="@@bulletins.form_priority">Priority</th>
+              <th scope="col" i18n="@@bulletins.col_read">Read</th>
+              <th scope="col" i18n="@@bulletins.col_reads">Reads</th>
+              <th scope="col" i18n="@@bulletins.col_published">Published</th>
+              <th scope="col" class="text-right" i18n="@@bulletins.col_actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (b of filtered; track b.bulletinId) {
+              <tr class="cursor-pointer hover:bg-paper-alt" (click)="markAsRead(b)">
+                <td>
+                  <div class="font-medium text-ink">{{ b.title }}</div>
+                  <div class="max-w-md truncate text-[13px] text-ink-soft">{{ b.content }}</div>
+                  <div class="text-[13px] text-ink-soft">{{ b.createdByName }} · {{ locationName(b.locationId) }}</div>
+                </td>
+                <td>{{ typeLabels[b.type] || b.type }}</td>
+                <td>
+                  <lz-status-chip [tone]="b.priority === 'Critical' ? 'danger' : b.priority === 'High' ? 'warning' : 'neutral'" [dot]="true">{{ priorityLabels[b.priority] || b.priority }}</lz-status-chip>
+                </td>
+                <td>
+                  <lz-status-chip [tone]="b.isReadByCurrentUser ? 'success' : 'info'" [dot]="true">
+                    @if (b.isReadByCurrentUser) {
+                      <ng-container i18n="@@bulletins.read_chip">Read</ng-container>
+                    } @else {
+                      <ng-container i18n="@@bulletins.unread_chip">Unread</ng-container>
+                    }
+                  </lz-status-chip>
+                </td>
+                <td class="tabular-nums">{{ b.totalReads }}</td>
+                <td>
+                  <div>{{ b.publishedAt | date:'mediumDate' }}</div>
+                  @if (b.expiresAt) {
+                    <div class="text-[13px] text-ink-soft"><ng-container i18n="@@bulletins.expires_card">Expires</ng-container> {{ b.expiresAt | date:'mediumDate' }}</div>
+                  }
+                </td>
+                <td (click)="$event.stopPropagation()">
+                  <div class="flex justify-end gap-1">
+                    @if (!b.isReadByCurrentUser) {
+                      <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="markReadLabel(b)" (click)="markAsRead(b)">
+                        <mat-icon aria-hidden="true">done</mat-icon>
+                      </button>
+                    }
+                    @if (canArchive) {
+                      <button #archiveBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="archiveLabel(b)" (click)="askArchive(b, archiveBtn)">
+                        <mat-icon aria-hidden="true">archive</mat-icon>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </lz-table-scroll>
+    }
+    @if (!loading && !errorMessage) {
+      <lz-pager [total]="totalCount" [page]="page" [pageSize]="pageSize" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)" />
+    }
+  </section>
 </div>
+
+<lz-side-panel #sp [restoreFocusTo]="openerEl" [heading]="addLabel" [open]="panelOpen" [dirty]="form.dirty" (closed)="cancelForm()">
+  @if (panelOpen) {
+    <form id="bulletin-form" [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
+      <lz-field label="Title" i18n-label="@@bulletins.form_title" controlId="bulletin-title" required [error]="form.get('title')?.touched && form.get('title')?.errors?.['required'] ? titleRequired : null">
+        <input lzField type="text" id="bulletin-title" formControlName="title" aria-required="true" placeholder="Enter bulletin title" i18n-placeholder="@@bulletins.form_title_ph" [attr.aria-invalid]="form.get('title')?.touched && form.get('title')?.invalid ? 'true' : null" [attr.aria-describedby]="form.get('title')?.touched && form.get('title')?.invalid ? 'bulletin-title-error' : null">
+      </lz-field>
+
+      <lz-field label="Content" i18n-label="@@bulletins.form_content" controlId="bulletin-content" required [error]="form.get('content')?.touched && form.get('content')?.errors?.['required'] ? contentRequired : null">
+        <textarea lzField id="bulletin-content" formControlName="content" rows="4" aria-required="true" class="py-2" placeholder="Write your message..." i18n-placeholder="@@bulletins.form_content_ph" [attr.aria-invalid]="form.get('content')?.touched && form.get('content')?.invalid ? 'true' : null" [attr.aria-describedby]="form.get('content')?.touched && form.get('content')?.invalid ? 'bulletin-content-error' : null"></textarea>
+      </lz-field>
+
+      <lz-field label="Type" i18n-label="@@bulletins.form_type" controlId="bulletin-type">
+        <select lzField id="bulletin-type" formControlName="type">
+          @for (t of types; track t) {
+            <option [value]="t">{{ typeLabels[t] }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Priority" i18n-label="@@bulletins.form_priority" controlId="bulletin-priority">
+        <select lzField id="bulletin-priority" formControlName="priority">
+          @for (p of priorities; track p) {
+            <option [value]="p">{{ priorityLabels[p] }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Location scope" i18n-label="@@bulletins.form_location" controlId="bulletin-location">
+        <select lzField id="bulletin-location" formControlName="locationId">
+          <option [ngValue]="null" i18n="@@bulletins.form_all_locations">All locations</option>
+          @for (l of locations; track l.locationId) {
+            <option [ngValue]="l.locationId">{{ l.name }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Status" i18n-label="@@bulletins.form_status" controlId="bulletin-status">
+        <select lzField id="bulletin-status" formControlName="status">
+          @for (s of statuses; track s) {
+            <option [value]="s">{{ statusLabels[s] }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Expires on" i18n-label="@@bulletins.form_expires" controlId="bulletin-expires">
+        <input lzField type="date" id="bulletin-expires" formControlName="expiresAt">
+      </lz-field>
+    </form>
+  }
+  <ng-container lzPanelFooter>
+    <button lzButton variant="secondary" type="button" (click)="sp.requestClose()" i18n="@@common.cancel">Cancel</button>
+    <button lzButton variant="primary" type="submit" form="bulletin-form" [disabled]="form.invalid || saving">
+      <ng-container i18n="@@bulletins.form_publish">Publish</ng-container>
+    </button>
+  </ng-container>
+</lz-side-panel>
+
+@if (bulletinToArchive) {
+  <lz-dialog-overlay dialogRole="alertdialog" (closed)="cancelArchive()">
+    <lz-dialog-frame [title]="archiveTitle()" (closed)="cancelArchive()">
+      <p i18n="@@bulletins.archive_body">This bulletin will be removed from the list for everyone.</p>
+      <ng-container lzDialogActions>
+        <button lzButton variant="secondary" type="button" (click)="cancelArchive()" i18n="@@common.cancel">Cancel</button>
+        <button lzButton variant="secondary" type="button" (click)="confirmArchive()"><span class="text-danger-ink" i18n="@@bulletins.archive_confirm">Archive bulletin</span></button>
+      </ng-container>
+    </lz-dialog-frame>
+  </lz-dialog-overlay>
+}

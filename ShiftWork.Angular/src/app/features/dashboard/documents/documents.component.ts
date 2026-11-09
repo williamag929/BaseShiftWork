@@ -1,14 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
-import { filter, switchMap, takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { DocumentService } from 'src/app/core/services/document.service';
 import { Document, UpdateDocumentDto } from 'src/app/core/models/document.model';
-import { PagedResult } from 'src/app/core/models/paged-result.model';
 import { LocationService } from 'src/app/core/services/location.service';
 import { Location } from 'src/app/core/models/location.model';
 import { PermissionService } from 'src/app/core/services/permission.service';
@@ -16,7 +15,6 @@ import { PermissionService } from 'src/app/core/services/permission.service';
 @Component({
   selector: 'app-documents',
   templateUrl: './documents.component.html',
-  styleUrls: ['./documents.component.css'],
   standalone: false
 })
 export class DocumentsComponent implements OnInit, OnDestroy {
@@ -26,7 +24,13 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   documents: Document[] = [];
   loading = false;
   errorMessage: string | null = null;
-  showUpload = false;
+  panelOpen = false;
+  openerEl: HTMLElement | null = null;
+  documentToArchive: Document | null = null;
+  private archiveOpener: HTMLElement | null = null;
+  @ViewChild('addBtn') private addBtn?: ElementRef<HTMLElement>;
+  @ViewChild('listRegion') private listRegion?: ElementRef<HTMLElement>;
+  @ViewChild('fileInput') private fileInput?: ElementRef<HTMLInputElement>;
   uploading = false;
   searchText = '';
   typeFilter = '';
@@ -42,6 +46,26 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 
   readonly docTypes = ['Manual', 'Procedure', 'SafetyDataSheet', 'ProductInfo', 'FloorPlan', 'Policy', 'Other'];
   readonly accessLevels = ['Public', 'LocationOnly', 'Restricted'];
+
+  readonly typeLabels: Record<string, string> = {
+    Manual: $localize`:@@documents.type_manual:Manual`,
+    Procedure: $localize`:@@documents.type_procedure:Procedure`,
+    SafetyDataSheet: $localize`:@@documents.type_sds:Safety data sheet`,
+    ProductInfo: $localize`:@@documents.type_product_info:Product info`,
+    FloorPlan: $localize`:@@documents.type_floor_plan:Floor plan`,
+    Policy: $localize`:@@documents.type_policy:Policy`,
+    Other: $localize`:@@documents.type_other:Other`
+  };
+  readonly accessLabels: Record<string, string> = {
+    Public: $localize`:@@documents.access_public:Public`,
+    LocationOnly: $localize`:@@documents.access_location_only:Location only`,
+    Restricted: $localize`:@@documents.access_restricted:Restricted`
+  };
+  readonly uploadLabel = $localize`:@@documents.form_heading:Upload document`;
+  readonly locationHint = $localize`:@@documents.location_hint:Required for location-only access`;
+  readonly titleRequired = $localize`:@@documents.title_error:Title is required`;
+  readonly versionRequired = $localize`:@@documents.version_error:Version is required`;
+  readonly locationRequired = $localize`:@@documents.location_error:Choose a location for location-only access`;
 
   private destroy$ = new Subject<void>();
 
@@ -71,13 +95,12 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 
     this.activeCompany$.pipe(
       filter(c => !!c),
-      switchMap(company => {
-        this.activeCompany = company;
-        this.loadLocations();
-        return this.loadDocs();
-      }),
       takeUntil(this.destroy$)
-    ).subscribe();
+    ).subscribe(company => {
+      this.activeCompany = company;
+      this.loadLocations();
+      this.loadDocs();
+    });
 
     this.uploadForm.get('accessLevel')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(level => {
       const locationCtrl = this.uploadForm.get('locationId');
@@ -102,28 +125,75 @@ export class DocumentsComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadDocs(): Observable<PagedResult<Document>> {
+  loadDocs(): void {
     this.loading = true;
     this.errorMessage = null;
-    const obs = this.documentService.getDocuments(
+    this.documentService.getDocuments(
       this.activeCompany.companyId,
       this.locationFilter ?? undefined,
       this.typeFilter || undefined,
       this.searchText || undefined,
       this.page,
       this.pageSize
-    );
-    obs.subscribe({
-      next: result => { this.documents = result.items; this.totalCount = result.totalCount; this.loading = false; },
-      error: () => { this.errorMessage = 'Failed to load documents. Check your connection and try again.'; this.loading = false; }
+    ).subscribe({
+      next: result => {
+        this.totalCount = result.totalCount;
+        const lastPage = Math.max(1, Math.ceil(result.totalCount / this.pageSize));
+        if (this.page > lastPage) {
+          this.page = lastPage;
+          this.loadDocs();
+          return;
+        }
+        this.documents = result.items;
+        this.loading = false;
+      },
+      error: () => {
+        this.errorMessage = $localize`:@@documents.load_error:Could not load documents. Check your connection and try again.`;
+        this.loading = false;
+      }
     });
-    return obs;
   }
 
-  onPageChange(event: { pageIndex: number; pageSize: number }): void {
-    this.page = event.pageIndex + 1;
-    this.pageSize = event.pageSize;
+  onPageChange(page: number): void {
+    this.page = page;
     this.loadDocs();
+  }
+
+  onPageSizeChange(size: number): void {
+    this.pageSize = size;
+    this.page = 1;
+    this.loadDocs();
+  }
+
+  get hasFilters(): boolean {
+    return !!(this.searchText || this.typeFilter || this.locationFilter);
+  }
+
+  get locationRequiredNow(): boolean {
+    return this.uploadForm.get('accessLevel')?.value === 'LocationOnly';
+  }
+
+  openUpload(): void {
+    this.cancelUpload();
+    this.panelOpen = true;
+  }
+
+  cancelUpload(): void {
+    this.panelOpen = false;
+    if (!this.uploading) {
+      this.selectedFile = null;
+      this.uploadForm.reset({ type: 'Other', version: '1.0', accessLevel: 'Public' });
+    }
+  }
+
+  pickFile(event?: Event): void {
+    event?.preventDefault();
+    this.fileInput?.nativeElement.click();
+  }
+
+  onFileDropped(event: DragEvent): void {
+    event.preventDefault();
+    this.selectedFile = event.dataTransfer?.files?.[0] ?? this.selectedFile;
   }
 
   retry(): void {
@@ -131,8 +201,8 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   }
 
   locationName(locationId?: number): string {
-    if (!locationId) return 'All locations';
-    return this.locations.find(l => l.locationId === locationId)?.name ?? `Location #${locationId}`;
+    if (!locationId) return $localize`:@@documents.form_all_locations:All locations`;
+    return this.locations.find(l => l.locationId === locationId)?.name ?? $localize`:@@documents.location_number:Location #${locationId}:id:`;
   }
 
   onSearch(): void {
@@ -147,7 +217,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 
   async startUpload(): Promise<void> {
     if (this.uploadForm.invalid || !this.selectedFile) {
-      this.toastr.warning('Please fill in all required fields and select a file.');
+      this.toastr.warning($localize`:@@documents.toast_incomplete:Fill in all required fields and choose a file.`);
       return;
     }
 
@@ -166,19 +236,18 @@ export class DocumentsComponent implements OnInit, OnDestroy {
             this.documentService.confirmUpload(this.activeCompany.companyId, documentId).subscribe({
               next: doc => {
                 this.documents.unshift(doc);
-                this.showUpload = false;
-                this.selectedFile = null;
-                this.uploadForm.reset({ type: 'Other', version: '1.0', accessLevel: 'Public' });
+                this.totalCount++;
                 this.uploading = false;
-                this.toastr.success('Document uploaded');
+                this.cancelUpload();
+                this.toastr.success($localize`:@@documents.toast_uploaded:Document uploaded.`);
               },
-              error: () => { this.uploading = false; this.toastr.error('Upload confirmation failed'); }
+              error: () => { this.uploading = false; this.toastr.error($localize`:@@documents.toast_confirm_failed:Could not confirm the upload.`); }
             });
           },
-          error: () => { this.uploading = false; this.toastr.error('S3 upload failed'); }
+          error: () => { this.uploading = false; this.toastr.error($localize`:@@documents.toast_s3_failed:Could not upload the file.`); }
         });
       },
-      error: () => { this.uploading = false; this.toastr.error('Failed to initiate upload'); }
+      error: () => { this.uploading = false; this.toastr.error($localize`:@@documents.toast_initiate_failed:Could not start the upload.`); }
     });
   }
 
@@ -189,19 +258,56 @@ export class DocumentsComponent implements OnInit, OnDestroy {
           window.open(detail.presignedUrl, '_blank');
         }
       },
-      error: () => this.toastr.error('Could not open document')
+      error: () => this.toastr.error($localize`:@@documents.toast_open_failed:Could not open the document.`)
     });
   }
 
-  archive(doc: Document, event: Event): void {
-    event.stopPropagation();
+  askArchive(doc: Document, opener: HTMLElement): void {
+    this.archiveOpener = opener;
+    this.documentToArchive = doc;
+  }
+
+  cancelArchive(): void {
+    const opener = this.archiveOpener;
+    this.documentToArchive = null;
+    this.archiveOpener = null;
+    Promise.resolve().then(() => opener?.focus());
+  }
+
+  confirmArchive(): void {
+    const doc = this.documentToArchive;
+    if (!doc) return;
+    const opener = this.archiveOpener;
+    this.documentToArchive = null;
+    this.archiveOpener = null;
     this.documentService.archiveDocument(this.activeCompany.companyId, doc.documentId).subscribe({
       next: () => {
         this.documents = this.documents.filter(d => d.documentId !== doc.documentId);
-        this.toastr.success('Document archived');
+        this.totalCount = Math.max(0, this.totalCount - 1);
+        this.toastr.success($localize`:@@documents.toast_archived:Document archived.`);
+        if (this.documents.length === 0 && this.page > 1) {
+          this.page--;
+          this.loadDocs();
+        }
+        Promise.resolve().then(() => (this.addBtn ?? this.listRegion)?.nativeElement.focus());
       },
-      error: () => this.toastr.error('Failed to archive')
+      error: () => {
+        this.toastr.error($localize`:@@documents.toast_archive_failed:Could not archive the document.`);
+        Promise.resolve().then(() => opener?.focus());
+      }
     });
+  }
+
+  archiveTitle(): string {
+    return $localize`:@@documents.archive_title:Archive ${this.documentToArchive?.title ?? ''}:name:?`;
+  }
+
+  archiveLabel(d: Document): string {
+    return $localize`:@@documents.archive_aria:Archive ${d.title}:name:`;
+  }
+
+  openLabel(d: Document): string {
+    return $localize`:@@documents.open_aria:Open ${d.title}:name:`;
   }
 
   docIcon(type: string): string {

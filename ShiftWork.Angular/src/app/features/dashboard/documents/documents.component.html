@@ -1,190 +1,214 @@
-<div class="page-container">
-
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-left">
-      <div class="page-icon">
-        <mat-icon>folder_open</mat-icon>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title" i18n="@@documents.title">Documents</h1>
-        <p class="page-subtitle" i18n="@@documents.page_subtitle">Manuals, procedures, SDS sheets, and policies</p>
-      </div>
-    </div>
-    <button mat-flat-button color="primary" class="cta-btn" *ngIf="canUpload" (click)="showUpload = !showUpload">
-      <mat-icon>upload_file</mat-icon>
-      <ng-container i18n="@@documents.upload_btn">Upload</ng-container>
-    </button>
+<div class="flex flex-col gap-4">
+  <div class="sticky top-0 z-10 bg-canvas">
+    <lz-page-header title="Documents" i18n-title="@@documents.title" subtitle="Manuals, procedures, SDS sheets, and policies" i18n-subtitle="@@documents.page_subtitle">
+      <ng-container lzHeaderActions>
+        @if (canUpload) {
+          <button #addBtn lzButton type="button" [variant]="panelOpen ? 'secondary' : 'primary'" [attr.variant]="panelOpen ? 'secondary' : 'primary'" (click)="openerEl = addBtn; openUpload()">
+            <mat-icon aria-hidden="true">upload_file</mat-icon>
+            <ng-container i18n="@@documents.upload_btn">Upload</ng-container>
+          </button>
+        }
+      </ng-container>
+    </lz-page-header>
   </div>
 
-  <!-- Upload Form -->
-  <div class="form-panel" *ngIf="showUpload && canUpload">
-    <div class="form-panel-header">
-      <h2 i18n="@@documents.form_heading">Upload Document</h2>
-      <button mat-icon-button (click)="showUpload = false"><mat-icon>close</mat-icon></button>
-    </div>
-    <form [formGroup]="uploadForm">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label i18n="@@documents.form_title">Title</mat-label>
-        <input matInput formControlName="title" placeholder="Document title" i18n-placeholder="@@documents.form_title_ph" />
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label i18n="@@documents.form_description">Description</mat-label>
-        <input matInput formControlName="description" placeholder="Optional description" i18n-placeholder="@@documents.form_description_ph" />
-      </mat-form-field>
-      <div class="form-cols">
-        <mat-form-field appearance="outline">
-          <mat-label i18n="@@documents.form_type">Type</mat-label>
-          <mat-select formControlName="type">
-            <mat-option *ngFor="let t of docTypes" [value]="t">{{ t }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label i18n="@@documents.form_version">Version</mat-label>
-          <input matInput formControlName="version" placeholder="1.0" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label i18n="@@documents.form_access">Access Level</mat-label>
-          <mat-select formControlName="accessLevel">
-            <mat-option *ngFor="let a of accessLevels" [value]="a">{{ a }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label i18n="@@documents.form_location">Location Scope</mat-label>
-          <mat-select formControlName="locationId">
-            <mat-option [value]="null" i18n="@@documents.form_all_locations">All locations</mat-option>
-            <mat-option *ngFor="let l of locations" [value]="l.locationId">{{ l.name }}</mat-option>
-          </mat-select>
-          <mat-hint *ngIf="uploadForm.get('accessLevel')?.value === 'LocationOnly'" i18n="@@documents.location_hint">Required for LocationOnly access</mat-hint>
-        </mat-form-field>
-      </div>
-
-      <!-- File Picker -->
-      <div class="file-pick-row">
-        <button mat-stroked-button type="button" (click)="fileInput.click()">
-          <mat-icon>attach_file</mat-icon>
-          <ng-container i18n="@@documents.choose_file">Choose File</ng-container>
-        </button>
-        <span class="file-name" [class.file-selected]="!!selectedFile">
-          <mat-icon *ngIf="selectedFile">insert_drive_file</mat-icon>
-          <ng-container *ngIf="selectedFile">{{ selectedFile.name }}</ng-container>
-          <ng-container *ngIf="!selectedFile" i18n="@@documents.no_file">No file selected</ng-container>
-        </span>
-        <input #fileInput id="fileInput" type="file" hidden (change)="onFileSelected($event)" />
-      </div>
-
-      <div class="form-actions">
-        <button mat-stroked-button type="button" (click)="showUpload = false" i18n="@@common.cancel">Cancel</button>
-        <button mat-flat-button color="primary" type="button" (click)="startUpload()"
-          [disabled]="uploading || uploadForm.invalid || !selectedFile">
-          <mat-spinner diameter="18" *ngIf="uploading" class="btn-spinner"></mat-spinner>
-          <mat-icon *ngIf="!uploading">cloud_upload</mat-icon>
-          <ng-container *ngIf="uploading" i18n="@@documents.uploading">Uploading...</ng-container>
-          <ng-container *ngIf="!uploading" i18n="@@documents.upload_btn">Upload</ng-container>
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <!-- Search & Filter Bar -->
-  <div class="filter-bar">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label i18n="@@documents.search_label">Search documents</mat-label>
-      <input matInput [(ngModel)]="searchText" (keyup.enter)="onSearch()" placeholder="Search by title..." i18n-placeholder="@@documents.search_ph" />
-      <mat-icon matSuffix class="search-icon" (click)="onSearch()">search</mat-icon>
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="filter-field">
-      <mat-label i18n="@@documents.filter_type">Type</mat-label>
-      <mat-select [(ngModel)]="typeFilter" (ngModelChange)="onSearch()">
-        <mat-option value="" i18n="@@documents.filter_all_types">All Types</mat-option>
-        <mat-option *ngFor="let t of docTypes" [value]="t">{{ t }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="filter-field">
-      <mat-label i18n="@@documents.filter_location">Location</mat-label>
-      <mat-select [(ngModel)]="locationFilter" (ngModelChange)="onSearch()">
-        <mat-option [value]="null" i18n="@@documents.filter_all_locations">All Locations</mat-option>
-        <mat-option *ngFor="let l of locations" [value]="l.locationId">{{ l.name }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
-
-  <!-- Error Banner -->
-  <div class="error-banner" *ngIf="errorMessage && !loading">
-    <mat-icon>error_outline</mat-icon>
-    <span>{{ errorMessage }}</span>
-    <button mat-stroked-button (click)="retry()" i18n="@@documents.retry">Retry</button>
-  </div>
-
-  <!-- Loading -->
-  <div class="loading-state" *ngIf="loading">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p i18n="@@documents.loading">Loading documents...</p>
-  </div>
-
-  <!-- Documents Grid -->
-  <div class="doc-grid" *ngIf="!loading && documents.length > 0">
-    <article
-      *ngFor="let d of documents"
-      class="doc-card"
-      (click)="openDocument(d)">
-
-      <div class="doc-card-top">
-        <div class="doc-icon-wrap" [ngClass]="'icon-' + d.type.toLowerCase().replace(' ', '')">
-          <mat-icon>{{ docIcon(d.type) }}</mat-icon>
+  <lz-panel>
+    <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-[2fr_1fr_1fr]">
+      <lz-field label="Search documents" i18n-label="@@documents.search_label" controlId="doc-search">
+        <div class="flex gap-2">
+          <input lzField type="search" id="doc-search" [(ngModel)]="searchText" (keyup.enter)="onSearch()" placeholder="Search by title..." i18n-placeholder="@@documents.search_ph">
+          <button lzButton variant="secondary" iconOnly type="button" aria-label="Search" i18n-aria-label="@@documents.search_btn" (click)="onSearch()">
+            <mat-icon aria-hidden="true">search</mat-icon>
+          </button>
         </div>
-        <div class="doc-access-badge" [ngClass]="'access-' + d.accessLevel.toLowerCase()">
-          {{ d.accessLevel }}
-        </div>
-      </div>
-
-      <h3 class="doc-title">{{ d.title }}</h3>
-      <p class="doc-desc" *ngIf="d.description">{{ d.description }}</p>
-      <p class="doc-location">{{ locationName(d.locationId) }}</p>
-
-      <div class="doc-meta">
-        <span class="meta-item">
-          <mat-icon>label_outline</mat-icon> {{ d.type }}
-        </span>
-        <span class="meta-item">
-          <mat-icon>history</mat-icon> v{{ d.version }}
-        </span>
-        <span class="meta-item">
-          <mat-icon>person_outline</mat-icon> {{ d.uploadedByName }}
-        </span>
-      </div>
-
-      <div class="doc-actions" (click)="$event.stopPropagation()">
-        <button mat-icon-button matTooltip="Open document" i18n-matTooltip="@@documents.open" (click)="openDocument(d)">
-          <mat-icon>open_in_new</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" *ngIf="canArchive" matTooltip="Archive" i18n-matTooltip="@@common.archive" (click)="archive(d, $event)">
-          <mat-icon>archive</mat-icon>
-        </button>
-      </div>
-    </article>
-  </div>
-
-  <!-- Empty State -->
-  <div class="empty-state" *ngIf="!loading && documents.length === 0">
-    <div class="empty-icon">
-      <mat-icon>folder_open</mat-icon>
+      </lz-field>
+      <lz-field label="Type" i18n-label="@@documents.filter_type" controlId="doc-filter-type">
+        <select lzField id="doc-filter-type" [(ngModel)]="typeFilter" (ngModelChange)="onSearch()">
+          <option value="" i18n="@@documents.filter_all_types">All types</option>
+          @for (t of docTypes; track t) {
+            <option [value]="t">{{ typeLabels[t] }}</option>
+          }
+        </select>
+      </lz-field>
+      <lz-field label="Location" i18n-label="@@documents.filter_location" controlId="doc-filter-location">
+        <select lzField id="doc-filter-location" [(ngModel)]="locationFilter" (ngModelChange)="onSearch()">
+          <option [ngValue]="null" i18n="@@documents.filter_all_locations">All locations</option>
+          @for (l of locations; track l.locationId) {
+            <option [ngValue]="l.locationId">{{ l.name }}</option>
+          }
+        </select>
+      </lz-field>
     </div>
-    <h3 i18n="@@documents.empty_no_docs">No documents found</h3>
-    <p>
-      <ng-container *ngIf="searchText || typeFilter" i18n="@@documents.empty_filter">Try adjusting your search filters.</ng-container>
-      <ng-container *ngIf="!searchText && !typeFilter" i18n="@@documents.empty_first">Upload the first document to get started.</ng-container>
-    </p>
-  </div>
+  </lz-panel>
 
-  <!-- Paginator -->
-  <mat-paginator
-    *ngIf="!loading && totalCount > pageSize"
-    [length]="totalCount"
-    [pageSize]="pageSize"
-    [pageSizeOptions]="[10, 25, 50]"
-    [pageIndex]="page - 1"
-    (page)="onPageChange($event)"
-    showFirstLastButtons>
-  </mat-paginator>
+  <section #listRegion tabindex="-1" class="min-w-0 outline-none">
+    @if (loading) {
+      <lz-alert tone="info" i18n="@@documents.loading">Loading documents...</lz-alert>
+    } @else if (errorMessage) {
+      <lz-alert tone="danger">
+        <div class="flex flex-wrap items-center gap-3">
+          <span>{{ errorMessage }}</span>
+          <button lzButton variant="secondary" type="button" (click)="retry()" i18n="@@documents.retry">Retry</button>
+        </div>
+      </lz-alert>
+    } @else if (documents.length === 0) {
+      @if (hasFilters) {
+        <lz-empty-state icon="folder_open" title="No documents found" i18n-title="@@documents.empty_no_docs" body="Try adjusting your search filters." i18n-body="@@documents.empty_filter" />
+      } @else {
+        <lz-empty-state icon="folder_open" title="No documents found" i18n-title="@@documents.empty_no_docs" body="Upload the first document to get started." i18n-body="@@documents.empty_first">
+          @if (canUpload) {
+            <button #emptyAdd lzEmptyAction lzButton variant="secondary" type="button" (click)="openerEl = emptyAdd; openUpload()">
+              <mat-icon aria-hidden="true">upload_file</mat-icon>
+              <ng-container i18n="@@documents.upload_btn">Upload</ng-container>
+            </button>
+          }
+        </lz-empty-state>
+      }
+    } @else {
+      <lz-table-scroll>
+        <table lzTable class="min-w-4xl">
+          <thead>
+            <tr>
+              <th scope="col" i18n="@@documents.col_document">Document</th>
+              <th scope="col" i18n="@@documents.form_type">Type</th>
+              <th scope="col" i18n="@@documents.form_access">Access level</th>
+              <th scope="col" i18n="@@documents.filter_location">Location</th>
+              <th scope="col" i18n="@@documents.form_version">Version</th>
+              <th scope="col" i18n="@@documents.col_uploaded_by">Uploaded by</th>
+              <th scope="col" class="text-right" i18n="@@documents.col_actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of documents; track d.documentId) {
+              <tr class="cursor-pointer hover:bg-paper-alt" (click)="openDocument(d)">
+                <td>
+                  <div class="flex items-start gap-3">
+                    <mat-icon aria-hidden="true" class="shrink-0 text-ink-muted">{{ docIcon(d.type) }}</mat-icon>
+                    <div class="min-w-0">
+                      <div class="font-medium text-ink">{{ d.title }}</div>
+                      @if (d.description) {
+                        <div class="max-w-md truncate text-[13px] text-ink-soft">{{ d.description }}</div>
+                      }
+                    </div>
+                  </div>
+                </td>
+                <td>{{ typeLabels[d.type] || d.type }}</td>
+                <td>
+                  <lz-status-chip [tone]="d.accessLevel === 'Restricted' ? 'warning' : d.accessLevel === 'LocationOnly' ? 'info' : 'neutral'" [dot]="true">{{ accessLabels[d.accessLevel] || d.accessLevel }}</lz-status-chip>
+                </td>
+                <td>{{ locationName(d.locationId) }}</td>
+                <td class="tabular-nums">v{{ d.version }}</td>
+                <td>{{ d.uploadedByName }}</td>
+                <td (click)="$event.stopPropagation()">
+                  <div class="flex justify-end gap-1">
+                    <button lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="openLabel(d)" (click)="openDocument(d)">
+                      <mat-icon aria-hidden="true">open_in_new</mat-icon>
+                    </button>
+                    @if (canArchive) {
+                      <button #archiveBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="archiveLabel(d)" (click)="askArchive(d, archiveBtn)">
+                        <mat-icon aria-hidden="true">archive</mat-icon>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </lz-table-scroll>
+    }
+    @if (!loading && !errorMessage) {
+      <lz-pager [total]="totalCount" [page]="page" [pageSize]="pageSize" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)" />
+    }
+  </section>
 </div>
+
+<lz-side-panel #sp [restoreFocusTo]="openerEl" [heading]="uploadLabel" [open]="panelOpen" [dirty]="uploadForm.dirty || !!selectedFile" (closed)="cancelUpload()">
+  @if (panelOpen) {
+    <form id="document-form" [formGroup]="uploadForm" (ngSubmit)="startUpload()" class="flex flex-col gap-4">
+      <lz-field label="Title" i18n-label="@@documents.form_title" controlId="document-title" required [error]="uploadForm.get('title')?.touched && uploadForm.get('title')?.errors?.['required'] ? titleRequired : null">
+        <input lzField type="text" id="document-title" formControlName="title" aria-required="true" placeholder="Document title" i18n-placeholder="@@documents.form_title_ph" [attr.aria-invalid]="uploadForm.get('title')?.touched && uploadForm.get('title')?.invalid ? 'true' : null" [attr.aria-describedby]="uploadForm.get('title')?.touched && uploadForm.get('title')?.invalid ? 'document-title-error' : null">
+      </lz-field>
+
+      <lz-field label="Description" i18n-label="@@documents.form_description" controlId="document-description">
+        <input lzField type="text" id="document-description" formControlName="description" placeholder="Optional description" i18n-placeholder="@@documents.form_description_ph">
+      </lz-field>
+
+      <lz-field label="Type" i18n-label="@@documents.form_type" controlId="document-type">
+        <select lzField id="document-type" formControlName="type">
+          @for (t of docTypes; track t) {
+            <option [value]="t">{{ typeLabels[t] }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Version" i18n-label="@@documents.form_version" controlId="document-version" required [error]="uploadForm.get('version')?.touched && uploadForm.get('version')?.errors?.['required'] ? versionRequired : null">
+        <input lzField type="text" id="document-version" formControlName="version" aria-required="true" placeholder="1.0" [attr.aria-invalid]="uploadForm.get('version')?.touched && uploadForm.get('version')?.invalid ? 'true' : null" [attr.aria-describedby]="uploadForm.get('version')?.touched && uploadForm.get('version')?.invalid ? 'document-version-error' : null">
+      </lz-field>
+
+      <lz-field label="Access level" i18n-label="@@documents.form_access" controlId="document-access">
+        <select lzField id="document-access" formControlName="accessLevel">
+          @for (a of accessLevels; track a) {
+            <option [value]="a">{{ accessLabels[a] }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="Location scope" i18n-label="@@documents.form_location" controlId="document-location" [required]="locationRequiredNow" [hint]="locationRequiredNow ? locationHint : undefined" [error]="uploadForm.get('locationId')?.touched && uploadForm.get('locationId')?.errors?.['required'] ? locationRequired : null">
+        <select lzField id="document-location" formControlName="locationId" [attr.aria-required]="locationRequiredNow ? 'true' : null" [attr.aria-invalid]="uploadForm.get('locationId')?.touched && uploadForm.get('locationId')?.invalid ? 'true' : null" [attr.aria-describedby]="uploadForm.get('locationId')?.touched && uploadForm.get('locationId')?.invalid ? 'document-location-error' : null">
+          <option [ngValue]="null" i18n="@@documents.form_all_locations">All locations</option>
+          @for (l of locations; track l.locationId) {
+            <option [ngValue]="l.locationId">{{ l.name }}</option>
+          }
+        </select>
+      </lz-field>
+
+      <lz-field label="File" i18n-label="@@documents.form_file" controlId="document-file" required>
+        <button
+          id="document-file"
+          type="button"
+          data-testid="dropzone"
+          class="flex min-h-24 w-full flex-col items-center justify-center gap-1 rounded-panel border border-dashed border-line-strong bg-paper-alt px-4 py-4 text-center text-ink"
+          (click)="pickFile()"
+          (keydown.enter)="pickFile($event)"
+          (keydown.space)="pickFile($event)"
+          (keyup.space)="$event.preventDefault()"
+          (dragover)="$event.preventDefault()"
+          (drop)="onFileDropped($event)"
+        >
+          <mat-icon aria-hidden="true">{{ selectedFile ? 'insert_drive_file' : 'upload_file' }}</mat-icon>
+          @if (selectedFile) {
+            <span class="font-medium">{{ selectedFile.name }}</span>
+            <span class="text-[13px] text-ink-soft" i18n="@@documents.replace_file">Choose a different file</span>
+          } @else {
+            <span class="font-medium" i18n="@@documents.choose_file">Choose a file or drop it here</span>
+            <span class="text-[13px] text-ink-soft" i18n="@@documents.no_file">No file selected</span>
+          }
+        </button>
+        <input #fileInput id="fileInput" type="file" hidden tabindex="-1" aria-hidden="true" (change)="onFileSelected($event)" />
+      </lz-field>
+    </form>
+  }
+  <ng-container lzPanelFooter>
+    <button lzButton variant="secondary" type="button" (click)="sp.requestClose()" i18n="@@common.cancel">Cancel</button>
+    <button lzButton variant="primary" type="submit" form="document-form" [disabled]="uploading || uploadForm.invalid || !selectedFile">
+      @if (uploading) {
+        <ng-container i18n="@@documents.uploading">Uploading...</ng-container>
+      } @else {
+        <ng-container i18n="@@documents.upload_btn">Upload</ng-container>
+      }
+    </button>
+  </ng-container>
+</lz-side-panel>
+
+@if (documentToArchive) {
+  <lz-dialog-overlay dialogRole="alertdialog" (closed)="cancelArchive()">
+    <lz-dialog-frame [title]="archiveTitle()" (closed)="cancelArchive()">
+      <p i18n="@@documents.archive_body">This document will be removed from the library for everyone.</p>
+      <ng-container lzDialogActions>
+        <button lzButton variant="secondary" type="button" (click)="cancelArchive()" i18n="@@common.cancel">Cancel</button>
+        <button lzButton variant="secondary" type="button" (click)="confirmArchive()"><span class="text-danger-ink" i18n="@@documents.archive_confirm">Archive document</span></button>
+      </ng-container>
+    </lz-dialog-frame>
+  </lz-dialog-overlay>
+}

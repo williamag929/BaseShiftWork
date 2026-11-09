@@ -663,11 +663,7 @@
         <target state="translated">Anuncios y actualizaciones de la empresa</target>
       </trans-unit>
       <trans-unit id="bulletins.new_btn" datatype="html">
-        <source>New Bulletin</source>
-        <target state="translated">Nuevo boletín</target>
-      </trans-unit>
-      <trans-unit id="bulletins.form_heading" datatype="html">
-        <source>New Bulletin</source>
+        <source>New bulletin</source>
         <target state="translated">Nuevo boletín</target>
       </trans-unit>
       <trans-unit id="bulletins.form_title" datatype="html">
@@ -695,7 +691,7 @@
         <target state="translated">Prioridad</target>
       </trans-unit>
       <trans-unit id="bulletins.form_location" datatype="html">
-        <source>Location Scope</source>
+        <source>Location scope</source>
         <target state="translated">Alcance de ubicación</target>
       </trans-unit>
       <trans-unit id="bulletins.form_all_locations" datatype="html">
@@ -707,8 +703,8 @@
         <target state="translated">Estado</target>
       </trans-unit>
       <trans-unit id="bulletins.form_expires" datatype="html">
-        <source>Expires At</source>
-        <target state="translated">Fecha de vencimiento</target>
+        <source>Expires on</source>
+        <target state="translated">Vence el</target>
       </trans-unit>
       <trans-unit id="bulletins.form_publish" datatype="html">
         <source>Publish</source>
@@ -731,8 +727,8 @@
         <target state="translated">Cargando boletines...</target>
       </trans-unit>
       <trans-unit id="bulletins.empty_all" datatype="html">
-        <source>No bulletins yet. Create the first one.</source>
-        <target state="translated">Aún no hay boletines. Crea el primero.</target>
+        <source>Create the first one to get started.</source>
+        <target state="translated">Crea el primero para empezar.</target>
       </trans-unit>
       <trans-unit id="bulletins.empty_unread" datatype="html">
         <source>All caught up — no unread bulletins.</source>
@@ -743,8 +739,8 @@
         <target state="translated">No hay boletines urgentes por ahora.</target>
       </trans-unit>
       <trans-unit id="bulletins.no_bulletins" datatype="html">
-        <source>No bulletins</source>
-        <target state="translated">Sin boletines</target>
+        <source>No bulletins yet</source>
+        <target state="translated">Aún no hay boletines</target>
       </trans-unit>
       <trans-unit id="bulletins.retry" datatype="html">
         <source>Retry</source>
@@ -779,7 +775,7 @@
         <target state="translated">Subir</target>
       </trans-unit>
       <trans-unit id="documents.form_heading" datatype="html">
-        <source>Upload Document</source>
+        <source>Upload document</source>
         <target state="translated">Subir documento</target>
       </trans-unit>
       <trans-unit id="documents.form_title" datatype="html">
@@ -807,11 +803,11 @@
         <target state="translated">Versión</target>
       </trans-unit>
       <trans-unit id="documents.form_access" datatype="html">
-        <source>Access Level</source>
+        <source>Access level</source>
         <target state="translated">Nivel de acceso</target>
       </trans-unit>
       <trans-unit id="documents.form_location" datatype="html">
-        <source>Location Scope</source>
+        <source>Location scope</source>
         <target state="translated">Alcance de ubicación</target>
       </trans-unit>
       <trans-unit id="documents.form_all_locations" datatype="html">
@@ -819,8 +815,8 @@
         <target state="translated">Todas las ubicaciones</target>
       </trans-unit>
       <trans-unit id="documents.choose_file" datatype="html">
-        <source>Choose File</source>
-        <target state="translated">Elegir archivo</target>
+        <source>Choose a file or drop it here</source>
+        <target state="translated">Elige un archivo o suéltalo aquí</target>
       </trans-unit>
       <trans-unit id="documents.no_file" datatype="html">
         <source>No file selected</source>
@@ -839,7 +835,7 @@
         <target state="translated">Tipo</target>
       </trans-unit>
       <trans-unit id="documents.filter_all_types" datatype="html">
-        <source>All Types</source>
+        <source>All types</source>
         <target state="translated">Todos los tipos</target>
       </trans-unit>
       <trans-unit id="documents.filter_location" datatype="html">
@@ -847,12 +843,12 @@
         <target state="translated">Ubicación</target>
       </trans-unit>
       <trans-unit id="documents.filter_all_locations" datatype="html">
-        <source>All Locations</source>
+        <source>All locations</source>
         <target state="translated">Todas las ubicaciones</target>
       </trans-unit>
       <trans-unit id="documents.loading" datatype="html">
-        <source>Loading document…</source>
-        <target state="translated">Cargando documento…</target>
+        <source>Loading documents...</source>
+        <target state="translated">Cargando documentos...</target>
       </trans-unit>
       <trans-unit id="documents.empty_no_docs" datatype="html">
         <source>No documents found</source>
@@ -875,19 +871,19 @@
         <target state="translated">Buscar documentos</target>
       </trans-unit>
       <trans-unit id="documents.location_hint" datatype="html">
-        <source>Required for LocationOnly access</source>
-        <target state="translated">Requerido para acceso solo de ubicación</target>
+        <source>Required for location-only access</source>
+        <target state="translated">Obligatorio para el acceso solo de ubicación</target>
       </trans-unit>
       <trans-unit id="safety.page_subtitle" datatype="html">
         <source>Trainings, toolbox talks, and mandatory acknowledgments</source>
         <target state="translated">Capacitaciones, charlas de seguridad y reconocimientos obligatorios</target>
       </trans-unit>
       <trans-unit id="safety.new_btn" datatype="html">
-        <source>New Content</source>
+        <source>New content</source>
         <target state="translated">Nuevo contenido</target>
       </trans-unit>
       <trans-unit id="safety.form_heading" datatype="html">
-        <source>New Safety Content</source>
+        <source>New safety content</source>
         <target state="translated">Nuevo contenido de seguridad</target>
       </trans-unit>
       <trans-unit id="safety.form_title" datatype="html">
@@ -899,7 +895,7 @@
         <target state="translated">Descripción</target>
       </trans-unit>
       <trans-unit id="safety.form_text_content" datatype="html">
-        <source>Content Text</source>
+        <source>Content text</source>
         <target state="translated">Texto del contenido</target>
       </trans-unit>
       <trans-unit id="safety.form_type" datatype="html">
@@ -911,7 +907,7 @@
         <target state="translated">Estado</target>
       </trans-unit>
       <trans-unit id="safety.form_location" datatype="html">
-        <source>Location Scope</source>
+        <source>Location scope</source>
         <target state="translated">Alcance de ubicación</target>
       </trans-unit>
       <trans-unit id="safety.form_all_locations" datatype="html">
@@ -919,7 +915,7 @@
         <target state="translated">Todas las ubicaciones</target>
       </trans-unit>
       <trans-unit id="safety.form_scheduled" datatype="html">
-        <source>Scheduled For</source>
+        <source>Scheduled for</source>
         <target state="translated">Programado para</target>
       </trans-unit>
       <trans-unit id="safety.form_require_ack" datatype="html">
@@ -931,19 +927,19 @@
         <target state="translated">Publicar</target>
       </trans-unit>
       <trans-unit id="safety.tab_all" datatype="html">
-        <source>All Content</source>
+        <source>All content</source>
         <target state="translated">Todo el contenido</target>
       </trans-unit>
       <trans-unit id="safety.tab_pending" datatype="html">
-        <source>Pending</source>
-        <target state="translated">Pendiente</target>
+        <source>Pending acknowledgment</source>
+        <target state="translated">Reconocimiento pendiente</target>
       </trans-unit>
       <trans-unit id="safety.loading" datatype="html">
         <source>Loading safety content...</source>
         <target state="translated">Cargando contenido de seguridad...</target>
       </trans-unit>
       <trans-unit id="safety.action_required" datatype="html">
-        <source>Action Required</source>
+        <source>Action required</source>
         <target state="translated">Acción requerida</target>
       </trans-unit>
       <trans-unit id="safety.ack_prompt" datatype="html">
@@ -951,20 +947,8 @@
         <target state="translated">Revisa y reconoce este contenido de seguridad antes de continuar.</target>
       </trans-unit>
       <trans-unit id="safety.i_acknowledge" datatype="html">
-        <source>I Acknowledge</source>
+        <source>I acknowledge</source>
         <target state="translated">Reconozco</target>
-      </trans-unit>
-      <trans-unit id="safety.view_content" datatype="html">
-        <source>View Content</source>
-        <target state="translated">Ver contenido</target>
-      </trans-unit>
-      <trans-unit id="safety.hide_compliance" datatype="html">
-        <source>Hide Compliance</source>
-        <target state="translated">Ocultar cumplimiento</target>
-      </trans-unit>
-      <trans-unit id="safety.view_compliance" datatype="html">
-        <source>View Compliance</source>
-        <target state="translated">Ver cumplimiento</target>
       </trans-unit>
       <trans-unit id="safety.acknowledged_badge" datatype="html">
         <source>Acknowledged</source>
@@ -975,8 +959,8 @@
         <target state="translated">¡Todo al día!</target>
       </trans-unit>
       <trans-unit id="safety.empty_pending_desc" datatype="html">
-        <source>No pending acknowledgments — great job.</source>
-        <target state="translated">Sin reconocimientos pendientes — ¡buen trabajo!</target>
+        <source>No pending acknowledgments. Great job.</source>
+        <target state="translated">No hay reconocimientos pendientes. Buen trabajo.</target>
       </trans-unit>
       <trans-unit id="safety.empty_all" datatype="html">
         <source>No safety content yet</source>
@@ -1653,10 +1637,6 @@
       <trans-unit id="safety.empty" datatype="html">
         <source>No safety content.</source>
         <target state="translated">Sin contenido de seguridad.</target>
-      </trans-unit>
-      <trans-unit id="safety.acknowledge" datatype="html">
-        <source>I Acknowledge</source>
-        <target state="translated">Reconozco</target>
       </trans-unit>
       <trans-unit id="safety.required" datatype="html">
         <source>Required</source>
@@ -5310,14 +5290,6 @@ Opción C</target>
         <source>Search documents...</source>
         <target state="translated">Buscar documentos...</target>
       </trans-unit>
-      <trans-unit id="documents.try_again" datatype="html">
-        <source>Try Again</source>
-        <target state="translated">Intentar de nuevo</target>
-      </trans-unit>
-      <trans-unit id="safety.try_again" datatype="html">
-        <source>Try Again</source>
-        <target state="translated">Intentar de nuevo</target>
-      </trans-unit>
       <trans-unit id="auth.register.company_label" datatype="html">
         <source>Company</source>
         <target state="translated">Empresa</target>
@@ -5395,20 +5367,16 @@ Opción C</target>
         <target state="translated">Dispositivo registrado</target>
       </trans-unit>
       <trans-unit id="bulletins.filter_unread_count" datatype="html">
-        <source>Unread (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
-        <target state="translated">No leídos (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</target>
+        <source>Unread (<x id="count"/>)</source>
+        <target state="translated">No leídos (<x id="count"/>)</target>
       </trans-unit>
       <trans-unit id="bulletins.empty_title" datatype="html">
         <source>No bulletins</source>
         <target state="translated">Sin boletines</target>
       </trans-unit>
-      <trans-unit id="bulletins.try_again" datatype="html">
-        <source>Try Again</source>
-        <target state="translated">Intentar de nuevo</target>
-      </trans-unit>
       <trans-unit id="safety.tab_pending_count" datatype="html">
-        <source>Pending (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</source>
-        <target state="translated">Pendiente (<x id="INTERPOLATION" equiv-text="{{ count }}"/>)</target>
+        <source>Pending acknowledgment (<x id="count"/>)</source>
+        <target state="translated">Reconocimiento pendiente (<x id="count"/>)</target>
       </trans-unit>
       <trans-unit id="safety.empty_pending_title" datatype="html">
         <source>All caught up!</source>
@@ -7631,6 +7599,414 @@ What would you like to do?</source>
       <trans-unit id="daily_reports.toast_approve_failed" datatype="html">
         <source>Could not approve the report.</source>
         <target state="translated">No se pudo aprobar el reporte.</target>
+      </trans-unit>
+      <trans-unit id="bulletins.archive_aria" datatype="html">
+        <source>Archive <x id="name"/></source>
+        <target state="translated">Archivar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="bulletins.archive_body" datatype="html">
+        <source>This bulletin will be removed from the list for everyone.</source>
+        <target state="translated">Este boletín se quitará de la lista para todos.</target>
+      </trans-unit>
+      <trans-unit id="bulletins.archive_confirm" datatype="html">
+        <source>Archive bulletin</source>
+        <target state="translated">Archivar boletín</target>
+      </trans-unit>
+      <trans-unit id="bulletins.archive_title" datatype="html">
+        <source>Archive <x id="name"/>?</source>
+        <target state="translated">¿Archivar <x id="name"/>?</target>
+      </trans-unit>
+      <trans-unit id="bulletins.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="bulletins.col_bulletin" datatype="html">
+        <source>Bulletin</source>
+        <target state="translated">Boletín</target>
+      </trans-unit>
+      <trans-unit id="bulletins.col_published" datatype="html">
+        <source>Published</source>
+        <target state="translated">Publicado</target>
+      </trans-unit>
+      <trans-unit id="bulletins.col_read" datatype="html">
+        <source>Read</source>
+        <target state="translated">Lectura</target>
+      </trans-unit>
+      <trans-unit id="bulletins.col_reads" datatype="html">
+        <source>Reads</source>
+        <target state="translated">Lecturas</target>
+      </trans-unit>
+      <trans-unit id="bulletins.content_error" datatype="html">
+        <source>Content is required</source>
+        <target state="translated">El contenido es obligatorio</target>
+      </trans-unit>
+      <trans-unit id="bulletins.filter_aria" datatype="html">
+        <source>Filter bulletins</source>
+        <target state="translated">Filtrar boletines</target>
+      </trans-unit>
+      <trans-unit id="bulletins.load_error" datatype="html">
+        <source>Could not load bulletins. Check your connection and try again.</source>
+        <target state="translated">No se pudieron cargar los boletines. Revisa tu conexión e inténtalo de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="bulletins.location_number" datatype="html">
+        <source>Location #<x id="id"/></source>
+        <target state="translated">Ubicación n.º <x id="id"/></target>
+      </trans-unit>
+      <trans-unit id="bulletins.mark_read_aria" datatype="html">
+        <source>Mark <x id="name"/> as read</source>
+        <target state="translated">Marcar <x id="name"/> como leído</target>
+      </trans-unit>
+      <trans-unit id="bulletins.priority_critical" datatype="html">
+        <source>Critical</source>
+        <target state="translated">Crítica</target>
+      </trans-unit>
+      <trans-unit id="bulletins.priority_high" datatype="html">
+        <source>High</source>
+        <target state="translated">Alta</target>
+      </trans-unit>
+      <trans-unit id="bulletins.priority_low" datatype="html">
+        <source>Low</source>
+        <target state="translated">Baja</target>
+      </trans-unit>
+      <trans-unit id="bulletins.priority_normal" datatype="html">
+        <source>Normal</source>
+        <target state="translated">Normal</target>
+      </trans-unit>
+      <trans-unit id="bulletins.read_chip" datatype="html">
+        <source>Read</source>
+        <target state="translated">Leído</target>
+      </trans-unit>
+      <trans-unit id="bulletins.status_draft" datatype="html">
+        <source>Draft</source>
+        <target state="translated">Borrador</target>
+      </trans-unit>
+      <trans-unit id="bulletins.status_published" datatype="html">
+        <source>Published</source>
+        <target state="translated">Publicado</target>
+      </trans-unit>
+      <trans-unit id="bulletins.title_error" datatype="html">
+        <source>Title is required</source>
+        <target state="translated">El título es obligatorio</target>
+      </trans-unit>
+      <trans-unit id="bulletins.toast_archive_failed" datatype="html">
+        <source>Could not archive the bulletin.</source>
+        <target state="translated">No se pudo archivar el boletín.</target>
+      </trans-unit>
+      <trans-unit id="bulletins.toast_archived" datatype="html">
+        <source>Bulletin archived.</source>
+        <target state="translated">Boletín archivado.</target>
+      </trans-unit>
+      <trans-unit id="bulletins.toast_create_failed" datatype="html">
+        <source>Could not publish the bulletin.</source>
+        <target state="translated">No se pudo publicar el boletín.</target>
+      </trans-unit>
+      <trans-unit id="bulletins.toast_published" datatype="html">
+        <source>Bulletin published.</source>
+        <target state="translated">Boletín publicado.</target>
+      </trans-unit>
+      <trans-unit id="bulletins.type_general" datatype="html">
+        <source>General</source>
+        <target state="translated">General</target>
+      </trans-unit>
+      <trans-unit id="bulletins.type_hr" datatype="html">
+        <source>HR</source>
+        <target state="translated">RR. HH.</target>
+      </trans-unit>
+      <trans-unit id="bulletins.type_operations" datatype="html">
+        <source>Operations</source>
+        <target state="translated">Operaciones</target>
+      </trans-unit>
+      <trans-unit id="bulletins.type_safety" datatype="html">
+        <source>Safety</source>
+        <target state="translated">Seguridad</target>
+      </trans-unit>
+      <trans-unit id="bulletins.type_urgent" datatype="html">
+        <source>Urgent</source>
+        <target state="translated">Urgente</target>
+      </trans-unit>
+      <trans-unit id="bulletins.unread_chip" datatype="html">
+        <source>Unread</source>
+        <target state="translated">No leído</target>
+      </trans-unit>
+      <trans-unit id="documents.access_location_only" datatype="html">
+        <source>Location only</source>
+        <target state="translated">Solo ubicación</target>
+      </trans-unit>
+      <trans-unit id="documents.access_public" datatype="html">
+        <source>Public</source>
+        <target state="translated">Público</target>
+      </trans-unit>
+      <trans-unit id="documents.access_restricted" datatype="html">
+        <source>Restricted</source>
+        <target state="translated">Restringido</target>
+      </trans-unit>
+      <trans-unit id="documents.archive_aria" datatype="html">
+        <source>Archive <x id="name"/></source>
+        <target state="translated">Archivar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="documents.archive_body" datatype="html">
+        <source>This document will be removed from the library for everyone.</source>
+        <target state="translated">Este documento se quitará de la biblioteca para todos.</target>
+      </trans-unit>
+      <trans-unit id="documents.archive_confirm" datatype="html">
+        <source>Archive document</source>
+        <target state="translated">Archivar documento</target>
+      </trans-unit>
+      <trans-unit id="documents.archive_title" datatype="html">
+        <source>Archive <x id="name"/>?</source>
+        <target state="translated">¿Archivar <x id="name"/>?</target>
+      </trans-unit>
+      <trans-unit id="documents.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="documents.col_document" datatype="html">
+        <source>Document</source>
+        <target state="translated">Documento</target>
+      </trans-unit>
+      <trans-unit id="documents.col_uploaded_by" datatype="html">
+        <source>Uploaded by</source>
+        <target state="translated">Subido por</target>
+      </trans-unit>
+      <trans-unit id="documents.form_file" datatype="html">
+        <source>File</source>
+        <target state="translated">Archivo</target>
+      </trans-unit>
+      <trans-unit id="documents.load_error" datatype="html">
+        <source>Could not load documents. Check your connection and try again.</source>
+        <target state="translated">No se pudieron cargar los documentos. Revisa tu conexión e inténtalo de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="documents.location_error" datatype="html">
+        <source>Choose a location for location-only access</source>
+        <target state="translated">Elige una ubicación para el acceso solo de ubicación</target>
+      </trans-unit>
+      <trans-unit id="documents.location_number" datatype="html">
+        <source>Location #<x id="id"/></source>
+        <target state="translated">Ubicación n.º <x id="id"/></target>
+      </trans-unit>
+      <trans-unit id="documents.open_aria" datatype="html">
+        <source>Open <x id="name"/></source>
+        <target state="translated">Abrir <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="documents.replace_file" datatype="html">
+        <source>Choose a different file</source>
+        <target state="translated">Elegir otro archivo</target>
+      </trans-unit>
+      <trans-unit id="documents.search_btn" datatype="html">
+        <source>Search</source>
+        <target state="translated">Buscar</target>
+      </trans-unit>
+      <trans-unit id="documents.title_error" datatype="html">
+        <source>Title is required</source>
+        <target state="translated">El título es obligatorio</target>
+      </trans-unit>
+      <trans-unit id="documents.toast_archive_failed" datatype="html">
+        <source>Could not archive the document.</source>
+        <target state="translated">No se pudo archivar el documento.</target>
+      </trans-unit>
+      <trans-unit id="documents.toast_archived" datatype="html">
+        <source>Document archived.</source>
+        <target state="translated">Documento archivado.</target>
+      </trans-unit>
+      <trans-unit id="documents.toast_confirm_failed" datatype="html">
+        <source>Could not confirm the upload.</source>
+        <target state="translated">No se pudo confirmar la subida.</target>
+      </trans-unit>
+      <trans-unit id="documents.toast_incomplete" datatype="html">
+        <source>Fill in all required fields and choose a file.</source>
+        <target state="translated">Completa todos los campos obligatorios y elige un archivo.</target>
+      </trans-unit>
+      <trans-unit id="documents.toast_initiate_failed" datatype="html">
+        <source>Could not start the upload.</source>
+        <target state="translated">No se pudo iniciar la subida.</target>
+      </trans-unit>
+      <trans-unit id="documents.toast_open_failed" datatype="html">
+        <source>Could not open the document.</source>
+        <target state="translated">No se pudo abrir el documento.</target>
+      </trans-unit>
+      <trans-unit id="documents.toast_s3_failed" datatype="html">
+        <source>Could not upload the file.</source>
+        <target state="translated">No se pudo subir el archivo.</target>
+      </trans-unit>
+      <trans-unit id="documents.toast_uploaded" datatype="html">
+        <source>Document uploaded.</source>
+        <target state="translated">Documento subido.</target>
+      </trans-unit>
+      <trans-unit id="documents.type_floor_plan" datatype="html">
+        <source>Floor plan</source>
+        <target state="translated">Plano</target>
+      </trans-unit>
+      <trans-unit id="documents.type_manual" datatype="html">
+        <source>Manual</source>
+        <target state="translated">Manual</target>
+      </trans-unit>
+      <trans-unit id="documents.type_other" datatype="html">
+        <source>Other</source>
+        <target state="translated">Otro</target>
+      </trans-unit>
+      <trans-unit id="documents.type_policy" datatype="html">
+        <source>Policy</source>
+        <target state="translated">Política</target>
+      </trans-unit>
+      <trans-unit id="documents.type_procedure" datatype="html">
+        <source>Procedure</source>
+        <target state="translated">Procedimiento</target>
+      </trans-unit>
+      <trans-unit id="documents.type_product_info" datatype="html">
+        <source>Product info</source>
+        <target state="translated">Información de producto</target>
+      </trans-unit>
+      <trans-unit id="documents.type_sds" datatype="html">
+        <source>Safety data sheet</source>
+        <target state="translated">Hoja de datos de seguridad</target>
+      </trans-unit>
+      <trans-unit id="documents.version_error" datatype="html">
+        <source>Version is required</source>
+        <target state="translated">La versión es obligatoria</target>
+      </trans-unit>
+      <trans-unit id="safety.ack_aria" datatype="html">
+        <source>I acknowledge <x id="name"/></source>
+        <target state="translated">Reconozco <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="safety.archive_aria" datatype="html">
+        <source>Archive <x id="name"/></source>
+        <target state="translated">Archivar <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="safety.archive_body" datatype="html">
+        <source>This content will be removed from the list for everyone.</source>
+        <target state="translated">Este contenido se quitará de la lista para todos.</target>
+      </trans-unit>
+      <trans-unit id="safety.archive_confirm" datatype="html">
+        <source>Archive content</source>
+        <target state="translated">Archivar contenido</target>
+      </trans-unit>
+      <trans-unit id="safety.archive_title" datatype="html">
+        <source>Archive <x id="name"/>?</source>
+        <target state="translated">¿Archivar <x id="name"/>?</target>
+      </trans-unit>
+      <trans-unit id="safety.col_acknowledgment" datatype="html">
+        <source>Acknowledgment</source>
+        <target state="translated">Reconocimiento</target>
+      </trans-unit>
+      <trans-unit id="safety.col_actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Acciones</target>
+      </trans-unit>
+      <trans-unit id="safety.col_added" datatype="html">
+        <source>Added</source>
+        <target state="translated">Agregado</target>
+      </trans-unit>
+      <trans-unit id="safety.col_content" datatype="html">
+        <source>Content</source>
+        <target state="translated">Contenido</target>
+      </trans-unit>
+      <trans-unit id="safety.compliance_loading" datatype="html">
+        <source>Loading compliance...</source>
+        <target state="translated">Cargando cumplimiento...</target>
+      </trans-unit>
+      <trans-unit id="safety.description_error" datatype="html">
+        <source>Description is required</source>
+        <target state="translated">La descripción es obligatoria</target>
+      </trans-unit>
+      <trans-unit id="safety.form_description_ph" datatype="html">
+        <source>Brief summary</source>
+        <target state="translated">Resumen breve</target>
+      </trans-unit>
+      <trans-unit id="safety.form_text_ph" datatype="html">
+        <source>Full safety content text...</source>
+        <target state="translated">Texto completo del contenido de seguridad...</target>
+      </trans-unit>
+      <trans-unit id="safety.form_title_ph" datatype="html">
+        <source>e.g. Ladder safety toolbox talk</source>
+        <target state="translated">Ej.: charla de seguridad sobre escaleras</target>
+      </trans-unit>
+      <trans-unit id="safety.hide_compliance_aria" datatype="html">
+        <source>Hide compliance for <x id="name"/></source>
+        <target state="translated">Ocultar cumplimiento de <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="safety.load_error" datatype="html">
+        <source>Could not load safety content. Check your connection and try again.</source>
+        <target state="translated">No se pudo cargar el contenido de seguridad. Revisa tu conexión e inténtalo de nuevo.</target>
+      </trans-unit>
+      <trans-unit id="safety.location_number" datatype="html">
+        <source>Location #<x id="id"/></source>
+        <target state="translated">Ubicación n.º <x id="id"/></target>
+      </trans-unit>
+      <trans-unit id="safety.not_required" datatype="html">
+        <source>Not required</source>
+        <target state="translated">No obligatorio</target>
+      </trans-unit>
+      <trans-unit id="safety.status_draft" datatype="html">
+        <source>Draft</source>
+        <target state="translated">Borrador</target>
+      </trans-unit>
+      <trans-unit id="safety.status_published" datatype="html">
+        <source>Published</source>
+        <target state="translated">Publicado</target>
+      </trans-unit>
+      <trans-unit id="safety.tabs_aria" datatype="html">
+        <source>Safety content view</source>
+        <target state="translated">Vista del contenido de seguridad</target>
+      </trans-unit>
+      <trans-unit id="safety.title_error" datatype="html">
+        <source>Title is required</source>
+        <target state="translated">El título es obligatorio</target>
+      </trans-unit>
+      <trans-unit id="safety.toast_ack_failed" datatype="html">
+        <source>Could not save your acknowledgment.</source>
+        <target state="translated">No se pudo guardar tu reconocimiento.</target>
+      </trans-unit>
+      <trans-unit id="safety.toast_acknowledged" datatype="html">
+        <source>Acknowledged.</source>
+        <target state="translated">Reconocido.</target>
+      </trans-unit>
+      <trans-unit id="safety.toast_archive_failed" datatype="html">
+        <source>Could not archive the safety content.</source>
+        <target state="translated">No se pudo archivar el contenido de seguridad.</target>
+      </trans-unit>
+      <trans-unit id="safety.toast_archived" datatype="html">
+        <source>Safety content archived.</source>
+        <target state="translated">Contenido de seguridad archivado.</target>
+      </trans-unit>
+      <trans-unit id="safety.toast_compliance_failed" datatype="html">
+        <source>Could not load compliance data.</source>
+        <target state="translated">No se pudieron cargar los datos de cumplimiento.</target>
+      </trans-unit>
+      <trans-unit id="safety.toast_create_failed" datatype="html">
+        <source>Could not publish the safety content.</source>
+        <target state="translated">No se pudo publicar el contenido de seguridad.</target>
+      </trans-unit>
+      <trans-unit id="safety.toast_published" datatype="html">
+        <source>Safety content published.</source>
+        <target state="translated">Contenido de seguridad publicado.</target>
+      </trans-unit>
+      <trans-unit id="safety.type_orientation" datatype="html">
+        <source>Orientation</source>
+        <target state="translated">Orientación</target>
+      </trans-unit>
+      <trans-unit id="safety.type_sds" datatype="html">
+        <source>Safety data sheet</source>
+        <target state="translated">Hoja de datos de seguridad</target>
+      </trans-unit>
+      <trans-unit id="safety.type_toolbox_talk" datatype="html">
+        <source>Toolbox talk</source>
+        <target state="translated">Charla de seguridad</target>
+      </trans-unit>
+      <trans-unit id="safety.type_training" datatype="html">
+        <source>Training</source>
+        <target state="translated">Capacitación</target>
+      </trans-unit>
+      <trans-unit id="safety.type_video" datatype="html">
+        <source>Instructional video</source>
+        <target state="translated">Video instructivo</target>
+      </trans-unit>
+      <trans-unit id="safety.view_compliance_aria" datatype="html">
+        <source>View compliance for <x id="name"/></source>
+        <target state="translated">Ver cumplimiento de <x id="name"/></target>
+      </trans-unit>
+      <trans-unit id="safety.view_content_aria" datatype="html">
+        <source>View content for <x id="name"/></source>
+        <target state="translated">Ver contenido de <x id="name"/></target>
       </trans-unit>
     </body>
   </file>
