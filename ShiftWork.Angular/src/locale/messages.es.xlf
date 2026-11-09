@@ -6876,6 +6876,10 @@ What would you like to do?</source>
         <source>selected</source>
         <target state="translated">seleccionados</target>
       </trans-unit>
+      <trans-unit id="shift_summaries.selected_other_pages" datatype="html">
+        <source>(<x id="INTERPOLATION" equiv-text="{{ selectedOtherPages }}"/> on other pages)</source>
+        <target state="translated">(<x id="INTERPOLATION" equiv-text="{{ selectedOtherPages }}"/> en otras páginas)</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

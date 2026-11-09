@@ -172,4 +172,22 @@ describe('ShiftsummariesComponent (Loqzen design system)', () => {
     btn.focus();
     expect(parseFloat(getComputedStyle(btn).outlineOffset)).toBeLessThanOrEqual(0);
   });
+
+  it('says how many selected rows sit on other pages, and marks the header indeterminate for a partial page', async () => {
+    await setup(Array.from({ length: 60 }, (_, i) => shift(i + 1)));
+    showTable();
+    const header = () => el().querySelector('thead input[type="checkbox"]') as HTMLInputElement;
+    header().click();
+    fixture.detectChanges();
+    expect(el().textContent!.replace(/\s+/g, ' ')).toContain('25 selected');
+    expect(el().textContent!.replace(/\s+/g, ' ')).not.toContain('on other pages');
+    (el().querySelector('lz-pager button[aria-label="Next page"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(el().textContent!.replace(/\s+/g, ' ')).toContain('25 selected (25 on other pages)');
+    expect(header().indeterminate).toBeFalse();
+    (el().querySelector('tbody input[type="checkbox"]') as HTMLInputElement).click();
+    fixture.detectChanges();
+    expect(el().textContent!.replace(/\s+/g, ' ')).toContain('26 selected (25 on other pages)');
+    expect(header().indeterminate).toBeTrue();
+  });
 });

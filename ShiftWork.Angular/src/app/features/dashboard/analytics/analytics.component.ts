@@ -58,14 +58,6 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     { value: 'month', label: $localize`:@@analytics.group_month:Month` },
   ];
 
-  readonly presets = [
-    { key: 'today', labelKey: 'analytics.preset_today' },
-    { key: 'week', labelKey: 'analytics.preset_week' },
-    { key: 'month', labelKey: 'analytics.preset_month' },
-    { key: 'last_month', labelKey: 'analytics.preset_last_month' },
-    { key: 'custom', labelKey: 'analytics.preset_custom' },
-  ];
-
   private charts: Partial<Record<ChartId, any>> = {};
   private destroy$ = new Subject<void>();
 

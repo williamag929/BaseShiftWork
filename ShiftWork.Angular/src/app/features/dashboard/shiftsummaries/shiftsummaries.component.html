@@ -42,7 +42,7 @@
           <ng-container i18n="@@shift_summaries.select_page">Select page</ng-container>
         </label>
       }
-      <span class="tabular-nums text-ink-soft" aria-live="polite">{{ selectedCount }} <ng-container i18n="@@shift_summaries.selected_count">selected</ng-container></span>
+      <span class="tabular-nums text-ink-soft" aria-live="polite">{{ selectedCount }} <ng-container i18n="@@shift_summaries.selected_count">selected</ng-container>@if (selectedOtherPages > 0) { {{ ' ' }}<ng-container i18n="@@shift_summaries.selected_other_pages">({{ selectedOtherPages }} on other pages)</ng-container> }</span>
       <select lzField class="w-auto" aria-label="Status to apply" i18n-aria-label="@@shift_summaries.bulk_status_label" [(ngModel)]="bulkStatus" [ngModelOptions]="{standalone: true}">
         <option *ngFor="let o of statusOptions" [ngValue]="o.value">{{ o.label }}</option>
       </select>
@@ -110,7 +110,7 @@
               <tr>
                 <th scope="col" class="w-12">
                   <label class="flex size-12 cursor-pointer items-center justify-center">
-                    <input type="checkbox" class="size-5" aria-label="Select page" i18n-aria-label="@@shift_summaries.select_page" [checked]="allSelected" (change)="toggleSelectAll($any($event.target).checked)">
+                    <input type="checkbox" class="size-5" aria-label="Select page" i18n-aria-label="@@shift_summaries.select_page" [checked]="allSelected" [indeterminate]="somePageSelected" (change)="toggleSelectAll($any($event.target).checked)">
                   </label>
                 </th>
                 <th scope="col" i18n="@@shift_summaries.col_day">Day</th>

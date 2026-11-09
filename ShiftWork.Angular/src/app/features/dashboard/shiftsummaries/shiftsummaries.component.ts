@@ -240,6 +240,14 @@ export class ShiftsummariesComponent implements OnInit {
     return this.selectedKeys.size;
   }
 
+  get selectedOtherPages(): number {
+    return this.selectedKeys.size - this.pageRows.filter(s => this.isSelected(s)).length;
+  }
+
+  get somePageSelected(): boolean {
+    return !this.allSelected && this.pageRows.some(s => this.isSelected(s));
+  }
+
   toggleSelection(s: SummaryShift, checked: boolean) {
     const key = this.selectionKey(s);
     if (checked) this.selectedKeys.add(key); else this.selectedKeys.delete(key);
