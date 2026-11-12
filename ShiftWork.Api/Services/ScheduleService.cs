@@ -142,12 +142,20 @@ namespace ShiftWork.Api.Services
             return schedule;
         }
 
+        // Copies onto the tracked row: callers load the schedule first (status, validation), and
+        // attaching a second instance with the same key makes EF throw an identity conflict.
         public async Task<Schedule> Update(Schedule schedule)
         {
-            _context.Entry(schedule).State = EntityState.Modified;
+            var existing = await _context.Schedules.FindAsync(schedule.ScheduleId);
+            if (existing == null)
+            {
+                return null;
+            }
+
+            _context.Entry(existing).CurrentValues.SetValues(schedule);
             await _context.SaveChangesAsync();
             _logger.LogInformation("Schedule with ID {ScheduleId} updated.", schedule.ScheduleId);
-            return schedule;
+            return existing;
         }
 
         public async Task<bool> Delete(int scheduleId)

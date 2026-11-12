@@ -268,6 +268,7 @@ namespace ShiftWork.Api.Controllers
             {
                 var settings = await _settingsService.GetOrCreateSettings(companyId);
                 var scheduleShift = _mapper.Map<ScheduleShift>(scheduleShiftDto);
+                scheduleShift.CompanyId = companyId;
 
                 var validation = await _validationService.ValidateScheduleShift(companyId, scheduleShift, scheduleShiftDto.PersonId, shiftId);
                 if (validation.Errors.Any() || validation.Warnings.Any())
@@ -276,6 +277,10 @@ namespace ShiftWork.Api.Controllers
                 }
 
                 var existingShift = await _scheduleShiftService.Get(companyId, shiftId);
+                if (existingShift == null)
+                {
+                    return NotFound($"Schedule shift with ID {shiftId} not found.");
+                }
                 bool wasPublished = existingShift?.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) ?? false;
 
                 if (settings.AutoApproveShifts)
