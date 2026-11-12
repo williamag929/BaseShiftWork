@@ -502,6 +502,7 @@ else
 
 app.UseRateLimiter();
 app.UseCors("ApiCorsPolicy");
+app.UseMiddleware<ShiftWork.Api.Middleware.RequestErrorLoggingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
