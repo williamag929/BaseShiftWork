@@ -120,7 +120,8 @@ export class ActiveSitesComponent implements OnInit, OnDestroy {
       case 'Late': return 'warning';
       case 'Early': return 'info';
       case 'NoSchedule': return 'neutral';
-      default: return 'success';
+      case 'OnTime': return 'success';
+      default: return 'neutral';
     }
   }
 
@@ -129,7 +130,8 @@ export class ActiveSitesComponent implements OnInit, OnDestroy {
       case 'Late': return $localize`:@@active_sites.timing_late:Late`;
       case 'Early': return $localize`:@@active_sites.timing_early:Early`;
       case 'NoSchedule': return $localize`:@@active_sites.timing_no_schedule:No schedule`;
-      default: return $localize`:@@active_sites.timing_on_time:On time`;
+      case 'OnTime': return $localize`:@@active_sites.timing_on_time:On time`;
+      default: return $localize`:@@active_sites.timing_unknown:Unknown`;
     }
   }
 

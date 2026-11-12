@@ -181,7 +181,7 @@ describe('SafetyComponent (Loqzen design system)', () => {
   });
 
   it('shows the scheduled date with the locale medium format', async () => {
-    await setup(paged([content(1, { scheduledFor: '2026-03-05T12:00:00Z' })]));
+    await setup(paged([content(1, { scheduledFor: new Date(2026, 2, 5, 12).toISOString() })]));
     expect(el().querySelector('tbody tr')!.textContent).toContain('Mar 5, 2026');
   });
 

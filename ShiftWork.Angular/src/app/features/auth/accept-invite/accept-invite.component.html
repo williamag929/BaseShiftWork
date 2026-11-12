@@ -78,7 +78,7 @@
             i18n-placeholder="@@auth.accept_invite.confirm_placeholder"
             [attr.aria-invalid]="inviteForm.hasError('passwordMismatch') && inviteForm.get('confirmPassword')?.touched ? 'true' : null"
           />
-          <button type="button" lzButton variant="quiet" iconOnly class="absolute top-0 right-0" [attr.aria-pressed]="showConfirmPassword" aria-label="Show password" i18n-aria-label="@@auth.accept_invite.toggle_password" (click)="togglePasswordVisibility('confirmPassword')">
+          <button type="button" lzButton variant="quiet" iconOnly class="absolute top-0 right-0" [attr.aria-pressed]="showConfirmPassword" aria-label="Show confirm password" i18n-aria-label="@@auth.accept_invite.toggle_confirm_password" (click)="togglePasswordVisibility('confirmPassword')">
             <mat-icon aria-hidden="true">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
         </div>
@@ -97,7 +97,7 @@
     </form>
 
     <p class="mt-4 text-ink-soft">
-      <span i18n="@@auth.login.no_account">Already have an account?</span>
+      <span i18n="@@auth.have_account">Already have an account?</span>
       <a routerLink="/auth/sign-in" class="ml-1 inline-flex min-h-12 items-center font-medium text-link underline" i18n="@@auth.login.title">Sign in</a>
     </p>
   </lz-auth-shell>

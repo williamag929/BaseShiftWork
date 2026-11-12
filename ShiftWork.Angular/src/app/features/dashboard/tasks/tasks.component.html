@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-5">
   <div class="sticky top-0 z-10 bg-canvas">
     <lz-page-header title="Tasks" i18n-title="@@tasks.page_title" subtitle="Define and organize tasks for your team" i18n-subtitle="@@tasks.page_subtitle">
       <ng-container lzHeaderActions>
@@ -17,7 +17,7 @@
       <lz-alert tone="danger" i18n="@@tasks.error">Error loading tasks. Please try again.</lz-alert>
     } @else if (tasks.length === 0) {
       <lz-empty-state icon="checklist" title="No tasks yet" i18n-title="@@tasks.empty_text" body="Create your first task to get started" i18n-body="@@tasks.empty_subtext">
-        <button lzEmptyAction lzButton variant="secondary" type="button" (click)="addTask()">
+        <button #emptyAddBtn lzEmptyAction lzButton variant="secondary" type="button" (click)="openerEl = emptyAddBtn; addTask()">
           <mat-icon aria-hidden="true">add</mat-icon>
           <ng-container i18n="@@tasks.add_btn">Add task</ng-container>
         </button>

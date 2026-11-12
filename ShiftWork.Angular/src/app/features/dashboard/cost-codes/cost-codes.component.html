@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-5">
   <div class="sticky top-0 z-10 bg-canvas">
     <lz-page-header title="Cost codes" i18n-title="@@cost_codes.page_title" subtitle="Define cost codes used for Procore daily log manpower reporting" i18n-subtitle="@@cost_codes.page_subtitle">
       <ng-container lzHeaderActions>
@@ -17,7 +17,7 @@
       <lz-alert tone="danger" i18n="@@cost_codes.error">Error loading cost codes. Please try again.</lz-alert>
     } @else if (costCodes.length === 0) {
       <lz-empty-state icon="tag" title="No cost codes yet" i18n-title="@@cost_codes.empty_text" body="Create your first cost code to get started" i18n-body="@@cost_codes.empty_subtext">
-        <button lzEmptyAction lzButton variant="secondary" type="button" (click)="addCostCode()">
+        <button #emptyAddBtn lzEmptyAction lzButton variant="secondary" type="button" (click)="openerEl = emptyAddBtn; addCostCode()">
           <mat-icon aria-hidden="true">add</mat-icon>
           <ng-container i18n="@@cost_codes.add_btn">Add cost code</ng-container>
         </button>

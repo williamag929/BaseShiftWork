@@ -52,10 +52,6 @@ export class SignInComponent implements OnInit {
     }
   }
 
-  dismissError(): void {
-    this.errorMessage = null;
-  }
-
   private getFirebaseErrorMessage(error: any): string {
     const code = error?.code || '';
     switch (code) {
