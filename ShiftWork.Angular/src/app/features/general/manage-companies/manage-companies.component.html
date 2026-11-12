@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-5">
   <div class="sticky top-0 z-10 bg-canvas">
     <lz-page-header title="Manage companies" i18n-title="@@manage_companies.title">
       <ng-container lzHeaderActions>
@@ -15,7 +15,7 @@
   }
 
   <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-    <lz-panel heading="Companies" i18n-heading="@@manage_companies.companies_heading" class="min-w-0 self-start">
+    <lz-panel icon="domain" heading="Companies" i18n-heading="@@manage_companies.companies_heading" class="min-w-0 self-start">
       @if (isLoading) {
         <lz-alert tone="info" i18n="@@common.loading_short">Loading...</lz-alert>
       } @else if (companies.length === 0) {
@@ -62,7 +62,7 @@
 
     <div class="flex min-w-0 flex-col gap-4">
       @if (selectedCompany) {
-        <lz-panel [heading]="usersHeading">
+        <lz-panel icon="group" [heading]="usersHeading">
           @if (usersError) {
             <lz-alert tone="danger" i18n="@@manage_companies.users_load_error">Could not load users for this company.</lz-alert>
           } @else if (isLoadingUsers) {

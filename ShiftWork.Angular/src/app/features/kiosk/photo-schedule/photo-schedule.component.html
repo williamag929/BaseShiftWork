@@ -4,7 +4,7 @@
   }
 
   @if (employeeSchedule) {
-    <lz-panel heading="Today's schedule" i18n-heading="@@kiosk_photo.todays_schedule">
+    <lz-panel icon="today" heading="Today's schedule" i18n-heading="@@kiosk_photo.todays_schedule">
       <div class="space-y-1 text-lg">
         <p class="m-0"><strong i18n="@@kiosk_photo.location_label">Location:</strong> {{ employeeSchedule.location.name }}</p>
         <p class="m-0"><strong i18n="@@kiosk_photo.start_time_label">Start time:</strong> {{ employeeSchedule.startDate | date: 'shortTime' : 'UTC' }}</p>

@@ -82,7 +82,7 @@
       @for (employee of filteredEmployees; track employee.personId) {
         <li>
           <button type="button" (click)="selectEmployee(employee)"
-                  class="flex h-full min-h-44 w-full flex-col items-center gap-2 rounded-panel border border-line bg-paper p-4 text-center font-[inherit] text-ink">
+                  class="flex h-full min-h-44 w-full flex-col items-center gap-2 rounded-panel border border-line bg-paper p-4 text-center shadow-card font-[inherit] text-ink">
             <span class="relative flex size-20 items-center justify-center rounded-full text-2xl font-semibold text-paper"
                   [class.bg-navy-700]="!(isOnShift(employee.statusShiftWork) || isInProgress(employee)) && !hasPublishedScheduleToday(employee)"
                   [class.bg-info-ink]="!(isOnShift(employee.statusShiftWork) || isInProgress(employee)) && hasPublishedScheduleToday(employee)"

@@ -1,4 +1,4 @@
-<div class="mx-auto flex max-w-[640px] flex-col gap-4">
+<div class="mx-auto flex max-w-[640px] flex-col gap-5">
   <lz-page-header title="Clock in and out" i18n-title="@@clock.page_title" [subtitle]="currentUser?.name">
     <ng-container lzHeaderActions>
       @if (currentUser) {
@@ -17,7 +17,7 @@
     <lz-empty-state icon="login" title="Please log in to continue" i18n-title="@@clock.please_login" />
   } @else {
     @if (employeeSchedule) {
-      <lz-panel heading="Today's schedule" i18n-heading="@@clock.todays_schedule">
+      <lz-panel icon="today" heading="Today's schedule" i18n-heading="@@clock.todays_schedule">
         <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
           <dt class="font-medium" i18n="@@clock.location_label">Location</dt>
           <dd>{{ employeeSchedule.location.name }}</dd>

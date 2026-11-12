@@ -14,7 +14,7 @@ import { PeopleService } from 'src/app/core/services/people.service';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import {
   LzButtonDirective, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective, LzPageHeaderComponent, LzPagerComponent,
-  LzPanelComponent, LzSegmentedComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
+  LzPanelComponent, LzSegmentedComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent, LzKpiCardComponent,
 } from 'src/app/shared/ui';
 import { AnalyticsComponent } from './analytics.component';
 import { KpiCardsComponent } from './components/kpi-cards.component';
@@ -53,7 +53,7 @@ describe('AnalyticsComponent (Loqzen design system)', () => {
       declarations: [AnalyticsComponent, KpiCardsComponent, DrilldownTableComponent],
       imports: [
         ReactiveFormsModule, MatIconModule, MatMenuModule, LzButtonDirective, LzEmptyStateComponent, LzFieldComponent, LzFieldDirective,
-        LzPageHeaderComponent, LzPagerComponent, LzPanelComponent, LzSegmentedComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent,
+        LzPageHeaderComponent, LzPagerComponent, LzPanelComponent, LzSegmentedComponent, LzStatusChipComponent, LzTableDirective, LzTableScrollComponent, LzKpiCardComponent,
       ],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
@@ -123,9 +123,9 @@ describe('AnalyticsComponent (Loqzen design system)', () => {
     charts.forEach(ch => expect(ch.getBoundingClientRect().height).toBe(300));
   }));
 
-  it('renders KPI tiles as lz-panel with delta direction in text and an accessible better/worse cue', fakeAsync(() => {
+  it('renders KPI tiles as lz-kpi-card (same as Overview) with delta direction in text and an accessible better/worse cue', fakeAsync(() => {
     setup();
-    const tiles = el().querySelectorAll('app-kpi-cards lz-panel');
+    const tiles = el().querySelectorAll('app-kpi-cards lz-kpi-card');
     expect(tiles.length).toBe(4);
     expect(tiles[0].textContent).toContain('Worked hours');
     expect(tiles[0].textContent).toContain('120 h');

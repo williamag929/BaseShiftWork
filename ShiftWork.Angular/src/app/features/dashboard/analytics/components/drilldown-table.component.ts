@@ -6,7 +6,7 @@ import { AnalyticsDrilldownRow } from '../../../../core/models/analytics.model';
   standalone: false,
   selector: 'app-drilldown-table',
   template: `
-    <lz-panel [heading]="title">
+    <lz-panel icon="table_view" [heading]="title">
       <ng-container lzPanelActions>
         @if (bucket) {
           <span class="text-ink-soft">{{ bucket }}</span>

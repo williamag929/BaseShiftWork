@@ -1,4 +1,4 @@
-<div class="flex h-full flex-col gap-4">
+<div class="flex h-full flex-col gap-5">
 
   <lz-page-header title="Schedule" i18n-title="@@schedule_grid.title">
     <div lzHeaderMeta class="mt-2 flex flex-wrap items-center gap-2">
@@ -73,7 +73,7 @@
 
   <lz-summary-strip
     *ngIf="summaryItems.length > 0"
-    class="block rounded-panel border border-line bg-paper"
+    class="block rounded-panel border border-line bg-paper shadow-card"
     [items]="summaryItems"
     [interactive]="false"
   ></lz-summary-strip>
@@ -145,7 +145,7 @@
     {{ error }}
   </div>
 
-  <div *ngIf="!loading && !error" class="overflow-x-auto rounded-panel border border-line bg-paper">
+  <div *ngIf="!loading && !error" class="overflow-x-auto rounded-panel border border-line bg-paper shadow-card">
     <div class="lz-grid" role="table" aria-label="Schedule" i18n-aria-label="@@schedule_grid.title" [style.--lz-day-count]="gridData.days.length">
 
       <div class="lz-grid-row" role="row">
@@ -405,7 +405,7 @@
   >
     <div class="mb-3 flex items-center justify-between">
       <h3 class="m-0 font-display text-[18px] font-semibold" i18n="@@schedule_grid.filter_title">Filter and sort</h3>
-      <button mat-icon-button (click)="toggleFilterModal()">
+      <button mat-icon-button type="button" (click)="toggleFilterModal()" aria-label="Close" i18n-aria-label="@@common.close">
         <mat-icon>close</mat-icon>
       </button>
     </div>
@@ -543,8 +543,8 @@
     <div class="absolute inset-0 bg-ink/45" (click)="closeAddSchedulePlaceholder()"></div>
     <div class="relative mx-auto mt-[8vh] max-h-[85vh] max-w-[540px] overflow-y-auto rounded-dialog border border-line bg-paper px-6 py-5 shadow-overlay" role="dialog" aria-modal="true">
       <div class="mb-2 flex items-center justify-between">
-        <h3 class="m-0 font-display text-[18px] font-semibold" i18n="@@schedule_grid.bulk_builder">Bulk Schedule Builder</h3>
-        <button mat-icon-button (click)="closeAddSchedulePlaceholder()">
+        <h3 class="m-0 font-display text-[18px] font-semibold" i18n="@@schedule_grid.bulk_builder">Bulk schedule builder</h3>
+        <button mat-icon-button type="button" (click)="closeAddSchedulePlaceholder()" aria-label="Close" i18n-aria-label="@@common.close">
           <mat-icon>close</mat-icon>
         </button>
       </div>
@@ -576,22 +576,22 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div class="flex flex-col gap-1">
-            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_start_date">Start Date</label>
+            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_start_date">Start date</label>
             <input type="date" class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" [(ngModel)]="bulkStartDate" />
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_end_date">End Date</label>
+            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_end_date">End date</label>
             <input type="date" class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" [(ngModel)]="bulkEndDate" />
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div class="flex flex-col gap-1">
-            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_start_time">Start Time</label>
+            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_start_time">Start time</label>
             <input type="time" class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" [(ngModel)]="bulkStartTime" />
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_end_time">End Time</label>
+            <label class="text-[13px] font-medium" i18n="@@schedule_grid.bulk_end_time">End time</label>
             <input type="time" class="min-h-12 rounded-control border border-line-strong bg-paper px-3 font-[inherit] text-ink" [(ngModel)]="bulkEndTime" />
           </div>
         </div>

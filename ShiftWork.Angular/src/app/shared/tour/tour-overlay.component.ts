@@ -1,3 +1,5 @@
+import { MatIconModule } from '@angular/material/icon';
+import { LzButtonDirective } from '../ui/button/lz-button.directive';
 import {
   Component,
   OnInit,
@@ -15,7 +17,7 @@ import { TourService, TourStep } from './tour.service';
 @Component({
   selector: 'app-tour-overlay',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule, LzButtonDirective],
   templateUrl: './tour-overlay.component.html',
   styleUrls: ['./tour-overlay.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,8 +35,8 @@ export class TourOverlayComponent implements OnInit, OnDestroy {
   private sub = new Subscription();
 
   // Tooltip width used for clamping (matches CSS)
-  private readonly TOOLTIP_W = 340;
-  private readonly TOOLTIP_H = 220;
+  private readonly TOOLTIP_W = 360;
+  private readonly TOOLTIP_H = 260;
   private readonly GAP = 16;
 
   constructor(

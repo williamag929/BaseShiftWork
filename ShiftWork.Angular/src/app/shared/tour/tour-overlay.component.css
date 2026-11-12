@@ -17,11 +17,11 @@
 .tour-tooltip {
   position: fixed;
   z-index: 9002;
-  width: 340px;
+  width: min(360px, calc(100vw - 32px));
   background: var(--lz-paper);
   border-radius: var(--lz-radius-dialog);
   box-shadow: var(--lz-shadow-overlay);
-  padding: 18px 20px 14px;
+  padding: 16px 20px 20px;
   pointer-events: all;
   animation: tour-card-in 0.22s ease;
 }

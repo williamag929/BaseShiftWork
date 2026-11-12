@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-5">
   <div class="sticky top-0 z-10 bg-canvas">
     <lz-page-header title="Active sites" i18n-title="@@active_sites.page_title" subtitle="Who's on shift right now, by job site" i18n-subtitle="@@active_sites.page_subtitle">
       @if (canView && lastRefreshedAt) {
@@ -30,7 +30,7 @@
 
     <div class="flex min-w-0 flex-col gap-4">
       @for (site of sites; track site.locationId) {
-        <lz-panel [heading]="site.name">
+        <lz-panel icon="location_on" [heading]="site.name">
           <lz-status-chip lzPanelActions tone="info" [dot]="true" i18n="@@active_sites.on_shift">{{ site.onShiftCount }} on shift</lz-status-chip>
           <div class="flex min-w-0 flex-col gap-3">
             @if (site.address) {

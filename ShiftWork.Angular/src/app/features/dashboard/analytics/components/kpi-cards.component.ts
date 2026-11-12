@@ -12,51 +12,36 @@ interface KpiView {
 }
 
 const META: Record<string, { labelKey: string; label: string; icon: string; higherIsBetter: boolean }> = {
-  worked: { labelKey: 'analytics.kpi_worked', label: 'Worked hours', icon: 'schedule', higherIsBetter: true },
-  scheduled: { labelKey: 'analytics.kpi_scheduled', label: 'Scheduled hours', icon: 'event', higherIsBetter: true },
-  onTimePct: { labelKey: 'analytics.kpi_on_time', label: 'On-time %', icon: 'check_circle', higherIsBetter: true },
-  openShifts: { labelKey: 'analytics.kpi_open_shifts', label: 'Open shifts', icon: 'event_busy', higherIsBetter: false },
+  worked: { labelKey: 'analytics.kpi_worked', label: $localize`:@@analytics.kpi_worked:Worked hours`, icon: 'schedule', higherIsBetter: true },
+  scheduled: { labelKey: 'analytics.kpi_scheduled', label: $localize`:@@analytics.kpi_scheduled:Scheduled hours`, icon: 'event', higherIsBetter: true },
+  onTimePct: { labelKey: 'analytics.kpi_on_time', label: $localize`:@@analytics.kpi_on_time:On-time %`, icon: 'check_circle', higherIsBetter: true },
+  openShifts: { labelKey: 'analytics.kpi_open_shifts', label: $localize`:@@analytics.kpi_open_shifts:Open shifts`, icon: 'event_busy', higherIsBetter: false },
 };
 
 @Component({
   standalone: false,
   selector: 'app-kpi-cards',
   template: `
-    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       @for (k of views; track k.key) {
-        <lz-panel>
-          <div class="flex items-center gap-2 text-ink-soft">
-            <mat-icon aria-hidden="true" class="shrink-0 text-ink-muted">{{ k.icon }}</mat-icon>
-            <span class="text-[13px] font-medium">{{ k.label }}</span>
-          </div>
-          <div class="mt-1 text-[26px] font-semibold tabular-nums">{{ k.value }}</div>
-          @if (k.deltaPct !== 0) {
-            <div
-              class="mt-1 inline-flex items-center gap-1 text-[13px] font-medium"
-              [class.text-success-ink]="k.deltaClass === 'up-good' || k.deltaClass === 'down-good'"
-              [class.text-danger-ink]="k.deltaClass === 'up-bad' || k.deltaClass === 'down-bad'">
-              <mat-icon aria-hidden="true" class="size-4! text-base!">{{ k.deltaPct > 0 ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-              <span>{{ absPct(k.deltaPct) }}%</span>
-              <span class="sr-only">
-                @if (k.deltaClass === 'up-good' || k.deltaClass === 'down-good') {
-                  <ng-container i18n="@@analytics.delta_better">better than the previous period</ng-container>
-                } @else {
-                  <ng-container i18n="@@analytics.delta_worse">worse than the previous period</ng-container>
-                }
-              </span>
-            </div>
-          } @else {
-            <div class="mt-1 text-[13px] text-ink-soft">
-              <span i18n="@@analytics.no_change">no change</span>
-            </div>
-          }
-        </lz-panel>
+        <lz-kpi-card
+          [icon]="k.icon"
+          [value]="k.value"
+          [label]="k.label"
+          [trend]="k.deltaPct !== 0 ? absPct(k.deltaPct) + '%' : noChangeLabel"
+          [trendTone]="k.deltaClass === 'flat' ? 'neutral' : k.deltaClass.endsWith('good') ? 'positive' : 'negative'"
+          [trendIcon]="k.deltaPct > 0 ? 'arrow_upward' : k.deltaPct < 0 ? 'arrow_downward' : 'trending_flat'"
+          [trendSrText]="k.deltaClass === 'flat' ? undefined : k.deltaClass.endsWith('good') ? betterLabel : worseLabel"
+        />
       }
     </div>
   `,
 })
 export class KpiCardsComponent {
   views: KpiView[] = [];
+  readonly noChangeLabel = $localize`:@@analytics.no_change:no change`;
+  readonly betterLabel = $localize`:@@analytics.delta_better:better than the previous period`;
+  readonly worseLabel = $localize`:@@analytics.delta_worse:worse than the previous period`;
 
   @Input() set kpis(value: AnalyticsKpi[] | null) {
     this.views = (value ?? []).map((k) => this.toView(k));

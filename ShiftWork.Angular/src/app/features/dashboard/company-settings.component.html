@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-5">
   <div class="sticky top-0 z-10 bg-canvas">
     <lz-page-header title="Company settings" i18n-title="@@settings.page_title">
       <ng-container lzHeaderActions>
@@ -23,7 +23,7 @@
     <lz-alert tone="info" i18n="@@settings.loading">Loading settings...</lz-alert>
   } @else if (settings) {
     <form id="company-settings-form" class="flex flex-col gap-4" (ngSubmit)="saveSettings()">
-    <lz-panel heading="Company" i18n-heading="@@settings.section_company" id="settings-company">
+    <lz-panel icon="business" heading="Company" i18n-heading="@@settings.section_company" id="settings-company">
       <div class="flex flex-col gap-8">
     <section class="flex flex-col gap-4" aria-labelledby="settings-time_regional_heading-title">
       <h3 id="settings-time_regional_heading-title" class="font-display text-[15px] font-semibold" i18n="@@settings.time_regional_heading">Regional</h3>
@@ -109,7 +109,7 @@
       </div>
     </lz-panel>
 
-    <lz-panel heading="Time and pay" i18n-heading="@@settings.section_time_pay" id="settings-time-pay">
+    <lz-panel icon="payments" heading="Time and pay" i18n-heading="@@settings.section_time_pay" id="settings-time-pay">
       <div class="flex flex-col gap-8">
     <section class="flex flex-col gap-4" aria-labelledby="settings-pay_overtime_heading-title">
       <h3 id="settings-pay_overtime_heading-title" class="font-display text-[15px] font-semibold" i18n="@@settings.pay_overtime_heading">Pay and overtime</h3>
@@ -254,7 +254,7 @@
       </div>
     </lz-panel>
 
-    <lz-panel heading="Notifications" i18n-heading="@@settings.section_notifications" id="settings-notifications">
+    <lz-panel icon="notifications" heading="Notifications" i18n-heading="@@settings.section_notifications" id="settings-notifications">
       <div class="flex flex-col gap-8">
     <section class="flex flex-col gap-4" aria-labelledby="settings-notif_channels-title">
       <h3 id="settings-notif_channels-title" class="font-display text-[15px] font-semibold" i18n="@@settings.notif_channels">Channels</h3>
@@ -300,7 +300,7 @@
       </div>
     </lz-panel>
 
-    <lz-panel heading="Integrations" i18n-heading="@@settings.section_integrations" id="settings-integrations">
+    <lz-panel icon="hub" heading="Integrations" i18n-heading="@@settings.section_integrations" id="settings-integrations">
       <div class="flex flex-col gap-8">
     <section class="flex flex-col gap-4" aria-labelledby="settings-kiosk_heading-title">
       <h3 id="settings-kiosk_heading-title" class="font-display text-[15px] font-semibold" i18n="@@settings.kiosk_heading">Kiosk</h3>

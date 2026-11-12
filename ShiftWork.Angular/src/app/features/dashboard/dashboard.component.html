@@ -121,7 +121,7 @@
                     [attr.id]="item.tourId"
                     [attr.aria-label]="collapsed && (isHandset$ | async) === false ? item.label : null"
                     [matTooltip]="collapsed && (isHandset$ | async) === false ? item.label : ''" matTooltipPosition="right"
-                    class="flex min-h-12 items-center gap-3 rounded-control px-3 py-2 text-[14px] no-underline"
+                    class="flex min-h-12 items-center gap-3 rounded-control px-3 py-2 no-underline"
                     [ngClass]="rla.isActive ? 'bg-navy-700 text-paper' : 'text-rail-text hover:bg-navy-800'">
                     <mat-icon class="shrink-0" [ngClass]="rla.isActive ? 'text-amber' : 'text-rail-label'">{{ item.icon }}</mat-icon>
                     @if (!collapsed || (isHandset$ | async)) {
@@ -142,7 +142,7 @@
     <mat-sidenav-content class="bg-canvas">
       <main class="p-6 lg:p-8">
         @if (billingBanner$ | async; as banner) {
-          <div class="mb-4 flex flex-wrap items-center gap-3 rounded-panel border border-line bg-paper p-3 text-ink" role="status">
+          <div class="mb-4 flex flex-wrap items-center gap-3 rounded-panel border border-line bg-paper p-3 text-ink shadow-card" role="status">
             <mat-icon>{{ banner === 'limit' ? 'group_off' : 'schedule' }}</mat-icon>
             @if (banner === 'trial') {
               <span class="flex-1" i18n="@@billing.banner_trial">Your free trial ends soon. Choose a plan to keep Pro features.</span>

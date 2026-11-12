@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-5">
   <div class="sticky top-0 z-10 bg-canvas">
     <lz-page-header title="Daily reports" i18n-title="@@daily_reports.page_title" subtitle="Location-level shift summary, weather, and approvals" i18n-subtitle="@@daily_reports.page_subtitle"></lz-page-header>
   </div>
@@ -74,14 +74,14 @@
       </lz-summary-strip>
     </lz-panel>
 
-    <lz-panel heading="Supervisor notes" i18n-heading="@@daily_reports.supervisor_notes">
+    <lz-panel icon="edit_note" heading="Supervisor notes" i18n-heading="@@daily_reports.supervisor_notes">
       <lz-field label="Notes for this shift" i18n-label="@@daily_reports.notes_label" controlId="report-notes">
         <textarea lzField id="report-notes" rows="6" class="py-2" [(ngModel)]="notes" placeholder="Add shift notes, incidents, or observations..." i18n-placeholder="@@daily_reports.notes_placeholder" [disabled]="report.status === 'Approved'"></textarea>
       </lz-field>
     </lz-panel>
 
     @if (report.media && report.media.length > 0) {
-      <lz-panel heading="Photos and media" i18n-heading="@@daily_reports.photos_media">
+      <lz-panel icon="photo_library" heading="Photos and media" i18n-heading="@@daily_reports.photos_media">
         <span lzPanelActions class="text-ink-soft tabular-nums">{{ report.media.length }}</span>
         <ul class="grid grid-cols-2 gap-3 sm:grid-cols-4">
           @for (m of report.media; track m.mediaId) {

@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-5">
   <lz-page-header title="Analytics" i18n-title="@@analytics.title" subtitle="Hours, attendance and coverage across your job sites." i18n-subtitle="@@analytics.subtitle">
     <ng-container lzHeaderActions>
       <button lzButton variant="primary" type="button" [matMenuTriggerFor]="exportMenu">
@@ -71,7 +71,7 @@
   </div>
 
   <div class="grid gap-4 lg:grid-cols-2">
-    <lz-panel heading="Hours trend" i18n-heading="@@analytics.chart_hours_trend">
+    <lz-panel icon="show_chart" heading="Hours trend" i18n-heading="@@analytics.chart_hours_trend">
       <span lzPanelActions class="text-[13px] text-ink-soft" i18n="@@analytics.click_hint">Click a point to drill down</span>
       <div class="relative h-[300px]" [attr.aria-busy]="loading.hours">
         @if (loading.hours) {
@@ -84,7 +84,7 @@
       </div>
     </lz-panel>
 
-    <lz-panel heading="Hours by location" i18n-heading="@@analytics.chart_hours_location">
+    <lz-panel icon="bar_chart" heading="Hours by location" i18n-heading="@@analytics.chart_hours_location">
       <div class="relative h-[300px]" [attr.aria-busy]="loading.location">
         @if (loading.location) {
           <div class="absolute inset-0 animate-pulse rounded-control bg-neutral-bg motion-reduce:animate-none" aria-hidden="true"></div>
@@ -96,7 +96,7 @@
       </div>
     </lz-panel>
 
-    <lz-panel heading="Attendance" i18n-heading="@@analytics.chart_attendance">
+    <lz-panel icon="how_to_reg" heading="Attendance" i18n-heading="@@analytics.chart_attendance">
       <span lzPanelActions class="text-[13px] text-ink-soft" i18n="@@analytics.click_hint">Click a point to drill down</span>
       <div class="relative h-[300px]" [attr.aria-busy]="loading.attendance">
         @if (loading.attendance) {
@@ -109,7 +109,7 @@
       </div>
     </lz-panel>
 
-    <lz-panel heading="Coverage by location" i18n-heading="@@analytics.chart_coverage">
+    <lz-panel icon="grid_view" heading="Coverage by location" i18n-heading="@@analytics.chart_coverage">
       <div class="relative h-[300px]" [attr.aria-busy]="loading.coverage">
         @if (loading.coverage) {
           <div class="absolute inset-0 animate-pulse rounded-control bg-neutral-bg motion-reduce:animate-none" aria-hidden="true"></div>

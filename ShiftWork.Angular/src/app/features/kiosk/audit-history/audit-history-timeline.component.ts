@@ -31,7 +31,7 @@ import {
               <mat-icon>{{ getActionIcon(item.actionType) }}</mat-icon>
             </span>
 
-            <div class="min-w-0 flex-1 space-y-2 rounded-panel border border-line bg-paper p-4">
+            <div class="min-w-0 flex-1 space-y-2 rounded-panel border border-line bg-paper p-4 shadow-card">
               <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span class="rounded-chip px-2 py-0.5 text-[13px] font-medium" [class]="markerClasses(item.actionType)">
                   {{ actionLabel(item.actionType) }}

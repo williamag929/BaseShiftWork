@@ -1,9 +1,6 @@
 <ng-container *ngIf="active && step">
-
-  <!-- ── Semi-transparent backdrop ── -->
   <div class="tour-backdrop" role="presentation"></div>
 
-  <!-- ── Tooltip card ── -->
   <div
     class="tour-tooltip"
     role="dialog"
@@ -12,58 +9,35 @@
     [style.top.px]="tooltipTop"
     [style.left.px]="tooltipLeft"
   >
-    <!-- Header row: progress counter + close -->
-    <div class="mb-3.5 flex items-center justify-between">
-      <div class="flex items-center gap-1.5">
-        <span
-          *ngFor="let s of tour.steps; let i = index"
-          class="h-[7px] w-[7px] rounded-full transition-colors"
-          [ngClass]="i === stepIndex ? 'bg-[var(--lz-navy-800)]' : 'bg-[var(--lz-line)]'"
-        ></span>
-      </div>
-      <button
-        class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--lz-neutral-bg)] text-[var(--lz-ink-soft)] hover:bg-[var(--lz-line)] hover:text-[var(--lz-ink)]"
-        (click)="endTour()"
-        aria-label="Close tour"
-        title="Close tour"
-      >
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
+    <div class="mb-2 flex items-center justify-between gap-2">
+      <p class="lz-eyebrow text-ink-soft">
+        <ng-container i18n="@@tour.step_counter">Step {{ stepIndex + 1 }} of {{ totalSteps }}</ng-container>
+      </p>
+      <button lzButton variant="quiet" iconOnly type="button" class="-mr-2" (click)="endTour()" aria-label="Close tour" i18n-aria-label="@@tour.close">
+        <mat-icon aria-hidden="true">close</mat-icon>
       </button>
     </div>
 
-    <!-- Content -->
-    <h4 class="m-0 mb-2 text-[15px] font-bold leading-snug text-[var(--lz-ink)]">{{ step.title }}</h4>
-    <p class="m-0 mb-3.5 text-[13.5px] leading-relaxed text-[var(--lz-ink-muted)]">{{ step.content }}</p>
+    <h2 class="font-display text-[18px] font-semibold leading-snug text-ink">{{ step.title }}</h2>
+    <p class="mt-2 text-ink-muted">{{ step.content }}</p>
 
-    <!-- Progress bar -->
-    <div class="mb-3.5 h-[3px] overflow-hidden rounded-full bg-[var(--lz-line-soft)]">
-      <div
-        class="h-full rounded-full bg-[var(--lz-navy-800)] transition-[width]"
-        [style.width.%]="((stepIndex + 1) / totalSteps) * 100"
-      ></div>
+    <div class="mt-4 flex items-center gap-1.5" aria-hidden="true">
+      <span
+        *ngFor="let s of tour.steps; let i = index"
+        class="h-1.5 flex-1 rounded-chip transition-colors"
+        [ngClass]="i <= stepIndex ? 'bg-navy-800' : 'bg-line'"
+      ></span>
     </div>
 
-    <!-- Action row -->
-    <div class="flex items-center justify-between gap-2">
-      <button class="bg-transparent py-1 text-xs text-[var(--lz-ink-soft)] hover:text-[var(--lz-ink)]" (click)="endTour()">Skip</button>
+    <div class="mt-4 flex items-center justify-between gap-2">
+      <button lzButton variant="quiet" type="button" class="-ml-2" (click)="endTour()" i18n="@@tour.skip">Skip</button>
       <div class="flex gap-2">
-        <button
-          *ngIf="stepIndex > 0"
-          class="rounded-[var(--lz-radius-control)] bg-[var(--lz-neutral-bg)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--lz-ink)] hover:bg-[var(--lz-line)]"
-          (click)="prev()"
-        >
-          ← Back
-        </button>
-        <button class="rounded-[var(--lz-radius-control)] bg-[var(--lz-navy-800)] px-4 py-1.5 text-[13px] font-semibold text-[var(--lz-paper)] hover:bg-[var(--lz-navy-700)]" (click)="next()">
-          {{ stepIndex === totalSteps - 1 ? 'Finish 🎉' : 'Next →' }}
+        <button *ngIf="stepIndex > 0" lzButton variant="secondary" type="button" (click)="prev()" i18n="@@tour.back">Back</button>
+        <button lzButton variant="primary" type="button" (click)="next()">
+          <ng-container *ngIf="stepIndex === totalSteps - 1; else nextLabel" i18n="@@tour.finish">Finish</ng-container>
+          <ng-template #nextLabel><ng-container i18n="@@tour.next">Next</ng-container></ng-template>
         </button>
       </div>
     </div>
-
-    <!-- Step counter label -->
-    <div class="mt-2.5 text-right text-[11px] text-[var(--lz-ink-soft)]">{{ stepIndex + 1 }} of {{ totalSteps }}</div>
   </div>
-
 </ng-container>

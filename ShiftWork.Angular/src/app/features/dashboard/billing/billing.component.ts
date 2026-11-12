@@ -8,7 +8,7 @@ import { Subscription, filter, interval, switchMap, take, takeWhile } from 'rxjs
 import { AppState } from 'src/app/store/app.state';
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import { BillingService } from 'src/app/core/services/billing.service';
-import { LzAlertComponent, LzButtonDirective, LzPageHeaderComponent, LzPanelComponent, LzStatusChipComponent, LzTone } from 'src/app/shared/ui';
+import { LzAlertComponent, LzButtonDirective, LzIconTileComponent, LzPageHeaderComponent, LzPanelComponent, LzStatusChipComponent, LzTone } from 'src/app/shared/ui';
 import { BillingSummary, PaidTier } from 'src/app/core/models/billing.model';
 
 interface TierCard { tier: PaidTier; cap: string; }
@@ -16,7 +16,7 @@ interface TierCard { tier: PaidTier; cap: string; }
 @Component({
   selector: 'app-billing',
   standalone: true,
-  imports: [CommonModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzPageHeaderComponent, LzPanelComponent, LzStatusChipComponent],
+  imports: [CommonModule, MatIconModule, LzAlertComponent, LzButtonDirective, LzIconTileComponent, LzPageHeaderComponent, LzPanelComponent, LzStatusChipComponent],
   templateUrl: './billing.component.html'
 })
 export class BillingComponent implements OnInit, OnDestroy {

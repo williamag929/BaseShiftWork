@@ -13,7 +13,7 @@
       @for (task of tasks; track task.id) {
         <li>
           <button type="button" (click)="viewTask(task)"
-                  class="flex min-h-14 w-full flex-col items-start gap-1 rounded-panel border border-line bg-paper p-4 text-left font-[inherit] text-ink">
+                  class="flex min-h-14 w-full flex-col items-start gap-1 rounded-panel border border-line bg-paper p-4 text-left shadow-card font-[inherit] text-ink">
             <span class="text-lg font-medium">{{ task.name }}</span>
             @if (task.description) {
               <span class="text-lg text-ink-soft">{{ task.description }}</span>

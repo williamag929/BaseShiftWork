@@ -1,4 +1,4 @@
-<div class="mx-auto flex max-w-[960px] flex-col gap-4">
+<div class="mx-auto flex max-w-[960px] flex-col gap-5">
   <lz-page-header title="Plan and billing" i18n-title="@@billing.title" />
 
   @if (loadError) {
@@ -8,8 +8,8 @@
   } @else {
     <lz-panel heading="Current plan" i18n-heading="@@billing.current_plan">
       <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-3">
-          <mat-icon aria-hidden="true">workspace_premium</mat-icon>
+        <div class="flex items-center gap-4">
+          <lz-icon-tile icon="workspace_premium" size="lg" />
           <div class="flex flex-col gap-1">
             <div class="flex flex-wrap items-center gap-2">
               <span class="font-display text-[26px] font-semibold" data-test="plan-tier">{{ summary.tier }}</span>

@@ -1,7 +1,7 @@
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-5">
   <lz-page-header title="Timesheets" i18n-title="@@shift_summaries.page_title" subtitle="Filter and view summarized shift activity by person, location, and date" i18n-subtitle="@@shift_summaries.page_subtitle" />
 
-  <lz-panel heading="Filter shifts" i18n-heading="@@shift_summaries.filter_title">
+  <lz-panel icon="filter_list" heading="Filter shifts" i18n-heading="@@shift_summaries.filter_title">
     <form [formGroup]="filterForm" (ngSubmit)="getShifts()" class="grid items-end gap-4 sm:grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
       <lz-field label="Start date" i18n-label="@@shift_summaries.start_date" controlId="startDate">
         <input lzField type="date" id="startDate" formControlName="startDate">
@@ -73,13 +73,13 @@
       @if (viewMode === 'cards') {
         <div data-testid="shift-cards" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           @for (shift of paginate(shifts, page, pageSize); track shift) {
-            <article class="flex flex-col gap-3 rounded-panel border border-line bg-paper p-4">
+            <article class="flex flex-col gap-3 rounded-panel border border-line bg-paper p-4 shadow-card">
               <div class="flex items-start gap-2">
                 <label class="-ml-2 -mt-2 flex size-12 shrink-0 cursor-pointer items-center justify-center">
                   <input type="checkbox" class="size-5" [attr.aria-label]="selectLabel(shift)" [checked]="isSelected(shift)" (change)="toggleSelection(shift, $any($event.target).checked)">
                 </label>
                 <div class="min-w-0 flex-1">
-                  <h3 class="font-display text-base font-semibold">{{ shift.personName || 'Unknown' }}</h3>
+                  <h3 class="font-display text-[15px] font-semibold">{{ shift.personName || 'Unknown' }}</h3>
                   <p class="text-ink-soft">{{ shift.day | date:'fullDate' }}</p>
                 </div>
                 <span class="whitespace-nowrap tabular-nums text-ink-soft">{{ shift.minStartTime | date:'shortTime' }} – {{ shift.maxEndTime | date:'shortTime' }}</span>
