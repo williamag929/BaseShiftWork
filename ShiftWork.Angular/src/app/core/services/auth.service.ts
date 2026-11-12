@@ -122,12 +122,13 @@ export class AuthService {
     // Save to localStorage first — this is what isLoggedIn checks
     localStorage.setItem('user', JSON.stringify(userData));
 
-    // Firestore write is best-effort; don't block login if it fails
+    // Firestore keeps a rejected or unacknowledged write pending instead of failing,
+    // so awaiting it would freeze the sign-in button; log its outcome without blocking.
     try {
       const userRef: AngularFirestoreDocument<any> = runInInjectionContext(this.injector, () =>
         this.afs.doc(`users/${u.uid}`)
       );
-      await userRef.set(userData, { merge: true });
+      userRef.set(userData, { merge: true }).catch(error => this.log.warn('auth.set-user-data', error));
     } catch (error) {
       this.log.warn('auth.set-user-data', error);
     }
