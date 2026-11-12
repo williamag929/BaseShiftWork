@@ -9,10 +9,10 @@ import { ChangeDetectionStrategy, Component, Input, booleanAttribute } from '@an
     <label class="mb-1 block font-medium text-ink" [attr.for]="controlId">{{ label }}@if (required) {<span aria-hidden="true"> *</span>}</label>
     <ng-content />
     @if (hint) {
-      <p class="mt-1 text-[13px] text-ink-soft" [attr.id]="controlId ? controlId + '-hint' : null">{{ hint }}</p>
+      <p class="m-0 mt-1 text-[13px] text-ink-soft" [attr.id]="controlId ? controlId + '-hint' : null">{{ hint }}</p>
     }
     @if (error) {
-      <p role="alert" class="mt-1 text-[13px] text-danger-ink" [attr.id]="controlId ? controlId + '-error' : null">{{ error }}</p>
+      <p role="alert" class="m-0 mt-1 text-[13px] text-danger-ink" [attr.id]="controlId ? controlId + '-error' : null">{{ error }}</p>
     }
   `,
 })

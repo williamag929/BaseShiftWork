@@ -39,6 +39,8 @@ import {
   LzEmptyStateComponent,
   LzFieldComponent,
   LzFieldDirective,
+  LzIconTileComponent,
+  LzKpiCardComponent,
   LzPageHeaderComponent,
   LzPagerComponent,
   LzPanelComponent,
@@ -112,7 +114,9 @@ import {
     LzPageHeaderComponent,
     LzShiftBlockComponent,
     LzStatusChipComponent,
-    LzSummaryStripComponent
+    LzSummaryStripComponent,
+    LzIconTileComponent,
+    LzKpiCardComponent,
   ],
   exports: [
     CommonModule,
@@ -166,6 +170,8 @@ MatSidenavModule,
     LzShiftBlockComponent,
     LzStatusChipComponent,
     LzSummaryStripComponent,
+    LzIconTileComponent,
+    LzKpiCardComponent,
   ]
 })
 export class SharedModule { }

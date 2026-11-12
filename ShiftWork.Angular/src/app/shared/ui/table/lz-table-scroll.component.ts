@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   selector: 'lz-table-scroll',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'block overflow-x-auto rounded-panel border border-line bg-paper' },
+  host: { class: 'block overflow-x-auto rounded-panel border border-line bg-paper shadow-card' },
   template: `<ng-content />`,
 })
 export class LzTableScrollComponent {}

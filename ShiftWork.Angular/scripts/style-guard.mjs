@@ -18,6 +18,7 @@ const BOOTSTRAP = [
   /^justify-content-[a-z]+$/,
   /^align-items-[a-z]+$/,
 ];
+const OFF_SCALE_TEXT = /(?:^|:)text-\[(?!(?:12|13|15|18|26)px\])[\d.]+(?:px|rem|em)\]!?$/;
 const LEGACY_ICON = /^(bi|bi-[a-z0-9-]+|fa|fas|far|fab|fa-[a-z0-9-]+)$/;
 
 export function findViolations(filePath, content) {
@@ -44,6 +45,7 @@ export function findViolations(filePath, content) {
         if (tokens.some((t) => BOOTSTRAP.some((re) => re.test(t)))) add(line, 'bootstrap-class', text);
         if (tokens.some((t) => LEGACY_ICON.test(t))) add(line, 'legacy-icon', text);
         if (tokens.some((t) => t.includes('[') && COLOR.test(t))) add(line, 'raw-color', text);
+        if (tokens.some((t) => OFF_SCALE_TEXT.test(t))) add(line, 'off-scale-text', text);
       }
       for (const m of text.matchAll(/\bstyle\s*=\s*(["'])(.*?)\1/g)) {
         if (COLOR.test(m[2])) add(line, 'raw-color', text);

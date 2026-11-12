@@ -6,12 +6,18 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'flex flex-col items-center gap-2 px-4 py-10 text-center', '[attr.title]': 'null' },
+  host: {
+    class:
+      'flex flex-col items-center gap-2 rounded-panel border border-line bg-paper px-4 py-10 text-center shadow-card in-[lz-panel]:border-0 in-[lz-panel]:shadow-none in-[lz-side-panel]:border-0 in-[lz-side-panel]:shadow-none in-[lz-dialog-frame]:border-0 in-[lz-dialog-frame]:shadow-none in-[lz-table-scroll]:border-0 in-[lz-table-scroll]:shadow-none',
+    '[attr.title]': 'null',
+  },
   template: `
-    <mat-icon aria-hidden="true" class="size-10! text-4xl text-ink-muted">{{ icon }}</mat-icon>
-    <h3 class="font-display text-base font-semibold">{{ title }}</h3>
+    <span aria-hidden="true" class="mb-1 inline-grid size-14 place-items-center rounded-full bg-neutral-bg text-ink-muted">
+      <mat-icon class="size-[26px]! text-[26px]!">{{ icon }}</mat-icon>
+    </span>
+    <h3 class="m-0 font-display text-[15px] font-semibold">{{ title }}</h3>
     @if (body) {
-      <p class="max-w-md text-ink-soft">{{ body }}</p>
+      <p class="m-0 max-w-md text-ink-soft">{{ body }}</p>
     }
     <div class="mt-2 empty:hidden"><ng-content select="[lzEmptyAction]" /></div>
   `,

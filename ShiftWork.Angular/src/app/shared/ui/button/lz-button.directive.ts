@@ -1,6 +1,6 @@
 import { Directive, ElementRef, Input, booleanAttribute, inject } from '@angular/core';
 
-export type LzButtonVariant = 'primary' | 'secondary' | 'quiet' | 'danger';
+export type LzButtonVariant = 'primary' | 'secondary' | 'quiet' | 'danger' | 'inverse';
 
 @Directive({
   selector: 'button[lzButton], a[lzButton]',
@@ -11,13 +11,16 @@ export type LzButtonVariant = 'primary' | 'secondary' | 'quiet' | 'danger';
     '[class.rounded-control]': 'true',
     '[class.font-medium]': 'true',
     '[class.inline-flex]': 'true',
+    '[class.no-underline]': 'true',
     '[class.items-center]': 'true',
     '[class.justify-center]': 'true',
     '[class.px-4]': '!iconOnly',
     '[class.px-0]': 'iconOnly',
     '[class.w-12]': 'iconOnly',
     '[class.bg-ink]': '!isDisabled && variant === "primary"',
-    '[class.text-paper]': '!isDisabled && (variant === "primary" || variant === "danger")',
+    '[class.text-paper]': '!isDisabled && (variant === "primary" || variant === "danger" || variant === "inverse")',
+    '[class.border-hero-line]': '!isDisabled && variant === "inverse"',
+    '[class.bg-hero-raised]': '!isDisabled && variant === "inverse"',
     '[class.bg-paper]': '!isDisabled && variant === "secondary"',
     '[class.text-ink]': '!isDisabled && variant === "secondary"',
     '[class.border]': 'true',

@@ -36,3 +36,17 @@ describe('Bootstrap legacy layer vs Tailwind utilities', () => {
     expect(getComputedStyle(el('.p-4')).borderTopColor).toBe('rgb(221, 227, 236)');
   });
 });
+
+describe('Base layer resets Bootstrap reboot margins', () => {
+  it('headings and paragraphs carry no margin unless a utility asks for it', () => {
+    const host = document.createElement('div');
+    host.innerHTML = '<h1>T</h1><h3>S</h3><p>Body</p><p class="mb-4">Spaced</p><a class="inline-flex" href="#">x</a>';
+    document.body.appendChild(host);
+    const [h1, h3, p, spaced] = Array.from(host.children) as HTMLElement[];
+    expect(getComputedStyle(h1).marginBottom).toBe('0px');
+    expect(getComputedStyle(h3).marginBottom).toBe('0px');
+    expect(getComputedStyle(p).marginBottom).toBe('0px');
+    expect(getComputedStyle(spaced).marginBottom).toBe('16px');
+    host.remove();
+  });
+});

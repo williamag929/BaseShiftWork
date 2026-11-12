@@ -219,7 +219,7 @@ describe('ActiveSitesComponent (Loqzen design system)', () => {
     const refresh = el().querySelector('[variant="primary"]') as HTMLElement;
     expect(refresh.getBoundingClientRect().height).toBeGreaterThanOrEqual(48);
     expect(getComputedStyle(el().querySelector('h1')!).fontSize).toBe('26px');
-    expect(getComputedStyle(el().querySelector('tbody lz-status-chip span')!).fontSize).toBe('13px');
+    expect(getComputedStyle(el().querySelector('tbody lz-status-chip span')!).fontSize).toBe('12px');
   });
 
   for (const width of [360, 768]) {

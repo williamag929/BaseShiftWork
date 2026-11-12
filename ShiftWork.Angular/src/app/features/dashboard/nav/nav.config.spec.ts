@@ -1,4 +1,4 @@
-import { NAV_SECTIONS, NavSection, procoreSyncLabel, visibleSections } from './nav.config';
+import { NAV_SECTIONS, NavSection, pageContextFor, procoreSyncLabel, visibleSections } from './nav.config';
 import { DASHBOARD_ROUTES } from '../dashboard.module';
 import { ProcoreConnection } from 'src/app/core/models/procore-connection.model';
 
@@ -72,5 +72,20 @@ describe('nav.config', () => {
       expect(procoreSyncLabel(conn({ lastSyncAt: at }), now)?.text).toBe('Synced with Procore 3 h ago');
       expect(procoreSyncLabel(conn(), now)).toEqual({ tone: 'success', text: 'Procore connected' });
     });
+  });
+});
+
+describe('pageContextFor', () => {
+  it('maps rail routes to their section label and item icon', () => {
+    expect(pageContextFor('/dashboard/crews')).toEqual({ eyebrow: 'Workforce', icon: 'group_work' });
+    expect(pageContextFor('/dashboard/procore?tab=1')).toEqual({ eyebrow: 'Integrations', icon: 'cloud_upload' });
+    expect(pageContextFor('/dashboard')).toEqual({ eyebrow: 'Scheduling', icon: 'space_dashboard' });
+  });
+
+  it('is segment-aware and covers account pages', () => {
+    expect(pageContextFor('/dashboard/schedule')!.icon).toBe('calendar_month');
+    expect(pageContextFor('/dashboard/schedule-grid')!.icon).toBe('calendar_view_week');
+    expect(pageContextFor('/dashboard/billing')).toEqual({ eyebrow: 'Account', icon: 'credit_card' });
+    expect(pageContextFor('/admin/company-users')).toBeNull();
   });
 });

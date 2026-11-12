@@ -77,6 +77,33 @@ export const NAV_SECTIONS: NavSection[] = [
   },
 ];
 
+const ACCOUNT_LABEL = $localize`:@@nav.section.account:Account`;
+
+/** Routed pages outside the rail; they still get a header eyebrow and icon. */
+const EXTRA_PAGES: { route: string; eyebrow: string; icon: string }[] = [
+  { route: '/dashboard/overview', eyebrow: NAV_SECTIONS[0].label, icon: 'space_dashboard' },
+  { route: '/dashboard/schedule', eyebrow: NAV_SECTIONS[0].label, icon: 'calendar_month' },
+  { route: '/dashboard/clock-shift', eyebrow: NAV_SECTIONS[0].label, icon: 'punch_clock' },
+  { route: '/dashboard/profiles', eyebrow: ACCOUNT_LABEL, icon: 'account_circle' },
+  { route: '/dashboard/company-settings', eyebrow: ACCOUNT_LABEL, icon: 'settings' },
+  { route: '/dashboard/billing', eyebrow: ACCOUNT_LABEL, icon: 'credit_card' },
+];
+
+/** Section label and icon for the page header of the routed URL; segment-aware so /schedule never matches /schedule-grid. */
+export function pageContextFor(url: string): { eyebrow: string; icon: string } | null {
+  const path = url.split(/[?#;]/)[0].replace(/\/+$/, '') || '/';
+  const matches = (route: string, exact?: boolean) => path === route || (!exact && path.startsWith(route + '/'));
+  for (const section of NAV_SECTIONS) {
+    for (const item of section.items) {
+      if (matches(item.route, item.exact)) {
+        return { eyebrow: section.label, icon: item.icon };
+      }
+    }
+  }
+  const extra = EXTRA_PAGES.find(p => matches(p.route));
+  return extra ? { eyebrow: extra.eyebrow, icon: extra.icon } : null;
+}
+
 export function visibleSections(sections: NavSection[], can: (key: string) => boolean): NavSection[] {
   return sections
     .map(s => ({ ...s, items: s.items.filter(i => !i.permission || can(i.permission)) }))

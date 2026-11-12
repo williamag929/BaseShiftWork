@@ -36,10 +36,19 @@
   --lz-font-ui: 'IBM Plex Sans', system-ui, sans-serif;
   --lz-font-display: 'Sora', 'IBM Plex Sans', sans-serif;
 
-  --lz-radius-chip: 4px;
-  --lz-radius-control: 6px;
-  --lz-radius-panel: 8px;
+  --lz-radius-chip: 999px;
+  --lz-radius-control: 8px;
+  --lz-radius-panel: 12px;
   --lz-radius-dialog: 12px;
 
+  --lz-shadow-card: 0 1px 2px rgba(15, 27, 45, 0.04), 0 6px 16px rgba(15, 27, 45, 0.05);
   --lz-shadow-overlay: 0 8px 24px rgba(15, 27, 45, 0.16), 0 1px 3px rgba(15, 27, 45, 0.10);
+
+  /* Overview command band: the one surface that keeps the reference dashboard's depth (navy base, soft blue glow). */
+  --lz-hero-bg:
+    radial-gradient(circle at 8% 15%, rgba(47, 107, 216, 0.28), transparent 45%),
+    radial-gradient(circle at 92% 110%, rgba(47, 107, 216, 0.14), transparent 40%),
+    linear-gradient(145deg, #0F1B2D, #16263D 55%, #0F1B2D);
+  --lz-hero-line: rgba(201, 211, 224, 0.32);
+  --lz-hero-raised: rgba(255, 255, 255, 0.08);
 }

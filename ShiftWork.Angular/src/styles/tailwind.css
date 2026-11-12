@@ -76,6 +76,22 @@
   --radius-panel: var(--lz-radius-panel);
   --radius-dialog: var(--lz-radius-dialog);
   --shadow-overlay: var(--lz-shadow-overlay);
+  --shadow-card: var(--lz-shadow-card);
+  --color-hero-line: var(--lz-hero-line);
+  --color-hero-raised: var(--lz-hero-raised);
+}
+
+@utility bg-hero {
+  background: var(--lz-hero-bg);
+}
+
+/* Section label above a heading (the reference dashboard's "eyebrow"); source text stays sentence case for i18n. */
+@utility lz-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+  text-transform: uppercase;
 }
 
 @utility bg-draft-hatch {
@@ -85,6 +101,8 @@
 @layer base {
   body { font-family: var(--lz-font-ui); color: var(--lz-ink); background: var(--lz-canvas); font-size: 14px; line-height: 1.45; }
   :focus-visible { outline: 2px solid var(--lz-link); outline-offset: 2px; }
+  /* Bootstrap reboot (legacy layer) adds bottom margins that migrated templates never asked for; spacing comes from utilities, as with preflight in Plan F. */
+  h1, h2, h3, h4, h5, h6, p { margin: 0; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 }
 @source "../app/features/dashboard/overview";

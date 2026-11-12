@@ -33,14 +33,32 @@ describe('LzEmptyStateComponent', () => {
     expect(f.nativeElement.querySelector('p')).toBeNull();
   });
 
-  it('renders the icon at 40px', () => {
+  it('renders the icon at 26px on a 56px round tile', () => {
     const f = TestBed.createComponent(HostComponent);
     document.body.appendChild(f.nativeElement);
     f.detectChanges();
-    const cs = getComputedStyle(f.nativeElement.querySelector('mat-icon'));
-    expect(cs.width).toBe('40px');
-    expect(cs.height).toBe('40px');
-    expect(cs.fontSize).toBe('36px');
+    const icon = f.nativeElement.querySelector('mat-icon') as HTMLElement;
+    const cs = getComputedStyle(icon);
+    expect(cs.width).toBe('26px');
+    expect(cs.fontSize).toBe('26px');
+    const tile = getComputedStyle(icon.parentElement!);
+    expect(tile.width).toBe('56px');
+    expect(tile.borderTopLeftRadius).not.toBe('0px');
+    f.nativeElement.remove();
+  });
+
+  it('is a card on the canvas but flat inside lz-panel', () => {
+    const f = TestBed.createComponent(HostComponent);
+    document.body.appendChild(f.nativeElement);
+    f.detectChanges();
+    const empty = f.nativeElement.querySelector('lz-empty-state') as HTMLElement;
+    expect(getComputedStyle(empty).boxShadow).not.toBe('none');
+    const panel = document.createElement('lz-panel');
+    document.body.appendChild(panel);
+    panel.appendChild(empty);
+    expect(getComputedStyle(empty).boxShadow.replace(/rgba\(0, 0, 0, 0\)/g, '')).not.toMatch(/rgb/);
+    expect(getComputedStyle(empty).borderTopWidth).toBe('0px');
+    panel.remove();
     f.nativeElement.remove();
   });
 });

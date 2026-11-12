@@ -112,3 +112,10 @@ test('exempt entries need a reason', () => {
     console.log = orig;
   }
 });
+
+test('flags arbitrary text sizes off the 12/13/15/18/26 scale', () => {
+  assert.deepEqual(rules('a.html', '<p class="text-[13.5px]">x</p>'), ['off-scale-text']);
+  assert.deepEqual(rules('a.html', '<p class="sm:text-[11px]">x</p>'), ['off-scale-text']);
+  assert.deepEqual(rules('a.html', '<p class="text-[13px] md:text-[26px] text-lg">x</p>'), []);
+  assert.deepEqual(rules('a.html', '<p class="text-[var(--lz-ink)]">x</p>'), []);
+});

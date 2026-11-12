@@ -8,7 +8,7 @@ export type LzTone = 'success' | 'neutral' | 'warning' | 'danger' | 'info';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span
-      class="inline-flex items-center gap-1.5 rounded-chip px-2 py-0.5 text-[13px] font-medium"
+      class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-chip px-2.5 py-0.5 text-[12px] font-semibold"
       [class.bg-success-bg]="tone === 'success'"
       [class.text-success-ink]="tone === 'success'"
       [class.bg-neutral-bg]="tone === 'neutral'"

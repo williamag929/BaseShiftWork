@@ -16,9 +16,9 @@ let nextId = 0;
   template: `
     <div class="flex items-start justify-between gap-4 border-b border-line-soft px-6 py-4">
       <div class="min-w-0">
-        <h2 [id]="titleId" class="font-display text-lg font-semibold leading-tight">{{ title }}</h2>
+        <h2 [id]="titleId" class="m-0 font-display text-[18px] font-semibold leading-tight">{{ title }}</h2>
         @if (subtitle) {
-          <p class="text-ink-soft">{{ subtitle }}</p>
+          <p class="m-0 mt-0.5 text-ink-soft">{{ subtitle }}</p>
         }
       </div>
       @if (closable) {

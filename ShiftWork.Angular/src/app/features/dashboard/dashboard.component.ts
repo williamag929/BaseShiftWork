@@ -1,4 +1,5 @@
-import { Component, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, OnDestroy, AfterViewInit, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable, Subscription, combineLatest, of, BehaviorSubject, interval } from 'rxjs';
 import { map, shareReplay, withLatestFrom, filter, switchMap, startWith, catchError, distinctUntilChanged } from 'rxjs/operators';
@@ -16,15 +17,28 @@ import { TourService } from 'src/app/shared/tour/tour.service';
 import { BillingService } from 'src/app/core/services/billing.service';
 import { BillingBanner, billingBannerFor } from 'src/app/core/models/billing.model';
 import { ProcoreService } from 'src/app/core/services/procore.service';
-import { NAV_SECTIONS, NavSection, procoreSyncLabel, visibleSections } from './nav/nav.config';
+import { NAV_SECTIONS, NavSection, pageContextFor, procoreSyncLabel, visibleSections } from './nav/nav.config';
+import { LZ_PAGE_CONTEXT } from 'src/app/shared/ui';
 
 const NAV_COLLAPSED_KEY = 'lz.nav.collapsed';
+
+function routedPageContext() {
+  const router = inject(Router);
+  return toSignal(
+    router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map(e => pageContextFor(e.urlAfterRedirects)),
+    ),
+    { initialValue: pageContextFor(router.url) },
+  );
+}
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
-  standalone: false
+  standalone: false,
+  providers: [{ provide: LZ_PAGE_CONTEXT, useFactory: routedPageContext }],
 })
 export class DashboardComponent implements OnDestroy, AfterViewInit {
   @ViewChild('sidenav') sidenav!: MatSidenav;

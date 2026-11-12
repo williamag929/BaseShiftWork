@@ -36,11 +36,11 @@ let nextId = 0;
         [attr.aria-labelledby]="headingId"
         class="fixed inset-y-0 right-0 z-40 flex w-full flex-col bg-paper text-ink shadow-overlay transition-transform duration-200 starting:translate-x-full motion-reduce:transition-none lg:w-[30rem]"
       >
-        <header class="flex items-start justify-between gap-2 border-b border-line-soft px-4 py-3">
+        <header class="flex items-start justify-between gap-2 border-b border-line-soft px-5 py-4">
           <div class="min-w-0">
-            <h2 [id]="headingId" class="font-display text-lg font-semibold leading-tight">{{ heading }}</h2>
+            <h2 [id]="headingId" class="m-0 font-display text-[18px] font-semibold leading-tight">{{ heading }}</h2>
             @if (subtitle) {
-              <p class="text-ink-soft">{{ subtitle }}</p>
+              <p class="m-0 mt-0.5 text-ink-soft">{{ subtitle }}</p>
             }
           </div>
           <div class="flex shrink-0 items-center gap-1">

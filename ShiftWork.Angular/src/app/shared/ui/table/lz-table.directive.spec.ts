@@ -36,8 +36,11 @@ describe('LzTableDirective / LzTableScrollComponent', () => {
     expect(table.classList.contains('w-full')).toBeTrue();
     expect(table.classList.contains('border-collapse')).toBeTrue();
     expect(getComputedStyle(root.querySelector('td')!).paddingLeft).toBe('16px');
-    expect(getComputedStyle(root.querySelector('td')!).paddingTop).toBe('8px');
+    expect(getComputedStyle(root.querySelector('td')!).paddingTop).toBe('12px');
+    expect(getComputedStyle(root.querySelector('th')!).textTransform).toBe('uppercase');
+    expect(getComputedStyle(root.querySelector('th')!).fontSize).toBe('12px');
+    expect(getComputedStyle(root.querySelector('lz-table-scroll')!).boxShadow).not.toBe('none');
     expect(getComputedStyle(root.querySelector('thead')!).backgroundColor).toBe('rgb(248, 250, 252)');
-    expect(getComputedStyle(root.querySelector('tbody tr')!).borderBottomColor).toBe('rgb(232, 237, 243)');
+    expect(getComputedStyle(root.querySelector('thead tr')!).borderBottomColor).toBe('rgb(221, 227, 236)');
   });
 });
