@@ -69,8 +69,6 @@ public class EndpointExposureTests
     [InlineData(typeof(PeopleController), "CreateEmployeeWithUser", "people.create")]
     [InlineData(typeof(PeopleController), "LinkUserToPerson", "people.create")]
     [InlineData(typeof(PeopleController), "RegisterUser", "people.create")]
-    [InlineData(typeof(SchedulesController), "GenerateSchedule", "schedules.create")]
-    [InlineData(typeof(SchedulesController), "UpdateScheduleAssignments", "schedules.update")]
     [InlineData(typeof(ScheduleShiftsController), "GetReplacementCandidatesByWindow", "schedule-shifts.read")]
     public void FormerlyOpenEndpoints_RequireTheirPermission(Type controller, string action, string policy)
     {

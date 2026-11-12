@@ -400,7 +400,6 @@ namespace ShiftWork.Api.Controllers
         }
 
 /*
-        [Authorize(Policy = "schedules.create")]
         [HttpPost("generate")]
         public async Task<ActionResult<ScheduleDto>> GenerateSchedule(string companyId, [FromBody] ScheduleDto parameters)
         {
@@ -414,7 +413,6 @@ namespace ShiftWork.Api.Controllers
             }
         }
 
-        [Authorize(Policy = "schedules.update")]
         [HttpPut("{scheduleId}/assignments")]
         public async Task<IActionResult> UpdateScheduleAssignments(string companyId, int scheduleId, [FromBody] ScheduleAssignmentChanges assignments) {
             try {
