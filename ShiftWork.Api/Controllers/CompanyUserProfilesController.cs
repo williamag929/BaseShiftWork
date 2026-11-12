@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,6 +45,7 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Get all profiles (role assignments) for a specific user in a company.
         /// </summary>
+        [Authorize(Policy = "roles.read")]
         [HttpGet("user/{companyUserId}")]
         [ProducesResponseType(typeof(IEnumerable<CompanyUserProfileDto>), 200)]
         [ProducesResponseType(404)]
@@ -65,6 +67,7 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Get all users assigned to a specific role.
         /// </summary>
+        [Authorize(Policy = "roles.read")]
         [HttpGet("role/{roleId}")]
         [ProducesResponseType(typeof(IEnumerable<CompanyUserProfileDto>), 200)]
         [ProducesResponseType(500)]
@@ -85,6 +88,7 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Get all roles assigned to a specific person.
         /// </summary>
+        [Authorize(Policy = "roles.read")]
         [HttpGet("person/{personId}")]
         [ProducesResponseType(typeof(IEnumerable<CompanyUserProfileDto>), 200)]
         [ProducesResponseType(500)]
@@ -105,6 +109,7 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Assign a role to a user.
         /// </summary>
+        [Authorize(Policy = "roles.update")]
         [HttpPost("assign")]
         [ProducesResponseType(typeof(CompanyUserProfileDto), 201)]
         [ProducesResponseType(400)]
@@ -139,6 +144,7 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Assign a role to a person (convenience endpoint).
         /// </summary>
+        [Authorize(Policy = "roles.update")]
         [HttpPost("assign-to-person")]
         [ProducesResponseType(typeof(CompanyUserProfileDto), 201)]
         [ProducesResponseType(400)]
@@ -202,6 +208,7 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Get a specific profile by ID.
         /// </summary>
+        [Authorize(Policy = "roles.read")]
         [HttpGet("{profileId}")]
         [ProducesResponseType(typeof(CompanyUserProfileDto), 200)]
         [ProducesResponseType(404)]
@@ -228,6 +235,7 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Remove a role assignment (deactivate profile).
         /// </summary>
+        [Authorize(Policy = "roles.update")]
         [HttpDelete("{profileId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -257,6 +265,7 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Remove all role assignments for a user.
         /// </summary>
+        [Authorize(Policy = "roles.update")]
         [HttpDelete("user/{companyUserId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(500)]

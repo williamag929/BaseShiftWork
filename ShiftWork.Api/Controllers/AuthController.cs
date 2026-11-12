@@ -95,6 +95,7 @@ namespace ShiftWork.Api.Controllers
         /// </summary>
         /// <param name="id">The email address of the user.</param>
         /// <returns>The person associated with the email.</returns>
+        [Authorize]
         [HttpGet("user/{id}")]
         [ProducesResponseType(typeof(Person), 200)]
         [ProducesResponseType(404)]
@@ -153,6 +154,7 @@ namespace ShiftWork.Api.Controllers
             return Ok(new { verified = result == PinCheckResult.Verified });
         }
 
+        [Authorize]
         [HttpGet("user")]
         public async Task<ActionResult<Person>> GetCurrentUser()
         {

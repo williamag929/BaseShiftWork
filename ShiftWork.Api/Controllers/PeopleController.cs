@@ -310,6 +310,7 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Partially updates a person (e.g., just photoUrl).
         /// </summary>
+        [Authorize(Policy = "people.update")]
         [HttpPatch("{personId}")]
         [ProducesResponseType(typeof(PersonDto), 200)]
         [ProducesResponseType(404)]
@@ -573,6 +574,7 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Sends app invite to an existing employee. Creates pending CompanyUser.
         /// </summary>
+        [Authorize(Policy = "people.update")]
         [HttpPost("{personId}/send-invite")]
         [ProducesResponseType(typeof(SendInviteResponse), 200)]
         [ProducesResponseType(400)]
@@ -750,6 +752,7 @@ namespace ShiftWork.Api.Controllers
         /// Updates CompanyUser with real Firebase UID.
         /// Requires Firebase JWT token in Authorization header.
         /// </summary>
+        [Authorize]
         [HttpPost("complete-invite")]
         [ProducesResponseType(typeof(EmployeeUserResponse), 200)]
         [ProducesResponseType(400)]
@@ -861,6 +864,7 @@ namespace ShiftWork.Api.Controllers
         /// <summary>
         /// Gets invite/app access status for an employee
         /// </summary>
+        [Authorize(Policy = "people.read")]
         [HttpGet("{personId}/invite-status")]
         [ProducesResponseType(typeof(InviteStatusResponse), 200)]
         [ProducesResponseType(404)]
@@ -924,6 +928,7 @@ namespace ShiftWork.Api.Controllers
         /// Registers a new user with employee profile. Creates Person, CompanyUser, and CompanyUserProfiles.
         /// Requires Firebase JWT token in Authorization header.
         /// </summary>
+        [Authorize(Policy = "people.create")]
         [HttpPost("register-user")]
         [ProducesResponseType(typeof(EmployeeUserResponse), 201)]
         [ProducesResponseType(400)]
@@ -1033,6 +1038,7 @@ namespace ShiftWork.Api.Controllers
         /// Links an existing Person to a Firebase user account.
         /// Requires Firebase JWT token in Authorization header.
         /// </summary>
+        [Authorize(Policy = "people.create")]
         [HttpPost("{personId}/link-user")]
         [ProducesResponseType(typeof(EmployeeUserResponse), 200)]
         [ProducesResponseType(400)]
@@ -1121,6 +1127,7 @@ namespace ShiftWork.Api.Controllers
         /// Admin endpoint: Creates employee with optional user account in one step.
         /// Does not require Firebase token - admin can pre-create accounts.
         /// </summary>
+        [Authorize(Policy = "people.create")]
         [HttpPost("create-with-user")]
         [ProducesResponseType(typeof(EmployeeUserResponse), 201)]
         [ProducesResponseType(400)]

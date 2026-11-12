@@ -434,6 +434,10 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("safety.track", policy => policy.Requirements.Add(new PermissionRequirement("safety.track")));
 
     options.AddMissingPermissionPolicies(typeof(Program).Assembly);
+
+    // Endpoints are private unless they opt out with [AllowAnonymous]: a controller added without
+    // [Authorize] once let anyone assign roles, including Admin.
+    options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
 });
 
 var app = builder.Build();
@@ -527,7 +531,7 @@ app.Use(async (context, next) =>
     }
     await next();
 });
-app.MapPrometheusScrapingEndpoint("/metrics");
+app.MapPrometheusScrapingEndpoint("/metrics").AllowAnonymous();
 
 app.MapControllers();
 
@@ -535,12 +539,12 @@ app.MapControllers();
 app.MapHealthChecks("/health", new HealthCheckOptions
 {
     Predicate = _ => false
-});
+}).AllowAnonymous();
 
 // Readiness: dependency checks (DB connectivity) tagged "ready".
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains("ready")
-});
+}).AllowAnonymous();
 
 app.Run();
