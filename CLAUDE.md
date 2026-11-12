@@ -65,6 +65,7 @@ Three client surfaces share one API:
 - **Sidebar sections:** Scheduling → Workforce → Job sites → Field communication → Integrations (defined in features/dashboard/nav/nav.config.ts)
 - **Design system** → all routed screens use `shared/ui`; new screens must be added to `style-guard.json` (`npm run lint:styles` fails for unlisted templates).
 - **List + form** → forms never sit beside lists; open them in `lz-side-panel`. Lists over 25 rows are paged with `lz-pager`.
+- **Look** → surfaces are `lz-page-header` / `lz-panel` / `lz-table-scroll` cards (border + `shadow-card`); metrics use `lz-kpi-card`; a routed page outside the rail needs an entry in `pageContextFor` (`nav.config.ts`) for its header eyebrow and icon.
 - **Material Icons** → use Google Material icons in `<mat-icon>`. No custom SVGs unless necessary.
 
 ### Mobile (React Native / Expo)

@@ -63,15 +63,17 @@ Audit of `ShiftWork.Angular/src` (2026-11-08):
 | `--lz-open-border` | `#5F7290` | open shift dashed border |
 
 ### Type
-- Display: **Sora** 600 — page titles only (26px / 1.2).
+- Display: **Sora** 600 — page titles (26px / 1.2), panel titles (18px), sub-section headings and card titles (15px), KPI values (26px).
+- Eyebrow (`lz-eyebrow` utility): 12px / 600 / letter-spacing .12em, rendered uppercase by CSS above page and panel titles; the i18n source stays sentence case. Table column headers use the same treatment at .06em.
 - UI: **IBM Plex Sans** 400/500/600. Scale: 18 (section), 15 (label strong), 14 (body), 13 (secondary/column header), 12 (caption/shift detail).
 - Numbers in tables and times: `font-variant-numeric: tabular-nums`.
 - Fonts self-hosted via `@fontsource` (PWA/service worker; no third-party request).
 
 ### Spacing, radius, elevation
 - Spacing scale: 4, 8, 12, 16, 24, 32 (Tailwind default 4px grid).
-- Radius: 4 chips, 6 controls, 8 panels, 12 dialogs.
-- Elevation: page surfaces use a 1px `--lz-line` border and no shadow. Only overlays (menus, dialogs, tooltips) get `--lz-shadow-overlay: 0 8px 24px rgba(15,27,45,.16), 0 1px 3px rgba(15,27,45,.10)`.
+- Radius: pill (999px) chips and badges, 8 controls, list rows and icon tiles, 12 panels, cards and dialogs. *(Amended 2026-11-11 from 4/6/8/12 after William's review: the reference Overview and Procore screens used 10–16px cards and pill badges.)*
+- Elevation: page surfaces (page header, panels, table cards, KPI cards, empty states on the canvas) use a 1px `--lz-line` border plus `--lz-shadow-card: 0 1px 2px rgba(15,27,45,.04), 0 6px 16px rgba(15,27,45,.05)`; nested surfaces drop the shadow. Overlays (menus, dialogs, tooltips, side panels) get `--lz-shadow-overlay: 0 8px 24px rgba(15,27,45,.16), 0 1px 3px rgba(15,27,45,.10)`. *(Amended 2026-11-11: border-only surfaces read flat next to the reference screens.)*
+- Gradients: none, except `--lz-hero-bg` (navy with a soft blue glow) used only by the Overview command band (`lz-page-header variant="hero"`).
 
 ## 4. Components (`src/app/shared/ui/`)
 
@@ -82,6 +84,10 @@ Audit of `ShiftWork.Angular/src` (2026-11-08):
 | Page header | `lz-page-header` | `title` (required), `subtitle?`; slots `[lzHeaderMeta]` (below title) and `[lzHeaderActions]` (right) |
 | Shift block | `lz-shift-block` | `status: 'published' \| 'draft' \| 'open' \| 'conflict' \| 'timeOff' \| 'locked' \| 'void'`, `time`, `detail`, output `activate`. Renders a `<button>`; aria-label includes the status word. |
 | Summary strip | `lz-summary-strip` | `items: LzSummaryItem[]`, output `itemSelect(id)` |
+| Page header (amended) | `lz-page-header` | also `eyebrow?`, `icon?`, `variant: 'card' \| 'hero'`. Default is a raised paper card with a navy/amber icon tile; eyebrow and icon default to the rail section and item via `LZ_PAGE_CONTEXT`, provided by the dashboard shell from `pageContextFor(url)` in `nav.config.ts` |
+| Panel (amended) | `lz-panel` | also `eyebrow?`, `icon?` (link-colored icon before the 18px title) |
+| Icon tile | `lz-icon-tile` | `icon`, `tone: 'brand' \| 'info' \| 'success' \| 'warning' \| 'danger' \| 'neutral' \| 'inverse'`, `size: 'sm' \| 'md' \| 'lg'` (32/40/48px); decorative (`aria-hidden`) |
+| KPI card | `lz-kpi-card` | `icon`, `value`, `label`, `description?`, `trend?`, `trendTone: 'positive' \| 'negative' \| 'neutral'`, `trendIcon?`, `trendSrText?`; the trend pill always carries an icon |
 
 Material components are themed from tokens; no Material class is overridden per screen.
 
@@ -100,7 +106,7 @@ Material components are themed from tokens; no Material class is overridden per 
 
 ## 6. Copy rules
 
-Sentence case everywhere (nav labels, buttons, headers). No ALL-CAPS badges ("LOCKED" → "Locked"). Buttons say what happens ("Publish 7 shifts", not "Submit"). All new strings go through Angular i18n (`i18n="@@…"`) and get Spanish entries in `src/locale/messages.es.xlf`.
+Sentence case everywhere (nav labels, buttons, headers). No ALL-CAPS badges ("LOCKED" → "Locked"); the only uppercase is the CSS eyebrow / column-header treatment. Buttons say what happens ("Publish 7 shifts", not "Submit"). All new strings go through Angular i18n (`i18n="@@…"`) and get Spanish entries in `src/locale/messages.es.xlf`.
 
 ## 7. Accessibility floor
 
