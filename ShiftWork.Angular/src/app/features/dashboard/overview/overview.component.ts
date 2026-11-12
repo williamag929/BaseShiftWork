@@ -7,7 +7,6 @@ import { LocationService } from 'src/app/core/services/location.service';
 import { ShiftEventService } from 'src/app/core/services/shift-event.service';
 import { ScheduleShiftService } from 'src/app/core/services/schedule-shift.service';
 import { TimeOffRequestService } from 'src/app/core/services/time-off-request.service';
-import type { LzSummaryItem } from 'src/app/shared/ui';
 import { Location } from 'src/app/core/models/location.model';
 import { People } from 'src/app/core/models/people.model';
 import { ShiftEvent } from 'src/app/core/models/shift-event.model';
@@ -188,26 +187,6 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
       eta: 'vNext +3'
     }
   ];
-
-  private kpiItemsSource: KpiMetric[] | null = null;
-  private kpiItemsCache: LzSummaryItem[] = [];
-
-  /** Summary-strip view of `kpis`; rebuilt only when `kpis` is replaced so the OnPush strip keeps a stable input. */
-  get kpiItems(): LzSummaryItem[] {
-    if (this.kpiItemsSource !== this.kpis) {
-      this.kpiItemsSource = this.kpis;
-      this.kpiItemsCache = this.kpis.map((metric, index) => {
-        const unit = metric.value.trim().replace(/^[\d.,]+\s*/, '');
-        return {
-          id: `kpi-${index}`,
-          count: Number(metric.value.replace(/[^\d.-]/g, '')) || 0,
-          label: `${metric.label}${unit ? ` (${unit})` : ''} · ${metric.trend}`,
-          tone: metric.trendUp ? 'neutral' : 'danger',
-        };
-      });
-    }
-    return this.kpiItemsCache;
-  }
 
   private clockSub: Subscription = Subscription.EMPTY;
   private dataSub: Subscription = Subscription.EMPTY;
@@ -580,8 +559,28 @@ export class DashboardOverviewComponent implements OnInit, OnDestroy {
     return dynamicItems;
   }
 
-  getLevelClass(level: OpsNotification['level']): string {
-    return `level-${level}`;
+  levelRowClass(level: OpsNotification['level']): string {
+    return level === 'critical'
+      ? 'border-danger/25 bg-danger-bg/60'
+      : level === 'warning'
+        ? 'border-draft-border/30 bg-(--lz-draft-bg-1)'
+        : 'border-link/20 bg-info-bg/60';
+  }
+
+  riskRowClass(location: LocationHealth): string {
+    const risk = this.getGpsRiskClass(location);
+    return risk === 'risk-high'
+      ? 'border-danger/25 bg-danger-bg/60'
+      : risk === 'risk-medium'
+        ? 'border-draft-border/30 bg-(--lz-draft-bg-1)'
+        : 'border-success/25 bg-success-bg/60';
+  }
+
+  /** stroke-dasharray for the r=30 GPS ring. */
+  ringDash(percent: number): string {
+    const circumference = 2 * Math.PI * 30;
+    const filled = (Math.max(0, Math.min(100, percent)) / 100) * circumference;
+    return `${filled.toFixed(2)} ${circumference.toFixed(2)}`;
   }
 
   getGpsRiskClass(location: LocationHealth): string {

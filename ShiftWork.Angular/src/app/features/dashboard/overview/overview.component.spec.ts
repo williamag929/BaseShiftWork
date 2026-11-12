@@ -12,7 +12,7 @@ import { TimeOffRequestService } from 'src/app/core/services/time-off-request.se
 import { selectActiveCompany } from 'src/app/store/company/company.selectors';
 import {
   LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzPageHeaderComponent, LzPanelComponent, LzSegmentedComponent,
-  LzStatusChipComponent, LzSummaryStripComponent,
+  LzStatusChipComponent, LzKpiCardComponent, LzIconTileComponent,
 } from 'src/app/shared/ui';
 import { DashboardOverviewComponent } from './overview.component';
 
@@ -35,7 +35,7 @@ describe('DashboardOverviewComponent (Loqzen design system)', () => {
       declarations: [DashboardOverviewComponent],
       imports: [
         MatIconModule, LzAlertComponent, LzButtonDirective, LzEmptyStateComponent, LzPageHeaderComponent, LzPanelComponent, LzSegmentedComponent,
-        LzStatusChipComponent, LzSummaryStripComponent,
+        LzStatusChipComponent, LzKpiCardComponent, LzIconTileComponent,
       ],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
@@ -59,20 +59,32 @@ describe('DashboardOverviewComponent (Loqzen design system)', () => {
     expect(el().querySelector('lz-page-header h1')).not.toBeNull();
   });
 
-  it('renders the KPI row as lz-summary-strip with four metrics and no mat-card', async () => {
+  it('renders four lz-kpi-card metrics with icon tile, value, label and a trend pill that carries an icon', async () => {
     await setup();
-    const strip = el().querySelector('lz-summary-strip');
-    expect(strip).not.toBeNull();
-    expect(strip!.textContent).toContain('Active Staff');
-    expect(strip!.textContent).toContain('GPS Compliance');
-    expect(el().querySelectorAll('lz-summary-strip .tabular-nums').length).toBe(4);
+    const cards = Array.from(el().querySelectorAll('[data-testid="kpi-grid"] lz-kpi-card'));
+    expect(cards.length).toBe(4);
+    expect(el().querySelector('[data-testid="kpi-grid"]')!.textContent).toContain('Active Staff');
+    cards.forEach(card => {
+      expect(card.querySelector('lz-icon-tile')).not.toBeNull();
+      expect(card.querySelector('[data-testid="kpi-trend"] mat-icon')).not.toBeNull();
+      expect(getComputedStyle(card).boxShadow).not.toBe('none');
+    });
     expect(el().querySelector('mat-card, .kpi-card')).toBeNull();
+  });
+
+  it('opens with the navy command band: eyebrow, title and light text on the hero background', async () => {
+    await setup();
+    const header = el().querySelector('lz-page-header') as HTMLElement;
+    expect(getComputedStyle(header).backgroundImage).toContain('gradient');
+    expect(header.querySelector('[data-testid="page-eyebrow"]')!.textContent).toContain('Operations command');
+    expect(getComputedStyle(header.querySelector('h1')!).color).toBe('rgb(255, 255, 255)');
   });
 
   it('uses lz-panel for sections, never the old panel class', async () => {
     await setup();
     expect(el().querySelectorAll('lz-panel').length).toBeGreaterThanOrEqual(4);
     expect(el().querySelector('.panel, .overview-hero')).toBeNull();
+    expect(el().querySelectorAll('lz-panel .lz-eyebrow').length).toBeGreaterThanOrEqual(4);
   });
 
   it('has exactly one primary action', async () => {
@@ -104,15 +116,29 @@ describe('DashboardOverviewComponent (Loqzen design system)', () => {
     expect(empty!.textContent).toContain('No locations configured yet.');
   });
 
-  it('location compliance is a token-colored bar with a text risk chip, not a conic ring', async () => {
+  it('location compliance is a token-stroked SVG ring with a text risk chip on a tinted row', async () => {
     await setup();
-    const bar = el().querySelector('[role="progressbar"]') as HTMLElement;
-    expect(bar).not.toBeNull();
-    expect(bar.getAttribute('aria-valuenow')).toBe('100');
-    expect(el().querySelector('lz-status-chip')!.textContent!.trim().length).toBeGreaterThan(0);
-    const fill = bar.firstElementChild as HTMLElement;
-    expect(getComputedStyle(fill).backgroundColor).toBe(utilityColor('bg-success'));
-    expect(fill.style.width).toBe('100%');
+    const ring = el().querySelector('[data-testid="gps-ring"][role="progressbar"]') as HTMLElement;
+    expect(ring).not.toBeNull();
+    expect(ring.getAttribute('aria-valuenow')).toBe('100');
+    expect(ring.textContent).toContain('100%');
+    const arc = ring.querySelectorAll('circle')[1] as SVGCircleElement;
+    const probe = document.createElement('div');
+    probe.className = 'text-success';
+    document.body.appendChild(probe);
+    expect(getComputedStyle(arc).stroke).toBe(getComputedStyle(probe).color);
+    probe.remove();
+    const row = el().querySelector('[data-testid="location-row"]') as HTMLElement;
+    expect(row.querySelector('lz-status-chip')!.textContent).toContain('On track');
+    expect(getComputedStyle(row).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+  });
+
+  it('ringDash fills the r=30 circumference proportionally and clamps', async () => {
+    await setup();
+    const c = fixture.componentInstance;
+    expect(c.ringDash(50)).toBe('94.25 188.50');
+    expect(c.ringDash(150)).toBe('188.50 188.50');
+    expect(c.ringDash(-5)).toBe('0.00 188.50');
   });
 
   it('activity chart bars use the link token and an explicit container height', async () => {
@@ -128,18 +154,6 @@ describe('DashboardOverviewComponent (Loqzen design system)', () => {
     await setup();
     const styled = Array.from(el().querySelectorAll('[style]')).map(n => n.getAttribute('style')!);
     styled.forEach(s => expect(s).not.toMatch(/#[0-9a-f]{3,8}|rgb|gradient/i));
-  });
-
-  it('KPI counts strip thousands separators and units: "1,234" -> 1234, "98%" -> 98', async () => {
-    await setup();
-    const c = fixture.componentInstance;
-    c.kpis = [
-      { label: 'A', value: '1,234', trend: 't', trendUp: true, icon: 'badge', description: '' },
-      { label: 'B', value: '98%', trend: 't', trendUp: true, icon: 'badge', description: '' },
-      { label: 'C', value: '3 people', trend: 't', trendUp: true, icon: 'badge', description: '' },
-      { label: 'D', value: 'n/a', trend: 't', trendUp: true, icon: 'badge', description: '' },
-    ];
-    expect(c.kpiItems.map(i => i.count)).toEqual([1234, 98, 3, 0]);
   });
 
   it('range switcher is an lz-segmented whose focus ring is not clipped', async () => {
@@ -158,8 +172,8 @@ describe('DashboardOverviewComponent (Loqzen design system)', () => {
     fixture.detectChanges();
     expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
     const right = host.getBoundingClientRect().right;
-    const actions = Array.from(el().querySelectorAll('lz-page-header button, lz-page-header lz-segmented, lz-page-header lz-status-chip'));
-    expect(actions.length).toBeGreaterThan(3);
+    const actions = Array.from(el().querySelectorAll('lz-page-header button, lz-page-header lz-segmented, lz-page-header [role="status"]'));
+    expect(actions.length).toBeGreaterThanOrEqual(4);
     actions.forEach(a => expect(a.getBoundingClientRect().right).toBeLessThanOrEqual(right + 0.5));
   });
 });

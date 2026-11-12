@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-5">
   <div class="sticky top-0 z-10 bg-canvas">
     <lz-page-header title="Procore integration" i18n-title="@@procore.page_title" subtitle="Push daily-log manpower (workers and hours) to Procore" i18n-subtitle="@@procore.page_subtitle">
       <ng-container lzHeaderActions>
@@ -23,7 +23,7 @@
     <lz-alert tone="info" i18n="@@procore.loading">Loading Procore settings...</lz-alert>
   } @else if (!error) {
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-      <lz-panel heading="Connection" i18n-heading="@@procore.connection_heading" class="min-w-0 self-start">
+      <lz-panel icon="power" heading="Connection" i18n-heading="@@procore.connection_heading" class="min-w-0 self-start">
         <form [formGroup]="connectionForm" (ngSubmit)="saveConnection()" class="flex flex-col gap-4">
           <lz-field label="Procore company ID" i18n-label="@@procore.company_id_label" controlId="procore-company-id" hint="Sent as the Procore-Company-Id header" i18n-hint="@@procore.company_id_hint">
             <input lzField type="text" id="procore-company-id" formControlName="procoreCompanyId" placeholder="For example, 598134" i18n-placeholder="@@procore.company_id_ph" aria-describedby="procore-company-id-hint">
@@ -45,7 +45,7 @@
             <input lzField type="text" id="procore-token-url" formControlName="tokenUrl" aria-required="true" placeholder="https://login.procore.com/oauth/token">
           </lz-field>
 
-          <div class="flex flex-col">
+          <div class="flex flex-col rounded-control border border-line-soft bg-paper-alt px-3">
             <label class="flex min-h-12 items-center gap-3">
               <input type="checkbox" class="size-6 shrink-0" formControlName="enabled">
               <span i18n="@@procore.enable">Enable integration</span>
@@ -60,7 +60,7 @@
             </label>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="flex flex-wrap items-center justify-end gap-2 border-t border-line-soft pt-4">
             <button lzButton variant="secondary" type="button" (click)="testConnection()" [disabled]="testing || !connection">
               @if (testing) {
                 <ng-container i18n="@@procore.testing">Testing...</ng-container>
@@ -77,7 +77,8 @@
             </button>
           </div>
 
-          <p class="flex flex-wrap items-center gap-2 text-[13px] text-ink-soft" data-testid="last-sync">
+          <p class="m-0 flex flex-wrap items-center gap-2 rounded-control border border-line-soft bg-paper-alt px-3 py-2 text-[13px] text-ink-soft" data-testid="last-sync">
+            <mat-icon aria-hidden="true" class="size-[18px]! shrink-0 text-[18px]! text-link">history</mat-icon>
             @if (connection?.lastSyncAt) {
               <span><ng-container i18n="@@procore.last_sync">Last sync:</ng-container> {{ connection?.lastSyncAt | date:'medium' }}</span>
               <lz-status-chip [tone]="syncTone" dot>{{ connection?.lastSyncStatus }}</lz-status-chip>
@@ -90,11 +91,11 @@
       </lz-panel>
 
       <div class="flex min-w-0 flex-col gap-4">
-        <lz-panel heading="Project mapping" i18n-heading="@@procore.projects_heading">
+        <lz-panel icon="map" heading="Project mapping" i18n-heading="@@procore.projects_heading">
           <ng-container lzPanelActions>
-            <lz-status-chip tone="neutral">{{ mappedCount }}/{{ locations.length }} <ng-container i18n="@@procore.mapped">mapped</ng-container></lz-status-chip>
+            <lz-status-chip [tone]="locations.length && mappedCount === locations.length ? 'success' : 'info'">{{ mappedCount }}/{{ locations.length }} <ng-container i18n="@@procore.mapped">mapped</ng-container></lz-status-chip>
           </ng-container>
-          <p class="mb-3 text-ink-soft" i18n="@@procore.projects_hint">Enter each location's Procore project ID. Only mapped locations push to Procore.</p>
+          <p class="mb-4 flex items-start gap-2 text-ink-soft"><mat-icon aria-hidden="true" class="shrink-0 text-link">info</mat-icon><span i18n="@@procore.projects_hint">Enter each location's Procore project ID. Only mapped locations push to Procore.</span></p>
 
           @if (locations.length === 0) {
             <lz-empty-state icon="map" title="No locations to map" i18n-title="@@procore.no_locations" body="Add locations first, then map them to Procore projects" i18n-body="@@procore.no_locations_body" />
@@ -134,11 +135,11 @@
           }
         </lz-panel>
 
-        <lz-panel heading="Employee mapping" i18n-heading="@@procore.employees_heading">
+        <lz-panel icon="groups" heading="Employee mapping" i18n-heading="@@procore.employees_heading">
           <ng-container lzPanelActions>
-            <lz-status-chip tone="neutral">{{ mappedEmployeeCount }}/{{ people.length }} <ng-container i18n="@@procore.mapped">mapped</ng-container></lz-status-chip>
+            <lz-status-chip [tone]="people.length && mappedEmployeeCount === people.length ? 'success' : 'info'">{{ mappedEmployeeCount }}/{{ people.length }} <ng-container i18n="@@procore.mapped">mapped</ng-container></lz-status-chip>
           </ng-container>
-          <p class="mb-3 text-ink-soft" i18n="@@procore.employees_hint">Enter each employee's Procore worker or party ID. Required for timesheet sync. Unmapped employees are skipped when timecards are pushed.</p>
+          <p class="mb-4 flex items-start gap-2 text-ink-soft"><mat-icon aria-hidden="true" class="shrink-0 text-link">info</mat-icon><span i18n="@@procore.employees_hint">Enter each employee's Procore worker or party ID. Required for timesheet sync. Unmapped employees are skipped when timecards are pushed.</span></p>
 
           @if (people.length === 0) {
             <lz-empty-state icon="person" title="No employees to map" i18n-title="@@procore.no_employees" body="Add employees first, then map them to Procore workers" i18n-body="@@procore.no_employees_body" />
@@ -148,7 +149,7 @@
             </lz-field>
 
             @if (filteredPeople.length === 0) {
-              <p class="text-ink-soft" role="status" i18n="@@procore.no_match">No employees match your search.</p>
+              <p class="m-0 text-ink-soft" role="status" i18n="@@procore.no_match">No employees match your search.</p>
             } @else {
               <lz-table-scroll>
                 <table lzTable>
