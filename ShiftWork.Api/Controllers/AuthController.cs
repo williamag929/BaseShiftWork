@@ -95,12 +95,14 @@ namespace ShiftWork.Api.Controllers
         /// </summary>
         /// <param name="id">The email address of the user.</param>
         /// <returns>The person associated with the email.</returns>
-        [Authorize]
+        // Anonymous because kiosk setup resolves its company from an email before any session exists.
+        // Only the company id is returned: this used to send the whole Person, PIN and password hash included.
+        [AllowAnonymous]
         [HttpGet("user/{id}")]
-        [ProducesResponseType(typeof(Person), 200)]
+        [ProducesResponseType(typeof(CompanyLookupResponse), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<Person>> GetUser(string id)
+        public async Task<ActionResult<CompanyLookupResponse>> GetUser(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -116,7 +118,7 @@ namespace ShiftWork.Api.Controllers
                     return NotFound($"User with email '{id}' not found.");
                 }
 
-                return Ok(person);
+                return Ok(new CompanyLookupResponse(person.CompanyId));
             }
             catch (Exception ex)
             {
@@ -572,4 +574,6 @@ namespace ShiftWork.Api.Controllers
         string Email,
         string Password
     );
+
+    public record CompanyLookupResponse(string CompanyId);
 }

@@ -15,6 +15,7 @@ public class EndpointExposureTests
     private static readonly string[] ApprovedAnonymous =
     {
         "AuthController.AcceptInvite",
+        "AuthController.GetUser",
         "AuthController.Login",
         "AuthController.VerifyPin",
         "KioskController.AcknowledgeSafety",
@@ -79,7 +80,6 @@ public class EndpointExposureTests
 
     [Theory]
     [InlineData(typeof(CompanyController), "GetCompanies")]
-    [InlineData(typeof(AuthController), "GetUser")]
     [InlineData(typeof(AuthController), "GetCurrentUser")]
     [InlineData(typeof(PeopleController), "CompleteInvite")]
     public void FormerlyOpenEndpoints_RequireASession(Type controller, string action)
@@ -87,5 +87,13 @@ public class EndpointExposureTests
         var method = controller.GetMethods().Single(m => m.Name == action);
         Assert.True(method.IsDefined(typeof(AuthorizeAttribute), true));
         Assert.False(method.IsDefined(typeof(AllowAnonymousAttribute), true));
+    }
+
+    [Fact]
+    public void KioskEmailLookup_ReturnsOnlyTheCompanyId()
+    {
+        var method = typeof(AuthController).GetMethod(nameof(AuthController.GetUser))!;
+        Assert.Equal(typeof(Task<ActionResult<CompanyLookupResponse>>), method.ReturnType);
+        Assert.Equal(new[] { "CompanyId" }, typeof(CompanyLookupResponse).GetProperties().Select(p => p.Name).ToArray());
     }
 }
