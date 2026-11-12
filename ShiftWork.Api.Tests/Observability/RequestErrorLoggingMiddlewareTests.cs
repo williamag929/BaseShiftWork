@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using ShiftWork.Api.Middleware;
 using Xunit;
@@ -70,11 +69,7 @@ public class RequestErrorLoggingMiddlewareTests
         if (userId != null)
             context.User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("user_id", userId) }, "test"));
         if (companyId != null)
-        {
-            var routeData = new RouteData();
-            routeData.Values["companyId"] = companyId;
-            context.Features.Set<IRoutingFeature>(new RoutingFeature { RouteData = routeData });
-        }
+            context.Request.RouteValues["companyId"] = companyId;
         return context;
     }
 
