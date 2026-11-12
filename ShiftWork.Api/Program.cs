@@ -432,6 +432,8 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("safety.create", policy => policy.Requirements.Add(new PermissionRequirement("safety.create")));
     options.AddPolicy("safety.delete", policy => policy.Requirements.Add(new PermissionRequirement("safety.delete")));
     options.AddPolicy("safety.track", policy => policy.Requirements.Add(new PermissionRequirement("safety.track")));
+
+    options.AddMissingPermissionPolicies(typeof(Program).Assembly);
 });
 
 var app = builder.Build();
