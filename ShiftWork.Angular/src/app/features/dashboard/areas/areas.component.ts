@@ -104,8 +104,7 @@ export class AreasComponent implements OnInit, OnDestroy {
     this.areaForm = this.fb.group({
       name: ['', Validators.required],
       locationId: ['', Validators.required],
-      costCodeId: [''],
-      status: ['Active', Validators.required]
+      costCodeId: ['']
     });
   }
 
@@ -157,8 +156,7 @@ export class AreasComponent implements OnInit, OnDestroy {
     this.areaForm.reset({
       name: '',
       locationId: '',
-      costCodeId: '',
-      status: 'Active'
+      costCodeId: ''
     });
   }
 

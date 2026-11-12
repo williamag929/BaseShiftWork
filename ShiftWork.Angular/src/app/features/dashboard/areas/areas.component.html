@@ -30,7 +30,6 @@
               <th scope="col" i18n="@@areas.col_name">Area</th>
               <th scope="col" i18n="@@areas.col_location">Location</th>
               <th scope="col" i18n="@@areas.col_cost_code">Cost code</th>
-              <th scope="col" i18n="@@areas.col_status">Status</th>
               <th scope="col" class="text-right" i18n="@@areas.col_actions">Actions</th>
             </tr>
           </thead>
@@ -40,15 +39,6 @@
                 <td class="font-medium text-ink">{{ area.name }}</td>
                 <td>{{ getLocationName(area.locationId) }}</td>
                 <td>{{ getCostCodeLabel(area.costCodeId) || '—' }}</td>
-                <td>
-                  <lz-status-chip [tone]="area.status === 'Active' ? 'success' : 'neutral'" [dot]="true">
-                    @if (area.status === 'Active') {
-                      <ng-container i18n="@@common.active">Active</ng-container>
-                    } @else {
-                      <ng-container i18n="@@common.inactive">Inactive</ng-container>
-                    }
-                  </lz-status-chip>
-                </td>
                 <td (click)="$event.stopPropagation()">
                   <div class="flex justify-end gap-1">
                     <button #editBtn lzButton variant="quiet" iconOnly type="button" [attr.aria-label]="editLabel(area)" (click)="openerEl = editBtn; editArea(area)">
@@ -96,13 +86,6 @@
           @for (costCode of costCodes; track costCode.costCodeId) {
             <option [value]="costCode.costCodeId">{{ costCode.code }} — {{ costCode.name }}</option>
           }
-        </select>
-      </lz-field>
-
-      <lz-field label="Status" i18n-label="@@areas.status_label" hint="Set to Inactive to temporarily disable this area" i18n-hint="@@areas.status_hint" controlId="status">
-        <select lzField id="status" formControlName="status">
-          <option value="Active" i18n="@@common.active">Active</option>
-          <option value="Inactive" i18n="@@common.inactive">Inactive</option>
         </select>
       </lz-field>
 

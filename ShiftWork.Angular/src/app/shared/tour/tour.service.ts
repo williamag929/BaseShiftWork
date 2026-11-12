@@ -16,7 +16,7 @@ export class TourService {
 
   readonly steps: TourStep[] = [
     {
-      title: '👋 Welcome to ShiftWork!',
+      title: '👋 Welcome to Loqzen!',
       content:
         "This quick tour walks you through the key features. " +
         "You can skip it now and replay it anytime with the Help button.",

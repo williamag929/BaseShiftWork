@@ -92,14 +92,15 @@ describe('AreasComponent (Loqzen design system)', () => {
     expect(el().querySelector('i.fa, .panel-card, .btn, .btn-submit')).toBeNull();
   });
 
-  it('lists areas in lz-table-scroll with location, cost code and status text', async () => {
-    await setup([area(1, { costCodeId: 3 }), area(2, { status: 'Inactive' })]);
+  it('lists areas in lz-table-scroll with location and cost code, and no status the API does not store', async () => {
+    await setup([area(1, { costCodeId: 3 }), area(2)]);
     expect(el().querySelector('lz-table-scroll table')).not.toBeNull();
     el().querySelectorAll('thead th').forEach(th => expect(th.getAttribute('scope')).toBe('col'));
     const first = el().querySelector('tbody tr')!.textContent!;
     expect(first).toContain('HQ');
     expect(first).toContain('01-100 — Labor');
-    expect(Array.from(el().querySelectorAll('lz-status-chip')).map(c => c.textContent!.trim())).toEqual(['Active', 'Inactive']);
+    expect(el().querySelector('lz-status-chip')).toBeNull();
+    expect(el().querySelector('#status')).toBeNull();
     expect(el().querySelector('[aria-label="Edit Area 1"]')).not.toBeNull();
   });
 
