@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
+import { LogService } from '../../../core/services/log.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -14,7 +15,8 @@ export class SignInComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    public authService: AuthService
+    public authService: AuthService,
+    private log: LogService
   ) {
     this.signInForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -33,6 +35,7 @@ export class SignInComponent implements OnInit {
       try {
         await this.authService.SignIn(email, password);
       } catch (error: any) {
+        this.log.error('sign-in', error);
         this.errorMessage = this.getFirebaseErrorMessage(error);
       } finally {
         this.loading = false;
@@ -46,6 +49,7 @@ export class SignInComponent implements OnInit {
     try {
       await this.authService.googleSignIn();
     } catch (error: any) {
+      this.log.error('google-sign-in', error);
       this.errorMessage = this.getFirebaseErrorMessage(error);
     } finally {
       this.loading = false;

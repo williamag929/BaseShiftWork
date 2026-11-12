@@ -1,3 +1,4 @@
+import { LogService } from './log.service';
 import { Injectable, NgZone, Injector, runInInjectionContext } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
@@ -32,7 +33,8 @@ export class AuthService {
     private http: HttpClient,
     private peopleService: PeopleService,
     private permissionService: PermissionService,
-    private injector: Injector
+    private injector: Injector,
+    private log: LogService
   ) {
     this.afAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
 
@@ -127,7 +129,7 @@ export class AuthService {
       );
       await userRef.set(userData, { merge: true });
     } catch (error) {
-      console.error('Firestore SetUserData failed (non-blocking)', error);
+      this.log.warn('auth.set-user-data', error);
     }
   }
 
@@ -256,7 +258,7 @@ export class AuthService {
   }
 
   private handleError(error: any): void {
-    console.error('Error occurred:', error);
+    this.log.error('auth', error);
     this.toastr.error(error.message || 'An error occurred');
   }
 
@@ -267,7 +269,7 @@ export class AuthService {
     } else {
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
     }
-    console.error(errorMessage);
+    this.log.error('auth.http', { status: error.status, url: error.url, message: error.message });
     return throwError(() => new Error(errorMessage));
   }
 

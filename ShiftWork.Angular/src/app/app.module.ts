@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { StoreModule } from '@ngrx/store';
@@ -18,6 +18,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
+import { GlobalErrorHandler } from './core/errors/global-error-handler';
+import { HttpErrorLogInterceptor } from './core/interceptors/http-error-log.interceptor';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { storageSyncMetaReducer } from 'ngrx-store-persist';
 import { ActionReducer, MetaReducer } from '@ngrx/store';
@@ -58,7 +60,9 @@ import { getAllDataFromLocalForage } from 'ngrx-store-persist';
       useClass: AuthInterceptor,
       multi: true,
 
-    }
+    },
+    { provide: HTTP_INTERCEPTORS, useClass: HttpErrorLogInterceptor, multi: true },
+    { provide: ErrorHandler, useClass: GlobalErrorHandler }
   ],
   bootstrap: [AppComponent]
 })
