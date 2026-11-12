@@ -910,10 +910,6 @@
           <context context-type="sourcefile">src/app/features/auth/accept-invite/accept-invite.component.html</context>
           <context context-type="linenumber">59</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/auth/accept-invite/accept-invite.component.html</context>
-          <context context-type="linenumber">81</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="auth.accept_invite.password_min" datatype="html">
         <source>Password must be at least 6 characters</source>
@@ -934,6 +930,13 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/accept-invite/accept-invite.component.html</context>
           <context context-type="linenumber">77</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.accept_invite.toggle_confirm_password" datatype="html">
+        <source>Show confirm password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/accept-invite/accept-invite.component.html</context>
+          <context context-type="linenumber">81</context>
         </context-group>
       </trans-unit>
       <trans-unit id="auth.accept_invite.password_mismatch" datatype="html">
@@ -957,7 +960,7 @@
           <context context-type="linenumber">94</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="auth.login.no_account" datatype="html">
+      <trans-unit id="auth.have_account" datatype="html">
         <source>Already have an account?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/accept-invite/accept-invite.component.html</context>
@@ -1421,42 +1424,49 @@
         <source>Late</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/active-sites/active-sites.component.ts</context>
-          <context context-type="linenumber">129</context>
+          <context context-type="linenumber">130</context>
         </context-group>
       </trans-unit>
       <trans-unit id="active_sites.timing_early" datatype="html">
         <source>Early</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/active-sites/active-sites.component.ts</context>
-          <context context-type="linenumber">130</context>
+          <context context-type="linenumber">131</context>
         </context-group>
       </trans-unit>
       <trans-unit id="active_sites.timing_no_schedule" datatype="html">
         <source>No schedule</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/active-sites/active-sites.component.ts</context>
-          <context context-type="linenumber">131</context>
+          <context context-type="linenumber">132</context>
         </context-group>
       </trans-unit>
       <trans-unit id="active_sites.timing_on_time" datatype="html">
         <source>On time</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/active-sites/active-sites.component.ts</context>
-          <context context-type="linenumber">132</context>
+          <context context-type="linenumber">133</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="active_sites.timing_unknown" datatype="html">
+        <source>Unknown</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/active-sites/active-sites.component.ts</context>
+          <context context-type="linenumber">134</context>
         </context-group>
       </trans-unit>
       <trans-unit id="active_sites.review_aria" datatype="html">
         <source>Mark <x id="name" equiv-text="entry.name"/> as reviewed</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/active-sites/active-sites.component.ts</context>
-          <context context-type="linenumber">137</context>
+          <context context-type="linenumber">139</context>
         </context-group>
       </trans-unit>
       <trans-unit id="active_sites.review_error" datatype="html">
         <source>Could not mark the flag as reviewed.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/active-sites/active-sites.component.ts</context>
-          <context context-type="linenumber">149</context>
+          <context context-type="linenumber">151</context>
         </context-group>
       </trans-unit>
       <trans-unit id="analytics.title" datatype="html">
@@ -1866,11 +1876,46 @@
           <context context-type="linenumber">98</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="analytics.kpi_worked" datatype="html">
+        <source>Worked hours</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/analytics/components/kpi-cards.component.ts</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_scheduled" datatype="html">
+        <source>Scheduled hours</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/analytics/components/kpi-cards.component.ts</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_on_time" datatype="html">
+        <source>On-time %</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/analytics/components/kpi-cards.component.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="analytics.kpi_open_shifts" datatype="html">
+        <source>Open shifts</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/analytics/components/kpi-cards.component.ts</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="analytics.no_change" datatype="html">
+        <source>no change</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/analytics/components/kpi-cards.component.ts</context>
+          <context context-type="linenumber">42</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="analytics.delta_better" datatype="html">
         <source>better than the previous period</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/analytics/components/kpi-cards.component.ts</context>
-          <context context-type="linenumber">42</context>
+          <context context-type="linenumber">43</context>
         </context-group>
       </trans-unit>
       <trans-unit id="analytics.delta_worse" datatype="html">
@@ -1878,13 +1923,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/analytics/components/kpi-cards.component.ts</context>
           <context context-type="linenumber">44</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="analytics.no_change" datatype="html">
-        <source>no change</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/dashboard/analytics/components/kpi-cards.component.ts</context>
-          <context context-type="linenumber">50</context>
         </context-group>
       </trans-unit>
       <trans-unit id="areas.page_title" datatype="html">
@@ -3955,6 +3993,14 @@ Option C</source>
           <context context-type="linenumber">196</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/schedule-grid/schedule-grid.component.html</context>
+          <context context-type="linenumber">408</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/schedule-grid/schedule-grid.component.html</context>
+          <context context-type="linenumber">547</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/kiosk/audit-history/audit-history-dialog.component.ts</context>
           <context context-type="linenumber">150</context>
         </context-group>
@@ -5335,28 +5381,28 @@ Option C</source>
         <source>On shift</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/dashboard.component.ts</context>
-          <context context-type="linenumber">158</context>
+          <context context-type="linenumber">172</context>
         </context-group>
       </trans-unit>
       <trans-unit id="nav.status.off_shift" datatype="html">
         <source>Off shift</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/dashboard.component.ts</context>
-          <context context-type="linenumber">159</context>
+          <context context-type="linenumber">173</context>
         </context-group>
       </trans-unit>
       <trans-unit id="nav.expand" datatype="html">
         <source>Expand navigation</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/dashboard.component.ts</context>
-          <context context-type="linenumber">176</context>
+          <context context-type="linenumber">190</context>
         </context-group>
       </trans-unit>
       <trans-unit id="nav.collapse" datatype="html">
         <source>Collapse navigation</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/dashboard.component.ts</context>
-          <context context-type="linenumber">177</context>
+          <context context-type="linenumber">191</context>
         </context-group>
       </trans-unit>
       <trans-unit id="documents.title" datatype="html">
@@ -6562,50 +6608,57 @@ Option C</source>
           <context context-type="linenumber">75</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="nav.section.account" datatype="html">
+        <source>Account</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/nav/nav.config.ts</context>
+          <context context-type="linenumber">80</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="nav.procore.failed" datatype="html">
         <source>Procore sync failed</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/nav/nav.config.ts</context>
-          <context context-type="linenumber">95</context>
+          <context context-type="linenumber">122</context>
         </context-group>
       </trans-unit>
       <trans-unit id="nav.procore.connected" datatype="html">
         <source>Procore connected</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/nav/nav.config.ts</context>
-          <context context-type="linenumber">98</context>
+          <context context-type="linenumber">125</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/nav/nav.config.ts</context>
-          <context context-type="linenumber">102</context>
+          <context context-type="linenumber">129</context>
         </context-group>
       </trans-unit>
       <trans-unit id="nav.procore.synced_today" datatype="html">
         <source>Synced with Procore today</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/nav/nav.config.ts</context>
-          <context context-type="linenumber">106</context>
+          <context context-type="linenumber">133</context>
         </context-group>
       </trans-unit>
       <trans-unit id="nav.procore.synced_min" datatype="html">
         <source>Synced with Procore <x id="n" equiv-text="n"/> min ago</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/nav/nav.config.ts</context>
-          <context context-type="linenumber">110</context>
+          <context context-type="linenumber">137</context>
         </context-group>
       </trans-unit>
       <trans-unit id="nav.procore.synced_hour" datatype="html">
         <source>Synced with Procore <x id="n" equiv-text="n"/> h ago</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/nav/nav.config.ts</context>
-          <context context-type="linenumber">114</context>
+          <context context-type="linenumber">141</context>
         </context-group>
       </trans-unit>
       <trans-unit id="nav.procore.synced_date" datatype="html">
         <source>Synced with Procore on <x id="date" equiv-text="date"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/nav/nav.config.ts</context>
-          <context context-type="linenumber">117</context>
+          <context context-type="linenumber">144</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.title" datatype="html">
@@ -6619,210 +6672,273 @@ Option C</source>
         <source>Operations command</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">4</context>
+          <context context-type="linenumber">2</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.subtitle" datatype="html">
         <source>real-time visibility of attendance, GPS compliance, labor health, and location-level exceptions.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">6</context>
+          <context context-type="linenumber">5</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.refreshing" datatype="html">
         <source>Refreshing data...</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">12</context>
+          <context context-type="linenumber">13</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.range_label" datatype="html">
         <source>Data range</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">18</context>
+          <context context-type="linenumber">20</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.live_sync" datatype="html">
         <source>Live sync</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">21</context>
+          <context context-type="linenumber">23</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.kpi_label" datatype="html">
         <source>Key metrics</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">26</context>
+          <context context-type="linenumber">28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="overview.shift_pulse" datatype="html">
+        <source>Shift pulse</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
+          <context context-type="linenumber">42</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.clock_activity" datatype="html">
         <source>Clock-in activity</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">31</context>
+          <context context-type="linenumber">42</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.open_summaries" datatype="html">
         <source>Open shift summaries</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">32</context>
+          <context context-type="linenumber">43</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.activity_chart_label" datatype="html">
         <source>Hourly clock-in activity chart</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">34</context>
+          <context context-type="linenumber">45</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.peak_label" datatype="html">
         <source>Peak:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">52</context>
+          <context context-type="linenumber">63</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.checkins_hour" datatype="html">
         <source>check-ins/hour</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">52</context>
+          <context context-type="linenumber">63</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.trend_label" datatype="html">
         <source>Trend:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">53</context>
+          <context context-type="linenumber">64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="overview.action_queue" datatype="html">
+        <source>Action queue</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
+          <context context-type="linenumber">68</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.alerts_title" datatype="html">
         <source>Operational alerts</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">57</context>
+          <context context-type="linenumber">68</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.notifications_open" datatype="html">
         <source>open</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">58</context>
+          <context context-type="linenumber">69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="overview.level_critical" datatype="html">
+        <source>Critical:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
+          <context context-type="linenumber">83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="overview.level_warning" datatype="html">
+        <source>Warning:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
+          <context context-type="linenumber">84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="overview.level_info" datatype="html">
+        <source>Information:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
+          <context context-type="linenumber">85</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.review_team" datatype="html">
         <source>Review team impact</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">70</context>
+          <context context-type="linenumber">97</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.location_section_label" datatype="html">
         <source>Location health and GPS compliance</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">74</context>
+          <context context-type="linenumber">101</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="overview.by_location" datatype="html">
+        <source>By location</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
+          <context context-type="linenumber">102</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.gps_compliance" datatype="html">
         <source>GPS and attendance compliance</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">75</context>
+          <context context-type="linenumber">102</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.manage_locations" datatype="html">
         <source>Manage locations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">76</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="overview.gps_ring" datatype="html">
-        <source>GPS</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">85</context>
+          <context context-type="linenumber">103</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.risk_high" datatype="html">
         <source>At risk</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">88</context>
+          <context context-type="linenumber">118</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.risk_medium" datatype="html">
         <source>Watch</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">89</context>
+          <context context-type="linenumber">119</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.risk_low" datatype="html">
         <source>On track</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">90</context>
+          <context context-type="linenumber">120</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.on_shift" datatype="html">
         <source>on shift</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">95</context>
+          <context context-type="linenumber">125</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.late_label" datatype="html">
         <source>late</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">96</context>
+          <context context-type="linenumber">126</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.no_gps" datatype="html">
         <source>missing GPS</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">97</context>
+          <context context-type="linenumber">127</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="overview.gps_ring" datatype="html">
+        <source>GPS</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
+          <context context-type="linenumber">152</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.loading_locations" datatype="html">
         <source>Loading location health…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">119</context>
+          <context context-type="linenumber">159</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.no_locations" datatype="html">
         <source>No locations configured yet.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">121</context>
+          <context context-type="linenumber">161</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="overview.next_moves" datatype="html">
+        <source>Next moves</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
+          <context context-type="linenumber">165</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.recommended_actions" datatype="html">
         <source>Recommended actions</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">125</context>
+          <context context-type="linenumber">165</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="overview.roadmap" datatype="html">
+        <source>Roadmap</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
+          <context context-type="linenumber">182</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.next_features" datatype="html">
         <source>Recommended features for next version</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">142</context>
+          <context context-type="linenumber">182</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="overview.next_features_label" datatype="html">
+        <source>Recommended features for next dashboard version</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
+          <context context-type="linenumber">182</context>
         </context-group>
       </trans-unit>
       <trans-unit id="overview.expected_impact" datatype="html">
         <source>Expected impact:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/overview/overview.component.html</context>
-          <context context-type="linenumber">152</context>
+          <context context-type="linenumber">192</context>
         </context-group>
       </trans-unit>
       <trans-unit id="people_mgmt.page_title" datatype="html">
@@ -7463,162 +7579,162 @@ Option C</source>
         <source>Last sync:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">82</context>
+          <context context-type="linenumber">83</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.never_synced" datatype="html">
         <source>Last sync: never</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">85</context>
+          <context context-type="linenumber">86</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.not_synced_chip" datatype="html">
         <source>Not synced</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">86</context>
+          <context context-type="linenumber">87</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.projects_heading" datatype="html">
         <source>Project mapping</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">93</context>
+          <context context-type="linenumber">94</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.mapped" datatype="html">
         <source>mapped</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">95</context>
+          <context context-type="linenumber">96</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">139</context>
+          <context context-type="linenumber">140</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.projects_hint" datatype="html">
         <source>Enter each location&apos;s Procore project ID. Only mapped locations push to Procore.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">97</context>
+          <context context-type="linenumber">98</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.no_locations" datatype="html">
         <source>No locations to map</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">100</context>
+          <context context-type="linenumber">101</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.no_locations_body" datatype="html">
         <source>Add locations first, then map them to Procore projects</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">100</context>
+          <context context-type="linenumber">101</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.col_location" datatype="html">
         <source>Location</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">106</context>
+          <context context-type="linenumber">107</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.col_project_id" datatype="html">
         <source>Procore project ID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">107</context>
+          <context context-type="linenumber">108</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.col_actions" datatype="html">
         <source>Actions</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">108</context>
+          <context context-type="linenumber">109</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">159</context>
+          <context context-type="linenumber">160</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.project_id_ph" datatype="html">
         <source>Procore project ID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">119</context>
+          <context context-type="linenumber">120</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.employees_heading" datatype="html">
         <source>Employee mapping</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">137</context>
+          <context context-type="linenumber">138</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.employees_hint" datatype="html">
         <source>Enter each employee&apos;s Procore worker or party ID. Required for timesheet sync. Unmapped employees are skipped when timecards are pushed.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">141</context>
+          <context context-type="linenumber">142</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.no_employees" datatype="html">
         <source>No employees to map</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">144</context>
+          <context context-type="linenumber">145</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.no_employees_body" datatype="html">
         <source>Add employees first, then map them to Procore workers</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">144</context>
+          <context context-type="linenumber">145</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.search_label" datatype="html">
         <source>Search employees</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">146</context>
+          <context context-type="linenumber">147</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.search_ph" datatype="html">
         <source>Search by name, email or ID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">147</context>
+          <context context-type="linenumber">148</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.no_match" datatype="html">
         <source>No employees match your search.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">151</context>
+          <context context-type="linenumber">152</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.col_employee" datatype="html">
         <source>Employee</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">157</context>
+          <context context-type="linenumber">158</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.col_worker_id" datatype="html">
         <source>Procore worker ID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">158</context>
+          <context context-type="linenumber">159</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.worker_id_ph" datatype="html">
         <source>Procore worker ID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/procore/procore.component.html</context>
-          <context context-type="linenumber">170</context>
+          <context context-type="linenumber">171</context>
         </context-group>
       </trans-unit>
       <trans-unit id="procore.secret_stored_hint" datatype="html">
@@ -9832,7 +9948,7 @@ Option C</source>
         </context-group>
       </trans-unit>
       <trans-unit id="schedule_grid.bulk_builder" datatype="html">
-        <source>Bulk Schedule Builder</source>
+        <source>Bulk schedule builder</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/schedule-grid/schedule-grid.component.html</context>
           <context context-type="linenumber">546</context>
@@ -9874,28 +9990,28 @@ Option C</source>
         </context-group>
       </trans-unit>
       <trans-unit id="schedule_grid.bulk_start_date" datatype="html">
-        <source>Start Date</source>
+        <source>Start date</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/schedule-grid/schedule-grid.component.html</context>
           <context context-type="linenumber">579</context>
         </context-group>
       </trans-unit>
       <trans-unit id="schedule_grid.bulk_end_date" datatype="html">
-        <source>End Date</source>
+        <source>End date</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/schedule-grid/schedule-grid.component.html</context>
           <context context-type="linenumber">583</context>
         </context-group>
       </trans-unit>
       <trans-unit id="schedule_grid.bulk_start_time" datatype="html">
-        <source>Start Time</source>
+        <source>Start time</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/schedule-grid/schedule-grid.component.html</context>
           <context context-type="linenumber">590</context>
         </context-group>
       </trans-unit>
       <trans-unit id="schedule_grid.bulk_end_time" datatype="html">
-        <source>End Time</source>
+        <source>End time</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/dashboard/schedule-grid/schedule-grid.component.html</context>
           <context context-type="linenumber">594</context>
@@ -13304,6 +13420,48 @@ Option C</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/registration/verify-email.component.ts</context>
           <context context-type="linenumber">114</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="tour.step_counter" datatype="html">
+        <source>Step <x id="INTERPOLATION" equiv-text="{{ stepIndex + 1 }}"/> of <x id="INTERPOLATION_1" equiv-text="{{ totalSteps }}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/tour/tour-overlay.component.html</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="tour.close" datatype="html">
+        <source>Close tour</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/tour/tour-overlay.component.html</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="tour.skip" datatype="html">
+        <source>Skip</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/tour/tour-overlay.component.html</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="tour.back" datatype="html">
+        <source>Back</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/tour/tour-overlay.component.html</context>
+          <context context-type="linenumber">35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="tour.finish" datatype="html">
+        <source>Finish</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/tour/tour-overlay.component.html</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="tour.next" datatype="html">
+        <source>Next</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/tour/tour-overlay.component.html</context>
+          <context context-type="linenumber">38</context>
         </context-group>
       </trans-unit>
       <trans-unit id="ui.pager.rows_per_page" datatype="html">
